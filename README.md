@@ -12,9 +12,6 @@ $ npm install
 ## Running the app
 
 ```bash
-# start complementing services
-$ docker-compose start
-
 # development
 $ npm run start
 
