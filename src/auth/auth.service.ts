@@ -64,12 +64,12 @@ export class AuthService {
 
   async submitSignupToken(submitToken: string, dto: SubmitSignupDto) {
     const payload = this.tokenService.validateSignupToken(submitToken);
-    let user = await this.userRepository.findOne({ email: payload.sub });
-    if (user) {
+    const count = await this.userRepository.count({ email: payload.sub });
+    if (count > 0) {
       throw new EmailAlreadyUsedException();
     }
 
-    user = new User();
+    const user = new User();
     user.id = this.randomService.id();
     user.email = payload.sub;
     user.firstName = dto.firstName;

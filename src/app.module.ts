@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth';
 import { UserModule, User } from './user';
 import { CommonModule, ConfigService } from './common';
+import { ProjectModule } from './project/project.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CommonModule, ConfigService } from './common';
     AuthModule,
     UserModule,
     CommonModule,
+    ProjectModule,
   ],
   controllers: [AppController],
 })

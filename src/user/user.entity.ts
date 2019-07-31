@@ -1,5 +1,5 @@
 import { BaseEntity, BigIntTransformer } from '../common';
-import { PrimaryColumn, Entity, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { PrimaryColumn, Entity, Column } from 'typeorm';
 import { IsString, IsEmail, MaxLength, IsNumber } from 'class-validator';
 
 @Entity({ name: 'users' })
