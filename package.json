@@ -29,6 +29,7 @@
     "base64url": "^3.0.1",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.9.1",
+    "cookie-parser": "^1.4.4",
     "envalid": "^5.0.0",
     "moment": "^2.24.0",
     "pg": "^7.12.0",

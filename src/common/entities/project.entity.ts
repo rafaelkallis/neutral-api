@@ -1,6 +1,7 @@
-import { BaseEntity } from '../common';
 import { PrimaryColumn, Entity, Column } from 'typeorm';
 import { IsString, IsEmail, MaxLength, IsNumber } from 'class-validator';
+
+import { BaseEntity } from './base.entity';
 
 @Entity({ name: 'projects' })
 export class Project extends BaseEntity {

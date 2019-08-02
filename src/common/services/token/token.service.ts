@@ -17,7 +17,7 @@ export class TokenService {
     private randomService: RandomService,
   ) {}
 
-  public newLoginToken(sub: string): string {
+  public newLoginToken(sub: string, lastLoginAt: number): string {
     const payload: ILoginToken = {
       jti: this.randomService.id(),
       aud: TokenAud.LOGIN,
@@ -26,6 +26,7 @@ export class TokenService {
       exp: moment()
         .add(this.configService.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
+      lastLoginAt,
     };
     return this.encrypt(payload);
   }
@@ -99,6 +100,36 @@ export class TokenService {
       throw new TokenAudienceIncorrectException();
     }
     return payload as IRefreshToken;
+  }
+
+  public newEmailChangeToken(
+    sub: string,
+    curEmail: string,
+    newEmail: string,
+  ): string {
+    const payload: IEmailChangeToken = {
+      jti: this.randomService.id(),
+      aud: TokenAud.EMAIL_CHANGE,
+      sub,
+      iat: moment().unix(),
+      exp: moment()
+        .add(
+          this.configService.get('EMAIL_CHANGE_TOKEN_LIFETIME_MIN'),
+          'minutes',
+        )
+        .unix(),
+      curEmail,
+      newEmail,
+    };
+    return this.encrypt(payload);
+  }
+
+  public validateEmailChangeToken(token: string): IEmailChangeToken {
+    const payload = this.decrypt(token);
+    if (payload.aud !== TokenAud.EMAIL_CHANGE) {
+      throw new TokenAudienceIncorrectException();
+    }
+    return payload as IEmailChangeToken;
   }
 
   /**
@@ -182,9 +213,10 @@ export class TokenService {
  */
 export enum TokenAud {
   LOGIN = 'login_token',
-  SIGNUP = 'verify_token',
+  SIGNUP = 'signup_token',
   ACCESS = 'access_token',
   REFRESH = 'refresh_token',
+  EMAIL_CHANGE = 'email_change_token',
 }
 
 interface IBaseToken {
@@ -200,6 +232,7 @@ interface IBaseToken {
  */
 export interface ILoginToken extends IBaseToken {
   aud: TokenAud.LOGIN;
+  lastLoginAt: number;
 }
 
 /**
@@ -221,4 +254,13 @@ export interface IAccessToken extends IBaseToken {
  */
 export interface IRefreshToken extends IBaseToken {
   aud: TokenAud.REFRESH;
+}
+
+/**
+ * Email change token interface.
+ */
+export interface IEmailChangeToken extends IBaseToken {
+  aud: TokenAud.EMAIL_CHANGE;
+  curEmail: string;
+  newEmail: string;
 }

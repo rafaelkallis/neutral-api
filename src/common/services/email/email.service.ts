@@ -8,21 +8,30 @@ export class EmailService {
     sendgrid.setApiKey(configService.get('SENDGRID_API_KEY'));
   }
 
-  async sendLoginEmail(to: string, magicLoginLink: string) {
+  async sendLoginEmail(to: string, loginMagicLink: string) {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
       templateId: 'd-3781fe6ff75544bea7a191c029587816',
-      dynamicTemplateData: { magicLoginLink },
+      dynamicTemplateData: { loginMagicLink },
     });
   }
 
-  async sendSignupEmail(to: string, magicSignupLink: string) {
+  async sendSignupEmail(to: string, signupMagicLink: string) {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
       templateId: 'd-a578d5b2804847e795e93aea4d40a603',
-      dynamicTemplateData: { magicSignupLink },
+      dynamicTemplateData: { signupMagicLink },
+    });
+  }
+
+  async sendEmailChangeEmail(to: string, emailChangeMagicLink: string) {
+    await sendgrid.send({
+      from: { email: 'no-reply@covee.network' },
+      to: { email: to },
+      templateId: 'd-a578d5b2804847e795e93aea4d40a603',
+      dynamicTemplateData: { emailChangeMagicLink },
     });
   }
 }

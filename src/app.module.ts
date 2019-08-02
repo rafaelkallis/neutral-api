@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth';
-import { UserModule, User } from './user';
 import { CommonModule, ConfigService } from './common';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
 
 @Module({
@@ -14,7 +14,7 @@ import { ProjectModule } from './project/project.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres' as 'postgres',
         url: configService.get('DATABASE_URL'),
-        entities: [`${__dirname}/**/*.entity.js`],
+        entities: [`${__dirname}/common/entities/*`],
         migrations: [`${__dirname}/migration/*.js`],
         migrationsRun: true,
       }),
