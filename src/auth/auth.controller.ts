@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   ValidationPipe,
+  Session,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -21,6 +22,7 @@ import {
   ConfigService,
   UserNotFoundException,
   TokenAlreadyUsedException,
+  ISession,
 } from '../common';
 import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
 import { RequestLoginDto } from './dto/request-login.dto';
@@ -29,7 +31,7 @@ import { SubmitSignupDto } from './dto/submit-signup.dto';
 import { RefreshDto } from './dto/refresh.dto';
 
 @Controller('auth')
-@ApiUseTags('auth')
+@ApiUseTags('Auth')
 export class AuthController {
   constructor(
     private userRepository: UserRepository,
@@ -67,7 +69,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitLoginToken(@Param('token') loginToken) {
+  async submitLoginToken(
+    @Param('token') loginToken,
+    @Session() session: ISession,
+  ) {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const user = await this.userRepository.findOneOrFailWith(
       { id: payload.sub },
@@ -82,6 +87,7 @@ export class AuthController {
 
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
+    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
     return { accessToken, refreshToken };
   }
 
@@ -111,6 +117,7 @@ export class AuthController {
   async submitSignupToken(
     @Param('token') signupToken,
     @Body(ValidationPipe) dto: SubmitSignupDto,
+    @Session() session: ISession,
   ) {
     const payload = this.tokenService.validateSignupToken(signupToken);
     const count = await this.userRepository.count({ email: payload.sub });
@@ -127,6 +134,7 @@ export class AuthController {
     await this.userRepository.insert(user);
 
     const accessToken = this.tokenService.newAccessToken(user.id);
+    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
     const refreshToken = this.tokenService.newRefreshToken(user.id);
     return { accessToken, refreshToken };
   }
@@ -136,9 +144,10 @@ export class AuthController {
   @ApiOperation({ title: 'Refresh tokens' })
   @ApiResponse({ status: 200, description: 'Refresh token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid refresh token' })
-  refresh(@Body(ValidationPipe) dto: RefreshDto) {
+  refresh(@Body(ValidationPipe) dto: RefreshDto, @Session() session: ISession) {
     const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
     const accessToken = this.tokenService.newAccessToken(payload.sub);
+    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
     return { accessToken };
   }
 }

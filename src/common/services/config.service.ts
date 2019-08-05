@@ -12,9 +12,9 @@ interface IConfig {
   readonly LOGIN_TOKEN_LIFETIME_MIN: number;
   readonly SIGNUP_TOKEN_LIFETIME_MIN: number;
   readonly ACCESS_TOKEN_LIFETIME_MIN: number;
-  readonly ACCESS_TOKEN_COOKIE_NAME: string;
   readonly REFRESH_TOKEN_LIFETIME_MIN: number;
   readonly EMAIL_CHANGE_TOKEN_LIFETIME_MIN: number;
+  readonly SESSION_NAME: string;
 }
 
 @Injectable()
@@ -32,9 +32,9 @@ export class ConfigService {
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num(),
       SIGNUP_TOKEN_LIFETIME_MIN: envalid.num(),
       ACCESS_TOKEN_LIFETIME_MIN: envalid.num(),
-      ACCESS_TOKEN_COOKIE_NAME: envalid.str(),
       REFRESH_TOKEN_LIFETIME_MIN: envalid.num(),
       EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num(),
+      SESSION_NAME: envalid.str(),
     });
   }
 

@@ -29,7 +29,7 @@ import {
 import { PatchUserDto } from './dto/patch-user.dto';
 
 @Controller('users')
-@ApiUseTags('users')
+@ApiUseTags('Users')
 export class UserController {
   constructor(
     private userRepository: UserRepository,
@@ -52,7 +52,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
-  getAuthUser(@AuthUser() authUser: User) {
+  async getAuthUser(@AuthUser() authUser: User): Promise<User> {
     return authUser;
   }
 
@@ -109,7 +109,7 @@ export class UserController {
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async getUser(@Param('id') id: string) {
+  async getUser(@Param('id') id: string): Promise<User> {
     return this.userRepository.findOneOrFailWith(
       { id },
       new UserNotFoundException(),

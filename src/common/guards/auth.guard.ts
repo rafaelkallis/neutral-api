@@ -6,8 +6,8 @@ import {
   createParamDecorator,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { TokenService } from '../services/token/token.service';
-import { ConfigService } from '../services/config/config.service';
+import { TokenService } from '../services/token.service';
+import { ConfigService } from '../services/config.service';
 import { UserRepository } from '../repositories/user.repository';
 
 @Injectable()
@@ -20,13 +20,12 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const authCookie: string | undefined =
-      req.cookies[this.configService.get('ACCESS_TOKEN_COOKIE_NAME')];
+    const session: string | undefined = req.session.get();
     const authHeader: string | undefined = req.header('Authorization');
-    if (!authCookie && !authHeader) {
+    if (!session && !authHeader) {
       throw new UnauthorizedException();
     }
-    let token = authCookie;
+    let token = session;
     if (authHeader) {
       const [prefix, content] = authHeader.split(' ');
       if (!prefix || prefix.toLowerCase() !== 'bearer') {
@@ -35,7 +34,7 @@ export class AuthGuard implements CanActivate {
       token = content;
     }
     const payload = this.tokenService.validateAccessToken(token);
-    req.authUser = await this.userRepository.findOneOrFailWith(
+    req.user = await this.userRepository.findOneOrFailWith(
       { id: payload.sub },
       new UnauthorizedException(),
     );
@@ -43,4 +42,4 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((data, req) => req.authUser);
+export const AuthUser = createParamDecorator((data, req) => req.user);

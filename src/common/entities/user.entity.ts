@@ -6,7 +6,7 @@ import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
-@Entity({ name: 'users' })
+@Entity('users')
 export class User extends BaseEntity {
   @Column()
   @IsEmail()
