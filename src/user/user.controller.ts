@@ -78,8 +78,7 @@ export class UserController {
       await this.emailService.sendEmailChangeEmail(email, emailChangeMagicLink);
     }
     Object.assign(authUser, otherChanges);
-    await this.userRepository.save(authUser);
-    return authUser;
+    return this.userRepository.save(authUser);
   }
 
   @Post('me/email-change/:token')
@@ -87,7 +86,7 @@ export class UserController {
   @ApiImplicitParam({ name: 'token' })
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitEmailChangeToken(
+  async submitEmailChange(
     @Param('token') token: string,
   ): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);

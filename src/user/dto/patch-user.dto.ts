@@ -5,15 +5,15 @@ export class PatchUserDto {
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  readonly email?: string;
+  email?: string;
 
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  readonly firstName?: string;
+  firstName?: string;
 
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  readonly lastName?: string;
+  lastName?: string;
 }
