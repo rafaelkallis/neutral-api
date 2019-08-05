@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import {
+  ISession,
+  User,
   UserRepository,
   TokenService,
   RandomService,
@@ -15,11 +17,13 @@ import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import * as faker from 'faker';
 
 describe('Auth Controller', () => {
   let authController: AuthController;
   let userRepository: UserRepository;
   let emailService: EmailService;
+  let tokenService: TokenService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,6 +40,7 @@ describe('Auth Controller', () => {
     authController = module.get(AuthController);
     userRepository = module.get(UserRepository);
     emailService = module.get(EmailService);
+    tokenService = module.get(TokenService);
   });
 
   it('should be defined', () => {
@@ -52,8 +57,68 @@ describe('Auth Controller', () => {
 
     test('happy path', async () => {
       const dto = new RequestLoginDto();
-      dto.email = 'me@example.com';
-      await authController.requestLoginToken(dto);
+      dto.email = faker.internet.email();
+      await authController.requestLogin(dto);
+    });
+  });
+
+  describe('submit magic login', () => {
+    let user: User;
+    let loginToken: string;
+    let session: ISession;
+
+    beforeEach(() => {
+      user = entityFaker.newUser();
+      loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
+      session = {
+        set: jest.fn(),
+        get: jest.fn(),
+        clear: jest.fn(),
+      };
+      jest.spyOn(userRepository, 'findOneOrFailWith').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+    });
+
+    test('happy path', async () => {
+      await authController.submitLogin(loginToken, session);
+    });
+  });
+
+  describe('request magic signup', () => {
+    beforeEach(() => {
+      jest.spyOn(userRepository, 'count').mockResolvedValue(0);
+      jest.spyOn(emailService, 'sendSignupEmail').mockResolvedValue();
+    });
+
+    test('happy path', async () => {
+      const dto = new RequestSignupDto();
+      dto.email = faker.internet.email();
+      await authController.requestSignup(dto);
+    });
+  });
+
+  describe('submit magic signup', () => {
+    let user: User;
+    let signupToken: string;
+    let session: ISession;
+
+    beforeEach(() => {
+      user = entityFaker.newUser();
+      signupToken = tokenService.newSignupToken(user.email);
+      session = {
+        set: jest.fn(),
+        get: jest.fn(),
+        clear: jest.fn(),
+      };
+      jest.spyOn(userRepository, 'count').mockResolvedValue(0);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+    });
+
+    test('happy path', async () => {
+      const dto = new SubmitSignupDto();
+      dto.firstName = user.firstName;
+      dto.lastName = user.lastName;
+      await authController.submitSignup(signupToken, dto, session);
     });
   });
 });

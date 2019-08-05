@@ -7,5 +7,5 @@ export class RefreshDto {
     example: '',
     description: 'Refresh token to consume',
   })
-  readonly refreshToken: string;
+  refreshToken: string;
 }

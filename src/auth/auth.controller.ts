@@ -46,7 +46,7 @@ export class AuthController {
   @ApiOperation({ title: 'Request magic login' })
   @ApiResponse({ status: 200, description: 'Magic login email sent' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async requestLoginToken(@Body(ValidationPipe) dto: RequestLoginDto) {
+  async requestLogin(@Body(ValidationPipe) dto: RequestLoginDto) {
     const { email } = dto;
     const user = await this.userRepository.findOneOrFailWith(
       { email },
@@ -69,7 +69,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitLoginToken(
+  async submitLogin(
     @Param('token') loginToken,
     @Session() session: ISession,
   ) {
@@ -96,10 +96,10 @@ export class AuthController {
   @ApiOperation({ title: 'Request magic signup' })
   @ApiResponse({ status: 200, description: 'Magic signup email sent' })
   @ApiResponse({ status: 400, description: 'Email already used' })
-  async requestSignupToken(@Body(ValidationPipe) dto: RequestSignupDto) {
+  async requestSignup(@Body(ValidationPipe) dto: RequestSignupDto) {
     const { email } = dto;
-    const user = await this.userRepository.findOne({ email });
-    if (user) {
+    const count = await this.userRepository.count({ email });
+    if (count !== 0) {
       throw new EmailAlreadyUsedException();
     }
     const signupToken = this.tokenService.newSignupToken(email);
@@ -114,7 +114,7 @@ export class AuthController {
   @ApiOperation({ title: 'Submit magic signup token' })
   @ApiResponse({ status: 200, description: 'Magic signup token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
-  async submitSignupToken(
+  async submitSignup(
     @Param('token') signupToken,
     @Body(ValidationPipe) dto: SubmitSignupDto,
     @Session() session: ISession,
@@ -131,7 +131,7 @@ export class AuthController {
     user.firstName = dto.firstName;
     user.lastName = dto.lastName;
     user.lastLoginAt = Date.now();
-    await this.userRepository.insert(user);
+    await this.userRepository.save(user);
 
     const accessToken = this.tokenService.newAccessToken(user.id);
     session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
