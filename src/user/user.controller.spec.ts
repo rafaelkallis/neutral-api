@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import * as faker from 'faker';
 import { UserController } from './user.controller';
 import {
   User,
@@ -10,7 +9,7 @@ import {
   ConfigService,
   EmailService,
 } from '../common';
-import { entityFaker } from '../test';
+import { entityFaker, primitiveFaker } from '../test';
 import { PatchUserDto } from './dto/patch-user.dto';
 
 describe('User Controller', () => {
@@ -47,9 +46,9 @@ describe('User Controller', () => {
 
     beforeEach(() => {
       users = [
-        entityFaker.newUser(),
-        entityFaker.newUser(),
-        entityFaker.newUser(),
+        entityFaker.user(),
+        entityFaker.user(),
+        entityFaker.user(),
       ];
       jest.spyOn(userRepository, 'find').mockResolvedValue(users);
     });
@@ -63,7 +62,7 @@ describe('User Controller', () => {
     let user: User;
 
     beforeEach(() => {
-      user = entityFaker.newUser();
+      user = entityFaker.user();
     });
 
     test('happy path', async () => {
@@ -78,9 +77,9 @@ describe('User Controller', () => {
     let dto: PatchUserDto;
 
     beforeEach(() => {
-      user = entityFaker.newUser();
-      newEmail = faker.internet.email();
-      newFirstName = faker.name.firstName();
+      user = entityFaker.user();
+      newEmail = primitiveFaker.email();
+      newFirstName = primitiveFaker.word();
       dto = new PatchUserDto();
       dto.email = newEmail;
       dto.firstName = newFirstName;
@@ -101,8 +100,8 @@ describe('User Controller', () => {
     let emailChangeToken: string;
 
     beforeEach(() => {
-      user = entityFaker.newUser();
-      newEmail = faker.internet.email();
+      user = entityFaker.user();
+      newEmail = primitiveFaker.word();
       emailChangeToken = tokenService.newEmailChangeToken(
         user.id,
         user.email,
@@ -122,7 +121,7 @@ describe('User Controller', () => {
     let user: User;
 
     beforeEach(() => {
-      user = entityFaker.newUser();
+      user = entityFaker.user();
       jest.spyOn(userRepository, 'findOneOrFailWith').mockResolvedValue(user);
     });
 
