@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import * as faker from 'faker';
 import { AppModule } from '../src/app.module';
 import {
   User,
@@ -10,7 +9,7 @@ import {
   TokenService,
   SessionMiddleware,
 } from '../src/common';
-import { entityFaker } from '../src/test';
+import { entityFaker, primitiveFaker } from '../src/test';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +25,7 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     userRepository = module.get(UserRepository);
-    user = await userRepository.save(entityFaker.newUser());
+    user = await userRepository.save(entityFaker.user());
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
 
@@ -89,7 +88,7 @@ describe('AuthController (e2e)', () => {
     let email: string;
 
     beforeEach(() => {
-      email = faker.internet.email();
+      email = primitiveFaker.email();
       jest.spyOn(tokenService, 'newSignupToken');
       jest.spyOn(emailService, 'sendSignupEmail').mockResolvedValue();
     });
@@ -110,7 +109,7 @@ describe('AuthController (e2e)', () => {
     let signupToken: string;
 
     beforeEach(() => {
-      email = faker.internet.email();
+      email = primitiveFaker.email();
       signupToken = tokenService.newSignupToken(email);
       jest.spyOn(tokenService, 'newAccessToken');
       jest.spyOn(tokenService, 'newRefreshToken');
@@ -119,8 +118,8 @@ describe('AuthController (e2e)', () => {
 
     test('happy path', async () => {
       const response = await session.post(`/auth/signup/${signupToken}`).send({
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: primitiveFaker.word(),
+        lastName: primitiveFaker.word(),
       });
       expect(response.status).toBe(201);
       expect(response.body).toEqual({

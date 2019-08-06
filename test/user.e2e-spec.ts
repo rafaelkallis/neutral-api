@@ -1,0 +1,48 @@
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+import {
+  User,
+  UserRepository,
+  EmailService,
+  TokenService,
+  SessionMiddleware,
+} from '../src/common';
+import { entityFaker } from '../src/test';
+
+describe('AuthController (e2e)', () => {
+  let app: INestApplication;
+  let userRepository: UserRepository;
+  let user: User;
+  let session: request.SuperTest<request.Test>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    userRepository = module.get(UserRepository);
+    user = await userRepository.save(entityFaker.user());
+
+    app = module.createNestApplication();
+    await app.init();
+
+    session = request.agent(app.getHttpServer());
+    const tokenService = module.get(TokenService);
+    const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
+    await session.post(`/auth/login/${loginToken}`);
+  });
+
+  test('should be defined', () => {
+    expect(app).toBeDefined();
+  });
+
+  describe('/users/me (GET)', () => {
+    test('happy path', async () => {
+      const response = await session.get('/users/me');
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+    });
+  });
+});

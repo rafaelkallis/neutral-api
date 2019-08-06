@@ -7,8 +7,6 @@ import { SessionMiddleware } from './common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(cookieParser());
-
   const options = new DocumentBuilder()
     .setTitle('Covee SaaS')
     .setVersion('1.0')
