@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
-import { CommonModule, ConfigService } from './common';
+import { SessionMiddleware, CommonModule, ConfigService } from './common';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
@@ -17,6 +18,7 @@ import { ProjectModule } from './project/project.module';
         entities: [`${__dirname}/common/entities/*`],
         migrations: [`${__dirname}/migration/*.js`],
         migrationsRun: true,
+        keepConnectionAlive: true,
       }),
     }),
     AuthModule,
@@ -26,4 +28,10 @@ import { ProjectModule } from './project/project.module';
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(SessionMiddleware)
+      .forRoutes('*');
+  }
+}

@@ -80,7 +80,11 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      await authController.submitLogin(loginToken, session);
+      await expect(authController.submitLogin(loginToken, session)).resolves.toEqual({
+        accessToken: expect.any(String),
+        refreshToken: expect.any(String),
+      });
+      expect(session.set).toHaveBeenCalled();
     });
   });
 
@@ -118,7 +122,36 @@ describe('Auth Controller', () => {
       const dto = new SubmitSignupDto();
       dto.firstName = user.firstName;
       dto.lastName = user.lastName;
-      await authController.submitSignup(signupToken, dto, session);
+      await expect(authController.submitSignup(signupToken, dto, session)).resolves.toEqual({
+        accessToken: expect.any(String),
+        refreshToken: expect.any(String),
+      });
+      expect(session.set).toHaveBeenCalled();
+    });
+  });
+
+  describe('refresh', () => {
+    let user: User;
+    let refreshToken: string;
+    let session: ISession;
+
+    beforeEach(() => {
+      user = entityFaker.newUser();
+      refreshToken = tokenService.newRefreshToken(user.id);
+      session = {
+        set: jest.fn(),
+        get: jest.fn(),
+        clear: jest.fn(),
+      };
+    });
+
+    test('happy path', async () => {
+      const dto = new RefreshDto();
+      dto.refreshToken = refreshToken;
+      expect(authController.refresh(dto, session)).toEqual({
+        accessToken: expect.any(String),
+      });
+      expect(session.set).toHaveBeenCalled();
     });
   });
 });

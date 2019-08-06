@@ -20,9 +20,8 @@ export const entityFaker = {
   },
 };
 
-let idCounter = 0;
 function withBase<T extends BaseEntity>(entity: T): T {
-  entity.id = String(idCounter++);
+  entity.id = String(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
   entity.updatedAt = Math.floor(faker.date.past().getTime() / 1000);
   while (entity.updatedAt < entity.createdAt) {
     entity.createdAt = Math.floor(faker.date.past().getTime() / 1000);
