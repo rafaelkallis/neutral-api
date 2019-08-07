@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RandomService } from './services/random.service';
@@ -12,6 +13,8 @@ import { UserRepository } from './repositories/user.repository';
 
 import { Project } from './entities/project.entity';
 import { ProjectRepository } from './repositories/project.repository';
+
+import { EntityNotFoundInterceptor } from './interceptors/entity-not-found.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +31,10 @@ import { ProjectRepository } from './repositories/project.repository';
     LogService,
     ConfigService,
     EmailService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: EntityNotFoundInterceptor,
+    },
   ],
   exports: [
     TypeOrmModule,

@@ -122,7 +122,7 @@ describe('User Controller', () => {
 
     beforeEach(() => {
       user = entityFaker.user();
-      jest.spyOn(userRepository, 'findOneOrFailWith').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
     });
 
     test('happy path', async () => {

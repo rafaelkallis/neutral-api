@@ -46,6 +46,14 @@ describe('UserController (e2e)', () => {
     });
   });
 
+  describe('/users/:id (GET)', () => {
+    test('happy path', async () => {
+      const response = await session.get(`/users/${user.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+    });
+  });
+
   describe('/users/me (DELETE)', () => {
     test('happy path', async () => {
       const response = await session.delete('/users/me');

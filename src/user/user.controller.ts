@@ -109,10 +109,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUser(@Param('id') id: string): Promise<User> {
-    return this.userRepository.findOneOrFailWith(
-      { id },
-      new UserNotFoundException(),
-    );
+    return this.userRepository.findOneOrFail({ id });
   }
 
   @Delete('me')
