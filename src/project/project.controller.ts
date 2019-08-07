@@ -8,7 +8,6 @@ import {
   UseGuards,
   Body,
   Param,
-  ValidationPipe,
   NotImplementedException,
 } from '@nestjs/common';
 import {
@@ -25,9 +24,9 @@ import {
   User,
   Project,
   ProjectRepository,
-  ProjectNotFoundException,
   RandomService,
   NotResourceOwnerException,
+  ValidationPipe,
 } from '../common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PatchProjectDto } from './dto/patch-project.dto';
@@ -57,10 +56,7 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async getProject(@Param('id') id: string): Promise<Project> {
-    return this.projectRepository.findOneOrFailWith(
-      { id },
-      new ProjectNotFoundException(),
-    );
+    return this.projectRepository.findOneOrFail({ id });
   }
 
   @Post()
@@ -93,10 +89,7 @@ export class ProjectController {
     @Param('id') id: string,
     @Body(ValidationPipe) patchProjectDto: PatchProjectDto,
   ): Promise<Project> {
-    const project = await this.projectRepository.findOneOrFailWith(
-      { id },
-      new ProjectNotFoundException(),
-    );
+    const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
       throw new NotResourceOwnerException();
     }
@@ -124,10 +117,7 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
-    const project = await this.projectRepository.findOneOrFailWith(
-      { id },
-      new ProjectNotFoundException(),
-    );
+    const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
       throw new NotResourceOwnerException();
     }

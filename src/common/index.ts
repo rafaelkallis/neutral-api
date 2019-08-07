@@ -13,11 +13,11 @@ export { BaseEntity } from './entities/base.entity';
 export { User } from './entities/user.entity';
 export { Project } from './entities/project.entity';
 
-export { AuthGuard, AuthUser } from './guards/auth.guard';
-
 export { ISession, SessionMiddleware } from './middlewares/session.middleware';
 
-export { UserNotFoundException } from './exceptions/user-not-found.exception';
-export { ProjectNotFoundException } from './exceptions/project-not-found.exception';
+export { ValidationPipe } from './pipes/validation.pipe';
+
+export { AuthGuard, AuthUser } from './guards/auth.guard';
+
 export { TokenAlreadyUsedException } from './exceptions/token-already-used.exception';
 export { NotResourceOwnerException } from './exceptions/not-resource-owner.exception';

@@ -9,7 +9,6 @@ import {
   RandomService,
   EmailService,
   ConfigService,
-  UserNotFoundException,
   TokenAlreadyUsedException,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -49,7 +48,7 @@ describe('Auth Controller', () => {
   describe('request magic login', () => {
     beforeEach(() => {
       jest
-        .spyOn(userRepository, 'findOneOrFailWith')
+        .spyOn(userRepository, 'findOneOrFail')
         .mockResolvedValue(entityFaker.user());
       jest.spyOn(emailService, 'sendLoginEmail').mockResolvedValue();
     });
@@ -74,7 +73,7 @@ describe('Auth Controller', () => {
         get: jest.fn(),
         clear: jest.fn(),
       };
-      jest.spyOn(userRepository, 'findOneOrFailWith').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
       jest.spyOn(userRepository, 'save').mockResolvedValue(user);
     });
 

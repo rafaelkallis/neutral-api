@@ -107,7 +107,7 @@ describe('User Controller', () => {
         user.email,
         newEmail,
       );
-      jest.spyOn(userRepository, 'findOneOrFailWith').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
       jest.spyOn(userRepository, 'save').mockResolvedValue(user);
       jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
     });

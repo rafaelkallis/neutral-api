@@ -4,7 +4,6 @@ import {
   HttpCode,
   Body,
   Param,
-  ValidationPipe,
   Session,
 } from '@nestjs/common';
 import {
@@ -20,9 +19,9 @@ import {
   RandomService,
   EmailService,
   ConfigService,
-  UserNotFoundException,
   TokenAlreadyUsedException,
   ISession,
+  ValidationPipe,
 } from '../common';
 import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
 import { RequestLoginDto } from './dto/request-login.dto';
@@ -48,10 +47,7 @@ export class AuthController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async requestLogin(@Body(ValidationPipe) dto: RequestLoginDto) {
     const { email } = dto;
-    const user = await this.userRepository.findOneOrFailWith(
-      { email },
-      new UserNotFoundException(),
-    );
+    const user = await this.userRepository.findOneOrFail({ email });
     const loginToken = this.tokenService.newLoginToken(
       user.id,
       user.lastLoginAt,
@@ -69,15 +65,9 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitLogin(
-    @Param('token') loginToken,
-    @Session() session: ISession,
-  ) {
+  async submitLogin(@Param('token') loginToken, @Session() session: ISession) {
     const payload = this.tokenService.validateLoginToken(loginToken);
-    const user = await this.userRepository.findOneOrFailWith(
-      { id: payload.sub },
-      new UserNotFoundException(),
-    );
+    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
     if (user.lastLoginAt !== payload.lastLoginAt) {
       throw new TokenAlreadyUsedException();
     }
@@ -87,7 +77,10 @@ export class AuthController {
 
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
-    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
+    session.set(
+      accessToken,
+      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
+    );
     return { accessToken, refreshToken };
   }
 
@@ -134,7 +127,10 @@ export class AuthController {
     await this.userRepository.save(user);
 
     const accessToken = this.tokenService.newAccessToken(user.id);
-    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
+    session.set(
+      accessToken,
+      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
+    );
     const refreshToken = this.tokenService.newRefreshToken(user.id);
     return { accessToken, refreshToken };
   }
@@ -147,7 +143,10 @@ export class AuthController {
   refresh(@Body(ValidationPipe) dto: RefreshDto, @Session() session: ISession) {
     const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
     const accessToken = this.tokenService.newAccessToken(payload.sub);
-    session.set(accessToken, this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'));
+    session.set(
+      accessToken,
+      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
+    );
     return { accessToken };
   }
 }

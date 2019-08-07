@@ -5,7 +5,6 @@ import {
   HttpCode,
   UseGuards,
   Body,
-  ValidationPipe,
   Param,
   Patch,
   Post,
@@ -22,11 +21,11 @@ import {
   AuthUser,
   User,
   UserRepository,
-  UserNotFoundException,
   TokenService,
   EmailService,
   ConfigService,
   TokenAlreadyUsedException,
+  ValidationPipe,
 } from '../common';
 import { PatchUserDto } from './dto/patch-user.dto';
 
@@ -90,10 +89,7 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async submitEmailChange(@Param('token') token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findOneOrFailWith(
-      { id: payload.sub },
-      new UserNotFoundException(),
-    );
+    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
     if (user.email !== payload.curEmail) {
       throw new TokenAlreadyUsedException();
     }

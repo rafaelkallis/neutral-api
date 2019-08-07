@@ -57,9 +57,7 @@ describe('Project Controller', () => {
 
     beforeEach(async () => {
       project = entityFaker.project('');
-      jest
-        .spyOn(projectRepository, 'findOneOrFailWith')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
@@ -96,9 +94,7 @@ describe('Project Controller', () => {
       project = entityFaker.project(user.id);
       newTitle = primitiveFaker.words();
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
-      jest
-        .spyOn(projectRepository, 'findOneOrFailWith')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
@@ -115,9 +111,7 @@ describe('Project Controller', () => {
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
-      jest
-        .spyOn(projectRepository, 'findOneOrFailWith')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'delete').mockResolvedValue(undefined);
     });
 

@@ -33,10 +33,10 @@ export class AuthGuard implements CanActivate {
       token = content;
     }
     const payload = this.tokenService.validateAccessToken(token);
-    req.user = await this.userRepository.findOneOrFailWith(
-      { id: payload.sub },
-      new UnauthorizedUserException(),
-    );
+    req.user = await this.userRepository.findOne({ id: payload.sub });
+    if (!req.user) {
+      throw new UnauthorizedUserException();
+    }
     return true;
   }
 }
