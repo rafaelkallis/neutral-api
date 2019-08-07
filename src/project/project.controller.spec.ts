@@ -1,15 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectController } from './project.controller';
 import {
+  User,
+  Project,
   UserRepository,
   ProjectRepository,
   RandomService,
   TokenService,
   ConfigService,
 } from '../common';
+import { entityFaker, primitiveFaker } from '../test';
 
 describe('Project Controller', () => {
-  let controller: ProjectController;
+  let projectController: ProjectController;
+  let projectRepository: ProjectRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,10 +27,96 @@ describe('Project Controller', () => {
       ],
     }).compile();
 
-    controller = module.get<ProjectController>(ProjectController);
+    projectController = module.get(ProjectController);
+    projectRepository = module.get(ProjectRepository);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  test('should be defined', () => {
+    expect(projectController).toBeDefined();
+  });
+
+  describe('get projects', () => {
+    let projects: Project[];
+
+    beforeEach(async () => {
+      projects = [
+        entityFaker.project(''),
+        entityFaker.project(''),
+        entityFaker.project(''),
+      ];
+      jest.spyOn(projectRepository, 'find').mockResolvedValue(projects);
+    });
+
+    test('happy path', async () => {
+      await expect(projectController.getProjects()).resolves.toEqual(projects);
+    });
+  });
+
+  describe('get project', () => {
+    let project: Project;
+
+    beforeEach(async () => {
+      project = entityFaker.project('');
+      jest
+        .spyOn(projectRepository, 'findOneOrFailWith')
+        .mockResolvedValue(project);
+    });
+
+    test('happy path', async () => {
+      await expect(projectController.getProject(project.id)).resolves.toEqual(
+        project,
+      );
+    });
+  });
+
+  describe('create project', () => {
+    let user: User;
+    let project: Project;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+    });
+
+    test('happy path', async () => {
+      await expect(
+        projectController.createProject(user, project),
+      ).resolves.toEqual(project);
+    });
+  });
+
+  describe.skip('patch project', () => {
+    let user: User;
+    let project: Project;
+    let newTitle: string;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      newTitle = primitiveFaker.words();
+      jest.spyOn(projectRepository, 'save');
+    });
+
+    test('happy path', async () => {
+      await expect(
+        projectController.patchProject(user, project.id, { title: newTitle }),
+      ).resolves.toEqual({ ...project, title: newTitle });
+    });
+  });
+
+  describe.skip('delete project', () => {
+    let user: User;
+    let project: Project;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      jest.spyOn(projectRepository, 'delete');
+    });
+
+    test('happy path', async () => {
+      await projectController.deleteProject(user, project.id);
+    });
   });
 });

@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   ValidationPipe,
+  NotImplementedException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -61,14 +62,26 @@ export class ProjectController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   async createProject(
-    @AuthUser() authUser,
+    @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateProjectDto,
   ): Promise<Project> {
     const project = new Project();
-    Object.assign(project, dto);
     project.id = this.randomService.id();
     project.ownerId = authUser.id;
-    await this.projectRepository.save(project);
-    return project;
+    project.title = dto.title;
+    project.description = dto.description;
+    return this.projectRepository.save(project);
+  }
+
+  async patchProject(
+    authUser: User,
+    id: string,
+    patchProjectDto: Partial<Project>,
+  ): Promise<Project> {
+    throw new NotImplementedException();
+  }
+
+  async deleteProject(authUser: User, id: string): Promise<void> {
+    throw new NotImplementedException();
   }
 }

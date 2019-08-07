@@ -11,7 +11,7 @@ import {
 } from '../src/common';
 import { entityFaker } from '../src/test';
 
-describe('AuthController (e2e)', () => {
+describe('UserController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
   let user: User;
