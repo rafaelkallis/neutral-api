@@ -86,7 +86,7 @@ describe('Project Controller', () => {
     });
   });
 
-  describe.skip('patch project', () => {
+  describe('patch project', () => {
     let user: User;
     let project: Project;
     let newTitle: string;
@@ -95,7 +95,10 @@ describe('Project Controller', () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       newTitle = primitiveFaker.words();
-      jest.spyOn(projectRepository, 'save');
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest
+        .spyOn(projectRepository, 'findOneOrFailWith')
+        .mockResolvedValue(project);
     });
 
     test('happy path', async () => {

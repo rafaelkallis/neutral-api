@@ -20,3 +20,4 @@ export { ISession, SessionMiddleware } from './middlewares/session.middleware';
 export { UserNotFoundException } from './exceptions/user-not-found.exception';
 export { ProjectNotFoundException } from './exceptions/project-not-found.exception';
 export { TokenAlreadyUsedException } from './exceptions/token-already-used.exception';
+export { NotResourceOwnerException } from './exceptions/not-resource-owner.exception';

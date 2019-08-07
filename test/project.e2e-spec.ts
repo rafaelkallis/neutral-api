@@ -57,7 +57,8 @@ describe('ProjectController (e2e)', () => {
     let project: Project;
 
     beforeEach(async () => {
-      project = await projectRepository.save(entityFaker.project(user.id));
+      project = entityFaker.project(user.id);
+      await projectRepository.save(project);
     });
 
     test('happy path', async () => {
@@ -86,12 +87,13 @@ describe('ProjectController (e2e)', () => {
     });
   });
 
-  describe.skip('/projects/:id (PATCH)', () => {
+  describe('/projects/:id (PATCH)', () => {
     let project: Project;
     let newTitle: string;
 
     beforeEach(async () => {
-      project = await projectRepository.save(entityFaker.project(user.id));
+      project = entityFaker.project(user.id);
+      await projectRepository.save(project);
       newTitle = primitiveFaker.words();
     });
 
