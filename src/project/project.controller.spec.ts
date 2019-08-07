@@ -108,18 +108,22 @@ describe('Project Controller', () => {
     });
   });
 
-  describe.skip('delete project', () => {
+  describe('delete project', () => {
     let user: User;
     let project: Project;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
-      jest.spyOn(projectRepository, 'delete');
+      jest
+        .spyOn(projectRepository, 'findOneOrFailWith')
+        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'delete').mockResolvedValue(undefined);
     });
 
     test('happy path', async () => {
       await projectController.deleteProject(user, project.id);
+      expect(projectRepository.delete).toHaveBeenCalled();
     });
   });
 });

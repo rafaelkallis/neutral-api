@@ -3,6 +3,8 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
+  HttpCode,
   UseGuards,
   Body,
   Param,
@@ -82,7 +84,10 @@ export class ProjectController {
   @ApiOperation({ title: 'Update a project' })
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'Project update succesfully' })
-  @ApiResponse({ status: 403, description: 'Authenticated user is not the project owner' })
+  @ApiResponse({
+    status: 403,
+    description: 'Authenticated user is not the project owner',
+  })
   async patchProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
@@ -104,7 +109,28 @@ export class ProjectController {
     return this.projectRepository.save(project);
   }
 
-  async deleteProject(authUser: User, id: string): Promise<void> {
-    throw new NotImplementedException();
+  @Delete(':id')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Delete a project' })
+  @ApiImplicitParam({ name: 'id' })
+  @ApiResponse({ status: 204, description: 'Project deleted succesfully' })
+  @ApiResponse({
+    status: 403,
+    description: 'Authenticated user is not the project owner',
+  })
+  async deleteProject(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const project = await this.projectRepository.findOneOrFailWith(
+      { id },
+      new ProjectNotFoundException(),
+    );
+    if (project.ownerId !== authUser.id) {
+      throw new NotResourceOwnerException();
+    }
+    await this.projectRepository.delete(project);
   }
 }

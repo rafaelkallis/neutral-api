@@ -106,17 +106,19 @@ describe('ProjectController (e2e)', () => {
     });
   });
 
-  describe.skip('/projects/:id (DELETE)', () => {
+  describe('/projects/:id (DELETE)', () => {
     let project: Project;
 
     beforeEach(async () => {
-      project = await projectRepository.save(entityFaker.project(user.id));
+      project = entityFaker.project(user.id);
+      await projectRepository.save(project);
     });
 
     test('happy path', async () => {
       const response = await session.delete(`/projects/${project.id}`);
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
+      await expect(projectRepository.count({ id: project.id })).resolves.toBe(0);
     });
   });
 });
