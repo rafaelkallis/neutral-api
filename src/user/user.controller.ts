@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Delete,
+  HttpCode,
   UseGuards,
   Body,
   ValidationPipe,
@@ -86,9 +88,7 @@ export class UserController {
   @ApiImplicitParam({ name: 'token' })
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitEmailChange(
-    @Param('token') token: string,
-  ): Promise<void> {
+  async submitEmailChange(@Param('token') token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
     const user = await this.userRepository.findOneOrFailWith(
       { id: payload.sub },
@@ -113,5 +113,18 @@ export class UserController {
       { id },
       new UserNotFoundException(),
     );
+  }
+
+  @Delete('me')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Delete the authenticated user' })
+  @ApiResponse({
+    status: 204,
+    description: 'Authenticated user deleted succesfully',
+  })
+  async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
+    await this.userRepository.delete(authUser);
   }
 }

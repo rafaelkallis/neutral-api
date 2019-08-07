@@ -45,4 +45,13 @@ describe('UserController (e2e)', () => {
       expect(response.body).toBeDefined();
     });
   });
+
+  describe('/users/me (DELETE)', () => {
+    test('happy path', async () => {
+      const response = await session.delete('/users/me');
+      expect(response.status).toBe(204);
+      expect(response.body).toBeDefined();
+      await expect(userRepository.count({ id: user.id })).resolves.toBe(0);
+    });
+  });
 });
