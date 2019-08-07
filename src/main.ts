@@ -2,10 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { SessionMiddleware } from './common';
+import { LogService } from './common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: false });
+  app.useLogger(app.get(LogService));
 
   const options = new DocumentBuilder()
     .setTitle('Covee SaaS')

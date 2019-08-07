@@ -1,22 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
 import { createLogger, format, transports } from 'winston';
 
 @Injectable()
-export class LogService {
-  debug(arg: string) {
-    this.logger.debug(arg);
+export class LogService implements NestLoggerService {
+  log(message: string) {
+    this.logger.info(message);
   }
 
-  info(arg: string) {
-    this.logger.info(arg);
+  debug(message: string) {
+    this.logger.debug(message);
   }
 
-  warn(arg: string) {
-    this.logger.warn(arg);
+  info(message: string) {
+    this.logger.info(message);
   }
 
-  error(arg: string) {
-    this.logger.error(arg);
+  warn(message: string) {
+    this.logger.warn(message);
+  }
+
+  error(message: string) {
+    this.logger.error(message);
   }
 
   private logger = createLogger({

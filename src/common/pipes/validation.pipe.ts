@@ -12,7 +12,7 @@ export class ValidationPipe extends NestValidationPipe {
   constructor() {
     super({
       exceptionFactory: (errors: ValidationError[]) =>
-        new ValidationException(errors[0].toString()),
+        new ValidationException(errors[0].value),
     });
   }
 }
