@@ -14,6 +14,9 @@ import { UserRepository } from './repositories/user.repository';
 import { Project } from './entities/project.entity';
 import { ProjectRepository } from './repositories/project.repository';
 
+import { Role } from './entities/role.entity';
+import { RoleRepository } from './repositories/role.repository';
+
 import { EntityNotFoundInterceptor } from './interceptors/entity-not-found.interceptor';
 
 @Module({
@@ -23,6 +26,8 @@ import { EntityNotFoundInterceptor } from './interceptors/entity-not-found.inter
       UserRepository,
       Project,
       ProjectRepository,
+      Role,
+      RoleRepository,
     ]),
   ],
   providers: [
