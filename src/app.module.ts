@@ -6,6 +6,8 @@ import { SessionMiddleware, CommonModule, ConfigService } from './common';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
+import * as helmet from 'helmet';
+import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 
 @Module({
@@ -32,7 +34,12 @@ import * as cookieParser from 'cookie-parser';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(cookieParser(), SessionMiddleware)
+      .apply(
+        helmet(),
+        compression(),
+        cookieParser(),
+        SessionMiddleware,
+      )
       .forRoutes('*');
   }
 }
