@@ -13,11 +13,7 @@ export interface ISession {
 export class SessionMiddleware implements NestMiddleware {
   constructor(private configService: ConfigService) {}
 
-  use(
-    req: Request & { session: ISession },
-    res: Response,
-    next: () => void,
-  ) {
+  use(req: Request & { session: ISession }, res: Response, next: () => void) {
     if (req.session) {
       return next();
     }

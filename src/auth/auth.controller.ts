@@ -67,7 +67,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitLogin(@Param('token') loginToken: string, @Session() session: ISession) {
+  async submitLogin(
+    @Param('token') loginToken: string,
+    @Session() session: ISession,
+  ) {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const user = await this.userRepository.findOneOrFail({ id: payload.sub });
     if (user.lastLoginAt !== payload.lastLoginAt) {

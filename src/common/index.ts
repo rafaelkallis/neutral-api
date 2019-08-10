@@ -21,5 +21,9 @@ export { ValidationPipe } from './pipes/validation.pipe';
 
 export { AuthGuard, AuthUser } from './guards/auth.guard';
 
-export { TokenAlreadyUsedException } from './exceptions/token-already-used.exception';
-export { NotResourceOwnerException } from './exceptions/not-resource-owner.exception';
+export {
+  TokenAlreadyUsedException,
+} from './exceptions/token-already-used.exception';
+export {
+  NotResourceOwnerException,
+} from './exceptions/not-resource-owner.exception';

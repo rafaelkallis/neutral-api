@@ -47,11 +47,7 @@ describe('User Controller', () => {
     let users: User[];
 
     beforeEach(() => {
-      users = [
-        entityFaker.user(),
-        entityFaker.user(),
-        entityFaker.user(),
-      ];
+      users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       jest.spyOn(userRepository, 'find').mockResolvedValue(users);
     });
 

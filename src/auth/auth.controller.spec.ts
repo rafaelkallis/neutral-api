@@ -78,7 +78,9 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(authController.submitLogin(loginToken, session)).resolves.toEqual({
+      await expect(
+        authController.submitLogin(loginToken, session),
+      ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
       });
@@ -120,7 +122,9 @@ describe('Auth Controller', () => {
       const dto = new SubmitSignupDto();
       dto.firstName = user.firstName;
       dto.lastName = user.lastName;
-      await expect(authController.submitSignup(signupToken, dto, session)).resolves.toEqual({
+      await expect(
+        authController.submitSignup(signupToken, dto, session),
+      ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
       });

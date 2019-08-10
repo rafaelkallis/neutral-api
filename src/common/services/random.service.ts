@@ -5,7 +5,6 @@ import moment from 'moment';
 
 @Injectable()
 export class RandomService {
-
   private static N_SALT_BYTES = 16;
 
   /**
@@ -53,7 +52,9 @@ export class RandomService {
    * The salt is to be used with the password service.
    */
   salt(): string {
-    return this.createRandomBytes(RandomService.N_SALT_BYTES).toString('base64');
+    return this.createRandomBytes(RandomService.N_SALT_BYTES).toString(
+      'base64',
+    );
   }
 
   pin(): string {

@@ -3,7 +3,6 @@ import * as os from 'os';
 
 @Controller()
 export class AppController {
-
   @Get('status')
   getStatus() {
     return {

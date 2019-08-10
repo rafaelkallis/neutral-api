@@ -1,7 +1,7 @@
 import { ValueTransformer } from 'typeorm';
 
 export class BigIntTransformer implements ValueTransformer {
-  to(data: number | undefined | null ): number | null {
+  to(data: number | undefined | null): number | null {
     if (typeof data === 'undefined' || data === null) {
       return null;
     }
