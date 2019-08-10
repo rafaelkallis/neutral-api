@@ -21,9 +21,6 @@ export class AuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const session: string | undefined = req.session.get();
     const authHeader: string | undefined = req.header('Authorization');
-    if (!session && !authHeader) {
-      throw new UnauthorizedUserException();
-    }
     let token = session;
     if (authHeader) {
       const [prefix, content] = authHeader.split(' ');
@@ -31,6 +28,9 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedUserException();
       }
       token = content;
+    }
+    if (!token) {
+      throw new UnauthorizedUserException();
     }
     const payload = this.tokenService.validateAccessToken(token);
     req.user = await this.userRepository.findOne({ id: payload.sub });

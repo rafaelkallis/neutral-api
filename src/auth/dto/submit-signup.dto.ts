@@ -7,12 +7,12 @@ export class SubmitSignupDto {
     example: 'John',
     description: 'First name of the user to sign up',
   })
-  firstName: string;
+  firstName!: string;
 
   @IsString()
   @ApiModelProperty({
     example: 'Doe',
     description: 'Last name of the user to sign up',
   })
-  lastName: string;
+  lastName!: string;
 }

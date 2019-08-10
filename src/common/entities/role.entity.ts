@@ -10,24 +10,24 @@ export class Role extends BaseEntity {
   @IsString()
   @MaxLength(20)
   @ApiModelProperty()
-  projectId: string;
+  projectId!: string;
 
   @Column({ name: 'assignee_id' })
   @IsString()
   @IsOptional()
   @MaxLength(20)
   @ApiModelProperty({ required: false })
-  assigneeId: string | null;
+  assigneeId!: string | null;
 
   @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
   @ApiModelProperty()
-  title: string;
+  title!: string;
 
   @Column({ name: 'description' })
   @IsString()
   @MaxLength(1024)
   @ApiModelProperty()
-  description: string;
+  description!: string;
 }

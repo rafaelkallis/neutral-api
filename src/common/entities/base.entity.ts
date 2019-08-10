@@ -20,17 +20,17 @@ export class BaseEntity {
   @IsString()
   @MaxLength(20)
   @ApiModelProperty()
-  id: string;
+  id!: string;
 
   @Column({ name: 'created_at', transformer: new BigIntTransformer() })
   @IsNumber()
   @ApiModelProperty()
-  createdAt: number;
+  createdAt!: number;
 
   @Column({ name: 'updated_at', transformer: new BigIntTransformer() })
   @IsNumber()
   @ApiModelProperty()
-  updatedAt: number;
+  updatedAt!: number;
 
   @BeforeInsert()
   private async beforeInsert() {
