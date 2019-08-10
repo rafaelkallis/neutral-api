@@ -2,14 +2,11 @@ import { Injectable } from '@nestjs/common';
 import base64url from 'base64url';
 import crypto from 'crypto';
 import moment from 'moment';
-import { ConfigService } from './config.service';
 
 @Injectable()
 export class RandomService {
 
   private static N_SALT_BYTES = 16;
-
-  constructor(private configService: ConfigService) {}
 
   /**
    * Generates a url-safe, ordered, random string.

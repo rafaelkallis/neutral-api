@@ -11,7 +11,9 @@
     "baseUrl": "./",
     "incremental": true,
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
   },
   "exclude": ["node_modules", "dist"]
 }

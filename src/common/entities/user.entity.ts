@@ -1,4 +1,4 @@
-import { PrimaryColumn, Entity, Column } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { IsString, IsEmail, MaxLength, IsNumber } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { ApiModelProperty } from '@nestjs/swagger';

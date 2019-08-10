@@ -4,7 +4,6 @@ import {
   AfterLoad,
   BeforeInsert,
   BeforeUpdate,
-  ValueTransformer,
 } from 'typeorm';
 import {
   IsString,
@@ -33,20 +32,20 @@ export class BaseEntity {
   updatedAt!: number;
 
   @BeforeInsert()
-  private async beforeInsert() {
+  protected async beforeInsert() {
     this.createdAt = Date.now();
     this.updatedAt = Date.now();
     await validateOrReject(this);
   }
 
   @BeforeUpdate()
-  private async beforeUpdate() {
+  protected async beforeUpdate() {
     this.updatedAt = Date.now();
     await validateOrReject(this);
   }
 
   @AfterLoad()
-  private async afterLoad() {
+  protected async afterLoad() {
     await validateOrReject(this);
   }
 }

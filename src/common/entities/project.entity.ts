@@ -1,5 +1,5 @@
-import { PrimaryColumn, Entity, Column } from 'typeorm';
-import { IsString, IsEmail, MaxLength, IsNumber } from 'class-validator';
+import { Entity, Column } from 'typeorm';
+import { IsString, MaxLength } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger';
 
 import { BaseEntity } from './base.entity';

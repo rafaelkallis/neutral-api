@@ -5,14 +5,12 @@ import {
   createParamDecorator,
 } from '@nestjs/common';
 import { TokenService } from '../services/token.service';
-import { ConfigService } from '../services/config.service';
 import { UserRepository } from '../repositories/user.repository';
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private configService: ConfigService,
     private tokenService: TokenService,
     private userRepository: UserRepository,
   ) {}
@@ -41,4 +39,4 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((data, req) => req.user);
+export const AuthUser = createParamDecorator((_, req) => req.user);

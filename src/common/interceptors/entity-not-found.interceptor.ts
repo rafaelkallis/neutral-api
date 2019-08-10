@@ -10,7 +10,7 @@ import { EntityNotFoundException } from '../exceptions/entity-not-found.exceptio
 
 @Injectable()
 export class EntityNotFoundInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<void> {
+  intercept(_: ExecutionContext, next: CallHandler): Observable<void> {
     return next
       .handle()
       .pipe(

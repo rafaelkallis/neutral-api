@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UserMigration1564324478234 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {

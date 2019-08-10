@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { getHashes } from 'crypto';
 import envalid from 'envalid';
 
 interface IConfig {

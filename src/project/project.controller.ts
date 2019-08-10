@@ -8,7 +8,6 @@ import {
   UseGuards,
   Body,
   Param,
-  NotImplementedException,
 } from '@nestjs/common';
 import {
   ApiOperation,
