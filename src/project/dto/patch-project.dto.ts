@@ -1,6 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
+/**
+ * Patch project DTO
+ */
 export class PatchProjectDto {
   @IsString()
   @IsOptional()

@@ -16,6 +16,9 @@ interface IConfig {
   readonly SESSION_NAME: string;
 }
 
+/**
+ * Config Service
+ */
 @Injectable()
 export class ConfigService {
   private config: IConfig;
@@ -37,18 +40,30 @@ export class ConfigService {
     });
   }
 
+  /**
+   * Get a config variable.
+   */
   get<K extends keyof IConfig>(key: K): IConfig[K] {
     return this.config[key];
   }
 
+  /**
+   * Returns true if app is running in a production environment.
+   */
   isProduction() {
     return this.get('NODE_ENV') === 'production';
   }
 
+  /**
+   * Returns true if app is running in a development environment.
+   */
   isDevelopment() {
     return this.get('NODE_ENV') === 'development';
   }
 
+  /**
+   * Returns true if app is running in a test environment.
+   */
   isTest() {
     return this.get('NODE_ENV') === 'test';
   }

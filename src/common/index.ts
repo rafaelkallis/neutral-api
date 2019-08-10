@@ -25,5 +25,5 @@ export {
   TokenAlreadyUsedException,
 } from './exceptions/token-already-used.exception';
 export {
-  NotResourceOwnerException,
-} from './exceptions/not-resource-owner.exception';
+  InsufficientPermissionsException,
+} from './exceptions/insufficient-permissions.exception';

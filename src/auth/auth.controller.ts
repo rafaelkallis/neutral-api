@@ -31,6 +31,9 @@ import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
 import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
 
+/**
+ * Authentication Controller
+ */
 @Controller('auth')
 @ApiUseTags('Auth')
 export class AuthController {
@@ -42,6 +45,11 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
+  /**
+   * Passwordless login
+   *
+   * An email with a magic link is sent to the given email address
+   */
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ title: 'Request magic login' })
@@ -60,6 +68,13 @@ export class AuthController {
     await this.emailService.sendLoginEmail(email, magicLoginLink);
   }
 
+  /**
+   * Passwordless login token submit
+   *
+   * The token sent in the magic link is submitted here.
+   * An access token is assigned to the session, and both the access
+   * and refresh token are sent back in the response body.
+   */
   @Post('login/:token')
   @HttpCode(200)
   @ApiOperation({ title: 'Submit magic login token' })
@@ -89,6 +104,11 @@ export class AuthController {
     return { accessToken, refreshToken };
   }
 
+  /**
+   * Passwordless signup
+   *
+   * A magic link is sent to the given email address
+   */
   @Post('signup')
   @HttpCode(200)
   @ApiOperation({ title: 'Request magic signup' })
@@ -107,6 +127,12 @@ export class AuthController {
     await this.emailService.sendSignupEmail(email, magicSignupLink);
   }
 
+  /**
+   * Passwordless signup token submit
+   *
+   * The signup token sent to the email address earlier is submitted here
+   * along with other information about the user
+   */
   @Post('signup/:token')
   @ApiImplicitParam({ name: 'token' })
   @ApiOperation({ title: 'Submit magic signup token' })
@@ -140,6 +166,12 @@ export class AuthController {
     return { accessToken, refreshToken };
   }
 
+  /**
+   * Refresh the session
+   *
+   * A new access token is assigned to the session and sent back to the
+   * response body.
+   */
   @Post('refresh')
   @HttpCode(200)
   @ApiOperation({ title: 'Refresh tokens' })

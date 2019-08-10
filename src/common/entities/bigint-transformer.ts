@@ -1,6 +1,12 @@
 import { ValueTransformer } from 'typeorm';
 
+/**
+ * Value transformer for bigint.
+ */
 export class BigIntTransformer implements ValueTransformer {
+  /**
+   * To
+   */
   to(data: number | undefined | null): number | null {
     if (typeof data === 'undefined' || data === null) {
       return null;
@@ -8,6 +14,9 @@ export class BigIntTransformer implements ValueTransformer {
     return data;
   }
 
+  /**
+   * From
+   */
   from(data: string | null): number | null {
     if (typeof data === 'undefined' || data === null) {
       return null;

@@ -1,6 +1,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/**
+ * Project migration
+ */
 export class ProjectMigration1564574530189 implements MigrationInterface {
+  /**
+   * Up
+   */
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE projects (
@@ -14,6 +20,9 @@ export class ProjectMigration1564574530189 implements MigrationInterface {
     `);
   }
 
+  /**
+   * Down
+   */
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       DROP TABLE projects;

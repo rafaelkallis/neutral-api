@@ -1,6 +1,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/**
+ * Role migration
+ */
 export class RoleMigration1565196023819 implements MigrationInterface {
+  /**
+   * Up
+   */
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE roles (
@@ -15,6 +21,9 @@ export class RoleMigration1565196023819 implements MigrationInterface {
     `);
   }
 
+  /**
+   * Down
+   */
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       DROP TABLE roles;

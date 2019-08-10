@@ -15,6 +15,9 @@ import {
 
 import { BigIntTransformer } from './bigint-transformer';
 
+/**
+ * Base Entity
+ */
 export class BaseEntity {
   @PrimaryColumn()
   @IsString()
@@ -32,6 +35,9 @@ export class BaseEntity {
   @ApiModelProperty()
   updatedAt!: number;
 
+  /**
+   * Hook called before the entity is inserted.
+   */
   @BeforeInsert()
   protected async beforeInsert() {
     this.createdAt = Date.now();
@@ -39,12 +45,18 @@ export class BaseEntity {
     await validateOrReject(this);
   }
 
+  /**
+   * Hook called before the entity is updated.
+   */
   @BeforeUpdate()
   protected async beforeUpdate() {
     this.updatedAt = Date.now();
     await validateOrReject(this);
   }
 
+  /**
+   * Hook called after the entity is loaded.
+   */
   @AfterLoad()
   protected async afterLoad() {
     await validateOrReject(this);

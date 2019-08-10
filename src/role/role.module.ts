@@ -4,6 +4,9 @@ import { CommonModule } from '../common';
 
 import { RoleController } from './role.controller';
 
+/**
+ * Role Module
+ */
 @Module({
   imports: [CommonModule],
   controllers: [RoleController],

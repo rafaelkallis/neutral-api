@@ -1,8 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
 import * as os from 'os';
 
+/**
+ * App Controller
+ */
 @Controller()
 export class AppController {
+  /**
+   * Get the status of the app.
+   */
   @Get('status')
   getStatus() {
     return {

@@ -1,6 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
+/**
+ * Create project DTO
+ */
 export class CreateProjectDto {
   @IsString()
   @ApiModelProperty({

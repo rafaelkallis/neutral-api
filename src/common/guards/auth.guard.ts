@@ -9,6 +9,11 @@ import { UnauthorizedUserException } from '../exceptions/unauthorized-user.excep
 import { UserRepository } from '../repositories/user.repository';
 import { TokenService } from '../services/token.service';
 
+/**
+ * Auth Guard.
+ *
+ * Retrieves the session state either from cookies or the authorization header.
+ */
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -16,6 +21,9 @@ export class AuthGuard implements CanActivate {
     private userRepository: UserRepository,
   ) {}
 
+  /**
+   * Guard handle
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const session: string | undefined = req.session.get();

@@ -6,6 +6,9 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
+/**
+ * User Entity
+ */
 @Entity('users')
 export class User extends BaseEntity {
   @Column()

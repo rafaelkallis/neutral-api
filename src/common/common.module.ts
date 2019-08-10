@@ -15,6 +15,9 @@ import { LogService } from './services/log.service';
 import { RandomService } from './services/random.service';
 import { TokenService } from './services/token.service';
 
+/**
+ * Common Module
+ */
 @Module({
   imports: [
     TypeOrmModule.forFeature([

@@ -1,6 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
+/**
+ * Submit Signup DTO
+ */
 export class SubmitSignupDto {
   @IsString()
   @ApiModelProperty({

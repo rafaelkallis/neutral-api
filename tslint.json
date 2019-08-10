@@ -26,7 +26,18 @@
     "no-console": [true],
     "prefer-object-spread": true,
     "no-inferred-empty-object-type": true,
-    "no-redundant-jsdoc": true
+    "no-redundant-jsdoc": true,
+    "completed-docs": [
+      true,
+      {
+        "classes": { "visibilities": ["exported"] },
+        "enums": { "visibilities": ["exported"] },
+        "functions": { "visibilities": ["exported"] },
+        "interfaces": { "visibilities": ["exported"] },
+        "methods": { "privacies": ["public", "protected"] },
+        "types": { "visibilities": ["exported"] }
+      }
+    ]
   },
   "rulesDirectory": []
 }

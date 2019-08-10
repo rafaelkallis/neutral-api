@@ -6,6 +6,11 @@ import { ValidationError } from 'class-validator';
 
 import { ValidationException } from '../exceptions/validation.exception';
 
+/**
+ * Validation Pipe
+ *
+ * Use instead of nestjs's ValidationPipe to get a better error.
+ */
 @Injectable()
 export class ValidationPipe extends NestValidationPipe {
   constructor() {

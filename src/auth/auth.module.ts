@@ -4,6 +4,9 @@ import { CommonModule } from '../common';
 
 import { AuthController } from './auth.controller';
 
+/**
+ * Auth Module
+ */
 @Module({
   imports: [CommonModule],
   controllers: [AuthController],

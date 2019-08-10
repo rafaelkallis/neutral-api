@@ -1,6 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 
+/**
+ * Request Login DTO
+ */
 export class RequestLoginDto {
   @IsEmail()
   @ApiModelProperty({

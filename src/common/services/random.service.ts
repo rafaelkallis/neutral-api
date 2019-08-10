@@ -3,6 +3,9 @@ import base64url from 'base64url';
 import crypto from 'crypto';
 import moment from 'moment';
 
+/**
+ * Random Service
+ */
 @Injectable()
 export class RandomService {
   private static N_SALT_BYTES = 16;
@@ -55,10 +58,6 @@ export class RandomService {
     return this.createRandomBytes(RandomService.N_SALT_BYTES).toString(
       'base64',
     );
-  }
-
-  pin(): string {
-    return String(this.createRandomBytes(8).readUInt8(0) % 1000000);
   }
 
   private createTimestampBytes(bytes: number) {

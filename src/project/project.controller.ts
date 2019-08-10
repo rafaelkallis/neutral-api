@@ -31,6 +31,9 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PatchProjectDto } from './dto/patch-project.dto';
 
+/**
+ * Project Controller
+ */
 @Controller('projects')
 @ApiUseTags('Projects')
 export class ProjectController {
@@ -39,6 +42,9 @@ export class ProjectController {
     private randomService: RandomService,
   ) {}
 
+  /**
+   * Get projects
+   */
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -48,6 +54,9 @@ export class ProjectController {
     return this.projectRepository.find();
   }
 
+  /**
+   * Get a project
+   */
   @Get(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -59,6 +68,9 @@ export class ProjectController {
     return this.projectRepository.findOneOrFail({ id });
   }
 
+  /**
+   * Create a project
+   */
   @Post()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -74,12 +86,15 @@ export class ProjectController {
     return this.projectRepository.save(project);
   }
 
+  /**
+   * Update a project
+   */
   @Patch(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Update a project' })
   @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'Project update succesfully' })
+  @ApiResponse({ status: 200, description: 'Project updated succesfully' })
   @ApiResponse({
     status: 403,
     description: 'Authenticated user is not the project owner',
@@ -102,6 +117,9 @@ export class ProjectController {
     return this.projectRepository.save(project);
   }
 
+  /**
+   * Delete a project
+   */
   @Delete(':id')
   @HttpCode(204)
   @UseGuards(AuthGuard)

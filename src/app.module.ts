@@ -11,6 +11,9 @@ import { ProjectModule } from './project/project.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 
+/**
+ * App Module
+ */
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -34,6 +37,10 @@ import { UserModule } from './user/user.module';
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
+
+  /**
+   * Configure middleware for this module.
+   */
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(helmet(), compression(), cookieParser(), SessionMiddleware)

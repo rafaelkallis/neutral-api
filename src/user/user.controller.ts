@@ -31,6 +31,9 @@ import {
 
 import { PatchUserDto } from './dto/patch-user.dto';
 
+/**
+ * User Controller
+ */
 @Controller('users')
 @ApiUseTags('Users')
 export class UserController {
@@ -41,6 +44,9 @@ export class UserController {
     private emailService: EmailService,
   ) {}
 
+  /**
+   * Get users
+   */
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -50,6 +56,9 @@ export class UserController {
     return this.userRepository.find();
   }
 
+  /**
+   * Get the authenticated user
+   */
   @Get('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -59,6 +68,12 @@ export class UserController {
     return authUser;
   }
 
+  /**
+   * Update the authenticated user
+   *
+   * If the email address is changed, a email change magic link is sent
+   * to verify the new email address.
+   */
   @Patch('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -84,6 +99,9 @@ export class UserController {
     return this.userRepository.save(authUser);
   }
 
+  /**
+   * Submit the email change token to verify a new email address
+   */
   @Post('me/email-change/:token')
   @ApiOperation({ title: 'Submit email change token' })
   @ApiImplicitParam({ name: 'token' })
@@ -99,6 +117,9 @@ export class UserController {
     await this.userRepository.save(user);
   }
 
+  /**
+   * Get the user with the given id
+   */
   @Get(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -110,6 +131,9 @@ export class UserController {
     return this.userRepository.findOneOrFail({ id });
   }
 
+  /**
+   * Delete the authenticated user
+   */
   @Delete('me')
   @HttpCode(204)
   @UseGuards(AuthGuard)

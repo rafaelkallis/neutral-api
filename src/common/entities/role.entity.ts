@@ -4,6 +4,9 @@ import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 
+/**
+ * Role Entity
+ */
 @Entity('roles')
 export class Role extends BaseEntity {
   @Column({ name: 'project_id' })

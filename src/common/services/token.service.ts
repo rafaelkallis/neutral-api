@@ -10,6 +10,9 @@ import { TokenFromFutureException } from '../exceptions/token-from-future.except
 import { ConfigService } from './config.service';
 import { RandomService } from './random.service';
 
+/**
+ * Token Service
+ */
 @Injectable()
 export class TokenService {
   private jwk = JWK.asKey(this.configService.get('SECRET_HEX'));
@@ -19,11 +22,14 @@ export class TokenService {
     private randomService: RandomService,
   ) {}
 
-  public newLoginToken(sub: string, lastLoginAt: number): string {
+  /**
+   * Create a new login token to be used in a login magic link.
+   */
+  public newLoginToken(userId: string, lastLoginAt: number): string {
     const payload: ILoginToken = {
       jti: this.randomService.id(),
       aud: TokenAud.LOGIN,
-      sub,
+      sub: userId,
       iat: moment().unix(),
       exp: moment()
         .add(this.configService.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')
@@ -33,6 +39,9 @@ export class TokenService {
     return this.encrypt(payload);
   }
 
+  /**
+   * Validate and decrypt a login token.
+   */
   public validateLoginToken(token: string): ILoginToken {
     const payload = this.decrypt(token);
     if (payload.aud !== TokenAud.LOGIN) {
@@ -41,6 +50,9 @@ export class TokenService {
     return payload as ILoginToken;
   }
 
+  /**
+   * Create a new signup token to be used in a signup magic link.
+   */
   public newSignupToken(sub: string): string {
     const payload: ISignupToken = {
       jti: this.randomService.id(),
@@ -54,6 +66,9 @@ export class TokenService {
     return this.encrypt(payload);
   }
 
+  /**
+   * Validate and decrypt a signup token.
+   */
   public validateSignupToken(token: string): ISignupToken {
     const payload = this.decrypt(token);
     if (payload.aud !== TokenAud.SIGNUP) {
@@ -62,6 +77,9 @@ export class TokenService {
     return payload as ISignupToken;
   }
 
+  /**
+   * Create a new access token for identifying user sessions.
+   */
   public newAccessToken(sub: string): string {
     const payload: IAccessToken = {
       jti: this.randomService.id(),
@@ -75,6 +93,9 @@ export class TokenService {
     return this.sign(payload);
   }
 
+  /**
+   * Validate and verify the signature of an access token.
+   */
   public validateAccessToken(token: string): IAccessToken {
     const payload = this.verify(token);
     if (payload.aud !== TokenAud.ACCESS) {
@@ -83,6 +104,9 @@ export class TokenService {
     return payload as IAccessToken;
   }
 
+  /**
+   * Create a new refresh token for refreshing user sessions.
+   */
   public newRefreshToken(sub: string): string {
     const payload: IRefreshToken = {
       jti: this.randomService.id(),
@@ -96,6 +120,9 @@ export class TokenService {
     return this.sign(payload);
   }
 
+  /**
+   * Validate and the verify the signature of a refresh token.
+   */
   public validateRefreshToken(token: string): IRefreshToken {
     const payload = this.verify(token);
     if (payload.aud !== TokenAud.REFRESH) {
@@ -104,6 +131,10 @@ export class TokenService {
     return payload as IRefreshToken;
   }
 
+  /**
+   * Create a new email-change token to be used for verifying 
+   * a new email address.
+   */
   public newEmailChangeToken(
     sub: string,
     curEmail: string,
@@ -126,6 +157,9 @@ export class TokenService {
     return this.encrypt(payload);
   }
 
+  /**
+   * Validate and decrypt an email-change token.
+   */
   public validateEmailChangeToken(token: string): IEmailChangeToken {
     const payload = this.decrypt(token);
     if (payload.aud !== TokenAud.EMAIL_CHANGE) {
