@@ -1,15 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import {
   User,
   Project,
   UserRepository,
   ProjectRepository,
-  EmailService,
   TokenService,
-  SessionMiddleware,
 } from '../src/common';
 import { entityFaker, primitiveFaker } from '../src/test';
 
@@ -36,20 +34,17 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects (GET)', () => {
-    let projects: Project[];
+    let project: Project;
 
     beforeEach(async () => {
-      projects = [
-        await projectRepository.save(entityFaker.project(user.id)),
-        await projectRepository.save(entityFaker.project(user.id)),
-        await projectRepository.save(entityFaker.project(user.id)),
-      ];
+      project = entityFaker.project(user.id);
+      await projectRepository.save(project);
     });
 
     test('happy path', async () => {
       const response = await session.get('/projects');
       expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
+      expect(response.body).toContainEqual(project);
     });
   });
 

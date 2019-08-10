@@ -135,12 +135,12 @@ describe('User Controller', () => {
 
     beforeEach(async () => {
       user = entityFaker.user();
-      jest.spyOn(userRepository, 'delete').mockResolvedValue(undefined);
+      jest.spyOn(userRepository, 'remove').mockResolvedValue(user);
     });
 
     test('happy path', async () => {
       await userController.deleteAuthUser(user);
-      expect(userRepository.delete).toHaveBeenCalledWith(user);
+      expect(userRepository.remove).toHaveBeenCalledWith(user);
     });
   });
 });

@@ -1,25 +1,20 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import {
   User,
   Project,
-  Role,
   UserRepository,
   ProjectRepository,
-  RoleRepository,
-  EmailService,
   TokenService,
-  SessionMiddleware,
 } from '../src/common';
-import { entityFaker, primitiveFaker } from '../src/test';
+import { entityFaker } from '../src/test';
 
 describe('RoleController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
-  let roleRepository: RoleRepository;
   let user: User;
   let project: Project;
   let session: request.SuperTest<request.Test>;
@@ -30,7 +25,7 @@ describe('RoleController (e2e)', () => {
     }).compile();
     userRepository = module.get(UserRepository);
     projectRepository = module.get(ProjectRepository);
-    roleRepository = module.get(RoleRepository);
+    // roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
     await userRepository.save(user);
     project = entityFaker.project(user.id);

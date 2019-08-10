@@ -12,12 +12,12 @@ export class Role extends BaseEntity {
   @ApiModelProperty()
   projectId!: string;
 
-  @Column({ name: 'assignee_id' })
-  @IsString()
+  @Column({ name: 'assignee_id', type: 'varchar' })
   @IsOptional()
+  @IsString()
   @MaxLength(20)
   @ApiModelProperty({ required: false })
-  assigneeId!: string | null;
+  assigneeId?: string | null;
 
   @Column({ name: 'title' })
   @IsString()

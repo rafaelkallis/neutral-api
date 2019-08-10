@@ -1,13 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import {
   User,
   UserRepository,
-  EmailService,
   TokenService,
-  SessionMiddleware,
 } from '../src/common';
 import { entityFaker } from '../src/test';
 

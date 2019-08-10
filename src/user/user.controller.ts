@@ -118,6 +118,6 @@ export class UserController {
     description: 'Authenticated user deleted succesfully',
   })
   async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
-    await this.userRepository.delete(authUser);
+    await this.userRepository.remove(authUser);
   }
 }

@@ -120,6 +120,6 @@ export class ProjectController {
     if (project.ownerId !== authUser.id) {
       throw new NotResourceOwnerException();
     }
-    await this.projectRepository.delete(project);
+    await this.projectRepository.remove(project);
   }
 }

@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import { LogService } from './common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(LogService));
 
   const options = new DocumentBuilder()

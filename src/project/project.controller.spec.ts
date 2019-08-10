@@ -112,12 +112,12 @@ describe('Project Controller', () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(projectRepository, 'delete').mockResolvedValue(undefined);
+      jest.spyOn(projectRepository, 'remove').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
       await projectController.deleteProject(user, project.id);
-      expect(projectRepository.delete).toHaveBeenCalled();
+      expect(projectRepository.remove).toHaveBeenCalled();
     });
   });
 });

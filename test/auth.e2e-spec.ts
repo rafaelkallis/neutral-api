@@ -1,13 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import {
   User,
   UserRepository,
   EmailService,
   TokenService,
-  SessionMiddleware,
 } from '../src/common';
 import { entityFaker, primitiveFaker } from '../src/test';
 
@@ -79,7 +78,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
-      const updatedUser = await userRepository.findOne({ id: user.id });
+      const updatedUser = await userRepository.findOneOrFail({ id: user.id });
       expect(user.lastLoginAt).toBeLessThan(updatedUser.lastLoginAt);
     });
   });

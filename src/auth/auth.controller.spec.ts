@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import {
   ISession,
@@ -9,7 +8,6 @@ import {
   RandomService,
   EmailService,
   ConfigService,
-  TokenAlreadyUsedException,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { RequestLoginDto } from './dto/request-login.dto';
