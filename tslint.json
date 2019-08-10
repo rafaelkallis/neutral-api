@@ -15,9 +15,18 @@
       }
     },
     "member-ordering": [false],
-    "interface-name": [false],
     "object-literal-sort-keys": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-floating-promises": true,
+    "no-any": true,
+    "promise-function-async": true,
+    "curly": true,
+    "cyclomatic-complexity": [true, 20],
+    "no-default-export": true,
+    "no-console": [true],
+    "prefer-object-spread": true,
+    "no-inferred-empty-object-type": true,
+    "no-redundant-jsdoc": true
   },
   "rulesDirectory": []
 }

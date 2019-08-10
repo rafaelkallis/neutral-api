@@ -4,23 +4,23 @@ import { Role } from '../common';
 
 @Controller('roles')
 export class RoleController {
-  getRoles(): Promise<Role[]> {
+  async getRoles(): Promise<Role[]> {
     throw new NotImplementedException();
   }
 
-  getRole(): Promise<Role> {
+  async getRole(): Promise<Role> {
     throw new NotImplementedException();
   }
 
-  createRole(): Promise<Role> {
+  async createRole(): Promise<Role> {
     throw new NotImplementedException();
   }
 
-  patchRole(): Promise<Role> {
+  async patchRole(): Promise<Role> {
     throw new NotImplementedException();
   }
 
-  deleteRole(): Promise<Role> {
+  async deleteRole(): Promise<Role> {
     throw new NotImplementedException();
   }
 }
