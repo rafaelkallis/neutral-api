@@ -1,7 +1,7 @@
-import { Entity, Column } from 'typeorm';
-import { IsString, IsEmail, MaxLength, IsNumber } from 'class-validator';
-import { Exclude } from 'class-transformer';
 import { ApiModelProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import { IsEmail, IsNumber, IsString, MaxLength } from 'class-validator';
+import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';

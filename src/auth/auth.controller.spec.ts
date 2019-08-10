@@ -1,19 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
+
 import {
+  ConfigService,
+  EmailService,
   ISession,
+  RandomService,
+  TokenService,
   User,
   UserRepository,
-  TokenService,
-  RandomService,
-  EmailService,
-  ConfigService,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
+
+import { AuthController } from './auth.controller';
+import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
-import { RefreshDto } from './dto/refresh.dto';
 
 describe('Auth Controller', () => {
   let authController: AuthController;

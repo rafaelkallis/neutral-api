@@ -1,17 +1,18 @@
+import { ApiModelProperty } from '@nestjs/swagger';
 import {
-  Column,
-  PrimaryColumn,
-  AfterLoad,
-  BeforeInsert,
-  BeforeUpdate,
-} from 'typeorm';
-import {
-  IsString,
   IsNumber,
+  IsString,
   MaxLength,
   validateOrReject,
 } from 'class-validator';
-import { ApiModelProperty } from '@nestjs/swagger';
+import {
+  AfterLoad,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  PrimaryColumn,
+} from 'typeorm';
+
 import { BigIntTransformer } from './bigint-transformer';
 
 export class BaseEntity {

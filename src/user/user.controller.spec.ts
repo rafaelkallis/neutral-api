@@ -1,16 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from './user.controller';
+
 import {
-  User,
-  UserRepository,
+  ConfigService,
+  EmailService,
   ProjectRepository,
   RandomService,
   TokenService,
-  ConfigService,
-  EmailService,
+  User,
+  UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
+
 import { PatchUserDto } from './dto/patch-user.dto';
+import { UserController } from './user.controller';
 
 describe('User Controller', () => {
   let userController: UserController;

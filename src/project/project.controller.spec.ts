@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProjectController } from './project.controller';
+
 import {
-  User,
+  ConfigService,
   Project,
-  UserRepository,
   ProjectRepository,
   RandomService,
   TokenService,
-  ConfigService,
+  User,
+  UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
+
+import { ProjectController } from './project.controller';
 
 describe('Project Controller', () => {
   let projectController: ProjectController;

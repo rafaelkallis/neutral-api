@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TokenService } from './token.service';
-import { RandomService } from './random.service';
+
 import { ConfigService } from './config.service';
+import { RandomService } from './random.service';
+import { TokenService } from './token.service';
 
 describe('TokenService', () => {
   let service: TokenService;

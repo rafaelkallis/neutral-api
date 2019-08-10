@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ProjectController } from './project.controller';
+
 import { CommonModule } from '../common';
+
+import { ProjectController } from './project.controller';
 
 @Module({
   imports: [CommonModule],

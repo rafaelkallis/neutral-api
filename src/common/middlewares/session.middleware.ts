@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, CookieOptions } from 'express';
+import { CookieOptions, Request, Response } from 'express';
+
 import { ConfigService } from '../services/config.service';
 
 export interface ISession {

@@ -1,14 +1,15 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { SessionMiddleware, CommonModule, ConfigService } from './common';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { ProjectModule } from './project/project.module';
-import { RoleModule } from './role/role.module';
-import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+
+import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
+import { CommonModule, ConfigService, SessionMiddleware } from './common';
+import { ProjectModule } from './project/project.module';
+import { RoleModule } from './role/role.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [

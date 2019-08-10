@@ -1,33 +1,35 @@
 import {
-  Controller,
-  Post,
-  HttpCode,
   Body,
+  Controller,
+  HttpCode,
   Param,
+  Post,
   Session,
 } from '@nestjs/common';
 import {
+  ApiImplicitParam,
   ApiOperation,
   ApiResponse,
-  ApiImplicitParam,
   ApiUseTags,
 } from '@nestjs/swagger';
+
 import {
+  ConfigService,
+  EmailService,
+  ISession,
+  RandomService,
+  TokenAlreadyUsedException,
+  TokenService,
   User,
   UserRepository,
-  TokenService,
-  RandomService,
-  EmailService,
-  ConfigService,
-  TokenAlreadyUsedException,
-  ISession,
   ValidationPipe,
 } from '../common';
-import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
+
+import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
-import { RefreshDto } from './dto/refresh.dto';
+import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
 
 @Controller('auth')
 @ApiUseTags('Auth')

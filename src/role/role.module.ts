@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { RoleController } from './role.controller';
+
 import { CommonModule } from '../common';
+
+import { RoleController } from './role.controller';
 
 @Module({
   imports: [CommonModule],

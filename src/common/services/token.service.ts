@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from './config.service';
-import { RandomService } from './random.service';
+import { JWE, JWK, JWS } from '@panva/jose';
 import moment from 'moment';
-import { JWK, JWS, JWE } from '@panva/jose';
+
+import { TokenAudienceIncorrectException } from '../exceptions/token-audience-incorrect.exception';
 import { TokenClaimMissingException } from '../exceptions/token-claim-missing.exception';
 import { TokenExpiredException } from '../exceptions/token-expired.exception';
 import { TokenFromFutureException } from '../exceptions/token-from-future.exception';
-import { TokenAudienceIncorrectException } from '../exceptions/token-audience-incorrect.exception';
+
+import { ConfigService } from './config.service';
+import { RandomService } from './random.service';
 
 @Injectable()
 export class TokenService {

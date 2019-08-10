@@ -1,5 +1,6 @@
+import { BaseEntity, Project, User } from '../common';
+
 import { primitiveFaker } from './primitive-faker';
-import { BaseEntity, User, Project } from '../common';
 
 export const entityFaker = {
   user(): User {

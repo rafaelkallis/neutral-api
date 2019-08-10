@@ -1,12 +1,13 @@
 import {
   CanActivate,
+  createParamDecorator,
   ExecutionContext,
   Injectable,
-  createParamDecorator,
 } from '@nestjs/common';
-import { TokenService } from '../services/token.service';
-import { UserRepository } from '../repositories/user.repository';
+
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
+import { UserRepository } from '../repositories/user.repository';
+import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

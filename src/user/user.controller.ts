@@ -1,32 +1,34 @@
 import {
-  Controller,
-  Get,
-  Delete,
-  HttpCode,
-  UseGuards,
   Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
+  ApiImplicitParam,
   ApiOperation,
   ApiResponse,
   ApiUseTags,
-  ApiBearerAuth,
-  ApiImplicitParam,
 } from '@nestjs/swagger';
+
 import {
   AuthGuard,
   AuthUser,
+  ConfigService,
+  EmailService,
+  TokenAlreadyUsedException,
+  TokenService,
   User,
   UserRepository,
-  TokenService,
-  EmailService,
-  ConfigService,
-  TokenAlreadyUsedException,
   ValidationPipe,
 } from '../common';
+
 import { PatchUserDto } from './dto/patch-user.dto';
 
 @Controller('users')
