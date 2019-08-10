@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from './config.service';
 import { RandomService } from './random.service';
-import * as moment from 'moment';
+import moment from 'moment';
 import { JWK, JWS, JWE } from '@panva/jose';
 import { TokenClaimMissingException } from '../exceptions/token-claim-missing.exception';
 import { TokenExpiredException } from '../exceptions/token-expired.exception';

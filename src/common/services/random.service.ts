@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import base64url from 'base64url';
-import * as crypto from 'crypto';
-import * as moment from 'moment';
+import crypto from 'crypto';
+import moment from 'moment';
 import { ConfigService } from './config.service';
 
 @Injectable()
