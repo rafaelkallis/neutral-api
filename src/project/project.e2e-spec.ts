@@ -2,15 +2,15 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 import {
   Project,
   ProjectRepository,
   TokenService,
   User,
   UserRepository,
-} from '../src/common';
-import { entityFaker, primitiveFaker } from '../src/test';
+} from '../common';
+import { entityFaker, primitiveFaker } from '../test';
 
 describe('ProjectController (e2e)', () => {
   let app: INestApplication;
@@ -114,7 +114,9 @@ describe('ProjectController (e2e)', () => {
       const response = await session.delete(`/projects/${project.id}`);
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(projectRepository.count({ id: project.id })).resolves.toBe(0);
+      await expect(projectRepository.count({ id: project.id })).resolves.toBe(
+        0,
+      );
     });
   });
 });

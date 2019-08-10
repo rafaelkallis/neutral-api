@@ -20,7 +20,7 @@ import {
 import {
   AuthGuard,
   AuthUser,
-  NotResourceOwnerException,
+  InsufficientPermissionsException,
   Project,
   ProjectRepository,
   RandomService,
@@ -106,7 +106,7 @@ export class ProjectController {
   ): Promise<Project> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
-      throw new NotResourceOwnerException();
+      throw new InsufficientPermissionsException();
     }
     if (patchProjectDto.title) {
       project.title = patchProjectDto.title;
@@ -137,7 +137,7 @@ export class ProjectController {
   ): Promise<void> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
-      throw new NotResourceOwnerException();
+      throw new InsufficientPermissionsException();
     }
     await this.projectRepository.remove(project);
   }

@@ -2,14 +2,9 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../src/app.module';
-import {
-  EmailService,
-  TokenService,
-  User,
-  UserRepository,
-} from '../src/common';
-import { entityFaker, primitiveFaker } from '../src/test';
+import { AppModule } from '../app.module';
+import { EmailService, TokenService, User, UserRepository } from '../common';
+import { entityFaker, primitiveFaker } from '../test';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;

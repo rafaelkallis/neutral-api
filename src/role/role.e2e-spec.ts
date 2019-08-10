@@ -2,15 +2,15 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 import {
   Project,
   ProjectRepository,
   TokenService,
   User,
   UserRepository,
-} from '../src/common';
-import { entityFaker } from '../src/test';
+} from '../common';
+import { entityFaker } from '../test';
 
 describe('RoleController (e2e)', () => {
   let app: INestApplication;
