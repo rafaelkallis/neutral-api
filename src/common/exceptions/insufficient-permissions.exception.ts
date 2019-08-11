@@ -5,6 +5,9 @@ import { ForbiddenException } from '@nestjs/common';
  */
 export class InsufficientPermissionsException extends ForbiddenException {
   constructor() {
-    super('Authenticated user has insufficient permissions', 'insufficient_permissions');
+    super(
+      'Authenticated user has insufficient permissions',
+      'insufficient_permissions',
+    );
   }
 }

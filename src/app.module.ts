@@ -37,7 +37,6 @@ import { UserModule } from './user/user.module';
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
-
   /**
    * Configure middleware for this module.
    */

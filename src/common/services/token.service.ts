@@ -132,7 +132,7 @@ export class TokenService {
   }
 
   /**
-   * Create a new email-change token to be used for verifying 
+   * Create a new email-change token to be used for verifying
    * a new email address.
    */
   public newEmailChangeToken(
