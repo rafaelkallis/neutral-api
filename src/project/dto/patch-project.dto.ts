@@ -12,7 +12,7 @@ export class PatchProjectDto {
     description: 'Title of the project',
     required: false,
   })
-  title?: string;
+  public title?: string;
 
   @IsString()
   @IsOptional()
@@ -22,5 +22,5 @@ export class PatchProjectDto {
     description: 'Description of the project',
     required: false,
   })
-  description?: string;
+  public description?: string;
 }

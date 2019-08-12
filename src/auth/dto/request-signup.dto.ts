@@ -10,5 +10,5 @@ export class RequestSignupDto {
     example: 'me@example.com',
     description: 'Email address to send the magic signup link to',
   })
-  email!: string;
+  public email!: string;
 }

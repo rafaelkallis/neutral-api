@@ -37,10 +37,15 @@ import { PatchProjectDto } from './dto/patch-project.dto';
 @Controller('projects')
 @ApiUseTags('Projects')
 export class ProjectController {
-  constructor(
-    private projectRepository: ProjectRepository,
-    private randomService: RandomService,
-  ) {}
+  private readonly projectRepository: ProjectRepository;
+  private readonly randomService: RandomService;
+  public constructor(
+    projectRepository: ProjectRepository,
+    randomService: RandomService,
+  ) {
+    this.projectRepository = projectRepository;
+    this.randomService = randomService;
+  }
 
   /**
    * Get projects
@@ -50,7 +55,7 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
-  async getProjects(): Promise<Project[]> {
+  public async getProjects(): Promise<Project[]> {
     return this.projectRepository.find();
   }
 
@@ -64,7 +69,7 @@ export class ProjectController {
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async getProject(@Param('id') id: string): Promise<Project> {
+  public async getProject(@Param('id') id: string): Promise<Project> {
     return this.projectRepository.findOneOrFail({ id });
   }
 
@@ -74,7 +79,7 @@ export class ProjectController {
   @Post()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  async createProject(
+  public async createProject(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateProjectDto,
   ): Promise<Project> {
@@ -99,7 +104,7 @@ export class ProjectController {
     status: 403,
     description: 'Authenticated user is not the project owner',
   })
-  async patchProject(
+  public async patchProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body(ValidationPipe) patchProjectDto: PatchProjectDto,
@@ -131,7 +136,7 @@ export class ProjectController {
     status: 403,
     description: 'Authenticated user is not the project owner',
   })
-  async deleteProject(
+  public async deleteProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {

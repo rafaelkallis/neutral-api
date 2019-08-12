@@ -8,14 +8,14 @@ import { ConfigService } from './config.service';
  */
 @Injectable()
 export class EmailService {
-  constructor(configService: ConfigService) {
+  public constructor(configService: ConfigService) {
     sendgrid.setApiKey(configService.get('SENDGRID_API_KEY'));
   }
 
   /**
    * Sends an email with the login template.
    */
-  async sendLoginEmail(to: string, loginMagicLink: string) {
+  public async sendLoginEmail(to: string, loginMagicLink: string): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
@@ -27,7 +27,7 @@ export class EmailService {
   /**
    * Sends an email with the signup template.
    */
-  async sendSignupEmail(to: string, signupMagicLink: string) {
+  public async sendSignupEmail(to: string, signupMagicLink: string): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
@@ -39,7 +39,7 @@ export class EmailService {
   /**
    * Sends an email with the email-change template.
    */
-  async sendEmailChangeEmail(to: string, emailChangeMagicLink: string) {
+  public async sendEmailChangeEmail(to: string, emailChangeMagicLink: string): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },

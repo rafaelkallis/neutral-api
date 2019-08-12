@@ -1,25 +1,54 @@
 import * as faker from 'faker';
 
-export const primitiveFaker = {
-  id() {
+class PrimitiveFaker {
+  /**
+   * Creates a fake id
+   */
+  public id(): string {
     return String(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  },
-  email() {
+  }
+
+  /**
+   * Creates a fake email address
+   */
+  public email(): string {
     return `${this.id()}@example.com`;
-  },
-  timestampUnix() {
+  }
+
+  /**
+   * Creates a fake unix timestamp
+   */
+  public timestampUnix(): number {
     return Math.floor(faker.date.recent().getTime() / 1000);
-  },
-  word() {
+  }
+
+  /**
+   * Creates a fake word
+   */
+  public word(): string {
     return faker.lorem.word();
-  },
-  words() {
+  }
+
+  /**
+   * Creates a sequence of fake words
+   */
+  public words(): string {
     return faker.lorem.words();
-  },
-  sentence() {
+  }
+
+  /**
+   * Creates a sentence of fake words
+   */
+  public sentence(): string {
     return faker.lorem.sentence();
-  },
-  paragraph() {
+  }
+
+  /**
+   * Creates a paragraph of fake words
+   */
+  public paragraph(): string {
     return faker.lorem.paragraph();
-  },
-};
+  }
+}
+
+export const primitiveFaker = new PrimitiveFaker();

@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   ConfigService,
   EmailService,
-  ISession,
   RandomService,
+  SessionState,
   TokenService,
   User,
   UserRepository,
@@ -63,7 +63,7 @@ describe('Auth Controller', () => {
   describe('submit magic login', () => {
     let user: User;
     let loginToken: string;
-    let session: ISession;
+    let session: SessionState;
 
     beforeEach(() => {
       user = entityFaker.user();
@@ -104,7 +104,7 @@ describe('Auth Controller', () => {
   describe('submit magic signup', () => {
     let user: User;
     let signupToken: string;
-    let session: ISession;
+    let session: SessionState;
 
     beforeEach(() => {
       user = entityFaker.user();
@@ -135,7 +135,7 @@ describe('Auth Controller', () => {
   describe('refresh', () => {
     let user: User;
     let refreshToken: string;
-    let session: ISession;
+    let session: SessionState;
 
     beforeEach(() => {
       user = entityFaker.user();

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import envalid from 'envalid';
 
-interface IConfig {
+interface Config {
   readonly NODE_ENV: string;
   readonly PORT: number;
   readonly FRONTEND_URL: string;
@@ -21,14 +21,14 @@ interface IConfig {
  */
 @Injectable()
 export class ConfigService {
-  private config: IConfig;
+  private readonly config: Config;
 
-  constructor() {
-    this.config = envalid.cleanEnv<IConfig>(process.env, {
+  public constructor() {
+    this.config = envalid.cleanEnv<Config>(process.env, {
       NODE_ENV: envalid.str({ choices: ['production', 'test', 'development'] }),
       PORT: envalid.port(),
       FRONTEND_URL: envalid.url(),
-      SECRET_HEX: strHex64(),
+      SECRET_HEX: this.strHex64(),
       DATABASE_URL: envalid.url(),
       SENDGRID_API_KEY: envalid.str(),
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num(),
@@ -43,35 +43,36 @@ export class ConfigService {
   /**
    * Get a config variable.
    */
-  get<K extends keyof IConfig>(key: K): IConfig[K] {
+  public get<K extends keyof Config>(key: K): Config[K] {
+    // eslint-disable-next-line security/detect-object-injection
     return this.config[key];
   }
 
   /**
    * Returns true if app is running in a production environment.
    */
-  isProduction() {
+  public isProduction(): boolean {
     return this.get('NODE_ENV') === 'production';
   }
 
   /**
    * Returns true if app is running in a development environment.
    */
-  isDevelopment() {
+  public isDevelopment(): boolean {
     return this.get('NODE_ENV') === 'development';
   }
 
   /**
    * Returns true if app is running in a test environment.
    */
-  isTest() {
+  public isTest(): boolean {
     return this.get('NODE_ENV') === 'test';
   }
-}
 
-const strHex64 = envalid.makeValidator<string>(x => {
-  if (/^[0-9a-f]{64}$/.test(x)) {
-    return x;
-  }
-  throw new Error('Expected a hex-character string of length 64');
-});
+  private readonly strHex64 = envalid.makeValidator<string>(x => {
+    if (/^[0-9a-f]{64}$/.test(x)) {
+      return x;
+    }
+    throw new Error('Expected a hex-character string of length 64');
+  });
+}

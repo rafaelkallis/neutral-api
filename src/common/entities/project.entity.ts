@@ -13,17 +13,17 @@ export class Project extends BaseEntity {
   @IsString()
   @MaxLength(100)
   @ApiModelProperty()
-  title!: string;
+  public title!: string;
 
   @Column({ name: 'description' })
   @IsString()
   @MaxLength(1024)
   @ApiModelProperty()
-  description!: string;
+  public description!: string;
 
   @Column({ name: 'owner_id' })
   @IsString()
   @MaxLength(20)
   @ApiModelProperty()
-  ownerId!: string;
+  public ownerId!: string;
 }

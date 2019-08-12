@@ -15,22 +15,22 @@ export class User extends BaseEntity {
   @IsEmail()
   @MaxLength(100)
   @ApiModelProperty()
-  email!: string;
+  public email!: string;
 
   @Column({ name: 'first_name' })
   @IsString()
   @MaxLength(100)
   @ApiModelProperty()
-  firstName!: string;
+  public firstName!: string;
 
   @Column({ name: 'last_name' })
   @IsString()
   @MaxLength(100)
   @ApiModelProperty()
-  lastName!: string;
+  public lastName!: string;
 
   @Column({ name: 'last_login_at', transformer: new BigIntTransformer() })
   @IsNumber()
   @Exclude()
-  lastLoginAt!: number;
+  public lastLoginAt!: number;
 }

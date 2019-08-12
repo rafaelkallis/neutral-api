@@ -13,24 +13,24 @@ export class Role extends BaseEntity {
   @IsString()
   @MaxLength(20)
   @ApiModelProperty()
-  projectId!: string;
+  public projectId!: string;
 
   @Column({ name: 'assignee_id', type: 'varchar' })
   @IsOptional()
   @IsString()
   @MaxLength(20)
   @ApiModelProperty({ required: false })
-  assigneeId?: string | null;
+  public assigneeId?: string | null;
 
   @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
   @ApiModelProperty()
-  title!: string;
+  public title!: string;
 
   @Column({ name: 'description' })
   @IsString()
   @MaxLength(1024)
   @ApiModelProperty()
-  description!: string;
+  public description!: string;
 }

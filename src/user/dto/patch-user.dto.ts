@@ -8,15 +8,15 @@ export class PatchUserDto {
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  email?: string;
+  public email?: string;
 
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  firstName?: string;
+  public firstName?: string;
 
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
-  lastName?: string;
+  public lastName?: string;
 }

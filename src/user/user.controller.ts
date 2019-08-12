@@ -37,12 +37,22 @@ import { PatchUserDto } from './dto/patch-user.dto';
 @Controller('users')
 @ApiUseTags('Users')
 export class UserController {
-  constructor(
-    private userRepository: UserRepository,
-    private configService: ConfigService,
-    private tokenService: TokenService,
-    private emailService: EmailService,
-  ) {}
+  private readonly userRepository: UserRepository;
+  private readonly configService: ConfigService;
+  private readonly tokenService: TokenService;
+  private readonly emailService: EmailService;
+
+  public constructor(
+    userRepository: UserRepository,
+    configService: ConfigService,
+    tokenService: TokenService,
+    emailService: EmailService,
+  ) {
+    this.userRepository = userRepository;
+    this.configService = configService;
+    this.tokenService = tokenService;
+    this.emailService = emailService;
+  }
 
   /**
    * Get users
@@ -52,7 +62,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
-  async getUsers() {
+  public async getUsers(): Promise<User[]> {
     return this.userRepository.find();
   }
 
@@ -64,7 +74,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
-  async getAuthUser(@AuthUser() authUser: User): Promise<User> {
+  public async getAuthUser(@AuthUser() authUser: User): Promise<User> {
     return authUser;
   }
 
@@ -79,7 +89,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Patch the authenticated user' })
   @ApiResponse({ status: 200, description: 'User succesfully updated' })
-  async patchAuthUser(
+  public async patchAuthUser(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: PatchUserDto,
   ): Promise<User> {
@@ -107,7 +117,7 @@ export class UserController {
   @ApiImplicitParam({ name: 'token' })
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitEmailChange(@Param('token') token: string): Promise<void> {
+  public async submitEmailChange(@Param('token') token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
     const user = await this.userRepository.findOneOrFail({ id: payload.sub });
     if (user.email !== payload.curEmail) {
@@ -127,7 +137,7 @@ export class UserController {
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async getUser(@Param('id') id: string): Promise<User> {
+  public async getUser(@Param('id') id: string): Promise<User> {
     return this.userRepository.findOneOrFail({ id });
   }
 
@@ -143,7 +153,7 @@ export class UserController {
     status: 204,
     description: 'Authenticated user deleted succesfully',
   })
-  async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
+  public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
     await this.userRepository.remove(authUser);
   }
 }
