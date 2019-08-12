@@ -12,8 +12,7 @@
     "type": "tsc --noEmit",
     "type:watch": "tsc --noEmit --watch",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
-    "lint:eslint": "eslint --ext .ts src",
+    "lint": "eslint --ext .ts src",
     "test": "jest --config jest.config.json",
     "test:watch": "jest --config jest.config.json --watch",
     "test:cov": "jest --config jest.config.json --coverage",
@@ -70,8 +69,6 @@
     "ts-node-dev": "^1.0.0-pre.40",
     "tsc-watch": "2.2.1",
     "tsconfig-paths": "3.8.0",
-    "tslint": "5.16.0",
-    "tslint-config-prettier": "^1.18.0",
     "typescript": "3.4.3"
   }
 }
