@@ -9,39 +9,39 @@ export class LogService implements NestLoggerService {
   /**
    * Log a message at the default level.
    */
-  log(message: string) {
+  public log(message: string): void {
     this.logger.info(message);
   }
 
   /**
    * Log a message at the 'debug' level.
    */
-  debug(message: string) {
+  public debug(message: string): void {
     this.logger.debug(message);
   }
 
   /**
    * Log a message at the 'info' level.
    */
-  info(message: string) {
+  public info(message: string): void {
     this.logger.info(message);
   }
 
   /**
    * Log a message at the 'warn' level.
    */
-  warn(message: string) {
+  public warn(message: string): void {
     this.logger.warn(message);
   }
 
   /**
    * Log a message at the 'error' level.
    */
-  error(message: string) {
+  public error(message: string): void {
     this.logger.error(message);
   }
 
-  private logger = createLogger({
+  private readonly logger = createLogger({
     level: 'info',
     transports: [
       new transports.Console({

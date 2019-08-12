@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -19,7 +19,7 @@ import { UserModule } from './user/user.module';
     TypeOrmModule.forRootAsync({
       imports: [CommonModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
         type: 'postgres' as 'postgres',
         url: configService.get('DATABASE_URL'),
         entities: [`${__dirname}/common/entities/*`],
@@ -40,7 +40,7 @@ export class AppModule implements NestModule {
   /**
    * Configure middleware for this module.
    */
-  configure(consumer: MiddlewareConsumer) {
+  public configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(helmet(), compression(), cookieParser(), SessionMiddleware)
       .forRoutes('*');

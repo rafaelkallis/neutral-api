@@ -5,6 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 
+import { User } from '../entities/user.entity';
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
 import { UserRepository } from '../repositories/user.repository';
 import { TokenService } from '../services/token.service';
@@ -16,15 +17,20 @@ import { TokenService } from '../services/token.service';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    private tokenService: TokenService,
-    private userRepository: UserRepository,
-  ) {}
+  private readonly tokenService: TokenService;
+  private readonly userRepository: UserRepository;
+  public constructor(
+    tokenService: TokenService,
+    userRepository: UserRepository,
+  ) {
+    this.tokenService = tokenService;
+    this.userRepository = userRepository;
+  }
 
   /**
    * Guard handle
    */
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const session: string | undefined = req.session.get();
     const authHeader: string | undefined = req.header('Authorization');
@@ -48,4 +54,4 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((_, req) => req.user);
+export const AuthUser = createParamDecorator((_, req): User => req.user);

@@ -4,7 +4,7 @@ import { UnauthorizedException } from '@nestjs/common';
  * Exception thrown if the token audience is incorrect.
  */
 export class TokenAudienceIncorrectException extends UnauthorizedException {
-  constructor() {
+  public constructor() {
     super('Token audience is incorrect', 'token_audience_incorrect');
   }
 }

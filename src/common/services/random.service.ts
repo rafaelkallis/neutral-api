@@ -8,7 +8,12 @@ import moment from 'moment';
  */
 @Injectable()
 export class RandomService {
-  private static N_SALT_BYTES = 16;
+  private static readonly N_SALT_BYTES = 16;
+
+  public constructor() {
+    this.counter =
+      this.createRandomBytes(32).readUInt32BE(0) % Number.MAX_SAFE_INTEGER;
+  }
 
   /**
    * Generates a url-safe, ordered, random string.
@@ -17,7 +22,7 @@ export class RandomService {
    * 40 pseudorandom bits.
    * 24 sequence counter bits.
    */
-  id(): string {
+  public id(): string {
     const timestampBytes = this.createTimestampBytes(4);
     const randomBytes = this.createRandomBytes(5);
     const counterBytes = this.createCounterBytes(3);
@@ -33,7 +38,7 @@ export class RandomService {
    * 48 timestamp bits.
    * 128 pseudorandom bits.
    */
-  secureId(): string {
+  public secureId(): string {
     const timestampBytes = this.createTimestampBytes(6);
     const randomBytes = this.createRandomBytes(16);
     const idBytes = Buffer.concat([timestampBytes, randomBytes], 22);
@@ -44,7 +49,7 @@ export class RandomService {
    * Generates a 128-bit pseudorandom string.
    * The string is to be used with the mnemonic service.
    */
-  mnemonicEntropy(): string {
+  public mnemonicEntropy(): string {
     return this.createRandomBytes(16).toString('base64');
   }
 
@@ -54,13 +59,13 @@ export class RandomService {
    * variable PBKDF2_N_SALT_BYTES.
    * The salt is to be used with the password service.
    */
-  salt(): string {
+  public salt(): string {
     return this.createRandomBytes(RandomService.N_SALT_BYTES).toString(
       'base64',
     );
   }
 
-  private createTimestampBytes(bytes: number) {
+  private createTimestampBytes(bytes: number): Buffer {
     const timestampBytes = Buffer.allocUnsafe(bytes);
     const timestamp = moment().unix();
     timestampBytes.writeUIntBE(
@@ -72,11 +77,11 @@ export class RandomService {
     return timestampBytes;
   }
 
-  private createRandomBytes(bytes: number) {
+  private createRandomBytes(bytes: number): Buffer {
     return crypto.randomBytes(bytes);
   }
 
-  private createCounterBytes(bytes: number) {
+  private createCounterBytes(bytes: number): Buffer {
     const counterBytes = Buffer.allocUnsafe(bytes);
     counterBytes.writeUIntBE(
       // tslint:disable-next-line:no-bitwise
@@ -87,16 +92,13 @@ export class RandomService {
     return counterBytes;
   }
 
-  private getAndIncrementCounter = (() => {
-    let counter =
-      this.createRandomBytes(32).readUInt32BE(0) % Number.MAX_SAFE_INTEGER;
-    return () => {
-      if (counter === Number.MAX_SAFE_INTEGER) {
-        counter = Number.MIN_SAFE_INTEGER;
-      } else {
-        counter++;
-      }
-      return counter;
-    };
-  })();
+  private counter: number;
+  private getAndIncrementCounter(): number {
+    if (this.counter === Number.MAX_SAFE_INTEGER) {
+      this.counter = Number.MIN_SAFE_INTEGER;
+    } else {
+      this.counter++;
+    }
+    return this.counter;
+  }
 }

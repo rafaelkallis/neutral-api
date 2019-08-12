@@ -13,9 +13,9 @@ import { ValidationException } from '../exceptions/validation.exception';
  */
 @Injectable()
 export class ValidationPipe extends NestValidationPipe {
-  constructor() {
+  public constructor() {
     super({
-      exceptionFactory: (errors: ValidationError[]) =>
+      exceptionFactory: (errors: ValidationError[]): ValidationException =>
         new ValidationException(errors[0].value),
     });
   }

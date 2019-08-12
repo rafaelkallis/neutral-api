@@ -10,7 +10,7 @@ export class AppController {
    * Get the status of the app.
    */
   @Get('status')
-  getStatus() {
+  public getStatus(): GetStatusResponse {
     return {
       uptime: os.uptime(),
       loadavg: os.loadavg(),
@@ -18,4 +18,11 @@ export class AppController {
       totalmem: os.totalmem(),
     };
   }
+}
+
+interface GetStatusResponse {
+  uptime: number;
+  loadavg: number[];
+  freemem: number;
+  totalmem: number;
 }

@@ -17,7 +17,7 @@ export class EntityNotFoundInterceptor implements NestInterceptor {
   /**
    * Interceptor handle
    */
-  intercept(_: ExecutionContext, next: CallHandler): Observable<void> {
+  public intercept(_: ExecutionContext, next: CallHandler): Observable<void> {
     return next
       .handle()
       .pipe(

@@ -7,7 +7,7 @@ export class BigIntTransformer implements ValueTransformer {
   /**
    * To
    */
-  to(data: number | undefined | null): number | null {
+  public to(data: number | undefined | null): number | null {
     if (typeof data === 'undefined' || data === null) {
       return null;
     }
@@ -17,7 +17,7 @@ export class BigIntTransformer implements ValueTransformer {
   /**
    * From
    */
-  from(data: string | null): number | null {
+  public from(data: string | null): number | null {
     if (typeof data === 'undefined' || data === null) {
       return null;
     }

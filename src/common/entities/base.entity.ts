@@ -23,23 +23,23 @@ export class BaseEntity {
   @IsString()
   @MaxLength(20)
   @ApiModelProperty()
-  id!: string;
+  public id!: string;
 
   @Column({ name: 'created_at', transformer: new BigIntTransformer() })
   @IsNumber()
   @ApiModelProperty()
-  createdAt!: number;
+  public createdAt!: number;
 
   @Column({ name: 'updated_at', transformer: new BigIntTransformer() })
   @IsNumber()
   @ApiModelProperty()
-  updatedAt!: number;
+  public updatedAt!: number;
 
   /**
    * Hook called before the entity is inserted.
    */
   @BeforeInsert()
-  protected async beforeInsert() {
+  public async beforeInsert(): Promise<void> {
     this.createdAt = Date.now();
     this.updatedAt = Date.now();
     await validateOrReject(this);
@@ -49,7 +49,7 @@ export class BaseEntity {
    * Hook called before the entity is updated.
    */
   @BeforeUpdate()
-  protected async beforeUpdate() {
+  public async beforeUpdate(): Promise<void> {
     this.updatedAt = Date.now();
     await validateOrReject(this);
   }
@@ -58,7 +58,7 @@ export class BaseEntity {
    * Hook called after the entity is loaded.
    */
   @AfterLoad()
-  protected async afterLoad() {
+  public async afterLoad(): Promise<void> {
     await validateOrReject(this);
   }
 }

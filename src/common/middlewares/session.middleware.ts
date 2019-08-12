@@ -6,7 +6,7 @@ import { ConfigService } from '../services/config.service';
 /**
  * Session business object for modifying the session state.
  */
-export interface ISession {
+export interface SessionState {
   /**
    * Set the session state.
    */
@@ -30,19 +30,23 @@ export interface ISession {
  */
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
-  constructor(private configService: ConfigService) {}
+  private readonly configService: ConfigService;
+  public constructor(configService: ConfigService) {
+    this.configService = configService;
+  }
 
   /**
    * Middleware handle
    */
-  use(req: Request & { session: ISession }, res: Response, next: () => void) {
+  public use(req: Request & { session: SessionState }, res: Response, next: () => void): void {
     if (req.session) {
-      return next();
+      next();
+      return;
     }
     const sessionName = this.configService.get('SESSION_NAME');
     const secure = this.configService.isProduction();
     req.session = {
-      set: (state, lifetimeMin) => {
+      set(state, lifetimeMin): void {
         const options: CookieOptions = {
           secure,
           httpOnly: true,
@@ -52,11 +56,12 @@ export class SessionMiddleware implements NestMiddleware {
         res.cookie(sessionName, state, options);
       },
 
-      get: () => {
+      get(): string {
+        // eslint-disable-next-line security/detect-object-injection
         return req.cookies[sessionName];
       },
 
-      clear: () => {
+      clear(): void {
         res.clearCookie(sessionName);
       },
     };

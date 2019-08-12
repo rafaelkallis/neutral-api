@@ -16,8 +16,8 @@ import {
 import {
   ConfigService,
   EmailService,
-  ISession,
   RandomService,
+  SessionState,
   TokenAlreadyUsedException,
   TokenService,
   User,
@@ -37,13 +37,24 @@ import { EmailAlreadyUsedException } from './exceptions/email-already-used.excep
 @Controller('auth')
 @ApiUseTags('Auth')
 export class AuthController {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenService: TokenService,
-    private randomService: RandomService,
-    private emailService: EmailService,
-    private configService: ConfigService,
-  ) {}
+  private readonly userRepository: UserRepository;
+  private readonly tokenService: TokenService;
+  private readonly randomService: RandomService;
+  private readonly emailService: EmailService;
+  private readonly configService: ConfigService;
+  public constructor(
+    userRepository: UserRepository,
+    tokenService: TokenService,
+    randomService: RandomService,
+    emailService: EmailService,
+    configService: ConfigService,
+  ) {
+    this.userRepository = userRepository;
+    this.tokenService = tokenService;
+    this.randomService = randomService;
+    this.emailService = emailService;
+    this.configService = configService;
+  }
 
   /**
    * Passwordless login
@@ -55,7 +66,9 @@ export class AuthController {
   @ApiOperation({ title: 'Request magic login' })
   @ApiResponse({ status: 200, description: 'Magic login email sent' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async requestLogin(@Body(ValidationPipe) dto: RequestLoginDto) {
+  public async requestLogin(
+    @Body(ValidationPipe) dto: RequestLoginDto,
+  ): Promise<void> {
     const { email } = dto;
     const user = await this.userRepository.findOneOrFail({ email });
     const loginToken = this.tokenService.newLoginToken(
@@ -82,10 +95,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async submitLogin(
+  public async submitLogin(
     @Param('token') loginToken: string,
-    @Session() session: ISession,
-  ) {
+    @Session() session: SessionState,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const user = await this.userRepository.findOneOrFail({ id: payload.sub });
     if (user.lastLoginAt !== payload.lastLoginAt) {
@@ -114,7 +127,9 @@ export class AuthController {
   @ApiOperation({ title: 'Request magic signup' })
   @ApiResponse({ status: 200, description: 'Magic signup email sent' })
   @ApiResponse({ status: 400, description: 'Email already used' })
-  async requestSignup(@Body(ValidationPipe) dto: RequestSignupDto) {
+  public async requestSignup(
+    @Body(ValidationPipe) dto: RequestSignupDto,
+  ): Promise<void> {
     const { email } = dto;
     const count = await this.userRepository.count({ email });
     if (count !== 0) {
@@ -138,11 +153,11 @@ export class AuthController {
   @ApiOperation({ title: 'Submit magic signup token' })
   @ApiResponse({ status: 200, description: 'Magic signup token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
-  async submitSignup(
+  public async submitSignup(
     @Param('token') signupToken: string,
     @Body(ValidationPipe) dto: SubmitSignupDto,
-    @Session() session: ISession,
-  ) {
+    @Session() session: SessionState,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = this.tokenService.validateSignupToken(signupToken);
     const count = await this.userRepository.count({ email: payload.sub });
     if (count > 0) {
@@ -177,7 +192,10 @@ export class AuthController {
   @ApiOperation({ title: 'Refresh tokens' })
   @ApiResponse({ status: 200, description: 'Refresh token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid refresh token' })
-  refresh(@Body(ValidationPipe) dto: RefreshDto, @Session() session: ISession) {
+  public refresh(
+    @Body(ValidationPipe) dto: RefreshDto,
+    @Session() session: SessionState,
+  ): { accessToken: string } {
     const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
     const accessToken = this.tokenService.newAccessToken(payload.sub);
     session.set(

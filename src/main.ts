@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { LogService } from './common';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(LogService));
 
@@ -18,5 +18,5 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
-// tslint:disable-next-line:no-floating-promises
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
