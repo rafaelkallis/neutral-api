@@ -10,9 +10,7 @@
     "sourceMap": true,
     "outDir": "./build",
     "strict": true,
-    "esModuleInterop": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true
+    "esModuleInterop": true
   },
   "include": ["src"]
 }
