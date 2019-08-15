@@ -10,7 +10,7 @@ export class CreateRoleDto {
     description: 'Id of the project the role belongs to',
   })
   public projectId!: string;
-  
+
   @IsString()
   @IsOptional()
   @ApiModelProperty({

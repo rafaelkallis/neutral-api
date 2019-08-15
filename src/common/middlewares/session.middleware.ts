@@ -38,7 +38,11 @@ export class SessionMiddleware implements NestMiddleware {
   /**
    * Middleware handle
    */
-  public use(req: Request & { session: SessionState }, res: Response, next: () => void): void {
+  public use(
+    req: Request & { session: SessionState },
+    res: Response,
+    next: () => void,
+  ): void {
     if (req.session) {
       next();
       return;

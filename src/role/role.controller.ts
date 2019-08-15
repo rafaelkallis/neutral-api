@@ -102,7 +102,9 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateRoleDto,
   ): Promise<Role> {
-    const project = await this.projectRepository.findOneOrFail({ id: dto.projectId });
+    const project = await this.projectRepository.findOneOrFail({
+      id: dto.projectId,
+    });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }

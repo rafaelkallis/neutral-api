@@ -15,7 +15,10 @@ export { User } from './entities/user.entity';
 export { Project } from './entities/project.entity';
 export { Role } from './entities/role.entity';
 
-export { SessionState, SessionMiddleware } from './middlewares/session.middleware';
+export {
+  SessionState,
+  SessionMiddleware,
+} from './middlewares/session.middleware';
 
 export { ValidationPipe } from './pipes/validation.pipe';
 

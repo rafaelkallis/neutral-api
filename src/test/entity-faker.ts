@@ -2,7 +2,6 @@ import { BaseEntity, Role, Project, User } from '../common';
 
 import { primitiveFaker } from './primitive-faker';
 
-
 class EntityFaker {
   /**
    * Create fake user

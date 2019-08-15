@@ -71,13 +71,11 @@ describe('RoleController (e2e)', () => {
     });
 
     test('happy path', async () => {
-      const response = await session
-        .post('/roles')
-        .send({
-          projectId: project.id,
-          title,
-          description,
-        });
+      const response = await session.post('/roles').send({
+        projectId: project.id,
+        title,
+        description,
+      });
       expect(response.status).toBe(201);
       expect(response.body).toEqual({
         id: expect.any(String),

@@ -15,7 +15,10 @@ export class EmailService {
   /**
    * Sends an email with the login template.
    */
-  public async sendLoginEmail(to: string, loginMagicLink: string): Promise<void> {
+  public async sendLoginEmail(
+    to: string,
+    loginMagicLink: string,
+  ): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
@@ -27,7 +30,10 @@ export class EmailService {
   /**
    * Sends an email with the signup template.
    */
-  public async sendSignupEmail(to: string, signupMagicLink: string): Promise<void> {
+  public async sendSignupEmail(
+    to: string,
+    signupMagicLink: string,
+  ): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
@@ -39,7 +45,10 @@ export class EmailService {
   /**
    * Sends an email with the email-change template.
    */
-  public async sendEmailChangeEmail(to: string, emailChangeMagicLink: string): Promise<void> {
+  public async sendEmailChangeEmail(
+    to: string,
+    emailChangeMagicLink: string,
+  ): Promise<void> {
     await sendgrid.send({
       from: { email: 'no-reply@covee.network' },
       to: { email: to },
