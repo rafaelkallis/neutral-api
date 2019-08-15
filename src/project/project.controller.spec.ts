@@ -18,7 +18,7 @@ describe('Project Controller', () => {
   let projectRepository: ProjectRepository;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       controllers: [ProjectController],
       providers: [
         UserRepository,

@@ -39,6 +39,7 @@ import { PatchProjectDto } from './dto/patch-project.dto';
 export class ProjectController {
   private readonly projectRepository: ProjectRepository;
   private readonly randomService: RandomService;
+
   public constructor(
     projectRepository: ProjectRepository,
     randomService: RandomService,

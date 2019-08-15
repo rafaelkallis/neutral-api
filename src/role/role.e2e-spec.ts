@@ -9,6 +9,8 @@ import {
   TokenService,
   User,
   UserRepository,
+  Role,
+  RoleRepository,
 } from '../common';
 import { entityFaker } from '../test';
 
@@ -16,8 +18,10 @@ describe('RoleController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
+  let roleRepository: RoleRepository;
   let user: User;
   let project: Project;
+  let role: Role;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -26,11 +30,13 @@ describe('RoleController (e2e)', () => {
     }).compile();
     userRepository = module.get(UserRepository);
     projectRepository = module.get(ProjectRepository);
-    // roleRepository = module.get(RoleRepository);
+    roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
     await userRepository.save(user);
     project = entityFaker.project(user.id);
     await projectRepository.save(project);
+    role = entityFaker.role(project.id);
+    await roleRepository.save(role);
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
@@ -40,11 +46,19 @@ describe('RoleController (e2e)', () => {
   });
 
   describe('/roles (GET)', () => {
-    test.todo('happy path');
+    test('happy path', async () => {
+      const response = await session.get(`/roles?projectId=${project.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body).toContainEqual(role);
+    });
   });
 
   describe('/roles/:id (GET)', () => {
-    test.todo('happy path');
+    test('happy path', async () => {
+      const response = await session.get(`/roles/${role.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(role);
+    });
   });
 
   describe('/roles (POST)', () => {

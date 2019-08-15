@@ -1,4 +1,4 @@
-import { BaseEntity, Project, User } from '../common';
+import { BaseEntity, Role, Project, User } from '../common';
 
 import { primitiveFaker } from './primitive-faker';
 
@@ -25,6 +25,18 @@ class EntityFaker {
     project.description = primitiveFaker.paragraph();
     project.ownerId = ownerId;
     return project;
+  }
+
+  /**
+   * Create a fake role
+   */
+  public role(projectId: string, assigneeId?: string): Role {
+    const role = this.withBase(new Role());
+    role.projectId = projectId;
+    role.assigneeId = assigneeId || null;
+    role.title = primitiveFaker.words();
+    role.description = primitiveFaker.paragraph();
+    return role;
   }
 
   private withBase<T extends BaseEntity>(entity: T): T {
