@@ -5,18 +5,21 @@ import {
   TokenService,
   RandomService,
   UserRepository,
+  User,
   Project,
   Role,
   ProjectRepository,
   RoleRepository,
 } from '../common';
-import { entityFaker } from '../test';
+import { entityFaker, primitiveFaker } from '../test';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
+import { CreateRoleDto } from './dto/create-role.dto';
 
 describe('Role Controller', () => {
   let roleController: RoleController;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
+  let user: User;
   let project: Project;
   let role: Role;
 
@@ -36,7 +39,7 @@ describe('Role Controller', () => {
     roleController = module.get(RoleController);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
-    const user = entityFaker.user();
+    user = entityFaker.user();
     project = entityFaker.project(user.id);
     role = entityFaker.role(project.id);
   });
@@ -60,16 +63,31 @@ describe('Role Controller', () => {
       );
     });
   });
-  
+
   describe('get role', () => {
     beforeEach(() => {
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
     });
 
     test('happy path', async () => {
-      await expect(roleController.getRole(role.id)).resolves.toEqual(
-        role,
-      );
+      await expect(roleController.getRole(role.id)).resolves.toEqual(role);
+    });
+  });
+
+  describe('create role', () => {
+    let dto: CreateRoleDto;
+
+    beforeEach(() => {
+      dto = new CreateRoleDto();
+      dto.projectId = project.id;
+      dto.title = primitiveFaker.words();
+      dto.description = primitiveFaker.paragraph();
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
+    });
+
+    test('happy path', async () => {
+      await expect(roleController.createRole(user, dto)).resolves.toEqual(role);
     });
   });
 });

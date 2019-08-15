@@ -12,7 +12,7 @@ import {
   Role,
   RoleRepository,
 } from '../common';
-import { entityFaker } from '../test';
+import { entityFaker, primitiveFaker } from '../test';
 
 describe('RoleController (e2e)', () => {
   let app: INestApplication;
@@ -62,7 +62,33 @@ describe('RoleController (e2e)', () => {
   });
 
   describe('/roles (POST)', () => {
-    test.todo('happy path');
+    let title: string;
+    let description: string;
+
+    beforeEach(() => {
+      title = primitiveFaker.words();
+      description = primitiveFaker.paragraph();
+    });
+
+    test('happy path', async () => {
+      const response = await session
+        .post('/roles')
+        .send({
+          projectId: project.id,
+          title,
+          description,
+        });
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({
+        id: expect.any(String),
+        projectId: project.id,
+        assigneeId: null,
+        title,
+        description,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+      });
+    });
   });
 
   describe('/roles/:id (PATCH)', () => {
