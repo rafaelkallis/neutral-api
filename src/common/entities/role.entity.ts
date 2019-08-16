@@ -36,9 +36,9 @@ export class Role extends BaseEntity {
   @ApiModelProperty()
   public description!: string;
 
-  @Column({ name: 'peer_reviews', type: 'real', array: true })
+  @Column({ name: 'peer_reviews', type: 'jsonb' })
   @IsOptional()
   @IsPeerReviews()
   @Exclude()
-  public peerReviews?: number[] | null;
+  public peerReviews?: Record<string, number> | null;
 }

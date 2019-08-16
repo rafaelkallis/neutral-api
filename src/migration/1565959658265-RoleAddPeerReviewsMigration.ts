@@ -9,7 +9,7 @@ export class RoleAddPeerReviewsMigration1565959658265 implements MigrationInterf
    */
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      ALTER TABLE roles ADD COLUMN peer_reviews real[];
+      ALTER TABLE roles ADD COLUMN peer_reviews jsonb;
     `);
   }
 

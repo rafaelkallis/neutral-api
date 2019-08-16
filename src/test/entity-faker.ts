@@ -35,7 +35,11 @@ class EntityFaker {
     role.assigneeId = assigneeId || null;
     role.title = primitiveFaker.words();
     role.description = primitiveFaker.paragraph();
-    role.peerReviews = [0.3, 0.2, 0, 0.5];
+    role.peerReviews = {
+      [primitiveFaker.id()]: 0.3,
+      [primitiveFaker.id()]: 0.2,
+      [primitiveFaker.id()]: 0.5,
+    };
     return role;
   }
 

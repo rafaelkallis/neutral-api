@@ -1,46 +1,41 @@
-import { registerDecorator, ValidationOptions } from "class-validator";
+import { registerDecorator, ValidationOptions } from 'class-validator';
 
-export function IsPeerReviews(validationOptions?: ValidationOptions) {
-  return function (object: object, propertyName: string): void {
+function isObject(value: unknown): value is object {
+  if (!value) {
+    return false;
+  }
+  return typeof value === 'object';
+}
+
+export function IsPeerReviews(options?: ValidationOptions) {
+  return function(object: object, propertyName: string): void {
     registerDecorator({
-      name: "isPeerReviews",
+      name: 'isPeerReviews',
       target: object.constructor,
-      propertyName: propertyName,
-      options: validationOptions,
+      propertyName,
+      options,
       validator: {
         validate(value: unknown): boolean {
-          if (!Array.isArray(value)) {
-            return false;
+          if (!isObject(value)) {
+            return false; 
           }
-          let hasAtLeastOneZero = false;
           let sum = 0;
-          for (const peerReview of value) {
-            if (typeof peerReview !== 'number') {
+          for (const peerReview of Object.values(value)) {
+            if (
+              typeof peerReview !== 'number' ||
+              isNaN(peerReview) ||
+              peerReview < 0
+            ) {
               return false;
-            }
-            if (isNaN(peerReview)) {
-              return false;
-            }
-            if (peerReview < 0) {
-              return false;
-            }
-            if (peerReview === 0) {
-              hasAtLeastOneZero = true;
             }
             sum += peerReview;
           }
-          if (!hasAtLeastOneZero) {
-            return false;
-          }
-          if (sum > 1) {
-            return false;
-          }
-          if (sum < 0.99999) {
+          if (sum < 0.99999 || sum > 1) {
             return false;
           }
           return true;
-        }
-      }
+        },
+      },
     });
   };
 }
