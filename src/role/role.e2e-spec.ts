@@ -94,6 +94,10 @@ describe('RoleController (e2e)', () => {
   });
 
   describe('/roles/:id (DELETE)', () => {
-    test.todo('happy path');
+    test('happy path', async () => {
+      const response = await session.del(`/roles/${role.id}`);
+      expect(response.status).toBe(204);
+      expect(await roleRepository.find({ id: role.id })).toEqual(null);
+    });
   });
 });

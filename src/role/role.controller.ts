@@ -133,7 +133,12 @@ export class RoleController {
   /**
    * Delete a role
    */
-  public async deleteRole(): Promise<Role> {
-    throw new NotImplementedException();
+  public async deleteRole(authUser: User, id: string): Promise<void> {
+    const role = await this.roleRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOneOrFail({ id: role.projectId });
+    if (project.ownerId !== authUser.id) {
+      throw new InsufficientPermissionsException();
+    }
+    await this.roleRepository.remove(role);
   }
 }

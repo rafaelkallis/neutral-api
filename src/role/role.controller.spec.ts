@@ -90,4 +90,24 @@ describe('Role Controller', () => {
       await expect(roleController.createRole(user, dto)).resolves.toEqual(role);
     });
   });
+
+  describe('delete role', () => {
+    let user: User;
+    let project: Project;
+    let role: Role;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      role = entityFaker.role(project.id);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(roleRepository, 'remove').mockResolvedValue(role);
+    });
+
+    test('happy path', async () => {
+      await roleController.deleteRole(user, role.id);
+      expect(roleRepository.remove).toHaveBeenCalledWith(role);
+    });
+  });
 });
