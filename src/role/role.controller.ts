@@ -32,6 +32,7 @@ import {
 } from '../common';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { PatchRoleDto } from './dto/patch-role.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 
 /**
@@ -128,8 +129,19 @@ export class RoleController {
   /**
    * Update a role
    */
-  public async patchRole(): Promise<Role> {
-    throw new NotImplementedException();
+  public async patchRole(authUser: User, id: string, dto: PatchRoleDto): Promise<Role> {
+    const role = await this.roleRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOneOrFail({
+      id: role.projectId,
+    });
+    if (project.ownerId !== authUser.id) {
+      throw new InsufficientPermissionsException();
+    }
+    if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
+      await this.userRepository.findOneOrFail({ id: dto.assigneeId });
+    }
+    Object.assign(role, dto);
+    return this.roleRepository.save(role);
   }
 
   /**
@@ -144,14 +156,16 @@ export class RoleController {
   @ApiResponse({ status: 204, description: 'Role deleted succesfully' })
   @ApiResponse({
     status: 403,
-    description: 'Authenticated user is not the role\'s project owner',
+    description: "Authenticated user is not the role's project owner",
   })
   public async deleteRole(
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
     const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({ id: role.projectId });
+    const project = await this.projectRepository.findOneOrFail({
+      id: role.projectId,
+    });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }

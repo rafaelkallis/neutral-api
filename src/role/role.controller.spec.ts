@@ -14,6 +14,7 @@ import {
 import { entityFaker, primitiveFaker } from '../test';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { PatchRoleDto } from './dto/patch-role.dto';
 
 describe('Role Controller', () => {
   let roleController: RoleController;
@@ -88,6 +89,32 @@ describe('Role Controller', () => {
 
     test('happy path', async () => {
       await expect(roleController.createRole(user, dto)).resolves.toEqual(role);
+    });
+  });
+  
+  describe('patch role', () => {
+    let user: User;
+    let project: Project;
+    let role: Role;
+    let newTitle: string;
+    let dto: PatchRoleDto;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      role = entityFaker.role(project.id);
+      newTitle = primitiveFaker.words();
+      dto = new PatchRoleDto();
+      dto.title = newTitle;
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
+    });
+
+    test('happy path', async () => {
+      await expect(roleController.patchRole(user, role.id, dto)).resolves.toEqual(role);
+      expect(role.title).toBe(newTitle);
+      expect(roleRepository.save).toHaveBeenCalledWith(role);
     });
   });
 
