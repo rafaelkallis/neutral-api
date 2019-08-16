@@ -18,6 +18,7 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
+import { Not } from 'typeorm';
 import {
   ValidationPipe,
   AuthGuard,
@@ -33,7 +34,9 @@ import {
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { PatchRoleDto } from './dto/patch-role.dto';
+import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
+import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
 
 /**
  * Role Controller
@@ -184,5 +187,51 @@ export class RoleController {
       throw new InsufficientPermissionsException();
     }
     await this.roleRepository.remove(role);
+  }
+
+  /**
+   * Call to submit reviews over one's project peers.
+   */
+  @Post('/:id/submit-peer-reviews')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Submit peer reviews' })
+  @ApiImplicitParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'Peer reviews submitted successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
+  public async submitPeerReviews(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+    @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
+  ): Promise<void> {
+    const role = await this.roleRepository.findOneOrFail({ id });
+    if (role.assigneeId !== authUser.id) {
+      throw new InsufficientPermissionsException();
+    }
+
+    /* if self review exists, it must be 0 */
+    if (dto.peerReviews[role.id] && dto.peerReviews[role.id] !== 0) {
+      throw new InvalidPeerReviewsException();
+    }
+    let otherRoles = await this.roleRepository.find({ 
+      id: Not(role.id),
+      projectId: role.projectId,
+    });
+
+    /* check if number of peer reviews matches the number of roles */
+    if (otherRoles.length !== Object.values(dto.peerReviews).length) {
+      throw new InvalidPeerReviewsException();
+    }
+    
+    /* check if peer review ids match other role ids */
+    for (const otherRole of otherRoles) {
+      if (!dto.peerReviews[otherRole.id]) {
+        throw new InvalidPeerReviewsException();
+      }
+    }
+
+    role.peerReviews = dto.peerReviews;
+    await this.roleRepository.save(role);
   }
 }

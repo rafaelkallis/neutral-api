@@ -100,4 +100,33 @@ describe('RoleController (e2e)', () => {
       expect(await roleRepository.findOne({ id: role.id })).not.toBeDefined();
     });
   });
+
+  describe('/roles/:id/submit-peer-reviews (POST)', () => {
+    let role2: Role;
+    let role3: Role;
+    let role4: Role;
+    let peerReviews: Record<string, number>;
+
+    beforeEach(async () => {
+      role.assigneeId = user.id;
+      await roleRepository.save(role);
+      role2 = await roleRepository.save(entityFaker.role(project.id));
+      role3 = await roleRepository.save(entityFaker.role(project.id));
+      role4 = await roleRepository.save(entityFaker.role(project.id));
+      peerReviews= {
+        [role2.id]: 0.3,
+        [role3.id]: 0.2,
+        [role4.id]: 0.5,
+      };
+    });
+
+    test('happy path', async () => {
+      const response = await session
+        .post(`/roles/${role.id}/submit-peer-reviews`)
+        .send({ peerReviews });
+      expect(response.status).toBe(200);
+      const updatedRole = await roleRepository.findOneOrFail({ id: role.id });
+      expect(updatedRole.peerReviews).toEqual(peerReviews);
+    });
+  });
 });

@@ -15,6 +15,7 @@ import { entityFaker, primitiveFaker } from '../test';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { PatchRoleDto } from './dto/patch-role.dto';
+import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 describe('Role Controller', () => {
   let roleController: RoleController;
@@ -135,6 +136,40 @@ describe('Role Controller', () => {
     test('happy path', async () => {
       await roleController.deleteRole(user, role.id);
       expect(roleRepository.remove).toHaveBeenCalledWith(role);
+    });
+  });
+  
+  describe('submit peer reviews', () => {
+    let user: User;
+    let project: Project;
+    let role2: Role;
+    let role3: Role;
+    let role4: Role;
+    let peerReviews: Record<string, number>;
+    let dto: SubmitPeerReviewsDto;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      role.assigneeId = user.id;
+      role2 = entityFaker.role(project.id);
+      role3 = entityFaker.role(project.id);
+      role4 = entityFaker.role(project.id);
+      peerReviews = {
+        [role2.id]: 0.3,
+        [role3.id]: 0.2,
+        [role4.id]: 0.5,
+      };
+      dto = new SubmitPeerReviewsDto();
+      dto.peerReviews = peerReviews;
+      jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(roleRepository, 'find').mockResolvedValue([role2, role3, role4]);
+      jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
+    });
+
+    test('happy path', async () => {
+      await roleController.submitPeerReviews(user, role.id, dto);
+      expect(roleRepository.save).toHaveBeenCalledWith(role);
     });
   });
 });
