@@ -113,7 +113,7 @@ describe('RoleController (e2e)', () => {
       role2 = await roleRepository.save(entityFaker.role(project.id));
       role3 = await roleRepository.save(entityFaker.role(project.id));
       role4 = await roleRepository.save(entityFaker.role(project.id));
-      peerReviews= {
+      peerReviews = {
         [role2.id]: 0.3,
         [role3.id]: 0.2,
         [role4.id]: 0.5,

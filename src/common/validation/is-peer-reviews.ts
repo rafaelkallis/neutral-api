@@ -17,7 +17,7 @@ export function IsPeerReviews(options?: ValidationOptions) {
       validator: {
         validate(value: unknown): boolean {
           if (!isObject(value)) {
-            return false; 
+            return false;
           }
           let sum = 0;
           for (const peerReview of Object.values(value)) {

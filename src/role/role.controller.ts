@@ -198,7 +198,10 @@ export class RoleController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Submit peer reviews' })
   @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'Peer reviews submitted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Peer reviews submitted successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
   public async submitPeerReviews(
     @AuthUser() authUser: User,
@@ -214,7 +217,7 @@ export class RoleController {
     if (dto.peerReviews[role.id] && dto.peerReviews[role.id] !== 0) {
       throw new InvalidPeerReviewsException();
     }
-    let otherRoles = await this.roleRepository.find({ 
+    let otherRoles = await this.roleRepository.find({
       id: Not(role.id),
       projectId: role.projectId,
     });
@@ -223,7 +226,7 @@ export class RoleController {
     if (otherRoles.length !== Object.values(dto.peerReviews).length) {
       throw new InvalidPeerReviewsException();
     }
-    
+
     /* check if peer review ids match other role ids */
     for (const otherRole of otherRoles) {
       if (!dto.peerReviews[otherRole.id]) {

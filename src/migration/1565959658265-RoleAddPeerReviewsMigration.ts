@@ -3,7 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * Add peer reviews to Role migration
  */
-export class RoleAddPeerReviewsMigration1565959658265 implements MigrationInterface {
+export class RoleAddPeerReviewsMigration1565959658265
+  implements MigrationInterface {
   /**
    * Up
    */

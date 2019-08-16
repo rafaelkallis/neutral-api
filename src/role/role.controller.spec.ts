@@ -92,7 +92,7 @@ describe('Role Controller', () => {
       await expect(roleController.createRole(user, dto)).resolves.toEqual(role);
     });
   });
-  
+
   describe('patch role', () => {
     let user: User;
     let project: Project;
@@ -113,7 +113,9 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(roleController.patchRole(user, role.id, dto)).resolves.toEqual(role);
+      await expect(
+        roleController.patchRole(user, role.id, dto),
+      ).resolves.toEqual(role);
       expect(role.title).toBe(newTitle);
       expect(roleRepository.save).toHaveBeenCalledWith(role);
     });
@@ -138,7 +140,7 @@ describe('Role Controller', () => {
       expect(roleRepository.remove).toHaveBeenCalledWith(role);
     });
   });
-  
+
   describe('submit peer reviews', () => {
     let user: User;
     let project: Project;
@@ -163,7 +165,9 @@ describe('Role Controller', () => {
       dto = new SubmitPeerReviewsDto();
       dto.peerReviews = peerReviews;
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
-      jest.spyOn(roleRepository, 'find').mockResolvedValue([role2, role3, role4]);
+      jest
+        .spyOn(roleRepository, 'find')
+        .mockResolvedValue([role2, role3, role4]);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
     });
 
