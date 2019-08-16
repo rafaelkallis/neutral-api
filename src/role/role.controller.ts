@@ -1,6 +1,7 @@
 import {
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Query,
@@ -129,7 +130,21 @@ export class RoleController {
   /**
    * Update a role
    */
-  public async patchRole(authUser: User, id: string, dto: PatchRoleDto): Promise<Role> {
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Update a role' })
+  @ApiImplicitParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'Role updated succesfully' })
+  @ApiResponse({
+    status: 403,
+    description: "Authenticated user is not the role's project owner",
+  })
+  public async patchRole(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+    @Body(ValidationPipe) dto: PatchRoleDto,
+  ): Promise<Role> {
     const role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({
       id: role.projectId,
