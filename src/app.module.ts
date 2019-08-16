@@ -24,7 +24,7 @@ import { UserModule } from './user/user.module';
         url: configService.get('DATABASE_URL'),
         entities: [`${__dirname}/common/entities/*`],
         migrations: [`${__dirname}/migration/*.js`],
-        migrationsRun: true,
+        migrationsRun: configService.isProduction(),
         keepConnectionAlive: true,
       }),
     }),

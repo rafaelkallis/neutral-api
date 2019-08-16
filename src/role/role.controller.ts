@@ -9,7 +9,6 @@ import {
   UseGuards,
   Controller,
   HttpCode,
-  NotImplementedException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,

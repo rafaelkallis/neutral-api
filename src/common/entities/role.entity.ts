@@ -1,6 +1,8 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { Exclude } from 'class-transformer';
 import { Column, Entity } from 'typeorm';
+import { IsPeerReviews } from '../validation/is-peer-reviews';
 
 import { BaseEntity } from './base.entity';
 
@@ -33,4 +35,10 @@ export class Role extends BaseEntity {
   @MaxLength(1024)
   @ApiModelProperty()
   public description!: string;
+
+  @Column({ name: 'peer_reviews', type: 'real', array: true })
+  @IsOptional()
+  @IsPeerReviews()
+  @Exclude()
+  public peerReviews?: number[] | null;
 }
