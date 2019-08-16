@@ -1,11 +1,13 @@
 import {
   Get,
   Post,
+  Delete,
   Body,
   Query,
   Param,
   UseGuards,
   Controller,
+  HttpCode,
   NotImplementedException,
 } from '@nestjs/common';
 import {
@@ -133,7 +135,21 @@ export class RoleController {
   /**
    * Delete a role
    */
-  public async deleteRole(authUser: User, id: string): Promise<void> {
+  @Delete(':id')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Delete a role' })
+  @ApiImplicitParam({ name: 'id' })
+  @ApiResponse({ status: 204, description: 'Role deleted succesfully' })
+  @ApiResponse({
+    status: 403,
+    description: 'Authenticated user is not the role\'s project owner',
+  })
+  public async deleteRole(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<void> {
     const role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({ id: role.projectId });
     if (project.ownerId !== authUser.id) {

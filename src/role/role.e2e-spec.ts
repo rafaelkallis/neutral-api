@@ -97,7 +97,7 @@ describe('RoleController (e2e)', () => {
     test('happy path', async () => {
       const response = await session.del(`/roles/${role.id}`);
       expect(response.status).toBe(204);
-      expect(await roleRepository.find({ id: role.id })).toEqual(null);
+      expect(await roleRepository.findOne({ id: role.id })).not.toBeDefined();
     });
   });
 });
