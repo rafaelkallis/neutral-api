@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InvariantViolationException } from '../../common';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -18,12 +19,34 @@ export class ModelService {
   }
 
   /**
-   * Computes the relative contributions, given a matrix of peer review scores.
-   *
-   * @param {number[][]} S Matrix of peer review scores, where S[i][j] is i's score over j.
-   * @return {number[]} The vector of relative contributions.
+   * Computes the relative contributions.
    */
-  public computeRelativeContributions(S: number[][]): number[] {
+  public computeRelativeContributions(
+    peerReviews: Record<string, Record<string, number>>,
+  ): Record<string, number> {
+    const sortedIds: string[] = Object.keys(peerReviews).sort();
+    const S: number[][] = [];
+    for (const [i, iId] of sortedIds.entries()) {
+      if (sortedIds.length !== Object.keys(peerReviews[iId]).length) {
+        throw new InvariantViolationException();
+      }
+      S[i] = [];
+      for (const [j, jId] of sortedIds.entries()) {
+        if (peerReviews[iId][jId] === undefined) {
+          throw new InvariantViolationException();
+        }
+        S[i][j] = peerReviews[iId][jId];
+      }
+    }
+    const relContVec: number[] = this.computeRelativeContributionsFromMatrix(S);
+    const relContMap: Record<string, number> = {};
+    for (const [i, iId] of sortedIds.entries()) {
+      relContMap[iId] = relContVec[i];
+    }
+    return relContMap;
+  }
+
+  public computeRelativeContributionsFromMatrix(S: number[][]): number[] {
     if (S.length < 4) {
       throw new Error('teams of < 4 not supported');
     }

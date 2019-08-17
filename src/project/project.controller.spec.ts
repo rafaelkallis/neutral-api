@@ -155,15 +155,23 @@ describe('Project Controller', () => {
       jest
         .spyOn(modelService, 'peerReviewsMapToVector')
         .mockReturnValue([0.25, 0.25, 0.25, 0.25]);
-      jest
-        .spyOn(modelService, 'computeRelativeContributions')
-        .mockReturnValue([0.25, 0.25, 0.25, 0.25]);
+      jest.spyOn(modelService, 'computeRelativeContributions').mockReturnValue({
+        [role1.id]: 0.25,
+        [role2.id]: 0.25,
+        [role3.id]: 0.25,
+        [role4.id]: 0.25,
+      });
     });
 
     test('happy path', async () => {
       await expect(
         projectController.getRelativeContributions(user, project.id),
-      ).resolves.toEqual([0.25, 0.25, 0.25, 0.25]);
+      ).resolves.toEqual({
+        [role1.id]: 0.25,
+        [role2.id]: 0.25,
+        [role3.id]: 0.25,
+        [role4.id]: 0.25,
+      });
     });
   });
 });

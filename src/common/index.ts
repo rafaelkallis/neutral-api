@@ -30,5 +30,8 @@ export {
 export {
   InsufficientPermissionsException,
 } from './exceptions/insufficient-permissions.exception';
+export {
+  InvariantViolationException,
+} from './exceptions/invariant-violation.exception';
 
 export { IsPeerReviews } from './validation/is-peer-reviews';

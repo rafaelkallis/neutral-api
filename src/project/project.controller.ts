@@ -156,23 +156,32 @@ export class ProjectController {
     await this.projectRepository.remove(project);
   }
 
+  /**
+   * Get relative contributions of a project
+   */
+  @Get(':id/relative-contributions')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ title: 'Get relative contributions of a project' })
+  @ApiResponse({ status: 200, description: 'The relative contributions' })
   public async getRelativeContributions(
-    authUser: User,
-    id: string,
-  ): Promise<number[]> {
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<Record<string, number>> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }
     const roles = await this.roleRepository.find({ projectId: id });
-    const S = roles.map(role => {
-      const peerReviews = role.peerReviews;
-      if (!peerReviews) {
+    const peerReviews: Record<string, Record<string, number>> = {};
+    for (const role of roles) {
+      if (!role.peerReviews) {
         throw new Error();
       }
-      peerReviews[role.id] = 0;
-      return this.modelService.peerReviewsMapToVector(peerReviews);
-    });
-    return this.modelService.computeRelativeContributions(S);
+      peerReviews[role.id] = role.peerReviews;
+      peerReviews[role.id][role.id] = 0;
+    }
+    return this.modelService.computeRelativeContributions(peerReviews);
   }
 }
