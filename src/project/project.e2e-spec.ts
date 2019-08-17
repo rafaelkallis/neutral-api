@@ -143,27 +143,27 @@ describe('ProjectController (e2e)', () => {
         [role3.id]: 30 / 90,
         [role4.id]: 40 / 90,
       };
-      await roleRepository.save(role1);
       role2.peerReviews = {
         [role1.id]: 10 / 80,
         [role2.id]: 0,
         [role3.id]: 30 / 80,
         [role4.id]: 40 / 80,
       };
-      await roleRepository.save(role2);
       role3.peerReviews = {
         [role1.id]: 10 / 70,
         [role2.id]: 20 / 70,
         [role3.id]: 0,
         [role4.id]: 40 / 70,
       };
-      await roleRepository.save(role3);
       role4.peerReviews = {
         [role1.id]: 10 / 60,
         [role2.id]: 20 / 60,
         [role3.id]: 30 / 60,
         [role4.id]: 0,
       };
+      await roleRepository.save(role1);
+      await roleRepository.save(role2);
+      await roleRepository.save(role3);
       await roleRepository.save(role4);
     });
 
