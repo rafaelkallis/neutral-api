@@ -60,7 +60,7 @@ export class ModelService {
           y += S1[j][k][i];
         }
       }
-      return y * (1 / (n - 2));
+      return y / (n - 2);
     }
     const S2 = this.createNaNSquare(n);
     for (let j = 0; j < n; j++) {
