@@ -27,6 +27,7 @@ import {
   User,
   ValidationPipe,
 } from '../common';
+import { ModelService } from './services/model.service';
 
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PatchProjectDto } from './dto/patch-project.dto';
@@ -39,13 +40,16 @@ import { PatchProjectDto } from './dto/patch-project.dto';
 export class ProjectController {
   private readonly projectRepository: ProjectRepository;
   private readonly randomService: RandomService;
+  private readonly modelService: ModelService;
 
   public constructor(
     projectRepository: ProjectRepository,
     randomService: RandomService,
+    modelService: ModelService,
   ) {
     this.projectRepository = projectRepository;
     this.randomService = randomService;
+    this.modelService = modelService;
   }
 
   /**

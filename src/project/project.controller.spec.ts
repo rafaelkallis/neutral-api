@@ -13,6 +13,8 @@ import { entityFaker, primitiveFaker } from '../test';
 
 import { ProjectController } from './project.controller';
 
+import { ModelService } from './services/model.service';
+
 describe('Project Controller', () => {
   let projectController: ProjectController;
   let projectRepository: ProjectRepository;
@@ -26,6 +28,7 @@ describe('Project Controller', () => {
         TokenService,
         RandomService,
         ConfigService,
+        ModelService,
       ],
     }).compile();
 
