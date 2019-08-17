@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
+/* eslint-disable security/detect-object-injection */
+
 /**
  * Model Service
  */
@@ -160,3 +162,5 @@ export class ModelService {
     return m;
   }
 }
+
+/* eslint-enable security/detect-object-injection */
