@@ -8,6 +8,8 @@ import {
   TokenService,
   User,
   UserRepository,
+  Role,
+  RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 
@@ -18,6 +20,8 @@ import { ModelService } from './services/model.service';
 describe('Project Controller', () => {
   let projectController: ProjectController;
   let projectRepository: ProjectRepository;
+  let roleRepository: RoleRepository;
+  let modelService: ModelService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -25,6 +29,7 @@ describe('Project Controller', () => {
       providers: [
         UserRepository,
         ProjectRepository,
+        RoleRepository,
         TokenService,
         RandomService,
         ConfigService,
@@ -34,6 +39,8 @@ describe('Project Controller', () => {
 
     projectController = module.get(ProjectController);
     projectRepository = module.get(ProjectRepository);
+    roleRepository = module.get(RoleRepository);
+    modelService = module.get(ModelService);
   });
 
   test('should be defined', () => {
@@ -123,6 +130,40 @@ describe('Project Controller', () => {
     test('happy path', async () => {
       await projectController.deleteProject(user, project.id);
       expect(projectRepository.remove).toHaveBeenCalled();
+    });
+  });
+
+  describe('get relative contributions', () => {
+    let user: User;
+    let project: Project;
+    let role1: Role;
+    let role2: Role;
+    let role3: Role;
+    let role4: Role;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      role1 = entityFaker.role(project.id);
+      role2 = entityFaker.role(project.id);
+      role3 = entityFaker.role(project.id);
+      role4 = entityFaker.role(project.id);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest
+        .spyOn(roleRepository, 'find')
+        .mockResolvedValue([role1, role2, role3, role4]);
+      jest
+        .spyOn(modelService, 'peerReviewsMapToVector')
+        .mockReturnValue([0.25, 0.25, 0.25, 0.25]);
+      jest
+        .spyOn(modelService, 'computeRelativeContributions')
+        .mockReturnValue([0.25, 0.25, 0.25, 0.25]);
+    });
+
+    test('happy path', async () => {
+      await expect(
+        projectController.getRelativeContributions(user, project.id),
+      ).resolves.toEqual([0.25, 0.25, 0.25, 0.25]);
     });
   });
 });

@@ -23,6 +23,7 @@ import {
   InsufficientPermissionsException,
   Project,
   ProjectRepository,
+  RoleRepository,
   RandomService,
   User,
   ValidationPipe,
@@ -39,15 +40,18 @@ import { PatchProjectDto } from './dto/patch-project.dto';
 @ApiUseTags('Projects')
 export class ProjectController {
   private readonly projectRepository: ProjectRepository;
+  private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
   private readonly modelService: ModelService;
 
   public constructor(
     projectRepository: ProjectRepository,
+    roleRepository: RoleRepository,
     randomService: RandomService,
     modelService: ModelService,
   ) {
     this.projectRepository = projectRepository;
+    this.roleRepository = roleRepository;
     this.randomService = randomService;
     this.modelService = modelService;
   }
@@ -150,5 +154,25 @@ export class ProjectController {
       throw new InsufficientPermissionsException();
     }
     await this.projectRepository.remove(project);
+  }
+
+  public async getRelativeContributions(
+    authUser: User,
+    id: string,
+  ): Promise<number[]> {
+    const project = await this.projectRepository.findOneOrFail({ id });
+    if (project.ownerId !== authUser.id) {
+      throw new InsufficientPermissionsException();
+    }
+    const roles = await this.roleRepository.find({ projectId: id });
+    const S = roles.map(role => {
+      const peerReviews = role.peerReviews;
+      if (!peerReviews) {
+        throw new Error();
+      }
+      peerReviews[role.id] = 0;
+      return this.modelService.peerReviewsMapToVector(peerReviews);
+    });
+    return this.modelService.computeRelativeContributions(S);
   }
 }
