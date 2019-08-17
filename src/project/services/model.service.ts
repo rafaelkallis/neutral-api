@@ -35,6 +35,7 @@ export class ModelService {
 
   private computeS1(S: number[][]): number[][][] {
     const n = S.length;
+    /* relative contribution ratio */
     function f(i: number, j: number, k: number): number {
       return S[i][j] / S[i][k];
     }
@@ -51,6 +52,7 @@ export class ModelService {
 
   private computeS2(S1: number[][][]): number[][] {
     const n = S1.length;
+    /* average relative contribution ratios */
     function f(j: number, k: number): number {
       let y = 0;
       for (let i = 0; i < n; i++) {
@@ -71,6 +73,7 @@ export class ModelService {
 
   private computeS3(S1: number[][][]): number[][][] {
     const n = S1.length;
+    /* average relative contribution ratios without the input of agent i */
     function f(j: number, k: number, i: number): number {
       let y = 0;
       for (let ell = 0; ell < n; ell++) {
@@ -93,6 +96,7 @@ export class ModelService {
 
   private computeS4(S2: number[][], S3: number[][][]): number[][] {
     const n = S2.length;
+    /* auxiliary function */
     function f(i: number, j: number): number {
       let y = 1 + S2[j][i];
       for (let k = 0; k < n; k++) {
@@ -113,6 +117,7 @@ export class ModelService {
 
   private computeS5(S4: number[][]): number[] {
     const n = S4.length;
+    /* relative contribution */
     function f(i: number): number {
       let y = 1;
       let z = 0;
