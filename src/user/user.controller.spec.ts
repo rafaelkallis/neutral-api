@@ -11,7 +11,7 @@ import {
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 
-import { PatchUserDto } from './dto/patch-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserController } from './user.controller';
 
 describe('User Controller', () => {
@@ -68,23 +68,23 @@ describe('User Controller', () => {
     });
   });
 
-  describe('patch auth user', () => {
+  describe('update user', () => {
     let user: User;
     let email: string;
     let firstName: string;
-    let dto: PatchUserDto;
+    let dto: UpdateUserDto;
 
     beforeEach(() => {
       user = entityFaker.user();
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
-      dto = PatchUserDto.from({ email, firstName });
+      dto = UpdateUserDto.from({ email, firstName });
       jest.spyOn(userRepository, 'save').mockResolvedValue(user);
       jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
-      await userController.patchAuthUser(user, dto);
+      await userController.updateUser(user, dto);
       expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
         email,
         expect.any(String),

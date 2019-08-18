@@ -29,7 +29,7 @@ import {
   ValidationPipe,
 } from '../common';
 
-import { PatchUserDto } from './dto/patch-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 /**
  * User Controller
@@ -87,11 +87,11 @@ export class UserController {
   @Patch('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Patch the authenticated user' })
+  @ApiOperation({ title: 'Update the authenticated user' })
   @ApiResponse({ status: 200, description: 'User succesfully updated' })
-  public async patchAuthUser(
+  public async updateUser(
     @AuthUser() authUser: User,
-    @Body(ValidationPipe) dto: PatchUserDto,
+    @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<User> {
     const { email, ...otherChanges } = dto;
     if (email) {

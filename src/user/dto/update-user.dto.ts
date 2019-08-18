@@ -1,16 +1,16 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-interface PatchUserDtoOptions {
+interface UpdateUserDtoProps {
   email?: string;
   firstName?: string;
   lastName?: string;
 }
 
 /**
- * Patch user DTO
+ * Update user DTO
  */
-export class PatchUserDto {
+export class UpdateUserDto implements UpdateUserDtoProps {
   @IsString()
   @IsOptional()
   @ApiModelProperty({ required: false })
@@ -28,15 +28,7 @@ export class PatchUserDto {
 
   private constructor() {}
 
-  public static from({
-    email,
-    firstName,
-    lastName,
-  }: PatchUserDtoOptions): PatchUserDto {
-    const dto = new PatchUserDto();
-    dto.email = email;
-    dto.firstName = firstName;
-    dto.lastName = lastName;
-    return dto;
+  public static from(props: UpdateUserDtoProps): UpdateUserDto {
+    return Object.assign(new UpdateUserDto(), props);
   }
 }
