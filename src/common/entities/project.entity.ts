@@ -10,7 +10,7 @@ export enum ProjectState {
   FINISHED = 'finished',
 }
 
-export interface ProjectOptions {
+interface ProjectOptions {
   id: string;
   title: string;
   description: string;
@@ -46,6 +46,10 @@ export class Project extends BaseEntity {
   @MaxLength(255)
   @ApiModelProperty()
   public state!: ProjectState;
+
+  protected constructor() {
+    super();
+  }
 
   public static from({
     id,

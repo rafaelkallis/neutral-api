@@ -6,7 +6,7 @@ import { IsPeerReviews } from '../validation/is-peer-reviews';
 
 import { BaseEntity } from './base.entity';
 
-export interface RoleOptions {
+interface RoleOptions {
   id: string;
   projectId: string;
   assigneeId?: string | null;
@@ -50,6 +50,10 @@ export class Role extends BaseEntity {
   @IsPeerReviews()
   @Exclude()
   public peerReviews?: Record<string, number> | null;
+
+  protected constructor() {
+    super();
+  }
 
   public static from({
     id,

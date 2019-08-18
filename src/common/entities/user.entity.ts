@@ -6,7 +6,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
-export interface UserOptions {
+interface UserOptions {
   id: string;
   email: string;
   firstName: string;
@@ -41,6 +41,10 @@ export class User extends BaseEntity {
   @IsNumber()
   @Exclude()
   public lastLoginAt!: number;
+
+  protected constructor() {
+    super();
+  }
 
   public static from({
     id,

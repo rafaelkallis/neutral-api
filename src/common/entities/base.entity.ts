@@ -35,6 +35,8 @@ export class BaseEntity {
   @ApiModelProperty()
   public updatedAt!: number;
 
+  protected constructor() {}
+
   /**
    * Hook called before the entity is inserted.
    */
