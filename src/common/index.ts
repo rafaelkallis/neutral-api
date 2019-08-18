@@ -12,7 +12,7 @@ export { RoleRepository } from './repositories/role.repository';
 
 export { BaseEntity } from './entities/base.entity';
 export { User } from './entities/user.entity';
-export { Project } from './entities/project.entity';
+export { Project, ProjectState } from './entities/project.entity';
 export { Role } from './entities/role.entity';
 
 export {

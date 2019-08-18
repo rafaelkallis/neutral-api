@@ -6,6 +6,15 @@ import { IsPeerReviews } from '../validation/is-peer-reviews';
 
 import { BaseEntity } from './base.entity';
 
+export interface RoleOptions {
+  id: string;
+  projectId: string;
+  assigneeId?: string | null;
+  title: string;
+  description: string;
+  peerReviews?: Record<string, number> | null;
+}
+
 /**
  * Role Entity
  */
@@ -17,7 +26,7 @@ export class Role extends BaseEntity {
   @ApiModelProperty()
   public projectId!: string;
 
-  @Column({ name: 'assignee_id', type: 'varchar' })
+  @Column({ name: 'assignee_id', type: 'varchar', length: 20, nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(20)
@@ -36,9 +45,27 @@ export class Role extends BaseEntity {
   @ApiModelProperty()
   public description!: string;
 
-  @Column({ name: 'peer_reviews', type: 'jsonb' })
+  @Column({ name: 'peer_reviews', type: 'jsonb', nullable: true })
   @IsOptional()
   @IsPeerReviews()
   @Exclude()
   public peerReviews?: Record<string, number> | null;
+
+  public static from({
+    id,
+    projectId,
+    assigneeId,
+    title,
+    description,
+    peerReviews,
+  }: RoleOptions): Role {
+    const role = new Role();
+    role.id = id;
+    role.projectId = projectId;
+    role.assigneeId = assigneeId;
+    role.title = title;
+    role.description = description;
+    role.peerReviews = peerReviews;
+    return role;
+  }
 }

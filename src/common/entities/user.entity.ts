@@ -6,6 +6,14 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
+export interface UserOptions {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  lastLoginAt: number;
+}
+
 /**
  * User Entity
  */
@@ -33,4 +41,20 @@ export class User extends BaseEntity {
   @IsNumber()
   @Exclude()
   public lastLoginAt!: number;
+
+  public static from({
+    id,
+    email,
+    firstName,
+    lastName,
+    lastLoginAt,
+  }: UserOptions): User {
+    const user = new User();
+    user.id = id;
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.lastLoginAt = lastLoginAt;
+    return user;
+  }
 }

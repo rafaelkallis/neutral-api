@@ -22,9 +22,9 @@ import { UserModule } from './user/user.module';
       useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
         type: 'postgres' as 'postgres',
         url: configService.get('DATABASE_URL'),
-        entities: [`${__dirname}/common/entities/*`],
-        migrations: [`${__dirname}/migration/*.js`],
-        migrationsRun: configService.isProduction(),
+        entities: ['src/common/entities/*'],
+        migrations: ['src/migration/*'],
+        migrationsRun: true,
         keepConnectionAlive: true,
       }),
     }),

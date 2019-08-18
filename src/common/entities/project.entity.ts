@@ -1,8 +1,22 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IsString, MaxLength } from 'class-validator';
+import { IsString, IsEnum, MaxLength } from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
+
+export enum ProjectState {
+  FORMATION = 'formation',
+  PEER_REVIEW = 'peer-review',
+  FINISHED = 'finished',
+}
+
+export interface ProjectOptions {
+  id: string;
+  title: string;
+  description: string;
+  ownerId: string;
+  state: ProjectState;
+}
 
 /**
  * Project Entity
@@ -26,4 +40,26 @@ export class Project extends BaseEntity {
   @MaxLength(20)
   @ApiModelProperty()
   public ownerId!: string;
+
+  @Column({ name: 'state' })
+  @IsEnum(ProjectState)
+  @MaxLength(255)
+  @ApiModelProperty()
+  public state!: ProjectState;
+
+  public static from({
+    id,
+    title,
+    description,
+    ownerId,
+    state,
+  }: ProjectOptions): Project {
+    const project = new Project();
+    project.id = id;
+    project.title = title;
+    project.description = description;
+    project.ownerId = ownerId;
+    project.state = state;
+    return project;
+  }
 }

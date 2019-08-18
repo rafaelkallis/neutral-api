@@ -22,6 +22,7 @@ import {
   AuthUser,
   InsufficientPermissionsException,
   Project,
+  ProjectState,
   ProjectRepository,
   RoleRepository,
   RandomService,
@@ -92,11 +93,13 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateProjectDto,
   ): Promise<Project> {
-    const project = new Project();
-    project.id = this.randomService.id();
-    project.ownerId = authUser.id;
-    project.title = dto.title;
-    project.description = dto.description;
+    const project = Project.from({
+      id: this.randomService.id(),
+      ownerId: authUser.id,
+      title: dto.title,
+      description: dto.description,
+      state: ProjectState.FORMATION,
+    });
     return this.projectRepository.save(project);
   }
 

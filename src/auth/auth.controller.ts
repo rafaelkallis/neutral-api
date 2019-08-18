@@ -164,12 +164,13 @@ export class AuthController {
       throw new EmailAlreadyUsedException();
     }
 
-    const user = new User();
-    user.id = this.randomService.id();
-    user.email = payload.sub;
-    user.firstName = dto.firstName;
-    user.lastName = dto.lastName;
-    user.lastLoginAt = Date.now();
+    const user = User.from({
+      id: this.randomService.id(),
+      email: payload.sub,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      lastLoginAt: Date.now(),
+    });
     await this.userRepository.save(user);
 
     const accessToken = this.tokenService.newAccessToken(user.id);

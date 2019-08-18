@@ -120,12 +120,13 @@ export class RoleController {
       }
       await this.userRepository.findOneOrFail({ id: dto.assigneeId });
     }
-    const role = new Role();
-    role.id = this.randomService.id();
-    role.projectId = dto.projectId;
-    role.assigneeId = dto.assigneeId || null;
-    role.title = dto.title;
-    role.description = dto.description;
+    const role = Role.from({
+      id: this.randomService.id(),
+      projectId: dto.projectId,
+      assigneeId: dto.assigneeId || null,
+      title: dto.title,
+      description: dto.description,
+    });
     return this.roleRepository.save(role);
   }
 

@@ -83,6 +83,7 @@ describe('RoleController (e2e)', () => {
         assigneeId: null,
         title,
         description,
+        peerReviews: null,
         createdAt: expect.any(Number),
         updatedAt: expect.any(Number),
       });
