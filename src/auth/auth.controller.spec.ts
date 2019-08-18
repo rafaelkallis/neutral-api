@@ -54,8 +54,8 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      const dto = new RequestLoginDto();
-      dto.email = primitiveFaker.email();
+      const email = primitiveFaker.email();
+      const dto = RequestLoginDto.from({ email });
       await authController.requestLogin(dto);
     });
   });
@@ -95,8 +95,8 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      const dto = new RequestSignupDto();
-      dto.email = primitiveFaker.email();
+      const email = primitiveFaker.email();
+      const dto = RequestSignupDto.from({ email });
       await authController.requestSignup(dto);
     });
   });
@@ -119,9 +119,8 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      const dto = new SubmitSignupDto();
-      dto.firstName = user.firstName;
-      dto.lastName = user.lastName;
+      const { firstName, lastName } = user;
+      const dto = SubmitSignupDto.from({ firstName, lastName });
       await expect(
         authController.submitSignup(signupToken, dto, session),
       ).resolves.toEqual({
@@ -148,8 +147,7 @@ describe('Auth Controller', () => {
     });
 
     test('happy path', async () => {
-      const dto = new RefreshDto();
-      dto.refreshToken = refreshToken;
+      const dto = RefreshDto.from({ refreshToken });
       expect(authController.refresh(dto, session)).toEqual({
         accessToken: expect.any(String),
       });
