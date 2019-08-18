@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import {
   ConfigService,
@@ -21,7 +21,7 @@ describe('User Controller', () => {
   let tokenService: TokenService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
         UserRepository,
@@ -70,24 +70,27 @@ describe('User Controller', () => {
 
   describe('patch auth user', () => {
     let user: User;
-    let newEmail: string;
-    let newFirstName: string;
+    let email: string;
+    let firstName: string;
     let dto: PatchUserDto;
 
     beforeEach(() => {
       user = entityFaker.user();
-      newEmail = primitiveFaker.email();
-      newFirstName = primitiveFaker.word();
-      dto = new PatchUserDto();
-      dto.email = newEmail;
-      dto.firstName = newFirstName;
+      email = primitiveFaker.email();
+      firstName = primitiveFaker.word();
+      dto = PatchUserDto.from({ email, firstName });
       jest.spyOn(userRepository, 'save').mockResolvedValue(user);
       jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
-      await expect(userController.patchAuthUser(user, dto)).resolves.toEqual(
-        user,
+      await userController.patchAuthUser(user, dto);
+      expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
+        email,
+        expect.any(String),
+      );
+      expect(userRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ firstName }),
       );
     });
   });
