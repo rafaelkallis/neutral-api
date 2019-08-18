@@ -17,7 +17,7 @@ import { ProjectController } from './project.controller';
 
 import { ModelService } from './services/model.service';
 import { CreateProjectDto } from './dto/create-project.dto';
-import { PatchProjectDto } from './dto/patch-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 describe('Project Controller', () => {
   let projectController: ProjectController;
@@ -98,22 +98,22 @@ describe('Project Controller', () => {
     });
   });
 
-  describe('patch project', () => {
+  describe('update project', () => {
     let user: User;
     let project: Project;
-    let dto: PatchProjectDto;
+    let dto: UpdateProjectDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       const title = primitiveFaker.words();
-      dto = PatchProjectDto.from({ title });
+      dto = UpdateProjectDto.from({ title });
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await projectController.patchProject(user, project.id, dto);
+      await projectController.updateProject(user, project.id, dto);
       expect(projectRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ title: dto.title }),
       );

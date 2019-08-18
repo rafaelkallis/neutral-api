@@ -32,7 +32,7 @@ import {
 import { ModelService } from './services/model.service';
 
 import { CreateProjectDto } from './dto/create-project.dto';
-import { PatchProjectDto } from './dto/patch-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 /**
  * Project Controller
@@ -116,10 +116,10 @@ export class ProjectController {
     status: 403,
     description: 'Authenticated user is not the project owner',
   })
-  public async patchProject(
+  public async updateProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body(ValidationPipe) dto: PatchProjectDto,
+    @Body(ValidationPipe) dto: UpdateProjectDto,
   ): Promise<Project> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {

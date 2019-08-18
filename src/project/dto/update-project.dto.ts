@@ -1,15 +1,15 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-interface PatchProjectDtoOptions {
+interface UpdateProjectDtoOptions {
   title?: string;
   description?: string;
 }
 
 /**
- * Patch project DTO
+ * Update project DTO
  */
-export class PatchProjectDto {
+export class UpdateProjectDto {
   @IsString()
   @IsOptional()
   @ApiModelProperty({
@@ -34,8 +34,8 @@ export class PatchProjectDto {
   public static from({
     title,
     description,
-  }: PatchProjectDtoOptions): PatchProjectDto {
-    const dto = new PatchProjectDto();
+  }: UpdateProjectDtoOptions): UpdateProjectDto {
+    const dto = new UpdateProjectDto();
     dto.title = title;
     dto.description = description;
     return dto;
