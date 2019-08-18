@@ -16,6 +16,8 @@ import { entityFaker, primitiveFaker } from '../test';
 import { ProjectController } from './project.controller';
 
 import { ModelService } from './services/model.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { PatchProjectDto } from './dto/patch-project.dto';
 
 describe('Project Controller', () => {
   let projectController: ProjectController;
@@ -81,38 +83,40 @@ describe('Project Controller', () => {
 
   describe('create project', () => {
     let user: User;
-    let project: Project;
+    let dto: CreateProjectDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
-      project = entityFaker.project(user.id);
+      const project = entityFaker.project(user.id);
+      dto = CreateProjectDto.from(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await expect(
-        projectController.createProject(user, project),
-      ).resolves.toEqual(project);
+      await projectController.createProject(user, dto);
+      expect(projectRepository.save).toHaveBeenCalled();
     });
   });
 
   describe('patch project', () => {
     let user: User;
     let project: Project;
-    let newTitle: string;
+    let dto: PatchProjectDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
-      newTitle = primitiveFaker.words();
+      const title = primitiveFaker.words();
+      dto = PatchProjectDto.from({ title });
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await expect(
-        projectController.patchProject(user, project.id, { title: newTitle }),
-      ).resolves.toEqual({ ...project, title: newTitle });
+      await projectController.patchProject(user, project.id, dto);
+      expect(projectRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ title: dto.title }),
+      );
     });
   });
 

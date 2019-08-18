@@ -1,6 +1,11 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
+interface CreateProjectDtoOptions {
+  title: string;
+  description: string;
+}
+
 /**
  * Create project DTO
  */
@@ -19,4 +24,16 @@ export class CreateProjectDto {
     description: 'Description of the project',
   })
   public description!: string;
+
+  private constructor() {}
+
+  public static from({
+    title,
+    description,
+  }: CreateProjectDtoOptions): CreateProjectDto {
+    const dto = new CreateProjectDto();
+    dto.title = title;
+    dto.description = description;
+    return dto;
+  }
 }
