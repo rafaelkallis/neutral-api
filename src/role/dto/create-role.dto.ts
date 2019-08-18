@@ -1,6 +1,13 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
+interface CreateRoleDtoOptions {
+  projectId: string;
+  assigneeId?: string | null;
+  title: string;
+  description: string;
+}
+
 /**
  * Create role DTO
  */
@@ -33,4 +40,20 @@ export class CreateRoleDto {
     description: 'Description of the role',
   })
   public description!: string;
+
+  private constructor() {}
+
+  public static from({
+    projectId,
+    assigneeId,
+    title,
+    description,
+  }: CreateRoleDtoOptions): CreateRoleDto {
+    const dto = new CreateRoleDto();
+    dto.projectId = projectId;
+    dto.assigneeId = assigneeId;
+    dto.title = title;
+    dto.description = description;
+    return dto;
+  }
 }

@@ -52,9 +52,9 @@ describe('Role Controller', () => {
 
   describe('get roles', () => {
     let queryDto: GetRolesQueryDto;
+
     beforeEach(() => {
-      queryDto = new GetRolesQueryDto();
-      queryDto.projectId = project.id;
+      queryDto = GetRolesQueryDto.from({ projectId: project.id });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
     });
@@ -80,10 +80,11 @@ describe('Role Controller', () => {
     let dto: CreateRoleDto;
 
     beforeEach(() => {
-      dto = new CreateRoleDto();
-      dto.projectId = project.id;
-      dto.title = primitiveFaker.words();
-      dto.description = primitiveFaker.paragraph();
+      dto = CreateRoleDto.from({
+        projectId: project.id,
+        title: primitiveFaker.words(),
+        description: primitiveFaker.paragraph(),
+      });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
     });
@@ -97,27 +98,27 @@ describe('Role Controller', () => {
     let user: User;
     let project: Project;
     let role: Role;
-    let newTitle: string;
     let dto: PatchRoleDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       role = entityFaker.role(project.id);
-      newTitle = primitiveFaker.words();
-      dto = new PatchRoleDto();
-      dto.title = newTitle;
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      const title = primitiveFaker.words();
+      dto = PatchRoleDto.from({ title });
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
     });
 
     test('happy path', async () => {
-      await expect(
-        roleController.patchRole(user, role.id, dto),
-      ).resolves.toEqual(role);
-      expect(role.title).toBe(newTitle);
-      expect(roleRepository.save).toHaveBeenCalledWith(role);
+      await roleController.patchRole(user, role.id, dto);
+      expect(roleRepository.findOneOrFail).toHaveBeenCalledWith(
+        expect.objectContaining({ id: role.id }),
+      );
+      expect(roleRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ title: dto.title }),
+      );
     });
   });
 
@@ -162,8 +163,7 @@ describe('Role Controller', () => {
         [role3.id]: 0.2,
         [role4.id]: 0.5,
       };
-      dto = new SubmitPeerReviewsDto();
-      dto.peerReviews = peerReviews;
+      dto = SubmitPeerReviewsDto.from({ peerReviews });
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
       jest
         .spyOn(roleRepository, 'find')
@@ -173,7 +173,9 @@ describe('Role Controller', () => {
 
     test('happy path', async () => {
       await roleController.submitPeerReviews(user, role.id, dto);
-      expect(roleRepository.save).toHaveBeenCalledWith(role);
+      expect(roleRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ peerReviews }),
+      );
     });
   });
 });

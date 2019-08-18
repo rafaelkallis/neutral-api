@@ -1,6 +1,10 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsPeerReviews } from '../../common';
 
+interface SubmitPeerReviewsDtoOptions {
+  peerReviews: Record<string, number>;
+}
+
 /**
  * Submit peer reviews DTO
  */
@@ -17,4 +21,14 @@ export class SubmitPeerReviewsDto {
     description: 'Peer reviews',
   })
   public peerReviews!: Record<string, number>;
+
+  private constructor() {}
+
+  public static from({
+    peerReviews,
+  }: SubmitPeerReviewsDtoOptions): SubmitPeerReviewsDto {
+    const dto = new SubmitPeerReviewsDto();
+    dto.peerReviews = peerReviews;
+    return dto;
+  }
 }
