@@ -33,7 +33,7 @@ import {
 } from '../common';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { PatchRoleDto } from './dto/patch-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
@@ -143,10 +143,10 @@ export class RoleController {
     status: 403,
     description: "Authenticated user is not the role's project owner",
   })
-  public async patchRole(
+  public async updateRole(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body(ValidationPipe) dto: PatchRoleDto,
+    @Body(ValidationPipe) dto: UpdateRoleDto,
   ): Promise<Role> {
     const role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({

@@ -1,16 +1,16 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-interface PatchRoleDtoOptions {
+interface UpdateRoleDtoProps {
   assigneeId?: string | null;
   title?: string;
   description?: string;
 }
 
 /**
- * Patch role DTO
+ * Update role DTO
  */
-export class PatchRoleDto {
+export class UpdateRoleDto {
   @IsString()
   @IsOptional()
   @ApiModelProperty({
@@ -40,15 +40,7 @@ export class PatchRoleDto {
 
   private constructor() {}
 
-  public static from({
-    assigneeId,
-    title,
-    description,
-  }: PatchRoleDtoOptions): PatchRoleDto {
-    const dto = new PatchRoleDto();
-    dto.assigneeId = assigneeId;
-    dto.title = title;
-    dto.description = description;
-    return dto;
+  public static from(props: UpdateRoleDtoProps): UpdateRoleDto {
+    return Object.assign(new UpdateRoleDto(), props);
   }
 }

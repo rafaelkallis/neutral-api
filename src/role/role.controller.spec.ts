@@ -14,7 +14,7 @@ import {
 import { entityFaker, primitiveFaker } from '../test';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { PatchRoleDto } from './dto/patch-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 describe('Role Controller', () => {
@@ -94,25 +94,25 @@ describe('Role Controller', () => {
     });
   });
 
-  describe('patch role', () => {
+  describe('update role', () => {
     let user: User;
     let project: Project;
     let role: Role;
-    let dto: PatchRoleDto;
+    let dto: UpdateRoleDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       role = entityFaker.role(project.id);
       const title = primitiveFaker.words();
-      dto = PatchRoleDto.from({ title });
+      dto = UpdateRoleDto.from({ title });
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
     });
 
     test('happy path', async () => {
-      await roleController.patchRole(user, role.id, dto);
+      await roleController.updateRole(user, role.id, dto);
       expect(roleRepository.findOneOrFail).toHaveBeenCalledWith(
         expect.objectContaining({ id: role.id }),
       );
