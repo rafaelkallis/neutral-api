@@ -10,7 +10,7 @@ export enum ProjectState {
   FINISHED = 'finished',
 }
 
-interface ProjectOptions {
+interface ProjectProps {
   id: string;
   title: string;
   description: string;
@@ -22,7 +22,7 @@ interface ProjectOptions {
  * Project Entity
  */
 @Entity('projects')
-export class Project extends BaseEntity {
+export class Project extends BaseEntity implements ProjectProps {
   @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
@@ -47,23 +47,15 @@ export class Project extends BaseEntity {
   @ApiModelProperty()
   public state!: ProjectState;
 
+  public update(props: Partial<ProjectProps>): this {
+    return Object.assign(this, props);
+  }
+
   protected constructor() {
     super();
   }
 
-  public static from({
-    id,
-    title,
-    description,
-    ownerId,
-    state,
-  }: ProjectOptions): Project {
-    const project = new Project();
-    project.id = id;
-    project.title = title;
-    project.description = description;
-    project.ownerId = ownerId;
-    project.state = state;
-    return project;
+  public static from(props: ProjectProps): Project {
+    return new Project().update(props);
   }
 }

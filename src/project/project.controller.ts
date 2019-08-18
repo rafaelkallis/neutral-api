@@ -119,18 +119,13 @@ export class ProjectController {
   public async patchProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body(ValidationPipe) patchProjectDto: PatchProjectDto,
+    @Body(ValidationPipe) dto: PatchProjectDto,
   ): Promise<Project> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }
-    if (patchProjectDto.title) {
-      project.title = patchProjectDto.title;
-    }
-    if (patchProjectDto.description) {
-      project.description = patchProjectDto.description;
-    }
+    project.update(dto);
     return this.projectRepository.save(project);
   }
 

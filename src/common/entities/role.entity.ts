@@ -6,7 +6,7 @@ import { IsPeerReviews } from '../validation/is-peer-reviews';
 
 import { BaseEntity } from './base.entity';
 
-interface RoleOptions {
+interface RoleProps {
   id: string;
   projectId: string;
   assigneeId?: string | null;
@@ -19,7 +19,7 @@ interface RoleOptions {
  * Role Entity
  */
 @Entity('roles')
-export class Role extends BaseEntity {
+export class Role extends BaseEntity implements RoleProps {
   @Column({ name: 'project_id' })
   @IsString()
   @MaxLength(20)
@@ -51,25 +51,15 @@ export class Role extends BaseEntity {
   @Exclude()
   public peerReviews?: Record<string, number> | null;
 
+  public update(props: Partial<RoleProps>): this {
+    return Object.assign(this, props);
+  }
+
   protected constructor() {
     super();
   }
 
-  public static from({
-    id,
-    projectId,
-    assigneeId,
-    title,
-    description,
-    peerReviews,
-  }: RoleOptions): Role {
-    const role = new Role();
-    role.id = id;
-    role.projectId = projectId;
-    role.assigneeId = assigneeId;
-    role.title = title;
-    role.description = description;
-    role.peerReviews = peerReviews;
-    return role;
+  public static from(props: RoleProps): Role {
+    return new Role().update(props);
   }
 }

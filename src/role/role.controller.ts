@@ -158,7 +158,7 @@ export class RoleController {
     if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
       await this.userRepository.findOneOrFail({ id: dto.assigneeId });
     }
-    Object.assign(role, dto);
+    role.update(dto);
     return this.roleRepository.save(role);
   }
 

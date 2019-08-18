@@ -6,7 +6,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
-interface UserOptions {
+interface UserProps {
   id: string;
   email: string;
   firstName: string;
@@ -42,23 +42,15 @@ export class User extends BaseEntity {
   @Exclude()
   public lastLoginAt!: number;
 
+  public update(props: Partial<UserProps>): this {
+    return Object.assign(this, props);
+  }
+
   protected constructor() {
     super();
   }
 
-  public static from({
-    id,
-    email,
-    firstName,
-    lastName,
-    lastLoginAt,
-  }: UserOptions): User {
-    const user = new User();
-    user.id = id;
-    user.email = email;
-    user.firstName = firstName;
-    user.lastName = lastName;
-    user.lastLoginAt = lastLoginAt;
-    return user;
+  public static from(props: UserProps): User {
+    return new User().update(props);
   }
 }

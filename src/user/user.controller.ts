@@ -105,7 +105,7 @@ export class UserController {
       )}/email_change/callback?token=${token}`;
       await this.emailService.sendEmailChangeEmail(email, emailChangeMagicLink);
     }
-    Object.assign(authUser, otherChanges);
+    authUser.update(otherChanges);
     return this.userRepository.save(authUser);
   }
 

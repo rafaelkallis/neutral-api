@@ -18,7 +18,7 @@ import { BigIntTransformer } from './bigint-transformer';
 /**
  * Base Entity
  */
-export class BaseEntity {
+export abstract class BaseEntity {
   @PrimaryColumn()
   @IsString()
   @MaxLength(20)
