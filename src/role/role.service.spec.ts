@@ -17,7 +17,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
-describe('Role Controller', () => {
+describe('role service', () => {
   let roleService: RoleService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -27,8 +27,8 @@ describe('Role Controller', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      controllers: [RoleService],
       providers: [
+        RoleService,
         RandomService,
         ConfigService,
         RoleRepository,

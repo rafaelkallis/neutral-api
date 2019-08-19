@@ -17,7 +17,7 @@ import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
 
-describe('Auth Controller', () => {
+describe('auth service', () => {
   let authService: AuthService;
   let userRepository: UserRepository;
   let emailService: EmailService;

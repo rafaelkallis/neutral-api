@@ -17,18 +17,8 @@ import {
   ApiUseTags,
 } from '@nestjs/swagger';
 
-import {
-  AuthGuard,
-  AuthUser,
-  ConfigService,
-  EmailService,
-  TokenAlreadyUsedException,
-  TokenService,
-  User,
-  UserRepository,
-  ValidationPipe,
-} from '../common';
-
+import { AuthGuard, AuthUser, User, ValidationPipe } from '../common';
+import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 /**
@@ -37,21 +27,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users')
 @ApiUseTags('Users')
 export class UserController {
-  private readonly userRepository: UserRepository;
-  private readonly configService: ConfigService;
-  private readonly tokenService: TokenService;
-  private readonly emailService: EmailService;
+  private readonly userService: UserService;
 
-  public constructor(
-    userRepository: UserRepository,
-    configService: ConfigService,
-    tokenService: TokenService,
-    emailService: EmailService,
-  ) {
-    this.userRepository = userRepository;
-    this.configService = configService;
-    this.tokenService = tokenService;
-    this.emailService = emailService;
+  public constructor(userService: UserService) {
+    this.userService = userService;
   }
 
   /**
@@ -63,7 +42,7 @@ export class UserController {
   @ApiOperation({ title: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
   public async getUsers(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userService.getUsers();
   }
 
   /**
@@ -75,7 +54,7 @@ export class UserController {
   @ApiOperation({ title: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
   public async getAuthUser(@AuthUser() authUser: User): Promise<User> {
-    return authUser;
+    return this.userService.getAuthUser(authUser);
   }
 
   /**
@@ -93,20 +72,7 @@ export class UserController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<User> {
-    const { email, ...otherChanges } = dto;
-    if (email) {
-      const token = this.tokenService.newEmailChangeToken(
-        authUser.id,
-        authUser.email,
-        email,
-      );
-      const emailChangeMagicLink = `${this.configService.get(
-        'FRONTEND_URL',
-      )}/email_change/callback?token=${token}`;
-      await this.emailService.sendEmailChangeEmail(email, emailChangeMagicLink);
-    }
-    authUser.update(otherChanges);
-    return this.userRepository.save(authUser);
+    return this.userService.updateUser(authUser, dto);
   }
 
   /**
@@ -118,13 +84,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async submitEmailChange(@Param('token') token: string): Promise<void> {
-    const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
-    if (user.email !== payload.curEmail) {
-      throw new TokenAlreadyUsedException();
-    }
-    user.email = payload.newEmail;
-    await this.userRepository.save(user);
+    return this.userService.submitEmailChange(token);
   }
 
   /**
@@ -138,7 +98,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async getUser(@Param('id') id: string): Promise<User> {
-    return this.userRepository.findOneOrFail({ id });
+    return this.userService.getUser(id);
   }
 
   /**
@@ -154,6 +114,6 @@ export class UserController {
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
-    await this.userRepository.remove(authUser);
+    return this.userService.deleteAuthUser(authUser);
   }
 }

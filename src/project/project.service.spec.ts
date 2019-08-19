@@ -19,7 +19,7 @@ import { ProjectStateTransitionValidationService } from './services/project-stat
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
-describe('Project Controller', () => {
+describe('project service', () => {
   let projectService: ProjectService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -116,7 +116,8 @@ describe('Project Controller', () => {
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
       jest
-        .spyOn(projectStateTransitionValidationService, 'validateTransition').mockImplementation(() => {});
+        .spyOn(projectStateTransitionValidationService, 'validateTransition')
+        .mockImplementation(() => {});
     });
 
     test('happy path', async () => {

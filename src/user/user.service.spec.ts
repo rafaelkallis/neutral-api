@@ -12,18 +12,18 @@ import {
 import { entityFaker, primitiveFaker } from '../test';
 
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
-describe('User Controller', () => {
-  let userController: UserController;
+describe('user service', () => {
+  let userService: UserService;
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      controllers: [UserController],
       providers: [
+        UserService,
         UserRepository,
         ProjectRepository,
         TokenService,
@@ -33,14 +33,14 @@ describe('User Controller', () => {
       ],
     }).compile();
 
-    userController = module.get(UserController);
+    userService = module.get(UserService);
     userRepository = module.get(UserRepository);
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
   });
 
   it('should be defined', () => {
-    expect(userController).toBeDefined();
+    expect(userService).toBeDefined();
   });
 
   describe('get users', () => {
@@ -52,7 +52,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(userController.getUsers()).resolves.toEqual(users);
+      await expect(userService.getUsers()).resolves.toEqual(users);
     });
   });
 
@@ -64,7 +64,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(userController.getAuthUser(user)).resolves.toEqual(user);
+      await expect(userService.getAuthUser(user)).resolves.toEqual(user);
     });
   });
 
@@ -84,7 +84,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await userController.updateUser(user, dto);
+      await userService.updateUser(user, dto);
       expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
         email,
         expect.any(String),
@@ -114,7 +114,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await userController.submitEmailChange(emailChangeToken);
+      await userService.submitEmailChange(emailChangeToken);
     });
   });
 
@@ -127,7 +127,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(userController.getUser(user.id)).resolves.toEqual(user);
+      await expect(userService.getUser(user.id)).resolves.toEqual(user);
     });
   });
 
@@ -140,7 +140,7 @@ describe('User Controller', () => {
     });
 
     test('happy path', async () => {
-      await userController.deleteAuthUser(user);
+      await userService.deleteAuthUser(user);
       expect(userRepository.remove).toHaveBeenCalledWith(user);
     });
   });
