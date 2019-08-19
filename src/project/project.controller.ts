@@ -16,21 +16,8 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-
-import {
-  AuthGuard,
-  AuthUser,
-  InsufficientPermissionsException,
-  Project,
-  ProjectState,
-  ProjectRepository,
-  RoleRepository,
-  RandomService,
-  User,
-  ValidationPipe,
-} from '../common';
-import { ModelService } from './services/model.service';
-
+import { AuthGuard, AuthUser, Project, User, ValidationPipe } from '../common';
+import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -40,21 +27,10 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 @Controller('projects')
 @ApiUseTags('Projects')
 export class ProjectController {
-  private readonly projectRepository: ProjectRepository;
-  private readonly roleRepository: RoleRepository;
-  private readonly randomService: RandomService;
-  private readonly modelService: ModelService;
+  private readonly projectService: ProjectService;
 
-  public constructor(
-    projectRepository: ProjectRepository,
-    roleRepository: RoleRepository,
-    randomService: RandomService,
-    modelService: ModelService,
-  ) {
-    this.projectRepository = projectRepository;
-    this.roleRepository = roleRepository;
-    this.randomService = randomService;
-    this.modelService = modelService;
+  public constructor(projectService: ProjectService) {
+    this.projectService = projectService;
   }
 
   /**
@@ -66,7 +42,7 @@ export class ProjectController {
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
   public async getProjects(): Promise<Project[]> {
-    return this.projectRepository.find();
+    return this.projectService.getProjects();
   }
 
   /**
@@ -80,7 +56,7 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getProject(@Param('id') id: string): Promise<Project> {
-    return this.projectRepository.findOneOrFail({ id });
+    return this.projectService.getProject(id);
   }
 
   /**
@@ -93,14 +69,7 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateProjectDto,
   ): Promise<Project> {
-    const project = Project.from({
-      id: this.randomService.id(),
-      ownerId: authUser.id,
-      title: dto.title,
-      description: dto.description,
-      state: ProjectState.FORMATION,
-    });
-    return this.projectRepository.save(project);
+    return this.projectService.createProject(authUser, dto);
   }
 
   /**
@@ -121,12 +90,7 @@ export class ProjectController {
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateProjectDto,
   ): Promise<Project> {
-    const project = await this.projectRepository.findOneOrFail({ id });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    project.update(dto);
-    return this.projectRepository.save(project);
+    return this.projectService.updateProject(authUser, id, dto);
   }
 
   /**
@@ -147,11 +111,7 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
-    const project = await this.projectRepository.findOneOrFail({ id });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    await this.projectRepository.remove(project);
+    return this.projectService.deleteProject(authUser, id);
   }
 
   /**
@@ -167,19 +127,6 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<Record<string, number>> {
-    const project = await this.projectRepository.findOneOrFail({ id });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    const roles = await this.roleRepository.find({ projectId: id });
-    const peerReviews: Record<string, Record<string, number>> = {};
-    for (const role of roles) {
-      if (!role.peerReviews) {
-        throw new Error();
-      }
-      peerReviews[role.id] = role.peerReviews;
-      peerReviews[role.id][role.id] = 0;
-    }
-    return this.modelService.computeRelativeContributions(peerReviews);
+    return this.projectService.getRelativeContributions(authUser, id);
   }
 }

@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import {
   ConfigService,
   Project,
+  ProjectState,
   ProjectRepository,
   RandomService,
   TokenService,
@@ -12,23 +13,23 @@ import {
   RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
-
-import { ProjectController } from './project.controller';
-
+import { ProjectService } from './project.service';
 import { ModelService } from './services/model.service';
+import { ProjectStateTransitionValidationService } from './services/project-state-transition-validation.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
 describe('Project Controller', () => {
-  let projectController: ProjectController;
+  let projectService: ProjectService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let modelService: ModelService;
+  let projectStateTransitionValidationService: ProjectStateTransitionValidationService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      controllers: [ProjectController],
       providers: [
+        ProjectService,
         UserRepository,
         ProjectRepository,
         RoleRepository,
@@ -36,17 +37,21 @@ describe('Project Controller', () => {
         RandomService,
         ConfigService,
         ModelService,
+        ProjectStateTransitionValidationService,
       ],
     }).compile();
 
-    projectController = module.get(ProjectController);
+    projectService = module.get(ProjectService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     modelService = module.get(ModelService);
+    projectStateTransitionValidationService = module.get(
+      ProjectStateTransitionValidationService,
+    );
   });
 
   test('should be defined', () => {
-    expect(projectController).toBeDefined();
+    expect(projectService).toBeDefined();
   });
 
   describe('get projects', () => {
@@ -62,7 +67,7 @@ describe('Project Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(projectController.getProjects()).resolves.toEqual(projects);
+      await expect(projectService.getProjects()).resolves.toEqual(projects);
     });
   });
 
@@ -75,7 +80,7 @@ describe('Project Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(projectController.getProject(project.id)).resolves.toEqual(
+      await expect(projectService.getProject(project.id)).resolves.toEqual(
         project,
       );
     });
@@ -93,7 +98,7 @@ describe('Project Controller', () => {
     });
 
     test('happy path', async () => {
-      await projectController.createProject(user, dto);
+      await projectService.createProject(user, dto);
       expect(projectRepository.save).toHaveBeenCalled();
     });
   });
@@ -108,15 +113,27 @@ describe('Project Controller', () => {
       project = entityFaker.project(user.id);
       const title = primitiveFaker.words();
       dto = UpdateProjectDto.from({ title });
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest
+        .spyOn(projectStateTransitionValidationService, 'validateTransition').mockImplementation(() => {});
     });
 
     test('happy path', async () => {
-      await projectController.updateProject(user, project.id, dto);
+      await projectService.updateProject(user, project.id, dto);
       expect(projectRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ title: dto.title }),
       );
+    });
+
+    test('state change should trigger transition validation', async () => {
+      const oldState = project.state;
+      const newState = ProjectState.PEER_REVIEW;
+      dto = UpdateProjectDto.from({ state: newState });
+      await projectService.updateProject(user, project.id, dto);
+      expect(
+        projectStateTransitionValidationService.validateTransition,
+      ).toHaveBeenCalledWith(oldState, newState);
     });
   });
 
@@ -132,7 +149,7 @@ describe('Project Controller', () => {
     });
 
     test('happy path', async () => {
-      await projectController.deleteProject(user, project.id);
+      await projectService.deleteProject(user, project.id);
       expect(projectRepository.remove).toHaveBeenCalled();
     });
   });
@@ -169,7 +186,7 @@ describe('Project Controller', () => {
 
     test('happy path', async () => {
       await expect(
-        projectController.getRelativeContributions(user, project.id),
+        projectService.getRelativeContributions(user, project.id),
       ).resolves.toEqual({
         [role1.id]: 0.25,
         [role2.id]: 0.25,

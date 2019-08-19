@@ -1,15 +1,17 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsEnum, IsString } from 'class-validator';
+import { ProjectState } from '../../common';
 
-interface UpdateProjectDtoOptions {
+interface UpdateProjectDtoProps {
   title?: string;
   description?: string;
+  state?: ProjectState;
 }
 
 /**
  * Update project DTO
  */
-export class UpdateProjectDto {
+export class UpdateProjectDto implements UpdateProjectDtoProps {
   @IsString()
   @IsOptional()
   @ApiModelProperty({
@@ -29,15 +31,18 @@ export class UpdateProjectDto {
   })
   public description?: string;
 
+  @IsEnum(ProjectState)
+  @IsOptional()
+  @ApiModelProperty({
+    example: 'peer-review',
+    description: 'State of the project',
+    required: false,
+  })
+  public state?: ProjectState;
+
   private constructor() {}
 
-  public static from({
-    title,
-    description,
-  }: UpdateProjectDtoOptions): UpdateProjectDto {
-    const dto = new UpdateProjectDto();
-    dto.title = title;
-    dto.description = description;
-    return dto;
+  public static from(props: UpdateProjectDtoProps): UpdateProjectDto {
+    return Object.assign(new UpdateProjectDto(), props);
   }
 }

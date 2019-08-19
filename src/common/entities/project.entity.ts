@@ -56,6 +56,6 @@ export class Project extends BaseEntity implements ProjectProps {
   }
 
   public static from(props: ProjectProps): Project {
-    return new Project().update(props);
+    return Object.assign(new Project(), props);
   }
 }
