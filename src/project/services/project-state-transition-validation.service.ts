@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ProjectState } from '../../common';
 import { ForbiddenProjectStateChangeException } from '../exceptions/forbidden-project-state-change.exception';
 
+/* eslint-disable security/detect-object-injection */
+
 /**
  * Project State Transition Validation Service
  */
@@ -50,3 +52,5 @@ export class ProjectStateTransitionValidationService {
     return Boolean(this.validTransitions[from][to]);
   }
 }
+
+/* eslint-enable security/detect-object-injection */

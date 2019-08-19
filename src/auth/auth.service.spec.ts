@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import {
   ConfigService,
@@ -11,21 +11,21 @@ import {
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 
-import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
 
 describe('Auth Controller', () => {
-  let authController: AuthController;
+  let authService: AuthService;
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+    const module = await Test.createTestingModule({
+      controllers: [AuthService],
       providers: [
         UserRepository,
         TokenService,
@@ -35,14 +35,14 @@ describe('Auth Controller', () => {
       ],
     }).compile();
 
-    authController = module.get(AuthController);
+    authService = module.get(AuthService);
     userRepository = module.get(UserRepository);
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
   });
 
   it('should be defined', () => {
-    expect(authController).toBeDefined();
+    expect(authService).toBeDefined();
   });
 
   describe('request magic login', () => {
@@ -56,7 +56,7 @@ describe('Auth Controller', () => {
     test('happy path', async () => {
       const email = primitiveFaker.email();
       const dto = RequestLoginDto.from({ email });
-      await authController.requestLogin(dto);
+      await authService.requestLogin(dto);
     });
   });
 
@@ -79,7 +79,7 @@ describe('Auth Controller', () => {
 
     test('happy path', async () => {
       await expect(
-        authController.submitLogin(loginToken, session),
+        authService.submitLogin(loginToken, session),
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -97,7 +97,7 @@ describe('Auth Controller', () => {
     test('happy path', async () => {
       const email = primitiveFaker.email();
       const dto = RequestSignupDto.from({ email });
-      await authController.requestSignup(dto);
+      await authService.requestSignup(dto);
     });
   });
 
@@ -122,7 +122,7 @@ describe('Auth Controller', () => {
       const { firstName, lastName } = user;
       const dto = SubmitSignupDto.from({ firstName, lastName });
       await expect(
-        authController.submitSignup(signupToken, dto, session),
+        authService.submitSignup(signupToken, dto, session),
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -148,7 +148,7 @@ describe('Auth Controller', () => {
 
     test('happy path', async () => {
       const dto = RefreshDto.from({ refreshToken });
-      expect(authController.refresh(dto, session)).toEqual({
+      expect(authService.refresh(dto, session)).toEqual({
         accessToken: expect.any(String),
       });
       expect(session.set).toHaveBeenCalled();

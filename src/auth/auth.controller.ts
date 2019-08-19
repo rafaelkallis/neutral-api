@@ -13,23 +13,13 @@ import {
   ApiUseTags,
 } from '@nestjs/swagger';
 
-import {
-  ConfigService,
-  EmailService,
-  RandomService,
-  SessionState,
-  TokenAlreadyUsedException,
-  TokenService,
-  User,
-  UserRepository,
-  ValidationPipe,
-} from '../common';
+import { SessionState, ValidationPipe } from '../common';
+import { AuthService } from './auth.service';
 
 import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
-import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
 
 /**
  * Authentication Controller
@@ -37,23 +27,10 @@ import { EmailAlreadyUsedException } from './exceptions/email-already-used.excep
 @Controller('auth')
 @ApiUseTags('Auth')
 export class AuthController {
-  private readonly userRepository: UserRepository;
-  private readonly tokenService: TokenService;
-  private readonly randomService: RandomService;
-  private readonly emailService: EmailService;
-  private readonly configService: ConfigService;
-  public constructor(
-    userRepository: UserRepository,
-    tokenService: TokenService,
-    randomService: RandomService,
-    emailService: EmailService,
-    configService: ConfigService,
-  ) {
-    this.userRepository = userRepository;
-    this.tokenService = tokenService;
-    this.randomService = randomService;
-    this.emailService = emailService;
-    this.configService = configService;
+  private readonly authService: AuthService;
+
+  public constructor(authService: AuthService) {
+    this.authService = authService;
   }
 
   /**
@@ -69,16 +46,7 @@ export class AuthController {
   public async requestLogin(
     @Body(ValidationPipe) dto: RequestLoginDto,
   ): Promise<void> {
-    const { email } = dto;
-    const user = await this.userRepository.findOneOrFail({ email });
-    const loginToken = this.tokenService.newLoginToken(
-      user.id,
-      user.lastLoginAt,
-    );
-    const magicLoginLink = `${this.configService.get(
-      'FRONTEND_URL',
-    )}/login/callback?token=${encodeURIComponent(loginToken)}`;
-    await this.emailService.sendLoginEmail(email, magicLoginLink);
+    return this.authService.requestLogin(dto);
   }
 
   /**
@@ -99,22 +67,7 @@ export class AuthController {
     @Param('token') loginToken: string,
     @Session() session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = this.tokenService.validateLoginToken(loginToken);
-    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
-    if (user.lastLoginAt !== payload.lastLoginAt) {
-      throw new TokenAlreadyUsedException();
-    }
-
-    user.lastLoginAt = Date.now();
-    await this.userRepository.save(user);
-
-    const accessToken = this.tokenService.newAccessToken(user.id);
-    const refreshToken = this.tokenService.newRefreshToken(user.id);
-    session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
-    );
-    return { accessToken, refreshToken };
+    return this.authService.submitLogin(loginToken, session);
   }
 
   /**
@@ -130,16 +83,7 @@ export class AuthController {
   public async requestSignup(
     @Body(ValidationPipe) dto: RequestSignupDto,
   ): Promise<void> {
-    const { email } = dto;
-    const count = await this.userRepository.count({ email });
-    if (count !== 0) {
-      throw new EmailAlreadyUsedException();
-    }
-    const signupToken = this.tokenService.newSignupToken(email);
-    const magicSignupLink = `${this.configService.get(
-      'FRONTEND_URL',
-    )}/signup/callback?token=${encodeURIComponent(signupToken)}`;
-    await this.emailService.sendSignupEmail(email, magicSignupLink);
+    return this.authService.requestSignup(dto);
   }
 
   /**
@@ -158,28 +102,7 @@ export class AuthController {
     @Body(ValidationPipe) dto: SubmitSignupDto,
     @Session() session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = this.tokenService.validateSignupToken(signupToken);
-    const count = await this.userRepository.count({ email: payload.sub });
-    if (count > 0) {
-      throw new EmailAlreadyUsedException();
-    }
-
-    const user = User.from({
-      id: this.randomService.id(),
-      email: payload.sub,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      lastLoginAt: Date.now(),
-    });
-    await this.userRepository.save(user);
-
-    const accessToken = this.tokenService.newAccessToken(user.id);
-    session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
-    );
-    const refreshToken = this.tokenService.newRefreshToken(user.id);
-    return { accessToken, refreshToken };
+    return this.authService.submitSignup(signupToken, dto, session);
   }
 
   /**
@@ -197,12 +120,6 @@ export class AuthController {
     @Body(ValidationPipe) dto: RefreshDto,
     @Session() session: SessionState,
   ): { accessToken: string } {
-    const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
-    const accessToken = this.tokenService.newAccessToken(payload.sub);
-    session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
-    );
-    return { accessToken };
+    return this.authService.refresh(dto, session);
   }
 }
