@@ -18,25 +18,12 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { Not } from 'typeorm';
-import {
-  ValidationPipe,
-  AuthGuard,
-  AuthUser,
-  User,
-  Role,
-  UserRepository,
-  ProjectRepository,
-  RoleRepository,
-  InsufficientPermissionsException,
-  RandomService,
-} from '../common';
+import { ValidationPipe, AuthGuard, AuthUser, User, Role } from '../common';
+import { RoleService } from './role.service';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
-import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
-import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
 
 /**
  * Role Controller
@@ -44,21 +31,10 @@ import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.e
 @Controller('roles')
 @ApiUseTags('Roles')
 export class RoleController {
-  private readonly userRepository: UserRepository;
-  private readonly projectRepository: ProjectRepository;
-  private readonly roleRepository: RoleRepository;
-  private readonly randomService: RandomService;
+  private readonly roleService: RoleService;
 
-  public constructor(
-    userRepository: UserRepository,
-    projectRepository: ProjectRepository,
-    roleRepository: RoleRepository,
-    randomService: RandomService,
-  ) {
-    this.userRepository = userRepository;
-    this.projectRepository = projectRepository;
-    this.roleRepository = roleRepository;
-    this.randomService = randomService;
+  public constructor(roleService: RoleService) {
+    this.roleService = roleService;
   }
 
   /**
@@ -72,11 +48,9 @@ export class RoleController {
   @ApiResponse({ status: 200, description: 'A list of roles' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getRoles(
-    @Query(ValidationPipe) queryDto: GetRolesQueryDto,
+    @Query(ValidationPipe) dto: GetRolesQueryDto,
   ): Promise<Role[]> {
-    const { projectId } = queryDto;
-    await this.projectRepository.findOneOrFail(projectId);
-    return this.roleRepository.find({ projectId });
+    return this.roleService.getRoles(dto);
   }
 
   /**
@@ -90,7 +64,7 @@ export class RoleController {
   @ApiResponse({ status: 200, description: 'A roles' })
   @ApiResponse({ status: 404, description: 'Role not found' })
   public async getRole(@Param('id') id: string): Promise<Role> {
-    return this.roleRepository.findOneOrFail(id);
+    return this.roleService.getRole(id);
   }
 
   /**
@@ -108,26 +82,7 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateRoleDto,
   ): Promise<Role> {
-    const project = await this.projectRepository.findOneOrFail({
-      id: dto.projectId,
-    });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    if (dto.assigneeId) {
-      if (dto.assigneeId === authUser.id) {
-        throw new ProjectOwnerAssignmentException();
-      }
-      await this.userRepository.findOneOrFail({ id: dto.assigneeId });
-    }
-    const role = Role.from({
-      id: this.randomService.id(),
-      projectId: dto.projectId,
-      assigneeId: dto.assigneeId || null,
-      title: dto.title,
-      description: dto.description,
-    });
-    return this.roleRepository.save(role);
+    return this.roleService.createRole(authUser, dto);
   }
 
   /**
@@ -148,18 +103,7 @@ export class RoleController {
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateRoleDto,
   ): Promise<Role> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
-      await this.userRepository.findOneOrFail({ id: dto.assigneeId });
-    }
-    role.update(dto);
-    return this.roleRepository.save(role);
+    return this.roleService.updateRole(authUser, id, dto);
   }
 
   /**
@@ -180,14 +124,7 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    await this.roleRepository.remove(role);
+    return this.roleService.deleteRole(authUser, id);
   }
 
   /**
@@ -209,33 +146,6 @@ export class RoleController {
     @Param('id') id: string,
     @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
   ): Promise<void> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    if (role.assigneeId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-
-    /* if self review exists, it must be 0 */
-    if (dto.peerReviews[role.id] && dto.peerReviews[role.id] !== 0) {
-      throw new InvalidPeerReviewsException();
-    }
-    let otherRoles = await this.roleRepository.find({
-      id: Not(role.id),
-      projectId: role.projectId,
-    });
-
-    /* check if number of peer reviews matches the number of roles */
-    if (otherRoles.length !== Object.values(dto.peerReviews).length) {
-      throw new InvalidPeerReviewsException();
-    }
-
-    /* check if peer review ids match other role ids */
-    for (const otherRole of otherRoles) {
-      if (!dto.peerReviews[otherRole.id]) {
-        throw new InvalidPeerReviewsException();
-      }
-    }
-
-    role.peerReviews = dto.peerReviews;
-    await this.roleRepository.save(role);
+    return this.roleService.submitPeerReviews(authUser, id, dto);
   }
 }

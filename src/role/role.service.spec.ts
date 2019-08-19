@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { RoleController } from './role.controller';
+import { RoleService } from './role.service';
 import {
   ConfigService,
   TokenService,
@@ -18,7 +18,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 describe('Role Controller', () => {
-  let roleController: RoleController;
+  let roleService: RoleService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let user: User;
@@ -27,7 +27,7 @@ describe('Role Controller', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      controllers: [RoleController],
+      controllers: [RoleService],
       providers: [
         RandomService,
         ConfigService,
@@ -38,7 +38,7 @@ describe('Role Controller', () => {
       ],
     }).compile();
 
-    roleController = module.get(RoleController);
+    roleService = module.get(RoleService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
@@ -47,7 +47,7 @@ describe('Role Controller', () => {
   });
 
   test('should be defined', () => {
-    expect(roleController).toBeDefined();
+    expect(roleService).toBeDefined();
   });
 
   describe('get roles', () => {
@@ -60,7 +60,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(roleController.getRoles(queryDto)).resolves.toContainEqual(
+      await expect(roleService.getRoles(queryDto)).resolves.toContainEqual(
         role,
       );
     });
@@ -72,7 +72,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(roleController.getRole(role.id)).resolves.toEqual(role);
+      await expect(roleService.getRole(role.id)).resolves.toEqual(role);
     });
   });
 
@@ -90,7 +90,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await expect(roleController.createRole(user, dto)).resolves.toEqual(role);
+      await expect(roleService.createRole(user, dto)).resolves.toEqual(role);
     });
   });
 
@@ -112,7 +112,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await roleController.updateRole(user, role.id, dto);
+      await roleService.updateRole(user, role.id, dto);
       expect(roleRepository.findOneOrFail).toHaveBeenCalledWith(
         expect.objectContaining({ id: role.id }),
       );
@@ -137,7 +137,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await roleController.deleteRole(user, role.id);
+      await roleService.deleteRole(user, role.id);
       expect(roleRepository.remove).toHaveBeenCalledWith(role);
     });
   });
@@ -172,7 +172,7 @@ describe('Role Controller', () => {
     });
 
     test('happy path', async () => {
-      await roleController.submitPeerReviews(user, role.id, dto);
+      await roleService.submitPeerReviews(user, role.id, dto);
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),
       );
