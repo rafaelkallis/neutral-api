@@ -15,7 +15,6 @@ import {
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectService } from './project.service';
 import { ModelService } from './services/model.service';
-import { ProjectStateTransitionValidationService } from './services/project-state-transition-validation.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -24,7 +23,6 @@ describe('project service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let modelService: ModelService;
-  let projectStateTransitionValidationService: ProjectStateTransitionValidationService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -37,7 +35,6 @@ describe('project service', () => {
         RandomService,
         ConfigService,
         ModelService,
-        ProjectStateTransitionValidationService,
       ],
     }).compile();
 
@@ -45,9 +42,6 @@ describe('project service', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     modelService = module.get(ModelService);
-    projectStateTransitionValidationService = module.get(
-      ProjectStateTransitionValidationService,
-    );
   });
 
   test('should be defined', () => {
@@ -115,9 +109,6 @@ describe('project service', () => {
       dto = UpdateProjectDto.from({ title });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
-      jest
-        .spyOn(projectStateTransitionValidationService, 'validateTransition')
-        .mockImplementation(() => {});
     });
 
     test('happy path', async () => {
@@ -128,13 +119,11 @@ describe('project service', () => {
     });
 
     test('state change should trigger transition validation', async () => {
-      const oldState = project.state;
-      const newState = ProjectState.PEER_REVIEW;
+      const newState = ProjectState.FINISHED;
       dto = UpdateProjectDto.from({ state: newState });
-      await projectService.updateProject(user, project.id, dto);
-      expect(
-        projectStateTransitionValidationService.validateTransition,
-      ).toHaveBeenCalledWith(oldState, newState);
+      await expect(
+        projectService.updateProject(user, project.id, dto),
+      ).rejects.toThrow();
     });
   });
 

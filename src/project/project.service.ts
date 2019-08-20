@@ -10,8 +10,8 @@ import {
   User,
 } from '../common';
 import { ModelService } from './services/model.service';
-import { ProjectStateTransitionValidationService } from './services/project-state-transition-validation.service';
 
+import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -21,20 +21,17 @@ export class ProjectService {
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
   private readonly modelService: ModelService;
-  private readonly projectStateTransitionValidationService: ProjectStateTransitionValidationService;
 
   public constructor(
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
     modelService: ModelService,
-    projectStateTransitionValidationService: ProjectStateTransitionValidationService,
   ) {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
     this.modelService = modelService;
-    this.projectStateTransitionValidationService = projectStateTransitionValidationService;
   }
 
   /**
@@ -78,11 +75,8 @@ export class ProjectService {
   ): Promise<Project> {
     const project = await this.projectRepository.findOneOrFail({ id });
     this.isProjectOwnerOrFail(project, authUser);
-    if (dto.state && dto.state !== project.state) {
-      this.projectStateTransitionValidationService.validateTransition(
-        project.state,
-        dto.state,
-      );
+    if (dto.state) {
+      await this.isValidProjectStateChangeOrFail(project, dto.state);
     }
     project.update(dto);
     return this.projectRepository.save(project);
@@ -92,6 +86,35 @@ export class ProjectService {
     if (project.ownerId !== user.id) {
       throw new InsufficientPermissionsException();
     }
+  }
+
+  private async isValidProjectStateChangeOrFail(
+    project: Project,
+    nextState: ProjectState,
+  ): Promise<void> {
+    const curState = project.state;
+    if (curState === nextState) {
+      return;
+    }
+    if (
+      curState === ProjectState.FORMATION &&
+      nextState === ProjectState.PEER_REVIEW
+    ) {
+      return;
+    }
+    if (
+      curState === ProjectState.PEER_REVIEW &&
+      nextState === ProjectState.FINISHED
+    ) {
+      const roles = await this.roleRepository.find({ projectId: project.id });
+      for (const role of roles) {
+        if (!role.peerReviews) {
+          throw new ForbiddenProjectStateChangeException();
+        }
+      }
+      return;
+    }
+    throw new ForbiddenProjectStateChangeException();
   }
 
   /**

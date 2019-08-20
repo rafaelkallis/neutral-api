@@ -6,7 +6,6 @@ import { ProjectController } from './project.controller';
 
 import { ProjectService } from './project.service';
 import { ModelService } from './services/model.service';
-import { ProjectStateTransitionValidationService } from './services/project-state-transition-validation.service';
 
 /**
  * Project Module
@@ -14,10 +13,6 @@ import { ProjectStateTransitionValidationService } from './services/project-stat
 @Module({
   imports: [CommonModule],
   controllers: [ProjectController],
-  providers: [
-    ProjectService,
-    ModelService,
-    ProjectStateTransitionValidationService,
-  ],
+  providers: [ProjectService, ModelService],
 })
 export class ProjectModule {}
