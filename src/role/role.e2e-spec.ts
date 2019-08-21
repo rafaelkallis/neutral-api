@@ -163,5 +163,16 @@ describe('RoleController (e2e)', () => {
         .send({ peerReviews });
       expect(response.status).toBe(400);
     });
+
+    test('should fail if a peer review is for non-existing peer', async () => {
+      role.peerReviews = peerReviews;
+      delete role.peerReviews[role2.id];
+      role.peerReviews[primitiveFaker.id()] = 0.3;
+      await roleRepository.save(role);
+      const response = await session
+        .post(`/roles/${role.id}/submit-peer-reviews`)
+        .send({ peerReviews });
+      expect(response.status).toBe(400);
+    });
   });
 });

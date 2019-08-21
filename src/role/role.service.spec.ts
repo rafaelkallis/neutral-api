@@ -206,5 +206,14 @@ describe('role service', () => {
         roleService.submitPeerReviews(user, role.id, dto),
       ).rejects.toThrow();
     });
+
+    test('should fail if a peer review is for non-existing peer', async () => {
+      role.peerReviews = peerReviews;
+      delete role.peerReviews[role2.id];
+      role.peerReviews[primitiveFaker.id()] = 0.3;
+      await expect(
+        roleService.submitPeerReviews(user, role.id, dto),
+      ).rejects.toThrow();
+    });
   });
 });
