@@ -1,5 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, MaxLength } from 'class-validator';
+import { Exclude } from 'class-transformer';
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
@@ -16,6 +17,7 @@ interface ProjectProps {
   description: string;
   ownerId: string;
   state: ProjectState;
+  relativeContributions?: Record<string, number> | null;
 }
 
 /**
@@ -46,6 +48,10 @@ export class Project extends BaseEntity implements ProjectProps {
   @MaxLength(255)
   @ApiModelProperty()
   public state!: ProjectState;
+
+  @Column({ name: 'relative_contributions', type: 'jsonb', nullable: true })
+  @Exclude()
+  public relativeContributions?: Record<string, number> | null;
 
   public update(props: Partial<ProjectProps>): this {
     return Object.assign(this, props);
