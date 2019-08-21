@@ -93,6 +93,11 @@ describe('role service', () => {
     test('happy path', async () => {
       await expect(roleService.createRole(user, dto)).resolves.toEqual(role);
     });
+
+    test('should fail when project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await expect(roleService.createRole(user, dto)).rejects.toThrow();
+    });
   });
 
   describe('update role', () => {

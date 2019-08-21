@@ -17,6 +17,7 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
 import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
+import { CreateRoleOutsideFormationStateException } from './exceptions/create-role-outside-formation-state.exception';
 
 @Injectable()
 export class RoleService {
@@ -61,6 +62,9 @@ export class RoleService {
     });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
+    }
+    if (project.state !== ProjectState.FORMATION) {
+      throw new CreateRoleOutsideFormationStateException();
     }
     if (dto.assigneeId) {
       if (dto.assigneeId === authUser.id) {

@@ -89,6 +89,17 @@ describe('RoleController (e2e)', () => {
         updatedAt: expect.any(Number),
       });
     });
+
+    test('should fail when project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
+      const response = await session.post('/roles').send({
+        projectId: project.id,
+        title,
+        description,
+      });
+      expect(response.status).toBe(400);
+    });
   });
 
   describe('/roles/:id (PATCH)', () => {
