@@ -5,6 +5,7 @@ import {
   Role,
   UserRepository,
   ProjectRepository,
+  ProjectState,
   RoleRepository,
   InsufficientPermissionsException,
   RandomService,
@@ -124,9 +125,15 @@ export class RoleService {
     if (role.assigneeId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }
+    const project = await this.projectRepository.findOneOrFail({
+      id: role.projectId,
+    });
+    if (project.state !== ProjectState.PEER_REVIEW) {
+      throw new InvalidPeerReviewsException();
+    }
 
-    /* if self review exists, it must be 0 */
-    if (dto.peerReviews[role.id] && dto.peerReviews[role.id] !== 0) {
+    /* self review must be 0 */
+    if (dto.peerReviews[role.id] !== 0) {
       throw new InvalidPeerReviewsException();
     }
     let otherRoles = await this.roleRepository.find({
@@ -135,7 +142,7 @@ export class RoleService {
     });
 
     /* check if number of peer reviews matches the number of roles */
-    if (otherRoles.length !== Object.values(dto.peerReviews).length) {
+    if (otherRoles.length + 1 !== Object.values(dto.peerReviews).length) {
       throw new InvalidPeerReviewsException();
     }
 

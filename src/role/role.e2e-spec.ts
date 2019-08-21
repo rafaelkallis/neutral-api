@@ -6,6 +6,7 @@ import { AppModule } from '../app.module';
 import {
   Project,
   ProjectRepository,
+  ProjectState,
   TokenService,
   User,
   UserRepository,
@@ -109,12 +110,15 @@ describe('RoleController (e2e)', () => {
     let peerReviews: Record<string, number>;
 
     beforeEach(async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
       role.assigneeId = user.id;
       await roleRepository.save(role);
       role2 = await roleRepository.save(entityFaker.role(project.id));
       role3 = await roleRepository.save(entityFaker.role(project.id));
       role4 = await roleRepository.save(entityFaker.role(project.id));
       peerReviews = {
+        [role.id]: 0,
         [role2.id]: 0.3,
         [role3.id]: 0.2,
         [role4.id]: 0.5,
@@ -128,6 +132,15 @@ describe('RoleController (e2e)', () => {
       expect(response.status).toBe(200);
       const updatedRole = await roleRepository.findOneOrFail({ id: role.id });
       expect(updatedRole.peerReviews).toEqual(peerReviews);
+    });
+
+    test('should fail if project is not in peer-review state', async () => {
+      project.state = ProjectState.FORMATION;
+      await projectRepository.save(project);
+      const response = await session
+        .post(`/roles/${role.id}/submit-peer-reviews`)
+        .send({ peerReviews });
+      expect(response.status).toBe(400);
     });
   });
 });

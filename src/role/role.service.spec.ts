@@ -7,6 +7,7 @@ import {
   UserRepository,
   User,
   Project,
+  ProjectState,
   Role,
   ProjectRepository,
   RoleRepository,
@@ -154,17 +155,20 @@ describe('role service', () => {
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
+      project.state = ProjectState.PEER_REVIEW;
       role.assigneeId = user.id;
       role2 = entityFaker.role(project.id);
       role3 = entityFaker.role(project.id);
       role4 = entityFaker.role(project.id);
       peerReviews = {
+        [role.id]: 0,
         [role2.id]: 0.3,
         [role3.id]: 0.2,
         [role4.id]: 0.5,
       };
       dto = SubmitPeerReviewsDto.from({ peerReviews });
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest
         .spyOn(roleRepository, 'find')
         .mockResolvedValue([role2, role3, role4]);
@@ -172,10 +176,19 @@ describe('role service', () => {
     });
 
     test('happy path', async () => {
-      await roleService.submitPeerReviews(user, role.id, dto);
+      await expect(
+        roleService.submitPeerReviews(user, role.id, dto),
+      ).resolves.not.toThrow();
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),
       );
+    });
+
+    test('should fail if project is not in peer-review state', async () => {
+      project.state = ProjectState.FORMATION;
+      await expect(
+        roleService.submitPeerReviews(user, role.id, dto),
+      ).rejects.toThrow();
     });
   });
 });
