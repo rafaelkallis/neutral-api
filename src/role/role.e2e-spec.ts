@@ -113,6 +113,7 @@ describe('RoleController (e2e)', () => {
       project.state = ProjectState.PEER_REVIEW;
       await projectRepository.save(project);
       role.assigneeId = user.id;
+      role.peerReviews = null;
       await roleRepository.save(role);
       role2 = await roleRepository.save(entityFaker.role(project.id));
       role3 = await roleRepository.save(entityFaker.role(project.id));
@@ -137,6 +138,15 @@ describe('RoleController (e2e)', () => {
     test('should fail if project is not in peer-review state', async () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.save(project);
+      const response = await session
+        .post(`/roles/${role.id}/submit-peer-reviews`)
+        .send({ peerReviews });
+      expect(response.status).toBe(400);
+    });
+
+    test('should fail if peer-review already submitted', async () => {
+      role.peerReviews = peerReviews;
+      await roleRepository.save(role);
       const response = await session
         .post(`/roles/${role.id}/submit-peer-reviews`)
         .send({ peerReviews });

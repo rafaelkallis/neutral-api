@@ -157,9 +157,13 @@ describe('role service', () => {
       project = entityFaker.project(user.id);
       project.state = ProjectState.PEER_REVIEW;
       role.assigneeId = user.id;
+      role.peerReviews = null;
       role2 = entityFaker.role(project.id);
+      role2.peerReviews = null;
       role3 = entityFaker.role(project.id);
+      role3.peerReviews = null;
       role4 = entityFaker.role(project.id);
+      role4.peerReviews = null;
       peerReviews = {
         [role.id]: 0,
         [role2.id]: 0.3,
@@ -186,6 +190,13 @@ describe('role service', () => {
 
     test('should fail if project is not in peer-review state', async () => {
       project.state = ProjectState.FORMATION;
+      await expect(
+        roleService.submitPeerReviews(user, role.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if peer reviews have been previously submitted', async () => {
+      role.peerReviews = peerReviews;
       await expect(
         roleService.submitPeerReviews(user, role.id, dto),
       ).rejects.toThrow();

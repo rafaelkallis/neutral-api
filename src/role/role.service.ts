@@ -16,6 +16,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
+import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
 
 @Injectable()
 export class RoleService {
@@ -124,6 +125,9 @@ export class RoleService {
     const role = await this.roleRepository.findOneOrFail({ id });
     if (role.assigneeId !== authUser.id) {
       throw new InsufficientPermissionsException();
+    }
+    if (role.peerReviews) {
+      throw new PeerReviewsAlreadySubmittedException();
     }
     const project = await this.projectRepository.findOneOrFail({
       id: role.projectId,
