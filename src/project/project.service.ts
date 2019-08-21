@@ -100,6 +100,12 @@ export class ProjectService {
       curState === ProjectState.FORMATION &&
       nextState === ProjectState.PEER_REVIEW
     ) {
+      const roles = await this.roleRepository.find({ projectId: project.id });
+      for (const role of roles) {
+        if (!role.assigneeId) {
+          throw new ForbiddenProjectStateChangeException();
+        }
+      }
       return;
     }
     if (

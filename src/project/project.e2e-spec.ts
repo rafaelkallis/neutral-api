@@ -1,10 +1,11 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
 import {
   Project,
+  ProjectState,
   ProjectRepository,
   Role,
   RoleRepository,
@@ -23,7 +24,7 @@ describe('ProjectController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     userRepository = module.get(UserRepository);
@@ -89,20 +90,43 @@ describe('ProjectController (e2e)', () => {
 
   describe('/projects/:id (PATCH)', () => {
     let project: Project;
-    let newTitle: string;
+    let title: string;
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
       await projectRepository.save(project);
-      newTitle = primitiveFaker.words();
+      title = primitiveFaker.words();
     });
 
     test('happy path', async () => {
       const response = await session
         .patch(`/projects/${project.id}`)
-        .send({ title: newTitle });
+        .send({ title });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
+    });
+
+    test('state change to peer-review state with unassigned role should fail', async () => {
+      project.state = ProjectState.FORMATION;
+      await projectRepository.save(project);
+      const role = entityFaker.role(project.id);
+      await roleRepository.save(role);
+      const response = await session
+        .patch(`/projects/${project.id}`)
+        .send({ state: ProjectState.PEER_REVIEW });
+      expect(response.status).toBe(400);
+    });
+
+    test('state change to finish state with pending peer review should fail', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
+      const role = entityFaker.role(project.id, user.id);
+      role.peerReviews = null;
+      await roleRepository.save(role);
+      const response = await session
+        .patch(`/projects/${project.id}`)
+        .send({ state: ProjectState.FINISHED });
+      expect(response.status).toBe(400);
     });
   });
 

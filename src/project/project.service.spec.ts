@@ -100,13 +100,16 @@ describe('project service', () => {
   describe('update project', () => {
     let user: User;
     let project: Project;
+    let role: Role;
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
+      role = entityFaker.role(project.id, user.id);
       const title = primitiveFaker.words();
       dto = UpdateProjectDto.from({ title });
+      jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
@@ -119,6 +122,27 @@ describe('project service', () => {
     });
 
     test('state change should trigger transition validation', async () => {
+      project.state = ProjectState.FORMATION;
+      const newState = ProjectState.FINISHED;
+      dto = UpdateProjectDto.from({ state: newState });
+      await expect(
+        projectService.updateProject(user, project.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('state change to peer-review state with unassigned role should fail', async () => {
+      project.state = ProjectState.FORMATION;
+      role.assigneeId = null;
+      const newState = ProjectState.PEER_REVIEW;
+      dto = UpdateProjectDto.from({ state: newState });
+      await expect(
+        projectService.updateProject(user, project.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('state change to finish state with pending peer-review should fail', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      role.peerReviews = null;
       const newState = ProjectState.FINISHED;
       dto = UpdateProjectDto.from({ state: newState });
       await expect(

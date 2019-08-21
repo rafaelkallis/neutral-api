@@ -33,13 +33,15 @@ class EntityFaker {
    * Create a fake role
    */
   public role(projectId: string, assigneeId?: string): Role {
+    const id = primitiveFaker.id();
     return Role.from({
-      id: primitiveFaker.id(),
+      id,
       projectId,
       assigneeId,
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
       peerReviews: {
+        [id]: 0,
         [primitiveFaker.id()]: 0.3,
         [primitiveFaker.id()]: 0.2,
         [primitiveFaker.id()]: 0.5,
