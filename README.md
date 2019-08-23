@@ -38,3 +38,18 @@ $ npm run test:cov
 ## Documentation
 
 Start the app and visit `/docs`.
+
+
+## Docker containerization
+
+Change directory to ```covee-saas``` and execute:
+
+1. Create Docker container
+```
+docker build . -t covee/saas:latest
+```
+
+1. To run the frontend execute:
+```
+docker run -d -p 80:80 covee/saas:latest
+```
