@@ -5,6 +5,7 @@ import {
   Project,
   ProjectState,
   ProjectRepository,
+  Role,
   RoleRepository,
   RandomService,
   User,
@@ -76,7 +77,24 @@ export class ProjectService {
     const project = await this.projectRepository.findOneOrFail({ id });
     this.isProjectOwnerOrFail(project, authUser);
     if (dto.state) {
-      await this.isValidProjectStateChangeOrFail(project, dto.state);
+      const roles = await this.roleRepository.find({ projectId: project.id });
+      await this.isValidProjectStateChangeOrFail(project, roles, dto.state);
+      if (
+        project.state === ProjectState.PEER_REVIEW &&
+        dto.state === ProjectState.FINISHED
+      ) {
+        const peerReviews: Record<string, Record<string, number>> = {};
+        for (const role of roles) {
+          if (!role.peerReviews) {
+            throw new Error();
+          }
+          peerReviews[role.id] = role.peerReviews;
+          peerReviews[role.id][role.id] = 0;
+        }
+        project.relativeContributions = this.modelService.computeRelativeContributions(
+          peerReviews,
+        );
+      }
     }
     project.update(dto);
     return this.projectRepository.save(project);
@@ -90,6 +108,7 @@ export class ProjectService {
 
   private async isValidProjectStateChangeOrFail(
     project: Project,
+    roles: Role[],
     nextState: ProjectState,
   ): Promise<void> {
     const curState = project.state;
@@ -100,7 +119,6 @@ export class ProjectService {
       curState === ProjectState.FORMATION &&
       nextState === ProjectState.PEER_REVIEW
     ) {
-      const roles = await this.roleRepository.find({ projectId: project.id });
       for (const role of roles) {
         if (!role.assigneeId) {
           throw new ForbiddenProjectStateChangeException();
@@ -112,7 +130,6 @@ export class ProjectService {
       curState === ProjectState.PEER_REVIEW &&
       nextState === ProjectState.FINISHED
     ) {
-      const roles = await this.roleRepository.find({ projectId: project.id });
       for (const role of roles) {
         if (!role.peerReviews) {
           throw new ForbiddenProjectStateChangeException();

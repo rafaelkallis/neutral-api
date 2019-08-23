@@ -112,6 +112,12 @@ describe('project service', () => {
       jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(modelService, 'computeRelativeContributions').mockReturnValue({
+        [role.id]: 0.25,
+        [primitiveFaker.id()]: 0.25,
+        [primitiveFaker.id()]: 0.25,
+        [primitiveFaker.id()]: 0.25,
+      });
     });
 
     test('happy path', async () => {
@@ -123,31 +129,40 @@ describe('project service', () => {
 
     test('state change should trigger transition validation', async () => {
       project.state = ProjectState.FORMATION;
-      const newState = ProjectState.FINISHED;
-      dto = UpdateProjectDto.from({ state: newState });
+      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).rejects.toThrow();
     });
 
-    test('state change to peer-review state with unassigned role should fail', async () => {
+    test('should fail if state change to peer-review state with unassigned role', async () => {
       project.state = ProjectState.FORMATION;
       role.assigneeId = null;
-      const newState = ProjectState.PEER_REVIEW;
-      dto = UpdateProjectDto.from({ state: newState });
+      dto = UpdateProjectDto.from({ state: ProjectState.PEER_REVIEW });
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).rejects.toThrow();
     });
 
-    test('state change to finish state with pending peer-review should fail', async () => {
+    test('should fail if state change to finish state with pending peer-review', async () => {
       project.state = ProjectState.PEER_REVIEW;
       role.peerReviews = null;
-      const newState = ProjectState.FINISHED;
-      dto = UpdateProjectDto.from({ state: newState });
+      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).rejects.toThrow();
+    });
+
+    test('should compute relative contributions if state is changed to finished', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
+      await expect(
+        projectService.updateProject(user, project.id, dto),
+      ).resolves.not.toThrow();
+      expect(modelService.computeRelativeContributions).toHaveBeenCalled();
+      expect(projectRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ relativeContributions: expect.anything() }),
+      );
     });
   });
 
