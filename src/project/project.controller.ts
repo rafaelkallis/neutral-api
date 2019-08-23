@@ -41,8 +41,8 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
-  public async getProjects(): Promise<Project[]> {
-    return this.projectService.getProjects();
+  public async getProjects(@AuthUser() authUser: User): Promise<Project[]> {
+    return this.projectService.getProjects(authUser);
   }
 
   /**
@@ -55,8 +55,11 @@ export class ProjectController {
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  public async getProject(@Param('id') id: string): Promise<Project> {
-    return this.projectService.getProject(id);
+  public async getProject(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<Project> {
+    return this.projectService.getProject(authUser, id);
   }
 
   /**

@@ -5,6 +5,7 @@ import {
   MaxLength,
   validateOrReject,
 } from 'class-validator';
+import { Expose } from 'class-transformer';
 import {
   AfterLoad,
   BeforeInsert,
@@ -22,16 +23,19 @@ export abstract class BaseEntity {
   @PrimaryColumn()
   @IsString()
   @MaxLength(20)
+  @Expose()
   @ApiModelProperty()
   public id!: string;
 
   @Column({ name: 'created_at', transformer: new BigIntTransformer() })
   @IsNumber()
+  @Expose()
   @ApiModelProperty()
   public createdAt!: number;
 
   @Column({ name: 'updated_at', transformer: new BigIntTransformer() })
   @IsNumber()
+  @Expose()
   @ApiModelProperty()
   public updatedAt!: number;
 

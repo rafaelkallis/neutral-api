@@ -38,15 +38,17 @@ export class ProjectService {
   /**
    * Get projects
    */
-  public async getProjects(): Promise<Project[]> {
-    return this.projectRepository.find();
+  public async getProjects(authUser: User): Promise<Project[]> {
+    const projects = await this.projectRepository.find();
+    return projects.map(project => project.toPlain(authUser));
   }
 
   /**
    * Get a project
    */
-  public async getProject(id: string): Promise<Project> {
-    return this.projectRepository.findOneOrFail({ id });
+  public async getProject(authUser: User, id: string): Promise<Project> {
+    const project = await this.projectRepository.findOneOrFail({ id });
+    return project.toPlain(authUser);
   }
 
   /**
@@ -63,7 +65,8 @@ export class ProjectService {
       description: dto.description,
       state: ProjectState.FORMATION,
     });
-    return this.projectRepository.save(project);
+    await this.projectRepository.save(project);
+    return project.toPlain(authUser);
   }
 
   /**
@@ -97,7 +100,8 @@ export class ProjectService {
       }
     }
     project.update(dto);
-    return this.projectRepository.save(project);
+    await this.projectRepository.save(project);
+    return project.toPlain(authUser);
   }
 
   private isProjectOwnerOrFail(project: Project, user: User): void {
