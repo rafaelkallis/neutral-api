@@ -19,8 +19,9 @@ FROM nginx:1.17.3-alpine AS runtime
 RUN apk add --update curl && rm -rf /var/cache/apk/*
 RUN apk add --update bash && rm -rf /var/cache/apk/*
 
-COPY --from=build-env /app/build /usr/share/nginx/html
+COPY --from=build-env /app/build /app
+WORKDIR /app
 
 EXPOSE 80
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["node", "start:prod"]
