@@ -1,13 +1,10 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { User } from '../../common';
+import { BaseDto, User } from '../../common';
 
 /**
  * User DTO
  */
-export class UserDto {
-  @ApiModelProperty()
-  public id: string;
-
+export class UserDto extends BaseDto {
   @ApiModelProperty({ required: false })
   public email: string | null;
 
@@ -17,12 +14,6 @@ export class UserDto {
   @ApiModelProperty()
   public lastName: string;
 
-  @ApiModelProperty()
-  public createdAt: number;
-
-  @ApiModelProperty()
-  public updatedAt: number;
-
   public constructor(
     id: string,
     email: string | null,
@@ -31,12 +22,10 @@ export class UserDto {
     createdAt: number,
     updatedAt: number,
   ) {
-    this.id = id;
+    super(id, createdAt, updatedAt);
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 }
 
