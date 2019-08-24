@@ -6,7 +6,7 @@ import {
   RandomService,
   SessionState,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -61,7 +61,7 @@ describe('auth service', () => {
   });
 
   describe('submit magic login', () => {
-    let user: User;
+    let user: UserEntity;
     let loginToken: string;
     let session: SessionState;
 
@@ -102,7 +102,7 @@ describe('auth service', () => {
   });
 
   describe('submit magic signup', () => {
-    let user: User;
+    let user: UserEntity;
     let signupToken: string;
     let session: SessionState;
 
@@ -132,7 +132,7 @@ describe('auth service', () => {
   });
 
   describe('refresh', () => {
-    let user: User;
+    let user: UserEntity;
     let refreshToken: string;
     let session: SessionState;
 

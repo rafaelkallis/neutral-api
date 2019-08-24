@@ -8,7 +8,7 @@ export interface PeerReviews {
   [roleId: string]: number;
 }
 
-interface RoleProps {
+interface RoleEntityOptions {
   id: string;
   projectId: string;
   assigneeId: string | null;
@@ -21,7 +21,7 @@ interface RoleProps {
  * Role Entity
  */
 @Entity('roles')
-export class Role extends BaseEntity implements RoleProps {
+export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @Column({ name: 'project_id' })
   @IsString()
   @MaxLength(20)
@@ -48,11 +48,11 @@ export class Role extends BaseEntity implements RoleProps {
   @IsPeerReviews()
   public peerReviews!: PeerReviews | null;
 
-  public static from(props: RoleProps): Role {
-    return new Role().update(props);
+  public static from(options: RoleEntityOptions): RoleEntity {
+    return Object.assign(new RoleEntity(), options);
   }
 
-  public update(props: Partial<RoleProps>): this {
-    return Object.assign(this, props);
+  public update(options: Partial<RoleEntityOptions>): this {
+    return Object.assign(this, options);
   }
 }

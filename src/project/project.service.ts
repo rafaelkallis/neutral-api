@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
   InsufficientPermissionsException,
-  Project,
+  ProjectEntity,
   ProjectState,
   ProjectRepository,
-  Role,
+  RoleEntity,
   RoleRepository,
   RandomService,
-  User,
+  UserEntity,
 } from '../common';
 import { ModelService } from './services/model.service';
 
@@ -38,7 +38,7 @@ export class ProjectService {
   /**
    * Get projects
    */
-  public async getProjects(authUser: User): Promise<ProjectDto[]> {
+  public async getProjects(authUser: UserEntity): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.find();
     const projectDtos = projects.map(project =>
       new ProjectDtoBuilder(project)
@@ -51,7 +51,10 @@ export class ProjectService {
   /**
    * Get a project
    */
-  public async getProject(authUser: User, id: string): Promise<ProjectDto> {
+  public async getProject(
+    authUser: UserEntity,
+    id: string,
+  ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     const projectDto = new ProjectDtoBuilder(project)
       .exposeRelativeContributions(project.ownerId === authUser.id)
@@ -63,10 +66,10 @@ export class ProjectService {
    * Create a project
    */
   public async createProject(
-    authUser: User,
+    authUser: UserEntity,
     dto: CreateProjectDto,
   ): Promise<ProjectDto> {
-    const project = Project.from({
+    const project = ProjectEntity.from({
       id: this.randomService.id(),
       ownerId: authUser.id,
       title: dto.title,
@@ -85,7 +88,7 @@ export class ProjectService {
    * Update a project
    */
   public async updateProject(
-    authUser: User,
+    authUser: UserEntity,
     id: string,
     dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
@@ -119,15 +122,15 @@ export class ProjectService {
     return projectDto;
   }
 
-  private isProjectOwnerOrFail(project: Project, user: User): void {
+  private isProjectOwnerOrFail(project: ProjectEntity, user: UserEntity): void {
     if (project.ownerId !== user.id) {
       throw new InsufficientPermissionsException();
     }
   }
 
   private async isValidProjectStateChangeOrFail(
-    project: Project,
-    roles: Role[],
+    project: ProjectEntity,
+    roles: RoleEntity[],
     nextState: ProjectState,
   ): Promise<void> {
     const curState = project.state;
@@ -162,7 +165,7 @@ export class ProjectService {
   /**
    * Delete a project
    */
-  public async deleteProject(authUser: User, id: string): Promise<void> {
+  public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
     const project = await this.projectRepository.findOneOrFail({ id });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
@@ -174,7 +177,7 @@ export class ProjectService {
    * Get relative contributions of a project
    */
   public async getRelativeContributions(
-    authUser: User,
+    authUser: UserEntity,
     id: string,
   ): Promise<Record<string, number>> {
     const project = await this.projectRepository.findOneOrFail({ id });

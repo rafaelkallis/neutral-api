@@ -1,5 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { Project, ProjectState, RelativeContributions } from '../../common';
+import {
+  ProjectEntity,
+  ProjectState,
+  RelativeContributions,
+} from '../../common';
 
 /**
  * Project DTO
@@ -58,7 +62,7 @@ export class ProjectDto {
 }
 
 export class ProjectDtoBuilder {
-  private readonly data: Project;
+  private readonly data: ProjectEntity;
   private _exposeRelativeContributions = false;
 
   public exposeRelativeContributions(value: boolean = true): this {
@@ -81,7 +85,7 @@ export class ProjectDtoBuilder {
     );
   }
 
-  public constructor(data: Project) {
+  public constructor(data: ProjectEntity) {
     this.data = data;
   }
 }

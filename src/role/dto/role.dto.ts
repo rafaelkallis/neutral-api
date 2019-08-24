@@ -1,5 +1,5 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { Role, PeerReviews } from '../../common';
+import { RoleEntity, PeerReviews } from '../../common';
 
 /**
  * Role DTO
@@ -54,7 +54,7 @@ export class RoleDto {
  * Role DTO Builder
  */
 export class RoleDtoBuilder {
-  private readonly data: Role;
+  private readonly data: RoleEntity;
   private _exposePeerReviews = false;
 
   public exposePeerReviews(value: boolean = true): this {
@@ -75,7 +75,7 @@ export class RoleDtoBuilder {
     );
   }
 
-  public constructor(data: Role) {
+  public constructor(data: RoleEntity) {
     this.data = data;
   }
 }

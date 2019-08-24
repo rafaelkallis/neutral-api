@@ -17,7 +17,7 @@ import {
   ApiUseTags,
 } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
-import { AuthGuard, AuthUser, User, ValidationPipe } from '../common';
+import { AuthGuard, AuthUser, UserEntity, ValidationPipe } from '../common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -41,7 +41,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
-  public async getUsers(@AuthUser() authUser: User): Promise<UserDto[]> {
+  public async getUsers(@AuthUser() authUser: UserEntity): Promise<UserDto[]> {
     return this.userService.getUsers(authUser);
   }
 
@@ -53,7 +53,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
-  public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
+  public async getAuthUser(@AuthUser() authUser: UserEntity): Promise<UserDto> {
     return this.userService.getAuthUser(authUser);
   }
 
@@ -69,7 +69,7 @@ export class UserController {
   @ApiOperation({ title: 'Update the authenticated user' })
   @ApiResponse({ status: 200, description: 'User succesfully updated' })
   public async updateUser(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<UserDto> {
     return this.userService.updateUser(authUser, dto);
@@ -98,7 +98,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async getUser(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<UserDto> {
     return this.userService.getUser(authUser, id);
@@ -116,7 +116,7 @@ export class UserController {
     status: 204,
     description: 'Authenticated user deleted succesfully',
   })
-  public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
+  public async deleteAuthUser(@AuthUser() authUser: UserEntity): Promise<void> {
     return this.userService.deleteAuthUser(authUser);
   }
 }

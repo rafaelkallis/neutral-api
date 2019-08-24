@@ -4,7 +4,7 @@ import {
   EmailService,
   TokenAlreadyUsedException,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
 } from '../common';
 import { UserDto, UserDtoBuilder } from './dto/user.dto';
@@ -32,7 +32,7 @@ export class UserService {
   /**
    * Get users
    */
-  public async getUsers(authUser: User): Promise<UserDto[]> {
+  public async getUsers(authUser: UserEntity): Promise<UserDto[]> {
     const users = await this.userRepository.find();
     const userDtos = users.map(user =>
       new UserDtoBuilder(user).exposeEmail(user.id === authUser.id).build(),
@@ -43,7 +43,7 @@ export class UserService {
   /**
    * Get the authenticated user
    */
-  public async getAuthUser(authUser: User): Promise<UserDto> {
+  public async getAuthUser(authUser: UserEntity): Promise<UserDto> {
     const userDto = new UserDtoBuilder(authUser).exposeEmail().build();
     return userDto;
   }
@@ -55,7 +55,7 @@ export class UserService {
    * to verify the new email address.
    */
   public async updateUser(
-    authUser: User,
+    authUser: UserEntity,
     dto: UpdateUserDto,
   ): Promise<UserDto> {
     const { email, ...otherChanges } = dto;
@@ -92,7 +92,7 @@ export class UserService {
   /**
    * Get the user with the given id
    */
-  public async getUser(authUser: User, id: string): Promise<UserDto> {
+  public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
     const user = await this.userRepository.findOneOrFail({ id });
     const userDto = new UserDtoBuilder(user)
       .exposeEmail(user.id === authUser.id)
@@ -103,7 +103,7 @@ export class UserService {
   /**
    * Delete the authenticated user
    */
-  public async deleteAuthUser(authUser: User): Promise<void> {
+  public async deleteAuthUser(authUser: UserEntity): Promise<void> {
     await this.userRepository.remove(authUser);
   }
 }
