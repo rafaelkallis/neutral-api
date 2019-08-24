@@ -13,6 +13,7 @@ import {
   RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
+import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -25,6 +26,7 @@ describe('role service', () => {
   let user: User;
   let project: Project;
   let role: Role;
+  let roleDto: RoleDto;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -45,6 +47,7 @@ describe('role service', () => {
     user = entityFaker.user();
     project = entityFaker.project(user.id);
     role = entityFaker.role(project.id);
+    roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
   });
 
   test('should be defined', () => {
@@ -52,16 +55,16 @@ describe('role service', () => {
   });
 
   describe('get roles', () => {
-    let queryDto: GetRolesQueryDto;
+    let query: GetRolesQueryDto;
 
     beforeEach(() => {
-      queryDto = GetRolesQueryDto.from({ projectId: project.id });
+      query = GetRolesQueryDto.from({ projectId: project.id });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
     });
 
     test('happy path', async () => {
-      await expect(roleService.getRoles(queryDto)).resolves.toContainEqual(
+      await expect(roleService.getRoles(user, query)).resolves.toContainEqual(
         role,
       );
     });
@@ -70,18 +73,26 @@ describe('role service', () => {
   describe('get role', () => {
     beforeEach(() => {
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await expect(roleService.getRole(role.id)).resolves.toEqual(role);
+      await expect(roleService.getRole(user, role.id)).resolves.toEqual(role);
+    });
+
+    test('should not expose peer reviews if not project owner or assignee', async () => {
+      const otherUser = entityFaker.user();
+      await expect(roleService.getRole(otherUser, role.id)).resolves.toEqual(
+        expect.objectContaining({ peerReviews: null }),
+      );
     });
   });
 
   describe('create role', () => {
-    let dto: CreateRoleDto;
+    let body: CreateRoleDto;
 
     beforeEach(() => {
-      dto = CreateRoleDto.from({
+      body = CreateRoleDto.from({
         projectId: project.id,
         title: primitiveFaker.words(),
         description: primitiveFaker.paragraph(),
@@ -91,12 +102,14 @@ describe('role service', () => {
     });
 
     test('happy path', async () => {
-      await expect(roleService.createRole(user, dto)).resolves.toEqual(role);
+      await expect(roleService.createRole(user, body)).resolves.toEqual(
+        roleDto,
+      );
     });
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await expect(roleService.createRole(user, dto)).rejects.toThrow();
+      await expect(roleService.createRole(user, body)).rejects.toThrow();
     });
   });
 

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import {
   InsufficientPermissionsException,
   Project,
@@ -15,6 +14,7 @@ import { ModelService } from './services/model.service';
 import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
 
 @Injectable()
 export class ProjectService {
@@ -38,17 +38,25 @@ export class ProjectService {
   /**
    * Get projects
    */
-  public async getProjects(authUser: User): Promise<Project[]> {
+  public async getProjects(authUser: User): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.find();
-    return projects.map(project => project.toPlain(authUser));
+    const projectDtos = projects.map(project =>
+      new ProjectDtoBuilder(project)
+        .exposeRelativeContributions(project.ownerId === authUser.id)
+        .build(),
+    );
+    return projectDtos;
   }
 
   /**
    * Get a project
    */
-  public async getProject(authUser: User, id: string): Promise<Project> {
+  public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    return project.toPlain(authUser);
+    const projectDto = new ProjectDtoBuilder(project)
+      .exposeRelativeContributions(project.ownerId === authUser.id)
+      .build();
+    return projectDto;
   }
 
   /**
@@ -57,16 +65,20 @@ export class ProjectService {
   public async createProject(
     authUser: User,
     dto: CreateProjectDto,
-  ): Promise<Project> {
+  ): Promise<ProjectDto> {
     const project = Project.from({
       id: this.randomService.id(),
       ownerId: authUser.id,
       title: dto.title,
       description: dto.description,
       state: ProjectState.FORMATION,
+      relativeContributions: null,
     });
     await this.projectRepository.save(project);
-    return project.toPlain(authUser);
+    const projectDto = new ProjectDtoBuilder(project)
+      .exposeRelativeContributions()
+      .build();
+    return projectDto;
   }
 
   /**
@@ -76,7 +88,7 @@ export class ProjectService {
     authUser: User,
     id: string,
     dto: UpdateProjectDto,
-  ): Promise<Project> {
+  ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     this.isProjectOwnerOrFail(project, authUser);
     if (dto.state) {
@@ -101,7 +113,10 @@ export class ProjectService {
     }
     project.update(dto);
     await this.projectRepository.save(project);
-    return project.toPlain(authUser);
+    const projectDto = new ProjectDtoBuilder(project)
+      .exposeRelativeContributions()
+      .build();
+    return projectDto;
   }
 
   private isProjectOwnerOrFail(project: Project, user: User): void {

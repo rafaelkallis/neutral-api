@@ -20,6 +20,7 @@ describe('ProjectController (e2e)', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
+  let tokenService: TokenService;
   let user: User;
   let session: request.SuperTest<request.Test>;
 
@@ -34,7 +35,7 @@ describe('ProjectController (e2e)', () => {
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get(TokenService);
+    tokenService = module.get(TokenService);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });
@@ -59,13 +60,36 @@ describe('ProjectController (e2e)', () => {
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
+      project.relativeContributions = {
+        [primitiveFaker.id()]: 0.1,
+        [primitiveFaker.id()]: 0.3,
+        [primitiveFaker.id()]: 0.2,
+        [primitiveFaker.id()]: 0.4,
+      };
       await projectRepository.save(project);
     });
 
     test('happy path', async () => {
       const response = await session.get(`/projects/${project.id}`);
       expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
+    });
+
+    test('should have relative contributions if user is owner', async () => {
+      const response = await session.get(`/projects/${project.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body.relativeContributions).toBeTruthy();
+    });
+
+    test('should not have relative contributions if user is not owner', async () => {
+      const otherUser = await userRepository.save(entityFaker.user());
+      const loginToken = tokenService.newLoginToken(
+        otherUser.id,
+        otherUser.lastLoginAt,
+      );
+      await session.post(`/auth/login/${loginToken}`);
+      const response = await session.get(`/projects/${project.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body.relativeContributions).toBeFalsy();
     });
   });
 

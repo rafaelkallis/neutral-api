@@ -16,10 +16,11 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { AuthGuard, AuthUser, Project, User, ValidationPipe } from '../common';
+import { AuthGuard, AuthUser, User, ValidationPipe } from '../common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectDto } from './dto/project.dto';
 
 /**
  * Project Controller
@@ -41,7 +42,7 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
-  public async getProjects(@AuthUser() authUser: User): Promise<Project[]> {
+  public async getProjects(@AuthUser() authUser: User): Promise<ProjectDto[]> {
     return this.projectService.getProjects(authUser);
   }
 
@@ -58,7 +59,7 @@ export class ProjectController {
   public async getProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-  ): Promise<Project> {
+  ): Promise<ProjectDto> {
     return this.projectService.getProject(authUser, id);
   }
 
@@ -71,7 +72,7 @@ export class ProjectController {
   public async createProject(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateProjectDto,
-  ): Promise<Project> {
+  ): Promise<ProjectDto> {
     return this.projectService.createProject(authUser, dto);
   }
 
@@ -92,7 +93,7 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateProjectDto,
-  ): Promise<Project> {
+  ): Promise<ProjectDto> {
     return this.projectService.updateProject(authUser, id, dto);
   }
 

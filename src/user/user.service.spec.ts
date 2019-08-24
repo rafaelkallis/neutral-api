@@ -10,7 +10,7 @@ import {
   UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
-
+import { UserDto, UserDtoBuilder } from './dto/user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -19,6 +19,8 @@ describe('user service', () => {
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
+  let user: User;
+  let userDto: UserDto;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -37,6 +39,8 @@ describe('user service', () => {
     userRepository = module.get(UserRepository);
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
+    user = entityFaker.user();
+    userDto = new UserDtoBuilder(user).exposeEmail().build();
   });
 
   it('should be defined', () => {
@@ -45,37 +49,31 @@ describe('user service', () => {
 
   describe('get users', () => {
     let users: User[];
+    let userDtos: UserDto[];
 
     beforeEach(() => {
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
+      userDtos = users.map(user => new UserDtoBuilder(user).build());
       jest.spyOn(userRepository, 'find').mockResolvedValue(users);
     });
 
     test('happy path', async () => {
-      await expect(userService.getUsers()).resolves.toEqual(users);
+      await expect(userService.getUsers(user)).resolves.toEqual(userDtos);
     });
   });
 
   describe('get auth user', () => {
-    let user: User;
-
-    beforeEach(() => {
-      user = entityFaker.user();
-    });
-
     test('happy path', async () => {
-      await expect(userService.getAuthUser(user)).resolves.toEqual(user);
+      await expect(userService.getAuthUser(user)).resolves.toEqual(userDto);
     });
   });
 
   describe('update user', () => {
-    let user: User;
     let email: string;
     let firstName: string;
     let dto: UpdateUserDto;
 
     beforeEach(() => {
-      user = entityFaker.user();
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
       dto = UpdateUserDto.from({ email, firstName });
@@ -96,12 +94,10 @@ describe('user service', () => {
   });
 
   describe('submit email change', () => {
-    let user: User;
     let newEmail: string;
     let emailChangeToken: string;
 
     beforeEach(() => {
-      user = entityFaker.user();
       newEmail = primitiveFaker.word();
       emailChangeToken = tokenService.newEmailChangeToken(
         user.id,
@@ -119,23 +115,28 @@ describe('user service', () => {
   });
 
   describe('get user', () => {
-    let user: User;
-
     beforeEach(() => {
-      user = entityFaker.user();
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
     });
 
     test('happy path', async () => {
-      await expect(userService.getUser(user.id)).resolves.toEqual(user);
+      await expect(userService.getUser(user, user.id)).resolves.toEqual(
+        userDto,
+      );
+    });
+
+    test('should not expose email of another user', async () => {
+      const otherUser = entityFaker.user();
+      const otherUserDto = new UserDtoBuilder(otherUser).build();
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(otherUser);
+      await expect(userService.getUser(user, otherUser.id)).resolves.toEqual(
+        otherUserDto,
+      );
     });
   });
 
   describe('delete authenticated user', () => {
-    let user: User;
-
     beforeEach(async () => {
-      user = entityFaker.user();
       jest.spyOn(userRepository, 'remove').mockResolvedValue(user);
     });
 

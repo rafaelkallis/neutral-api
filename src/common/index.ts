@@ -12,8 +12,12 @@ export { RoleRepository } from './repositories/role.repository';
 
 export { BaseEntity } from './entities/base.entity';
 export { User } from './entities/user.entity';
-export { Project, ProjectState } from './entities/project.entity';
-export { Role } from './entities/role.entity';
+export {
+  Project,
+  ProjectState,
+  RelativeContributions,
+} from './entities/project.entity';
+export { Role, PeerReviews } from './entities/role.entity';
 
 export {
   SessionState,
