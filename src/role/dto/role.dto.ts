@@ -1,13 +1,10 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { RoleEntity, PeerReviews } from '../../common';
+import { BaseDto, RoleEntity, PeerReviews } from '../../common';
 
 /**
  * Role DTO
  */
-export class RoleDto {
-  @ApiModelProperty()
-  public id: string;
-
+export class RoleDto extends BaseDto {
   @ApiModelProperty()
   public projectId: string;
 
@@ -23,12 +20,6 @@ export class RoleDto {
   @ApiModelProperty({ required: false })
   public peerReviews: PeerReviews | null;
 
-  @ApiModelProperty()
-  public createdAt: number;
-
-  @ApiModelProperty()
-  public updatedAt: number;
-
   public constructor(
     id: string,
     projectId: string,
@@ -39,14 +30,12 @@ export class RoleDto {
     createdAt: number,
     updatedAt: number,
   ) {
-    this.id = id;
+    super(id, createdAt, updatedAt);
     this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
     this.peerReviews = peerReviews;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 }
 

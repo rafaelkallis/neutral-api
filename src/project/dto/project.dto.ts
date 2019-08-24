@@ -1,6 +1,7 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import {
   ProjectEntity,
+  BaseDto,
   ProjectState,
   RelativeContributions,
 } from '../../common';
@@ -8,10 +9,7 @@ import {
 /**
  * Project DTO
  */
-export class ProjectDto {
-  @ApiModelProperty()
-  public id: string;
-
+export class ProjectDto extends BaseDto {
   @ApiModelProperty({
     example: 'Mars Shuttle',
     description: 'Title of the project',
@@ -34,12 +32,6 @@ export class ProjectDto {
   @ApiModelProperty()
   public relativeContributions: RelativeContributions | null;
 
-  @ApiModelProperty()
-  public createdAt: number;
-
-  @ApiModelProperty()
-  public updatedAt: number;
-
   public constructor(
     id: string,
     title: string,
@@ -50,14 +42,12 @@ export class ProjectDto {
     createdAt: number,
     updatedAt: number,
   ) {
-    this.id = id;
+    super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
     this.ownerId = ownerId;
     this.state = state;
     this.relativeContributions = relativeContributions;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 }
 
