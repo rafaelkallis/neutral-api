@@ -16,7 +16,7 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-
+import { UserDto } from './dto/user.dto';
 import { AuthGuard, AuthUser, User, ValidationPipe } from '../common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -41,8 +41,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
-  public async getUsers(): Promise<User[]> {
-    return this.userService.getUsers();
+  public async getUsers(@AuthUser() authUser: User): Promise<UserDto[]> {
+    return this.userService.getUsers(authUser);
   }
 
   /**
@@ -53,7 +53,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
-  public async getAuthUser(@AuthUser() authUser: User): Promise<User> {
+  public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
     return this.userService.getAuthUser(authUser);
   }
 
@@ -71,7 +71,7 @@ export class UserController {
   public async updateUser(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserDto> {
     return this.userService.updateUser(authUser, dto);
   }
 
@@ -97,8 +97,11 @@ export class UserController {
   @ApiImplicitParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  public async getUser(@Param('id') id: string): Promise<User> {
-    return this.userService.getUser(id);
+  public async getUser(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<UserDto> {
+    return this.userService.getUser(authUser, id);
   }
 
   /**

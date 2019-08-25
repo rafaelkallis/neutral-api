@@ -38,6 +38,7 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users/me');
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
+      expect(response.body.lastLoginAt).toBeFalsy();
     });
   });
 

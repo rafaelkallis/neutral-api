@@ -18,8 +18,9 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { ValidationPipe, AuthGuard, AuthUser, User, Role } from '../common';
+import { ValidationPipe, AuthGuard, AuthUser, User } from '../common';
 import { RoleService } from './role.service';
+import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -48,9 +49,10 @@ export class RoleController {
   @ApiResponse({ status: 200, description: 'A list of roles' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getRoles(
+    @AuthUser() authUser: User,
     @Query(ValidationPipe) dto: GetRolesQueryDto,
-  ): Promise<Role[]> {
-    return this.roleService.getRoles(dto);
+  ): Promise<RoleDto[]> {
+    return this.roleService.getRoles(authUser, dto);
   }
 
   /**
@@ -63,8 +65,11 @@ export class RoleController {
   @ApiOperation({ title: 'Get a role' })
   @ApiResponse({ status: 200, description: 'A roles' })
   @ApiResponse({ status: 404, description: 'Role not found' })
-  public async getRole(@Param('id') id: string): Promise<Role> {
-    return this.roleService.getRole(id);
+  public async getRole(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<RoleDto> {
+    return this.roleService.getRole(authUser, id);
   }
 
   /**
@@ -81,7 +86,7 @@ export class RoleController {
   public async createRole(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateRoleDto,
-  ): Promise<Role> {
+  ): Promise<RoleDto> {
     return this.roleService.createRole(authUser, dto);
   }
 
@@ -102,7 +107,7 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateRoleDto,
-  ): Promise<Role> {
+  ): Promise<RoleDto> {
     return this.roleService.updateRole(authUser, id, dto);
   }
 

@@ -2,11 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { LogService } from './common';
+import { ConfigService, LogService } from './common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  app.useLogger(app.get(LogService));
+  const logService = app.get(LogService);
+  const configService = app.get(ConfigService);
+
+  app.useLogger(logService);
 
   const options = new DocumentBuilder()
     .setTitle('Covee SaaS')
@@ -16,7 +19,7 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
+  await app.listen(configService.get('PORT'));
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

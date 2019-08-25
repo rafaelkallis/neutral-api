@@ -4,12 +4,14 @@ import {
   User,
   Role,
   UserRepository,
+  Project,
   ProjectRepository,
   ProjectState,
   RoleRepository,
   InsufficientPermissionsException,
   RandomService,
 } from '../common';
+import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -41,22 +43,45 @@ export class RoleService {
   /**
    * Get roles of a particular project
    */
-  public async getRoles(dto: GetRolesQueryDto): Promise<Role[]> {
-    await this.projectRepository.findOneOrFail({ id: dto.projectId });
-    return this.roleRepository.find(dto);
+  public async getRoles(
+    authUser: User,
+    dto: GetRolesQueryDto,
+  ): Promise<RoleDto[]> {
+    const project = await this.projectRepository.findOneOrFail({
+      id: dto.projectId,
+    });
+    const roles = await this.roleRepository.find(dto);
+    const roleDtos = roles.map(role =>
+      new RoleDtoBuilder(role)
+        .exposePeerReviews(
+          this.isRoleAssigneeOrProjectOwner(authUser, role, project),
+        )
+        .build(),
+    );
+    return roleDtos;
   }
 
   /**
    * Get the role with the given id
    */
-  public async getRole(id: string): Promise<Role> {
-    return this.roleRepository.findOneOrFail(id);
+  public async getRole(authUser: User, id: string): Promise<RoleDto> {
+    const role = await this.roleRepository.findOneOrFail(id);
+    const project = await this.projectRepository.findOneOrFail(role.projectId);
+    const roleDto = new RoleDtoBuilder(role)
+      .exposePeerReviews(
+        this.isRoleAssigneeOrProjectOwner(authUser, role, project),
+      )
+      .build();
+    return roleDto;
   }
 
   /**
    * Create a role
    */
-  public async createRole(authUser: User, dto: CreateRoleDto): Promise<Role> {
+  public async createRole(
+    authUser: User,
+    dto: CreateRoleDto,
+  ): Promise<RoleDto> {
     const project = await this.projectRepository.findOneOrFail({
       id: dto.projectId,
     });
@@ -72,14 +97,17 @@ export class RoleService {
       }
       await this.userRepository.findOneOrFail({ id: dto.assigneeId });
     }
-    const role = Role.from({
+    let role = Role.from({
       id: this.randomService.id(),
       projectId: dto.projectId,
       assigneeId: dto.assigneeId || null,
       title: dto.title,
       description: dto.description,
+      peerReviews: null,
     });
-    return this.roleRepository.save(role);
+    role = await this.roleRepository.save(role);
+    const roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
+    return roleDto;
   }
 
   /**
@@ -88,20 +116,22 @@ export class RoleService {
   public async updateRole(
     authUser: User,
     id: string,
-    dto: UpdateRoleDto,
-  ): Promise<Role> {
-    const role = await this.roleRepository.findOneOrFail({ id });
+    body: UpdateRoleDto,
+  ): Promise<RoleDto> {
+    let role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({
       id: role.projectId,
     });
     if (project.ownerId !== authUser.id) {
       throw new InsufficientPermissionsException();
     }
-    if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
-      await this.userRepository.findOneOrFail({ id: dto.assigneeId });
+    if (body.assigneeId && body.assigneeId !== role.assigneeId) {
+      await this.userRepository.findOneOrFail({ id: body.assigneeId });
     }
-    role.update(dto);
-    return this.roleRepository.save(role);
+    role.update(body);
+    role = await this.roleRepository.save(role);
+    const roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
+    return roleDto;
   }
 
   /**
@@ -163,5 +193,13 @@ export class RoleService {
 
     role.peerReviews = dto.peerReviews;
     await this.roleRepository.save(role);
+  }
+
+  private isRoleAssigneeOrProjectOwner(
+    user: User,
+    role: Role,
+    project: Project,
+  ): boolean {
+    return role.assigneeId === user.id || project.ownerId === user.id;
   }
 }

@@ -23,6 +23,8 @@ describe('project service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let modelService: ModelService;
+  let user: User;
+  let project: Project;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -42,6 +44,9 @@ describe('project service', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     modelService = module.get(ModelService);
+
+    user = entityFaker.user();
+    project = entityFaker.project(user.id);
   });
 
   test('should be defined', () => {
@@ -53,40 +58,34 @@ describe('project service', () => {
 
     beforeEach(async () => {
       projects = [
-        entityFaker.project(''),
-        entityFaker.project(''),
-        entityFaker.project(''),
+        entityFaker.project(user.id),
+        entityFaker.project(user.id),
+        entityFaker.project(user.id),
       ];
       jest.spyOn(projectRepository, 'find').mockResolvedValue(projects);
     });
 
     test('happy path', async () => {
-      await expect(projectService.getProjects()).resolves.toEqual(projects);
+      await expect(projectService.getProjects(user)).resolves.toEqual(projects);
     });
   });
 
   describe('get project', () => {
-    let project: Project;
-
     beforeEach(async () => {
-      project = entityFaker.project('');
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await expect(projectService.getProject(project.id)).resolves.toEqual(
-        project,
-      );
+      await expect(
+        projectService.getProject(user, project.id),
+      ).resolves.toEqual(expect.objectContaining(project));
     });
   });
 
   describe('create project', () => {
-    let user: User;
     let dto: CreateProjectDto;
 
     beforeEach(async () => {
-      user = entityFaker.user();
-      const project = entityFaker.project(user.id);
       dto = CreateProjectDto.from(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
@@ -98,14 +97,10 @@ describe('project service', () => {
   });
 
   describe('update project', () => {
-    let user: User;
-    let project: Project;
     let role: Role;
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
-      user = entityFaker.user();
-      project = entityFaker.project(user.id);
       role = entityFaker.role(project.id, user.id);
       const title = primitiveFaker.words();
       dto = UpdateProjectDto.from({ title });
@@ -167,12 +162,7 @@ describe('project service', () => {
   });
 
   describe('delete project', () => {
-    let user: User;
-    let project: Project;
-
     beforeEach(async () => {
-      user = entityFaker.user();
-      project = entityFaker.project(user.id);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'remove').mockResolvedValue(project);
     });
@@ -184,16 +174,12 @@ describe('project service', () => {
   });
 
   describe('get relative contributions', () => {
-    let user: User;
-    let project: Project;
     let role1: Role;
     let role2: Role;
     let role3: Role;
     let role4: Role;
 
     beforeEach(async () => {
-      user = entityFaker.user();
-      project = entityFaker.project(user.id);
       role1 = entityFaker.role(project.id);
       role2 = entityFaker.role(project.id);
       role3 = entityFaker.role(project.id);

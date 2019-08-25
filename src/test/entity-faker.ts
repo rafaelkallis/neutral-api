@@ -26,13 +26,14 @@ class EntityFaker {
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
       state: ProjectState.FORMATION,
+      relativeContributions: null,
     });
   }
 
   /**
    * Create a fake role
    */
-  public role(projectId: string, assigneeId?: string): Role {
+  public role(projectId: string, assigneeId: string | null = null): Role {
     const id = primitiveFaker.id();
     return Role.from({
       id,
