@@ -41,17 +41,20 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects (GET)', () => {
-    let project: ProjectEntity;
-
-    beforeEach(async () => {
-      project = entityFaker.project(user.id);
-      await projectRepository.save(project);
-    });
-
     test('happy path', async () => {
-      const response = await session.get('/projects');
+      const project = await projectRepository.save(
+        entityFaker.project(user.id),
+      );
+      await projectRepository.save(entityFaker.project(user.id));
+      await projectRepository.save(entityFaker.project(user.id));
+      const response = await session
+        .get('/projects')
+        .query({ after: project.id });
       expect(response.status).toBe(200);
-      expect(response.body).toContainEqual(project);
+      expect(response.body).not.toContainEqual(project);
+      for (const responseProject of response.body) {
+        expect(responseProject.id > project.id).toBeTruthy();
+      }
     });
   });
 

@@ -8,6 +8,7 @@ import {
   UserRepository,
 } from '../common';
 import { UserDto, UserDtoBuilder } from './dto/user.dto';
+import { GetUsersQueryDto } from './dto/get-users-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -32,8 +33,11 @@ export class UserService {
   /**
    * Get users
    */
-  public async getUsers(authUser: UserEntity): Promise<UserDto[]> {
-    const users = await this.userRepository.find();
+  public async getUsers(
+    authUser: UserEntity,
+    query: GetUsersQueryDto,
+  ): Promise<UserDto[]> {
+    const users = await this.userRepository.findPage(query);
     const userDtos = users.map(user =>
       new UserDtoBuilder(user).exposeEmail(user.id === authUser.id).build(),
     );

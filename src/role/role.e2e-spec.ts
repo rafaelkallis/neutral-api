@@ -48,7 +48,9 @@ describe('RoleController (e2e)', () => {
 
   describe('/roles (GET)', () => {
     test('happy path', async () => {
-      const response = await session.get(`/roles?projectId=${project.id}`);
+      const response = await session
+        .get('/roles')
+        .query({ projectId: project.id });
       expect(response.status).toBe(200);
       expect(response.body).toContainEqual(role);
     });

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Query,
   Param,
   Patch,
   Post,
@@ -19,6 +20,7 @@ import {
 import { AuthGuard, AuthUser, UserEntity, ValidationPipe } from '../common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto } from './dto/project.dto';
 
@@ -44,8 +46,9 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'A list of projects' })
   public async getProjects(
     @AuthUser() authUser: UserEntity,
+    @Query(ValidationPipe) query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    return this.projectService.getProjects(authUser);
+    return this.projectService.getProjects(authUser, query);
   }
 
   /**

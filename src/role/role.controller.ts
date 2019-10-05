@@ -50,9 +50,9 @@ export class RoleController {
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getRoles(
     @AuthUser() authUser: UserEntity,
-    @Query(ValidationPipe) dto: GetRolesQueryDto,
+    @Query(ValidationPipe) query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    return this.roleService.getRoles(authUser, dto);
+    return this.roleService.getRoles(authUser, query);
   }
 
   /**

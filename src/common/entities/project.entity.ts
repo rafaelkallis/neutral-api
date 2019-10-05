@@ -39,7 +39,7 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
 
   @Column({ name: 'owner_id' })
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   public ownerId!: string;
 
   @Column({ name: 'state' })

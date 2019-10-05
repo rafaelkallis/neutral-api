@@ -10,10 +10,10 @@ export class ProjectMigration1564574530189 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE projects (
-        id varchar(20) PRIMARY KEY,
+        id varchar(64) PRIMARY KEY,
         title varchar(100) NOT NULL,
         description varchar(1024) NOT NULL,
-        owner_id varchar(20) NOT NULL REFERENCES users(id),
+        owner_id varchar(64) NOT NULL REFERENCES users(id),
         created_at bigint NOT NULL,
         updated_at bigint NOT NULL
       );
