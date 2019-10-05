@@ -2,14 +2,14 @@ import { Test } from '@nestjs/testing';
 
 import {
   ConfigService,
-  Project,
+  ProjectEntity,
   ProjectState,
   ProjectRepository,
   RandomService,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
-  Role,
+  RoleEntity,
   RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -23,8 +23,8 @@ describe('project service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let modelService: ModelService;
-  let user: User;
-  let project: Project;
+  let user: UserEntity;
+  let project: ProjectEntity;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -54,7 +54,7 @@ describe('project service', () => {
   });
 
   describe('get projects', () => {
-    let projects: Project[];
+    let projects: ProjectEntity[];
 
     beforeEach(async () => {
       projects = [
@@ -97,7 +97,7 @@ describe('project service', () => {
   });
 
   describe('update project', () => {
-    let role: Role;
+    let role: RoleEntity;
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
@@ -174,10 +174,10 @@ describe('project service', () => {
   });
 
   describe('get relative contributions', () => {
-    let role1: Role;
-    let role2: Role;
-    let role3: Role;
-    let role4: Role;
+    let role1: RoleEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
 
     beforeEach(async () => {
       role1 = entityFaker.role(project.id);

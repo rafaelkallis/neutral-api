@@ -7,7 +7,7 @@ import {
   SessionState,
   TokenAlreadyUsedException,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
 } from '../common';
 
@@ -121,7 +121,7 @@ export class AuthService {
       throw new EmailAlreadyUsedException();
     }
 
-    const user = User.from({
+    const user = UserEntity.from({
       id: this.randomService.id(),
       email: payload.sub,
       firstName: dto.firstName,

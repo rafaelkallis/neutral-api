@@ -1,19 +1,19 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import { TokenService, User, UserRepository } from '../common';
+import { TokenService, UserEntity, UserRepository } from '../common';
 import { entityFaker } from '../test';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
-  let user: User;
+  let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 

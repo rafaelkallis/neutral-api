@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { User } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
 import { UserRepository } from '../repositories/user.repository';
 import { TokenService } from '../services/token.service';
@@ -54,4 +54,4 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((_, req): User => req.user);
+export const AuthUser = createParamDecorator((_, req): UserEntity => req.user);

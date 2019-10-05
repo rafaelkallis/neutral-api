@@ -3,7 +3,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { BigIntTransformer } from './bigint-transformer';
 
-interface UserProps {
+interface UserEntityOptions {
   id: string;
   email: string;
   firstName: string;
@@ -15,7 +15,7 @@ interface UserProps {
  * User Entity
  */
 @Entity('users')
-export class User extends BaseEntity {
+export class UserEntity extends BaseEntity implements UserEntityOptions {
   @Column()
   @IsEmail()
   @MaxLength(100)
@@ -35,11 +35,11 @@ export class User extends BaseEntity {
   @IsNumber()
   public lastLoginAt!: number;
 
-  public static from(props: UserProps): User {
-    return Object.assign(new User(), props);
+  public static from(options: UserEntityOptions): UserEntity {
+    return Object.assign(new UserEntity(), options);
   }
 
-  public update(props: Partial<UserProps>): User {
-    return Object.assign(this, props);
+  public update(options: Partial<UserEntityOptions>): this {
+    return Object.assign(this, options);
   }
 }

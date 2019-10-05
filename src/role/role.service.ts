@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Not } from 'typeorm';
 import {
-  User,
-  Role,
+  UserEntity,
+  RoleEntity,
   UserRepository,
-  Project,
+  ProjectEntity,
   ProjectRepository,
   ProjectState,
   RoleRepository,
@@ -44,7 +44,7 @@ export class RoleService {
    * Get roles of a particular project
    */
   public async getRoles(
-    authUser: User,
+    authUser: UserEntity,
     dto: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
     const project = await this.projectRepository.findOneOrFail({
@@ -64,7 +64,7 @@ export class RoleService {
   /**
    * Get the role with the given id
    */
-  public async getRole(authUser: User, id: string): Promise<RoleDto> {
+  public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOneOrFail(id);
     const project = await this.projectRepository.findOneOrFail(role.projectId);
     const roleDto = new RoleDtoBuilder(role)
@@ -79,7 +79,7 @@ export class RoleService {
    * Create a role
    */
   public async createRole(
-    authUser: User,
+    authUser: UserEntity,
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
     const project = await this.projectRepository.findOneOrFail({
@@ -97,7 +97,7 @@ export class RoleService {
       }
       await this.userRepository.findOneOrFail({ id: dto.assigneeId });
     }
-    let role = Role.from({
+    let role = RoleEntity.from({
       id: this.randomService.id(),
       projectId: dto.projectId,
       assigneeId: dto.assigneeId || null,
@@ -114,7 +114,7 @@ export class RoleService {
    * Update a role
    */
   public async updateRole(
-    authUser: User,
+    authUser: UserEntity,
     id: string,
     body: UpdateRoleDto,
   ): Promise<RoleDto> {
@@ -137,7 +137,7 @@ export class RoleService {
   /**
    * Delete a role
    */
-  public async deleteRole(authUser: User, id: string): Promise<void> {
+  public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
     const role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({
       id: role.projectId,
@@ -152,7 +152,7 @@ export class RoleService {
    * Call to submit reviews over one's project peers.
    */
   public async submitPeerReviews(
-    authUser: User,
+    authUser: UserEntity,
     id: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<void> {
@@ -196,9 +196,9 @@ export class RoleService {
   }
 
   private isRoleAssigneeOrProjectOwner(
-    user: User,
-    role: Role,
-    project: Project,
+    user: UserEntity,
+    role: RoleEntity,
+    project: ProjectEntity,
   ): boolean {
     return role.assigneeId === user.id || project.ownerId === user.id;
   }

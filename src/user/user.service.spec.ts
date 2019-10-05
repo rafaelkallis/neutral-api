@@ -6,7 +6,7 @@ import {
   ProjectRepository,
   RandomService,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -19,7 +19,7 @@ describe('user service', () => {
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
-  let user: User;
+  let user: UserEntity;
   let userDto: UserDto;
 
   beforeEach(async () => {
@@ -48,7 +48,7 @@ describe('user service', () => {
   });
 
   describe('get users', () => {
-    let users: User[];
+    let users: UserEntity[];
     let userDtos: UserDto[];
 
     beforeEach(() => {
