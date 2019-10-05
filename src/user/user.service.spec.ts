@@ -57,7 +57,7 @@ describe('user service', () => {
       query = GetUsersQueryDto.from({});
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       userDtos = users.map(user => new UserDtoBuilder(user).build());
-      jest.spyOn(userRepository, 'find').mockResolvedValue(users);
+      jest.spyOn(userRepository, 'findPage').mockResolvedValue(users);
     });
 
     test('happy path', async () => {

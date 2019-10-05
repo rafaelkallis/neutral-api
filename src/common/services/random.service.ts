@@ -26,15 +26,4 @@ export class RandomService {
     const buf = crypto.randomBytes(16);
     return base64url.encode(buf);
   }
-
-  /**
-   * Generates a pseudorandom string.
-   * The length of the salt is specified by the environment
-   * variable PBKDF2_N_SALT_BYTES.
-   * The salt is to be used with the password service.
-   */
-  public salt(): string {
-    const buf = crypto.randomBytes(RandomService.N_SALT_BYTES);
-    return base64url.encode(buf);
-  }
 }

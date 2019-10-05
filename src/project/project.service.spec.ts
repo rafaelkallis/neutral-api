@@ -17,6 +17,7 @@ import { ProjectService } from './project.service';
 import { ModelService } from './services/model.service';
 import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
 describe('project service', () => {
@@ -61,6 +62,7 @@ describe('project service', () => {
   describe('get projects', () => {
     let projects: ProjectEntity[];
     let projectDtos: ProjectDto[];
+    let query: GetProjectsQueryDto;
 
     beforeEach(async () => {
       projects = [
@@ -71,11 +73,12 @@ describe('project service', () => {
       projectDtos = projects.map(project =>
         new ProjectDtoBuilder(project).exposeRelativeContributions().build(),
       );
-      jest.spyOn(projectRepository, 'find').mockResolvedValue(projects);
+      query = GetProjectsQueryDto.from({});
+      jest.spyOn(projectRepository, 'findPage').mockResolvedValue(projects);
     });
 
     test('happy path', async () => {
-      await expect(projectService.getProjects(user)).resolves.toEqual(
+      await expect(projectService.getProjects(user, query)).resolves.toEqual(
         projectDtos,
       );
     });
