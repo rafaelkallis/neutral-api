@@ -45,12 +45,12 @@ export class RoleService {
    */
   public async getRoles(
     authUser: UserEntity,
-    dto: GetRolesQueryDto,
+    query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
     const project = await this.projectRepository.findOneOrFail({
-      id: dto.projectId,
+      id: query.projectId,
     });
-    const roles = await this.roleRepository.find(dto);
+    const roles = await this.roleRepository.find(query);
     const roleDtos = roles.map(role =>
       new RoleDtoBuilder(role)
         .exposePeerReviews(

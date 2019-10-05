@@ -13,6 +13,7 @@ import { ModelService } from './services/model.service';
 
 import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
 
@@ -38,8 +39,11 @@ export class ProjectService {
   /**
    * Get projects
    */
-  public async getProjects(authUser: UserEntity): Promise<ProjectDto[]> {
-    const projects = await this.projectRepository.find();
+  public async getProjects(
+    authUser: UserEntity,
+    query: GetProjectsQueryDto,
+  ): Promise<ProjectDto[]> {
+    const projects = await this.projectRepository.findPage(query);
     const projectDtos = projects.map(project =>
       new ProjectDtoBuilder(project)
         .exposeRelativeContributions(project.ownerId === authUser.id)

@@ -33,6 +33,21 @@ describe('UserController (e2e)', () => {
     expect(app).toBeDefined();
   });
 
+  describe('/users (GET)', () => {
+    test('happy path', async () => {
+      const user = await userRepository.save(entityFaker.user());
+      await userRepository.save(entityFaker.user());
+      await userRepository.save(entityFaker.user());
+      const response = await session.get('/users').query({ after: user.id });
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body).not.toContainEqual(user);
+      for (const responseUser of response.body) {
+        expect(responseUser.id > user.id).toBeTruthy();
+      }
+    });
+  });
+
   describe('/users/me (GET)', () => {
     test('happy path', async () => {
       const response = await session.get('/users/me');

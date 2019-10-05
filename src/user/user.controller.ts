@@ -1,5 +1,6 @@
 import {
   Body,
+  Query,
   Controller,
   Delete,
   Get,
@@ -17,6 +18,7 @@ import {
   ApiUseTags,
 } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
+import { GetUsersQueryDto } from './dto/get-users-query.dto';
 import { AuthGuard, AuthUser, UserEntity, ValidationPipe } from '../common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -41,8 +43,11 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
-  public async getUsers(@AuthUser() authUser: UserEntity): Promise<UserDto[]> {
-    return this.userService.getUsers(authUser);
+  public async getUsers(
+    @AuthUser() authUser: UserEntity,
+    @Query(ValidationPipe) query: GetUsersQueryDto,
+  ): Promise<UserDto[]> {
+    return this.userService.getUsers(authUser, query);
   }
 
   /**

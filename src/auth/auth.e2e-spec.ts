@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
@@ -20,7 +20,7 @@ describe('AuthController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 

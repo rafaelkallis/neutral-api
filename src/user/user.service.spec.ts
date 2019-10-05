@@ -11,6 +11,7 @@ import {
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { UserDto, UserDtoBuilder } from './dto/user.dto';
+import { GetUsersQueryDto } from './dto/get-users-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -48,17 +49,21 @@ describe('user service', () => {
   });
 
   describe('get users', () => {
+    let query: GetUsersQueryDto;
     let users: UserEntity[];
     let userDtos: UserDto[];
 
     beforeEach(() => {
+      query = GetUsersQueryDto.from({});
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       userDtos = users.map(user => new UserDtoBuilder(user).build());
       jest.spyOn(userRepository, 'find').mockResolvedValue(users);
     });
 
     test('happy path', async () => {
-      await expect(userService.getUsers(user)).resolves.toEqual(userDtos);
+      await expect(userService.getUsers(user, query)).resolves.toEqual(
+        userDtos,
+      );
     });
   });
 

@@ -24,13 +24,13 @@ interface RoleEntityOptions {
 export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @Column({ name: 'project_id' })
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   public projectId!: string;
 
   @Column({ name: 'assignee_id', type: 'varchar', length: 20, nullable: true })
   @IsOptional()
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   public assigneeId!: string | null;
 
   @Column({ name: 'title' })
