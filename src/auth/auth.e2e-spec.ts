@@ -1,9 +1,14 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import { EmailService, TokenService, User, UserRepository } from '../common';
+import {
+  EmailService,
+  TokenService,
+  UserEntity,
+  UserRepository,
+} from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 
 describe('AuthController (e2e)', () => {
@@ -11,11 +16,11 @@ describe('AuthController (e2e)', () => {
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
-  let user: User;
+  let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 

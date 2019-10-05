@@ -13,13 +13,13 @@ export { RoleRepository } from './repositories/role.repository';
 export { BaseDto } from './dto/base.dto';
 
 export { BaseEntity } from './entities/base.entity';
-export { User } from './entities/user.entity';
+export { UserEntity } from './entities/user.entity';
 export {
-  Project,
+  ProjectEntity,
   ProjectState,
   RelativeContributions,
 } from './entities/project.entity';
-export { Role, PeerReviews } from './entities/role.entity';
+export { RoleEntity, PeerReviews } from './entities/role.entity';
 
 export {
   SessionState,

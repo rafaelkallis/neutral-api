@@ -4,13 +4,13 @@ import request from 'supertest';
 
 import { AppModule } from '../app.module';
 import {
-  Project,
+  ProjectEntity,
   ProjectRepository,
   ProjectState,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
-  Role,
+  RoleEntity,
   RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -20,9 +20,9 @@ describe('RoleController (e2e)', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
-  let user: User;
-  let project: Project;
-  let role: Role;
+  let user: UserEntity;
+  let project: ProjectEntity;
+  let role: RoleEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -48,7 +48,9 @@ describe('RoleController (e2e)', () => {
 
   describe('/roles (GET)', () => {
     test('happy path', async () => {
-      const response = await session.get(`/roles?projectId=${project.id}`);
+      const response = await session
+        .get('/roles')
+        .query({ projectId: project.id });
       expect(response.status).toBe(200);
       expect(response.body).toContainEqual(role);
     });
@@ -115,9 +117,9 @@ describe('RoleController (e2e)', () => {
   });
 
   describe('/roles/:id/submit-peer-reviews (POST)', () => {
-    let role2: Role;
-    let role3: Role;
-    let role4: Role;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
     let peerReviews: Record<string, number>;
 
     beforeEach(async () => {

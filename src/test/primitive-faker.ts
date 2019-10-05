@@ -1,11 +1,12 @@
 import * as faker from 'faker';
+import ObjectId from 'bson-objectid';
 
 class PrimitiveFaker {
   /**
    * Creates a fake id
    */
   public id(): string {
-    return String(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+    return new ObjectId().toHexString();
   }
 
   /**

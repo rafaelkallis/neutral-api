@@ -1,5 +1,5 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto, User } from '../../common';
+import { BaseDto, UserEntity } from '../../common';
 
 /**
  * User DTO
@@ -30,7 +30,7 @@ export class UserDto extends BaseDto {
 }
 
 export class UserDtoBuilder {
-  private readonly data: User;
+  private readonly data: UserEntity;
   private _exposeEmail = false;
 
   public exposeEmail(value: boolean = true): this {
@@ -49,7 +49,7 @@ export class UserDtoBuilder {
     );
   }
 
-  public constructor(data: User) {
+  public constructor(data: UserEntity) {
     this.data = data;
   }
 }

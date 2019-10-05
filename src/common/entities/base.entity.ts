@@ -6,6 +6,7 @@ import {
 } from 'class-validator';
 import {
   AfterLoad,
+  BaseEntity as TypeOrmBaseEntity,
   BeforeInsert,
   BeforeUpdate,
   Column,
@@ -17,10 +18,10 @@ import { BigIntTransformer } from './bigint-transformer';
 /**
  * Base Entity
  */
-export abstract class BaseEntity {
+export abstract class BaseEntity extends TypeOrmBaseEntity {
   @PrimaryColumn()
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   public id!: string;
 
   @Column({ name: 'created_at', transformer: new BigIntTransformer() })
@@ -31,7 +32,9 @@ export abstract class BaseEntity {
   @IsNumber()
   public updatedAt!: number;
 
-  protected constructor() {}
+  protected constructor() {
+    super();
+  }
 
   /**
    * Hook called before the entity is inserted.

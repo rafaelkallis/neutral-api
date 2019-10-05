@@ -4,13 +4,13 @@ import request from 'supertest';
 
 import { AppModule } from '../app.module';
 import {
-  Project,
+  ProjectEntity,
   ProjectState,
   ProjectRepository,
-  Role,
+  RoleEntity,
   RoleRepository,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -21,7 +21,7 @@ describe('ProjectController (e2e)', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let tokenService: TokenService;
-  let user: User;
+  let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -41,22 +41,25 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects (GET)', () => {
-    let project: Project;
-
-    beforeEach(async () => {
-      project = entityFaker.project(user.id);
-      await projectRepository.save(project);
-    });
-
     test('happy path', async () => {
-      const response = await session.get('/projects');
+      const project = await projectRepository.save(
+        entityFaker.project(user.id),
+      );
+      await projectRepository.save(entityFaker.project(user.id));
+      await projectRepository.save(entityFaker.project(user.id));
+      const response = await session
+        .get('/projects')
+        .query({ after: project.id });
       expect(response.status).toBe(200);
-      expect(response.body).toContainEqual(project);
+      expect(response.body).not.toContainEqual(project);
+      for (const responseProject of response.body) {
+        expect(responseProject.id > project.id).toBeTruthy();
+      }
     });
   });
 
   describe('/projects/:id (GET)', () => {
-    let project: Project;
+    let project: ProjectEntity;
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
@@ -113,7 +116,7 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id (PATCH)', () => {
-    let project: Project;
+    let project: ProjectEntity;
     let title: string;
 
     beforeEach(async () => {
@@ -155,7 +158,7 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id (DELETE)', () => {
-    let project: Project;
+    let project: ProjectEntity;
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
@@ -173,11 +176,11 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id/relative-contributions (GET)', () => {
-    let project: Project;
-    let role1: Role;
-    let role2: Role;
-    let role3: Role;
-    let role4: Role;
+    let project: ProjectEntity;
+    let role1: RoleEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
 
     beforeEach(async () => {
       project = await projectRepository.save(entityFaker.project(user.id));

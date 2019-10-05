@@ -18,7 +18,7 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { ValidationPipe, AuthGuard, AuthUser, User } from '../common';
+import { ValidationPipe, AuthGuard, AuthUser, UserEntity } from '../common';
 import { RoleService } from './role.service';
 import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
@@ -49,10 +49,10 @@ export class RoleController {
   @ApiResponse({ status: 200, description: 'A list of roles' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getRoles(
-    @AuthUser() authUser: User,
-    @Query(ValidationPipe) dto: GetRolesQueryDto,
+    @AuthUser() authUser: UserEntity,
+    @Query(ValidationPipe) query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    return this.roleService.getRoles(authUser, dto);
+    return this.roleService.getRoles(authUser, query);
   }
 
   /**
@@ -66,7 +66,7 @@ export class RoleController {
   @ApiResponse({ status: 200, description: 'A roles' })
   @ApiResponse({ status: 404, description: 'Role not found' })
   public async getRole(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<RoleDto> {
     return this.roleService.getRole(authUser, id);
@@ -84,7 +84,7 @@ export class RoleController {
   @ApiResponse({ status: 404, description: 'Project not found' })
   @ApiResponse({ status: 404, description: 'Assignee not found' })
   public async createRole(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: CreateRoleDto,
   ): Promise<RoleDto> {
     return this.roleService.createRole(authUser, dto);
@@ -104,7 +104,7 @@ export class RoleController {
     description: "Authenticated user is not the role's project owner",
   })
   public async updateRole(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateRoleDto,
   ): Promise<RoleDto> {
@@ -126,7 +126,7 @@ export class RoleController {
     description: "Authenticated user is not the role's project owner",
   })
   public async deleteRole(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<void> {
     return this.roleService.deleteRole(authUser, id);
@@ -147,7 +147,7 @@ export class RoleController {
   })
   @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
   public async submitPeerReviews(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
   ): Promise<void> {

@@ -1,4 +1,4 @@
-import { Role, Project, ProjectState, User } from '../common';
+import { RoleEntity, ProjectEntity, ProjectState, UserEntity } from '../common';
 
 import { primitiveFaker } from './primitive-faker';
 
@@ -6,8 +6,8 @@ class EntityFaker {
   /**
    * Create fake user
    */
-  public user(): User {
-    return User.from({
+  public user(): UserEntity {
+    return UserEntity.from({
       id: primitiveFaker.id(),
       email: primitiveFaker.email(),
       firstName: primitiveFaker.word(),
@@ -19,8 +19,8 @@ class EntityFaker {
   /**
    * Create fake project
    */
-  public project(ownerId: string): Project {
-    return Project.from({
+  public project(ownerId: string): ProjectEntity {
+    return ProjectEntity.from({
       id: primitiveFaker.id(),
       ownerId,
       title: primitiveFaker.words(),
@@ -33,9 +33,9 @@ class EntityFaker {
   /**
    * Create a fake role
    */
-  public role(projectId: string, assigneeId: string | null = null): Role {
+  public role(projectId: string, assigneeId: string | null = null): RoleEntity {
     const id = primitiveFaker.id();
-    return Role.from({
+    return RoleEntity.from({
       id,
       projectId,
       assigneeId,

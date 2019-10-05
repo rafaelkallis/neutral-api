@@ -16,7 +16,11 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/status (GET)', async () => {
+  test('should be defined', async () => {
+    expect(app).toBeDefined();
+  });
+
+  test('/status (GET)', async () => {
     const response = await request(app.getHttpServer()).get('/status');
     expect(response.status).toBe(200);
   });

@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Project } from './entities/project.entity';
-import { Role } from './entities/role.entity';
-import { User } from './entities/user.entity';
+import { ProjectEntity } from './entities/project.entity';
+import { RoleEntity } from './entities/role.entity';
+import { UserEntity } from './entities/user.entity';
 import { EntityNotFoundInterceptor } from './interceptors/entity-not-found.interceptor';
 import { ProjectRepository } from './repositories/project.repository';
 import { RoleRepository } from './repositories/role.repository';
@@ -21,11 +21,11 @@ import { TokenService } from './services/token.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User,
+      UserEntity,
       UserRepository,
-      Project,
+      ProjectEntity,
       ProjectRepository,
-      Role,
+      RoleEntity,
       RoleRepository,
     ]),
   ],

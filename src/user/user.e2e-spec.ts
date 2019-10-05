@@ -1,19 +1,19 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import { TokenService, User, UserRepository } from '../common';
+import { TokenService, UserEntity, UserRepository } from '../common';
 import { entityFaker } from '../test';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
-  let user: User;
+  let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
@@ -31,6 +31,21 @@ describe('UserController (e2e)', () => {
 
   test('should be defined', () => {
     expect(app).toBeDefined();
+  });
+
+  describe('/users (GET)', () => {
+    test('happy path', async () => {
+      const user = await userRepository.save(entityFaker.user());
+      await userRepository.save(entityFaker.user());
+      await userRepository.save(entityFaker.user());
+      const response = await session.get('/users').query({ after: user.id });
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body).not.toContainEqual(user);
+      for (const responseUser of response.body) {
+        expect(responseUser.id > user.id).toBeTruthy();
+      }
+    });
   });
 
   describe('/users/me (GET)', () => {

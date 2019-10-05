@@ -5,10 +5,10 @@ import {
   TokenService,
   RandomService,
   UserRepository,
-  User,
-  Project,
+  UserEntity,
+  ProjectEntity,
   ProjectState,
-  Role,
+  RoleEntity,
   ProjectRepository,
   RoleRepository,
 } from '../common';
@@ -23,9 +23,9 @@ describe('role service', () => {
   let roleService: RoleService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
-  let user: User;
-  let project: Project;
-  let role: Role;
+  let user: UserEntity;
+  let project: ProjectEntity;
+  let role: RoleEntity;
   let roleDto: RoleDto;
 
   beforeEach(async () => {
@@ -114,9 +114,9 @@ describe('role service', () => {
   });
 
   describe('update role', () => {
-    let user: User;
-    let project: Project;
-    let role: Role;
+    let user: UserEntity;
+    let project: ProjectEntity;
+    let role: RoleEntity;
     let dto: UpdateRoleDto;
 
     beforeEach(async () => {
@@ -142,9 +142,9 @@ describe('role service', () => {
   });
 
   describe('delete role', () => {
-    let user: User;
-    let project: Project;
-    let role: Role;
+    let user: UserEntity;
+    let project: ProjectEntity;
+    let role: RoleEntity;
 
     beforeEach(async () => {
       user = entityFaker.user();
@@ -162,11 +162,11 @@ describe('role service', () => {
   });
 
   describe('submit peer reviews', () => {
-    let user: User;
-    let project: Project;
-    let role2: Role;
-    let role3: Role;
-    let role4: Role;
+    let user: UserEntity;
+    let project: ProjectEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
     let peerReviews: Record<string, number>;
     let dto: SubmitPeerReviewsDto;
 

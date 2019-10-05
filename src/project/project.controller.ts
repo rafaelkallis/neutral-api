@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Query,
   Param,
   Patch,
   Post,
@@ -16,9 +17,10 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { AuthGuard, AuthUser, User, ValidationPipe } from '../common';
+import { AuthGuard, AuthUser, UserEntity, ValidationPipe } from '../common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto } from './dto/project.dto';
 
@@ -42,8 +44,11 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
-  public async getProjects(@AuthUser() authUser: User): Promise<ProjectDto[]> {
-    return this.projectService.getProjects(authUser);
+  public async getProjects(
+    @AuthUser() authUser: UserEntity,
+    @Query(ValidationPipe) query: GetProjectsQueryDto,
+  ): Promise<ProjectDto[]> {
+    return this.projectService.getProjects(authUser, query);
   }
 
   /**
@@ -57,7 +62,7 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getProject(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectService.getProject(authUser, id);
@@ -70,7 +75,7 @@ export class ProjectController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   public async createProject(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: CreateProjectDto,
   ): Promise<ProjectDto> {
     return this.projectService.createProject(authUser, dto);
@@ -90,7 +95,7 @@ export class ProjectController {
     description: 'Authenticated user is not the project owner',
   })
   public async updateProject(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
@@ -112,7 +117,7 @@ export class ProjectController {
     description: 'Authenticated user is not the project owner',
   })
   public async deleteProject(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<void> {
     return this.projectService.deleteProject(authUser, id);
@@ -128,7 +133,7 @@ export class ProjectController {
   @ApiOperation({ title: 'Get relative contributions of a project' })
   @ApiResponse({ status: 200, description: 'The relative contributions' })
   public async getRelativeContributions(
-    @AuthUser() authUser: User,
+    @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<Record<string, number>> {
     return this.projectService.getRelativeContributions(authUser, id);

@@ -13,7 +13,7 @@ export interface RelativeContributions {
   [roleId: string]: number;
 }
 
-interface ProjectProps {
+interface ProjectEntityOptions {
   id: string;
   title: string;
   description: string;
@@ -26,7 +26,7 @@ interface ProjectProps {
  * Project Entity
  */
 @Entity('projects')
-export class Project extends BaseEntity implements ProjectProps {
+export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
@@ -39,7 +39,7 @@ export class Project extends BaseEntity implements ProjectProps {
 
   @Column({ name: 'owner_id' })
   @IsString()
-  @MaxLength(20)
+  @MaxLength(24)
   public ownerId!: string;
 
   @Column({ name: 'state' })
@@ -50,11 +50,11 @@ export class Project extends BaseEntity implements ProjectProps {
   @Column({ name: 'relative_contributions', type: 'jsonb', nullable: true })
   public relativeContributions!: RelativeContributions | null;
 
-  public static from(props: ProjectProps): Project {
-    return Object.assign(new Project(), props);
+  public static from(options: ProjectEntityOptions): ProjectEntity {
+    return Object.assign(new ProjectEntity(), options);
   }
 
-  public update(props: Partial<ProjectProps>): Project {
-    return Object.assign(this, props);
+  public update(options: Partial<ProjectEntityOptions>): this {
+    return Object.assign(this, options);
   }
 }

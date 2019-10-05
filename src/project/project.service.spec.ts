@@ -2,19 +2,20 @@ import { Test } from '@nestjs/testing';
 
 import {
   ConfigService,
-  Project,
+  ProjectEntity,
   ProjectState,
   ProjectRepository,
   RandomService,
   TokenService,
-  User,
+  UserEntity,
   UserRepository,
-  Role,
+  RoleEntity,
   RoleRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectService } from './project.service';
 import { ModelService } from './services/model.service';
+import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -23,8 +24,9 @@ describe('project service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let modelService: ModelService;
-  let user: User;
-  let project: Project;
+  let user: UserEntity;
+  let project: ProjectEntity;
+  let projectDto: ProjectDto;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -47,6 +49,9 @@ describe('project service', () => {
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
+    projectDto = new ProjectDtoBuilder(project)
+      .exposeRelativeContributions()
+      .build();
   });
 
   test('should be defined', () => {
@@ -54,7 +59,8 @@ describe('project service', () => {
   });
 
   describe('get projects', () => {
-    let projects: Project[];
+    let projects: ProjectEntity[];
+    let projectDtos: ProjectDto[];
 
     beforeEach(async () => {
       projects = [
@@ -62,11 +68,16 @@ describe('project service', () => {
         entityFaker.project(user.id),
         entityFaker.project(user.id),
       ];
+      projectDtos = projects.map(project =>
+        new ProjectDtoBuilder(project).exposeRelativeContributions().build(),
+      );
       jest.spyOn(projectRepository, 'find').mockResolvedValue(projects);
     });
 
     test('happy path', async () => {
-      await expect(projectService.getProjects(user)).resolves.toEqual(projects);
+      await expect(projectService.getProjects(user)).resolves.toEqual(
+        projectDtos,
+      );
     });
   });
 
@@ -78,7 +89,7 @@ describe('project service', () => {
     test('happy path', async () => {
       await expect(
         projectService.getProject(user, project.id),
-      ).resolves.toEqual(expect.objectContaining(project));
+      ).resolves.toEqual(projectDto);
     });
   });
 
@@ -97,7 +108,7 @@ describe('project service', () => {
   });
 
   describe('update project', () => {
-    let role: Role;
+    let role: RoleEntity;
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
@@ -174,10 +185,10 @@ describe('project service', () => {
   });
 
   describe('get relative contributions', () => {
-    let role1: Role;
-    let role2: Role;
-    let role3: Role;
-    let role4: Role;
+    let role1: RoleEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
 
     beforeEach(async () => {
       role1 = entityFaker.role(project.id);
