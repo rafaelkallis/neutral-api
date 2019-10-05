@@ -17,13 +17,4 @@ export class RandomService {
   public id(): string {
     return new ObjectId().toHexString();
   }
-
-  /**
-   * Generates a 128-bit pseudorandom string.
-   * The string is to be used with the mnemonic service.
-   */
-  public mnemonicEntropy(): string {
-    const buf = crypto.randomBytes(16);
-    return base64url.encode(buf);
-  }
 }
