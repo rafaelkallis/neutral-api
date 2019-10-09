@@ -77,12 +77,13 @@ export class AuthService {
     user.lastLoginAt = Date.now();
     await this.userRepository.save(user);
 
+    const sessionToken = this.tokenService.newSessionToken(user.id);
+    session.set(
+      sessionToken,
+      this.configService.get('SESSION_TOKEN_LIFETIME_MIN'),
+    );
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
-    session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
-    );
     return { accessToken, refreshToken };
   }
 
@@ -130,11 +131,12 @@ export class AuthService {
     });
     await this.userRepository.save(user);
 
-    const accessToken = this.tokenService.newAccessToken(user.id);
+    const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
+      sessionToken,
+      this.configService.get('SESSION_TOKEN_LIFETIME_MIN'),
     );
+    const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
     return { accessToken, refreshToken };
   }
@@ -145,16 +147,9 @@ export class AuthService {
    * A new access token is assigned to the session and sent back to the
    * response body.
    */
-  public refresh(
-    dto: RefreshDto,
-    session: SessionState,
-  ): { accessToken: string } {
+  public refresh(dto: RefreshDto): { accessToken: string } {
     const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
     const accessToken = this.tokenService.newAccessToken(payload.sub);
-    session.set(
-      accessToken,
-      this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'),
-    );
     return { accessToken };
   }
 }

@@ -18,6 +18,7 @@ export enum TokenAud {
   SIGNUP = 'signup_token',
   ACCESS = 'access_token',
   REFRESH = 'refresh_token',
+  SESSION = 'session',
   EMAIL_CHANGE = 'email_change_token',
 }
 
@@ -56,6 +57,14 @@ export interface AccessToken extends BaseToken {
  */
 export interface RefreshToken extends BaseToken {
   aud: TokenAud.REFRESH;
+}
+
+/**
+ * Session token interface.
+ */
+export interface SessionToken extends BaseToken {
+  aud: TokenAud.SESSION;
+  maxAge: number;
 }
 
 /**
@@ -192,6 +201,43 @@ export class TokenService {
       throw new TokenAudienceIncorrectException();
     }
     return payload as RefreshToken;
+  }
+
+  /**
+   * Create a new session token for identifying user sessions.
+   */
+  public newSessionToken(sub: string, maxAge?: number): string {
+    if (!maxAge) {
+      maxAge = moment()
+        .add(this.configService.get('SESSION_MAX_AGE_MIN'), 'minutes')
+        .unix();
+    }
+    const payload: SessionToken = {
+      jti: this.randomService.id(),
+      aud: TokenAud.SESSION,
+      sub,
+      iat: moment().unix(),
+      exp: moment()
+        .add(this.configService.get('SESSION_TOKEN_LIFETIME_MIN'), 'minutes')
+        .unix(),
+      maxAge,
+    };
+    return this.sign(payload);
+  }
+
+  /**
+   * Validate and verify the signature of a session token.
+   */
+  public validateSessionToken(token: string): SessionToken {
+    const payload = this.verify(token);
+    if (payload.aud !== TokenAud.SESSION) {
+      throw new TokenAudienceIncorrectException();
+    }
+    if (moment() > moment.unix((payload as SessionToken).maxAge)) {
+      /* token has expired */
+      throw new TokenExpiredException();
+    }
+    return payload as SessionToken;
   }
 
   /**

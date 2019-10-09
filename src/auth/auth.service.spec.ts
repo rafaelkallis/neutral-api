@@ -71,6 +71,7 @@ describe('auth service', () => {
       session = {
         set: jest.fn(),
         get: jest.fn(),
+        exists: jest.fn(),
         clear: jest.fn(),
       };
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
@@ -112,6 +113,7 @@ describe('auth service', () => {
       session = {
         set: jest.fn(),
         get: jest.fn(),
+        exists: jest.fn(),
         clear: jest.fn(),
       };
       jest.spyOn(userRepository, 'count').mockResolvedValue(0);
@@ -134,24 +136,17 @@ describe('auth service', () => {
   describe('refresh', () => {
     let user: UserEntity;
     let refreshToken: string;
-    let session: SessionState;
 
     beforeEach(() => {
       user = entityFaker.user();
       refreshToken = tokenService.newRefreshToken(user.id);
-      session = {
-        set: jest.fn(),
-        get: jest.fn(),
-        clear: jest.fn(),
-      };
     });
 
     test('happy path', async () => {
       const dto = RefreshDto.from({ refreshToken });
-      expect(authService.refresh(dto, session)).toEqual({
+      expect(authService.refresh(dto)).toEqual({
         accessToken: expect.any(String),
       });
-      expect(session.set).toHaveBeenCalled();
     });
   });
 });

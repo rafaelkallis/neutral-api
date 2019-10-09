@@ -11,9 +11,11 @@ interface Config {
   readonly LOGIN_TOKEN_LIFETIME_MIN: number;
   readonly SIGNUP_TOKEN_LIFETIME_MIN: number;
   readonly ACCESS_TOKEN_LIFETIME_MIN: number;
+  readonly SESSION_TOKEN_LIFETIME_MIN: number;
   readonly REFRESH_TOKEN_LIFETIME_MIN: number;
   readonly EMAIL_CHANGE_TOKEN_LIFETIME_MIN: number;
   readonly SESSION_NAME: string;
+  readonly SESSION_MAX_AGE_MIN: number;
 }
 
 /**
@@ -35,8 +37,10 @@ export class ConfigService {
       SIGNUP_TOKEN_LIFETIME_MIN: envalid.num(),
       ACCESS_TOKEN_LIFETIME_MIN: envalid.num(),
       REFRESH_TOKEN_LIFETIME_MIN: envalid.num(),
+      SESSION_TOKEN_LIFETIME_MIN: envalid.num(),
       EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num(),
       SESSION_NAME: envalid.str(),
+      SESSION_MAX_AGE_MIN: envalid.num(),
     });
   }
 

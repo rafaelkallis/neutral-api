@@ -118,8 +118,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid refresh token' })
   public refresh(
     @Body(ValidationPipe) dto: RefreshDto,
-    @Session() session: SessionState,
   ): { accessToken: string } {
-    return this.authService.refresh(dto, session);
+    return this.authService.refresh(dto);
   }
 }

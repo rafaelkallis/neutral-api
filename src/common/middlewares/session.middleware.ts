@@ -18,6 +18,11 @@ export interface SessionState {
   get(): string;
 
   /**
+   * Returns true if session state exists.
+   */
+  exists(): boolean;
+
+  /**
    * Clear the session state.
    */
   clear(): void;
@@ -62,7 +67,16 @@ export class SessionMiddleware implements NestMiddleware {
 
       get(): string {
         // eslint-disable-next-line security/detect-object-injection
-        return req.cookies[sessionName];
+        const state = req.cookies[sessionName];
+        if (!state) {
+          throw new Error();
+        }
+        return state;
+      },
+
+      exists(): boolean {
+        // eslint-disable-next-line security/detect-object-injection
+        return Boolean(req.cookies[sessionName]);
       },
 
       clear(): void {
