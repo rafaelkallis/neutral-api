@@ -1,29 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InvariantViolationException } from '../../common';
+import { InvariantViolationException } from '../exceptions/invariant-violation.exception';
+import { PeerReviews } from '../entities/role.entity';
+import { RelativeContributions } from '../entities/project.entity';
 
 /* eslint-disable security/detect-object-injection */
 
 /**
- * Model Service
+ * ContributionsModel Service
  */
 @Injectable()
-export class ModelService {
-  /**
-   * Transforms peer reviews from the map to the vector form.
-   * The entries are sorted by the role id in ascending order.
-   */
-  public peerReviewsMapToVector(peerReviews: Record<string, number>): number[] {
-    const pairs: [string, number][] = Object.entries(peerReviews);
-    pairs.sort(([roleId1], [roleId2]) => roleId1.localeCompare(roleId2));
-    return pairs.map(([, score]) => score);
-  }
+export class ContributionsModelService {
 
   /**
    * Computes the relative contributions.
    */
-  public computeRelativeContributions(
-    peerReviews: Record<string, Record<string, number>>,
-  ): Record<string, number> {
+  public computeContributions(
+    peerReviews: Record<string, PeerReviews>,
+  ): RelativeContributions {
     const sortedIds: string[] = Object.keys(peerReviews).sort();
     const S: number[][] = [];
     for (const [i, iId] of sortedIds.entries()) {
@@ -38,7 +31,7 @@ export class ModelService {
         S[i][j] = peerReviews[iId][jId];
       }
     }
-    const relContVec: number[] = this.computeRelativeContributionsFromMatrix(S);
+    const relContVec: number[] = this.computeContributionsFromMatrix(S);
     const relContMap: Record<string, number> = {};
     for (const [i, iId] of sortedIds.entries()) {
       relContMap[iId] = relContVec[i];
@@ -46,7 +39,7 @@ export class ModelService {
     return relContMap;
   }
 
-  public computeRelativeContributionsFromMatrix(S: number[][]): number[] {
+  public computeContributionsFromMatrix(S: number[][]): number[] {
     if (S.length < 4) {
       throw new Error('teams of < 4 not supported');
     }

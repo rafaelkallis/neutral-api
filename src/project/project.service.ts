@@ -8,8 +8,8 @@ import {
   RoleRepository,
   RandomService,
   UserEntity,
+  ContributionsModelService,
 } from '../common';
-import { ModelService } from './services/model.service';
 
 import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -22,18 +22,18 @@ export class ProjectService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
-  private readonly modelService: ModelService;
+  private readonly contributionsModelService: ContributionsModelService;
 
   public constructor(
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
-    modelService: ModelService,
+    contributionsModelService: ContributionsModelService,
   ) {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
-    this.modelService = modelService;
+    this.contributionsModelService = contributionsModelService;
   }
 
   /**
@@ -113,7 +113,7 @@ export class ProjectService {
           peerReviews[role.id] = role.peerReviews;
           peerReviews[role.id][role.id] = 0;
         }
-        project.relativeContributions = this.modelService.computeRelativeContributions(
+        project.relativeContributions = this.contributionsModelService.computeContributions(
           peerReviews,
         );
       }
@@ -197,6 +197,6 @@ export class ProjectService {
       peerReviews[role.id] = role.peerReviews;
       peerReviews[role.id][role.id] = 0;
     }
-    return this.modelService.computeRelativeContributions(peerReviews);
+    return this.contributionsModelService.computeContributions(peerReviews);
   }
 }

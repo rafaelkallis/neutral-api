@@ -5,7 +5,6 @@ import { CommonModule } from '../common';
 import { ProjectController } from './project.controller';
 
 import { ProjectService } from './project.service';
-import { ModelService } from './services/model.service';
 
 /**
  * Project Module
@@ -13,6 +12,6 @@ import { ModelService } from './services/model.service';
 @Module({
   imports: [CommonModule],
   controllers: [ProjectController],
-  providers: [ProjectService, ModelService],
+  providers: [ProjectService],
 })
 export class ProjectModule {}

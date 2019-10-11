@@ -3,6 +3,7 @@ import { Not } from 'typeorm';
 import {
   UserEntity,
   RoleEntity,
+  PeerReviews,
   UserRepository,
   ProjectEntity,
   ProjectRepository,
@@ -10,6 +11,7 @@ import {
   RoleRepository,
   InsufficientPermissionsException,
   RandomService,
+  ContributionsModelService,
 } from '../common';
 import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
@@ -27,17 +29,20 @@ export class RoleService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
+  private readonly contributionsModelService: ContributionsModelService;
 
   public constructor(
     userRepository: UserRepository,
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
+    contributionsModelService: ContributionsModelService,
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
+    this.contributionsModelService = contributionsModelService;
   }
 
   /**
@@ -193,6 +198,21 @@ export class RoleService {
 
     role.peerReviews = dto.peerReviews;
     await this.roleRepository.save(role);
+
+    /* compute relative contributions if this is the last peer review  */
+    if (otherRoles.every(otherRole => Boolean(otherRole.peerReviews))) {
+      const peerReviews: Record<string, PeerReviews> = {
+        [role.id]: role.peerReviews,
+      };
+      for (const otherRole of otherRoles) {
+        peerReviews[otherRole.id] = otherRole.peerReviews as PeerReviews;
+        peerReviews[otherRole.id][otherRole.id] = 0;
+      }
+      project.relativeContributions = this.contributionsModelService.computeContributions(
+        peerReviews,
+      );
+      await this.projectRepository.save(project);
+    }
   }
 
   private isRoleAssigneeOrProjectOwner(

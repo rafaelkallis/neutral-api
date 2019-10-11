@@ -5,6 +5,9 @@ export { RandomService } from './services/random.service';
 export { LogService } from './services/log.service';
 export { TokenService } from './services/token.service';
 export { EmailService } from './services/email.service';
+export {
+  ContributionsModelService,
+} from './services/contributions-model.service';
 
 export { UserRepository } from './repositories/user.repository';
 export { ProjectRepository } from './repositories/project.repository';

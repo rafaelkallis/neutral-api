@@ -183,7 +183,8 @@ describe('ProjectController (e2e)', () => {
     let role4: RoleEntity;
 
     beforeEach(async () => {
-      project = await projectRepository.save(entityFaker.project(user.id));
+      project = entityFaker.project(user.id);
+      project = await projectRepository.save(project);
       role1 = entityFaker.role(project.id);
       role2 = entityFaker.role(project.id);
       role3 = entityFaker.role(project.id);
@@ -212,10 +213,10 @@ describe('ProjectController (e2e)', () => {
         [role3.id]: 30 / 60,
         [role4.id]: 0,
       };
-      await roleRepository.save(role1);
-      await roleRepository.save(role2);
-      await roleRepository.save(role3);
-      await roleRepository.save(role4);
+      role1 = await roleRepository.save(role1);
+      role2 = await roleRepository.save(role2);
+      role3 = await roleRepository.save(role3);
+      role4 = await roleRepository.save(role4);
     });
 
     test('happy path', async () => {

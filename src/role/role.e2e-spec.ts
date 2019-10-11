@@ -128,9 +128,30 @@ describe('RoleController (e2e)', () => {
       role.assigneeId = user.id;
       role.peerReviews = null;
       await roleRepository.save(role);
-      role2 = await roleRepository.save(entityFaker.role(project.id));
-      role3 = await roleRepository.save(entityFaker.role(project.id));
-      role4 = await roleRepository.save(entityFaker.role(project.id));
+      role2 = entityFaker.role(project.id);
+      role3 = entityFaker.role(project.id);
+      role4 = entityFaker.role(project.id);
+      role2.peerReviews = {
+        [role.id]: 0.8,
+        [role2.id]: 0,
+        [role3.id]: 0.1,
+        [role4.id]: 0.1,
+      };
+      role3.peerReviews = {
+        [role.id]: 0.8,
+        [role2.id]: 0.1,
+        [role3.id]: 0,
+        [role4.id]: 0.1,
+      };
+      role4.peerReviews = {
+        [role.id]: 0.8,
+        [role2.id]: 0.1,
+        [role3.id]: 0.1,
+        [role4.id]: 0,
+      };
+      await roleRepository.save(role2);
+      await roleRepository.save(role3);
+      await roleRepository.save(role4);
       peerReviews = {
         [role.id]: 0,
         [role2.id]: 0.3,

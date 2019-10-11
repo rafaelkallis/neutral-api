@@ -11,10 +11,10 @@ import {
   UserRepository,
   RoleEntity,
   RoleRepository,
+  ContributionsModelService,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectService } from './project.service';
-import { ModelService } from './services/model.service';
 import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
@@ -24,7 +24,7 @@ describe('project service', () => {
   let projectService: ProjectService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
-  let modelService: ModelService;
+  let contributionsModelService: ContributionsModelService;
   let user: UserEntity;
   let project: ProjectEntity;
   let projectDto: ProjectDto;
@@ -39,14 +39,14 @@ describe('project service', () => {
         TokenService,
         RandomService,
         ConfigService,
-        ModelService,
+        ContributionsModelService,
       ],
     }).compile();
 
     projectService = module.get(ProjectService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
-    modelService = module.get(ModelService);
+    contributionsModelService = module.get(ContributionsModelService);
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
@@ -121,12 +121,14 @@ describe('project service', () => {
       jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
-      jest.spyOn(modelService, 'computeRelativeContributions').mockReturnValue({
-        [role.id]: 0.25,
-        [primitiveFaker.id()]: 0.25,
-        [primitiveFaker.id()]: 0.25,
-        [primitiveFaker.id()]: 0.25,
-      });
+      jest
+        .spyOn(contributionsModelService, 'computeContributions')
+        .mockReturnValue({
+          [role.id]: 0.25,
+          [primitiveFaker.id()]: 0.25,
+          [primitiveFaker.id()]: 0.25,
+          [primitiveFaker.id()]: 0.25,
+        });
     });
 
     test('happy path', async () => {
@@ -168,7 +170,7 @@ describe('project service', () => {
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).resolves.not.toThrow();
-      expect(modelService.computeRelativeContributions).toHaveBeenCalled();
+      expect(contributionsModelService.computeContributions).toHaveBeenCalled();
       expect(projectRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ relativeContributions: expect.anything() }),
       );
@@ -203,14 +205,13 @@ describe('project service', () => {
         .spyOn(roleRepository, 'find')
         .mockResolvedValue([role1, role2, role3, role4]);
       jest
-        .spyOn(modelService, 'peerReviewsMapToVector')
-        .mockReturnValue([0.25, 0.25, 0.25, 0.25]);
-      jest.spyOn(modelService, 'computeRelativeContributions').mockReturnValue({
-        [role1.id]: 0.25,
-        [role2.id]: 0.25,
-        [role3.id]: 0.25,
-        [role4.id]: 0.25,
-      });
+        .spyOn(contributionsModelService, 'computeContributions')
+        .mockReturnValue({
+          [role1.id]: 0.25,
+          [role2.id]: 0.25,
+          [role3.id]: 0.25,
+          [role4.id]: 0.25,
+        });
     });
 
     test('happy path', async () => {

@@ -11,6 +11,9 @@ import {
   RoleEntity,
   ProjectRepository,
   RoleRepository,
+  ContributionsModelService,
+  RelativeContributions,
+  PeerReviews,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
@@ -21,6 +24,7 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 describe('role service', () => {
   let roleService: RoleService;
+  let contributionsModelService: ContributionsModelService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let user: UserEntity;
@@ -38,10 +42,12 @@ describe('role service', () => {
         UserRepository,
         ProjectRepository,
         TokenService,
+        ContributionsModelService,
       ],
     }).compile();
 
     roleService = module.get(RoleService);
+    contributionsModelService = module.get(ContributionsModelService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
@@ -167,7 +173,8 @@ describe('role service', () => {
     let role2: RoleEntity;
     let role3: RoleEntity;
     let role4: RoleEntity;
-    let peerReviews: Record<string, number>;
+    let peerReviews: PeerReviews;
+    let contributions: RelativeContributions;
     let dto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
@@ -177,11 +184,12 @@ describe('role service', () => {
       role.assigneeId = user.id;
       role.peerReviews = null;
       role2 = entityFaker.role(project.id);
-      role2.peerReviews = null;
+      role2.peerReviews = {};
       role3 = entityFaker.role(project.id);
-      role3.peerReviews = null;
+      role3.peerReviews = {};
       role4 = entityFaker.role(project.id);
-      role4.peerReviews = null;
+      role4.peerReviews = {};
+
       peerReviews = {
         [role.id]: 0,
         [role2.id]: 0.3,
@@ -189,20 +197,38 @@ describe('role service', () => {
         [role4.id]: 0.5,
       };
       dto = SubmitPeerReviewsDto.from({ peerReviews });
+      contributions = {};
+      jest
+        .spyOn(contributionsModelService, 'computeContributions')
+        .mockReturnValue(contributions);
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest
         .spyOn(roleRepository, 'find')
         .mockResolvedValue([role2, role3, role4]);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
       await expect(
         roleService.submitPeerReviews(user, role.id, dto),
       ).resolves.not.toThrow();
+      expect(
+        contributionsModelService.computeContributions,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          [role.id]: peerReviews,
+          [role2.id]: role2.peerReviews,
+          [role3.id]: role3.peerReviews,
+          [role4.id]: role4.peerReviews,
+        }),
+      );
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),
+      );
+      expect(projectRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ relativeContributions: contributions }),
       );
     });
 

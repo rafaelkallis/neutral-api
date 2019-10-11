@@ -1,5 +1,6 @@
-import { IsString, IsEnum, MaxLength } from 'class-validator';
+import { IsString, IsEnum, MaxLength, IsOptional } from 'class-validator';
 import { Column, Entity } from 'typeorm';
+import { IsRelativeContributions } from '../validation/is-relative-contributions';
 
 import { BaseEntity } from './base.entity';
 
@@ -48,6 +49,8 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   public state!: ProjectState;
 
   @Column({ name: 'relative_contributions', type: 'jsonb', nullable: true })
+  @IsOptional()
+  @IsRelativeContributions()
   public relativeContributions!: RelativeContributions | null;
 
   public static from(options: ProjectEntityOptions): ProjectEntity {
