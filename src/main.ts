@@ -11,6 +11,12 @@ async function bootstrap(): Promise<void> {
 
   app.useLogger(logService);
 
+  app.enableCors({
+    origin: configService.get('FRONTEND_URL'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   const options = new DocumentBuilder()
     .setTitle('Covee SaaS')
     .setVersion('1.0')
