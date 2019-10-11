@@ -122,20 +122,4 @@ export class ProjectController {
   ): Promise<void> {
     return this.projectService.deleteProject(authUser, id);
   }
-
-  /**
-   * Get relative contributions of a project
-   */
-  @Get(':id/relative-contributions')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiImplicitParam({ name: 'id' })
-  @ApiOperation({ title: 'Get relative contributions of a project' })
-  @ApiResponse({ status: 200, description: 'The relative contributions' })
-  public async getRelativeContributions(
-    @AuthUser() authUser: UserEntity,
-    @Param('id') id: string,
-  ): Promise<Record<string, number>> {
-    return this.projectService.getRelativeContributions(authUser, id);
-  }
 }

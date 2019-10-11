@@ -188,41 +188,4 @@ describe('project service', () => {
       expect(projectRepository.remove).toHaveBeenCalled();
     });
   });
-
-  describe('get relative contributions', () => {
-    let role1: RoleEntity;
-    let role2: RoleEntity;
-    let role3: RoleEntity;
-    let role4: RoleEntity;
-
-    beforeEach(async () => {
-      role1 = entityFaker.role(project.id);
-      role2 = entityFaker.role(project.id);
-      role3 = entityFaker.role(project.id);
-      role4 = entityFaker.role(project.id);
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest
-        .spyOn(roleRepository, 'find')
-        .mockResolvedValue([role1, role2, role3, role4]);
-      jest
-        .spyOn(contributionsModelService, 'computeContributions')
-        .mockReturnValue({
-          [role1.id]: 0.25,
-          [role2.id]: 0.25,
-          [role3.id]: 0.25,
-          [role4.id]: 0.25,
-        });
-    });
-
-    test('happy path', async () => {
-      await expect(
-        projectService.getRelativeContributions(user, project.id),
-      ).resolves.toEqual({
-        [role1.id]: 0.25,
-        [role2.id]: 0.25,
-        [role3.id]: 0.25,
-        [role4.id]: 0.25,
-      });
-    });
-  });
 });

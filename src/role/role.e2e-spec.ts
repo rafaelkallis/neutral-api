@@ -160,13 +160,34 @@ describe('RoleController (e2e)', () => {
       };
     });
 
-    test('happy path', async () => {
+    test('happy path, final peer review', async () => {
       const response = await session
         .post(`/roles/${role.id}/submit-peer-reviews`)
         .send({ peerReviews });
       expect(response.status).toBe(200);
       const updatedRole = await roleRepository.findOneOrFail({ id: role.id });
       expect(updatedRole.peerReviews).toEqual(peerReviews);
+      const updatedProject = await projectRepository.findOneOrFail({
+        id: project.id,
+      });
+      expect(updatedProject.state).toBe(ProjectState.FINISHED);
+      expect(updatedProject.relativeContributions).toBeTruthy();
+    });
+
+    test('happy path, not final peer review', async () => {
+      role2.peerReviews = null;
+      await roleRepository.save(role2);
+      const response = await session
+        .post(`/roles/${role.id}/submit-peer-reviews`)
+        .send({ peerReviews });
+      expect(response.status).toBe(200);
+      const updatedRole = await roleRepository.findOneOrFail({ id: role.id });
+      expect(updatedRole.peerReviews).toEqual(peerReviews);
+      const updatedProject = await projectRepository.findOneOrFail({
+        id: project.id,
+      });
+      expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
+      expect(updatedProject.relativeContributions).toBeFalsy();
     });
 
     test('should fail if project is not in peer-review state', async () => {

@@ -176,27 +176,4 @@ export class ProjectService {
     }
     await this.projectRepository.remove(project);
   }
-
-  /**
-   * Get relative contributions of a project
-   */
-  public async getRelativeContributions(
-    authUser: UserEntity,
-    id: string,
-  ): Promise<Record<string, number>> {
-    const project = await this.projectRepository.findOneOrFail({ id });
-    if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    const roles = await this.roleRepository.find({ projectId: id });
-    const peerReviews: Record<string, Record<string, number>> = {};
-    for (const role of roles) {
-      if (!role.peerReviews) {
-        throw new Error();
-      }
-      peerReviews[role.id] = role.peerReviews;
-      peerReviews[role.id][role.id] = 0;
-    }
-    return this.contributionsModelService.computeContributions(peerReviews);
-  }
 }

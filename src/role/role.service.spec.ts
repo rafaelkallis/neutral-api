@@ -224,6 +224,7 @@ describe('role service', () => {
           [role4.id]: role4.peerReviews,
         }),
       );
+      expect(project.state).toBe(ProjectState.FINISHED);
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),
       );
