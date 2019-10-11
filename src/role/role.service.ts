@@ -209,7 +209,7 @@ export class RoleService {
         peerReviews[otherRole.id][otherRole.id] = 0;
       }
       project.state = ProjectState.FINISHED;
-      project.relativeContributions = this.contributionsModelService.computeContributions(
+      project.contributions = this.contributionsModelService.computeContributions(
         peerReviews,
       );
       await this.projectRepository.save(project);

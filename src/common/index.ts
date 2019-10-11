@@ -20,7 +20,7 @@ export { UserEntity } from './entities/user.entity';
 export {
   ProjectEntity,
   ProjectState,
-  RelativeContributions,
+  Contributions,
 } from './entities/project.entity';
 export { RoleEntity, PeerReviews } from './entities/role.entity';
 

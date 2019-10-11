@@ -7,10 +7,10 @@ function isObject(value: unknown): value is object {
   return typeof value === 'object';
 }
 
-export function IsRelativeContributions(options?: ValidationOptions) {
+export function IsContributions(options?: ValidationOptions) {
   return function(object: object, propertyName: string): void {
     registerDecorator({
-      name: 'isRelativeContributions',
+      name: 'isContributions',
       target: object.constructor,
       propertyName,
       options,
@@ -20,15 +20,15 @@ export function IsRelativeContributions(options?: ValidationOptions) {
             return false;
           }
           let sum = 0;
-          for (const relativeContribution of Object.values(value)) {
+          for (const contribution of Object.values(value)) {
             if (
-              typeof relativeContribution !== 'number' ||
-              isNaN(relativeContribution) ||
-              relativeContribution < 0
+              typeof contribution !== 'number' ||
+              isNaN(contribution) ||
+              contribution < 0
             ) {
               return false;
             }
-            sum += relativeContribution;
+            sum += contribution;
           }
           if (sum < 0.99999 || sum > 1) {
             return false;

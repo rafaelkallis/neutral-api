@@ -50,9 +50,7 @@ describe('project service', () => {
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
-    projectDto = new ProjectDtoBuilder(project)
-      .exposeRelativeContributions()
-      .build();
+    projectDto = new ProjectDtoBuilder(project).exposeContributions().build();
   });
 
   test('should be defined', () => {
@@ -71,7 +69,7 @@ describe('project service', () => {
         entityFaker.project(user.id),
       ];
       projectDtos = projects.map(project =>
-        new ProjectDtoBuilder(project).exposeRelativeContributions().build(),
+        new ProjectDtoBuilder(project).exposeContributions().build(),
       );
       query = GetProjectsQueryDto.from({});
       jest.spyOn(projectRepository, 'findPage').mockResolvedValue(projects);
@@ -164,7 +162,7 @@ describe('project service', () => {
       ).rejects.toThrow();
     });
 
-    test('should compute relative contributions if state is changed to finished', async () => {
+    test('should compute contributions if state is changed to finished', async () => {
       project.state = ProjectState.PEER_REVIEW;
       dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
       await expect(
@@ -172,7 +170,7 @@ describe('project service', () => {
       ).resolves.not.toThrow();
       expect(contributionsModelService.computeContributions).toHaveBeenCalled();
       expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ relativeContributions: expect.anything() }),
+        expect.objectContaining({ contributions: expect.anything() }),
       );
     });
   });

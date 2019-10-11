@@ -171,7 +171,7 @@ describe('RoleController (e2e)', () => {
         id: project.id,
       });
       expect(updatedProject.state).toBe(ProjectState.FINISHED);
-      expect(updatedProject.relativeContributions).toBeTruthy();
+      expect(updatedProject.contributions).toBeTruthy();
     });
 
     test('happy path, not final peer review', async () => {
@@ -187,7 +187,7 @@ describe('RoleController (e2e)', () => {
         id: project.id,
       });
       expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
-      expect(updatedProject.relativeContributions).toBeFalsy();
+      expect(updatedProject.contributions).toBeFalsy();
     });
 
     test('should fail if project is not in peer-review state', async () => {

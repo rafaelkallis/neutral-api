@@ -7,7 +7,6 @@ import {
   ProjectEntity,
   ProjectState,
   ProjectRepository,
-  RoleEntity,
   RoleRepository,
   TokenService,
   UserEntity,
@@ -63,7 +62,7 @@ describe('ProjectController (e2e)', () => {
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
-      project.relativeContributions = {
+      project.contributions = {
         [primitiveFaker.id()]: 0.1,
         [primitiveFaker.id()]: 0.3,
         [primitiveFaker.id()]: 0.2,
@@ -77,13 +76,13 @@ describe('ProjectController (e2e)', () => {
       expect(response.status).toBe(200);
     });
 
-    test('should have relative contributions if user is owner', async () => {
+    test('should have contributions if user is owner', async () => {
       const response = await session.get(`/projects/${project.id}`);
       expect(response.status).toBe(200);
-      expect(response.body.relativeContributions).toBeTruthy();
+      expect(response.body.contributions).toBeTruthy();
     });
 
-    test('should not have relative contributions if user is not owner', async () => {
+    test('should not have contributions if user is not owner', async () => {
       const otherUser = await userRepository.save(entityFaker.user());
       const loginToken = tokenService.newLoginToken(
         otherUser.id,
@@ -92,7 +91,7 @@ describe('ProjectController (e2e)', () => {
       await session.post(`/auth/login/${loginToken}`);
       const response = await session.get(`/projects/${project.id}`);
       expect(response.status).toBe(200);
-      expect(response.body.relativeContributions).toBeFalsy();
+      expect(response.body.contributions).toBeFalsy();
     });
   });
 

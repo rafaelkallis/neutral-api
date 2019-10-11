@@ -12,7 +12,7 @@ import {
   ProjectRepository,
   RoleRepository,
   ContributionsModelService,
-  RelativeContributions,
+  Contributions,
   PeerReviews,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
@@ -174,7 +174,7 @@ describe('role service', () => {
     let role3: RoleEntity;
     let role4: RoleEntity;
     let peerReviews: PeerReviews;
-    let contributions: RelativeContributions;
+    let contributions: Contributions;
     let dto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
@@ -229,7 +229,7 @@ describe('role service', () => {
         expect.objectContaining({ peerReviews }),
       );
       expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ relativeContributions: contributions }),
+        expect.objectContaining({ contributions }),
       );
     });
 

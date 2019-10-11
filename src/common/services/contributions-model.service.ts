@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InvariantViolationException } from '../exceptions/invariant-violation.exception';
 import { PeerReviews } from '../entities/role.entity';
-import { RelativeContributions } from '../entities/project.entity';
+import { Contributions } from '../entities/project.entity';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -10,13 +10,12 @@ import { RelativeContributions } from '../entities/project.entity';
  */
 @Injectable()
 export class ContributionsModelService {
-
   /**
    * Computes the relative contributions.
    */
   public computeContributions(
     peerReviews: Record<string, PeerReviews>,
-  ): RelativeContributions {
+  ): Contributions {
     const sortedIds: string[] = Object.keys(peerReviews).sort();
     const S: number[][] = [];
     for (const [i, iId] of sortedIds.entries()) {

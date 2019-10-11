@@ -46,7 +46,7 @@ export class ProjectService {
     const projects = await this.projectRepository.findPage(query);
     const projectDtos = projects.map(project =>
       new ProjectDtoBuilder(project)
-        .exposeRelativeContributions(project.ownerId === authUser.id)
+        .exposeContributions(project.ownerId === authUser.id)
         .build(),
     );
     return projectDtos;
@@ -61,7 +61,7 @@ export class ProjectService {
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     const projectDto = new ProjectDtoBuilder(project)
-      .exposeRelativeContributions(project.ownerId === authUser.id)
+      .exposeContributions(project.ownerId === authUser.id)
       .build();
     return projectDto;
   }
@@ -79,11 +79,11 @@ export class ProjectService {
       title: dto.title,
       description: dto.description,
       state: ProjectState.FORMATION,
-      relativeContributions: null,
+      contributions: null,
     });
     await this.projectRepository.save(project);
     const projectDto = new ProjectDtoBuilder(project)
-      .exposeRelativeContributions()
+      .exposeContributions()
       .build();
     return projectDto;
   }
@@ -113,7 +113,7 @@ export class ProjectService {
           peerReviews[role.id] = role.peerReviews;
           peerReviews[role.id][role.id] = 0;
         }
-        project.relativeContributions = this.contributionsModelService.computeContributions(
+        project.contributions = this.contributionsModelService.computeContributions(
           peerReviews,
         );
       }
@@ -121,7 +121,7 @@ export class ProjectService {
     project.update(dto);
     await this.projectRepository.save(project);
     const projectDto = new ProjectDtoBuilder(project)
-      .exposeRelativeContributions()
+      .exposeContributions()
       .build();
     return projectDto;
   }

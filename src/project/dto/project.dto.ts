@@ -3,7 +3,7 @@ import {
   ProjectEntity,
   BaseDto,
   ProjectState,
-  RelativeContributions,
+  Contributions,
 } from '../../common';
 
 /**
@@ -30,7 +30,7 @@ export class ProjectDto extends BaseDto {
   public state: ProjectState;
 
   @ApiModelProperty()
-  public relativeContributions: RelativeContributions | null;
+  public contributions: Contributions | null;
 
   public constructor(
     id: string,
@@ -38,7 +38,7 @@ export class ProjectDto extends BaseDto {
     description: string,
     ownerId: string,
     state: ProjectState,
-    relativeContributions: RelativeContributions | null,
+    contributions: Contributions | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -47,16 +47,16 @@ export class ProjectDto extends BaseDto {
     this.description = description;
     this.ownerId = ownerId;
     this.state = state;
-    this.relativeContributions = relativeContributions;
+    this.contributions = contributions;
   }
 }
 
 export class ProjectDtoBuilder {
   private readonly data: ProjectEntity;
-  private _exposeRelativeContributions = false;
+  private _exposeContributions = false;
 
-  public exposeRelativeContributions(value: boolean = true): this {
-    this._exposeRelativeContributions = value;
+  public exposeContributions(value: boolean = true): this {
+    this._exposeContributions = value;
     return this;
   }
 
@@ -67,9 +67,7 @@ export class ProjectDtoBuilder {
       this.data.description,
       this.data.ownerId,
       this.data.state,
-      this._exposeRelativeContributions
-        ? this.data.relativeContributions
-        : null,
+      this._exposeContributions ? this.data.contributions : null,
       this.data.createdAt,
       this.data.updatedAt,
     );
