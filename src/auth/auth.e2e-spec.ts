@@ -150,4 +150,18 @@ describe('AuthController (e2e)', () => {
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
     });
   });
+
+  describe('/auth/logout (POST)', () => {
+    beforeEach(async () => {
+      const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
+      await session.post(`/auth/login/${loginToken}`);
+    });
+
+    test('happy path', async () => {
+      const logoutResponse = await session.post('/auth/logout');
+      expect(logoutResponse.status).toBe(200);
+      const meResponse = await session.get('/users/me');
+      expect(meResponse.status).toBe(401);
+    });
+  });
 });

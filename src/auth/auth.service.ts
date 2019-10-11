@@ -152,4 +152,11 @@ export class AuthService {
     const accessToken = this.tokenService.newAccessToken(payload.sub);
     return { accessToken };
   }
+
+  /**
+   * Logout
+   */
+  public async logout(session: SessionState): Promise<void> {
+    session.clear();
+  }
 }

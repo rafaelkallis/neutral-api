@@ -149,4 +149,22 @@ describe('auth service', () => {
       });
     });
   });
+
+  describe('logout', () => {
+    let session: SessionState;
+
+    beforeEach(() => {
+      session = {
+        set: jest.fn(),
+        get: jest.fn(),
+        exists: jest.fn(),
+        clear: jest.fn(),
+      };
+    });
+
+    test('happy path', async () => {
+      await authService.logout(session);
+      expect(session.clear).toHaveBeenCalled();
+    });
+  });
 });

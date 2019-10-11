@@ -121,4 +121,15 @@ export class AuthController {
   ): { accessToken: string } {
     return this.authService.refresh(dto);
   }
+
+  /**
+   * Logout the session
+   */
+  @Post('logout')
+  @HttpCode(200)
+  @ApiOperation({ title: 'Logout' })
+  @ApiResponse({ status: 200, description: 'Logout successful' })
+  public async logout(@Session() session: SessionState): Promise<void> {
+    return this.authService.logout(session);
+  }
 }
