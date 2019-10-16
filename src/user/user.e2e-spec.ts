@@ -46,6 +46,27 @@ describe('UserController (e2e)', () => {
         expect(responseUser.id > user.id).toBeTruthy();
       }
     });
+
+    test('happy path, text search', async () => {
+      let user1 = entityFaker.user();
+      user1.firstName = 'Anna';
+      user1.lastName = 'Smith';
+      user1 = await userRepository.save(user1);
+      let user2 = entityFaker.user();
+      user2.firstName = 'Hannah';
+      user2.lastName = 'Fitzgerald';
+      user2 = await userRepository.save(user2);
+      let user3 = entityFaker.user();
+      user3.firstName = 'Nanna';
+      user3.lastName = 'Thompson';
+      user3 = await userRepository.save(user3);
+      const response = await session.get('/users').query({ q: 'ann' });
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body).toContainEqual(user1);
+      expect(response.body).toContainEqual(user2);
+      expect(response.body).toContainEqual(user3);
+    });
   });
 
   describe('/users/me (GET)', () => {

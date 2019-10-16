@@ -58,12 +58,22 @@ describe('user service', () => {
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       userDtos = users.map(user => new UserDtoBuilder(user).build());
       jest.spyOn(userRepository, 'findPage').mockResolvedValue(users);
+      jest.spyOn(userRepository, 'findByName').mockResolvedValue(users);
     });
 
     test('happy path', async () => {
       await expect(userService.getUsers(user, query)).resolves.toEqual(
         userDtos,
       );
+      expect(userRepository.findPage).toHaveBeenCalled();
+    });
+
+    test('happy path, text search', async () => {
+      query = GetUsersQueryDto.from({ q: 'ann' });
+      await expect(userService.getUsers(user, query)).resolves.toEqual(
+        userDtos,
+      );
+      expect(userRepository.findByName).toHaveBeenCalled();
     });
   });
 

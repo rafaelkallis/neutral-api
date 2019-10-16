@@ -10,13 +10,13 @@ type FindPageConditions<T> = FindConditions<T> & {
  */
 export class BaseRepository<T extends BaseEntity> extends Repository<T> {
   public async findPage(conditions: FindPageConditions<T> = {}): Promise<T[]> {
-    let builder = this.createQueryBuilder('entity')
-      .orderBy('entity.id', 'DESC')
+    let builder = this.createQueryBuilder()
+      .orderBy('id', 'DESC')
       .take(10);
-    if (conditions.after) {
-      builder = builder.andWhere('entity.id > :after', {
-        after: conditions.after,
-      });
+
+    const { after } = conditions;
+    if (after) {
+      builder = builder.andWhere('id > :after', { after });
       delete conditions.after;
     }
     for (const [k, v] of Object.entries(conditions)) {

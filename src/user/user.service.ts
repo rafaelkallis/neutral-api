@@ -37,7 +37,13 @@ export class UserService {
     authUser: UserEntity,
     query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    const users = await this.userRepository.findPage(query);
+    let users: UserEntity[] = [];
+    if (query.q) {
+      users = await this.userRepository.findByName(query.q);
+      console.log(users);
+    } else {
+      users = await this.userRepository.findPage(query);
+    }
     const userDtos = users.map(user =>
       new UserDtoBuilder(user).exposeEmail(user.id === authUser.id).build(),
     );
