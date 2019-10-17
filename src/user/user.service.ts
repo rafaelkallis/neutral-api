@@ -40,7 +40,6 @@ export class UserService {
     let users: UserEntity[] = [];
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
-      console.log(users);
     } else {
       users = await this.userRepository.findPage(query);
     }

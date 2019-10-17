@@ -5,6 +5,7 @@ import request from 'supertest';
 import { AppModule } from '../app.module';
 import { TokenService, UserEntity, UserRepository } from '../common';
 import { entityFaker } from '../test';
+import { UserDtoBuilder } from './dto/user.dto';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +42,8 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ after: user.id });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      expect(response.body).not.toContainEqual(user);
+      const userDto = new UserDtoBuilder(user).build();
+      expect(response.body).not.toContainEqual(userDto);
       for (const responseUser of response.body) {
         expect(responseUser.id > user.id).toBeTruthy();
       }
@@ -63,9 +65,12 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      expect(response.body).toContainEqual(user1);
-      expect(response.body).toContainEqual(user2);
-      expect(response.body).toContainEqual(user3);
+      const user1Dto = new UserDtoBuilder(user1).build();
+      expect(response.body).toContainEqual(user1Dto);
+      const user2Dto = new UserDtoBuilder(user2).build();
+      expect(response.body).toContainEqual(user2Dto);
+      const user3Dto = new UserDtoBuilder(user3).build();
+      expect(response.body).toContainEqual(user3Dto);
     });
   });
 

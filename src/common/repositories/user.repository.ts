@@ -12,7 +12,11 @@ export class UserRepository extends BaseRepository<UserEntity> {
   /**
    * Full text search on user's first name and last name.
    */
-  public async findByName(name: string): Promise<UserEntity[]> {
-    return [];
+  public async findByName(fullName: string): Promise<UserEntity[]> {
+    return this.createQueryBuilder()
+      .where('full_name ILIKE :fullName', { fullName: `%${fullName}%` })
+      .orderBy('id', 'DESC')
+      .take(10)
+      .getMany();
   }
 }

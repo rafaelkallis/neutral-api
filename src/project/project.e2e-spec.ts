@@ -13,6 +13,7 @@ import {
   UserRepository,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
+import { ProjectDtoBuilder } from './dto/project.dto';
 
 describe('ProjectController (e2e)', () => {
   let app: INestApplication;
@@ -50,7 +51,8 @@ describe('ProjectController (e2e)', () => {
         .get('/projects')
         .query({ after: project.id });
       expect(response.status).toBe(200);
-      expect(response.body).not.toContainEqual(project);
+      const projectDto = new ProjectDtoBuilder(project).build();
+      expect(response.body).not.toContainEqual(projectDto);
       for (const responseProject of response.body) {
         expect(responseProject.id > project.id).toBeTruthy();
       }
