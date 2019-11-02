@@ -30,10 +30,12 @@ export class TeamSpiritModelService {
     let deviation = 0;
     for (const i of Object.keys(peerReviews)) {
       for (const j of Object.keys(peerReviews[i])) {
-        /* assume equal work from all */
-        const expected = 1 / (n - 1);
-        const actual = peerReviews[i][j];
-        deviation += Math.abs(expected - actual);
+        if (i !== j) {
+          /* assume equal work from all */
+          const expected = 1 / (n - 1);
+          const actual = peerReviews[i][j];
+          deviation += Math.abs(expected - actual);
+        }
       }
     }
     return 1 - deviation / maxDeviation;

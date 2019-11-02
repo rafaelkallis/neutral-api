@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import { TeamSpiritModelService } from './team-spirit-model.service';
 
@@ -90,6 +90,6 @@ describe('TeamSpiritModelService', () => {
     const naxTeamSpirit = teamSpiritModelService.computeNaxTeamSpirit(
       peerReviews,
     );
-    expect(naxTeamSpirit).toBeCloseTo(0.395326563);
+    expect(naxTeamSpirit).toBeCloseTo(0.56);
   });
 });
