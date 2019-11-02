@@ -11,6 +11,7 @@ import { RoleRepository } from './repositories/role.repository';
 import { UserRepository } from './repositories/user.repository';
 import { ConfigService } from './services/config.service';
 import { ContributionsModelService } from './services/contributions-model.service';
+import { TeamSpiritModelService } from './services/team-spirit-model.service';
 import { EmailService } from './services/email.service';
 import { LogService } from './services/log.service';
 import { RandomService } from './services/random.service';
@@ -37,6 +38,7 @@ import { TokenService } from './services/token.service';
     ConfigService,
     EmailService,
     ContributionsModelService,
+    TeamSpiritModelService,
     {
       provide: APP_INTERCEPTOR,
       useClass: EntityNotFoundInterceptor,
@@ -50,6 +52,7 @@ import { TokenService } from './services/token.service';
     ConfigService,
     EmailService,
     ContributionsModelService,
+    TeamSpiritModelService,
   ],
 })
 export class CommonModule {}

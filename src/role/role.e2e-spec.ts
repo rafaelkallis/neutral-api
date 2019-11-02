@@ -171,7 +171,15 @@ describe('RoleController (e2e)', () => {
         id: project.id,
       });
       expect(updatedProject.state).toBe(ProjectState.FINISHED);
-      expect(updatedProject.contributions).toBeTruthy();
+      expect(updatedProject.contributions).toEqual(
+        expect.objectContaining({
+          [role.id]: expect.any(Number),
+          [role2.id]: expect.any(Number),
+          [role3.id]: expect.any(Number),
+          [role4.id]: expect.any(Number),
+        }),
+      );
+      expect(updatedProject.teamSpirit).toEqual(expect.any(Number));
     });
 
     test('happy path, not final peer review', async () => {

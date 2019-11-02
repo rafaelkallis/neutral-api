@@ -8,6 +8,7 @@ export { EmailService } from './services/email.service';
 export {
   ContributionsModelService,
 } from './services/contributions-model.service';
+export { TeamSpiritModelService } from './services/team-spirit-model.service';
 
 export { UserRepository } from './repositories/user.repository';
 export { ProjectRepository } from './repositories/project.repository';

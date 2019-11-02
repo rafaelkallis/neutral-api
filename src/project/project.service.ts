@@ -46,7 +46,8 @@ export class ProjectService {
     const projects = await this.projectRepository.findPage(query);
     const projectDtos = projects.map(project =>
       new ProjectDtoBuilder(project)
-        .exposeContributions(project.ownerId === authUser.id)
+        .exposeContributions(this.isProjectOwner(project, authUser))
+        .exposeTeamSpirit(this.isProjectOwner(project, authUser))
         .build(),
     );
     return projectDtos;
@@ -61,7 +62,8 @@ export class ProjectService {
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     const projectDto = new ProjectDtoBuilder(project)
-      .exposeContributions(project.ownerId === authUser.id)
+      .exposeContributions(this.isProjectOwner(project, authUser))
+      .exposeTeamSpirit(this.isProjectOwner(project, authUser))
       .build();
     return projectDto;
   }
@@ -80,10 +82,12 @@ export class ProjectService {
       description: dto.description,
       state: ProjectState.FORMATION,
       contributions: null,
+      teamSpirit: null,
     });
     await this.projectRepository.save(project);
     const projectDto = new ProjectDtoBuilder(project)
       .exposeContributions()
+      .exposeTeamSpirit()
       .build();
     return projectDto;
   }
@@ -97,14 +101,15 @@ export class ProjectService {
     dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    this.isProjectOwnerOrFail(project, authUser);
+    if (!this.isProjectOwner(project, authUser)) {
+      throw new InsufficientPermissionsException();
+    }
     if (dto.state) {
       const roles = await this.roleRepository.find({ projectId: project.id });
-      await this.isValidProjectStateChangeOrFail(project, roles, dto.state);
-      if (
-        project.state === ProjectState.PEER_REVIEW &&
-        dto.state === ProjectState.FINISHED
-      ) {
+      if (!this.isValidProjectStateChange(project, roles, dto.state)) {
+        throw new ForbiddenProjectStateChangeException();
+      }
+      if (this.isFromPeerReviewToFinished(project.state, dto.state)) {
         const peerReviews: Record<string, Record<string, number>> = {};
         for (const role of roles) {
           if (!role.peerReviews) {
@@ -122,48 +127,37 @@ export class ProjectService {
     await this.projectRepository.save(project);
     const projectDto = new ProjectDtoBuilder(project)
       .exposeContributions()
+      .exposeTeamSpirit()
       .build();
     return projectDto;
   }
 
-  private isProjectOwnerOrFail(project: ProjectEntity, user: UserEntity): void {
-    if (project.ownerId !== user.id) {
-      throw new InsufficientPermissionsException();
-    }
-  }
-
-  private async isValidProjectStateChangeOrFail(
+  private isValidProjectStateChange(
     project: ProjectEntity,
     roles: RoleEntity[],
     nextState: ProjectState,
-  ): Promise<void> {
+  ): boolean {
     const curState = project.state;
     if (curState === nextState) {
-      return;
+      return true;
     }
-    if (
-      curState === ProjectState.FORMATION &&
-      nextState === ProjectState.PEER_REVIEW
-    ) {
+    if (this.isFromFormationToPeerReview(curState, nextState)) {
       for (const role of roles) {
         if (!role.assigneeId) {
           throw new ForbiddenProjectStateChangeException();
         }
       }
-      return;
+      return true;
     }
-    if (
-      curState === ProjectState.PEER_REVIEW &&
-      nextState === ProjectState.FINISHED
-    ) {
+    if (this.isFromPeerReviewToFinished(curState, nextState)) {
       for (const role of roles) {
         if (!role.peerReviews) {
           throw new ForbiddenProjectStateChangeException();
         }
       }
-      return;
+      return true;
     }
-    throw new ForbiddenProjectStateChangeException();
+    return false;
   }
 
   /**
@@ -171,9 +165,27 @@ export class ProjectService {
    */
   public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    if (project.ownerId !== authUser.id) {
+    if (!this.isProjectOwner(project, authUser)) {
       throw new InsufficientPermissionsException();
     }
     await this.projectRepository.remove(project);
+  }
+
+  private isProjectOwner(project: ProjectEntity, user: UserEntity): boolean {
+    return project.ownerId === user.id;
+  }
+
+  private isFromFormationToPeerReview(
+    from: ProjectState,
+    to: ProjectState,
+  ): boolean {
+    return from === ProjectState.FORMATION && to === ProjectState.PEER_REVIEW;
+  }
+
+  private isFromPeerReviewToFinished(
+    from: ProjectState,
+    to: ProjectState,
+  ): boolean {
+    return from === ProjectState.PEER_REVIEW && to === ProjectState.FINISHED;
   }
 }

@@ -70,6 +70,7 @@ describe('ProjectController (e2e)', () => {
         [primitiveFaker.id()]: 0.2,
         [primitiveFaker.id()]: 0.4,
       };
+      project.teamSpirit = 0.8;
       await projectRepository.save(project);
     });
 
@@ -84,6 +85,12 @@ describe('ProjectController (e2e)', () => {
       expect(response.body.contributions).toBeTruthy();
     });
 
+    test('should have team spirit if user is owner', async () => {
+      const response = await session.get(`/projects/${project.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body.teamSpirit).toBeTruthy();
+    });
+
     test('should not have contributions if user is not owner', async () => {
       const otherUser = await userRepository.save(entityFaker.user());
       const loginToken = tokenService.newLoginToken(
@@ -94,6 +101,18 @@ describe('ProjectController (e2e)', () => {
       const response = await session.get(`/projects/${project.id}`);
       expect(response.status).toBe(200);
       expect(response.body.contributions).toBeFalsy();
+    });
+
+    test('should not have team spirit if user is not owner', async () => {
+      const otherUser = await userRepository.save(entityFaker.user());
+      const loginToken = tokenService.newLoginToken(
+        otherUser.id,
+        otherUser.lastLoginAt,
+      );
+      await session.post(`/auth/login/${loginToken}`);
+      const response = await session.get(`/projects/${project.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body.teamSpirit).toBeFalsy();
     });
   });
 

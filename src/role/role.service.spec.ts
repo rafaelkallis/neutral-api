@@ -12,6 +12,7 @@ import {
   ProjectRepository,
   RoleRepository,
   ContributionsModelService,
+  TeamSpiritModelService,
   Contributions,
   PeerReviews,
 } from '../common';
@@ -25,6 +26,7 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 describe('role service', () => {
   let roleService: RoleService;
   let contributionsModelService: ContributionsModelService;
+  let teamSpiritModelService: TeamSpiritModelService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let user: UserEntity;
@@ -43,11 +45,13 @@ describe('role service', () => {
         ProjectRepository,
         TokenService,
         ContributionsModelService,
+        TeamSpiritModelService,
       ],
     }).compile();
 
     roleService = module.get(RoleService);
     contributionsModelService = module.get(ContributionsModelService);
+    teamSpiritModelService = module.get(TeamSpiritModelService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
@@ -175,6 +179,7 @@ describe('role service', () => {
     let role4: RoleEntity;
     let peerReviews: PeerReviews;
     let contributions: Contributions;
+    let teamSpirit: number;
     let dto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
@@ -198,9 +203,13 @@ describe('role service', () => {
       };
       dto = SubmitPeerReviewsDto.from({ peerReviews });
       contributions = {};
+      teamSpirit = 0.5;
       jest
         .spyOn(contributionsModelService, 'computeContributions')
         .mockReturnValue(contributions);
+      jest
+        .spyOn(teamSpiritModelService, 'computeTeamSpirit')
+        .mockReturnValue(teamSpirit);
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest
@@ -224,12 +233,20 @@ describe('role service', () => {
           [role4.id]: role4.peerReviews,
         }),
       );
+      expect(teamSpiritModelService.computeTeamSpirit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          [role.id]: peerReviews,
+          [role2.id]: role2.peerReviews,
+          [role3.id]: role3.peerReviews,
+          [role4.id]: role4.peerReviews,
+        }),
+      );
       expect(project.state).toBe(ProjectState.FINISHED);
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),
       );
       expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ contributions }),
+        expect.objectContaining({ contributions, teamSpirit }),
       );
     });
 
