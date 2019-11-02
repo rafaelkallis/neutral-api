@@ -32,6 +32,9 @@ export class ProjectDto extends BaseDto {
   @ApiModelProperty()
   public contributions: Contributions | null;
 
+  @ApiModelProperty()
+  public teamSpirit: number | null;
+
   public constructor(
     id: string,
     title: string,
@@ -39,6 +42,7 @@ export class ProjectDto extends BaseDto {
     ownerId: string,
     state: ProjectState,
     contributions: Contributions | null,
+    teamSpirit: number | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -48,15 +52,22 @@ export class ProjectDto extends BaseDto {
     this.ownerId = ownerId;
     this.state = state;
     this.contributions = contributions;
+    this.teamSpirit = teamSpirit;
   }
 }
 
 export class ProjectDtoBuilder {
   private readonly data: ProjectEntity;
   private _exposeContributions = false;
+  private _exposeTeamSpirit = false;
 
   public exposeContributions(value: boolean = true): this {
     this._exposeContributions = value;
+    return this;
+  }
+
+  public exposeTeamSpirit(value: boolean = true): this {
+    this._exposeTeamSpirit = value;
     return this;
   }
 
@@ -68,6 +79,7 @@ export class ProjectDtoBuilder {
       this.data.ownerId,
       this.data.state,
       this._exposeContributions ? this.data.contributions : null,
+      this._exposeTeamSpirit ? this.data.teamSpirit : null,
       this.data.createdAt,
       this.data.updatedAt,
     );

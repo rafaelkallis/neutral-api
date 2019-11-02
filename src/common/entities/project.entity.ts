@@ -1,4 +1,10 @@
-import { IsString, IsEnum, MaxLength, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 import { Column, Entity } from 'typeorm';
 import { IsContributions } from '../validation/is-contributions';
 
@@ -21,6 +27,7 @@ interface ProjectEntityOptions {
   ownerId: string;
   state: ProjectState;
   contributions: Contributions | null;
+  teamSpirit: number | null;
 }
 
 /**
@@ -52,6 +59,11 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsOptional()
   @IsContributions()
   public contributions!: Contributions | null;
+
+  @Column({ name: 'team_spirit', type: 'real', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  public teamSpirit!: number | null;
 
   public static from(options: ProjectEntityOptions): ProjectEntity {
     return Object.assign(new ProjectEntity(), options);

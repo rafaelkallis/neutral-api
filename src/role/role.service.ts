@@ -12,6 +12,7 @@ import {
   InsufficientPermissionsException,
   RandomService,
   ContributionsModelService,
+  TeamSpiritModelService,
 } from '../common';
 import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
@@ -30,6 +31,7 @@ export class RoleService {
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
   private readonly contributionsModelService: ContributionsModelService;
+  private readonly teamSpiritModelService: TeamSpiritModelService;
 
   public constructor(
     userRepository: UserRepository,
@@ -37,12 +39,14 @@ export class RoleService {
     roleRepository: RoleRepository,
     randomService: RandomService,
     contributionsModelService: ContributionsModelService,
+    teamSpiritModelService: TeamSpiritModelService,
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
     this.contributionsModelService = contributionsModelService;
+    this.teamSpiritModelService = teamSpiritModelService;
   }
 
   /**
@@ -199,8 +203,9 @@ export class RoleService {
     role.peerReviews = dto.peerReviews;
     await this.roleRepository.save(role);
 
-    /* compute relative contributions if this is the last peer review  */
+    /* is final peer review? */
     if (otherRoles.every(otherRole => Boolean(otherRole.peerReviews))) {
+      /* compute relative contributions */
       const peerReviews: Record<string, PeerReviews> = {
         [role.id]: role.peerReviews,
       };
@@ -208,10 +213,13 @@ export class RoleService {
         peerReviews[otherRole.id] = otherRole.peerReviews as PeerReviews;
         peerReviews[otherRole.id][otherRole.id] = 0;
       }
-      project.state = ProjectState.FINISHED;
       project.contributions = this.contributionsModelService.computeContributions(
         peerReviews,
       );
+      project.teamSpirit = this.teamSpiritModelService.computeTeamSpirit(
+        peerReviews,
+      );
+      project.state = ProjectState.FINISHED;
       await this.projectRepository.save(project);
     }
   }

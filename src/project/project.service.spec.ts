@@ -50,7 +50,10 @@ describe('project service', () => {
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
-    projectDto = new ProjectDtoBuilder(project).exposeContributions().build();
+    projectDto = new ProjectDtoBuilder(project)
+      .exposeContributions()
+      .exposeTeamSpirit()
+      .build();
   });
 
   test('should be defined', () => {
@@ -69,7 +72,10 @@ describe('project service', () => {
         entityFaker.project(user.id),
       ];
       projectDtos = projects.map(project =>
-        new ProjectDtoBuilder(project).exposeContributions().build(),
+        new ProjectDtoBuilder(project)
+          .exposeContributions()
+          .exposeTeamSpirit()
+          .build(),
       );
       query = GetProjectsQueryDto.from({});
       jest.spyOn(projectRepository, 'findPage').mockResolvedValue(projects);
