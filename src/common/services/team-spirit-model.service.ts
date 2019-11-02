@@ -12,7 +12,7 @@ export class TeamSpiritModelService {
    * Computes a project's team spirit.
    */
   public computeTeamSpirit(peerReviews: Record<string, PeerReviews>): number {
-    return Math.pow(this.computeNaxTeamSpirit(peerReviews), 2);
+    return this.computeNaxTeamSpirit(peerReviews);
   }
 
   /**
