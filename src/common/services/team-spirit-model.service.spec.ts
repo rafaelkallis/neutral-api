@@ -45,6 +45,51 @@ describe('TeamSpiritModelService', () => {
       },
     };
     const teamSpirit = teamSpiritModelService.computeTeamSpirit(peerReviews);
-    expect(teamSpirit).toBe(0);
+    expect(teamSpirit).toBeGreaterThanOrEqual(0);
+    expect(teamSpirit).toBeLessThanOrEqual(1);
+  });
+
+  test('nax team spirit', () => {
+    const peerReviews = {
+      a: {
+        a: 0,
+        b: 70 / 100,
+        c: 10 / 100,
+        d: 10 / 100,
+        e: 10 / 100,
+      },
+      b: {
+        a: 10 / 100,
+        b: 0,
+        c: 70 / 100,
+        d: 10 / 100,
+        e: 10 / 100,
+      },
+      c: {
+        a: 70 / 100,
+        b: 10 / 100,
+        c: 0,
+        d: 10 / 100,
+        e: 10 / 100,
+      },
+      d: {
+        a: 20 / 100,
+        b: 20 / 100,
+        c: 20 / 100,
+        d: 0,
+        e: 40 / 100,
+      },
+      e: {
+        a: 20 / 100,
+        b: 20 / 100,
+        c: 20 / 100,
+        d: 40 / 100,
+        e: 0,
+      },
+    };
+    const naxTeamSpirit = teamSpiritModelService.computeNaxTeamSpirit(
+      peerReviews,
+    );
+    expect(naxTeamSpirit).toBeCloseTo(0.395326563);
   });
 });

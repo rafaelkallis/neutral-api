@@ -12,7 +12,31 @@ export class TeamSpiritModelService {
    * Computes a project's team spirit.
    */
   public computeTeamSpirit(peerReviews: Record<string, PeerReviews>): number {
-    return 0;
+    return Math.pow(this.computeNaxTeamSpirit(peerReviews), 2);
+  }
+
+  /**
+   * Computes team spirit based on Heinrich Nax's
+   * deviation from expectation.
+   *
+   * Result is normalized, 1 for best and 0 for worst
+   * team spirit.
+   */
+  public computeNaxTeamSpirit(
+    peerReviews: Record<string, PeerReviews>,
+  ): number {
+    const n = Object.keys(peerReviews).length;
+    const maxDeviation = (2 * n * (n - 2)) / (n - 1);
+    let deviation = 0;
+    for (const i of Object.keys(peerReviews)) {
+      for (const j of Object.keys(peerReviews[i])) {
+        /* assume equal work from all */
+        const expected = 1 / (n - 1);
+        const actual = peerReviews[i][j];
+        deviation += Math.abs(expected - actual);
+      }
+    }
+    return 1 - deviation / maxDeviation;
   }
 }
 
