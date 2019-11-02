@@ -26,12 +26,13 @@ export class TeamSpiritModelService {
     peerReviews: Record<string, PeerReviews>,
   ): number {
     const n = Object.keys(peerReviews).length;
+    /* only holds if equal contribution is expected from all */
     const maxDeviation = (2 * n * (n - 2)) / (n - 1);
     let deviation = 0;
     for (const i of Object.keys(peerReviews)) {
       for (const j of Object.keys(peerReviews[i])) {
         if (i !== j) {
-          /* assume equal work from all */
+          /* assume equal contribution from all */
           const expected = 1 / (n - 1);
           const actual = peerReviews[i][j];
           deviation += Math.abs(expected - actual);
