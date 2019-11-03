@@ -27,6 +27,7 @@ class EntityFaker {
       description: primitiveFaker.paragraph(),
       state: ProjectState.FORMATION,
       contributions: null,
+      teamSpirit: null,
     });
   }
 

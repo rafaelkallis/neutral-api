@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Not } from 'typeorm';
 import {
   UserEntity,
   RoleEntity,
-  PeerReviews,
   UserRepository,
   ProjectEntity,
   ProjectRepository,
@@ -18,10 +16,7 @@ import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
-import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
-import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
 import { CreateRoleOutsideFormationStateException } from './exceptions/create-role-outside-formation-state.exception';
 
 @Injectable()
@@ -155,73 +150,6 @@ export class RoleService {
       throw new InsufficientPermissionsException();
     }
     await this.roleRepository.remove(role);
-  }
-
-  /**
-   * Call to submit reviews over one's project peers.
-   */
-  public async submitPeerReviews(
-    authUser: UserEntity,
-    id: string,
-    dto: SubmitPeerReviewsDto,
-  ): Promise<void> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    if (role.assigneeId !== authUser.id) {
-      throw new InsufficientPermissionsException();
-    }
-    if (role.peerReviews) {
-      throw new PeerReviewsAlreadySubmittedException();
-    }
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
-    if (project.state !== ProjectState.PEER_REVIEW) {
-      throw new InvalidPeerReviewsException();
-    }
-
-    /* self review must be 0 */
-    if (dto.peerReviews[role.id] !== 0) {
-      throw new InvalidPeerReviewsException();
-    }
-    let otherRoles = await this.roleRepository.find({
-      id: Not(role.id),
-      projectId: role.projectId,
-    });
-
-    /* check if number of peer reviews matches the number of roles */
-    if (otherRoles.length + 1 !== Object.values(dto.peerReviews).length) {
-      throw new InvalidPeerReviewsException();
-    }
-
-    /* check if peer review ids match other role ids */
-    for (const otherRole of otherRoles) {
-      if (!dto.peerReviews[otherRole.id]) {
-        throw new InvalidPeerReviewsException();
-      }
-    }
-
-    role.peerReviews = dto.peerReviews;
-    await this.roleRepository.save(role);
-
-    /* is final peer review? */
-    if (otherRoles.every(otherRole => Boolean(otherRole.peerReviews))) {
-      /* compute relative contributions */
-      const peerReviews: Record<string, PeerReviews> = {
-        [role.id]: role.peerReviews,
-      };
-      for (const otherRole of otherRoles) {
-        peerReviews[otherRole.id] = otherRole.peerReviews as PeerReviews;
-        peerReviews[otherRole.id][otherRole.id] = 0;
-      }
-      project.contributions = this.contributionsModelService.computeContributions(
-        peerReviews,
-      );
-      project.teamSpirit = this.teamSpiritModelService.computeTeamSpirit(
-        peerReviews,
-      );
-      project.state = ProjectState.FINISHED;
-      await this.projectRepository.save(project);
-    }
   }
 
   private isRoleAssigneeOrProjectOwner(
