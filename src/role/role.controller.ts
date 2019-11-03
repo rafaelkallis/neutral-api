@@ -24,7 +24,6 @@ import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 /**
  * Role Controller
@@ -130,27 +129,5 @@ export class RoleController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.roleService.deleteRole(authUser, id);
-  }
-
-  /**
-   * Call to submit reviews over one's project peers.
-   */
-  @Post('/:id/submit-peer-reviews')
-  @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ title: 'Submit peer reviews' })
-  @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Peer reviews submitted successfully',
-  })
-  @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
-  public async submitPeerReviews(
-    @AuthUser() authUser: UserEntity,
-    @Param('id') id: string,
-    @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
-  ): Promise<void> {
-    return this.roleService.submitPeerReviews(authUser, id, dto);
   }
 }
