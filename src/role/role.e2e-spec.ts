@@ -105,7 +105,56 @@ describe('RoleController (e2e)', () => {
   });
 
   describe('/roles/:id (PATCH)', () => {
-    test.todo('happy path');
+    let title: string;
+    let assignee: UserEntity;
+
+    beforeEach(async () => {
+      title = primitiveFaker.words();
+      assignee = entityFaker.user();
+      await userRepository.save(assignee);
+    });
+
+    test('happy path', async () => {
+      const response = await session
+        .patch(`/roles/${role.id}`)
+        .send({ title, assigneeId: assignee.id });
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({ title, assigneeId: assignee.id }),
+      );
+    });
+
+    test('should fail when project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
+      const response = await session.patch(`/roles/${role.id}`).send({ title });
+      expect(response.status).toBe(400);
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const otherUser = entityFaker.user();
+      await userRepository.save(otherUser);
+      project.ownerId = otherUser.id;
+      await projectRepository.save(project);
+      const response = await session.patch(`/roles/${role.id}`).send({ title });
+      expect(response.status).toBe(403);
+    });
+
+    test('should fail is project owner is assigned', async () => {
+      const response = await session
+        .patch(`/roles/${role.id}`)
+        .send({ assigneeId: project.ownerId });
+      expect(response.status).toBe(400);
+    });
+
+    test('should fail is user is already assigned to another role of the same project', async () => {
+      const anotherRole = entityFaker.role(project.id, assignee.id);
+      await roleRepository.save(anotherRole);
+      const response = await session
+        .patch(`/roles/${role.id}`)
+        .send({ assigneeId: assignee.id });
+      expect(response.status).toBe(400);
+    });
   });
 
   describe('/roles/:id (DELETE)', () => {

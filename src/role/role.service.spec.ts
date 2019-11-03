@@ -22,6 +22,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 
 describe('role service', () => {
   let roleService: RoleService;
+  let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let user: UserEntity;
@@ -45,6 +46,7 @@ describe('role service', () => {
     }).compile();
 
     roleService = module.get(RoleService);
+    userRepository = module.get(UserRepository);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
@@ -122,14 +124,18 @@ describe('role service', () => {
     let role: RoleEntity;
     let dto: UpdateRoleDto;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       role = entityFaker.role(project.id);
-      const title = primitiveFaker.words();
-      dto = UpdateRoleDto.from({ title });
+      dto = UpdateRoleDto.from({
+        title: primitiveFaker.words(),
+        assigneeId: primitiveFaker.id(),
+      });
       jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
+      jest.spyOn(roleRepository, 'findOne').mockResolvedValue(undefined);
       jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
     });
 
@@ -139,8 +145,39 @@ describe('role service', () => {
         expect.objectContaining({ id: role.id }),
       );
       expect(roleRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ title: dto.title }),
+        expect.objectContaining({
+          title: dto.title,
+          assigneeId: dto.assigneeId,
+        }),
       );
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      project.ownerId = primitiveFaker.id();
+      await expect(
+        roleService.updateRole(user, role.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await expect(
+        roleService.updateRole(user, role.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if project owner is assigned', async () => {
+      dto.assigneeId = user.id;
+      await expect(
+        roleService.updateRole(user, role.id, dto),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if user already assigned to another role in same project', async () => {
+      jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role);
+      await expect(
+        roleService.updateRole(user, role.id, dto),
+      ).rejects.toThrow();
     });
   });
 

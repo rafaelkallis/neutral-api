@@ -201,14 +201,6 @@ describe('project service', () => {
         projectService.finishFormation(user, project.id),
       ).rejects.toThrow();
     });
-
-    test.skip('should fail if same user is assigned to multiple roles', async () => {
-      role2.assigneeId = user.id;
-      role3.assigneeId = user.id;
-      await expect(
-        projectService.finishFormation(user, project.id),
-      ).rejects.toThrow();
-    });
   });
 
   describe('delete project', () => {

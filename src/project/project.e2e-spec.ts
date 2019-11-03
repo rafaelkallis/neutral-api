@@ -151,10 +151,10 @@ describe('ProjectController (e2e)', () => {
         .patch(`/projects/${project.id}`)
         .send({ title });
       expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
+      expect(response.body).toEqual(expect.objectContaining({ title }));
     });
 
-    test('should fail if authenticated user is not owner', async () => {
+    test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
       await userRepository.save(otherUser);
       project.ownerId = otherUser.id;
@@ -227,17 +227,6 @@ describe('ProjectController (e2e)', () => {
     test('should fail if a role has no user assigned', async () => {
       role2.assigneeId = null;
       await roleRepository.save(role2);
-      const response = await session.post(
-        `/projects/${project.id}/finish-formation`,
-      );
-      expect(response.status).toBe(400);
-    });
-
-    test.skip('should fail if same user is assigned to multiple roles', async () => {
-      role2.assigneeId = user.id;
-      role3.assigneeId = user.id;
-      await roleRepository.save(role2);
-      await roleRepository.save(role3);
       const response = await session.post(
         `/projects/${project.id}/finish-formation`,
       );

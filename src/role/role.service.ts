@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Not } from 'typeorm';
+
 import {
   UserEntity,
   RoleEntity,
@@ -16,8 +18,12 @@ import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 import { CreateRoleOutsideFormationStateException } from './exceptions/create-role-outside-formation-state.exception';
+import { UserNotRoleProjectOwnerException } from './exceptions/user-not-role-project-owner.exception';
+import { ProjectOwnerRoleAssignmentException } from './exceptions/project-owner-role-assignment.exception';
+import { AlreadyAssignedRoleSameProjectException } from './exceptions/already-assigned-role-same-project.exception';
 
 @Injectable()
 export class RoleService {
@@ -122,20 +128,33 @@ export class RoleService {
     id: string,
     body: UpdateRoleDto,
   ): Promise<RoleDto> {
-    let role = await this.roleRepository.findOneOrFail({ id });
+    const role = await this.roleRepository.findOneOrFail({ id });
     const project = await this.projectRepository.findOneOrFail({
       id: role.projectId,
     });
     if (project.ownerId !== authUser.id) {
-      throw new InsufficientPermissionsException();
+      throw new UserNotRoleProjectOwnerException();
+    }
+    if (project.state !== ProjectState.FORMATION) {
+      throw new ProjectNotFormationStateException();
     }
     if (body.assigneeId && body.assigneeId !== role.assigneeId) {
       await this.userRepository.findOneOrFail({ id: body.assigneeId });
+      if (body.assigneeId === project.ownerId) {
+        throw new ProjectOwnerRoleAssignmentException();
+      }
+      const assignedRole = await this.roleRepository.findOne({
+        id: Not(role.id),
+        projectId: project.id,
+        assigneeId: body.assigneeId,
+      });
+      if (assignedRole) {
+        throw new AlreadyAssignedRoleSameProjectException();
+      }
     }
     role.update(body);
-    role = await this.roleRepository.save(role);
-    const roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
-    return roleDto;
+    await this.roleRepository.save(role);
+    return new RoleDtoBuilder(role).exposePeerReviews().build();
   }
 
   /**
