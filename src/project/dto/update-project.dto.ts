@@ -1,11 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsString } from 'class-validator';
-import { ProjectState } from '../../common';
+import { IsOptional, IsString } from 'class-validator';
 
 interface UpdateProjectDtoProps {
   title?: string;
   description?: string;
-  state?: ProjectState;
 }
 
 /**
@@ -30,15 +28,6 @@ export class UpdateProjectDto implements UpdateProjectDtoProps {
     required: false,
   })
   public description?: string;
-
-  @IsEnum(ProjectState)
-  @IsOptional()
-  @ApiModelProperty({
-    example: 'peer-review',
-    description: 'State of the project',
-    required: false,
-  })
-  public state?: ProjectState;
 
   private constructor() {}
 

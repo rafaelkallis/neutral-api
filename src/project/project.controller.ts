@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -29,6 +30,8 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
  * Project Controller
  */
 @Controller('projects')
+@UseGuards(AuthGuard)
+@UsePipes(ValidationPipe)
 @ApiUseTags('Projects')
 export class ProjectController {
   private readonly projectService: ProjectService;
@@ -41,13 +44,12 @@ export class ProjectController {
    * Get projects
    */
   @Get()
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
   public async getProjects(
     @AuthUser() authUser: UserEntity,
-    @Query(ValidationPipe) query: GetProjectsQueryDto,
+    @Query() query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
     return this.projectService.getProjects(authUser, query);
   }
@@ -56,7 +58,6 @@ export class ProjectController {
    * Get a project
    */
   @Get(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Get a project' })
   @ApiImplicitParam({ name: 'id' })
@@ -73,11 +74,10 @@ export class ProjectController {
    * Create a project
    */
   @Post()
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   public async createProject(
     @AuthUser() authUser: UserEntity,
-    @Body(ValidationPipe) dto: CreateProjectDto,
+    @Body() dto: CreateProjectDto,
   ): Promise<ProjectDto> {
     return this.projectService.createProject(authUser, dto);
   }
@@ -86,7 +86,6 @@ export class ProjectController {
    * Update a project
    */
   @Patch(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Update a project' })
   @ApiImplicitParam({ name: 'id' })
@@ -98,9 +97,35 @@ export class ProjectController {
   public async updateProject(
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
-    @Body(ValidationPipe) dto: UpdateProjectDto,
+    @Body() dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     return this.projectService.updateProject(authUser, id, dto);
+  }
+
+  /**
+   * Finish project formation.
+   */
+  @Post('/:id/finish-formation')
+  @HttpCode(200)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Formation finished successfully.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Project is not in formation state',
+  })
+  @ApiResponse({ status: 400, description: 'Project has an unassigned role' })
+  @ApiResponse({
+    status: 403,
+    description: 'Authenticated user is not the project owner',
+  })
+  public async finishFormation(
+    @AuthUser() authUser: UserEntity,
+    @Param('id') id: string,
+  ): Promise<ProjectDto> {
+    return this.projectService.finishFormation(authUser, id);
   }
 
   /**
@@ -108,7 +133,6 @@ export class ProjectController {
    */
   @Delete(':id')
   @HttpCode(204)
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Delete a project' })
   @ApiImplicitParam({ name: 'id' })
@@ -129,7 +153,6 @@ export class ProjectController {
    */
   @Post('/:id/submit-peer-reviews')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Submit peer reviews' })
   @ApiResponse({
@@ -141,7 +164,7 @@ export class ProjectController {
   public async submitPeerReviews(
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
-    @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
+    @Body() dto: SubmitPeerReviewsDto,
   ): Promise<void> {
     return this.projectService.submitPeerReviews(authUser, id, dto);
   }

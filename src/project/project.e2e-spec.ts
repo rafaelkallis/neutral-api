@@ -154,26 +154,93 @@ describe('ProjectController (e2e)', () => {
       expect(response.body).toBeDefined();
     });
 
-    test('state change to peer-review state with unassigned role should fail', async () => {
-      project.state = ProjectState.FORMATION;
+    test('should fail if authenticated user is not owner', async () => {
+      const otherUser = entityFaker.user();
+      await userRepository.save(otherUser);
+      project.ownerId = otherUser.id;
       await projectRepository.save(project);
-      const role = entityFaker.role(project.id);
-      await roleRepository.save(role);
       const response = await session
         .patch(`/projects/${project.id}`)
-        .send({ state: ProjectState.PEER_REVIEW });
+        .send({ title });
+      expect(response.status).toBe(403);
+    });
+
+    test('should fail if not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
+      const response = await session
+        .patch(`/projects/${project.id}`)
+        .send({ title });
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('/projects/:id/finish-formation (POST)', () => {
+    let project: ProjectEntity;
+    let role1: RoleEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+    let role4: RoleEntity;
+
+    beforeEach(async () => {
+      project = entityFaker.project(user.id);
+      project.state = ProjectState.FORMATION;
+      await projectRepository.save(project);
+      role1 = entityFaker.role(project.id, user.id);
+      role2 = entityFaker.role(project.id, user.id);
+      role3 = entityFaker.role(project.id, user.id);
+      role4 = entityFaker.role(project.id, user.id);
+      await roleRepository.save(role1);
+      await roleRepository.save(role2);
+      await roleRepository.save(role3);
+      await roleRepository.save(role4);
+    });
+
+    test('happy path', async () => {
+      const response = await session.post(
+        `/projects/${project.id}/finish-formation`,
+      );
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const otherUser = entityFaker.user();
+      await userRepository.save(otherUser);
+      project.ownerId = otherUser.id;
+      await projectRepository.save(project);
+      const response = await session.post(
+        `/projects/${project.id}/finish-formation`,
+      );
+      expect(response.status).toBe(403);
+    });
+
+    test('should fail if project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.save(project);
+      const response = await session.post(
+        `/projects/${project.id}/finish-formation`,
+      );
       expect(response.status).toBe(400);
     });
 
-    test('state change to finish state with pending peer review should fail', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.save(project);
-      const role = entityFaker.role(project.id, user.id);
-      role.peerReviews = null;
-      await roleRepository.save(role);
-      const response = await session
-        .patch(`/projects/${project.id}`)
-        .send({ state: ProjectState.FINISHED });
+    test('should fail if a role has no user assigned', async () => {
+      role2.assigneeId = null;
+      await roleRepository.save(role2);
+      const response = await session.post(
+        `/projects/${project.id}/finish-formation`,
+      );
+      expect(response.status).toBe(400);
+    });
+
+    test.skip('should fail if same user is assigned to multiple roles', async () => {
+      role2.assigneeId = user.id;
+      role3.assigneeId = user.id;
+      await roleRepository.save(role2);
+      await roleRepository.save(role3);
+      const response = await session.post(
+        `/projects/${project.id}/finish-formation`,
+      );
       expect(response.status).toBe(400);
     });
   });

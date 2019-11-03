@@ -14,7 +14,8 @@ import {
   TeamSpiritModelService,
 } from '../common';
 
-import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
+import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
+import { RoleNoUserAssignedException } from './exceptions/role-no-user-assigned.exception';
 import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
 import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -113,24 +114,8 @@ export class ProjectService {
     if (!this.isProjectOwner(project, authUser)) {
       throw new InsufficientPermissionsException();
     }
-    if (dto.state) {
-      const roles = await this.roleRepository.find({ projectId: project.id });
-      if (!this.isValidProjectStateChange(project, roles, dto.state)) {
-        throw new ForbiddenProjectStateChangeException();
-      }
-      if (this.isFromPeerReviewToFinished(project.state, dto.state)) {
-        const peerReviews: Record<string, Record<string, number>> = {};
-        for (const role of roles) {
-          if (!role.peerReviews) {
-            throw new Error();
-          }
-          peerReviews[role.id] = role.peerReviews;
-          peerReviews[role.id][role.id] = 0;
-        }
-        project.contributions = this.contributionsModelService.computeContributions(
-          peerReviews,
-        );
-      }
+    if (project.state !== ProjectState.FORMATION) {
+      throw new ProjectNotFormationStateException();
     }
     project.update(dto);
     await this.projectRepository.save(project);
@@ -141,32 +126,33 @@ export class ProjectService {
     return projectDto;
   }
 
-  private isValidProjectStateChange(
-    project: ProjectEntity,
-    roles: RoleEntity[],
-    nextState: ProjectState,
-  ): boolean {
-    const curState = project.state;
-    if (curState === nextState) {
-      return true;
+  /**
+   * Finish project formation
+   */
+  public async finishFormation(
+    authUser: UserEntity,
+    id: string,
+  ): Promise<ProjectDto> {
+    const project = await this.projectRepository.findOneOrFail({ id });
+    if (!this.isProjectOwner(project, authUser)) {
+      throw new InsufficientPermissionsException();
     }
-    if (this.isFromFormationToPeerReview(curState, nextState)) {
-      for (const role of roles) {
-        if (!role.assigneeId) {
-          throw new ForbiddenProjectStateChangeException();
-        }
+    if (project.state !== ProjectState.FORMATION) {
+      throw new ProjectNotFormationStateException();
+    }
+    const roles = await this.roleRepository.find({ projectId: project.id });
+    for (const role of roles) {
+      if (!role.assigneeId) {
+        throw new RoleNoUserAssignedException();
       }
-      return true;
     }
-    if (this.isFromPeerReviewToFinished(curState, nextState)) {
-      for (const role of roles) {
-        if (!role.peerReviews) {
-          throw new ForbiddenProjectStateChangeException();
-        }
-      }
-      return true;
-    }
-    return false;
+    project.state = ProjectState.PEER_REVIEW;
+    await this.projectRepository.save(project);
+    const projectDto = new ProjectDtoBuilder(project)
+      .exposeContributions()
+      .exposeTeamSpirit()
+      .build();
+    return projectDto;
   }
 
   /**
@@ -257,19 +243,5 @@ export class ProjectService {
 
   private hasPeerReviews(role: RoleEntity): boolean {
     return Boolean(role.peerReviews);
-  }
-
-  private isFromFormationToPeerReview(
-    from: ProjectState,
-    to: ProjectState,
-  ): boolean {
-    return from === ProjectState.FORMATION && to === ProjectState.PEER_REVIEW;
-  }
-
-  private isFromPeerReviewToFinished(
-    from: ProjectState,
-    to: ProjectState,
-  ): boolean {
-    return from === ProjectState.PEER_REVIEW && to === ProjectState.FINISHED;
   }
 }

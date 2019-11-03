@@ -7,9 +7,7 @@ import { ValidationError } from 'class-validator';
 import { ValidationException } from '../exceptions/validation.exception';
 
 /**
- * Validation Pipe
- *
- * Use instead of nestjs's ValidationPipe to get a better error.
+ * Validation Pipe with sane defaults.
  */
 @Injectable()
 export class ValidationPipe extends NestValidationPipe {
@@ -17,6 +15,8 @@ export class ValidationPipe extends NestValidationPipe {
     super({
       exceptionFactory: (errors: ValidationError[]): ValidationException =>
         new ValidationException(errors[0].value),
+      whitelist: true,
+      forbidNonWhitelisted: true,
     });
   }
 }

@@ -126,20 +126,13 @@ describe('project service', () => {
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
+      project.state = ProjectState.FORMATION;
       role = entityFaker.role(project.id, user.id);
       const title = primitiveFaker.words();
       dto = UpdateProjectDto.from({ title });
       jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
-      jest
-        .spyOn(contributionsModelService, 'computeContributions')
-        .mockReturnValue({
-          [role.id]: 0.25,
-          [primitiveFaker.id()]: 0.25,
-          [primitiveFaker.id()]: 0.25,
-          [primitiveFaker.id()]: 0.25,
-        });
     });
 
     test('happy path', async () => {
@@ -149,42 +142,72 @@ describe('project service', () => {
       );
     });
 
-    test('state change should trigger transition validation', async () => {
-      project.state = ProjectState.FORMATION;
-      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
+    test('should fail if non-owner updates project', async () => {
+      project.ownerId = primitiveFaker.id();
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).rejects.toThrow();
     });
 
-    test('should fail if state change to peer-review state with unassigned role', async () => {
-      project.state = ProjectState.FORMATION;
-      role.assigneeId = null;
-      dto = UpdateProjectDto.from({ state: ProjectState.PEER_REVIEW });
-      await expect(
-        projectService.updateProject(user, project.id, dto),
-      ).rejects.toThrow();
-    });
-
-    test('should fail if state change to finish state with pending peer-review', async () => {
+    test('should fail if project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      role.peerReviews = null;
-      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
       await expect(
         projectService.updateProject(user, project.id, dto),
       ).rejects.toThrow();
     });
+  });
 
-    test('should compute contributions if state is changed to finished', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      dto = UpdateProjectDto.from({ state: ProjectState.FINISHED });
-      await expect(
-        projectService.updateProject(user, project.id, dto),
-      ).resolves.not.toThrow();
-      expect(contributionsModelService.computeContributions).toHaveBeenCalled();
+  describe('finish formation', () => {
+    let role1: RoleEntity;
+    let role2: RoleEntity;
+    let role3: RoleEntity;
+
+    beforeEach(async () => {
+      project.state = ProjectState.FORMATION;
+      role1 = entityFaker.role(project.id, user.id);
+      role2 = entityFaker.role(project.id, user.id);
+      role3 = entityFaker.role(project.id, user.id);
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest
+        .spyOn(roleRepository, 'find')
+        .mockResolvedValue([role1, role2, role3]);
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+    });
+
+    test('happy path', async () => {
+      await projectService.finishFormation(user, project.id);
       expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ contributions: expect.anything() }),
+        expect.objectContaining({ state: ProjectState.PEER_REVIEW }),
       );
+    });
+
+    test('should fail if authenticated user is ot project owner', async () => {
+      project.ownerId = primitiveFaker.id();
+      await expect(
+        projectService.finishFormation(user, project.id),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await expect(
+        projectService.finishFormation(user, project.id),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if a role has no user assigned', async () => {
+      role1.assigneeId = null;
+      await expect(
+        projectService.finishFormation(user, project.id),
+      ).rejects.toThrow();
+    });
+
+    test.skip('should fail if same user is assigned to multiple roles', async () => {
+      role2.assigneeId = user.id;
+      role3.assigneeId = user.id;
+      await expect(
+        projectService.finishFormation(user, project.id),
+      ).rejects.toThrow();
     });
   });
 
@@ -216,14 +239,13 @@ describe('project service', () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       project.state = ProjectState.PEER_REVIEW;
-      role1 = entityFaker.role(project.id);
-      role1.assigneeId = user.id;
+      role1 = entityFaker.role(project.id, user.id);
       role1.peerReviews = null;
-      role2 = entityFaker.role(project.id);
+      role2 = entityFaker.role(project.id, user.id);
       role2.peerReviews = {};
-      role3 = entityFaker.role(project.id);
+      role3 = entityFaker.role(project.id, user.id);
       role3.peerReviews = {};
-      role4 = entityFaker.role(project.id);
+      role4 = entityFaker.role(project.id, user.id);
       role4.peerReviews = {};
 
       peerReviews = {
