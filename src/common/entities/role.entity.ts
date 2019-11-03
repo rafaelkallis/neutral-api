@@ -3,6 +3,7 @@ import { Column, Entity } from 'typeorm';
 import { IsPeerReviews } from '../validation/is-peer-reviews';
 
 import { BaseEntity } from './base.entity';
+import { UserEntity } from './user.entity';
 
 export interface PeerReviews {
   [roleId: string]: number;
@@ -54,5 +55,17 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
 
   public update(options: Partial<RoleEntityOptions>): this {
     return Object.assign(this, options);
+  }
+
+  public hasAssignee(): boolean {
+    return Boolean(this.assigneeId);
+  }
+
+  public isAssignee(user: UserEntity): boolean {
+    return this.assigneeId === user.id;
+  }
+
+  public hasPeerReviews(): boolean {
+    return Boolean(this.peerReviews);
   }
 }

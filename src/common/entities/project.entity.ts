@@ -9,6 +9,7 @@ import { Column, Entity } from 'typeorm';
 import { IsContributions } from '../validation/is-contributions';
 
 import { BaseEntity } from './base.entity';
+import { UserEntity } from './user.entity';
 
 export enum ProjectState {
   FORMATION = 'formation',
@@ -71,5 +72,21 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
 
   public update(options: Partial<ProjectEntityOptions>): this {
     return Object.assign(this, options);
+  }
+
+  public isOwner(user: UserEntity): boolean {
+    return this.ownerId === user.id;
+  }
+
+  public isFormationState(): boolean {
+    return this.state === ProjectState.FORMATION;
+  }
+
+  public isPeerReviewState(): boolean {
+    return this.state === ProjectState.PEER_REVIEW;
+  }
+
+  public isFinishedState(): boolean {
+    return this.state === ProjectState.FINISHED;
   }
 }

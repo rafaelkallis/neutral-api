@@ -5,7 +5,6 @@ import {
   ProjectEntity,
   ProjectState,
   ProjectRepository,
-  RoleEntity,
   RoleRepository,
   PeerReviews,
   RandomService,
@@ -56,8 +55,8 @@ export class ProjectService {
     const projects = await this.projectRepository.findPage(query);
     const projectDtos = projects.map(project =>
       new ProjectDtoBuilder(project)
-        .exposeContributions(this.isProjectOwner(project, authUser))
-        .exposeTeamSpirit(this.isProjectOwner(project, authUser))
+        .exposeContributions(project.isOwner(authUser))
+        .exposeTeamSpirit(project.isOwner(authUser))
         .build(),
     );
     return projectDtos;
@@ -72,8 +71,8 @@ export class ProjectService {
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     const projectDto = new ProjectDtoBuilder(project)
-      .exposeContributions(this.isProjectOwner(project, authUser))
-      .exposeTeamSpirit(this.isProjectOwner(project, authUser))
+      .exposeContributions(project.isOwner(authUser))
+      .exposeTeamSpirit(project.isOwner(authUser))
       .build();
     return projectDto;
   }
@@ -111,19 +110,18 @@ export class ProjectService {
     dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    if (!this.isProjectOwner(project, authUser)) {
+    if (!project.isOwner(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    if (project.state !== ProjectState.FORMATION) {
+    if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
     project.update(dto);
     await this.projectRepository.save(project);
-    const projectDto = new ProjectDtoBuilder(project)
+    return new ProjectDtoBuilder(project)
       .exposeContributions()
       .exposeTeamSpirit()
       .build();
-    return projectDto;
   }
 
   /**
@@ -134,25 +132,24 @@ export class ProjectService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    if (!this.isProjectOwner(project, authUser)) {
+    if (!project.isOwner(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    if (project.state !== ProjectState.FORMATION) {
+    if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
     const roles = await this.roleRepository.find({ projectId: project.id });
     for (const role of roles) {
-      if (!role.assigneeId) {
+      if (!role.hasAssignee()) {
         throw new RoleNoUserAssignedException();
       }
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.save(project);
-    const projectDto = new ProjectDtoBuilder(project)
+    return new ProjectDtoBuilder(project)
       .exposeContributions()
       .exposeTeamSpirit()
       .build();
-    return projectDto;
   }
 
   /**
@@ -160,7 +157,7 @@ export class ProjectService {
    */
   public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    if (!this.isProjectOwner(project, authUser)) {
+    if (!project.isOwner(authUser)) {
       throw new InsufficientPermissionsException();
     }
     await this.projectRepository.remove(project);
@@ -177,7 +174,7 @@ export class ProjectService {
     const project = await this.projectRepository.findOneOrFail({
       id: projectId,
     });
-    if (project.state !== ProjectState.PEER_REVIEW) {
+    if (!project.isPeerReviewState()) {
       throw new InvalidPeerReviewsException();
     }
 
@@ -188,7 +185,7 @@ export class ProjectService {
     if (!authUserRole) {
       throw new InsufficientPermissionsException();
     }
-    if (this.hasPeerReviews(authUserRole)) {
+    if (authUserRole.hasPeerReviews()) {
       throw new PeerReviewsAlreadySubmittedException();
     }
 
@@ -217,7 +214,7 @@ export class ProjectService {
     await this.roleRepository.save(authUserRole);
 
     /* is final peer review? */
-    if (otherRoles.every(this.hasPeerReviews)) {
+    if (otherRoles.every(otherRole => otherRole.hasPeerReviews())) {
       /* compute relative contributions */
       const peerReviews: Record<string, PeerReviews> = {
         [authUserRole.id]: authUserRole.peerReviews,
@@ -235,13 +232,5 @@ export class ProjectService {
       project.state = ProjectState.FINISHED;
       await this.projectRepository.save(project);
     }
-  }
-
-  private isProjectOwner(project: ProjectEntity, user: UserEntity): boolean {
-    return project.ownerId === user.id;
-  }
-
-  private hasPeerReviews(role: RoleEntity): boolean {
-    return Boolean(role.peerReviews);
   }
 }

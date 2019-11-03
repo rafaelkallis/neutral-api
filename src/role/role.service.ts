@@ -61,14 +61,13 @@ export class RoleService {
       id: query.projectId,
     });
     const roles = await this.roleRepository.find(query);
-    const roleDtos = roles.map(role =>
+    return roles.map(role =>
       new RoleDtoBuilder(role)
         .exposePeerReviews(
-          this.isRoleAssigneeOrProjectOwner(authUser, role, project),
+          role.isAssignee(authUser) || project.isOwner(authUser),
         )
         .build(),
     );
-    return roleDtos;
   }
 
   /**
@@ -77,12 +76,9 @@ export class RoleService {
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOneOrFail(id);
     const project = await this.projectRepository.findOneOrFail(role.projectId);
-    const roleDto = new RoleDtoBuilder(role)
-      .exposePeerReviews(
-        this.isRoleAssigneeOrProjectOwner(authUser, role, project),
-      )
+    return new RoleDtoBuilder(role)
+      .exposePeerReviews(role.isAssignee(authUser) || project.isOwner(authUser))
       .build();
-    return roleDto;
   }
 
   /**
@@ -169,13 +165,5 @@ export class RoleService {
       throw new InsufficientPermissionsException();
     }
     await this.roleRepository.remove(role);
-  }
-
-  private isRoleAssigneeOrProjectOwner(
-    user: UserEntity,
-    role: RoleEntity,
-    project: ProjectEntity,
-  ): boolean {
-    return role.assigneeId === user.id || project.ownerId === user.id;
   }
 }
