@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Not } from 'typeorm';
 import {
   InsufficientPermissionsException,
   ProjectEntity,
@@ -6,16 +7,21 @@ import {
   ProjectRepository,
   RoleEntity,
   RoleRepository,
+  PeerReviews,
   RandomService,
   UserEntity,
   ContributionsModelService,
+  TeamSpiritModelService,
 } from '../common';
 
 import { ForbiddenProjectStateChangeException } from './exceptions/forbidden-project-state-change.exception';
+import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
+import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
+import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 @Injectable()
 export class ProjectService {
@@ -23,17 +29,20 @@ export class ProjectService {
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
   private readonly contributionsModelService: ContributionsModelService;
+  private readonly teamSpiritModelService: TeamSpiritModelService;
 
   public constructor(
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
     contributionsModelService: ContributionsModelService,
+    teamSpiritModelService: TeamSpiritModelService,
   ) {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
     this.contributionsModelService = contributionsModelService;
+    this.teamSpiritModelService = teamSpiritModelService;
   }
 
   /**
@@ -171,8 +180,83 @@ export class ProjectService {
     await this.projectRepository.remove(project);
   }
 
+  /**
+   * Call to submit reviews over one's project peers.
+   */
+  public async submitPeerReviews(
+    authUser: UserEntity,
+    projectId: string,
+    dto: SubmitPeerReviewsDto,
+  ): Promise<void> {
+    const project = await this.projectRepository.findOneOrFail({
+      id: projectId,
+    });
+    if (project.state !== ProjectState.PEER_REVIEW) {
+      throw new InvalidPeerReviewsException();
+    }
+
+    const authUserRole = await this.roleRepository.findOne({
+      projectId,
+      assigneeId: authUser.id,
+    });
+    if (!authUserRole) {
+      throw new InsufficientPermissionsException();
+    }
+    if (this.hasPeerReviews(authUserRole)) {
+      throw new PeerReviewsAlreadySubmittedException();
+    }
+
+    /* self review must be 0 */
+    if (dto.peerReviews[authUserRole.id] !== 0) {
+      throw new InvalidPeerReviewsException();
+    }
+    let otherRoles = await this.roleRepository.find({
+      id: Not(authUserRole.id),
+      projectId,
+    });
+
+    /* check if number of peer reviews matches the number of roles */
+    if (otherRoles.length + 1 !== Object.values(dto.peerReviews).length) {
+      throw new InvalidPeerReviewsException();
+    }
+
+    /* check if peer review ids match other role ids */
+    for (const otherRole of otherRoles) {
+      if (!dto.peerReviews[otherRole.id]) {
+        throw new InvalidPeerReviewsException();
+      }
+    }
+
+    authUserRole.peerReviews = dto.peerReviews;
+    await this.roleRepository.save(authUserRole);
+
+    /* is final peer review? */
+    if (otherRoles.every(this.hasPeerReviews)) {
+      /* compute relative contributions */
+      const peerReviews: Record<string, PeerReviews> = {
+        [authUserRole.id]: authUserRole.peerReviews,
+      };
+      for (const otherRole of otherRoles) {
+        peerReviews[otherRole.id] = otherRole.peerReviews as PeerReviews;
+        peerReviews[otherRole.id][otherRole.id] = 0;
+      }
+      project.contributions = this.contributionsModelService.computeContributions(
+        peerReviews,
+      );
+      project.teamSpirit = this.teamSpiritModelService.computeTeamSpirit(
+        peerReviews,
+      );
+      project.state = ProjectState.FINISHED;
+      await this.projectRepository.save(project);
+    }
+  }
+
   private isProjectOwner(project: ProjectEntity, user: UserEntity): boolean {
     return project.ownerId === user.id;
+  }
+
+  private hasPeerReviews(role: RoleEntity): boolean {
+    return Boolean(role.peerReviews);
   }
 
   private isFromFormationToPeerReview(

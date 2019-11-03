@@ -23,6 +23,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto } from './dto/project.dto';
+import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 
 /**
  * Project Controller
@@ -121,5 +122,27 @@ export class ProjectController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.projectService.deleteProject(authUser, id);
+  }
+
+  /**
+   * Call to submit reviews over one's project peers.
+   */
+  @Post('/:id/submit-peer-reviews')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Submit peer reviews' })
+  @ApiResponse({
+    status: 200,
+    description: 'Peer reviews submitted successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
+  @ApiResponse({ status: 400, description: 'Not a project participant' })
+  public async submitPeerReviews(
+    @AuthUser() authUser: UserEntity,
+    @Param('id') id: string,
+    @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
+  ): Promise<void> {
+    return this.projectService.submitPeerReviews(authUser, id, dto);
   }
 }
