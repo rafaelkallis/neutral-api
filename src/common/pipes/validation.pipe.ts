@@ -13,8 +13,11 @@ import { ValidationException } from '../exceptions/validation.exception';
 export class ValidationPipe extends NestValidationPipe {
   public constructor() {
     super({
-      exceptionFactory: (errors: ValidationError[]): ValidationException =>
-        new ValidationException(errors[0].value),
+      exceptionFactory: (errors: ValidationError[]): ValidationException => {
+        const [error] = errors;
+        const [message] = Object.values(error.constraints);
+        return new ValidationException(message);
+      },
       whitelist: true,
       forbidNonWhitelisted: true,
     });
