@@ -14,7 +14,7 @@ import {
   PeerReviews,
   Contributions,
   ContributionsModelService,
-  TeamSpiritModelService,
+  ConsensualityModelService,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectService } from './project.service';
@@ -29,7 +29,7 @@ describe('project service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let contributionsModelService: ContributionsModelService;
-  let teamSpiritModelService: TeamSpiritModelService;
+  let consensualityModelService: ConsensualityModelService;
   let user: UserEntity;
   let project: ProjectEntity;
   let projectDto: ProjectDto;
@@ -45,7 +45,7 @@ describe('project service', () => {
         RandomService,
         ConfigService,
         ContributionsModelService,
-        TeamSpiritModelService,
+        ConsensualityModelService,
       ],
     }).compile();
 
@@ -53,13 +53,13 @@ describe('project service', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     contributionsModelService = module.get(ContributionsModelService);
-    teamSpiritModelService = module.get(TeamSpiritModelService);
+    consensualityModelService = module.get(ConsensualityModelService);
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
     projectDto = new ProjectDtoBuilder(project)
       .exposeContributions()
-      .exposeTeamSpirit()
+      .exposeConsensuality()
       .build();
   });
 
@@ -81,7 +81,7 @@ describe('project service', () => {
       projectDtos = projects.map(project =>
         new ProjectDtoBuilder(project)
           .exposeContributions()
-          .exposeTeamSpirit()
+          .exposeConsensuality()
           .build(),
       );
       query = GetProjectsQueryDto.from({});
@@ -224,7 +224,7 @@ describe('project service', () => {
     let role4: RoleEntity;
     let peerReviews: PeerReviews;
     let contributions: Contributions;
-    let teamSpirit: number;
+    let consensuality: number;
     let dto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
@@ -248,7 +248,7 @@ describe('project service', () => {
       };
       dto = SubmitPeerReviewsDto.from({ peerReviews });
       contributions = {};
-      teamSpirit = 0.5;
+      consensuality = 0.5;
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
       jest
@@ -259,8 +259,8 @@ describe('project service', () => {
         .spyOn(contributionsModelService, 'computeContributions')
         .mockReturnValue(contributions);
       jest
-        .spyOn(teamSpiritModelService, 'computeTeamSpirit')
-        .mockReturnValue(teamSpirit);
+        .spyOn(consensualityModelService, 'computeConsensuality')
+        .mockReturnValue(consensuality);
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
 
@@ -278,7 +278,9 @@ describe('project service', () => {
           [role4.id]: role4.peerReviews,
         }),
       );
-      expect(teamSpiritModelService.computeTeamSpirit).toHaveBeenCalledWith(
+      expect(
+        consensualityModelService.computeConsensuality,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           [role1.id]: peerReviews,
           [role2.id]: role2.peerReviews,
@@ -291,7 +293,7 @@ describe('project service', () => {
         expect.objectContaining({ peerReviews }),
       );
       expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ contributions, teamSpirit }),
+        expect.objectContaining({ contributions, consensuality }),
       );
     });
 
@@ -303,7 +305,9 @@ describe('project service', () => {
       expect(
         contributionsModelService.computeContributions,
       ).not.toHaveBeenCalled();
-      expect(teamSpiritModelService.computeTeamSpirit).not.toHaveBeenCalled();
+      expect(
+        consensualityModelService.computeConsensuality,
+      ).not.toHaveBeenCalled();
       expect(project.state).toBe(ProjectState.PEER_REVIEW);
       expect(roleRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ peerReviews }),

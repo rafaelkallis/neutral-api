@@ -59,15 +59,15 @@ export class ProjectDto extends BaseDto {
 export class ProjectDtoBuilder {
   private readonly data: ProjectEntity;
   private _exposeContributions = false;
-  private _exposeTeamSpirit = false;
+  private _exposeConsensuality = false;
 
   public exposeContributions(value: boolean = true): this {
     this._exposeContributions = value;
     return this;
   }
 
-  public exposeTeamSpirit(value: boolean = true): this {
-    this._exposeTeamSpirit = value;
+  public exposeConsensuality(value: boolean = true): this {
+    this._exposeConsensuality = value;
     return this;
   }
 
@@ -79,7 +79,7 @@ export class ProjectDtoBuilder {
       this.data.ownerId,
       this.data.state,
       this._exposeContributions ? this.data.contributions : null,
-      this._exposeTeamSpirit ? this.data.teamSpirit : null,
+      this._exposeConsensuality ? this.data.consensuality : null,
       this.data.createdAt,
       this.data.updatedAt,
     );

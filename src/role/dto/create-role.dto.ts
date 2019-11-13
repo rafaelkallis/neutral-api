@@ -23,6 +23,7 @@ export class CreateRoleDto {
   @ApiModelProperty({
     description: 'Id of the role assignee',
     required: false,
+    example: null,
   })
   public assigneeId?: string | null;
 

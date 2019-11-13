@@ -71,7 +71,7 @@ describe('ProjectController (e2e)', () => {
         [primitiveFaker.id()]: 0.2,
         [primitiveFaker.id()]: 0.4,
       };
-      project.teamSpirit = 0.8;
+      project.consensuality = 0.8;
       await projectRepository.save(project);
     });
 
@@ -327,7 +327,7 @@ describe('ProjectController (e2e)', () => {
           [role4.id]: expect.any(Number),
         }),
       );
-      expect(updatedProject.teamSpirit).toEqual(expect.any(Number));
+      expect(updatedProject.consensuality).toEqual(expect.any(Number));
     });
 
     test('happy path, not final peer review', async () => {

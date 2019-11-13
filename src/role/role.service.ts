@@ -5,14 +5,11 @@ import {
   UserEntity,
   RoleEntity,
   UserRepository,
-  ProjectEntity,
   ProjectRepository,
   ProjectState,
   RoleRepository,
   InsufficientPermissionsException,
   RandomService,
-  ContributionsModelService,
-  TeamSpiritModelService,
 } from '../common';
 import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
@@ -31,23 +28,17 @@ export class RoleService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
-  private readonly contributionsModelService: ContributionsModelService;
-  private readonly teamSpiritModelService: TeamSpiritModelService;
 
   public constructor(
     userRepository: UserRepository,
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
-    contributionsModelService: ContributionsModelService,
-    teamSpiritModelService: TeamSpiritModelService,
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
-    this.contributionsModelService = contributionsModelService;
-    this.teamSpiritModelService = teamSpiritModelService;
   }
 
   /**

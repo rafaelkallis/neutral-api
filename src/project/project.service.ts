@@ -10,7 +10,7 @@ import {
   RandomService,
   UserEntity,
   ContributionsModelService,
-  TeamSpiritModelService,
+  ConsensualityModelService,
 } from '../common';
 
 import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
@@ -29,20 +29,20 @@ export class ProjectService {
   private readonly roleRepository: RoleRepository;
   private readonly randomService: RandomService;
   private readonly contributionsModelService: ContributionsModelService;
-  private readonly teamSpiritModelService: TeamSpiritModelService;
+  private readonly consensualityModelService: ConsensualityModelService;
 
   public constructor(
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
     randomService: RandomService,
     contributionsModelService: ContributionsModelService,
-    teamSpiritModelService: TeamSpiritModelService,
+    consensualityModelService: ConsensualityModelService,
   ) {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.randomService = randomService;
     this.contributionsModelService = contributionsModelService;
-    this.teamSpiritModelService = teamSpiritModelService;
+    this.consensualityModelService = consensualityModelService;
   }
 
   /**
@@ -53,13 +53,12 @@ export class ProjectService {
     query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.findPage(query);
-    const projectDtos = projects.map(project =>
+    return projects.map(project =>
       new ProjectDtoBuilder(project)
         .exposeContributions(project.isOwner(authUser))
-        .exposeTeamSpirit(project.isOwner(authUser))
+        .exposeConsensuality(project.isOwner(authUser))
         .build(),
     );
-    return projectDtos;
   }
 
   /**
@@ -70,11 +69,10 @@ export class ProjectService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    const projectDto = new ProjectDtoBuilder(project)
+    return new ProjectDtoBuilder(project)
       .exposeContributions(project.isOwner(authUser))
-      .exposeTeamSpirit(project.isOwner(authUser))
+      .exposeConsensuality(project.isOwner(authUser))
       .build();
-    return projectDto;
   }
 
   /**
@@ -91,14 +89,13 @@ export class ProjectService {
       description: dto.description,
       state: ProjectState.FORMATION,
       contributions: null,
-      teamSpirit: null,
+      consensuality: null,
     });
     await this.projectRepository.save(project);
-    const projectDto = new ProjectDtoBuilder(project)
+    return new ProjectDtoBuilder(project)
       .exposeContributions()
-      .exposeTeamSpirit()
+      .exposeConsensuality()
       .build();
-    return projectDto;
   }
 
   /**
@@ -120,7 +117,7 @@ export class ProjectService {
     await this.projectRepository.save(project);
     return new ProjectDtoBuilder(project)
       .exposeContributions()
-      .exposeTeamSpirit()
+      .exposeConsensuality()
       .build();
   }
 
@@ -148,7 +145,7 @@ export class ProjectService {
     await this.projectRepository.save(project);
     return new ProjectDtoBuilder(project)
       .exposeContributions()
-      .exposeTeamSpirit()
+      .exposeConsensuality()
       .build();
   }
 
@@ -226,7 +223,7 @@ export class ProjectService {
       project.contributions = this.contributionsModelService.computeContributions(
         peerReviews,
       );
-      project.teamSpirit = this.teamSpiritModelService.computeTeamSpirit(
+      project.consensuality = this.consensualityModelService.computeConsensuality(
         peerReviews,
       );
       project.state = ProjectState.FINISHED;

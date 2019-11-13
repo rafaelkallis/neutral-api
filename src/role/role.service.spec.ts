@@ -12,7 +12,6 @@ import {
   ProjectRepository,
   RoleRepository,
   ContributionsModelService,
-  TeamSpiritModelService,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
@@ -41,7 +40,6 @@ describe('role service', () => {
         ProjectRepository,
         TokenService,
         ContributionsModelService,
-        TeamSpiritModelService,
       ],
     }).compile();
 

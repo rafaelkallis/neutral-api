@@ -4,25 +4,24 @@ import { PeerReviews } from '../entities/role.entity';
 /* eslint-disable security/detect-object-injection */
 
 /**
- * TeamSpiritModel Service
+ * Consensuality model service
  */
 @Injectable()
-export class TeamSpiritModelService {
+export class ConsensualityModelService {
   /**
-   * Computes a project's team spirit.
+   * Computes a project's consensuality.
    */
-  public computeTeamSpirit(peerReviews: Record<string, PeerReviews>): number {
-    return this.computeNaxTeamSpirit(peerReviews);
+  public computeConsensuality(peerReviews: Record<string, PeerReviews>): number {
+    return this.computeNaxConsensuality(peerReviews);
   }
 
   /**
-   * Computes team spirit based on Heinrich Nax's
+   * Computes consensuality based on Heinrich Nax's
    * deviation from expectation.
    *
-   * Result is normalized, 1 for best and 0 for worst
-   * team spirit.
+   * Result is normalized, 1 for full consensus and 0 for no consensus.
    */
-  public computeNaxTeamSpirit(
+  public computeNaxConsensuality(
     peerReviews: Record<string, PeerReviews>,
   ): number {
     const n = Object.keys(peerReviews).length;

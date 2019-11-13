@@ -28,7 +28,7 @@ interface ProjectEntityOptions {
   ownerId: string;
   state: ProjectState;
   contributions: Contributions | null;
-  teamSpirit: number | null;
+  consensuality: number | null;
 }
 
 /**
@@ -61,10 +61,10 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsContributions()
   public contributions!: Contributions | null;
 
-  @Column({ name: 'team_spirit', type: 'real', nullable: true })
+  @Column({ name: 'consensuality', type: 'real', nullable: true })
   @IsNumber()
   @IsOptional()
-  public teamSpirit!: number | null;
+  public consensuality!: number | null;
 
   public static from(options: ProjectEntityOptions): ProjectEntity {
     return Object.assign(new ProjectEntity(), options);

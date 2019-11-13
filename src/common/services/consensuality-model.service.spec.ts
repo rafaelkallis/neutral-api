@@ -1,20 +1,20 @@
 import { Test } from '@nestjs/testing';
 
-import { TeamSpiritModelService } from './team-spirit-model.service';
+import { ConsensualityModelService } from './consensuality-model.service';
 
-describe('TeamSpiritModelService', () => {
-  let teamSpiritModelService: TeamSpiritModelService;
+describe('ConsensualityModelService', () => {
+  let consensualityModelService: ConsensualityModelService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [TeamSpiritModelService],
+      providers: [ConsensualityModelService],
     }).compile();
 
-    teamSpiritModelService = module.get(TeamSpiritModelService);
+    consensualityModelService = module.get(ConsensualityModelService);
   });
 
   test('should be defined', () => {
-    expect(teamSpiritModelService).toBeDefined();
+    expect(consensualityModelService).toBeDefined();
   });
 
   test('compute team spirit', () => {
@@ -44,12 +44,14 @@ describe('TeamSpiritModelService', () => {
         d: 0,
       },
     };
-    const teamSpirit = teamSpiritModelService.computeTeamSpirit(peerReviews);
-    expect(teamSpirit).toBeGreaterThanOrEqual(0);
-    expect(teamSpirit).toBeLessThanOrEqual(1);
+    const consensuality = consensualityModelService.computeConsensuality(
+      peerReviews,
+    );
+    expect(consensuality).toBeGreaterThanOrEqual(0);
+    expect(consensuality).toBeLessThanOrEqual(1);
   });
 
-  test('nax team spirit', () => {
+  test('nax consensuality', () => {
     const peerReviews = {
       a: {
         a: 0,
@@ -87,9 +89,9 @@ describe('TeamSpiritModelService', () => {
         e: 0,
       },
     };
-    const naxTeamSpirit = teamSpiritModelService.computeNaxTeamSpirit(
+    const naxConsensuality = consensualityModelService.computeNaxConsensuality(
       peerReviews,
     );
-    expect(naxTeamSpirit).toBeCloseTo(0.56);
+    expect(naxConsensuality).toBeCloseTo(0.56);
   });
 });
