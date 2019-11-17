@@ -8,7 +8,6 @@ import {
   ProjectState,
   ProjectRepository,
   RoleEntity,
-  PeerReviewRepository,
   RoleRepository,
   TokenService,
   UserEntity,
@@ -16,8 +15,6 @@ import {
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectDtoBuilder } from './dto/project.dto';
-
-jest.setTimeout(10000);
 
 describe('ProjectController (e2e)', () => {
   let app: INestApplication;
