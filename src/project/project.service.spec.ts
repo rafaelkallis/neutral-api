@@ -11,7 +11,6 @@ import {
   UserRepository,
   RoleEntity,
   RoleRepository,
-  PeerReviews,
   Contributions,
   ContributionsModelService,
   ConsensualityModelService,
@@ -222,7 +221,7 @@ describe('project service', () => {
     let role2: RoleEntity;
     let role3: RoleEntity;
     let role4: RoleEntity;
-    let peerReviews: PeerReviews;
+    let peerReviews: Record<string, Record<string, number>>;
     let contributions: Contributions;
     let consensuality: number;
     let dto: SubmitPeerReviewsDto;
@@ -232,21 +231,27 @@ describe('project service', () => {
       project = entityFaker.project(user.id);
       project.state = ProjectState.PEER_REVIEW;
       role1 = entityFaker.role(project.id, user.id);
-      role1.peerReviews = null;
       role2 = entityFaker.role(project.id, user.id);
-      role2.peerReviews = {};
       role3 = entityFaker.role(project.id, user.id);
-      role3.peerReviews = {};
       role4 = entityFaker.role(project.id, user.id);
-      role4.peerReviews = {};
 
-      peerReviews = {
-        [role1.id]: 0,
-        [role2.id]: 0.3,
-        [role3.id]: 0.2,
-        [role4.id]: 0.5,
-      };
-      dto = SubmitPeerReviewsDto.from({ peerReviews });
+      peerReviews = {};
+      for (const role of [role1, role2, role3, role4]) {
+        peerReviews[role.id] = {};
+        for (const otherRole of [role1, role2, role3, role4]) {
+          const score = 1 / 3;
+          if (role !== otherRole) {
+            peerReviews[role.id][otherRole.id] = score;
+            if (role !== role1) {
+              const peerReview = entityFaker.peerReview(role, otherRole.id);
+              peerReview.score = score;
+              role.peerReviews.push(peerReview);
+            }
+          }
+        }
+      }
+
+      dto = SubmitPeerReviewsDto.from({ peerReviews: peerReviews[role1.id] });
       contributions = {};
       consensuality = 0.5;
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
@@ -270,38 +275,29 @@ describe('project service', () => {
       ).resolves.not.toThrow();
       expect(
         contributionsModelService.computeContributions,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [role1.id]: peerReviews,
-          [role2.id]: role2.peerReviews,
-          [role3.id]: role3.peerReviews,
-          [role4.id]: role4.peerReviews,
-        }),
-      );
+      ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
       expect(
         consensualityModelService.computeConsensuality,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [role1.id]: peerReviews,
-          [role2.id]: role2.peerReviews,
-          [role3.id]: role3.peerReviews,
-          [role4.id]: role4.peerReviews,
-        }),
-      );
+      ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
       expect(project.state).toBe(ProjectState.FINISHED);
-      expect(roleRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ peerReviews }),
-      );
-      expect(projectRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ contributions, consensuality }),
-      );
+      expect(role1.peerReviews).toHaveLength(3);
+      for (const peerReview of role1.peerReviews) {
+        expect(peerReview.score).toBe(
+          peerReviews[role1.id][peerReview.revieweeRoleId],
+        );
+      }
+      expect(roleRepository.save).toHaveBeenCalled();
+      expect(project.contributions).toEqual(contributions);
+      expect(project.consensuality).toEqual(consensuality);
+      expect(projectRepository.save).toHaveBeenCalled();
     });
 
     test('should not compute contributions and team spirit if not final peer review,', async () => {
-      role2.peerReviews = null;
+      role2.peerReviews = [];
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
       ).resolves.not.toThrow();
+      expect(roleRepository.save).toHaveBeenCalled();
       expect(
         contributionsModelService.computeContributions,
       ).not.toHaveBeenCalled();
@@ -309,9 +305,6 @@ describe('project service', () => {
         consensualityModelService.computeConsensuality,
       ).not.toHaveBeenCalled();
       expect(project.state).toBe(ProjectState.PEER_REVIEW);
-      expect(roleRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ peerReviews }),
-      );
       expect(projectRepository.save).not.toHaveBeenCalled();
     });
 
@@ -323,16 +316,19 @@ describe('project service', () => {
     });
 
     test('should fail if peer reviews have been previously submitted', async () => {
-      role1.peerReviews = peerReviews;
+      for (const otherRole of [role2, role3, role4]) {
+        const peerReview = entityFaker.peerReview(role1, otherRole.id);
+        peerReview.score = 1 / 3;
+        role1.peerReviews.push(peerReview);
+      }
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
       ).rejects.toThrow();
     });
 
     test('should fail if a peer review is for non-existing peer', async () => {
-      role1.peerReviews = peerReviews;
-      delete role1.peerReviews[role2.id];
-      role1.peerReviews[primitiveFaker.id()] = 0.3;
+      delete dto.peerReviews[role2.id];
+      dto.peerReviews[primitiveFaker.id()] = 1 / 3;
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
       ).rejects.toThrow();

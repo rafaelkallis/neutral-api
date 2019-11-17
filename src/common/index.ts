@@ -15,6 +15,7 @@ export {
 export { UserRepository } from './repositories/user.repository';
 export { ProjectRepository } from './repositories/project.repository';
 export { RoleRepository } from './repositories/role.repository';
+export { PeerReviewRepository } from './repositories/peer-review.repository';
 
 export { BaseDto } from './dto/base.dto';
 
@@ -25,7 +26,8 @@ export {
   ProjectState,
   Contributions,
 } from './entities/project.entity';
-export { RoleEntity, PeerReviews } from './entities/role.entity';
+export { RoleEntity } from './entities/role.entity';
+export { PeerReviewEntity } from './entities/peer-review.entity';
 
 export {
   SessionState,

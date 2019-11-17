@@ -5,8 +5,9 @@ import {
   ProjectEntity,
   ProjectState,
   ProjectRepository,
+  RoleEntity,
   RoleRepository,
-  PeerReviews,
+  PeerReviewEntity,
   RandomService,
   UserEntity,
   ContributionsModelService,
@@ -186,17 +187,17 @@ export class ProjectService {
       throw new PeerReviewsAlreadySubmittedException();
     }
 
-    /* self review must be 0 */
-    if (dto.peerReviews[authUserRole.id] !== 0) {
+    /* no self review */
+    if (dto.peerReviews[authUserRole.id] !== undefined) {
       throw new InvalidPeerReviewsException();
     }
-    let otherRoles = await this.roleRepository.find({
+    const otherRoles = await this.roleRepository.find({
       id: Not(authUserRole.id),
       projectId,
     });
 
     /* check if number of peer reviews matches the number of roles */
-    if (otherRoles.length + 1 !== Object.values(dto.peerReviews).length) {
+    if (otherRoles.length !== Object.values(dto.peerReviews).length) {
       throw new InvalidPeerReviewsException();
     }
 
@@ -207,27 +208,48 @@ export class ProjectService {
       }
     }
 
-    authUserRole.peerReviews = dto.peerReviews;
+    for (const [revieweeRoleId, score] of Object.entries(dto.peerReviews)) {
+      const peerReview = PeerReviewEntity.from({
+        id: this.randomService.id(),
+        reviewerRole: authUserRole,
+        revieweeRoleId,
+        score,
+      });
+      authUserRole.peerReviews.push(peerReview);
+    }
     await this.roleRepository.save(authUserRole);
 
+    const roles = [authUserRole, ...otherRoles];
+
     /* is final peer review? */
-    if (otherRoles.every(otherRole => otherRole.hasPeerReviews())) {
-      /* compute relative contributions */
-      const peerReviews: Record<string, PeerReviews> = {
-        [authUserRole.id]: authUserRole.peerReviews,
-      };
-      for (const otherRole of otherRoles) {
-        peerReviews[otherRole.id] = otherRole.peerReviews as PeerReviews;
-        peerReviews[otherRole.id][otherRole.id] = 0;
-      }
-      project.contributions = this.contributionsModelService.computeContributions(
-        peerReviews,
-      );
-      project.consensuality = this.consensualityModelService.computeConsensuality(
-        peerReviews,
-      );
-      project.state = ProjectState.FINISHED;
-      await this.projectRepository.save(project);
+    if (roles.every(role => role.hasPeerReviews())) {
+      await this.onFinalPeerReview(project, roles);
     }
+  }
+
+  /**
+   * Gets called when final peer review is submitted for a team.
+   */
+  private async onFinalPeerReview(
+    project: ProjectEntity,
+    roles: RoleEntity[],
+  ): Promise<void> {
+    /* build peer review index */
+    const projectPeerReviews: Record<string, Record<string, number>> = {};
+    for (const role of roles) {
+      projectPeerReviews[role.id] = {};
+      for (const peerReview of role.peerReviews) {
+        const { revieweeRoleId, score } = peerReview;
+        projectPeerReviews[role.id][revieweeRoleId] = score;
+      }
+    }
+    project.contributions = this.contributionsModelService.computeContributions(
+      projectPeerReviews,
+    );
+    project.consensuality = this.consensualityModelService.computeConsensuality(
+      projectPeerReviews,
+    );
+    project.state = ProjectState.FINISHED;
+    await this.projectRepository.save(project);
   }
 }

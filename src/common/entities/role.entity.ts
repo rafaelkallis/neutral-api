@@ -1,13 +1,9 @@
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { Column, Entity } from 'typeorm';
-import { IsPeerReviews } from '../validation/is-peer-reviews';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
-
-export interface PeerReviews {
-  [roleId: string]: number;
-}
+import { PeerReviewEntity } from './peer-review.entity';
 
 interface RoleEntityOptions {
   id: string;
@@ -15,7 +11,7 @@ interface RoleEntityOptions {
   assigneeId: string | null;
   title: string;
   description: string;
-  peerReviews: PeerReviews | null;
+  peerReviews: PeerReviewEntity[];
 }
 
 /**
@@ -44,10 +40,11 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @MaxLength(1024)
   public description!: string;
 
-  @Column({ name: 'peer_reviews', type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsPeerReviews()
-  public peerReviews!: PeerReviews | null;
+  @OneToMany(() => PeerReviewEntity, peerReview => peerReview.reviewerRole, {
+    eager: true,
+    cascade: true,
+  })
+  public peerReviews!: PeerReviewEntity[];
 
   public static from(options: RoleEntityOptions): RoleEntity {
     return Object.assign(new RoleEntity(), options);
@@ -66,6 +63,6 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   }
 
   public hasPeerReviews(): boolean {
-    return Boolean(this.peerReviews);
+    return this.peerReviews.length > 0;
   }
 }

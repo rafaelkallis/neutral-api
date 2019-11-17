@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PeerReviews } from '../entities/role.entity';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -11,7 +10,9 @@ export class ConsensualityModelService {
   /**
    * Computes a project's consensuality.
    */
-  public computeConsensuality(peerReviews: Record<string, PeerReviews>): number {
+  public computeConsensuality(
+    peerReviews: Record<string, Record<string, number>>,
+  ): number {
     return this.computeNaxConsensuality(peerReviews);
   }
 
@@ -22,7 +23,7 @@ export class ConsensualityModelService {
    * Result is normalized, 1 for full consensus and 0 for no consensus.
    */
   public computeNaxConsensuality(
-    peerReviews: Record<string, PeerReviews>,
+    peerReviews: Record<string, Record<string, number>>,
   ): number {
     const n = Object.keys(peerReviews).length;
     /* only holds if equal contribution is expected from all */

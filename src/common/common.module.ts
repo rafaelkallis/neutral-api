@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectEntity } from './entities/project.entity';
 import { RoleEntity } from './entities/role.entity';
 import { UserEntity } from './entities/user.entity';
+import { PeerReviewEntity } from './entities/peer-review.entity';
 import { EntityNotFoundInterceptor } from './interceptors/entity-not-found.interceptor';
 import { ProjectRepository } from './repositories/project.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { UserRepository } from './repositories/user.repository';
+import { PeerReviewRepository } from './repositories/peer-review.repository';
 import { ConfigService } from './services/config.service';
 import { ContributionsModelService } from './services/contributions-model.service';
 import { ConsensualityModelService } from './services/consensuality-model.service';
@@ -29,6 +31,8 @@ import { TokenService } from './services/token.service';
       ProjectRepository,
       RoleEntity,
       RoleRepository,
+      PeerReviewEntity,
+      PeerReviewRepository,
     ]),
   ],
   providers: [
