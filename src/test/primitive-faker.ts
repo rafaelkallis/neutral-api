@@ -50,6 +50,13 @@ class PrimitiveFaker {
   public paragraph(): string {
     return faker.lorem.paragraph();
   }
+
+  /**
+   * Creates a number [0,1]
+   */
+  public number(): number {
+    return Math.random();
+  }
 }
 
 export const primitiveFaker = new PrimitiveFaker();

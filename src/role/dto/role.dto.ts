@@ -1,5 +1,5 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto, RoleEntity, PeerReviews } from '../../common';
+import { BaseDto, RoleEntity } from '../../common';
 
 /**
  * Role DTO
@@ -18,7 +18,7 @@ export class RoleDto extends BaseDto {
   public description: string;
 
   @ApiModelProperty({ required: false })
-  public peerReviews: PeerReviews | null;
+  public peerReviews: string[] | null;
 
   public constructor(
     id: string,
@@ -26,7 +26,7 @@ export class RoleDto extends BaseDto {
     assigneeId: string | null,
     title: string,
     description: string,
-    peerReviews: PeerReviews | null,
+    peerReviews: string[] | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -58,7 +58,7 @@ export class RoleDtoBuilder {
       this.data.assigneeId,
       this.data.title,
       this.data.description,
-      this._exposePeerReviews ? this.data.peerReviews : null,
+      this._exposePeerReviews ? this.data.peerReviews.map(pr => pr.id) : null,
       this.data.createdAt,
       this.data.updatedAt,
     );

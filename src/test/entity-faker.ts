@@ -1,4 +1,10 @@
-import { RoleEntity, ProjectEntity, ProjectState, UserEntity } from '../common';
+import {
+  RoleEntity,
+  ProjectEntity,
+  ProjectState,
+  UserEntity,
+  PeerReviewEntity,
+} from '../common';
 
 import { primitiveFaker } from './primitive-faker';
 
@@ -35,19 +41,28 @@ class EntityFaker {
    * Create a fake role
    */
   public role(projectId: string, assigneeId: string | null = null): RoleEntity {
-    const id = primitiveFaker.id();
     return RoleEntity.from({
-      id,
+      id: primitiveFaker.id(),
       projectId,
       assigneeId,
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
-      peerReviews: {
-        [id]: 0,
-        [primitiveFaker.id()]: 0.3,
-        [primitiveFaker.id()]: 0.2,
-        [primitiveFaker.id()]: 0.5,
-      },
+      peerReviews: [],
+    });
+  }
+
+  /**
+   * Create a fake peer review
+   */
+  public peerReview(
+    reviewerRole: RoleEntity,
+    revieweeRoleId: string,
+  ): PeerReviewEntity {
+    return PeerReviewEntity.from({
+      id: primitiveFaker.id(),
+      reviewerRole: reviewerRole,
+      revieweeRoleId,
+      score: primitiveFaker.number(),
     });
   }
 }

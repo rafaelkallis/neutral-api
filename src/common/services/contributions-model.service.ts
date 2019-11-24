@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InvariantViolationException } from '../exceptions/invariant-violation.exception';
-import { PeerReviews } from '../entities/role.entity';
 import { Contributions } from '../entities/project.entity';
 
 /* eslint-disable security/detect-object-injection */
@@ -14,16 +13,23 @@ export class ContributionsModelService {
    * Computes the relative contributions.
    */
   public computeContributions(
-    peerReviews: Record<string, PeerReviews>,
+    peerReviews: Record<string, Record<string, number>>,
   ): Contributions {
-    const sortedIds: string[] = Object.keys(peerReviews).sort();
+    const ids: string[] = Object.keys(peerReviews).sort();
     const S: number[][] = [];
-    for (const [i, iId] of sortedIds.entries()) {
-      if (sortedIds.length !== Object.keys(peerReviews[iId]).length) {
+    for (const [i, iId] of ids.entries()) {
+      if (ids.length - 1 !== Object.keys(peerReviews[iId]).length) {
         throw new InvariantViolationException();
       }
       S[i] = [];
-      for (const [j, jId] of sortedIds.entries()) {
+      for (const [j, jId] of ids.entries()) {
+        if (i === j) {
+          S[i][j] = 0;
+          continue;
+        }
+        if (iId === jId) {
+          throw new InvariantViolationException();
+        }
         if (peerReviews[iId][jId] === undefined) {
           throw new InvariantViolationException();
         }
@@ -32,7 +38,7 @@ export class ContributionsModelService {
     }
     const relContVec: number[] = this.computeContributionsFromMatrix(S);
     const relContMap: Record<string, number> = {};
-    for (const [i, iId] of sortedIds.entries()) {
+    for (const [i, iId] of ids.entries()) {
       relContMap[iId] = relContVec[i];
     }
     return relContMap;

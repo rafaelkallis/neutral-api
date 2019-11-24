@@ -100,7 +100,7 @@ export class RoleService {
       assigneeId: dto.assigneeId || null,
       title: dto.title,
       description: dto.description,
-      peerReviews: null,
+      peerReviews: [],
     });
     role = await this.roleRepository.save(role);
     const roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
