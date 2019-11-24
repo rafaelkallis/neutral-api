@@ -37,6 +37,8 @@ export class UserAddFullNameTextSearchMigration1571300853000
       ON users FOR EACH ROW
       EXECUTE PROCEDURE populate_full_name();
 
+      CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
       CREATE INDEX users_full_name_trgm_index ON users
       USING GIN(full_name gin_trgm_ops);
     `);
