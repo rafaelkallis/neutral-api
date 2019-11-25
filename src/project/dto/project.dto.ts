@@ -1,10 +1,5 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import {
-  ProjectEntity,
-  BaseDto,
-  ProjectState,
-  Contributions,
-} from '../../common';
+import { ProjectEntity, BaseDto, ProjectState } from '../../common';
 
 /**
  * Project DTO
@@ -30,9 +25,6 @@ export class ProjectDto extends BaseDto {
   public state: ProjectState;
 
   @ApiModelProperty()
-  public contributions: Contributions | null;
-
-  @ApiModelProperty()
   public teamSpirit: number | null;
 
   public constructor(
@@ -41,7 +33,6 @@ export class ProjectDto extends BaseDto {
     description: string,
     ownerId: string,
     state: ProjectState,
-    contributions: Contributions | null,
     teamSpirit: number | null,
     createdAt: number,
     updatedAt: number,
@@ -51,20 +42,13 @@ export class ProjectDto extends BaseDto {
     this.description = description;
     this.ownerId = ownerId;
     this.state = state;
-    this.contributions = contributions;
     this.teamSpirit = teamSpirit;
   }
 }
 
 export class ProjectDtoBuilder {
   private readonly data: ProjectEntity;
-  private _exposeContributions = false;
   private _exposeConsensuality = false;
-
-  public exposeContributions(value: boolean = true): this {
-    this._exposeContributions = value;
-    return this;
-  }
 
   public exposeConsensuality(value: boolean = true): this {
     this._exposeConsensuality = value;
@@ -78,7 +62,6 @@ export class ProjectDtoBuilder {
       this.data.description,
       this.data.ownerId,
       this.data.state,
-      this._exposeContributions ? this.data.contributions : null,
       this._exposeConsensuality ? this.data.consensuality : null,
       this.data.createdAt,
       this.data.updatedAt,

@@ -14,7 +14,6 @@ import {
   ContributionsModelService,
 } from '../common';
 import { entityFaker, primitiveFaker } from '../test';
-import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -26,8 +25,8 @@ describe('role service', () => {
   let roleRepository: RoleRepository;
   let user: UserEntity;
   let project: ProjectEntity;
-  let role: RoleEntity;
-  let roleDto: RoleDto;
+  let role1: RoleEntity;
+  let role2: RoleEntity;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -49,8 +48,8 @@ describe('role service', () => {
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
     project = entityFaker.project(user.id);
-    role = entityFaker.role(project.id);
-    roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
+    role1 = entityFaker.role(project.id);
+    role2 = entityFaker.role(project.id);
   });
 
   test('should be defined', () => {
@@ -63,29 +62,145 @@ describe('role service', () => {
     beforeEach(() => {
       query = GetRolesQueryDto.from({ projectId: project.id });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
+      jest.spyOn(roleRepository, 'find').mockResolvedValue([role1, role2]);
     });
 
     test('happy path', async () => {
       await expect(roleService.getRoles(user, query)).resolves.toContainEqual(
-        role,
+        role1,
       );
+      await expect(roleService.getRoles(user, query)).resolves.toContainEqual(
+        role2,
+      );
+    });
+
+    test('should expose contribution if project owner', async () => {
+      role1.contribution = 0.5;
+      role2.contribution = 0.5;
+      const rolesDto = await roleService.getRoles(user, query);
+      for (const roleDto of rolesDto) {
+        expect(roleDto.contribution).toEqual(0.5);
+      }
+    });
+
+    test('should expose contribution if role assignee', async () => {
+      const assignee = entityFaker.user();
+      role1.assigneeId = assignee.id;
+      role1.contribution = 0.5;
+      const rolesDto = await roleService.getRoles(assignee, query);
+      for (const roleDto of rolesDto) {
+        if (roleDto.id === role1.id) {
+          expect(roleDto.contribution).toEqual(0.5);
+        }
+      }
+    });
+
+    test('should expose peer reviews if project owner', async () => {
+      const peerReview = entityFaker.peerReview(role1, role2.id);
+      role1.peerReviews.push(peerReview);
+      const rolesDto = await roleService.getRoles(user, query);
+      for (const roleDto of rolesDto) {
+        if (roleDto.id === role1.id) {
+          expect(roleDto.peerReviews).toContainEqual([
+            peerReview.revieweeRoleId,
+            peerReview.score,
+          ]);
+        }
+      }
+    });
+
+    test('should expose peer reviews if role assignee', async () => {
+      const assignee = entityFaker.user();
+      role1.assigneeId = assignee.id;
+      const peerReview = entityFaker.peerReview(role1, role2.id);
+      role1.peerReviews.push(peerReview);
+      const rolesDto = await roleService.getRoles(assignee, query);
+      for (const roleDto of rolesDto) {
+        if (roleDto.id === role1.id) {
+          expect(roleDto.peerReviews).toContainEqual([
+            peerReview.revieweeRoleId,
+            peerReview.score,
+          ]);
+        }
+      }
+    });
+
+    test('should not expose contribution if not project owner or assignee', async () => {
+      role1.contribution = 0.1;
+      const otherUser = entityFaker.user();
+      const rolesDto = await roleService.getRoles(otherUser, query);
+      for (const roleDto of rolesDto) {
+        expect(roleDto.contribution).toBeFalsy();
+      }
+    });
+
+    test('should not expose peer reviews if not project owner or assignee', async () => {
+      role1.peerReviews = [entityFaker.peerReview(role1, role2.id)];
+      const otherUser = entityFaker.user();
+      const rolesDto = await roleService.getRoles(otherUser, query);
+      for (const roleDto of rolesDto) {
+        expect(roleDto.peerReviews).toBeFalsy();
+      }
     });
   });
 
   describe('get role', () => {
     beforeEach(() => {
-      jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role);
+      jest.spyOn(roleRepository, 'findOneOrFail').mockResolvedValue(role1);
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
-      await expect(roleService.getRole(user, role.id)).resolves.toEqual(role);
+      await expect(roleService.getRole(user, role1.id)).resolves.toEqual(role1);
+    });
+
+    test('should expose contribution if project owner', async () => {
+      role1.contribution = 0.5;
+      const roleDto = await roleService.getRole(user, role1.id);
+      expect(roleDto.contribution).toEqual(0.5);
+    });
+
+    test('should expose contribution if role assignee', async () => {
+      const assignee = entityFaker.user();
+      role1.assigneeId = assignee.id;
+      role1.contribution = 0.5;
+      const roleDto = await roleService.getRole(assignee, role1.id);
+      expect(roleDto.contribution).toEqual(0.5);
+    });
+
+    test('should expose peer reviews if project owner', async () => {
+      const peerReview = entityFaker.peerReview(role1, role2.id);
+      role1.peerReviews.push(peerReview);
+      const roleDto = await roleService.getRole(user, role1.id);
+      expect(roleDto.peerReviews).toContainEqual([
+        peerReview.revieweeRoleId,
+        peerReview.score,
+      ]);
+    });
+
+    test('should expose peer reviews if role assignee', async () => {
+      const assignee = entityFaker.user();
+      role1.assigneeId = assignee.id;
+      const peerReview = entityFaker.peerReview(role1, role2.id);
+      role1.peerReviews.push(peerReview);
+      const roleDto = await roleService.getRole(assignee, role1.id);
+      expect(roleDto.peerReviews).toContainEqual([
+        peerReview.revieweeRoleId,
+        peerReview.score,
+      ]);
+    });
+
+    test('should not expose contribution if not project owner or assignee', async () => {
+      role1.contribution = 0.1;
+      const otherUser = entityFaker.user();
+      await expect(roleService.getRole(otherUser, role1.id)).resolves.toEqual(
+        expect.objectContaining({ contribution: null }),
+      );
     });
 
     test('should not expose peer reviews if not project owner or assignee', async () => {
       const otherUser = entityFaker.user();
-      await expect(roleService.getRole(otherUser, role.id)).resolves.toEqual(
+      await expect(roleService.getRole(otherUser, role1.id)).resolves.toEqual(
         expect.objectContaining({ peerReviews: null }),
       );
     });
@@ -101,12 +216,20 @@ describe('role service', () => {
         description: primitiveFaker.paragraph(),
       });
       jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(roleRepository, 'save').mockResolvedValue(role);
+      jest.spyOn(roleRepository, 'save').mockResolvedValue(role1);
     });
 
     test('happy path', async () => {
       await expect(roleService.createRole(user, body)).resolves.toEqual(
-        roleDto,
+        expect.objectContaining({
+          id: expect.any(String),
+          projectId: role1.projectId,
+          assigneeId: null,
+          title: role1.title,
+          description: role1.description,
+          contribution: null,
+          peerReviews: [],
+        }),
       );
     });
 

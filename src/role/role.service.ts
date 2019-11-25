@@ -54,6 +54,9 @@ export class RoleService {
     const roles = await this.roleRepository.find(query);
     return roles.map(role =>
       new RoleDtoBuilder(role)
+        .exposeContribution(
+          role.isAssignee(authUser) || project.isOwner(authUser),
+        )
         .exposePeerReviews(
           role.isAssignee(authUser) || project.isOwner(authUser),
         )
@@ -68,6 +71,9 @@ export class RoleService {
     const role = await this.roleRepository.findOneOrFail(id);
     const project = await this.projectRepository.findOneOrFail(role.projectId);
     return new RoleDtoBuilder(role)
+      .exposeContribution(
+        role.isAssignee(authUser) || project.isOwner(authUser),
+      )
       .exposePeerReviews(role.isAssignee(authUser) || project.isOwner(authUser))
       .build();
   }
@@ -100,10 +106,14 @@ export class RoleService {
       assigneeId: dto.assigneeId || null,
       title: dto.title,
       description: dto.description,
+      contribution: null,
       peerReviews: [],
     });
     role = await this.roleRepository.save(role);
-    const roleDto = new RoleDtoBuilder(role).exposePeerReviews().build();
+    const roleDto = new RoleDtoBuilder(role)
+      .exposeContribution()
+      .exposePeerReviews()
+      .build();
     return roleDto;
   }
 
@@ -141,7 +151,10 @@ export class RoleService {
     }
     role.update(body);
     await this.roleRepository.save(role);
-    return new RoleDtoBuilder(role).exposePeerReviews().build();
+    return new RoleDtoBuilder(role)
+      .exposeContribution()
+      .exposePeerReviews()
+      .build();
   }
 
   /**

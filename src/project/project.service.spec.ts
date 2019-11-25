@@ -11,7 +11,6 @@ import {
   UserRepository,
   RoleEntity,
   RoleRepository,
-  Contributions,
   ContributionsModelService,
   ConsensualityModelService,
 } from '../common';
@@ -56,10 +55,7 @@ describe('project service', () => {
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
-    projectDto = new ProjectDtoBuilder(project)
-      .exposeContributions()
-      .exposeConsensuality()
-      .build();
+    projectDto = new ProjectDtoBuilder(project).exposeConsensuality().build();
   });
 
   test('should be defined', () => {
@@ -78,10 +74,7 @@ describe('project service', () => {
         entityFaker.project(user.id),
       ];
       projectDtos = projects.map(project =>
-        new ProjectDtoBuilder(project)
-          .exposeContributions()
-          .exposeConsensuality()
-          .build(),
+        new ProjectDtoBuilder(project).exposeConsensuality().build(),
       );
       query = GetProjectsQueryDto.from({});
       jest.spyOn(projectRepository, 'findPage').mockResolvedValue(projects);
@@ -222,7 +215,7 @@ describe('project service', () => {
     let role3: RoleEntity;
     let role4: RoleEntity;
     let peerReviews: Record<string, Record<string, number>>;
-    let contributions: Contributions;
+    let contributions: Record<string, number>;
     let consensuality: number;
     let dto: SubmitPeerReviewsDto;
 
@@ -287,7 +280,9 @@ describe('project service', () => {
         );
       }
       expect(roleRepository.save).toHaveBeenCalled();
-      expect(project.contributions).toEqual(contributions);
+      for (const role of [role1, role2, role3, role4]) {
+        expect(role.contribution).toEqual(contributions[role.id]);
+      }
       expect(project.consensuality).toEqual(consensuality);
       expect(projectRepository.save).toHaveBeenCalled();
     });

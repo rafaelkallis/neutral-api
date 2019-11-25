@@ -18,7 +18,10 @@ export class RoleDto extends BaseDto {
   public description: string;
 
   @ApiModelProperty({ required: false })
-  public peerReviews: string[] | null;
+  public contribution: number | null;
+
+  @ApiModelProperty({ required: false })
+  public peerReviews: [string, number][] | null;
 
   public constructor(
     id: string,
@@ -26,7 +29,8 @@ export class RoleDto extends BaseDto {
     assigneeId: string | null,
     title: string,
     description: string,
-    peerReviews: string[] | null,
+    contribution: number | null,
+    peerReviews: [string, number][] | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -35,6 +39,7 @@ export class RoleDto extends BaseDto {
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
+    this.contribution = contribution;
     this.peerReviews = peerReviews;
   }
 }
@@ -45,6 +50,12 @@ export class RoleDto extends BaseDto {
 export class RoleDtoBuilder {
   private readonly data: RoleEntity;
   private _exposePeerReviews = false;
+  private _exposeContribution = false;
+
+  public exposeContribution(value: boolean = true): this {
+    this._exposeContribution = value;
+    return this;
+  }
 
   public exposePeerReviews(value: boolean = true): this {
     this._exposePeerReviews = value;
@@ -58,7 +69,10 @@ export class RoleDtoBuilder {
       this.data.assigneeId,
       this.data.title,
       this.data.description,
-      this._exposePeerReviews ? this.data.peerReviews.map(pr => pr.id) : null,
+      this._exposeContribution ? this.data.contribution : null,
+      this._exposePeerReviews
+        ? this.data.peerReviews.map(pr => [pr.revieweeRoleId, pr.score])
+        : null,
       this.data.createdAt,
       this.data.updatedAt,
     );

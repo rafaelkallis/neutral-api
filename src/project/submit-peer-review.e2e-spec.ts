@@ -126,15 +126,11 @@ describe('submit peer review (e2e)', () => {
       id: project.id,
     });
     expect(updatedProject.state).toBe(ProjectState.FINISHED);
-    expect(updatedProject.contributions).toEqual(
-      expect.objectContaining({
-        [role1.id]: expect.any(Number),
-        [role2.id]: expect.any(Number),
-        [role3.id]: expect.any(Number),
-        [role4.id]: expect.any(Number),
-      }),
-    );
     expect(updatedProject.consensuality).toEqual(expect.any(Number));
+    const updatedRoles = await roleRepository.find({ projectId: project.id });
+    for (const updatedRole of updatedRoles) {
+      expect(updatedRole.contribution).toEqual(expect.any(Number));
+    }
   });
 
   test('happy path, not final peer review', async () => {
@@ -158,7 +154,10 @@ describe('submit peer review (e2e)', () => {
       id: project.id,
     });
     expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
-    expect(updatedProject.contributions).toBeFalsy();
+    const updatedRoles = await roleRepository.find({ projectId: project.id });
+    for (const updatedRole of updatedRoles) {
+      expect(updatedRole.contribution).toBeFalsy();
+    }
   });
 
   test('should fail if project is not in peer-review state', async () => {

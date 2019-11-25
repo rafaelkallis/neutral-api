@@ -17,17 +17,12 @@ export enum ProjectState {
   FINISHED = 'finished',
 }
 
-export interface Contributions {
-  [roleId: string]: number;
-}
-
 interface ProjectEntityOptions {
   id: string;
   title: string;
   description: string;
   ownerId: string;
   state: ProjectState;
-  contributions: Contributions | null;
   consensuality: number | null;
 }
 
@@ -55,11 +50,6 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsEnum(ProjectState)
   @MaxLength(255)
   public state!: ProjectState;
-
-  @Column({ name: 'contributions', type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsContributions()
-  public contributions!: Contributions | null;
 
   @Column({ name: 'consensuality', type: 'real', nullable: true })
   @IsNumber()

@@ -32,7 +32,6 @@ class EntityFaker {
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
       state: ProjectState.FORMATION,
-      contributions: null,
       consensuality: null,
     });
   }
@@ -47,6 +46,7 @@ class EntityFaker {
       assigneeId,
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
+      contribution: null,
       peerReviews: [],
     });
   }

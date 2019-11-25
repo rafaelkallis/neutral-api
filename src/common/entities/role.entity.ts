@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
@@ -11,6 +11,7 @@ interface RoleEntityOptions {
   assigneeId: string | null;
   title: string;
   description: string;
+  contribution: number | null;
   peerReviews: PeerReviewEntity[];
 }
 
@@ -39,6 +40,11 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @IsString()
   @MaxLength(1024)
   public description!: string;
+
+  @Column({ name: 'contribution', type: 'real', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  public contribution!: number | null;
 
   @OneToMany(() => PeerReviewEntity, peerReview => peerReview.reviewerRole, {
     eager: true,

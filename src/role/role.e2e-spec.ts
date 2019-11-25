@@ -20,6 +20,7 @@ describe('RoleController (e2e)', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
+  let tokenService: TokenService;
   let user: UserEntity;
   let project: ProjectEntity;
   let role: RoleEntity;
@@ -41,7 +42,7 @@ describe('RoleController (e2e)', () => {
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get(TokenService);
+    tokenService = module.get(TokenService);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });

@@ -56,7 +56,6 @@ export class ProjectService {
     const projects = await this.projectRepository.findPage(query);
     return projects.map(project =>
       new ProjectDtoBuilder(project)
-        .exposeContributions(project.isOwner(authUser))
         .exposeConsensuality(project.isOwner(authUser))
         .build(),
     );
@@ -71,7 +70,6 @@ export class ProjectService {
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
     return new ProjectDtoBuilder(project)
-      .exposeContributions(project.isOwner(authUser))
       .exposeConsensuality(project.isOwner(authUser))
       .build();
   }
@@ -89,14 +87,10 @@ export class ProjectService {
       title: dto.title,
       description: dto.description,
       state: ProjectState.FORMATION,
-      contributions: null,
       consensuality: null,
     });
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project)
-      .exposeContributions()
-      .exposeConsensuality()
-      .build();
+    return new ProjectDtoBuilder(project).exposeConsensuality().build();
   }
 
   /**
@@ -116,10 +110,7 @@ export class ProjectService {
     }
     project.update(dto);
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project)
-      .exposeContributions()
-      .exposeConsensuality()
-      .build();
+    return new ProjectDtoBuilder(project).exposeConsensuality().build();
   }
 
   /**
@@ -144,10 +135,7 @@ export class ProjectService {
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project)
-      .exposeContributions()
-      .exposeConsensuality()
-      .build();
+    return new ProjectDtoBuilder(project).exposeConsensuality().build();
   }
 
   /**
@@ -243,9 +231,13 @@ export class ProjectService {
         projectPeerReviews[role.id][revieweeRoleId] = score;
       }
     }
-    project.contributions = this.contributionsModelService.computeContributions(
+    const contributions = this.contributionsModelService.computeContributions(
       projectPeerReviews,
     );
+    for (const role of roles) {
+      role.contribution = contributions[role.id];
+      await this.roleRepository.save(role);
+    }
     project.consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InvariantViolationException } from '../exceptions/invariant-violation.exception';
-import { Contributions } from '../entities/project.entity';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -14,7 +13,7 @@ export class ContributionsModelService {
    */
   public computeContributions(
     peerReviews: Record<string, Record<string, number>>,
-  ): Contributions {
+  ): Record<string, number> {
     const ids: string[] = Object.keys(peerReviews).sort();
     const S: number[][] = [];
     for (const [i, iId] of ids.entries()) {
