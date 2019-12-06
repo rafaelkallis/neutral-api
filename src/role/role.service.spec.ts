@@ -375,6 +375,15 @@ describe('role service', () => {
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 
+    test('project owner assignment is allowed', async () => {
+      dto.assigneeId = owner.id;
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(owner);
+      await roleService.assignUser(owner, role1.id, dto);
+      expect(roleRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ assigneeId: owner.id }),
+      );
+    });
+
     test('should fail if authenticated user is not project owner', async () => {
       project.ownerId = primitiveFaker.id();
       await expect(
@@ -384,14 +393,6 @@ describe('role service', () => {
 
     test('should fail if project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await expect(
-        roleService.assignUser(owner, role1.id, dto),
-      ).rejects.toThrow();
-    });
-
-    test('should fail if project owner is assigned', async () => {
-      dto.assigneeId = owner.id;
-      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(owner);
       await expect(
         roleService.assignUser(owner, role1.id, dto),
       ).rejects.toThrow();

@@ -214,9 +214,6 @@ export class RoleService {
     role: RoleEntity,
     user: UserEntity,
   ): Promise<void> {
-    if (project.isOwner(user)) {
-      throw new ProjectOwnerRoleAssignmentException();
-    }
     const assignedRole = await this.roleRepository.findOne({
       id: Not(role.id),
       projectId: project.id,

@@ -90,6 +90,15 @@ describe('assign user to role', () => {
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 
+    test('project owner assignment is allowed', async () => {
+      assigneeId = project.ownerId;
+      const response = await session
+        .post(`/roles/${role.id}/assign`)
+        .send({ assigneeId });
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(expect.objectContaining({ assigneeId }));
+    });
+
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
       await projectRepository.save(project);
@@ -108,13 +117,6 @@ describe('assign user to role', () => {
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });
       expect(response.status).toBe(403);
-    });
-
-    test('should fail is project owner is assigned', async () => {
-      const response = await session
-        .post(`/roles/${role.id}/assign`)
-        .send({ assigneeId: project.ownerId });
-      expect(response.status).toBe(400);
     });
 
     test('should fail is user is already assigned to another role of the same project', async () => {
