@@ -6,7 +6,6 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Column, Entity } from 'typeorm';
-import { IsContributions } from '../validation/is-contributions';
 
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';

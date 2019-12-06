@@ -68,6 +68,10 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
     return this.assigneeId === user.id;
   }
 
+  public assign(user: UserEntity): void {
+    this.assigneeId = user.id;
+  }
+
   public hasPeerReviews(): boolean {
     return this.peerReviews.length > 0;
   }

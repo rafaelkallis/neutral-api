@@ -56,4 +56,16 @@ export class EmailService {
       dynamicTemplateData: { emailChangeMagicLink },
     });
   }
+
+  /**
+   * Sends an email to a user that was assigned to a role.
+   */
+  public async sendNewAssignmentEmail(to: string): Promise<void> {}
+
+  /**
+   * Sends an email to a user that is not registered but was assigned to a new role.
+   */
+  public async sendUnregisteredUserNewAssignmentEmail(
+    to: string,
+  ): Promise<void> {}
 }

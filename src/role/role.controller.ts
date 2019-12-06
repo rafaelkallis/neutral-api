@@ -24,6 +24,7 @@ import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { AssignmentDto } from './dto/assignment.dto';
 
 /**
  * Role Controller
@@ -129,5 +130,27 @@ export class RoleController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.roleService.deleteRole(authUser, id);
+  }
+
+  /**
+   * Assign user to a role
+   */
+  @Post(':id/assign')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Assign a user to a role' })
+  @ApiImplicitParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'Role updated succesfully' })
+  @ApiResponse({
+    status: 403,
+    description: "Authenticated user is not the role's project owner",
+  })
+  public async assignUser(
+    @AuthUser() authUser: UserEntity,
+    @Param('id') id: string,
+    @Body(ValidationPipe) dto: AssignmentDto,
+  ): Promise<RoleDto> {
+    return this.roleService.assignUser(authUser, id, dto);
   }
 }

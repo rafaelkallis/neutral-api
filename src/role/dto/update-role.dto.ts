@@ -2,7 +2,6 @@ import { ApiModelProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 interface UpdateRoleDtoProps {
-  assigneeId?: string | null;
   title?: string;
   description?: string;
 }
@@ -11,14 +10,6 @@ interface UpdateRoleDtoProps {
  * Update role DTO
  */
 export class UpdateRoleDto {
-  @IsString()
-  @IsOptional()
-  @ApiModelProperty({
-    description: 'The assignee of the role',
-    required: false,
-  })
-  public assigneeId?: string | null;
-
   @IsString()
   @IsOptional()
   @ApiModelProperty({
