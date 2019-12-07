@@ -1,4 +1,3 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -17,7 +16,6 @@ import { entityFaker, primitiveFaker } from '../test';
 import { ProjectDtoBuilder } from './dto/project.dto';
 
 describe('ProjectController (e2e)', () => {
-  let app: INestApplication;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -33,7 +31,7 @@ describe('ProjectController (e2e)', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = await userRepository.save(entityFaker.user());
-    app = module.createNestApplication();
+    const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TokenService);
@@ -52,7 +50,7 @@ describe('ProjectController (e2e)', () => {
         .get('/projects')
         .query({ after: project.id });
       expect(response.status).toBe(200);
-      const projectDto = new ProjectDtoBuilder(project).build();
+      const projectDto = new ProjectDtoBuilder(project, user).build();
       expect(response.body).not.toContainEqual(projectDto);
       for (const responseProject of response.body) {
         expect(responseProject.id > project.id).toBeTruthy();

@@ -56,9 +56,7 @@ export class ProjectService {
   ): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.findPage(query);
     return projects.map(project =>
-      new ProjectDtoBuilder(project)
-        .exposeConsensuality(project.isOwner(authUser))
-        .build(),
+      new ProjectDtoBuilder(project, authUser).build(),
     );
   }
 
@@ -70,9 +68,7 @@ export class ProjectService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOneOrFail({ id });
-    return new ProjectDtoBuilder(project)
-      .exposeConsensuality(project.isOwner(authUser))
-      .build();
+    return new ProjectDtoBuilder(project, authUser).build();
   }
 
   /**
@@ -93,7 +89,7 @@ export class ProjectService {
         dto.contributionVisibility || ContributionVisibility.SELF,
     });
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project).exposeConsensuality().build();
+    return new ProjectDtoBuilder(project, authUser).build();
   }
 
   /**
@@ -113,7 +109,7 @@ export class ProjectService {
     }
     project.update(dto);
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project).exposeConsensuality().build();
+    return new ProjectDtoBuilder(project, authUser).build();
   }
 
   /**
@@ -138,7 +134,7 @@ export class ProjectService {
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.save(project);
-    return new ProjectDtoBuilder(project).exposeConsensuality().build();
+    return new ProjectDtoBuilder(project, authUser).build();
   }
 
   /**

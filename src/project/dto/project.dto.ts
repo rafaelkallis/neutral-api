@@ -1,5 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import {
+  UserEntity,
   ProjectEntity,
   BaseDto,
   ProjectState,
@@ -57,29 +58,31 @@ export class ProjectDto extends BaseDto {
 }
 
 export class ProjectDtoBuilder {
-  private readonly data: ProjectEntity;
-  private _exposeConsensuality = false;
+  private readonly project: ProjectEntity;
+  private readonly authUser: UserEntity;
 
-  public exposeConsensuality(value: boolean = true): this {
-    this._exposeConsensuality = value;
-    return this;
+  public constructor(project: ProjectEntity, authUser: UserEntity) {
+    this.project = project;
+    this.authUser = authUser;
   }
 
   public build(): ProjectDto {
+    const { project } = this;
     return new ProjectDto(
-      this.data.id,
-      this.data.title,
-      this.data.description,
-      this.data.ownerId,
-      this.data.state,
-      this._exposeConsensuality ? this.data.consensuality : null,
-      this.data.contributionVisibility,
-      this.data.createdAt,
-      this.data.updatedAt,
+      project.id,
+      project.title,
+      project.description,
+      project.ownerId,
+      project.state,
+      this.shouldExposeConsensuality() ? project.consensuality : null,
+      project.contributionVisibility,
+      project.createdAt,
+      project.updatedAt,
     );
   }
 
-  public constructor(data: ProjectEntity) {
-    this.data = data;
+  private shouldExposeConsensuality(): boolean {
+    const { project, authUser } = this;
+    return project.isOwner(authUser);
   }
 }
