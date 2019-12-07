@@ -41,7 +41,7 @@ describe('user service', () => {
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
     user = entityFaker.user();
-    userDto = new UserDtoBuilder(user).exposeEmail().build();
+    userDto = new UserDtoBuilder(user, user).build();
   });
 
   it('should be defined', () => {
@@ -56,7 +56,7 @@ describe('user service', () => {
     beforeEach(() => {
       query = GetUsersQueryDto.from({});
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
-      userDtos = users.map(user => new UserDtoBuilder(user).build());
+      userDtos = users.map(u => new UserDtoBuilder(u, user).build());
       jest.spyOn(userRepository, 'findPage').mockResolvedValue(users);
       jest.spyOn(userRepository, 'findByName').mockResolvedValue(users);
     });
@@ -142,7 +142,7 @@ describe('user service', () => {
 
     test('should not expose email of another user', async () => {
       const otherUser = entityFaker.user();
-      const otherUserDto = new UserDtoBuilder(otherUser).build();
+      const otherUserDto = new UserDtoBuilder(otherUser, user).build();
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(otherUser);
       await expect(userService.getUser(user, otherUser.id)).resolves.toEqual(
         otherUserDto,

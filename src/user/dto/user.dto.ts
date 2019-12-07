@@ -30,26 +30,28 @@ export class UserDto extends BaseDto {
 }
 
 export class UserDtoBuilder {
-  private readonly data: UserEntity;
-  private _exposeEmail = false;
+  private readonly user: UserEntity;
+  private readonly authUser: UserEntity;
 
-  public exposeEmail(value: boolean = true): this {
-    this._exposeEmail = value;
-    return this;
+  public constructor(user: UserEntity, authUser: UserEntity) {
+    this.user = user;
+    this.authUser = authUser;
   }
 
   public build(): UserDto {
+    const { user } = this;
     return new UserDto(
-      this.data.id,
-      this._exposeEmail ? this.data.email : null,
-      this.data.firstName,
-      this.data.lastName,
-      this.data.createdAt,
-      this.data.updatedAt,
+      user.id,
+      this.shouldExposeEmail() ? user.email : null,
+      user.firstName,
+      user.lastName,
+      user.createdAt,
+      user.updatedAt,
     );
   }
 
-  public constructor(data: UserEntity) {
-    this.data = data;
+  private shouldExposeEmail(): boolean {
+    const { user, authUser } = this;
+    return user.id === authUser.id;
   }
 }

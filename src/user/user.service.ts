@@ -43,18 +43,14 @@ export class UserService {
     } else {
       users = await this.userRepository.findPage(query);
     }
-    const userDtos = users.map(user =>
-      new UserDtoBuilder(user).exposeEmail(user.id === authUser.id).build(),
-    );
-    return userDtos;
+    return users.map(user => new UserDtoBuilder(user, authUser).build());
   }
 
   /**
    * Get the authenticated user
    */
   public async getAuthUser(authUser: UserEntity): Promise<UserDto> {
-    const userDto = new UserDtoBuilder(authUser).exposeEmail().build();
-    return userDto;
+    return new UserDtoBuilder(authUser, authUser).build();
   }
 
   /**
@@ -81,8 +77,7 @@ export class UserService {
     }
     authUser.update(otherChanges);
     await this.userRepository.save(authUser);
-    const userDto = new UserDtoBuilder(authUser).exposeEmail().build();
-    return userDto;
+    return new UserDtoBuilder(authUser, authUser).build();
   }
 
   /**
@@ -103,10 +98,7 @@ export class UserService {
    */
   public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
     const user = await this.userRepository.findOneOrFail({ id });
-    const userDto = new UserDtoBuilder(user)
-      .exposeEmail(user.id === authUser.id)
-      .build();
-    return userDto;
+    return new UserDtoBuilder(user, authUser).build();
   }
 
   /**

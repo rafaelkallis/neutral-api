@@ -1,4 +1,3 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -8,7 +7,6 @@ import { entityFaker } from '../test';
 import { UserDtoBuilder } from './dto/user.dto';
 
 describe('UserController (e2e)', () => {
-  let app: INestApplication;
   let userRepository: UserRepository;
   let user: UserEntity;
   let session: request.SuperTest<request.Test>;
@@ -21,17 +19,13 @@ describe('UserController (e2e)', () => {
     userRepository = module.get(UserRepository);
     user = await userRepository.save(entityFaker.user());
 
-    app = module.createNestApplication();
+    const app = module.createNestApplication();
     await app.init();
 
     session = request.agent(app.getHttpServer());
     const tokenService = module.get(TokenService);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
-  });
-
-  test('should be defined', () => {
-    expect(app).toBeDefined();
   });
 
   describe('/users (GET)', () => {
@@ -42,7 +36,7 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ after: user.id });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const userDto = new UserDtoBuilder(user).build();
+      const userDto = new UserDtoBuilder(user, user).build();
       expect(response.body).not.toContainEqual(userDto);
       for (const responseUser of response.body) {
         expect(responseUser.id > user.id).toBeTruthy();
@@ -65,11 +59,11 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const user1Dto = new UserDtoBuilder(user1).build();
+      const user1Dto = new UserDtoBuilder(user1, user).build();
       expect(response.body).toContainEqual(user1Dto);
-      const user2Dto = new UserDtoBuilder(user2).build();
+      const user2Dto = new UserDtoBuilder(user2, user).build();
       expect(response.body).toContainEqual(user2Dto);
-      const user3Dto = new UserDtoBuilder(user3).build();
+      const user3Dto = new UserDtoBuilder(user3, user).build();
       expect(response.body).toContainEqual(user3Dto);
     });
   });
