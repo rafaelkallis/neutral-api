@@ -3,6 +3,7 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
+  SkipManagerReview,
   UserEntity,
   PeerReviewEntity,
 } from '../common';
@@ -35,6 +36,7 @@ class EntityFaker {
       state: ProjectState.FORMATION,
       consensuality: null,
       contributionVisibility: ContributionVisibility.SELF,
+      skipManagerReview: SkipManagerReview.IF_CONSENSUAL,
     });
   }
 

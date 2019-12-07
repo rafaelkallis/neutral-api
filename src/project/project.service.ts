@@ -5,6 +5,7 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
+  SkipManagerReview,
   ProjectRepository,
   RoleEntity,
   RoleRepository,
@@ -89,6 +90,7 @@ export class ProjectService {
       consensuality: null,
       contributionVisibility:
         dto.contributionVisibility || ContributionVisibility.SELF,
+      skipManagerReview: dto.skipManagerReview || SkipManagerReview.NO,
     });
     await this.projectRepository.save(project);
     return new ProjectDtoBuilder(project, authUser).build();

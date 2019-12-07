@@ -25,6 +25,7 @@ export {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
+  SkipManagerReview,
 } from './entities/project.entity';
 export { RoleEntity } from './entities/role.entity';
 export { PeerReviewEntity } from './entities/peer-review.entity';

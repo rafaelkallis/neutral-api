@@ -5,6 +5,7 @@ import {
   BaseDto,
   ProjectState,
   ContributionVisibility,
+  SkipManagerReview,
 } from '../../common';
 
 /**
@@ -36,6 +37,9 @@ export class ProjectDto extends BaseDto {
   @ApiModelProperty({ example: ContributionVisibility.SELF })
   public contributionVisibility: ContributionVisibility;
 
+  @ApiModelProperty({ example: SkipManagerReview.IF_CONSENSUAL })
+  public skipManagerReview: SkipManagerReview;
+
   public constructor(
     id: string,
     title: string,
@@ -44,6 +48,7 @@ export class ProjectDto extends BaseDto {
     state: ProjectState,
     teamSpirit: number | null,
     contributionVisibility: ContributionVisibility,
+    skipManagerReview: SkipManagerReview,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -54,6 +59,7 @@ export class ProjectDto extends BaseDto {
     this.state = state;
     this.teamSpirit = teamSpirit;
     this.contributionVisibility = contributionVisibility;
+    this.skipManagerReview = skipManagerReview;
   }
 }
 
@@ -76,6 +82,7 @@ export class ProjectDtoBuilder {
       project.state,
       this.shouldExposeConsensuality() ? project.consensuality : null,
       project.contributionVisibility,
+      project.skipManagerReview,
       project.createdAt,
       project.updatedAt,
     );

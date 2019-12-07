@@ -1,11 +1,12 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
-import { ContributionVisibility } from '../../common';
+import { ContributionVisibility, SkipManagerReview } from '../../common';
 
 interface CreateProjectDtoOptions {
   title: string;
   description: string;
   contributionVisibility?: ContributionVisibility;
+  skipManagerReview?: SkipManagerReview;
 }
 
 /**
@@ -36,17 +37,28 @@ export class CreateProjectDto {
   })
   public contributionVisibility?: ContributionVisibility;
 
+  @IsEnum(SkipManagerReview)
+  @IsOptional()
+  @ApiModelProperty({
+    example: SkipManagerReview.IF_CONSENSUAL,
+    required: false,
+    description: 'option to skip manager review',
+  })
+  public skipManagerReview?: SkipManagerReview;
+
   private constructor() {}
 
   public static from({
     title,
     description,
     contributionVisibility,
+    skipManagerReview,
   }: CreateProjectDtoOptions): CreateProjectDto {
     const dto = new CreateProjectDto();
     dto.title = title;
     dto.description = description;
     dto.contributionVisibility = contributionVisibility;
+    dto.skipManagerReview = skipManagerReview;
     return dto;
   }
 }

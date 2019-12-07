@@ -10,17 +10,24 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 
+export enum ProjectState {
+  FORMATION = 'formation',
+  PEER_REVIEW = 'peer-review',
+  MANAGER_REVIEW = 'manager-review',
+  FINISHED = 'finished',
+}
+
 export enum ContributionVisibility {
   ALL = 'all',
   SELF = 'self',
   NONE = 'none',
 }
 
-export enum ProjectState {
-  FORMATION = 'formation',
-  PEER_REVIEW = 'peer-review',
-  MANAGER_REVIEW = 'manager-review',
-  FINISHED = 'finished',
+export enum SkipManagerReview {
+  YES = 'yes',
+  IF_NON_COLLUSIVE = 'if-non-collusive',
+  IF_CONSENSUAL = 'if-consensual',
+  NO = 'no',
 }
 
 interface ProjectEntityOptions {
@@ -31,6 +38,7 @@ interface ProjectEntityOptions {
   state: ProjectState;
   consensuality: number | null;
   contributionVisibility: ContributionVisibility;
+  skipManagerReview: SkipManagerReview;
 }
 
 /**
@@ -67,6 +75,11 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsEnum(ContributionVisibility)
   @MaxLength(255)
   public contributionVisibility!: ContributionVisibility;
+
+  @Column({ name: 'skip_manager_review' })
+  @IsEnum(SkipManagerReview)
+  @MaxLength(255)
+  public skipManagerReview!: SkipManagerReview;
 
   public static from(options: ProjectEntityOptions): ProjectEntity {
     return Object.assign(new ProjectEntity(), options);
