@@ -16,6 +16,8 @@ import {
 } from '../common';
 
 import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
+import { ProjectNotPeerReviewStateException } from './exceptions/project-not-peer-review-state.exception';
+import { ProjectNotManagerReviewStateException } from './exceptions/project-not-manager-review-state.exception';
 import { RoleNoUserAssignedException } from './exceptions/role-no-user-assigned.exception';
 import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
 import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
@@ -160,7 +162,7 @@ export class ProjectService {
       id: projectId,
     });
     if (!project.isPeerReviewState()) {
-      throw new InvalidPeerReviewsException();
+      throw new ProjectNotPeerReviewStateException();
     }
 
     const authUserRole = await this.roleRepository.findOne({
@@ -240,6 +242,26 @@ export class ProjectService {
     project.consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );
+    project.state = ProjectState.MANAGER_REVIEW;
+    await this.projectRepository.save(project);
+  }
+
+  /**
+   * Call to submit the manager review.
+   */
+  public async submitManagerReview(
+    authUser: UserEntity,
+    projectId: string,
+  ): Promise<void> {
+    const project = await this.projectRepository.findOneOrFail({
+      id: projectId,
+    });
+    if (!project.isOwner(authUser)) {
+      throw new InsufficientPermissionsException();
+    }
+    if (!project.isManagerReviewState()) {
+      throw new ProjectNotManagerReviewStateException();
+    }
     project.state = ProjectState.FINISHED;
     await this.projectRepository.save(project);
   }

@@ -19,6 +19,7 @@ export enum ContributionVisibility {
 export enum ProjectState {
   FORMATION = 'formation',
   PEER_REVIEW = 'peer-review',
+  MANAGER_REVIEW = 'manager-review',
   FINISHED = 'finished',
 }
 
@@ -85,6 +86,10 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
 
   public isPeerReviewState(): boolean {
     return this.state === ProjectState.PEER_REVIEW;
+  }
+
+  public isManagerReviewState(): boolean {
+    return this.state === ProjectState.MANAGER_REVIEW;
   }
 
   public isFinishedState(): boolean {

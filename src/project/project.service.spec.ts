@@ -272,7 +272,7 @@ describe('project service', () => {
       expect(
         consensualityModelService.computeConsensuality,
       ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
-      expect(project.state).toBe(ProjectState.FINISHED);
+      expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
       expect(role1.peerReviews).toHaveLength(3);
       for (const peerReview of role1.peerReviews) {
         expect(peerReview.score).toBe(
@@ -326,6 +326,42 @@ describe('project service', () => {
       dto.peerReviews[primitiveFaker.id()] = 1 / 3;
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('submit manager review', () => {
+    let user: UserEntity;
+    let project: ProjectEntity;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      project = entityFaker.project(user.id);
+      project.state = ProjectState.MANAGER_REVIEW;
+
+      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+    });
+
+    test('happy path', async () => {
+      await expect(
+        projectService.submitManagerReview(user, project.id),
+      ).resolves.not.toThrow();
+      expect(project.state).toBe(ProjectState.FINISHED);
+      expect(projectRepository.save).toHaveBeenCalledWith(project);
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const otherUser = entityFaker.user();
+      await expect(
+        projectService.submitManagerReview(otherUser, project.id),
+      ).rejects.toThrow();
+    });
+
+    test('should fail if project is not in manager-review state', async () => {
+      const otherUser = entityFaker.user();
+      await expect(
+        projectService.submitManagerReview(otherUser, project.id),
       ).rejects.toThrow();
     });
   });

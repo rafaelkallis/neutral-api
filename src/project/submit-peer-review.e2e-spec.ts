@@ -125,7 +125,7 @@ describe('submit peer review (e2e)', () => {
     const updatedProject = await projectRepository.findOneOrFail({
       id: project.id,
     });
-    expect(updatedProject.state).toBe(ProjectState.FINISHED);
+    expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);
     expect(updatedProject.consensuality).toEqual(expect.any(Number));
     const updatedRoles = await roleRepository.find({ projectId: project.id });
     for (const updatedRole of updatedRoles) {

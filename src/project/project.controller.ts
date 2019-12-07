@@ -149,7 +149,7 @@ export class ProjectController {
   }
 
   /**
-   * Call to submit reviews over one's project peers.
+   * Call to submit peer reviews.
    */
   @Post('/:id/submit-peer-reviews')
   @HttpCode(200)
@@ -167,5 +167,28 @@ export class ProjectController {
     @Body() dto: SubmitPeerReviewsDto,
   ): Promise<void> {
     return this.projectService.submitPeerReviews(authUser, id, dto);
+  }
+
+  /**
+   * Call to submit manager review.
+   */
+  @Post('/:id/submit-manager-review')
+  @HttpCode(200)
+  @ApiBearerAuth()
+  @ApiOperation({ title: 'Submit manager reviews' })
+  @ApiResponse({
+    status: 200,
+    description: 'Manager review submitted successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Project not in manager-review state',
+  })
+  @ApiResponse({ status: 400, description: 'Not the project owner' })
+  public async submitManagerReview(
+    @AuthUser() authUser: UserEntity,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.projectService.submitManagerReview(authUser, id);
   }
 }
