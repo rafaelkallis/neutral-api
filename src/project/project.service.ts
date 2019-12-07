@@ -244,7 +244,24 @@ export class ProjectService {
     project.consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );
-    project.state = ProjectState.MANAGER_REVIEW;
+    switch (project.skipManagerReview) {
+      case SkipManagerReview.YES: {
+        project.state = ProjectState.FINISHED;
+        break;
+      }
+      case SkipManagerReview.IF_CONSENSUAL: {
+        project.state = this.consensualityModelService.isConsensual(
+          project.consensuality,
+        )
+          ? ProjectState.FINISHED
+          : ProjectState.MANAGER_REVIEW;
+        break;
+      }
+      case SkipManagerReview.NO: {
+        project.state = ProjectState.MANAGER_REVIEW;
+        break;
+      }
+    }
     await this.projectRepository.save(project);
   }
 

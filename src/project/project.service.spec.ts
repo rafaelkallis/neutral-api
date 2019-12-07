@@ -4,6 +4,7 @@ import {
   ConfigService,
   ProjectEntity,
   ProjectState,
+  SkipManagerReview,
   ProjectRepository,
   RandomService,
   TokenService,
@@ -262,45 +263,77 @@ describe('project service', () => {
       jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
     });
 
-    test('happy path, final peer review', async () => {
-      await expect(
-        projectService.submitPeerReviews(user, project.id, dto),
-      ).resolves.not.toThrow();
-      expect(
-        contributionsModelService.computeContributions,
-      ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
-      expect(
-        consensualityModelService.computeConsensuality,
-      ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
-      expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
-      expect(role1.peerReviews).toHaveLength(3);
-      for (const peerReview of role1.peerReviews) {
-        expect(peerReview.score).toBe(
-          peerReviews[role1.id][peerReview.revieweeRoleId],
-        );
-      }
-      expect(roleRepository.save).toHaveBeenCalled();
-      for (const role of [role1, role2, role3, role4]) {
-        expect(role.contribution).toEqual(contributions[role.id]);
-      }
-      expect(project.consensuality).toEqual(consensuality);
-      expect(projectRepository.save).toHaveBeenCalled();
-    });
+    describe('happy path', () => {
+      test('final peer review', async () => {
+        await expect(
+          projectService.submitPeerReviews(user, project.id, dto),
+        ).resolves.not.toThrow();
+        expect(
+          contributionsModelService.computeContributions,
+        ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
+        expect(
+          consensualityModelService.computeConsensuality,
+        ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
+        expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
+        expect(role1.peerReviews).toHaveLength(3);
+        for (const peerReview of role1.peerReviews) {
+          expect(peerReview.score).toBe(
+            peerReviews[role1.id][peerReview.revieweeRoleId],
+          );
+        }
+        expect(roleRepository.save).toHaveBeenCalled();
+        for (const role of [role1, role2, role3, role4]) {
+          expect(role.contribution).toEqual(contributions[role.id]);
+        }
+        expect(project.consensuality).toEqual(consensuality);
+        expect(projectRepository.save).toHaveBeenCalled();
+      });
 
-    test('should not compute contributions and team spirit if not final peer review,', async () => {
-      role2.peerReviews = [];
-      await expect(
-        projectService.submitPeerReviews(user, project.id, dto),
-      ).resolves.not.toThrow();
-      expect(roleRepository.save).toHaveBeenCalled();
-      expect(
-        contributionsModelService.computeContributions,
-      ).not.toHaveBeenCalled();
-      expect(
-        consensualityModelService.computeConsensuality,
-      ).not.toHaveBeenCalled();
-      expect(project.state).toBe(ProjectState.PEER_REVIEW);
-      expect(projectRepository.save).not.toHaveBeenCalled();
+      test('final peer review, should skip manager review if "skipManagerReview" is "yes"', async () => {
+        project.skipManagerReview = SkipManagerReview.YES;
+        await projectService.submitPeerReviews(user, project.id, dto);
+        expect(project.state).toBe(ProjectState.FINISHED);
+      });
+
+      test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', async () => {
+        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
+        jest
+          .spyOn(consensualityModelService, 'isConsensual')
+          .mockReturnValue(true);
+        await projectService.submitPeerReviews(user, project.id, dto);
+        expect(project.state).toBe(ProjectState.FINISHED);
+      });
+
+      test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', async () => {
+        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
+        jest
+          .spyOn(consensualityModelService, 'isConsensual')
+          .mockReturnValue(false);
+        await projectService.submitPeerReviews(user, project.id, dto);
+        expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
+      });
+
+      test('final peer review, should not skip manager review if "skipManagerReview" is "no"', async () => {
+        project.skipManagerReview = SkipManagerReview.NO;
+        await projectService.submitPeerReviews(user, project.id, dto);
+        expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
+      });
+
+      test('not final peer review, should not compute contributions and team spirit', async () => {
+        role2.peerReviews = [];
+        await expect(
+          projectService.submitPeerReviews(user, project.id, dto),
+        ).resolves.not.toThrow();
+        expect(roleRepository.save).toHaveBeenCalled();
+        expect(
+          contributionsModelService.computeContributions,
+        ).not.toHaveBeenCalled();
+        expect(
+          consensualityModelService.computeConsensuality,
+        ).not.toHaveBeenCalled();
+        expect(project.state).toBe(ProjectState.PEER_REVIEW);
+        expect(projectRepository.save).not.toHaveBeenCalled();
+      });
     });
 
     test('should fail if project is not in peer-review state', async () => {

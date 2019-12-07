@@ -8,6 +8,11 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class ConsensualityModelService {
   /**
+   *
+   */
+  public static CONSENSUALITY_THRESHOLD = 0.8;
+
+  /**
    * Computes a project's consensuality.
    */
   public computeConsensuality(
@@ -40,6 +45,10 @@ export class ConsensualityModelService {
       }
     }
     return 1 - deviation / maxDeviation;
+  }
+
+  public isConsensual(consensuality: number): boolean {
+    return consensuality >= ConsensualityModelService.CONSENSUALITY_THRESHOLD;
   }
 }
 

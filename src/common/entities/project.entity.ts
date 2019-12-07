@@ -25,7 +25,6 @@ export enum ContributionVisibility {
 
 export enum SkipManagerReview {
   YES = 'yes',
-  IF_NON_COLLUSIVE = 'if-non-collusive',
   IF_CONSENSUAL = 'if-consensual',
   NO = 'no',
 }
