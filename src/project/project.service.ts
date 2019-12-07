@@ -4,6 +4,7 @@ import {
   InsufficientPermissionsException,
   ProjectEntity,
   ProjectState,
+  ContributionVisibility,
   ProjectRepository,
   RoleEntity,
   RoleRepository,
@@ -88,6 +89,8 @@ export class ProjectService {
       description: dto.description,
       state: ProjectState.FORMATION,
       consensuality: null,
+      contributionVisibility:
+        dto.contributionVisibility || ContributionVisibility.SELF,
     });
     await this.projectRepository.save(project);
     return new ProjectDtoBuilder(project).exposeConsensuality().build();

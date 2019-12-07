@@ -89,6 +89,7 @@ describe('role service', () => {
     });
 
     test('should expose contribution if role assignee', async () => {
+      project.state = ProjectState.FINISHED;
       const assignee = entityFaker.user();
       role1.assigneeId = assignee.id;
       role1.contribution = 0.5;
@@ -171,6 +172,7 @@ describe('role service', () => {
       const assignee = entityFaker.user();
       role1.assigneeId = assignee.id;
       role1.contribution = 0.5;
+      project.state = ProjectState.FINISHED;
       const roleDto = await roleService.getRole(assignee, role1.id);
       expect(roleDto.contribution).toEqual(0.5);
     });

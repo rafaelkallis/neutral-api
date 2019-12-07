@@ -21,7 +21,6 @@ import { ProjectNotFormationStateException } from './exceptions/project-not-form
 import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
 import { CreateRoleOutsideFormationStateException } from './exceptions/create-role-outside-formation-state.exception';
 import { UserNotRoleProjectOwnerException } from './exceptions/user-not-role-project-owner.exception';
-import { ProjectOwnerRoleAssignmentException } from './exceptions/project-owner-role-assignment.exception';
 import { AlreadyAssignedRoleSameProjectException } from './exceptions/already-assigned-role-same-project.exception';
 import { NoAssigneeException } from './exceptions/no-assignee.exception';
 
@@ -59,14 +58,7 @@ export class RoleService {
     });
     const roles = await this.roleRepository.find(query);
     return roles.map(role =>
-      new RoleDtoBuilder(role)
-        .exposeContribution(
-          role.isAssignee(authUser) || project.isOwner(authUser),
-        )
-        .exposePeerReviews(
-          role.isAssignee(authUser) || project.isOwner(authUser),
-        )
-        .build(),
+      new RoleDtoBuilder(role, project, authUser).build(),
     );
   }
 
@@ -76,12 +68,7 @@ export class RoleService {
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOneOrFail(id);
     const project = await this.projectRepository.findOneOrFail(role.projectId);
-    return new RoleDtoBuilder(role)
-      .exposeContribution(
-        role.isAssignee(authUser) || project.isOwner(authUser),
-      )
-      .exposePeerReviews(role.isAssignee(authUser) || project.isOwner(authUser))
-      .build();
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**
@@ -116,10 +103,7 @@ export class RoleService {
       peerReviews: [],
     });
     role = await this.roleRepository.save(role);
-    const roleDto = new RoleDtoBuilder(role)
-      .exposeContribution()
-      .exposePeerReviews()
-      .build();
+    const roleDto = new RoleDtoBuilder(role, project, authUser).build();
     return roleDto;
   }
 
@@ -143,10 +127,7 @@ export class RoleService {
     }
     role.update(body);
     await this.roleRepository.save(role);
-    return new RoleDtoBuilder(role)
-      .exposeContribution()
-      .exposePeerReviews()
-      .build();
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**
@@ -200,10 +181,7 @@ export class RoleService {
         await this.assignExistingUser(project, role, user);
       }
     }
-    return new RoleDtoBuilder(role)
-      .exposeContribution()
-      .exposePeerReviews()
-      .build();
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**

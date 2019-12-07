@@ -1,5 +1,11 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto, RoleEntity } from '../../common';
+import {
+  BaseDto,
+  RoleEntity,
+  ProjectEntity,
+  UserEntity,
+  ContributionVisibility,
+} from '../../common';
 
 /**
  * Role DTO
@@ -48,37 +54,67 @@ export class RoleDto extends BaseDto {
  * Role DTO Builder
  */
 export class RoleDtoBuilder {
-  private readonly data: RoleEntity;
-  private _exposePeerReviews = false;
-  private _exposeContribution = false;
-
-  public exposeContribution(value: boolean = true): this {
-    this._exposeContribution = value;
-    return this;
-  }
-
-  public exposePeerReviews(value: boolean = true): this {
-    this._exposePeerReviews = value;
-    return this;
-  }
+  private readonly role: RoleEntity;
+  private readonly project: ProjectEntity;
+  private readonly authUser: UserEntity;
 
   public build(): RoleDto {
+    const { role } = this;
     return new RoleDto(
-      this.data.id,
-      this.data.projectId,
-      this.data.assigneeId,
-      this.data.title,
-      this.data.description,
-      this._exposeContribution ? this.data.contribution : null,
-      this._exposePeerReviews
-        ? this.data.peerReviews.map(pr => [pr.revieweeRoleId, pr.score])
+      role.id,
+      role.projectId,
+      role.assigneeId,
+      role.title,
+      role.description,
+      this.shouldExposeContribution() ? role.contribution : null,
+      this.shouldExposePeerReviews()
+        ? role.peerReviews.map(pr => [pr.revieweeRoleId, pr.score])
         : null,
-      this.data.createdAt,
-      this.data.updatedAt,
+      role.createdAt,
+      role.updatedAt,
     );
   }
 
-  public constructor(data: RoleEntity) {
-    this.data = data;
+  public constructor(
+    role: RoleEntity,
+    project: ProjectEntity,
+    authUser: UserEntity,
+  ) {
+    this.role = role;
+    this.project = project;
+    this.authUser = authUser;
+  }
+
+  private shouldExposeContribution(): boolean {
+    const { role, project, authUser } = this;
+    if (project.isOwner(authUser)) {
+      return true;
+    }
+    if (
+      project.isFinishedState() &&
+      project.contributionVisibility === ContributionVisibility.ALL
+    ) {
+      // FIXME: should not expose if authUser is not part of project
+      return true;
+    }
+    if (
+      project.isFinishedState() &&
+      project.contributionVisibility === ContributionVisibility.SELF &&
+      role.isAssignee(authUser)
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  private shouldExposePeerReviews(): boolean {
+    const { role, project, authUser } = this;
+    if (project.isOwner(authUser)) {
+      return true;
+    }
+    if (role.isAssignee(authUser)) {
+      return true;
+    }
+    return false;
   }
 }

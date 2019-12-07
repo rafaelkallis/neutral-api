@@ -21,7 +21,11 @@ export { BaseDto } from './dto/base.dto';
 
 export { BaseEntity } from './entities/base.entity';
 export { UserEntity } from './entities/user.entity';
-export { ProjectEntity, ProjectState } from './entities/project.entity';
+export {
+  ProjectEntity,
+  ProjectState,
+  ContributionVisibility,
+} from './entities/project.entity';
 export { RoleEntity } from './entities/role.entity';
 export { PeerReviewEntity } from './entities/peer-review.entity';
 

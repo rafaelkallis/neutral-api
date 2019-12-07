@@ -1,9 +1,11 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { ContributionVisibility } from '../../common';
 
 interface CreateProjectDtoOptions {
   title: string;
   description: string;
+  contributionVisibility?: ContributionVisibility;
 }
 
 /**
@@ -25,15 +27,26 @@ export class CreateProjectDto {
   })
   public description!: string;
 
+  @IsEnum(ContributionVisibility)
+  @IsOptional()
+  @ApiModelProperty({
+    example: ContributionVisibility.SELF,
+    required: false,
+    description: 'contributions visibility level',
+  })
+  public contributionVisibility?: ContributionVisibility;
+
   private constructor() {}
 
   public static from({
     title,
     description,
+    contributionVisibility,
   }: CreateProjectDtoOptions): CreateProjectDto {
     const dto = new CreateProjectDto();
     dto.title = title;
     dto.description = description;
+    dto.contributionVisibility = contributionVisibility;
     return dto;
   }
 }

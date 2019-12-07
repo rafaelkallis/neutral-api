@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
+import { ProjectEntity, ContributionVisibility } from './project.entity';
 import { PeerReviewEntity } from './peer-review.entity';
 
 interface RoleEntityOptions {

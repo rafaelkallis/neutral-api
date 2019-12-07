@@ -2,6 +2,7 @@ import {
   RoleEntity,
   ProjectEntity,
   ProjectState,
+  ContributionVisibility,
   UserEntity,
   PeerReviewEntity,
 } from '../common';
@@ -33,6 +34,7 @@ class EntityFaker {
       description: primitiveFaker.paragraph(),
       state: ProjectState.FORMATION,
       consensuality: null,
+      contributionVisibility: ContributionVisibility.SELF,
     });
   }
 

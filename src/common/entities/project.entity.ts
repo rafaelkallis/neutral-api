@@ -10,6 +10,12 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 
+export enum ContributionVisibility {
+  ALL = 'all',
+  SELF = 'self',
+  NONE = 'none',
+}
+
 export enum ProjectState {
   FORMATION = 'formation',
   PEER_REVIEW = 'peer-review',
@@ -23,6 +29,7 @@ interface ProjectEntityOptions {
   ownerId: string;
   state: ProjectState;
   consensuality: number | null;
+  contributionVisibility: ContributionVisibility;
 }
 
 /**
@@ -54,6 +61,11 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsNumber()
   @IsOptional()
   public consensuality!: number | null;
+
+  @Column({ name: 'contribution_visibility' })
+  @IsEnum(ContributionVisibility)
+  @MaxLength(255)
+  public contributionVisibility!: ContributionVisibility;
 
   public static from(options: ProjectEntityOptions): ProjectEntity {
     return Object.assign(new ProjectEntity(), options);
