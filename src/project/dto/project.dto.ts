@@ -1,5 +1,10 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { ProjectEntity, BaseDto, ProjectState } from '../../common';
+import {
+  ProjectEntity,
+  BaseDto,
+  ProjectState,
+  ContributionVisibility,
+} from '../../common';
 
 /**
  * Project DTO
@@ -27,6 +32,9 @@ export class ProjectDto extends BaseDto {
   @ApiModelProperty()
   public teamSpirit: number | null;
 
+  @ApiModelProperty({ example: ContributionVisibility.SELF })
+  public contributionVisibility: ContributionVisibility;
+
   public constructor(
     id: string,
     title: string,
@@ -34,6 +42,7 @@ export class ProjectDto extends BaseDto {
     ownerId: string,
     state: ProjectState,
     teamSpirit: number | null,
+    contributionVisibility: ContributionVisibility,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -43,6 +52,7 @@ export class ProjectDto extends BaseDto {
     this.ownerId = ownerId;
     this.state = state;
     this.teamSpirit = teamSpirit;
+    this.contributionVisibility = contributionVisibility;
   }
 }
 
@@ -63,6 +73,7 @@ export class ProjectDtoBuilder {
       this.data.ownerId,
       this.data.state,
       this._exposeConsensuality ? this.data.consensuality : null,
+      this.data.contributionVisibility,
       this.data.createdAt,
       this.data.updatedAt,
     );
