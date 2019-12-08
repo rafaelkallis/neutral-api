@@ -1,11 +1,8 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import {
-  BaseDto,
-  RoleEntity,
-  ProjectEntity,
-  UserEntity,
-  ContributionVisibility,
-} from '../../common';
+import { BaseDto } from '../../common';
+import { UserEntity } from '../../user';
+import { ProjectEntity, ContributionVisibility } from '../../project';
+import { RoleEntity } from '../../role';
 
 /**
  * Role DTO

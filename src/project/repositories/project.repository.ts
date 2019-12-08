@@ -2,7 +2,7 @@ import { EntityRepository } from 'typeorm';
 
 import { ProjectEntity } from '../entities/project.entity';
 
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from '../../common/repositories/base.repository';
 
 /**
  * Project Repository

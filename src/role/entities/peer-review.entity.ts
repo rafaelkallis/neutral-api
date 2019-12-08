@@ -1,7 +1,7 @@
 import { IsNumber, IsString, MaxLength } from 'class-validator';
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 
-import { BaseEntity } from './base.entity';
+import { BaseEntity } from '../../common/entities/base.entity';
 import { RoleEntity } from './role.entity';
 
 interface PeerReviewEntityOptions {

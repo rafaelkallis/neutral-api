@@ -4,21 +4,17 @@ import {
   ConfigService,
   TokenService,
   RandomService,
-  UserRepository,
-  UserEntity,
-  ProjectEntity,
-  ProjectState,
-  RoleEntity,
-  ProjectRepository,
-  RoleRepository,
-  ContributionsModelService,
   EmailService,
-} from '../common';
-import { entityFaker, primitiveFaker } from '../test';
-import { GetRolesQueryDto } from './dto/get-roles-query.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignmentDto } from './dto/assignment.dto';
+} from '../../common';
+import { UserEntity, UserRepository } from '../../user';
+import { ProjectEntity, ProjectState, ProjectRepository } from '../../project';
+import { RoleEntity } from '../entities/role.entity';
+import { RoleRepository } from '../repositories/role.repository';
+import { entityFaker, primitiveFaker } from '../../test';
+import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
+import { AssignmentDto } from '../dto/assignment.dto';
 
 describe('role service', () => {
   let roleService: RoleService;
@@ -41,7 +37,6 @@ describe('role service', () => {
         UserRepository,
         ProjectRepository,
         TokenService,
-        ContributionsModelService,
         EmailService,
       ],
     }).compile();
@@ -232,10 +227,10 @@ describe('role service', () => {
       await expect(roleService.createRole(owner, body)).resolves.toEqual(
         expect.objectContaining({
           id: expect.any(String),
-          projectId: role1.projectId,
+          projectId: body.projectId,
           assigneeId: null,
-          title: role1.title,
-          description: role1.description,
+          title: body.title,
+          description: body.description,
           contribution: null,
           peerReviews: [],
         }),

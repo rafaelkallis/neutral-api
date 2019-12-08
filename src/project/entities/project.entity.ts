@@ -7,8 +7,8 @@ import {
 } from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
+import { BaseEntity } from '../../common/entities/base.entity';
+import { UserEntity } from '../../user';
 
 export enum ProjectState {
   FORMATION = 'formation',

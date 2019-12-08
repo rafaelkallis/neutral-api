@@ -18,8 +18,9 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { AuthGuard, AuthUser, UserEntity, ValidationPipe } from '../common';
-import { ProjectService } from './project.service';
+import { AuthGuard, AuthUser, ValidationPipe } from '../common';
+import { UserEntity } from '../user';
+import { ProjectService } from './services/project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';

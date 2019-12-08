@@ -4,12 +4,12 @@ import {
   EmailService,
   TokenAlreadyUsedException,
   TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
-import { UserDto, UserDtoBuilder } from './dto/user.dto';
-import { GetUsersQueryDto } from './dto/get-users-query.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+} from '../../common';
+import { UserEntity } from '../entities/user.entity';
+import { UserRepository } from '../repositories/user.repository';
+import { UserDto, UserDtoBuilder } from '../dto/user.dto';
+import { GetUsersQueryDto } from '../dto/get-users-query.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class UserService {

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Controller,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,8 +19,9 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { ValidationPipe, AuthGuard, AuthUser, UserEntity } from '../common';
-import { RoleService } from './role.service';
+import { ValidationPipe, AuthGuard, AuthUser } from '../common';
+import { UserEntity } from '../user';
+import { RoleService } from './services/role.service';
 import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -46,8 +48,11 @@ export class RoleController {
   @ApiBearerAuth()
   @ApiImplicitQuery({ name: 'projectId' })
   @ApiOperation({ title: 'Get a list of roles for a project' })
-  @ApiResponse({ status: 200, description: 'A list of roles' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'A list of roles' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Project not found',
+  })
   public async getRoles(
     @AuthUser() authUser: UserEntity,
     @Query(ValidationPipe) query: GetRolesQueryDto,
@@ -63,8 +68,8 @@ export class RoleController {
   @ApiBearerAuth()
   @ApiImplicitParam({ name: 'id' })
   @ApiOperation({ title: 'Get a role' })
-  @ApiResponse({ status: 200, description: 'A roles' })
-  @ApiResponse({ status: 404, description: 'Role not found' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'A roles' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Role not found' })
   public async getRole(
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
@@ -79,10 +84,22 @@ export class RoleController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Create a role' })
-  @ApiResponse({ status: 201, description: 'Role created successfully' })
-  @ApiResponse({ status: 403, description: 'User is not the project owner' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
-  @ApiResponse({ status: 404, description: 'Assignee not found' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Role created successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'User is not the project owner',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Project not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Assignee not found',
+  })
   public async createRole(
     @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: CreateRoleDto,
@@ -98,9 +115,12 @@ export class RoleController {
   @ApiBearerAuth()
   @ApiOperation({ title: 'Update a role' })
   @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'Role updated succesfully' })
   @ApiResponse({
-    status: 403,
+    status: HttpStatus.OK,
+    description: 'Role updated succesfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: "Authenticated user is not the role's project owner",
   })
   public async updateRole(
@@ -115,14 +135,17 @@ export class RoleController {
    * Delete a role
    */
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Delete a role' })
   @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({ status: 204, description: 'Role deleted succesfully' })
   @ApiResponse({
-    status: 403,
+    status: HttpStatus.NO_CONTENT,
+    description: 'Role deleted succesfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: "Authenticated user is not the role's project owner",
   })
   public async deleteRole(
@@ -136,14 +159,17 @@ export class RoleController {
    * Assign user to a role
    */
   @Post(':id/assign')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ title: 'Assign a user to a role' })
   @ApiImplicitParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'Role updated succesfully' })
   @ApiResponse({
-    status: 403,
+    status: HttpStatus.OK,
+    description: 'Role updated succesfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: "Authenticated user is not the role's project owner",
   })
   public async assignUser(

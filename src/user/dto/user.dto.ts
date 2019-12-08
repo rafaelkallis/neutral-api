@@ -1,5 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto, UserEntity } from '../../common';
+import { BaseDto } from '../../common/dto/base.dto';
+import { UserEntity } from '../entities/user.entity';
 
 /**
  * User DTO

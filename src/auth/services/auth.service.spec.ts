@@ -6,16 +6,15 @@ import {
   RandomService,
   SessionState,
   TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
-import { entityFaker, primitiveFaker } from '../test';
+} from '../../common';
+import { UserEntity, UserRepository } from '../../user';
+import { entityFaker, primitiveFaker } from '../../test';
 
 import { AuthService } from './auth.service';
-import { RefreshDto } from './dto/refresh.dto';
-import { RequestLoginDto } from './dto/request-login.dto';
-import { RequestSignupDto } from './dto/request-signup.dto';
-import { SubmitSignupDto } from './dto/submit-signup.dto';
+import { RefreshDto } from '../dto/refresh.dto';
+import { RequestLoginDto } from '../dto/request-login.dto';
+import { RequestSignupDto } from '../dto/request-signup.dto';
+import { SubmitSignupDto } from '../dto/submit-signup.dto';
 
 describe('auth service', () => {
   let authService: AuthService;

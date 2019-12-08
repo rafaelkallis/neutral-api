@@ -7,15 +7,14 @@ import {
   SessionState,
   TokenAlreadyUsedException,
   TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
+} from '../../common';
+import { UserEntity, UserRepository } from '../../user';
 
-import { RefreshDto } from './dto/refresh.dto';
-import { RequestLoginDto } from './dto/request-login.dto';
-import { RequestSignupDto } from './dto/request-signup.dto';
-import { SubmitSignupDto } from './dto/submit-signup.dto';
-import { EmailAlreadyUsedException } from './exceptions/email-already-used.exception';
+import { RefreshDto } from '../dto/refresh.dto';
+import { RequestLoginDto } from '../dto/request-login.dto';
+import { RequestSignupDto } from '../dto/request-signup.dto';
+import { SubmitSignupDto } from '../dto/submit-signup.dto';
+import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exception';
 
 @Injectable()
 export class AuthService {

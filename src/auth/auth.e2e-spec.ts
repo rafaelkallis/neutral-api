@@ -3,12 +3,8 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import {
-  EmailService,
-  TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
+import { EmailService, TokenService } from '../common';
+import { UserEntity, UserRepository } from '../user';
 import { entityFaker, primitiveFaker } from '../test';
 
 describe('AuthController (e2e)', () => {

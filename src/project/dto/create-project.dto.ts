@@ -1,6 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
-import { ContributionVisibility, SkipManagerReview } from '../../common';
+import {
+  ContributionVisibility,
+  SkipManagerReview,
+} from '../entities/project.entity';
 
 interface CreateProjectDtoOptions {
   title: string;

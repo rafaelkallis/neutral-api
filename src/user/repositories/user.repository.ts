@@ -1,8 +1,7 @@
 import { EntityRepository } from 'typeorm';
 
 import { UserEntity } from '../entities/user.entity';
-
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from '../../common';
 
 /**
  * User Repository

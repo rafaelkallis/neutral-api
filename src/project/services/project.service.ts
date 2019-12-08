@@ -1,32 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Not } from 'typeorm';
-import {
-  InsufficientPermissionsException,
-  ProjectEntity,
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-  ProjectRepository,
-  RoleEntity,
-  RoleRepository,
-  PeerReviewEntity,
-  RandomService,
-  UserEntity,
-  ContributionsModelService,
-  ConsensualityModelService,
-} from '../common';
+import { InsufficientPermissionsException, RandomService } from '../../common';
+import { UserEntity } from '../../user';
+import { ProjectEntity, ProjectState, ContributionVisibility, SkipManagerReview } from '../entities/project.entity';
+import { ProjectRepository } from '../repositories/project.repository';
+import { RoleEntity, RoleRepository, PeerReviewEntity } from '../../role';
+import { ContributionsModelService } from './contributions-model.service';
+import { ConsensualityModelService } from './consensuality-model.service';
 
-import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
-import { ProjectNotPeerReviewStateException } from './exceptions/project-not-peer-review-state.exception';
-import { ProjectNotManagerReviewStateException } from './exceptions/project-not-manager-review-state.exception';
-import { RoleNoUserAssignedException } from './exceptions/role-no-user-assigned.exception';
-import { InvalidPeerReviewsException } from './exceptions/invalid-peer-reviews.exception';
-import { PeerReviewsAlreadySubmittedException } from './exceptions/peer-reviews-already-submitted.exception';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
-import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
-import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
+import { ProjectNotFormationStateException } from '../exceptions/project-not-formation-state.exception';
+import { ProjectNotPeerReviewStateException } from '../exceptions/project-not-peer-review-state.exception';
+import { ProjectNotManagerReviewStateException } from '../exceptions/project-not-manager-review-state.exception';
+import { RoleNoUserAssignedException } from '../exceptions/role-no-user-assigned.exception';
+import { InvalidPeerReviewsException } from '../exceptions/invalid-peer-reviews.exception';
+import { PeerReviewsAlreadySubmittedException } from '../exceptions/peer-reviews-already-submitted.exception';
+import { CreateProjectDto } from '../dto/create-project.dto';
+import { GetProjectsQueryDto } from '../dto/get-projects-query.dto';
+import { UpdateProjectDto } from '../dto/update-project.dto';
+import { ProjectDto, ProjectDtoBuilder } from '../dto/project.dto';
+import { SubmitPeerReviewsDto } from '../dto/submit-peer-reviews.dto';
 
 @Injectable()
 export class ProjectService {

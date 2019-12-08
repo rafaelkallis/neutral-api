@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InvariantViolationException } from '../exceptions/invariant-violation.exception';
+import { InvariantViolationException } from '../../common';
 
 /* eslint-disable security/detect-object-injection */
 
