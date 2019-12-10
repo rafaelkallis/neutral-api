@@ -13,34 +13,31 @@ describe('ConsensualityModelService', () => {
     consensualityModelService = module.get(ConsensualityModelService);
   });
 
-  test('should be defined', () => {
-    expect(consensualityModelService).toBeDefined();
-  });
-
-  test('compute team spirit', () => {
+  test('should use mean deviation method for computing consensuality', () => {
+    jest.spyOn(consensualityModelService, 'meanDeviationMethod');
     const peerReviews = {
       a: {
         a: 0,
-        b: 20 / 90,
-        c: 30 / 90,
-        d: 40 / 90,
+        b: 1,
+        c: 0,
+        d: 0,
       },
       b: {
-        a: 10 / 80,
+        a: 0,
         b: 0,
-        c: 30 / 80,
-        d: 40 / 80,
+        c: 1,
+        d: 0,
       },
       c: {
-        a: 10 / 70,
-        b: 20 / 70,
+        a: 0,
+        b: 0,
         c: 0,
-        d: 40 / 70,
+        d: 1,
       },
       d: {
-        a: 10 / 60,
-        b: 20 / 60,
-        c: 30 / 60,
+        a: 1,
+        b: 0,
+        c: 0,
         d: 0,
       },
     };
@@ -49,49 +46,103 @@ describe('ConsensualityModelService', () => {
     );
     expect(consensuality).toBeGreaterThanOrEqual(0);
     expect(consensuality).toBeLessThanOrEqual(1);
-  });
-
-  test('nax consensuality', () => {
-    const peerReviews = {
-      a: {
-        a: 0,
-        b: 70 / 100,
-        c: 10 / 100,
-        d: 10 / 100,
-        e: 10 / 100,
-      },
-      b: {
-        a: 10 / 100,
-        b: 0,
-        c: 70 / 100,
-        d: 10 / 100,
-        e: 10 / 100,
-      },
-      c: {
-        a: 70 / 100,
-        b: 10 / 100,
-        c: 0,
-        d: 10 / 100,
-        e: 10 / 100,
-      },
-      d: {
-        a: 20 / 100,
-        b: 20 / 100,
-        c: 20 / 100,
-        d: 0,
-        e: 40 / 100,
-      },
-      e: {
-        a: 20 / 100,
-        b: 20 / 100,
-        c: 20 / 100,
-        d: 40 / 100,
-        e: 0,
-      },
-    };
-    const naxConsensuality = consensualityModelService.computeNaxConsensuality(
+    expect(consensualityModelService.meanDeviationMethod).toHaveBeenCalledWith(
       peerReviews,
     );
-    expect(naxConsensuality).toBeCloseTo(0.56);
+  });
+
+  describe('mean deviation method', () => {
+    test('cycle', () => {
+      const peerReviews = {
+        a: {
+          a: 0,
+          b: 1,
+          c: 0,
+          d: 0,
+        },
+        b: {
+          a: 0,
+          b: 0,
+          c: 1,
+          d: 0,
+        },
+        c: {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 1,
+        },
+        d: {
+          a: 1,
+          b: 0,
+          c: 0,
+          d: 0,
+        },
+      };
+      const c = consensualityModelService.meanDeviationMethod(peerReviews);
+      expect(c).toBeCloseTo(0);
+    });
+
+    test('clusters', () => {
+      const peerReviews = {
+        a: {
+          a: 0,
+          b: 1,
+          c: 0,
+          d: 0,
+        },
+        b: {
+          a: 1,
+          b: 0,
+          c: 0,
+          d: 0,
+        },
+        c: {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 1,
+        },
+        d: {
+          a: 0,
+          b: 0,
+          c: 1,
+          d: 0,
+        },
+      };
+      const c = consensualityModelService.meanDeviationMethod(peerReviews);
+      expect(c).toBeCloseTo(0);
+    });
+
+    test('one did everything', () => {
+      const peerReviews = {
+        a: {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 1,
+        },
+        b: {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 1,
+        },
+        c: {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 1,
+        },
+        d: {
+          a: 1 / 3,
+          b: 1 / 3,
+          c: 1 / 3,
+          d: 0,
+        },
+      };
+      const c = consensualityModelService.meanDeviationMethod(peerReviews);
+      expect(c).toBeCloseTo(3 / 4);
+    });
   });
 });

@@ -18,33 +18,76 @@ export class ConsensualityModelService {
   public computeConsensuality(
     peerReviews: Record<string, Record<string, number>>,
   ): number {
-    return this.computeNaxConsensuality(peerReviews);
+    return this.meanDeviationMethod(peerReviews);
   }
 
   /**
-   * Computes consensuality based on Heinrich Nax's
-   * deviation from expectation.
+   * Computes consensuality using mean deviation.
    *
-   * Result is normalized, 1 for full consensus and 0 for no consensus.
+   * Given peer review matrix M (n x n),
+   *  let M_{ij} be the review of i over j,
+   *  where M_{ii} = 0,
+   *  then let:
+   *
+   *  1) column mean
+   *
+   *              sum_{i != j} M_{ij}
+   *    CM(j) := --------------------- , card(i != j) == n - 1
+   *                    n - 1
+   *
+   *
+   *  2) column mean deviation
+   *
+   *    CMD(j) := sum_{i != j} abs(M_{ij} - CM(j))
+   *
+   *
+   *  3) max column mean deviation
+   *
+   *               2 (n - 2)
+   *    maxCMD := -----------
+   *                 n - 1
+   *
+   *
+   *  4) normalized column mean deviation
+   *
+   *                   CMD(j)
+   *    normCMD(j) := --------
+   *                   maxCMD
+   *
+   *
+   *  5) non consensuality
+   *
+   *                   sum_j normCMD(j)
+   *    nonConsens := ------------------ , card(j) == n
+   *                         n
+   *
+   *
+   *  6) consensuality
+   *
+   *    consens := 1 - nonConsens
    */
-  public computeNaxConsensuality(
+  public meanDeviationMethod(
     peerReviews: Record<string, Record<string, number>>,
   ): number {
-    const n = Object.keys(peerReviews).length;
-    /* only holds if equal contribution is expected from all */
-    const maxDeviation = (2 * n * (n - 2)) / (n - 1);
-    let deviation = 0;
-    for (const i of Object.keys(peerReviews)) {
-      for (const j of Object.keys(peerReviews[i])) {
-        if (i !== j) {
-          /* assume equal contribution from all */
-          const expected = 1 / (n - 1);
-          const actual = peerReviews[i][j];
-          deviation += Math.abs(expected - actual);
-        }
-      }
+    const peers = Object.keys(peerReviews);
+    const n = peers.length;
+    const sum = (arr: number[]): number => arr.reduce((a, b) => a + b);
+    function columnMean(j: string): number {
+      return (
+        sum(peers.filter(i => i !== j).map(i => peerReviews[i][j])) / (n - 1)
+      );
     }
-    return 1 - deviation / maxDeviation;
+    function columnMeanDeviation(j: string): number {
+      return sum(
+        peers
+          .filter(i => i !== j)
+          .map(i => Math.abs(peerReviews[i][j] - columnMean(j))),
+      );
+    }
+    const maxColumnMeanDeviation = (2 * (n - 2)) / (n - 1);
+    const nonConsenuality =
+      sum(peers.map(j => columnMeanDeviation(j) / maxColumnMeanDeviation)) / n;
+    return 1 - nonConsenuality;
   }
 
   public isConsensual(consensuality: number): boolean {
