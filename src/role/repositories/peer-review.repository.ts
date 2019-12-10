@@ -2,7 +2,7 @@ import { EntityRepository } from 'typeorm';
 
 import { PeerReviewEntity } from '../entities/peer-review.entity';
 
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from '../../common/repositories/base.repository';
 
 /**
  * Peer Review Repository

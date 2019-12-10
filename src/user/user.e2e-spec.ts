@@ -2,7 +2,9 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import { TokenService, UserEntity, UserRepository } from '../common';
+import { TokenService } from '../common';
+import { UserEntity } from './entities/user.entity';
+import { UserRepository } from './repositories/user.repository';
 import { entityFaker } from '../test';
 import { UserDtoBuilder } from './dto/user.dto';
 

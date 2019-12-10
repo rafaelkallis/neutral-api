@@ -1,12 +1,12 @@
 import { ApiModelProperty } from '@nestjs/swagger';
+import { BaseDto } from '../../common';
+import { UserEntity } from '../../user';
 import {
-  UserEntity,
   ProjectEntity,
-  BaseDto,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from '../../common';
+} from '../entities/project.entity';
 
 /**
  * Project DTO

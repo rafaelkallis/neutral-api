@@ -1,12 +1,11 @@
+import { UserEntity } from '../user';
 import {
-  RoleEntity,
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-  UserEntity,
-  PeerReviewEntity,
-} from '../common';
+} from '../project';
+import { RoleEntity, PeerReviewEntity } from '../role';
 
 import { primitiveFaker } from './primitive-faker';
 

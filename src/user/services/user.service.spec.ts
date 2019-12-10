@@ -3,17 +3,16 @@ import { Test } from '@nestjs/testing';
 import {
   ConfigService,
   EmailService,
-  ProjectRepository,
   RandomService,
   TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
-import { entityFaker, primitiveFaker } from '../test';
-import { UserDto, UserDtoBuilder } from './dto/user.dto';
-import { GetUsersQueryDto } from './dto/get-users-query.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserService } from './user.service';
+} from 'common';
+import { entityFaker, primitiveFaker } from 'test';
+import { UserEntity } from 'user/entities/user.entity';
+import { UserRepository } from 'user/repositories/user.repository';
+import { UserDto, UserDtoBuilder } from 'user/dto/user.dto';
+import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
+import { UpdateUserDto } from 'user/dto/update-user.dto';
+import { UserService } from 'user/services/user.service';
 
 describe('user service', () => {
   let userService: UserService;
@@ -28,7 +27,6 @@ describe('user service', () => {
       providers: [
         UserService,
         UserRepository,
-        ProjectRepository,
         TokenService,
         RandomService,
         ConfigService,

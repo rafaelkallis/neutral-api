@@ -5,11 +5,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity, UserRepository } from '../../user';
+import { TokenService, ConfigService } from '../../common';
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
-import { UserRepository } from '../repositories/user.repository';
-import { TokenService } from '../services/token.service';
-import { ConfigService } from '../services/config.service';
 import { SessionState } from '../middlewares/session.middleware';
 
 /**
@@ -22,6 +20,7 @@ export class AuthGuard implements CanActivate {
   private readonly tokenService: TokenService;
   private readonly configService: ConfigService;
   private readonly userRepository: UserRepository;
+
   public constructor(
     tokenService: TokenService,
     configService: ConfigService,

@@ -2,13 +2,10 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import {
-  ProjectEntity,
-  ProjectState,
-  ProjectRepository,
-  TokenService,
-  UserRepository,
-} from '../common';
+import { TokenService } from '../common';
+import { UserRepository } from '../user';
+import { ProjectEntity, ProjectState } from './entities/project.entity';
+import { ProjectRepository } from './repositories/project.repository';
 import { entityFaker } from '../test';
 
 describe('submit manager review (e2e)', () => {

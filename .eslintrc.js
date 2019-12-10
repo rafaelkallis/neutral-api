@@ -7,16 +7,12 @@ module.exports = {
     'prettier/@typescript-eslint',
     'plugin:security/recommended',
     'plugin:promise/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'plugin:import/typescript',
   ],
   plugins: [
     '@typescript-eslint',
     'jest',
     'security',
     'promise',
-    'import',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

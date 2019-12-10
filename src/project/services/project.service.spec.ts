@@ -1,27 +1,19 @@
 import { Test } from '@nestjs/testing';
 
-import {
-  ConfigService,
-  ProjectEntity,
-  ProjectState,
-  SkipManagerReview,
-  ProjectRepository,
-  RandomService,
-  TokenService,
-  UserEntity,
-  UserRepository,
-  RoleEntity,
-  RoleRepository,
-  ContributionsModelService,
-  ConsensualityModelService,
-} from '../common';
-import { entityFaker, primitiveFaker } from '../test';
+import { ConfigService, RandomService, TokenService } from '../../common';
+import { ContributionsModelService } from './contributions-model.service';
+import { ConsensualityModelService } from './consensuality-model.service';
+import { UserEntity, UserRepository } from '../../user';
+import { ProjectEntity, ProjectState, SkipManagerReview } from '../entities/project.entity';
+import { ProjectRepository } from '../repositories/project.repository';
+import { RoleEntity, RoleRepository } from '../../role';
+import { entityFaker, primitiveFaker } from '../../test';
 import { ProjectService } from './project.service';
-import { ProjectDto, ProjectDtoBuilder } from './dto/project.dto';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
-import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
+import { ProjectDto, ProjectDtoBuilder } from '../dto/project.dto';
+import { CreateProjectDto } from '../dto/create-project.dto';
+import { GetProjectsQueryDto } from '../dto/get-projects-query.dto';
+import { UpdateProjectDto } from '../dto/update-project.dto';
+import { SubmitPeerReviewsDto } from '../dto/submit-peer-reviews.dto';
 
 describe('project service', () => {
   let projectService: ProjectService;

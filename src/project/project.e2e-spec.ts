@@ -2,16 +2,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import {
-  ProjectEntity,
-  ProjectState,
-  ProjectRepository,
-  RoleEntity,
-  RoleRepository,
-  TokenService,
-  UserEntity,
-  UserRepository,
-} from '../common';
+import { TokenService } from '../common';
+import { UserEntity, UserRepository } from '../user';
+import { ProjectEntity, ProjectState } from './entities/project.entity';
+import { ProjectRepository } from './repositories/project.repository';
+import { RoleEntity, RoleRepository } from '../role';
 import { entityFaker, primitiveFaker } from '../test';
 import { ProjectDtoBuilder } from './dto/project.dto';
 

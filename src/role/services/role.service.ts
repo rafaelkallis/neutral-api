@@ -2,27 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { Not } from 'typeorm';
 
 import {
-  UserEntity,
-  RoleEntity,
-  ProjectEntity,
-  UserRepository,
-  ProjectRepository,
-  RoleRepository,
   InsufficientPermissionsException,
   RandomService,
   EmailService,
-} from '../common';
-import { RoleDto, RoleDtoBuilder } from './dto/role.dto';
-import { GetRolesQueryDto } from './dto/get-roles-query.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignmentDto } from './dto/assignment.dto';
-import { ProjectNotFormationStateException } from './exceptions/project-not-formation-state.exception';
-import { ProjectOwnerAssignmentException } from './exceptions/project-owner-assignment.exception';
-import { CreateRoleOutsideFormationStateException } from './exceptions/create-role-outside-formation-state.exception';
-import { UserNotRoleProjectOwnerException } from './exceptions/user-not-role-project-owner.exception';
-import { AlreadyAssignedRoleSameProjectException } from './exceptions/already-assigned-role-same-project.exception';
-import { NoAssigneeException } from './exceptions/no-assignee.exception';
+} from '../../common';
+import { UserEntity, UserRepository } from '../../user';
+import { ProjectEntity, ProjectRepository } from '../../project';
+import { RoleEntity } from '../entities/role.entity';
+import { RoleRepository } from '../repositories/role.repository';
+import { RoleDto, RoleDtoBuilder } from '../dto/role.dto';
+import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
+import { AssignmentDto } from '../dto/assignment.dto';
+import { ProjectNotFormationStateException } from '../exceptions/project-not-formation-state.exception';
+import { ProjectOwnerAssignmentException } from '../exceptions/project-owner-assignment.exception';
+import { CreateRoleOutsideFormationStateException } from '../exceptions/create-role-outside-formation-state.exception';
+import { UserNotRoleProjectOwnerException } from '../exceptions/user-not-role-project-owner.exception';
+import { AlreadyAssignedRoleSameProjectException } from '../exceptions/already-assigned-role-same-project.exception';
+import { NoAssigneeException } from '../exceptions/no-assignee.exception';
 
 @Injectable()
 export class RoleService {
@@ -93,7 +91,7 @@ export class RoleService {
       }
       await this.userRepository.findOneOrFail({ id: dto.assigneeId });
     }
-    let role = RoleEntity.from({
+    const role = RoleEntity.from({
       id: this.randomService.id(),
       projectId: dto.projectId,
       assigneeId: dto.assigneeId || null,
@@ -102,9 +100,8 @@ export class RoleService {
       contribution: null,
       peerReviews: [],
     });
-    role = await this.roleRepository.save(role);
-    const roleDto = new RoleDtoBuilder(role, project, authUser).build();
-    return roleDto;
+    await this.roleRepository.save(role);
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**

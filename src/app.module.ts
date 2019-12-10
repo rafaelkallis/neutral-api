@@ -6,7 +6,8 @@ import helmet from 'helmet';
 
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
-import { CommonModule, ConfigService, SessionMiddleware } from './common';
+import { CommonModule } from './common/common.module';
+import { ConfigService, SessionMiddleware } from './common';
 import { ProjectModule } from './project/project.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
@@ -17,12 +18,11 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [CommonModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
         type: 'postgres' as 'postgres',
         url: configService.get('DATABASE_URL'),
-        entities: ['src/common/entities/*'],
+        entities: ['src/**/*.entity.ts'],
         migrations: ['src/migration/*'],
         migrationsRun: true,
         keepConnectionAlive: true,
@@ -30,7 +30,6 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
     UserModule,
-    CommonModule,
     ProjectModule,
     RoleModule,
   ],

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/swagger';
 
 import { SessionState, ValidationPipe } from '../common';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 
 import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';

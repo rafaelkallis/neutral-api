@@ -3,17 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import {
-  ProjectEntity,
-  ProjectRepository,
-  ProjectState,
-  TokenService,
-  UserEntity,
-  UserRepository,
-  RoleEntity,
-  RoleRepository,
-  EmailService,
-} from '../common';
+import { TokenService, EmailService } from '../common';
+import { UserEntity, UserRepository } from '../user';
+import { ProjectEntity, ProjectState, ProjectRepository } from '../project';
+import { RoleEntity, RoleRepository } from '../role';
 import { entityFaker, primitiveFaker } from '../test';
 
 describe('assign user to role', () => {

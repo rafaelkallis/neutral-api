@@ -3,16 +3,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from '../app.module';
-import {
-  ProjectEntity,
-  ProjectState,
-  ProjectRepository,
-  RoleEntity,
-  PeerReviewRepository,
-  RoleRepository,
-  TokenService,
-  UserRepository,
-} from '../common';
+import { TokenService } from '../common';
+import { UserRepository } from '../user';
+import { ProjectEntity, ProjectState } from './entities/project.entity';
+import { ProjectRepository } from './repositories/project.repository';
+import { RoleEntity, PeerReviewRepository, RoleRepository } from '../role';
 import { entityFaker, primitiveFaker } from '../test';
 
 jest.setTimeout(10000);

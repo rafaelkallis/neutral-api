@@ -1,7 +1,6 @@
 import { IsEmail, IsNumber, IsString, MaxLength } from 'class-validator';
 import { Column, Entity } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { BigIntTransformer } from './bigint-transformer';
+import { BaseEntity, BigIntTransformer } from '../../common';
 
 interface UserEntityOptions {
   id: string;
