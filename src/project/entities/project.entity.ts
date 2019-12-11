@@ -18,7 +18,8 @@ export enum ProjectState {
 }
 
 export enum ContributionVisibility {
-  ALL = 'all',
+  PUBLIC = 'public',
+  PROJECT = 'project',
   SELF = 'self',
   NONE = 'none',
 }

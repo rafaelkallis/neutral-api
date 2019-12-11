@@ -54,6 +54,7 @@ export class RoleDto extends BaseDto {
 export class RoleDtoBuilder {
   private readonly role: RoleEntity;
   private readonly project: ProjectEntity;
+  private readonly projectRoles: RoleEntity[];
   private readonly authUser: UserEntity;
 
   public build(): RoleDto {
@@ -78,10 +79,12 @@ export class RoleDtoBuilder {
   public constructor(
     role: RoleEntity,
     project: ProjectEntity,
+    projectRoles: RoleEntity[],
     authUser: UserEntity,
   ) {
     this.role = role;
     this.project = project;
+    this.projectRoles = projectRoles;
     this.authUser = authUser;
   }
 
@@ -92,7 +95,14 @@ export class RoleDtoBuilder {
     }
     if (
       project.isFinishedState() &&
-      project.contributionVisibility === ContributionVisibility.ALL
+      project.contributionVisibility === ContributionVisibility.PUBLIC
+    ) {
+      return true;
+    }
+    if (
+      project.isFinishedState() &&
+      project.contributionVisibility === ContributionVisibility.PROJECT &&
+      this.projectRoles.some(r => r.isAssignee(this.authUser))
     ) {
       // FIXME: should not expose if authUser is not part of project
       return true;

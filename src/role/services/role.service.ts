@@ -56,7 +56,7 @@ export class RoleService {
     });
     const roles = await this.roleRepository.find(query);
     return roles.map(role =>
-      new RoleDtoBuilder(role, project, authUser).build(),
+      new RoleDtoBuilder(role, project, roles, authUser).build(),
     );
   }
 
@@ -66,7 +66,9 @@ export class RoleService {
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOneOrFail(id);
     const project = await this.projectRepository.findOneOrFail(role.projectId);
-    return new RoleDtoBuilder(role, project, authUser).build();
+    // TODO: should not need another query
+    const roles = await this.roleRepository.find({ projectId: project.id });
+    return new RoleDtoBuilder(role, project, roles, authUser).build();
   }
 
   /**
@@ -101,7 +103,9 @@ export class RoleService {
       peerReviews: [],
     });
     await this.roleRepository.save(role);
-    return new RoleDtoBuilder(role, project, authUser).build();
+    // TODO: should not need another query
+    const roles = await this.roleRepository.find({ projectId: project.id });
+    return new RoleDtoBuilder(role, project, roles, authUser).build();
   }
 
   /**
@@ -124,7 +128,9 @@ export class RoleService {
     }
     role.update(body);
     await this.roleRepository.save(role);
-    return new RoleDtoBuilder(role, project, authUser).build();
+    // TODO: should not need another query
+    const roles = await this.roleRepository.find({ projectId: project.id });
+    return new RoleDtoBuilder(role, project, roles, authUser).build();
   }
 
   /**
@@ -178,7 +184,9 @@ export class RoleService {
         await this.assignExistingUser(project, role, user);
       }
     }
-    return new RoleDtoBuilder(role, project, authUser).build();
+    // TODO: should not need another query
+    const roles = await this.roleRepository.find({ projectId: project.id });
+    return new RoleDtoBuilder(role, project, roles, authUser).build();
   }
 
   /**
