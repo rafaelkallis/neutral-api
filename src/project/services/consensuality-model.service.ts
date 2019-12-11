@@ -151,6 +151,34 @@ export class ConsensualityModelService {
     );
   }
 
+  public pairwiseRelativeJudgementsMethod(
+    peerReviews: Record<string, Record<string, number>>,
+  ): number {
+    const peers = Object.keys(peerReviews);
+    const n = peers.length;
+    function Rkij(k: string, i: string, j: string): number {
+      return peerReviews[k][i] / peerReviews[k][j];
+    }
+    function meanRij(i: string, j: string): number {
+      return mean(
+        peers.filter(k => k !== i && k !== j).map(k => Rkij(k, i, j)),
+      );
+    }
+    function devRij(i: string, j: string): number {
+      return mean(
+        peers
+          .filter(k => k !== i && k !== j)
+          .map(k => Math.abs(Rkij(k, i, j) - meanRij(i, j))),
+      );
+    }
+    return (
+      1 -
+      mean(
+        peers.flatMap(i => peers.filter(j => j !== i).map(j => devRij(i, j))),
+      )
+    );
+  }
+
   public isConsensual(consensuality: number): boolean {
     return consensuality >= ConsensualityModelService.CONSENSUALITY_THRESHOLD;
   }

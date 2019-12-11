@@ -13,24 +13,27 @@ describe('ConsensualityModelService', () => {
     consensualityModelService = module.get(ConsensualityModelService);
   });
 
+  const o = 0.00001;
+  const l = 1 - 3 * o;
+
   const cyclePeerReviews = {
-    a: { a: 0, b: 1, c: 0, d: 0 },
-    b: { a: 0, b: 0, c: 1, d: 0 },
-    c: { a: 0, b: 0, c: 0, d: 1 },
-    d: { a: 1, b: 0, c: 0, d: 0 },
+    a: { a: 0, b: l, c: o, d: o },
+    b: { a: o, b: 0, c: l, d: o },
+    c: { a: o, b: o, c: 0, d: l },
+    d: { a: l, b: o, c: o, d: 0 },
   };
 
   const clusterPeerReviews = {
-    a: { a: 0, b: 1, c: 0, d: 0 },
-    b: { a: 1, b: 0, c: 1, d: 0 },
-    c: { a: 0, b: 0, c: 0, d: 1 },
-    d: { a: 0, b: 0, c: 1, d: 0 },
+    a: { a: 0, b: l, c: o, d: o },
+    b: { a: l, b: 0, c: o, d: o },
+    c: { a: o, b: o, c: 0, d: l },
+    d: { a: o, b: o, c: l, d: 0 },
   };
 
   const oneDidItAllPeerReviews = {
-    a: { a: 0, b: 0, c: 0, d: 1 },
-    b: { a: 0, b: 0, c: 0, d: 1 },
-    c: { a: 0, b: 0, c: 0, d: 1 },
+    a: { a: 0, b: o, c: o, d: l },
+    b: { a: o, b: 0, c: o, d: l },
+    c: { a: o, b: o, c: 0, d: l },
     d: { a: 1 / 3, b: 1 / 3, c: 1 / 3, d: 0 },
   };
 
@@ -44,6 +47,29 @@ describe('ConsensualityModelService', () => {
     expect(consensualityModelService.meanDeviationMethod).toHaveBeenCalledWith(
       cyclePeerReviews,
     );
+  });
+
+  describe.skip('pairwise relative judgements method', () => {
+    test('cycle', () => {
+      const c = consensualityModelService.pairwiseRelativeJudgementsMethod(
+        cyclePeerReviews,
+      );
+      expect(c).toBeCloseTo(0);
+    });
+
+    test('clusters', () => {
+      const c = consensualityModelService.pairwiseRelativeJudgementsMethod(
+        clusterPeerReviews,
+      );
+      expect(c).toBeCloseTo(0);
+    });
+
+    test.only('one did everything', () => {
+      const c = consensualityModelService.pairwiseRelativeJudgementsMethod(
+        oneDidItAllPeerReviews,
+      );
+      expect(c).toBeCloseTo(1);
+    });
   });
 
   describe('mean deviation method', () => {
