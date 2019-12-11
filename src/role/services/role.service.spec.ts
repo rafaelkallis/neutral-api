@@ -15,6 +15,7 @@ import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { AssignmentDto } from '../dto/assignment.dto';
+import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 
 describe('role service', () => {
   let roleService: RoleService;
@@ -102,10 +103,9 @@ describe('role service', () => {
       const rolesDto = await roleService.getRoles(owner, query);
       for (const roleDto of rolesDto) {
         if (roleDto.id === role1.id) {
-          expect(roleDto.peerReviews).toContainEqual([
-            peerReview.revieweeRoleId,
-            peerReview.score,
-          ]);
+          expect(roleDto.peerReviews).toHaveLength(1);
+          const peerReviewDto = new PeerReviewDtoBuilder(peerReview).build();
+          expect(roleDto.peerReviews).toContainEqual(peerReviewDto);
         }
       }
     });
@@ -118,10 +118,9 @@ describe('role service', () => {
       const rolesDto = await roleService.getRoles(assignee, query);
       for (const roleDto of rolesDto) {
         if (roleDto.id === role1.id) {
-          expect(roleDto.peerReviews).toContainEqual([
-            peerReview.revieweeRoleId,
-            peerReview.score,
-          ]);
+          expect(roleDto.peerReviews).toHaveLength(1);
+          const peerReviewDto = new PeerReviewDtoBuilder(peerReview).build();
+          expect(roleDto.peerReviews).toContainEqual(peerReviewDto);
         }
       }
     });
@@ -176,10 +175,9 @@ describe('role service', () => {
       const peerReview = entityFaker.peerReview(role1, role2.id);
       role1.peerReviews.push(peerReview);
       const roleDto = await roleService.getRole(owner, role1.id);
-      expect(roleDto.peerReviews).toContainEqual([
-        peerReview.revieweeRoleId,
-        peerReview.score,
-      ]);
+      expect(roleDto.peerReviews).toHaveLength(1);
+      const peerReviewDto = new PeerReviewDtoBuilder(peerReview).build();
+      expect(roleDto.peerReviews).toContainEqual(peerReviewDto);
     });
 
     test('should expose peer reviews if role assignee', async () => {
@@ -188,10 +186,9 @@ describe('role service', () => {
       const peerReview = entityFaker.peerReview(role1, role2.id);
       role1.peerReviews.push(peerReview);
       const roleDto = await roleService.getRole(assignee, role1.id);
-      expect(roleDto.peerReviews).toContainEqual([
-        peerReview.revieweeRoleId,
-        peerReview.score,
-      ]);
+      expect(roleDto.peerReviews).toHaveLength(1);
+      const peerReviewDto = new PeerReviewDtoBuilder(peerReview).build();
+      expect(roleDto.peerReviews).toContainEqual(peerReviewDto);
     });
 
     test('should not expose contribution if not project owner or assignee', async () => {

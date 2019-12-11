@@ -1,8 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto } from '../../common';
-import { UserEntity } from '../../user';
-import { ProjectEntity, ContributionVisibility } from '../../project';
-import { RoleEntity } from '../../role';
+import { BaseDto } from 'common';
+import { UserEntity } from 'user';
+import { ProjectEntity, ContributionVisibility } from 'project';
+import { RoleEntity, PeerReviewEntity } from 'role';
+import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 
 /**
  * Role DTO
@@ -24,7 +25,7 @@ export class RoleDto extends BaseDto {
   public contribution: number | null;
 
   @ApiModelProperty({ required: false })
-  public peerReviews: [string, number][] | null;
+  public peerReviews: PeerReviewDto[] | null;
 
   public constructor(
     id: string,
@@ -33,7 +34,7 @@ export class RoleDto extends BaseDto {
     title: string,
     description: string,
     contribution: number | null,
-    peerReviews: [string, number][] | null,
+    peerReviews: PeerReviewDto[] | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -65,7 +66,9 @@ export class RoleDtoBuilder {
       role.description,
       this.shouldExposeContribution() ? role.contribution : null,
       this.shouldExposePeerReviews()
-        ? role.peerReviews.map(pr => [pr.revieweeRoleId, pr.score])
+        ? role.peerReviews
+            .filter(pr => this.shouldExposePeerReview(pr))
+            .map(pr => new PeerReviewDtoBuilder(pr).build())
         : null,
       role.createdAt,
       role.updatedAt,
@@ -110,6 +113,19 @@ export class RoleDtoBuilder {
       return true;
     }
     if (role.isAssignee(authUser)) {
+      return true;
+    }
+    return false;
+  }
+
+  private shouldExposePeerReview(peerReview: PeerReviewEntity): boolean {
+    if (this.project.isOwner(this.authUser)) {
+      return true;
+    }
+    if (
+      peerReview.isReviewerRole(this.role) &&
+      this.role.isAssignee(this.authUser)
+    ) {
       return true;
     }
     return false;

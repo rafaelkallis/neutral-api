@@ -37,4 +37,12 @@ export class PeerReviewEntity extends BaseEntity
   public update(options: Partial<PeerReviewEntityOptions>): this {
     return Object.assign(this, options);
   }
+
+  public isReviewerRole(role: RoleEntity): boolean {
+    return this.reviewerRole.id === role.id;
+  }
+
+  public isRevieweeRole(role: RoleEntity): boolean {
+    return this.revieweeRoleId === role.id;
+  }
 }
