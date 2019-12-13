@@ -1,13 +1,14 @@
-import { UserEntity } from '../user';
+import { UserEntity } from 'user/entities/user.entity';
 import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from '../project';
-import { RoleEntity, PeerReviewEntity } from '../role';
+} from 'project/entities/project.entity';
+import { RoleEntity } from 'role/entities/role.entity';
+import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 
-import { primitiveFaker } from './primitive-faker';
+import { primitiveFaker } from 'test/primitive-faker';
 
 class EntityFaker {
   /**
@@ -50,7 +51,6 @@ class EntityFaker {
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
       contribution: null,
-      peerReviews: [],
     });
   }
 
@@ -58,12 +58,12 @@ class EntityFaker {
    * Create a fake peer review
    */
   public peerReview(
-    reviewerRole: RoleEntity,
+    reviewerRoleId: string,
     revieweeRoleId: string,
   ): PeerReviewEntity {
     return PeerReviewEntity.from({
       id: primitiveFaker.id(),
-      reviewerRole: reviewerRole,
+      reviewerRoleId,
       revieweeRoleId,
       score: primitiveFaker.number(),
     });

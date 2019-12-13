@@ -28,11 +28,11 @@ describe('RoleController (e2e)', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
-    await userRepository.save(user);
+    await userRepository.insert(user);
     project = entityFaker.project(user.id);
-    await projectRepository.save(project);
+    await projectRepository.insert(project);
     role = entityFaker.role(project.id);
-    await roleRepository.save(role);
+    await roleRepository.insert(role);
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
@@ -47,7 +47,16 @@ describe('RoleController (e2e)', () => {
         .get('/roles')
         .query({ projectId: project.id });
       expect(response.status).toBe(200);
-      expect(response.body).toContainEqual(role);
+      expect(response.body).toContainEqual({
+        id: role.id,
+        projectId: role.projectId,
+        assigneeId: role.assigneeId,
+        title: role.title,
+        description: role.description,
+        contribution: null,
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      });
     });
   });
 
@@ -55,7 +64,18 @@ describe('RoleController (e2e)', () => {
     test('happy path', async () => {
       const response = await session.get(`/roles/${role.id}`);
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(role);
+      expect(response.body).toEqual({
+        id: role.id,
+        projectId: role.projectId,
+        assigneeId: role.assigneeId,
+        title: role.title,
+        description: role.description,
+        contribution: null,
+        sentPeerReviews: [],
+        receivedPeerReviews: [],
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      });
     });
   });
 
@@ -82,7 +102,6 @@ describe('RoleController (e2e)', () => {
         title,
         description,
         contribution: null,
-        peerReviews: [],
         createdAt: expect.any(Number),
         updatedAt: expect.any(Number),
       });
@@ -90,7 +109,7 @@ describe('RoleController (e2e)', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.save(project);
+      await projectRepository.update(project);
       const response = await session.post('/roles').send({
         projectId: project.id,
         title,
@@ -115,16 +134,16 @@ describe('RoleController (e2e)', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.save(project);
+      await projectRepository.update(project);
       const response = await session.patch(`/roles/${role.id}`).send({ title });
       expect(response.status).toBe(400);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
-      await userRepository.save(otherUser);
+      await userRepository.update(otherUser);
       project.ownerId = otherUser.id;
-      await projectRepository.save(project);
+      await projectRepository.update(project);
       const response = await session.patch(`/roles/${role.id}`).send({ title });
       expect(response.status).toBe(403);
     });
@@ -141,7 +160,7 @@ describe('RoleController (e2e)', () => {
     test('happy path', async () => {
       const response = await session.del(`/roles/${role.id}`);
       expect(response.status).toBe(204);
-      expect(await roleRepository.findOne({ id: role.id })).not.toBeDefined();
+      expect(await roleRepository.exists({ id: role.id })).toBeFalsy();
     });
   });
 });

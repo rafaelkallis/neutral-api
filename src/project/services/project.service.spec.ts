@@ -4,9 +4,13 @@ import { ConfigService, RandomService, TokenService } from '../../common';
 import { ContributionsModelService } from './contributions-model.service';
 import { ConsensualityModelService } from './consensuality-model.service';
 import { UserEntity, UserRepository } from '../../user';
-import { ProjectEntity, ProjectState, SkipManagerReview } from '../entities/project.entity';
+import {
+  ProjectEntity,
+  ProjectState,
+  SkipManagerReview,
+} from '../entities/project.entity';
 import { ProjectRepository } from '../repositories/project.repository';
-import { RoleEntity, RoleRepository } from '../../role';
+import { RoleEntity, RoleRepository, PeerReviewRepository } from 'role';
 import { entityFaker, primitiveFaker } from '../../test';
 import { ProjectService } from './project.service';
 import { ProjectDto, ProjectDtoBuilder } from '../dto/project.dto';
@@ -19,6 +23,7 @@ describe('project service', () => {
   let projectService: ProjectService;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
+  let peerReviewRepository: PeerReviewRepository;
   let contributionsModelService: ContributionsModelService;
   let consensualityModelService: ConsensualityModelService;
   let user: UserEntity;
@@ -32,6 +37,7 @@ describe('project service', () => {
         UserRepository,
         ProjectRepository,
         RoleRepository,
+        PeerReviewRepository,
         TokenService,
         RandomService,
         ConfigService,
@@ -43,6 +49,7 @@ describe('project service', () => {
     projectService = module.get(ProjectService);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
+    peerReviewRepository = module.get(PeerReviewRepository);
     contributionsModelService = module.get(ContributionsModelService);
     consensualityModelService = module.get(ConsensualityModelService);
 
@@ -82,7 +89,7 @@ describe('project service', () => {
 
   describe('get project', () => {
     beforeEach(async () => {
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
     });
 
     test('happy path', async () => {
@@ -97,32 +104,29 @@ describe('project service', () => {
 
     beforeEach(async () => {
       dto = CreateProjectDto.from(project);
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'insert').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await projectService.createProject(user, dto);
-      expect(projectRepository.save).toHaveBeenCalled();
+      expect(projectRepository.insert).toHaveBeenCalled();
     });
   });
 
   describe('update project', () => {
-    let role: RoleEntity;
     let dto: UpdateProjectDto;
 
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
-      role = entityFaker.role(project.id, user.id);
       const title = primitiveFaker.words();
       dto = UpdateProjectDto.from({ title });
-      jest.spyOn(roleRepository, 'find').mockResolvedValue([role]);
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'update').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await projectService.updateProject(user, project.id, dto);
-      expect(projectRepository.save).toHaveBeenCalledWith(
+      expect(projectRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ title: dto.title }),
       );
     });
@@ -152,16 +156,14 @@ describe('project service', () => {
       role1 = entityFaker.role(project.id, user.id);
       role2 = entityFaker.role(project.id, user.id);
       role3 = entityFaker.role(project.id, user.id);
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest
-        .spyOn(roleRepository, 'find')
-        .mockResolvedValue([role1, role2, role3]);
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
+      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2, role3]);
+      jest.spyOn(projectRepository, 'update').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await projectService.finishFormation(user, project.id);
-      expect(projectRepository.save).toHaveBeenCalledWith(
+      expect(projectRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ state: ProjectState.PEER_REVIEW }),
       );
     });
@@ -190,23 +192,20 @@ describe('project service', () => {
 
   describe('delete project', () => {
     beforeEach(async () => {
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(projectRepository, 'remove').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'delete').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await projectService.deleteProject(user, project.id);
-      expect(projectRepository.remove).toHaveBeenCalled();
+      expect(projectRepository.delete).toHaveBeenCalled();
     });
   });
 
   describe('submit peer reviews', () => {
     let user: UserEntity;
     let project: ProjectEntity;
-    let role1: RoleEntity;
-    let role2: RoleEntity;
-    let role3: RoleEntity;
-    let role4: RoleEntity;
+    let roles: RoleEntity[];
     let peerReviews: Record<string, Record<string, number>>;
     let contributions: Record<string, number>;
     let consensuality: number;
@@ -216,50 +215,75 @@ describe('project service', () => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       project.state = ProjectState.PEER_REVIEW;
-      role1 = entityFaker.role(project.id, user.id);
-      role2 = entityFaker.role(project.id, user.id);
-      role3 = entityFaker.role(project.id, user.id);
-      role4 = entityFaker.role(project.id, user.id);
+      roles = [
+        entityFaker.role(project.id, user.id),
+        entityFaker.role(project.id),
+        entityFaker.role(project.id),
+        entityFaker.role(project.id),
+      ];
 
       peerReviews = {};
-      for (const role of [role1, role2, role3, role4]) {
-        peerReviews[role.id] = {};
-        for (const otherRole of [role1, role2, role3, role4]) {
+      for (const roleI of roles) {
+        peerReviews[roleI.id] = {};
+        const roleISentPeerReviews = [];
+        for (const roleJ of roles) {
           const score = 1 / 3;
-          if (role !== otherRole) {
-            peerReviews[role.id][otherRole.id] = score;
-            if (role !== role1) {
-              const peerReview = entityFaker.peerReview(role, otherRole.id);
+          if (roleI !== roleJ) {
+            peerReviews[roleI.id][roleJ.id] = score;
+            if (roleI !== roles[0]) {
+              const peerReview = entityFaker.peerReview(roleI.id, roleJ.id);
               peerReview.score = score;
-              role.peerReviews.push(peerReview);
+              roleISentPeerReviews.push(peerReview);
             }
           }
         }
+        jest
+          .spyOn(roleI, 'getSentPeerReviews')
+          .mockResolvedValue(roleISentPeerReviews);
       }
 
-      dto = SubmitPeerReviewsDto.from({ peerReviews: peerReviews[role1.id] });
+      dto = SubmitPeerReviewsDto.from({
+        peerReviews: peerReviews[roles[0].id],
+      });
       contributions = {};
       consensuality = 0.5;
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest
-        .spyOn(roleRepository, 'find')
-        .mockResolvedValue([role2, role3, role4]);
-      jest.spyOn(roleRepository, 'save').mockResolvedValue(role1);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
+      jest.spyOn(project, 'getRoles').mockResolvedValue(roles);
+      jest.spyOn(roles[0], 'getSentPeerReviews').mockResolvedValue([]);
+      jest.spyOn(roles[1], 'hasSentPeerReviews').mockResolvedValue(true);
+      jest.spyOn(roles[2], 'hasSentPeerReviews').mockResolvedValue(true);
+      jest.spyOn(roles[3], 'hasSentPeerReviews').mockResolvedValue(true);
+      jest.spyOn(roleRepository, 'update').mockResolvedValue();
+      jest.spyOn(peerReviewRepository, 'insert').mockResolvedValue();
       jest
         .spyOn(contributionsModelService, 'computeContributions')
         .mockReturnValue(contributions);
       jest
         .spyOn(consensualityModelService, 'computeConsensuality')
         .mockReturnValue(consensuality);
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'update').mockResolvedValue();
     });
 
     describe('happy path', () => {
       test('final peer review', async () => {
-        await expect(
-          projectService.submitPeerReviews(user, project.id, dto),
-        ).resolves.not.toThrow();
+        await projectService.submitPeerReviews(user, project.id, dto);
+        expect(peerReviewRepository.insert).toHaveBeenCalledWith([
+          expect.objectContaining({
+            reviewerRoleId: roles[0].id,
+            revieweeRoleId: roles[1].id,
+            score: 1 / 3,
+          }),
+          expect.objectContaining({
+            reviewerRoleId: roles[0].id,
+            revieweeRoleId: roles[2].id,
+            score: 1 / 3,
+          }),
+          expect.objectContaining({
+            reviewerRoleId: roles[0].id,
+            revieweeRoleId: roles[3].id,
+            score: 1 / 3,
+          }),
+        ]);
         expect(
           contributionsModelService.computeContributions,
         ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
@@ -267,18 +291,12 @@ describe('project service', () => {
           consensualityModelService.computeConsensuality,
         ).toHaveBeenCalledWith(expect.objectContaining(peerReviews));
         expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
-        expect(role1.peerReviews).toHaveLength(3);
-        for (const peerReview of role1.peerReviews) {
-          expect(peerReview.score).toBe(
-            peerReviews[role1.id][peerReview.revieweeRoleId],
-          );
-        }
-        expect(roleRepository.save).toHaveBeenCalled();
-        for (const role of [role1, role2, role3, role4]) {
+        expect(roleRepository.update).toHaveBeenCalled();
+        for (const role of roles) {
           expect(role.contribution).toEqual(contributions[role.id]);
         }
         expect(project.consensuality).toEqual(consensuality);
-        expect(projectRepository.save).toHaveBeenCalled();
+        expect(projectRepository.update).toHaveBeenCalled();
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', async () => {
@@ -311,12 +329,10 @@ describe('project service', () => {
         expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
       });
 
-      test('not final peer review, should not compute contributions and team spirit', async () => {
-        role2.peerReviews = [];
-        await expect(
-          projectService.submitPeerReviews(user, project.id, dto),
-        ).resolves.not.toThrow();
-        expect(roleRepository.save).toHaveBeenCalled();
+      test('not final peer review, should not compute contributions and consensuality', async () => {
+        jest.spyOn(roles[1], 'hasSentPeerReviews').mockResolvedValue(false);
+        await projectService.submitPeerReviews(user, project.id, dto),
+          expect(roleRepository.update).not.toHaveBeenCalled();
         expect(
           contributionsModelService.computeContributions,
         ).not.toHaveBeenCalled();
@@ -324,7 +340,7 @@ describe('project service', () => {
           consensualityModelService.computeConsensuality,
         ).not.toHaveBeenCalled();
         expect(project.state).toBe(ProjectState.PEER_REVIEW);
-        expect(projectRepository.save).not.toHaveBeenCalled();
+        expect(projectRepository.update).not.toHaveBeenCalled();
       });
     });
 
@@ -336,18 +352,21 @@ describe('project service', () => {
     });
 
     test('should fail if peer reviews have been previously submitted', async () => {
-      for (const otherRole of [role2, role3, role4]) {
-        const peerReview = entityFaker.peerReview(role1, otherRole.id);
+      const [role, ...otherRoles] = roles;
+      const sentPeerReviews = [];
+      for (const otherRole of otherRoles) {
+        const peerReview = entityFaker.peerReview(role.id, otherRole.id);
         peerReview.score = 1 / 3;
-        role1.peerReviews.push(peerReview);
+        sentPeerReviews.push(peerReview);
       }
+      jest.spyOn(role, 'getSentPeerReviews').mockResolvedValue(sentPeerReviews);
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
       ).rejects.toThrow();
     });
 
     test('should fail if a peer review is for non-existing peer', async () => {
-      delete dto.peerReviews[role2.id];
+      delete dto.peerReviews[roles[1].id];
       dto.peerReviews[primitiveFaker.id()] = 1 / 3;
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
@@ -359,13 +378,13 @@ describe('project service', () => {
     let user: UserEntity;
     let project: ProjectEntity;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       user = entityFaker.user();
       project = entityFaker.project(user.id);
       project.state = ProjectState.MANAGER_REVIEW;
 
-      jest.spyOn(projectRepository, 'findOneOrFail').mockResolvedValue(project);
-      jest.spyOn(projectRepository, 'save').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'update').mockResolvedValue();
     });
 
     test('happy path', async () => {
@@ -373,7 +392,7 @@ describe('project service', () => {
         projectService.submitManagerReview(user, project.id),
       ).resolves.not.toThrow();
       expect(project.state).toBe(ProjectState.FINISHED);
-      expect(projectRepository.save).toHaveBeenCalledWith(project);
+      expect(projectRepository.update).toHaveBeenCalledWith(project);
     });
 
     test('should fail if authenticated user is not project owner', async () => {

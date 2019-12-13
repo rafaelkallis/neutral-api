@@ -6,15 +6,15 @@ import {
   RandomService,
   SessionState,
   TokenService,
-} from '../../common';
-import { UserEntity, UserRepository } from '../../user';
-import { entityFaker, primitiveFaker } from '../../test';
+} from 'common';
+import { UserEntity, UserRepository } from 'user';
+import { entityFaker, primitiveFaker } from 'test';
 
-import { AuthService } from './auth.service';
-import { RefreshDto } from '../dto/refresh.dto';
-import { RequestLoginDto } from '../dto/request-login.dto';
-import { RequestSignupDto } from '../dto/request-signup.dto';
-import { SubmitSignupDto } from '../dto/submit-signup.dto';
+import { AuthService } from 'auth/services/auth.service';
+import { RefreshDto } from 'auth/dto/refresh.dto';
+import { RequestLoginDto } from 'auth/dto/request-login.dto';
+import { RequestSignupDto } from 'auth/dto/request-signup.dto';
+import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 
 describe('auth service', () => {
   let authService: AuthService;
@@ -47,7 +47,7 @@ describe('auth service', () => {
   describe('request magic login', () => {
     beforeEach(() => {
       jest
-        .spyOn(userRepository, 'findOneOrFail')
+        .spyOn(userRepository, 'findOne')
         .mockResolvedValue(entityFaker.user());
       jest.spyOn(emailService, 'sendLoginEmail').mockResolvedValue();
     });
@@ -73,8 +73,8 @@ describe('auth service', () => {
         exists: jest.fn(),
         clear: jest.fn(),
       };
-      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
-      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'update').mockResolvedValue();
     });
 
     test('happy path', async () => {
@@ -90,7 +90,7 @@ describe('auth service', () => {
 
   describe('request magic signup', () => {
     beforeEach(() => {
-      jest.spyOn(userRepository, 'count').mockResolvedValue(0);
+      jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
       jest.spyOn(emailService, 'sendSignupEmail').mockResolvedValue();
     });
 
@@ -115,8 +115,8 @@ describe('auth service', () => {
         exists: jest.fn(),
         clear: jest.fn(),
       };
-      jest.spyOn(userRepository, 'count').mockResolvedValue(0);
-      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
+      jest.spyOn(userRepository, 'insert').mockResolvedValue();
     });
 
     test('happy path', async () => {

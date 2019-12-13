@@ -1,29 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { Not } from 'typeorm';
-import { InsufficientPermissionsException, RandomService } from '../../common';
-import { UserEntity } from '../../user';
-import { ProjectEntity, ProjectState, ContributionVisibility, SkipManagerReview } from '../entities/project.entity';
+import { InsufficientPermissionsException, RandomService } from 'common';
+import { UserEntity } from 'user';
+import {
+  ProjectEntity,
+  ProjectState,
+  ContributionVisibility,
+  SkipManagerReview,
+} from '../entities/project.entity';
 import { ProjectRepository } from '../repositories/project.repository';
-import { RoleEntity, RoleRepository, PeerReviewEntity } from '../../role';
+import {
+  RoleEntity,
+  RoleRepository,
+  PeerReviewEntity,
+  PeerReviewRepository,
+} from 'role';
 import { ContributionsModelService } from './contributions-model.service';
 import { ConsensualityModelService } from './consensuality-model.service';
 
-import { ProjectNotFormationStateException } from '../exceptions/project-not-formation-state.exception';
-import { ProjectNotPeerReviewStateException } from '../exceptions/project-not-peer-review-state.exception';
-import { ProjectNotManagerReviewStateException } from '../exceptions/project-not-manager-review-state.exception';
-import { RoleNoUserAssignedException } from '../exceptions/role-no-user-assigned.exception';
-import { InvalidPeerReviewsException } from '../exceptions/invalid-peer-reviews.exception';
-import { PeerReviewsAlreadySubmittedException } from '../exceptions/peer-reviews-already-submitted.exception';
-import { CreateProjectDto } from '../dto/create-project.dto';
-import { GetProjectsQueryDto } from '../dto/get-projects-query.dto';
-import { UpdateProjectDto } from '../dto/update-project.dto';
-import { ProjectDto, ProjectDtoBuilder } from '../dto/project.dto';
-import { SubmitPeerReviewsDto } from '../dto/submit-peer-reviews.dto';
+import { UserNotProjectOwnerException } from 'project/exceptions/user-not-project-owner.exception';
+import { ProjectNotFormationStateException } from 'project/exceptions/project-not-formation-state.exception';
+import { ProjectNotPeerReviewStateException } from 'project/exceptions/project-not-peer-review-state.exception';
+import { ProjectNotManagerReviewStateException } from 'project/exceptions/project-not-manager-review-state.exception';
+import { RoleNoUserAssignedException } from 'project/exceptions/role-no-user-assigned.exception';
+import { InvalidPeerReviewsException } from 'project/exceptions/invalid-peer-reviews.exception';
+import { PeerReviewsAlreadySubmittedException } from 'project/exceptions/peer-reviews-already-submitted.exception';
+import { CreateProjectDto } from 'project/dto/create-project.dto';
+import { GetProjectsQueryDto } from 'project/dto/get-projects-query.dto';
+import { UpdateProjectDto } from 'project/dto/update-project.dto';
+import { ProjectDto, ProjectDtoBuilder } from 'project/dto/project.dto';
+import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 
 @Injectable()
 export class ProjectService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
+  private readonly peerReviewRepository: PeerReviewRepository;
   private readonly randomService: RandomService;
   private readonly contributionsModelService: ContributionsModelService;
   private readonly consensualityModelService: ConsensualityModelService;
@@ -31,12 +42,14 @@ export class ProjectService {
   public constructor(
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
+    peerReviewRepository: PeerReviewRepository,
     randomService: RandomService,
     contributionsModelService: ContributionsModelService,
     consensualityModelService: ConsensualityModelService,
   ) {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
+    this.peerReviewRepository = peerReviewRepository;
     this.randomService = randomService;
     this.contributionsModelService = contributionsModelService;
     this.consensualityModelService = consensualityModelService;
@@ -62,7 +75,7 @@ export class ProjectService {
     authUser: UserEntity,
     id: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOne({ id });
     return new ProjectDtoBuilder(project, authUser).build();
   }
 
@@ -84,7 +97,7 @@ export class ProjectService {
         dto.contributionVisibility || ContributionVisibility.SELF,
       skipManagerReview: dto.skipManagerReview || SkipManagerReview.NO,
     });
-    await this.projectRepository.save(project);
+    await this.projectRepository.insert(project);
     return new ProjectDtoBuilder(project, authUser).build();
   }
 
@@ -96,15 +109,15 @@ export class ProjectService {
     id: string,
     dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOne({ id });
     if (!project.isOwner(authUser)) {
-      throw new InsufficientPermissionsException();
+      throw new UserNotProjectOwnerException();
     }
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
     project.update(dto);
-    await this.projectRepository.save(project);
+    await this.projectRepository.update(project);
     return new ProjectDtoBuilder(project, authUser).build();
   }
 
@@ -115,21 +128,21 @@ export class ProjectService {
     authUser: UserEntity,
     id: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOne({ id });
     if (!project.isOwner(authUser)) {
-      throw new InsufficientPermissionsException();
+      throw new UserNotProjectOwnerException();
     }
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
-    const roles = await this.roleRepository.find({ projectId: project.id });
+    const roles = await project.getRoles();
     for (const role of roles) {
       if (!role.hasAssignee()) {
         throw new RoleNoUserAssignedException();
       }
     }
     project.state = ProjectState.PEER_REVIEW;
-    await this.projectRepository.save(project);
+    await this.projectRepository.update(project);
     return new ProjectDtoBuilder(project, authUser).build();
   }
 
@@ -137,11 +150,11 @@ export class ProjectService {
    * Delete a project
    */
   public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
-    const project = await this.projectRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOne({ id });
     if (!project.isOwner(authUser)) {
-      throw new InsufficientPermissionsException();
+      throw new UserNotProjectOwnerException();
     }
-    await this.projectRepository.remove(project);
+    await this.projectRepository.delete(project);
   }
 
   /**
@@ -152,21 +165,20 @@ export class ProjectService {
     projectId: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<void> {
-    const project = await this.projectRepository.findOneOrFail({
+    const project = await this.projectRepository.findOne({
       id: projectId,
     });
     if (!project.isPeerReviewState()) {
       throw new ProjectNotPeerReviewStateException();
     }
 
-    const authUserRole = await this.roleRepository.findOne({
-      projectId,
-      assigneeId: authUser.id,
-    });
+    const roles = await project.getRoles();
+    const [authUserRole] = roles.filter(role => role.isAssignee(authUser));
     if (!authUserRole) {
       throw new InsufficientPermissionsException();
     }
-    if (authUserRole.hasPeerReviews()) {
+    const authUserRoleSentPeerReviews = await authUserRole.getSentPeerReviews();
+    if (authUserRoleSentPeerReviews.length > 0) {
       throw new PeerReviewsAlreadySubmittedException();
     }
 
@@ -174,10 +186,7 @@ export class ProjectService {
     if (dto.peerReviews[authUserRole.id] !== undefined) {
       throw new InvalidPeerReviewsException();
     }
-    const otherRoles = await this.roleRepository.find({
-      id: Not(authUserRole.id),
-      projectId,
-    });
+    const otherRoles = roles.filter(role => !role.isAssignee(authUser));
 
     /* check if number of peer reviews matches the number of roles */
     if (otherRoles.length !== Object.values(dto.peerReviews).length) {
@@ -194,20 +203,30 @@ export class ProjectService {
     for (const [revieweeRoleId, score] of Object.entries(dto.peerReviews)) {
       const peerReview = PeerReviewEntity.from({
         id: this.randomService.id(),
-        reviewerRole: authUserRole,
+        reviewerRoleId: authUserRole.id,
         revieweeRoleId,
         score,
       });
-      authUserRole.peerReviews.push(peerReview);
+      authUserRoleSentPeerReviews.push(peerReview);
     }
-    await this.roleRepository.save(authUserRole);
-
-    const roles = [authUserRole, ...otherRoles];
+    await this.peerReviewRepository.insert(authUserRoleSentPeerReviews);
 
     /* is final peer review? */
-    if (roles.every(role => role.hasPeerReviews())) {
+    if (await this.isFinalPeerReview(otherRoles)) {
       await this.onFinalPeerReview(project, roles);
     }
+  }
+
+  /**
+   * Checks whether or not the given roles have finished peer review.
+   */
+  private async isFinalPeerReview(roles: RoleEntity[]): Promise<boolean> {
+    let haveAllSentPeerReviews = true;
+    for (const role of roles) {
+      haveAllSentPeerReviews =
+        haveAllSentPeerReviews && (await role.hasSentPeerReviews());
+    }
+    return haveAllSentPeerReviews;
   }
 
   /**
@@ -221,7 +240,7 @@ export class ProjectService {
     const projectPeerReviews: Record<string, Record<string, number>> = {};
     for (const role of roles) {
       projectPeerReviews[role.id] = {};
-      for (const peerReview of role.peerReviews) {
+      for (const peerReview of await role.getSentPeerReviews()) {
         const { revieweeRoleId, score } = peerReview;
         projectPeerReviews[role.id][revieweeRoleId] = score;
       }
@@ -231,7 +250,7 @@ export class ProjectService {
     );
     for (const role of roles) {
       role.contribution = contributions[role.id];
-      await this.roleRepository.save(role);
+      await this.roleRepository.update(role);
     }
     project.consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
@@ -254,7 +273,7 @@ export class ProjectService {
         break;
       }
     }
-    await this.projectRepository.save(project);
+    await this.projectRepository.update(project);
   }
 
   /**
@@ -264,16 +283,16 @@ export class ProjectService {
     authUser: UserEntity,
     projectId: string,
   ): Promise<void> {
-    const project = await this.projectRepository.findOneOrFail({
+    const project = await this.projectRepository.findOne({
       id: projectId,
     });
     if (!project.isOwner(authUser)) {
-      throw new InsufficientPermissionsException();
+      throw new UserNotProjectOwnerException();
     }
     if (!project.isManagerReviewState()) {
       throw new ProjectNotManagerReviewStateException();
     }
     project.state = ProjectState.FINISHED;
-    await this.projectRepository.save(project);
+    await this.projectRepository.update(project);
   }
 }

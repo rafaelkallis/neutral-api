@@ -29,11 +29,11 @@ describe('assign user to role', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     user = entityFaker.user();
-    await userRepository.save(user);
+    await userRepository.insert(user);
     project = entityFaker.project(user.id);
-    await projectRepository.save(project);
+    await projectRepository.insert(project);
     role = entityFaker.role(project.id);
-    await roleRepository.save(role);
+    await roleRepository.insert(role);
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
@@ -52,7 +52,7 @@ describe('assign user to role', () => {
       assignee = entityFaker.user();
       assigneeId = assignee.id;
       assigneeEmail = assignee.email;
-      await userRepository.save(assignee);
+      await userRepository.insert(assignee);
     });
 
     test('happy path', async () => {
@@ -94,7 +94,7 @@ describe('assign user to role', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.save(project);
+      await projectRepository.update(project);
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });
@@ -103,9 +103,9 @@ describe('assign user to role', () => {
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
-      await userRepository.save(otherUser);
+      await userRepository.update(otherUser);
       project.ownerId = otherUser.id;
-      await projectRepository.save(project);
+      await projectRepository.update(project);
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });
@@ -114,7 +114,7 @@ describe('assign user to role', () => {
 
     test('should fail is user is already assigned to another role of the same project', async () => {
       const anotherRole = entityFaker.role(project.id, assignee.id);
-      await roleRepository.save(anotherRole);
+      await roleRepository.insert(anotherRole);
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });

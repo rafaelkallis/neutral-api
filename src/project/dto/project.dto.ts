@@ -1,12 +1,14 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { BaseDto } from '../../common';
-import { UserEntity } from '../../user';
+import { BaseDto } from 'common';
+import { UserEntity } from 'user';
+import { RoleEntity } from 'role';
+import { RoleDto } from 'role/dto/role.dto';
 import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from '../entities/project.entity';
+} from 'project/entities/project.entity';
 
 /**
  * Project DTO
@@ -32,7 +34,7 @@ export class ProjectDto extends BaseDto {
   public state: ProjectState;
 
   @ApiModelProperty()
-  public teamSpirit: number | null;
+  public consensuality: number | null;
 
   @ApiModelProperty({ example: ContributionVisibility.SELF })
   public contributionVisibility: ContributionVisibility;
@@ -40,13 +42,16 @@ export class ProjectDto extends BaseDto {
   @ApiModelProperty({ example: SkipManagerReview.IF_CONSENSUAL })
   public skipManagerReview: SkipManagerReview;
 
+  @ApiModelProperty({ required: false })
+  public roles?: RoleDto[];
+
   public constructor(
     id: string,
     title: string,
     description: string,
     ownerId: string,
     state: ProjectState,
-    teamSpirit: number | null,
+    consensuality: number | null,
     contributionVisibility: ContributionVisibility,
     skipManagerReview: SkipManagerReview,
     createdAt: number,
@@ -57,7 +62,7 @@ export class ProjectDto extends BaseDto {
     this.description = description;
     this.ownerId = ownerId;
     this.state = state;
-    this.teamSpirit = teamSpirit;
+    this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
   }
@@ -66,15 +71,21 @@ export class ProjectDto extends BaseDto {
 export class ProjectDtoBuilder {
   private readonly project: ProjectEntity;
   private readonly authUser: UserEntity;
+  private roles?: RoleDto[];
 
   public constructor(project: ProjectEntity, authUser: UserEntity) {
     this.project = project;
     this.authUser = authUser;
   }
 
+  public addRoles(roles: RoleDto[]): this {
+    this.roles = roles;
+    return this;
+  }
+
   public build(): ProjectDto {
-    const { project } = this;
-    return new ProjectDto(
+    const { project, roles } = this;
+    const projectDto = new ProjectDto(
       project.id,
       project.title,
       project.description,
@@ -86,6 +97,10 @@ export class ProjectDtoBuilder {
       project.createdAt,
       project.updatedAt,
     );
+    if (roles) {
+      projectDto.roles = roles;
+    }
+    return projectDto;
   }
 
   private shouldExposeConsensuality(): boolean {

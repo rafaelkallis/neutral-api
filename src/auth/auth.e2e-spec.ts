@@ -2,10 +2,10 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../app.module';
-import { EmailService, TokenService } from '../common';
-import { UserEntity, UserRepository } from '../user';
-import { entityFaker, primitiveFaker } from '../test';
+import { AppModule } from 'app.module';
+import { EmailService, TokenService } from 'common';
+import { UserEntity, UserRepository } from 'user';
+import { entityFaker, primitiveFaker } from 'test';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +21,8 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     userRepository = module.get(UserRepository);
-    user = await userRepository.save(entityFaker.user());
+    user = entityFaker.user();
+    await userRepository.insert(user);
     emailService = module.get(EmailService);
     tokenService = module.get(TokenService);
 
@@ -75,7 +76,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
-      const updatedUser = await userRepository.findOneOrFail({ id: user.id });
+      const updatedUser = await userRepository.findOne({ id: user.id });
       expect(user.lastLoginAt).toBeLessThan(updatedUser.lastLoginAt);
     });
   });
@@ -109,7 +110,7 @@ describe('AuthController (e2e)', () => {
       signupToken = tokenService.newSignupToken(email);
       jest.spyOn(tokenService, 'newAccessToken');
       jest.spyOn(tokenService, 'newRefreshToken');
-      jest.spyOn(userRepository, 'save');
+      jest.spyOn(userRepository, 'insert');
     });
 
     test('happy path', async () => {
@@ -124,7 +125,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalled();
       expect(tokenService.newRefreshToken).toHaveBeenCalled();
-      expect(userRepository.save).toHaveBeenCalled();
+      expect(userRepository.insert).toHaveBeenCalled();
     });
   });
 

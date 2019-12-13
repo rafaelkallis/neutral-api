@@ -7,13 +7,13 @@ import {
   SessionState,
   TokenAlreadyUsedException,
   TokenService,
-} from '../../common';
-import { UserEntity, UserRepository } from '../../user';
+} from 'common';
+import { UserEntity, UserRepository } from 'user';
 
-import { RefreshDto } from '../dto/refresh.dto';
-import { RequestLoginDto } from '../dto/request-login.dto';
-import { RequestSignupDto } from '../dto/request-signup.dto';
-import { SubmitSignupDto } from '../dto/submit-signup.dto';
+import { RefreshDto } from 'auth/dto/refresh.dto';
+import { RequestLoginDto } from 'auth/dto/request-login.dto';
+import { RequestSignupDto } from 'auth/dto/request-signup.dto';
+import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exception';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class AuthService {
    */
   public async requestLogin(dto: RequestLoginDto): Promise<void> {
     const { email } = dto;
-    const user = await this.userRepository.findOneOrFail({ email });
+    const user = await this.userRepository.findOne({ email });
     const loginToken = this.tokenService.newLoginToken(
       user.id,
       user.lastLoginAt,
@@ -68,13 +68,13 @@ export class AuthService {
     session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = this.tokenService.validateLoginToken(loginToken);
-    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
+    const user = await this.userRepository.findOne({ id: payload.sub });
     if (user.lastLoginAt !== payload.lastLoginAt) {
       throw new TokenAlreadyUsedException();
     }
 
     user.lastLoginAt = Date.now();
-    await this.userRepository.save(user);
+    await this.userRepository.update(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(
@@ -93,8 +93,8 @@ export class AuthService {
    */
   public async requestSignup(dto: RequestSignupDto): Promise<void> {
     const { email } = dto;
-    const count = await this.userRepository.count({ email });
-    if (count !== 0) {
+    const userExists = await this.userRepository.exists({ email });
+    if (userExists) {
       throw new EmailAlreadyUsedException();
     }
     const signupToken = this.tokenService.newSignupToken(email);
@@ -116,8 +116,8 @@ export class AuthService {
     session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = this.tokenService.validateSignupToken(signupToken);
-    const count = await this.userRepository.count({ email: payload.sub });
-    if (count > 0) {
+    const userExists = await this.userRepository.exists({ email: payload.sub });
+    if (userExists) {
       throw new EmailAlreadyUsedException();
     }
 
@@ -128,7 +128,7 @@ export class AuthService {
       lastName: dto.lastName,
       lastLoginAt: Date.now(),
     });
-    await this.userRepository.save(user);
+    await this.userRepository.insert(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(

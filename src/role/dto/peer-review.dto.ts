@@ -1,7 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
-import { UserEntity } from 'user';
-import { RoleEntity, PeerReviewEntity } from 'role';
+import { PeerReviewEntity } from 'role';
 
 /**
  * Peer Review DTO
@@ -41,7 +40,7 @@ export class PeerReviewDtoBuilder {
     const { peerReview } = this;
     return new PeerReviewDto(
       peerReview.id,
-      peerReview.reviewerRole.id,
+      peerReview.reviewerRoleId,
       peerReview.revieweeRoleId,
       peerReview.score,
       peerReview.createdAt,

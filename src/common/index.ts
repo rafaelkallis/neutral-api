@@ -23,6 +23,9 @@ export {
 } from './interceptors/entity-not-found.interceptor';
 
 export {
+  EntityNotFoundException,
+} from 'common/exceptions/entity-not-found.exception';
+export {
   TokenAlreadyUsedException,
 } from './exceptions/token-already-used.exception';
 export {

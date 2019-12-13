@@ -64,7 +64,7 @@ describe('ConsensualityModelService', () => {
       expect(c).toBeCloseTo(0);
     });
 
-    test.only('one did everything', () => {
+    test('one did everything', () => {
       const c = consensualityModelService.pairwiseRelativeJudgementsMethod(
         oneDidItAllPeerReviews,
       );

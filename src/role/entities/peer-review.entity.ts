@@ -6,7 +6,7 @@ import { RoleEntity } from './role.entity';
 
 interface PeerReviewEntityOptions {
   id: string;
-  reviewerRole: RoleEntity;
+  reviewerRoleId: string;
   revieweeRoleId: string;
   score: number;
 }
@@ -17,9 +17,8 @@ interface PeerReviewEntityOptions {
 @Entity('peer_reviews')
 export class PeerReviewEntity extends BaseEntity
   implements PeerReviewEntityOptions {
-  @ManyToOne(() => RoleEntity, role => role.peerReviews)
-  @JoinColumn({ name: 'reviewer_role_id' })
-  public reviewerRole!: RoleEntity;
+  @Column({ name: 'reviewer_role_id' })
+  public reviewerRoleId!: string;
 
   @Column({ name: 'reviewee_role_id' })
   @IsString()
@@ -39,7 +38,7 @@ export class PeerReviewEntity extends BaseEntity
   }
 
   public isReviewerRole(role: RoleEntity): boolean {
-    return this.reviewerRole.id === role.id;
+    return this.reviewerRoleId === role.id;
   }
 
   public isRevieweeRole(role: RoleEntity): boolean {

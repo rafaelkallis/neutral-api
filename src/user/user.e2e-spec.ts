@@ -19,7 +19,8 @@ describe('UserController (e2e)', () => {
     }).compile();
 
     userRepository = module.get(UserRepository);
-    user = await userRepository.save(entityFaker.user());
+    user = entityFaker.user();
+    await userRepository.insert(user);
 
     const app = module.createNestApplication();
     await app.init();
@@ -32,9 +33,6 @@ describe('UserController (e2e)', () => {
 
   describe('/users (GET)', () => {
     test('happy path', async () => {
-      const user = await userRepository.save(entityFaker.user());
-      await userRepository.save(entityFaker.user());
-      await userRepository.save(entityFaker.user());
       const response = await session.get('/users').query({ after: user.id });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
@@ -49,15 +47,15 @@ describe('UserController (e2e)', () => {
       let user1 = entityFaker.user();
       user1.firstName = 'Anna';
       user1.lastName = 'Smith';
-      user1 = await userRepository.save(user1);
+      await userRepository.insert(user1);
       let user2 = entityFaker.user();
       user2.firstName = 'Hannah';
       user2.lastName = 'Fitzgerald';
-      user2 = await userRepository.save(user2);
+      await userRepository.insert(user2);
       let user3 = entityFaker.user();
       user3.firstName = 'Nanna';
       user3.lastName = 'Thompson';
-      user3 = await userRepository.save(user3);
+      await userRepository.insert(user3);
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
@@ -92,7 +90,7 @@ describe('UserController (e2e)', () => {
       const response = await session.delete('/users/me');
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(userRepository.count({ id: user.id })).resolves.toBe(0);
+      await expect(userRepository.exists({ id: user.id })).resolves.toBeFalsy();
     });
   });
 });

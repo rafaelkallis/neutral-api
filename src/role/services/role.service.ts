@@ -1,26 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { Not } from 'typeorm';
-
 import {
   InsufficientPermissionsException,
   RandomService,
   EmailService,
-} from '../../common';
-import { UserEntity, UserRepository } from '../../user';
-import { ProjectEntity, ProjectRepository } from '../../project';
-import { RoleEntity } from '../entities/role.entity';
-import { RoleRepository } from '../repositories/role.repository';
-import { RoleDto, RoleDtoBuilder } from '../dto/role.dto';
-import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
-import { CreateRoleDto } from '../dto/create-role.dto';
-import { UpdateRoleDto } from '../dto/update-role.dto';
-import { AssignmentDto } from '../dto/assignment.dto';
-import { ProjectNotFormationStateException } from '../exceptions/project-not-formation-state.exception';
-import { ProjectOwnerAssignmentException } from '../exceptions/project-owner-assignment.exception';
-import { CreateRoleOutsideFormationStateException } from '../exceptions/create-role-outside-formation-state.exception';
-import { UserNotRoleProjectOwnerException } from '../exceptions/user-not-role-project-owner.exception';
-import { AlreadyAssignedRoleSameProjectException } from '../exceptions/already-assigned-role-same-project.exception';
-import { NoAssigneeException } from '../exceptions/no-assignee.exception';
+} from 'common';
+import { UserEntity, UserRepository } from 'user';
+import { ProjectEntity, ProjectRepository } from 'project';
+import { RoleEntity } from 'role/entities/role.entity';
+import { RoleRepository } from 'role/repositories/role.repository';
+import { RoleDto, RoleDtoBuilder } from 'role/dto/role.dto';
+import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
+import { CreateRoleDto } from 'role/dto/create-role.dto';
+import { UpdateRoleDto } from 'role/dto/update-role.dto';
+import { AssignmentDto } from 'role/dto/assignment.dto';
+import { ProjectNotFormationStateException } from 'role/exceptions/project-not-formation-state.exception';
+import { ProjectOwnerAssignmentException } from 'role/exceptions/project-owner-assignment.exception';
+import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create-role-outside-formation-state.exception';
+import { UserNotRoleProjectOwnerException } from 'role/exceptions/user-not-role-project-owner.exception';
+import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
+import { NoAssigneeException } from 'role/exceptions/no-assignee.exception';
 
 @Injectable()
 export class RoleService {
@@ -51,12 +49,15 @@ export class RoleService {
     authUser: UserEntity,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    const project = await this.projectRepository.findOneOrFail({
+    const project = await this.projectRepository.findOne({
       id: query.projectId,
     });
-    const roles = await this.roleRepository.find(query);
-    return roles.map(role =>
-      new RoleDtoBuilder(role, project, roles, authUser).build(),
+    const roles = await project.getRoles();
+    // TODO sent peer reviews should be fetched, but inside builder?
+    return Promise.all(
+      roles.map(async role =>
+        new RoleDtoBuilder(role, project, authUser).build(),
+      ),
     );
   }
 
@@ -64,11 +65,13 @@ export class RoleService {
    * Get the role with the given id
    */
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
-    const role = await this.roleRepository.findOneOrFail(id);
-    const project = await this.projectRepository.findOneOrFail(role.projectId);
-    // TODO: should not need another query
-    const roles = await this.roleRepository.find({ projectId: project.id });
-    return new RoleDtoBuilder(role, project, roles, authUser).build();
+    const role = await this.roleRepository.findOne({ id });
+    // TODO role.project.roles possible?
+    const project = await role.getProject();
+    return new RoleDtoBuilder(role, project, authUser)
+      .addSentPeerReviews(async () => role.getSentPeerReviews())
+      .addReceivedPeerReviews(async () => role.getReceivedPeerReviews())
+      .build();
   }
 
   /**
@@ -78,7 +81,7 @@ export class RoleService {
     authUser: UserEntity,
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
-    const project = await this.projectRepository.findOneOrFail({
+    const project = await this.projectRepository.findOne({
       id: dto.projectId,
     });
     if (!project.isOwner(authUser)) {
@@ -91,21 +94,18 @@ export class RoleService {
       if (dto.assigneeId === authUser.id) {
         throw new ProjectOwnerAssignmentException();
       }
-      await this.userRepository.findOneOrFail({ id: dto.assigneeId });
+      await this.userRepository.findOne({ id: dto.assigneeId });
     }
     const role = RoleEntity.from({
       id: this.randomService.id(),
-      projectId: dto.projectId,
+      projectId: project.id,
       assigneeId: dto.assigneeId || null,
       title: dto.title,
       description: dto.description,
       contribution: null,
-      peerReviews: [],
     });
-    await this.roleRepository.save(role);
-    // TODO: should not need another query
-    const roles = await this.roleRepository.find({ projectId: project.id });
-    return new RoleDtoBuilder(role, project, roles, authUser).build();
+    await this.roleRepository.insert(role);
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**
@@ -116,10 +116,8 @@ export class RoleService {
     id: string,
     body: UpdateRoleDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
+    const role = await this.roleRepository.findOne({ id });
+    const project = await role.getProject();
     if (!project.isOwner(authUser)) {
       throw new UserNotRoleProjectOwnerException();
     }
@@ -127,24 +125,22 @@ export class RoleService {
       throw new ProjectNotFormationStateException();
     }
     role.update(body);
-    await this.roleRepository.save(role);
-    // TODO: should not need another query
-    const roles = await this.roleRepository.find({ projectId: project.id });
-    return new RoleDtoBuilder(role, project, roles, authUser).build();
+    await this.roleRepository.update(role);
+    // TODO: check if role.project.roles is possible
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**
    * Delete a role
    */
   public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
-    if (project.ownerId !== authUser.id) {
+    const role = await this.roleRepository.findOne({ id });
+    // TODO check if role.project.roles possible
+    const project = await role.getProject();
+    if (!project.isOwner(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    await this.roleRepository.remove(role);
+    await this.roleRepository.delete(role);
   }
 
   /**
@@ -155,10 +151,9 @@ export class RoleService {
     id: string,
     dto: AssignmentDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findOneOrFail({ id });
-    const project = await this.projectRepository.findOneOrFail({
-      id: role.projectId,
-    });
+    const role = await this.roleRepository.findOne({ id });
+    // TODO check if role.project.roles possible
+    const project = await role.getProject();
     if (!project.isOwner(authUser)) {
       throw new UserNotRoleProjectOwnerException();
     }
@@ -169,24 +164,27 @@ export class RoleService {
       throw new NoAssigneeException();
     }
     if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
-      const user = await this.userRepository.findOneOrFail({
+      const user = await this.userRepository.findOne({
         id: dto.assigneeId,
       });
       await this.assignExistingUser(project, role, user);
     }
     if (dto.assigneeEmail) {
-      const user = await this.userRepository.findOne({
+      const doesUserExist = await this.userRepository.exists({
         email: dto.assigneeEmail,
       });
-      if (!user) {
+      if (doesUserExist) {
+        const user = await this.userRepository.findOne({
+          email: dto.assigneeEmail,
+        });
+        if (!role.isAssignee(user)) {
+          await this.assignExistingUser(project, role, user);
+        }
+      } else {
         await this.assignNewUser(project, role, dto.assigneeEmail);
-      } else if (!role.isAssignee(user)) {
-        await this.assignExistingUser(project, role, user);
       }
     }
-    // TODO: should not need another query
-    const roles = await this.roleRepository.find({ projectId: project.id });
-    return new RoleDtoBuilder(role, project, roles, authUser).build();
+    return new RoleDtoBuilder(role, project, authUser).build();
   }
 
   /**
@@ -197,16 +195,12 @@ export class RoleService {
     role: RoleEntity,
     user: UserEntity,
   ): Promise<void> {
-    const assignedRole = await this.roleRepository.findOne({
-      id: Not(role.id),
-      projectId: project.id,
-      assigneeId: user.id,
-    });
-    if (assignedRole) {
+    const roles = await project.getRoles();
+    if (roles.some(role => role.isAssignee(user))) {
       throw new AlreadyAssignedRoleSameProjectException();
     }
     role.assign(user);
-    await this.roleRepository.save(role);
+    await this.roleRepository.update(role);
     await this.emailService.sendNewAssignmentEmail(user.email);
   }
 
@@ -225,10 +219,10 @@ export class RoleService {
       lastName: '',
       lastLoginAt: 0,
     });
-    await this.userRepository.save(user);
+    await this.userRepository.insert(user);
 
     role.assign(user);
-    await this.roleRepository.save(role);
+    await this.roleRepository.update(role);
     await this.emailService.sendUnregisteredUserNewAssignmentEmail(user.email);
   }
 }

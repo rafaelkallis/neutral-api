@@ -2,13 +2,13 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../app.module';
-import { TokenService } from '../common';
-import { UserRepository } from '../user';
+import { AppModule } from 'app.module';
+import { TokenService } from 'common';
+import { UserRepository } from 'user';
 import { ProjectEntity, ProjectState } from './entities/project.entity';
 import { ProjectRepository } from './repositories/project.repository';
 import { RoleEntity, PeerReviewRepository, RoleRepository } from '../role';
-import { entityFaker, primitiveFaker } from '../test';
+import { entityFaker, primitiveFaker } from 'test';
 
 jest.setTimeout(10000);
 
@@ -34,7 +34,8 @@ describe('submit peer review (e2e)', () => {
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
     peerReviewRepository = module.get(PeerReviewRepository);
-    const user = await userRepository.save(entityFaker.user());
+    const user = entityFaker.user();
+    await userRepository.insert(user);
     app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
@@ -45,8 +46,7 @@ describe('submit peer review (e2e)', () => {
     /* prepare project */
     project = entityFaker.project(user.id);
     project.state = ProjectState.PEER_REVIEW;
-
-    await projectRepository.save(project);
+    await projectRepository.insert(project);
 
     /* prepare roles */
     role1 = entityFaker.role(project.id);
@@ -56,10 +56,10 @@ describe('submit peer review (e2e)', () => {
 
     role1.assigneeId = user.id;
 
-    await roleRepository.save(role1);
-    await roleRepository.save(role2);
-    await roleRepository.save(role3);
-    await roleRepository.save(role4);
+    await roleRepository.insert(role1);
+    await roleRepository.insert(role2);
+    await roleRepository.insert(role3);
+    await roleRepository.insert(role4);
 
     peerReviews = {
       [role1.id]: {
@@ -91,18 +91,13 @@ describe('submit peer review (e2e)', () => {
           continue;
         }
         const peerReview = entityFaker.peerReview(
-          reviewerRole,
+          reviewerRole.id,
           revieweeRole.id,
         );
         peerReview.score = peerReviews[reviewerRole.id][revieweeRole.id];
-        reviewerRole.peerReviews.push(peerReview);
+        await peerReviewRepository.insert(peerReview);
       }
     }
-
-    await roleRepository.save(role1);
-    await roleRepository.save(role2);
-    await roleRepository.save(role3);
-    await roleRepository.save(role4);
   });
 
   test('happy path, final peer review', async () => {
@@ -110,54 +105,51 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    const updatedRole = await roleRepository.findOneOrFail({ id: role1.id });
-    expect(updatedRole.peerReviews).toHaveLength(3);
-    for (const peerReview of updatedRole.peerReviews) {
-      expect(peerReview.score).toBe(
-        peerReviews[role1.id][peerReview.revieweeRoleId],
+    const sentPeerReviews = await role1.getSentPeerReviews();
+    expect(sentPeerReviews).toHaveLength(3);
+    for (const sentPeerReview of sentPeerReviews) {
+      expect(sentPeerReview.score).toBe(
+        peerReviews[role1.id][sentPeerReview.revieweeRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOneOrFail({
+    const updatedProject = await projectRepository.findOne({
       id: project.id,
     });
     expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);
     expect(updatedProject.consensuality).toEqual(expect.any(Number));
-    const updatedRoles = await roleRepository.find({ projectId: project.id });
-    for (const updatedRole of updatedRoles) {
+    for (const updatedRole of await updatedProject.getRoles()) {
       expect(updatedRole.contribution).toEqual(expect.any(Number));
     }
   });
 
   test('happy path, not final peer review', async () => {
-    for (const peerReviewToRemove of role2.peerReviews) {
-      await peerReviewRepository.remove(peerReviewToRemove);
+    for (const peerReviewToRemove of await role2.getSentPeerReviews()) {
+      await peerReviewRepository.delete(peerReviewToRemove);
     }
-    role2.peerReviews = [];
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    const updatedRole = await roleRepository.findOneOrFail({ id: role1.id });
-    expect(updatedRole.peerReviews).toHaveLength(3);
-    for (const peerReview of updatedRole.peerReviews) {
-      expect(peerReview.score).toBe(
-        peerReviews[role1.id][peerReview.revieweeRoleId],
+    const sentPeerReviews = await role1.getSentPeerReviews();
+    expect(sentPeerReviews).toHaveLength(3);
+    for (const sentPeerReview of sentPeerReviews) {
+      expect(sentPeerReview.score).toBe(
+        peerReviews[role1.id][sentPeerReview.revieweeRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOneOrFail({
+    const updatedProject = await projectRepository.findOne({
       id: project.id,
     });
     expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
-    const updatedRoles = await roleRepository.find({ projectId: project.id });
-    for (const updatedRole of updatedRoles) {
+    for (const updatedRole of await updatedProject.getRoles()) {
       expect(updatedRole.contribution).toBeFalsy();
     }
   });
 
   test('should fail if project is not in peer-review state', async () => {
     project.state = ProjectState.FORMATION;
-    await projectRepository.save(project);
+    await projectRepository.update(project);
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
@@ -167,11 +159,10 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if peer-review already submitted', async () => {
     for (const revieweeRole of [role2, role3, role4]) {
-      const peerReview = entityFaker.peerReview(role1, revieweeRole.id);
+      const peerReview = entityFaker.peerReview(role1.id, revieweeRole.id);
       peerReview.score = peerReviews[role1.id][revieweeRole.id];
-      role1.peerReviews.push(peerReview);
+      await peerReviewRepository.insert(peerReview);
     }
-    await roleRepository.save(role1);
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)

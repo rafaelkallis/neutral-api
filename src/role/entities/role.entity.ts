@@ -1,9 +1,10 @@
 import { IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from '../../common/entities/base.entity';
-import { UserEntity } from '../../user';
-import { PeerReviewEntity } from './peer-review.entity';
+import { BaseEntity } from 'common/entities/base.entity';
+import { UserEntity } from 'user';
+import { ProjectEntity } from 'project';
+import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 
 interface RoleEntityOptions {
   id: string;
@@ -12,7 +13,6 @@ interface RoleEntityOptions {
   title: string;
   description: string;
   contribution: number | null;
-  peerReviews: PeerReviewEntity[];
 }
 
 /**
@@ -46,18 +46,29 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @IsOptional()
   public contribution!: number | null;
 
-  @OneToMany(() => PeerReviewEntity, peerReview => peerReview.reviewerRole, {
-    eager: true,
-    cascade: true,
-  })
-  public peerReviews!: PeerReviewEntity[];
-
   public static from(options: RoleEntityOptions): RoleEntity {
     return Object.assign(new RoleEntity(), options);
   }
 
   public update(options: Partial<RoleEntityOptions>): this {
     return Object.assign(this, options);
+  }
+
+  public async getProject(): Promise<ProjectEntity> {
+    return ProjectEntity.findOneOrFail(this.projectId);
+  }
+
+  public async getSentPeerReviews(): Promise<PeerReviewEntity[]> {
+    return PeerReviewEntity.find({ reviewerRoleId: this.id });
+  }
+
+  public async hasSentPeerReviews(): Promise<boolean> {
+    const count = await PeerReviewEntity.count({ reviewerRoleId: this.id });
+    return count > 0;
+  }
+
+  public async getReceivedPeerReviews(): Promise<PeerReviewEntity[]> {
+    return PeerReviewEntity.find({ revieweeRoleId: this.id });
   }
 
   public hasAssignee(): boolean {
@@ -70,9 +81,5 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
 
   public assign(user: UserEntity): void {
     this.assigneeId = user.id;
-  }
-
-  public hasPeerReviews(): boolean {
-    return this.peerReviews.length > 0;
   }
 }

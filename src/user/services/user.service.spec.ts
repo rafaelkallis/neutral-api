@@ -90,7 +90,7 @@ describe('user service', () => {
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
       dto = UpdateUserDto.from({ email, firstName });
-      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'update').mockResolvedValue();
       jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
@@ -100,7 +100,7 @@ describe('user service', () => {
         email,
         expect.any(String),
       );
-      expect(userRepository.save).toHaveBeenCalledWith(
+      expect(userRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ firstName }),
       );
     });
@@ -117,8 +117,8 @@ describe('user service', () => {
         user.email,
         newEmail,
       );
-      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
-      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'update').mockResolvedValue();
       jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
@@ -129,7 +129,7 @@ describe('user service', () => {
 
   describe('get user', () => {
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
     });
 
     test('happy path', async () => {
@@ -141,7 +141,7 @@ describe('user service', () => {
     test('should not expose email of another user', async () => {
       const otherUser = entityFaker.user();
       const otherUserDto = new UserDtoBuilder(otherUser, user).build();
-      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(otherUser);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(otherUser);
       await expect(userService.getUser(user, otherUser.id)).resolves.toEqual(
         otherUserDto,
       );
@@ -150,12 +150,12 @@ describe('user service', () => {
 
   describe('delete authenticated user', () => {
     beforeEach(async () => {
-      jest.spyOn(userRepository, 'remove').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'delete').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await userService.deleteAuthUser(user);
-      expect(userRepository.remove).toHaveBeenCalledWith(user);
+      expect(userRepository.delete).toHaveBeenCalledWith(user);
     });
   });
 });

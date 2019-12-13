@@ -7,8 +7,9 @@ import {
 } from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from '../../common/entities/base.entity';
-import { UserEntity } from '../../user';
+import { BaseEntity } from 'common';
+import { UserEntity } from 'user';
+import { RoleEntity } from 'role';
 
 export enum ProjectState {
   FORMATION = 'formation',
@@ -19,7 +20,7 @@ export enum ProjectState {
 
 export enum ContributionVisibility {
   PUBLIC = 'public',
-  PROJECT = 'project',
+  // PROJECT = 'project',
   SELF = 'self',
   NONE = 'none',
 }
@@ -87,6 +88,14 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
 
   public update(options: Partial<ProjectEntityOptions>): this {
     return Object.assign(this, options);
+  }
+
+  public async getRoles(): Promise<RoleEntity[]> {
+    return RoleEntity.find({ projectId: this.id });
+  }
+
+  public async getOwner(): Promise<UserEntity> {
+    return UserEntity.findOneOrFail({ id: this.ownerId });
   }
 
   public isOwner(user: UserEntity): boolean {

@@ -7,7 +7,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { EntityNotFoundException } from '../exceptions/entity-not-found.exception';
+import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 
 /**
  * Interceptor for catching typeorm's 'EntityNotFound' error with our errors.

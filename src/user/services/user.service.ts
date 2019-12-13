@@ -76,7 +76,7 @@ export class UserService {
       await this.emailService.sendEmailChangeEmail(email, emailChangeMagicLink);
     }
     authUser.update(otherChanges);
-    await this.userRepository.save(authUser);
+    await this.userRepository.update(authUser);
     return new UserDtoBuilder(authUser, authUser).build();
   }
 
@@ -85,19 +85,19 @@ export class UserService {
    */
   public async submitEmailChange(token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findOneOrFail({ id: payload.sub });
+    const user = await this.userRepository.findOne({ id: payload.sub });
     if (user.email !== payload.curEmail) {
       throw new TokenAlreadyUsedException();
     }
     user.email = payload.newEmail;
-    await this.userRepository.save(user);
+    await this.userRepository.update(user);
   }
 
   /**
    * Get the user with the given id
    */
   public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
-    const user = await this.userRepository.findOneOrFail({ id });
+    const user = await this.userRepository.findOne({ id });
     return new UserDtoBuilder(user, authUser).build();
   }
 
@@ -105,6 +105,6 @@ export class UserService {
    * Delete the authenticated user
    */
   public async deleteAuthUser(authUser: UserEntity): Promise<void> {
-    await this.userRepository.remove(authUser);
+    await this.userRepository.delete(authUser);
   }
 }
