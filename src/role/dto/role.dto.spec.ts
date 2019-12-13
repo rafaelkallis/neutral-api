@@ -10,24 +10,29 @@ describe('role dto', () => {
   const projectUser = entityFaker.user();
   const publicUser = entityFaker.user();
   let role: RoleEntity;
+  let roles: RoleEntity[];
   let project: ProjectEntity;
 
   beforeEach(() => {
     project = entityFaker.project(owner.id);
     project.state = ProjectState.FINISHED;
-    role = entityFaker.role(project.id, assignee.id);
+    roles = [
+      entityFaker.role(project.id, assignee.id),
+      entityFaker.role(project.id, projectUser.id),
+    ];
+    role = roles[0];
   });
 
-  const { PUBLIC, SELF, NONE } = ContributionVisibility;
+  const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
   const contributionCases: [ContributionVisibility, UserEntity, boolean][] = [
     [PUBLIC, owner, true],
     [PUBLIC, assignee, true],
     [PUBLIC, projectUser, true],
     [PUBLIC, publicUser, true],
-    // [PROJECT, owner, true],
-    // [PROJECT, assignee, true],
-    // [PROJECT, projectUser, true],
-    // [PROJECT, publicUser, false],
+    [PROJECT, owner, true],
+    [PROJECT, assignee, true],
+    [PROJECT, projectUser, true],
+    [PROJECT, publicUser, false],
     [SELF, owner, true],
     [SELF, assignee, true],
     [SELF, projectUser, false],
@@ -43,7 +48,12 @@ describe('role dto', () => {
     async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
       role.contribution = 1;
-      const roleDto = await new RoleDtoBuilder(role, project, authUser).build();
+      const roleDto = await new RoleDtoBuilder(
+        role,
+        project,
+        roles,
+        authUser,
+      ).build();
       expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
     },
   );
@@ -52,7 +62,12 @@ describe('role dto', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
     role.contribution = 1;
-    const roleDto = await new RoleDtoBuilder(role, project, assignee).build();
+    const roleDto = await new RoleDtoBuilder(
+      role,
+      project,
+      roles,
+      assignee,
+    ).build();
     expect(roleDto.contribution).toBeFalsy();
   });
 
@@ -66,7 +81,7 @@ describe('role dto', () => {
   test.each(sentPeerReviewsCases)(
     'sent peer reviews',
     async (authUser, areSentPeerReviewsVisible) => {
-      const roleDto = await new RoleDtoBuilder(role, project, authUser)
+      const roleDto = await new RoleDtoBuilder(role, project, roles, authUser)
         .addSentPeerReviews(async () => [])
         .build();
       expect(Boolean(roleDto.sentPeerReviews)).toBe(areSentPeerReviewsVisible);
@@ -83,7 +98,7 @@ describe('role dto', () => {
   test.each(receivedPeerReviewsCases)(
     'received peer reviews, ',
     async (authUser, areReceivedPeerReviewsVisible) => {
-      const roleDto = await new RoleDtoBuilder(role, project, authUser)
+      const roleDto = await new RoleDtoBuilder(role, project, roles, authUser)
         .addReceivedPeerReviews(async () => [])
         .build();
       expect(Boolean(roleDto.receivedPeerReviews)).toBe(

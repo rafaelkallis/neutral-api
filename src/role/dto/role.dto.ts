@@ -1,10 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { NotImplementedException } from '@nestjs/common';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
 import { ProjectEntity, ContributionVisibility } from 'project';
-import { RoleEntity, PeerReviewEntity } from 'role';
-import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
+import { RoleEntity } from 'role';
+import { PeerReviewDto } from 'role/dto/peer-review.dto';
 
 /**
  * Role DTO
@@ -56,6 +55,7 @@ export class RoleDto extends BaseDto {
 export class RoleDtoBuilder {
   private readonly role: RoleEntity;
   private readonly project: ProjectEntity;
+  private readonly projectRoles: RoleEntity[];
   private readonly authUser: UserEntity;
   private getSentPeerReviews?: () => Promise<PeerReviewDto[]>;
   private getReceivedPeerReviews?: () => Promise<PeerReviewDto[]>;
@@ -98,38 +98,46 @@ export class RoleDtoBuilder {
   public constructor(
     role: RoleEntity,
     project: ProjectEntity,
+    projectRoles: RoleEntity[],
     authUser: UserEntity,
   ) {
     this.role = role;
     this.project = project;
+    this.projectRoles = projectRoles;
     this.authUser = authUser;
   }
 
   private shouldExposeContribution(): boolean {
-    const { role, project, authUser } = this;
-    if (project.isOwner(authUser)) {
-      return true;
+    const { role, project, projectRoles, authUser } = this;
+    switch (project.contributionVisibility) {
+      case ContributionVisibility.PUBLIC: {
+        return project.isFinishedState();
+      }
+
+      case ContributionVisibility.PROJECT: {
+        if (project.isOwner(authUser)) {
+          return true;
+        }
+        if (!project.isFinishedState()) {
+          return false;
+        }
+        return projectRoles.some(r => r.isAssignee(authUser));
+      }
+
+      case ContributionVisibility.SELF: {
+        if (project.isOwner(authUser)) {
+          return true;
+        }
+        if (!project.isFinishedState()) {
+          return false;
+        }
+        return role.isAssignee(authUser);
+      }
+
+      case ContributionVisibility.NONE: {
+        return project.isOwner(authUser);
+      }
     }
-    if (!project.isFinishedState()) {
-      return false;
-    }
-    if (project.contributionVisibility === ContributionVisibility.PUBLIC) {
-      return true;
-    }
-    // TODO project member contribution visibility
-    // if (
-    //   project.contributionVisibility === ContributionVisibility.PROJECT &&
-    //     this.roles.some(r => r.isAssignee(this.authUser))
-    // ) {
-    //   throw new NotImplementedException();
-    // }
-    if (
-      project.contributionVisibility === ContributionVisibility.SELF &&
-      role.isAssignee(authUser)
-    ) {
-      return true;
-    }
-    return false;
   }
 
   private shouldExposeSentPeerReviews(): boolean {

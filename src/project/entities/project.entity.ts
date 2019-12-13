@@ -20,7 +20,7 @@ export enum ProjectState {
 
 export enum ContributionVisibility {
   PUBLIC = 'public',
-  // PROJECT = 'project',
+  PROJECT = 'project',
   SELF = 'self',
   NONE = 'none',
 }

@@ -7,12 +7,7 @@ import {
   EmailService,
 } from 'common';
 import { UserEntity, UserRepository } from 'user';
-import {
-  ProjectEntity,
-  ProjectState,
-  ContributionVisibility,
-  ProjectRepository,
-} from 'project';
+import { ProjectEntity, ProjectState, ProjectRepository } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 import { RoleDtoBuilder } from 'role/dto/role.dto';
@@ -76,8 +71,8 @@ describe('role service', () => {
     test('happy path', async () => {
       const actualRoleDtos = await roleService.getRoles(owner, query);
       const expectedRoleDtos = [
-        await new RoleDtoBuilder(role1, project, owner).build(),
-        await new RoleDtoBuilder(role2, project, owner).build(),
+        await new RoleDtoBuilder(role1, project, [role1, role2], owner).build(),
+        await new RoleDtoBuilder(role2, project, [role1, role2], owner).build(),
       ];
       expect(actualRoleDtos).toEqual(expectedRoleDtos);
     });
@@ -92,6 +87,7 @@ describe('role service', () => {
       receivedPeerReview = entityFaker.peerReview(role2.id, role1.id);
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
       jest.spyOn(role1, 'getProject').mockResolvedValue(project);
+      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
       jest
         .spyOn(role1, 'getSentPeerReviews')
         .mockResolvedValue([sentPeerReview]);
@@ -102,7 +98,12 @@ describe('role service', () => {
 
     test('happy path', async () => {
       const actualRoleDto = await roleService.getRole(owner, role1.id);
-      const expectedRoleDto = await new RoleDtoBuilder(role1, project, owner)
+      const expectedRoleDto = await new RoleDtoBuilder(
+        role1,
+        project,
+        [role1, role2],
+        owner,
+      )
         .addSentPeerReviews(async () => [sentPeerReview])
         .addReceivedPeerReviews(async () => [receivedPeerReview])
         .build();
@@ -121,11 +122,12 @@ describe('role service', () => {
       });
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'insert').mockResolvedValue();
+      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
     });
 
     test('happy path', async () => {
-      const actualRoleDto = await roleService.createRole(owner, body);
-      expect(actualRoleDto).toEqual(
+      await roleService.createRole(owner, body);
+      expect(roleRepository.insert).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: body.projectId,
           assigneeId: null,
@@ -156,6 +158,7 @@ describe('role service', () => {
       });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role);
       jest.spyOn(role, 'getProject').mockResolvedValue(project);
+      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
       jest.spyOn(roleRepository, 'update').mockResolvedValue();
     });
 
