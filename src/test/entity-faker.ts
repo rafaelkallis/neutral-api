@@ -58,13 +58,13 @@ class EntityFaker {
    * Create a fake peer review
    */
   public peerReview(
-    reviewerRoleId: string,
-    revieweeRoleId: string,
+    senderRoleId: string,
+    receiverRoleId: string,
   ): PeerReviewEntity {
     return PeerReviewEntity.from({
       id: primitiveFaker.id(),
-      reviewerRoleId,
-      revieweeRoleId,
+      senderRoleId,
+      receiverRoleId,
       score: primitiveFaker.number(),
     });
   }

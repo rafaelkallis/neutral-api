@@ -200,11 +200,11 @@ export class ProjectService {
       }
     }
 
-    for (const [revieweeRoleId, score] of Object.entries(dto.peerReviews)) {
+    for (const [receiverRoleId, score] of Object.entries(dto.peerReviews)) {
       const peerReview = PeerReviewEntity.from({
         id: this.randomService.id(),
-        reviewerRoleId: authUserRole.id,
-        revieweeRoleId,
+        senderRoleId: authUserRole.id,
+        receiverRoleId,
         score,
       });
       authUserRoleSentPeerReviews.push(peerReview);
@@ -241,8 +241,8 @@ export class ProjectService {
     for (const role of roles) {
       projectPeerReviews[role.id] = {};
       for (const peerReview of await role.getSentPeerReviews()) {
-        const { revieweeRoleId, score } = peerReview;
-        projectPeerReviews[role.id][revieweeRoleId] = score;
+        const { receiverRoleId, score } = peerReview;
+        projectPeerReviews[role.id][receiverRoleId] = score;
       }
     }
     const contributions = this.contributionsModelService.computeContributions(

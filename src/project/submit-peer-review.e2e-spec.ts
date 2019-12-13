@@ -109,7 +109,7 @@ describe('submit peer review (e2e)', () => {
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(
-        peerReviews[role1.id][sentPeerReview.revieweeRoleId],
+        peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
     const updatedProject = await projectRepository.findOne({
@@ -135,7 +135,7 @@ describe('submit peer review (e2e)', () => {
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(
-        peerReviews[role1.id][sentPeerReview.revieweeRoleId],
+        peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
     const updatedProject = await projectRepository.findOne({

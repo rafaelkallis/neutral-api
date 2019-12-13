@@ -1,13 +1,13 @@
 import { IsNumber, IsString, MaxLength } from 'class-validator';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from '../../common/entities/base.entity';
-import { RoleEntity } from './role.entity';
+import { BaseEntity } from 'common/entities/base.entity';
+import { RoleEntity } from 'role/entities/role.entity';
 
 interface PeerReviewEntityOptions {
   id: string;
-  reviewerRoleId: string;
-  revieweeRoleId: string;
+  senderRoleId: string;
+  receiverRoleId: string;
   score: number;
 }
 
@@ -17,13 +17,13 @@ interface PeerReviewEntityOptions {
 @Entity('peer_reviews')
 export class PeerReviewEntity extends BaseEntity
   implements PeerReviewEntityOptions {
-  @Column({ name: 'reviewer_role_id' })
-  public reviewerRoleId!: string;
+  @Column({ name: 'sender_role_id' })
+  public senderRoleId!: string;
 
-  @Column({ name: 'reviewee_role_id' })
+  @Column({ name: 'receiver_role_id' })
   @IsString()
   @MaxLength(24)
-  public revieweeRoleId!: string;
+  public receiverRoleId!: string;
 
   @Column({ name: 'score' })
   @IsNumber()
@@ -37,11 +37,11 @@ export class PeerReviewEntity extends BaseEntity
     return Object.assign(this, options);
   }
 
-  public isReviewerRole(role: RoleEntity): boolean {
-    return this.reviewerRoleId === role.id;
+  public isSenderRole(role: RoleEntity): boolean {
+    return this.senderRoleId === role.id;
   }
 
-  public isRevieweeRole(role: RoleEntity): boolean {
-    return this.revieweeRoleId === role.id;
+  public isReceiverRole(role: RoleEntity): boolean {
+    return this.receiverRoleId === role.id;
   }
 }

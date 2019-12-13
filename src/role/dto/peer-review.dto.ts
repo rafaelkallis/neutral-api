@@ -7,25 +7,25 @@ import { PeerReviewEntity } from 'role';
  */
 export class PeerReviewDto extends BaseDto {
   @ApiModelProperty()
-  public reviewerRoleId: string;
+  public senderRoleId: string;
 
   @ApiModelProperty()
-  public revieweeRoleId: string;
+  public receiverRoleId: string;
 
   @ApiModelProperty()
   public score: number;
 
   public constructor(
     id: string,
-    reviewerRoleId: string,
-    revieweeRoleId: string,
+    senderRoleId: string,
+    receiverRoleId: string,
     score: number,
     createdAt: number,
     updatedAt: number,
   ) {
     super(id, createdAt, updatedAt);
-    this.reviewerRoleId = reviewerRoleId;
-    this.revieweeRoleId = revieweeRoleId;
+    this.senderRoleId = senderRoleId;
+    this.receiverRoleId = receiverRoleId;
     this.score = score;
   }
 }
@@ -40,8 +40,8 @@ export class PeerReviewDtoBuilder {
     const { peerReview } = this;
     return new PeerReviewDto(
       peerReview.id,
-      peerReview.reviewerRoleId,
-      peerReview.revieweeRoleId,
+      peerReview.senderRoleId,
+      peerReview.receiverRoleId,
       peerReview.score,
       peerReview.createdAt,
       peerReview.updatedAt,

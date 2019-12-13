@@ -14,7 +14,6 @@ import { CreateRoleDto } from 'role/dto/create-role.dto';
 import { UpdateRoleDto } from 'role/dto/update-role.dto';
 import { AssignmentDto } from 'role/dto/assignment.dto';
 import { ProjectNotFormationStateException } from 'role/exceptions/project-not-formation-state.exception';
-import { ProjectOwnerAssignmentException } from 'role/exceptions/project-owner-assignment.exception';
 import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create-role-outside-formation-state.exception';
 import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
 import { NoAssigneeException } from 'role/exceptions/no-assignee.exception';

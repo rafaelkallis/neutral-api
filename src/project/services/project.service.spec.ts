@@ -269,18 +269,18 @@ describe('project service', () => {
         await projectService.submitPeerReviews(user, project.id, dto);
         expect(peerReviewRepository.insert).toHaveBeenCalledWith([
           expect.objectContaining({
-            reviewerRoleId: roles[0].id,
-            revieweeRoleId: roles[1].id,
+            senderRoleId: roles[0].id,
+            receiverRoleId: roles[1].id,
             score: 1 / 3,
           }),
           expect.objectContaining({
-            reviewerRoleId: roles[0].id,
-            revieweeRoleId: roles[2].id,
+            senderRoleId: roles[0].id,
+            receiverRoleId: roles[2].id,
             score: 1 / 3,
           }),
           expect.objectContaining({
-            reviewerRoleId: roles[0].id,
-            revieweeRoleId: roles[3].id,
+            senderRoleId: roles[0].id,
+            receiverRoleId: roles[3].id,
             score: 1 / 3,
           }),
         ]);
