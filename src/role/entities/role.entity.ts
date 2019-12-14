@@ -1,10 +1,14 @@
-import { IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsNumber,
+  MaxLength,
+} from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from 'common/entities/base.entity';
 import { UserEntity } from 'user';
-import { ProjectEntity } from 'project';
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 
 interface RoleEntityOptions {
   id: string;
@@ -13,6 +17,7 @@ interface RoleEntityOptions {
   title: string;
   description: string;
   contribution: number | null;
+  hasSubmittedPeerReviews: boolean;
 }
 
 /**
@@ -45,6 +50,10 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
   @IsNumber()
   @IsOptional()
   public contribution!: number | null;
+
+  @Column({ name: 'has_submitted_peer_reviews' })
+  @IsBoolean()
+  public hasSubmittedPeerReviews!: boolean;
 
   public static from(options: RoleEntityOptions): RoleEntity {
     return Object.assign(new RoleEntity(), options);

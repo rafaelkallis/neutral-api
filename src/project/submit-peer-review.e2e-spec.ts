@@ -49,12 +49,15 @@ describe('submit peer review (e2e)', () => {
     await projectRepository.insert(project);
 
     /* prepare roles */
-    role1 = entityFaker.role(project.id);
+    role1 = entityFaker.role(project.id, user.id);
     role2 = entityFaker.role(project.id);
     role3 = entityFaker.role(project.id);
     role4 = entityFaker.role(project.id);
 
-    role1.assigneeId = user.id;
+    role1.hasSubmittedPeerReviews = false;
+    role2.hasSubmittedPeerReviews = true;
+    role3.hasSubmittedPeerReviews = true;
+    role4.hasSubmittedPeerReviews = true;
 
     await roleRepository.insert(role1);
     await roleRepository.insert(role2);
@@ -85,16 +88,16 @@ describe('submit peer review (e2e)', () => {
     };
 
     /* role1 no peer reviews yet */
-    for (const reviewerRole of [role2, role3, role4]) {
-      for (const revieweeRole of [role1, role2, role3, role4]) {
-        if (reviewerRole === revieweeRole) {
+    for (const senderRole of [role2, role3, role4]) {
+      for (const receiverRole of [role1, role2, role3, role4]) {
+        if (senderRole === receiverRole) {
           continue;
         }
         const peerReview = entityFaker.peerReview(
-          reviewerRole.id,
-          revieweeRole.id,
+          senderRole.id,
+          receiverRole.id,
         );
-        peerReview.score = peerReviews[reviewerRole.id][revieweeRole.id];
+        peerReview.score = peerReviews[senderRole.id][receiverRole.id];
         await peerReviewRepository.insert(peerReview);
       }
     }
@@ -126,12 +129,8 @@ describe('submit peer review (e2e)', () => {
   });
 
   test('happy path, not final peer review', async () => {
-    for (const peerReviewToRemove of await peerReviewRepository.findBySenderRoleId(
-      role2.id,
-    )) {
-      await peerReviewRepository.delete(peerReviewToRemove);
-    }
-
+    role4.hasSubmittedPeerReviews = false;
+    await roleRepository.update(role4);
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
@@ -166,11 +165,8 @@ describe('submit peer review (e2e)', () => {
   });
 
   test('should fail if peer-review already submitted', async () => {
-    for (const revieweeRole of [role2, role3, role4]) {
-      const peerReview = entityFaker.peerReview(role1.id, revieweeRole.id);
-      peerReview.score = peerReviews[role1.id][revieweeRole.id];
-      await peerReviewRepository.insert(peerReview);
-    }
+    role1.hasSubmittedPeerReviews = true;
+    await roleRepository.update(role1);
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)

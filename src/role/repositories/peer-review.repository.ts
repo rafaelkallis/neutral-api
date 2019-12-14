@@ -11,14 +11,6 @@ export class PeerReviewRepository extends BaseRepository<PeerReviewEntity> {
   /**
    *
    */
-  public async existsBySenderRoleId(senderRoleId: string): Promise<boolean> {
-    const count = await this.repository.count({ senderRoleId });
-    return count > 0;
-  }
-
-  /**
-   *
-   */
   public async findBySenderRoleId(
     senderRoleId: string,
   ): Promise<PeerReviewEntity[]> {

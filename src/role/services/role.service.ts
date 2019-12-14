@@ -67,7 +67,9 @@ export class RoleService {
    */
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOne({ id });
-    const project = await this.projectRepository.findOneByRoleId(role.id);
+    const project = await this.projectRepository.findOne({
+      id: role.projectId,
+    });
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return new RoleDtoBuilder(role, project, projectRoles, authUser)
       .addSentPeerReviews(async () =>
@@ -105,6 +107,7 @@ export class RoleService {
       title: dto.title,
       description: dto.description,
       contribution: null,
+      hasSubmittedPeerReviews: false,
     });
     await this.roleRepository.insert(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
@@ -120,7 +123,9 @@ export class RoleService {
     body: UpdateRoleDto,
   ): Promise<RoleDto> {
     const role = await this.roleRepository.findOne({ id });
-    const project = await this.projectRepository.findOneByRoleId(role.id);
+    const project = await this.projectRepository.findOne({
+      id: role.projectId,
+    });
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -138,7 +143,9 @@ export class RoleService {
    */
   public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
     const role = await this.roleRepository.findOne({ id });
-    const project = await this.projectRepository.findOneByRoleId(role.id);
+    const project = await this.projectRepository.findOne({
+      id: role.projectId,
+    });
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -154,7 +161,9 @@ export class RoleService {
     dto: AssignmentDto,
   ): Promise<RoleDto> {
     const role = await this.roleRepository.findOne({ id });
-    const project = await this.projectRepository.findOneByRoleId(role.id);
+    const project = await this.projectRepository.findOne({
+      id: role.projectId,
+    });
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }

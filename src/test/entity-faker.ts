@@ -53,6 +53,7 @@ class EntityFaker {
       title: primitiveFaker.words(),
       description: primitiveFaker.paragraph(),
       contribution: null,
+      hasSubmittedPeerReviews: false,
     });
   }
 

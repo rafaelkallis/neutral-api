@@ -229,6 +229,10 @@ describe('project service', () => {
         entityFaker.role(project.id),
         entityFaker.role(project.id),
       ];
+      roles[0].hasSubmittedPeerReviews = false;
+      roles[1].hasSubmittedPeerReviews = true;
+      roles[2].hasSubmittedPeerReviews = true;
+      roles[3].hasSubmittedPeerReviews = true;
 
       sentPeerReviews = {};
       receivedPeerReviews = {};
@@ -277,9 +281,6 @@ describe('project service', () => {
       jest
         .spyOn(peerReviewRepository, 'findBySenderRoleId')
         .mockResolvedValue([]);
-      jest
-        .spyOn(peerReviewRepository, 'existsBySenderRoleId')
-        .mockResolvedValue(true);
       jest.spyOn(roleRepository, 'update').mockResolvedValue();
       jest.spyOn(peerReviewRepository, 'insert').mockResolvedValue();
       jest
@@ -357,11 +358,9 @@ describe('project service', () => {
       });
 
       test('not final peer review, should not compute contributions and consensuality', async () => {
-        jest
-          .spyOn(peerReviewRepository, 'existsBySenderRoleId')
-          .mockResolvedValue(false);
+        roles[1].hasSubmittedPeerReviews = false;
         await projectService.submitPeerReviews(user, project.id, dto),
-          expect(roleRepository.update).not.toHaveBeenCalled();
+          expect(roles[0].contribution).toBeFalsy();
         expect(
           contributionsModelService.computeContributions,
         ).not.toHaveBeenCalled();
@@ -381,16 +380,7 @@ describe('project service', () => {
     });
 
     test('should fail if peer reviews have been previously submitted', async () => {
-      const [role, ...otherRoles] = roles;
-      const sentPeerReviews = [];
-      for (const otherRole of otherRoles) {
-        const peerReview = entityFaker.peerReview(role.id, otherRole.id);
-        peerReview.score = 1 / 3;
-        sentPeerReviews.push(peerReview);
-      }
-      jest
-        .spyOn(peerReviewRepository, 'findBySenderRoleId')
-        .mockResolvedValue(sentPeerReviews);
+      roles[0].hasSubmittedPeerReviews = true;
       await expect(
         projectService.submitPeerReviews(user, project.id, dto),
       ).rejects.toThrow();

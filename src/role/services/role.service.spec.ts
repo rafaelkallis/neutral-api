@@ -91,9 +91,7 @@ describe('role service', () => {
       sentPeerReview = entityFaker.peerReview(role1.id, role2.id);
       receivedPeerReview = entityFaker.peerReview(role2.id, role1.id);
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest
-        .spyOn(projectRepository, 'findOneByRoleId')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);
@@ -168,9 +166,7 @@ describe('role service', () => {
         title: primitiveFaker.words(),
       });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role);
-      jest
-        .spyOn(projectRepository, 'findOneByRoleId')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);
@@ -212,9 +208,7 @@ describe('role service', () => {
   describe('delete role', () => {
     beforeEach(async () => {
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest
-        .spyOn(projectRepository, 'findOneByRoleId')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'delete').mockResolvedValue();
     });
 
@@ -232,9 +226,7 @@ describe('role service', () => {
       assignee = entityFaker.user();
       dto = AssignmentDto.from({ assigneeId: assignee.id });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest
-        .spyOn(projectRepository, 'findOneByRoleId')
-        .mockResolvedValue(project);
+      jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest.spyOn(userRepository, 'exists').mockResolvedValue(true);
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(assignee);
       jest

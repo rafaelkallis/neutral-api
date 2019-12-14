@@ -180,10 +180,7 @@ export class ProjectService {
     if (!authUserRole) {
       throw new InsufficientPermissionsException();
     }
-    const authUserRoleSentPeerReviews = await this.peerReviewRepository.findBySenderRoleId(
-      authUserRole.id,
-    );
-    if (authUserRoleSentPeerReviews.length > 0) {
+    if (authUserRole.hasSubmittedPeerReviews) {
       throw new PeerReviewsAlreadySubmittedException();
     }
 
@@ -205,6 +202,7 @@ export class ProjectService {
       }
     }
 
+    const authUserRoleSentPeerReviews = [];
     for (const [receiverRoleId, score] of Object.entries(dto.peerReviews)) {
       const peerReview = PeerReviewEntity.from({
         id: this.randomService.id(),
@@ -216,24 +214,13 @@ export class ProjectService {
     }
     await this.peerReviewRepository.insert(authUserRoleSentPeerReviews);
 
+    authUserRole.hasSubmittedPeerReviews = true;
+    await this.roleRepository.update(authUserRole);
+
     /* is final peer review? */
-    if (await this.isFinalPeerReview(otherRoles)) {
+    if (roles.every(role => role.hasSubmittedPeerReviews)) {
       await this.onFinalPeerReview(project, roles);
     }
-  }
-
-  /**
-   * Checks whether or not the given roles have finished peer review.
-   */
-  private async isFinalPeerReview(roles: RoleEntity[]): Promise<boolean> {
-    let haveAllSentPeerReviews = true;
-    for (const role of roles) {
-      haveAllSentPeerReviews =
-        // TODO replace by boolean field "did_submit_peer_review"
-        haveAllSentPeerReviews &&
-        (await this.peerReviewRepository.existsBySenderRoleId(role.id));
-    }
-    return haveAllSentPeerReviews;
   }
 
   /**
@@ -259,8 +246,8 @@ export class ProjectService {
     );
     for (const role of roles) {
       role.contribution = contributions[role.id];
-      await this.roleRepository.update(role);
     }
+    await this.roleRepository.update(roles);
     project.consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );
