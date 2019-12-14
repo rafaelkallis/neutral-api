@@ -102,14 +102,6 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
     return Object.assign(this, options);
   }
 
-  public async getRoles(): Promise<RoleEntity[]> {
-    return RoleEntity.find({ projectId: this.id });
-  }
-
-  public async getOwner(): Promise<UserEntity> {
-    return UserEntity.findOneOrFail({ id: this.ownerId });
-  }
-
   public isOwner(user: UserEntity): boolean {
     return this.ownerId === user.id;
   }

@@ -138,7 +138,7 @@ export class ProjectService {
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
-    const roles = await project.getRoles();
+    const roles = await this.roleRepository.findByProjectId(project.id);
     for (const role of roles) {
       if (!role.hasAssignee()) {
         throw new RoleNoUserAssignedException();
@@ -175,7 +175,7 @@ export class ProjectService {
       throw new ProjectNotPeerReviewStateException();
     }
 
-    const roles = await project.getRoles();
+    const roles = await this.roleRepository.findByProjectId(project.id);
     const [authUserRole] = roles.filter(role => role.isAssignee(authUser));
     if (!authUserRole) {
       throw new InsufficientPermissionsException();

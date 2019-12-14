@@ -162,7 +162,9 @@ describe('project service', () => {
       role2 = entityFaker.role(project.id, user.id);
       role3 = entityFaker.role(project.id, user.id);
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2, role3]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2, role3]);
       jest.spyOn(projectRepository, 'update').mockResolvedValue();
     });
 
@@ -271,7 +273,7 @@ describe('project service', () => {
       contributions = {};
       consensuality = 0.5;
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
-      jest.spyOn(project, 'getRoles').mockResolvedValue(roles);
+      jest.spyOn(roleRepository, 'findByProjectId').mockResolvedValue(roles);
       jest
         .spyOn(peerReviewRepository, 'findBySenderRoleId')
         .mockResolvedValue([]);

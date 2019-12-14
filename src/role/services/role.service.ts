@@ -54,7 +54,7 @@ export class RoleService {
     const project = await this.projectRepository.findOne({
       id: query.projectId,
     });
-    const projectRoles = await project.getRoles();
+    const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
         new RoleDtoBuilder(role, project, projectRoles, authUser).build(),
@@ -68,7 +68,7 @@ export class RoleService {
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findOne({ id });
     const project = await this.projectRepository.findOneByRoleId(role.id);
-    const projectRoles = await project.getRoles();
+    const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return new RoleDtoBuilder(role, project, projectRoles, authUser)
       .addSentPeerReviews(async () =>
         this.peerReviewRepository.findBySenderRoleId(role.id),
@@ -107,7 +107,7 @@ export class RoleService {
       contribution: null,
     });
     await this.roleRepository.insert(role);
-    const projectRoles = await project.getRoles();
+    const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return new RoleDtoBuilder(role, project, projectRoles, authUser).build();
   }
 
@@ -129,7 +129,7 @@ export class RoleService {
     }
     role.update(body);
     await this.roleRepository.update(role);
-    const projectRoles = await project.getRoles();
+    const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return new RoleDtoBuilder(role, project, projectRoles, authUser).build();
   }
 
@@ -164,7 +164,7 @@ export class RoleService {
     if (!dto.assigneeId && !dto.assigneeEmail) {
       throw new NoAssigneeException();
     }
-    const projectRoles = await project.getRoles();
+    const projectRoles = await this.roleRepository.findByProjectId(project.id);
     if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
       const user = await this.userRepository.findOne({
         id: dto.assigneeId,

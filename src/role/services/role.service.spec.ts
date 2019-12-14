@@ -68,7 +68,9 @@ describe('role service', () => {
     beforeEach(() => {
       query = GetRolesQueryDto.from({ projectId: project.id });
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
     });
 
     test('happy path', async () => {
@@ -92,7 +94,9 @@ describe('role service', () => {
       jest
         .spyOn(projectRepository, 'findOneByRoleId')
         .mockResolvedValue(project);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
       jest
         .spyOn(peerReviewRepository, 'findBySenderRoleId')
         .mockResolvedValue([sentPeerReview]);
@@ -127,7 +131,9 @@ describe('role service', () => {
       });
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest.spyOn(roleRepository, 'insert').mockResolvedValue();
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
     });
 
     test('happy path', async () => {
@@ -165,7 +171,9 @@ describe('role service', () => {
       jest
         .spyOn(projectRepository, 'findOneByRoleId')
         .mockResolvedValue(project);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
       jest.spyOn(roleRepository, 'update').mockResolvedValue();
     });
 
@@ -229,7 +237,9 @@ describe('role service', () => {
         .mockResolvedValue(project);
       jest.spyOn(userRepository, 'exists').mockResolvedValue(true);
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(assignee);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
       jest.spyOn(roleRepository, 'update').mockResolvedValue();
       jest
         .spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail')
@@ -308,7 +318,9 @@ describe('role service', () => {
 
     test('should fail if user already assigned to another role in same project', async () => {
       const role2 = entityFaker.role(project.id, assignee.id);
-      jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
+      jest
+        .spyOn(roleRepository, 'findByProjectId')
+        .mockResolvedValue([role1, role2]);
       await expect(
         roleService.assignUser(owner, role1.id, dto),
       ).rejects.toThrow();
