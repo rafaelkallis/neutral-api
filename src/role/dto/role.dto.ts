@@ -1,9 +1,14 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
-import { ProjectEntity, ContributionVisibility } from 'project';
+import {
+  ProjectEntity,
+  ContributionVisibility,
+  PeerReviewVisibility,
+} from 'project';
 import { RoleEntity } from 'role';
-import { PeerReviewDto } from 'role/dto/peer-review.dto';
+import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
+import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 
 /**
  * Role DTO
@@ -57,25 +62,25 @@ export class RoleDtoBuilder {
   private readonly project: ProjectEntity;
   private readonly projectRoles: RoleEntity[];
   private readonly authUser: UserEntity;
-  private getSentPeerReviews?: () => Promise<PeerReviewDto[]>;
-  private getReceivedPeerReviews?: () => Promise<PeerReviewDto[]>;
+  private getSentPeerReviews?: () => Promise<PeerReviewEntity[]>;
+  private getReceivedPeerReviews?: () => Promise<PeerReviewEntity[]>;
 
   public addSentPeerReviews(
-    getSentPeerReviews: () => Promise<PeerReviewDto[]>,
+    getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): this {
     this.getSentPeerReviews = getSentPeerReviews;
     return this;
   }
 
   public addReceivedPeerReviews(
-    getReceivedPeerReviews: () => Promise<PeerReviewDto[]>,
+    getReceivedPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): this {
     this.getReceivedPeerReviews = getReceivedPeerReviews;
     return this;
   }
 
   public async build(): Promise<RoleDto> {
-    const { role } = this;
+    const { role, project, authUser } = this;
     const roleDto = new RoleDto(
       role.id,
       role.projectId,
@@ -87,10 +92,16 @@ export class RoleDtoBuilder {
       role.updatedAt,
     );
     if (this.getSentPeerReviews && this.shouldExposeSentPeerReviews()) {
-      roleDto.sentPeerReviews = await this.getSentPeerReviews();
+      const sentPeerReviews = await this.getSentPeerReviews();
+      roleDto.sentPeerReviews = sentPeerReviews.map(pr =>
+        new PeerReviewDtoBuilder(pr, role, project, authUser).build(),
+      );
     }
     if (this.getReceivedPeerReviews && this.shouldExposeReceivedPeerReviews()) {
-      roleDto.receivedPeerReviews = await this.getReceivedPeerReviews();
+      const receivedPeerReviews = await this.getReceivedPeerReviews();
+      roleDto.receivedPeerReviews = receivedPeerReviews.map(pr =>
+        new PeerReviewDtoBuilder(pr, role, project, authUser).build(),
+      );
     }
     return roleDto;
   }
@@ -152,11 +163,25 @@ export class RoleDtoBuilder {
   }
 
   private shouldExposeReceivedPeerReviews(): boolean {
-    const { project, authUser } = this;
+    const { role, project, authUser } = this;
     if (project.isOwner(authUser)) {
       return true;
     }
-    // TODO allow is peer review visibility option allows
-    return false;
+    if (!project.isFinishedState()) {
+      return false;
+    }
+    switch (project.peerReviewVisibility) {
+      case PeerReviewVisibility.SENT_RECEIVED: {
+        return role.isAssignee(authUser);
+      }
+
+      case PeerReviewVisibility.SENT_RECEIVEDSCORES: {
+        return role.isAssignee(authUser);
+      }
+
+      case PeerReviewVisibility.SENT: {
+        return false;
+      }
+    }
   }
 }

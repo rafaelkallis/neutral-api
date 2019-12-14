@@ -8,7 +8,9 @@ import {
 } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { RoleRepository } from 'role/repositories/role.repository';
+import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
 import { RoleDto, RoleDtoBuilder } from 'role/dto/role.dto';
+import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
 import { CreateRoleDto } from 'role/dto/create-role.dto';
 import { UpdateRoleDto } from 'role/dto/update-role.dto';
@@ -23,6 +25,7 @@ export class RoleService {
   private readonly userRepository: UserRepository;
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
+  private readonly peerReviewRepository: PeerReviewRepository;
   private readonly randomService: RandomService;
   private readonly emailService: EmailService;
 
@@ -30,12 +33,14 @@ export class RoleService {
     userRepository: UserRepository,
     projectRepository: ProjectRepository,
     roleRepository: RoleRepository,
+    peerReviewRepository: PeerReviewRepository,
     randomService: RandomService,
     emailService: EmailService,
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
+    this.peerReviewRepository = peerReviewRepository;
     this.randomService = randomService;
     this.emailService = emailService;
   }
@@ -66,8 +71,12 @@ export class RoleService {
     const project = await role.getProject();
     const projectRoles = await project.getRoles();
     return new RoleDtoBuilder(role, project, projectRoles, authUser)
-      .addSentPeerReviews(async () => role.getSentPeerReviews())
-      .addReceivedPeerReviews(async () => role.getReceivedPeerReviews())
+      .addSentPeerReviews(async () =>
+        this.peerReviewRepository.findBySenderRoleId(role.id),
+      )
+      .addReceivedPeerReviews(async () =>
+        this.peerReviewRepository.findByReceiverRoleId(role.id),
+      )
       .build();
   }
 

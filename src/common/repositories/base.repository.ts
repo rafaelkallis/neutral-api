@@ -12,6 +12,9 @@ type FindPageConditions<T> = FindConditions<T> & {
 export class BaseRepository<T extends BaseEntity> extends AbstractRepository<
   T
 > {
+  /**
+   *
+   */
   public async findPage(conditions: FindPageConditions<T> = {}): Promise<T[]> {
     let builder = this.repository
       .createQueryBuilder()

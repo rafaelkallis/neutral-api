@@ -1,12 +1,12 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
-import { RoleEntity } from 'role';
 import { RoleDto } from 'role/dto/role.dto';
 import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
+  PeerReviewVisibility,
   SkipManagerReview,
 } from 'project/entities/project.entity';
 
@@ -39,6 +39,9 @@ export class ProjectDto extends BaseDto {
   @ApiModelProperty({ example: ContributionVisibility.SELF })
   public contributionVisibility: ContributionVisibility;
 
+  @ApiModelProperty({ example: PeerReviewVisibility.SENT })
+  public peerReviewVisibility: PeerReviewVisibility;
+
   @ApiModelProperty({ example: SkipManagerReview.IF_CONSENSUAL })
   public skipManagerReview: SkipManagerReview;
 
@@ -53,6 +56,7 @@ export class ProjectDto extends BaseDto {
     state: ProjectState,
     consensuality: number | null,
     contributionVisibility: ContributionVisibility,
+    peerReviewVisibility: PeerReviewVisibility,
     skipManagerReview: SkipManagerReview,
     createdAt: number,
     updatedAt: number,
@@ -64,6 +68,7 @@ export class ProjectDto extends BaseDto {
     this.state = state;
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
+    this.peerReviewVisibility = peerReviewVisibility;
     this.skipManagerReview = skipManagerReview;
   }
 }
@@ -93,6 +98,7 @@ export class ProjectDtoBuilder {
       project.state,
       this.shouldExposeConsensuality() ? project.consensuality : null,
       project.contributionVisibility,
+      project.peerReviewVisibility,
       project.skipManagerReview,
       project.createdAt,
       project.updatedAt,

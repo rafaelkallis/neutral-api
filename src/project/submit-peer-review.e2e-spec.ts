@@ -105,7 +105,9 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    const sentPeerReviews = await role1.getSentPeerReviews();
+    const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
+      role1.id,
+    );
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(
@@ -123,7 +125,9 @@ describe('submit peer review (e2e)', () => {
   });
 
   test('happy path, not final peer review', async () => {
-    for (const peerReviewToRemove of await role2.getSentPeerReviews()) {
+    for (const peerReviewToRemove of await peerReviewRepository.findBySenderRoleId(
+      role2.id,
+    )) {
       await peerReviewRepository.delete(peerReviewToRemove);
     }
 
@@ -131,7 +135,9 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    const sentPeerReviews = await role1.getSentPeerReviews();
+    const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
+      role1.id,
+    );
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(

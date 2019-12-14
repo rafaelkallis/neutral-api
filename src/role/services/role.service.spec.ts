@@ -11,8 +11,9 @@ import { ProjectEntity, ProjectState, ProjectRepository } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 import { RoleDtoBuilder } from 'role/dto/role.dto';
-import { RoleRepository } from '../repositories/role.repository';
-import { entityFaker, primitiveFaker } from '../../test';
+import { RoleRepository } from 'role/repositories/role.repository';
+import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
+import { entityFaker, primitiveFaker } from 'test';
 import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
@@ -24,6 +25,7 @@ describe('role service', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
+  let peerReviewRepository: PeerReviewRepository;
   let emailService: EmailService;
   let owner: UserEntity;
   let project: ProjectEntity;
@@ -39,6 +41,7 @@ describe('role service', () => {
         RoleRepository,
         UserRepository,
         ProjectRepository,
+        PeerReviewRepository,
         TokenService,
         EmailService,
       ],
@@ -48,6 +51,7 @@ describe('role service', () => {
     userRepository = module.get(UserRepository);
     projectRepository = module.get(ProjectRepository);
     roleRepository = module.get(RoleRepository);
+    peerReviewRepository = module.get(PeerReviewRepository);
     emailService = module.get(EmailService);
     owner = entityFaker.user();
     project = entityFaker.project(owner.id);
@@ -89,10 +93,10 @@ describe('role service', () => {
       jest.spyOn(role1, 'getProject').mockResolvedValue(project);
       jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
       jest
-        .spyOn(role1, 'getSentPeerReviews')
+        .spyOn(peerReviewRepository, 'findBySenderRoleId')
         .mockResolvedValue([sentPeerReview]);
       jest
-        .spyOn(role1, 'getReceivedPeerReviews')
+        .spyOn(peerReviewRepository, 'findByReceiverRoleId')
         .mockResolvedValue([receivedPeerReview]);
     });
 

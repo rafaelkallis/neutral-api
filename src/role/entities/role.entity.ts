@@ -54,21 +54,9 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
     return Object.assign(this, options);
   }
 
+  // TODO remove
   public async getProject(): Promise<ProjectEntity> {
     return ProjectEntity.findOneOrFail(this.projectId);
-  }
-
-  public async getSentPeerReviews(): Promise<PeerReviewEntity[]> {
-    return PeerReviewEntity.find({ senderRoleId: this.id });
-  }
-
-  public async hasSentPeerReviews(): Promise<boolean> {
-    const count = await PeerReviewEntity.count({ senderRoleId: this.id });
-    return count > 0;
-  }
-
-  public async getReceivedPeerReviews(): Promise<PeerReviewEntity[]> {
-    return PeerReviewEntity.find({ receiverRoleId: this.id });
   }
 
   public hasAssignee(): boolean {

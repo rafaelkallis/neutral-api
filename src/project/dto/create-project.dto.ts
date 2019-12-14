@@ -2,13 +2,15 @@ import { ApiModelProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
 import {
   ContributionVisibility,
+  PeerReviewVisibility,
   SkipManagerReview,
-} from '../entities/project.entity';
+} from 'project/entities/project.entity';
 
 interface CreateProjectDtoOptions {
   title: string;
   description: string;
   contributionVisibility?: ContributionVisibility;
+  peerReviewVisibility?: PeerReviewVisibility;
   skipManagerReview?: SkipManagerReview;
 }
 
@@ -40,6 +42,15 @@ export class CreateProjectDto {
   })
   public contributionVisibility?: ContributionVisibility;
 
+  @IsEnum(PeerReviewVisibility)
+  @IsOptional()
+  @ApiModelProperty({
+    example: PeerReviewVisibility.SENT,
+    required: false,
+    description: 'peer review visibility level',
+  })
+  public peerReviewVisibility?: PeerReviewVisibility;
+
   @IsEnum(SkipManagerReview)
   @IsOptional()
   @ApiModelProperty({
@@ -55,12 +66,14 @@ export class CreateProjectDto {
     title,
     description,
     contributionVisibility,
+    peerReviewVisibility,
     skipManagerReview,
   }: CreateProjectDtoOptions): CreateProjectDto {
     const dto = new CreateProjectDto();
     dto.title = title;
     dto.description = description;
     dto.contributionVisibility = contributionVisibility;
+    dto.peerReviewVisibility = peerReviewVisibility;
     dto.skipManagerReview = skipManagerReview;
     return dto;
   }

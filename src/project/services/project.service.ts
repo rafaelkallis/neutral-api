@@ -5,9 +5,10 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
+  PeerReviewVisibility,
   SkipManagerReview,
-} from '../entities/project.entity';
-import { ProjectRepository } from '../repositories/project.repository';
+} from 'project/entities/project.entity';
+import { ProjectRepository } from 'project/repositories/project.repository';
 import {
   RoleEntity,
   RoleRepository,
@@ -95,6 +96,8 @@ export class ProjectService {
       consensuality: null,
       contributionVisibility:
         dto.contributionVisibility || ContributionVisibility.SELF,
+      peerReviewVisibility:
+        dto.peerReviewVisibility || PeerReviewVisibility.SENT,
       skipManagerReview: dto.skipManagerReview || SkipManagerReview.NO,
     });
     await this.projectRepository.insert(project);
@@ -177,7 +180,9 @@ export class ProjectService {
     if (!authUserRole) {
       throw new InsufficientPermissionsException();
     }
-    const authUserRoleSentPeerReviews = await authUserRole.getSentPeerReviews();
+    const authUserRoleSentPeerReviews = await this.peerReviewRepository.findBySenderRoleId(
+      authUserRole.id,
+    );
     if (authUserRoleSentPeerReviews.length > 0) {
       throw new PeerReviewsAlreadySubmittedException();
     }
@@ -224,7 +229,9 @@ export class ProjectService {
     let haveAllSentPeerReviews = true;
     for (const role of roles) {
       haveAllSentPeerReviews =
-        haveAllSentPeerReviews && (await role.hasSentPeerReviews());
+        // TODO replace by boolean field "did_submit_peer_review"
+        haveAllSentPeerReviews &&
+        (await this.peerReviewRepository.existsBySenderRoleId(role.id));
     }
     return haveAllSentPeerReviews;
   }
@@ -240,7 +247,9 @@ export class ProjectService {
     const projectPeerReviews: Record<string, Record<string, number>> = {};
     for (const role of roles) {
       projectPeerReviews[role.id] = {};
-      for (const peerReview of await role.getSentPeerReviews()) {
+      for (const peerReview of await this.peerReviewRepository.findBySenderRoleId(
+        role.id,
+      )) {
         const { receiverRoleId, score } = peerReview;
         projectPeerReviews[role.id][receiverRoleId] = score;
       }
