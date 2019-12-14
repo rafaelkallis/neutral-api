@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 interface GetRolesQueryDtoOptions {
@@ -11,12 +11,12 @@ interface GetRolesQueryDtoOptions {
  */
 export class GetRolesQueryDto {
   @IsString()
-  @ApiModelProperty()
+  @ApiProperty()
   public projectId!: string;
 
   @IsString()
   @IsOptional()
-  @ApiModelProperty()
+  @ApiProperty()
   public after?: string;
 
   private constructor() {}

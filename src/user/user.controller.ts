@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiImplicitParam,
+  ApiParam,
   ApiOperation,
   ApiResponse,
-  ApiUseTags,
+  ApiTags,
 } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { GetUsersQueryDto } from './dto/get-users-query.dto';
@@ -28,7 +28,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
  * User Controller
  */
 @Controller('users')
-@ApiUseTags('Users')
+@ApiTags('Users')
 export class UserController {
   private readonly userService: UserService;
 
@@ -42,7 +42,7 @@ export class UserController {
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Get a list of users' })
+  @ApiOperation({ summary: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
   public async getUsers(
     @AuthUser() authUser: UserEntity,
@@ -57,7 +57,7 @@ export class UserController {
   @Get('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Get the authenticated user' })
+  @ApiOperation({ summary: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
   public async getAuthUser(@AuthUser() authUser: UserEntity): Promise<UserDto> {
     return this.userService.getAuthUser(authUser);
@@ -72,7 +72,7 @@ export class UserController {
   @Patch('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Update the authenticated user' })
+  @ApiOperation({ summary: 'Update the authenticated user' })
   @ApiResponse({ status: 200, description: 'User succesfully updated' })
   public async updateUser(
     @AuthUser() authUser: UserEntity,
@@ -85,8 +85,8 @@ export class UserController {
    * Submit the email change token to verify a new email address
    */
   @Post('me/email-change/:token')
-  @ApiOperation({ title: 'Submit email change token' })
-  @ApiImplicitParam({ name: 'token' })
+  @ApiOperation({ summary: 'Submit email change token' })
+  @ApiParam({ name: 'token' })
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async submitEmailChange(@Param('token') token: string): Promise<void> {
@@ -99,8 +99,8 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Get a user' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Get a user' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async getUser(
@@ -117,7 +117,7 @@ export class UserController {
   @HttpCode(204)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Delete the authenticated user' })
+  @ApiOperation({ summary: 'Delete the authenticated user' })
   @ApiResponse({
     status: 204,
     description: 'Authenticated user deleted succesfully',

@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiImplicitParam,
-  ApiImplicitQuery,
+  ApiParam,
+  ApiQuery,
   ApiOperation,
   ApiResponse,
-  ApiUseTags,
+  ApiTags,
 } from '@nestjs/swagger';
 import { ValidationPipe, AuthGuard, AuthUser } from '../common';
 import { UserEntity } from '../user';
@@ -32,7 +32,7 @@ import { AssignmentDto } from './dto/assignment.dto';
  * Role Controller
  */
 @Controller('roles')
-@ApiUseTags('Roles')
+@ApiTags('Roles')
 export class RoleController {
   private readonly roleService: RoleService;
 
@@ -46,8 +46,8 @@ export class RoleController {
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiImplicitQuery({ name: 'projectId' })
-  @ApiOperation({ title: 'Get a list of roles for a project' })
+  @ApiQuery({ name: 'projectId' })
+  @ApiOperation({ summary: 'Get a list of roles for a project' })
   @ApiResponse({ status: HttpStatus.OK, description: 'A list of roles' })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -66,8 +66,8 @@ export class RoleController {
   @Get('/:id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiImplicitParam({ name: 'id' })
-  @ApiOperation({ title: 'Get a role' })
+  @ApiParam({ name: 'id' })
+  @ApiOperation({ summary: 'Get a role' })
   @ApiResponse({ status: HttpStatus.OK, description: 'A roles' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Role not found' })
   public async getRole(
@@ -83,7 +83,7 @@ export class RoleController {
   @Post()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Create a role' })
+  @ApiOperation({ summary: 'Create a role' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Role created successfully',
@@ -113,8 +113,8 @@ export class RoleController {
   @Patch(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Update a role' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Update a role' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Role updated succesfully',
@@ -138,8 +138,8 @@ export class RoleController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Delete a role' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Delete a role' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
     description: 'Role deleted succesfully',
@@ -162,8 +162,8 @@ export class RoleController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Assign a user to a role' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Assign a user to a role' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Role updated succesfully',

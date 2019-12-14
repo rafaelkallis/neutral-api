@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
 import {
   ContributionVisibility,
@@ -19,14 +19,14 @@ interface CreateProjectDtoOptions {
  */
 export class CreateProjectDto {
   @IsString()
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'Mars Shuttle',
     description: 'Title of the project',
   })
   public title!: string;
 
   @IsString()
-  @ApiModelProperty({
+  @ApiProperty({
     example:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui. Fusce ac lobortis ipsum. Praesent vitae pulvinar augue. Phasellus ultricies aliquam ante, efficitur semper ante volutpat sed. In semper turpis ac dui hendrerit, sit amet aliquet velit maximus. Morbi egestas tempor risus, id blandit elit elementum a. Aenean pretium elit a pellentesque mollis. Sed dignissim massa nisi, in consectetur ligula consequat blandit.', // tslint:disable-line:max-line-length
     description: 'Description of the project',
@@ -35,7 +35,7 @@ export class CreateProjectDto {
 
   @IsEnum(ContributionVisibility)
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     example: ContributionVisibility.SELF,
     required: false,
     description: 'contributions visibility level',
@@ -44,7 +44,7 @@ export class CreateProjectDto {
 
   @IsEnum(PeerReviewVisibility)
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     example: PeerReviewVisibility.SENT,
     required: false,
     description: 'peer review visibility level',
@@ -53,7 +53,7 @@ export class CreateProjectDto {
 
   @IsEnum(SkipManagerReview)
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     example: SkipManagerReview.IF_CONSENSUAL,
     required: false,
     description: 'option to skip manager review',

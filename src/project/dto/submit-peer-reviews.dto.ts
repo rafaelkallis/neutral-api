@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsPeerReviews } from '../../common';
 
 interface SubmitPeerReviewsDtoOptions {
@@ -10,7 +10,7 @@ interface SubmitPeerReviewsDtoOptions {
  */
 export class SubmitPeerReviewsDto {
   @IsPeerReviews()
-  @ApiModelProperty({
+  @ApiProperty({
     example: `
     {
       "role1-id": 0.5,

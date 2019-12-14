@@ -6,12 +6,7 @@ import {
   Post,
   Session,
 } from '@nestjs/common';
-import {
-  ApiImplicitParam,
-  ApiOperation,
-  ApiResponse,
-  ApiUseTags,
-} from '@nestjs/swagger';
+import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { SessionState, ValidationPipe } from '../common';
 import { AuthService } from './services/auth.service';
@@ -25,7 +20,7 @@ import { SubmitSignupDto } from './dto/submit-signup.dto';
  * Authentication Controller
  */
 @Controller('auth')
-@ApiUseTags('Auth')
+@ApiTags('Auth')
 export class AuthController {
   private readonly authService: AuthService;
 
@@ -40,7 +35,7 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(200)
-  @ApiOperation({ title: 'Request magic login' })
+  @ApiOperation({ summary: 'Request magic login' })
   @ApiResponse({ status: 200, description: 'Magic login email sent' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async requestLogin(
@@ -58,8 +53,8 @@ export class AuthController {
    */
   @Post('login/:token')
   @HttpCode(200)
-  @ApiOperation({ title: 'Submit magic login token' })
-  @ApiImplicitParam({ name: 'token' })
+  @ApiOperation({ summary: 'Submit magic login token' })
+  @ApiParam({ name: 'token' })
   @ApiResponse({ status: 200, description: 'Magic login token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -77,7 +72,7 @@ export class AuthController {
    */
   @Post('signup')
   @HttpCode(200)
-  @ApiOperation({ title: 'Request magic signup' })
+  @ApiOperation({ summary: 'Request magic signup' })
   @ApiResponse({ status: 200, description: 'Magic signup email sent' })
   @ApiResponse({ status: 400, description: 'Email already used' })
   public async requestSignup(
@@ -93,8 +88,8 @@ export class AuthController {
    * along with other information about the user
    */
   @Post('signup/:token')
-  @ApiImplicitParam({ name: 'token' })
-  @ApiOperation({ title: 'Submit magic signup token' })
+  @ApiParam({ name: 'token' })
+  @ApiOperation({ summary: 'Submit magic signup token' })
   @ApiResponse({ status: 200, description: 'Magic signup token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   public async submitSignup(
@@ -113,7 +108,7 @@ export class AuthController {
    */
   @Post('refresh')
   @HttpCode(200)
-  @ApiOperation({ title: 'Refresh tokens' })
+  @ApiOperation({ summary: 'Refresh tokens' })
   @ApiResponse({ status: 200, description: 'Refresh token accepted' })
   @ApiResponse({ status: 400, description: 'Invalid refresh token' })
   public refresh(
@@ -127,7 +122,7 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(200)
-  @ApiOperation({ title: 'Logout' })
+  @ApiOperation({ summary: 'Logout' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {
     return this.authService.logout(session);

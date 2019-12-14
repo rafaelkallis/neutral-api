@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 interface GetUsersQueryDtoOptions {
@@ -12,14 +12,14 @@ interface GetUsersQueryDtoOptions {
 export class GetUsersQueryDto {
   @IsString()
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Used for pagination, results come after the specified user',
   })
   public after?: string;
 
   @IsString()
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'jerry',
     description: 'Query to be used for a full text search',
   })

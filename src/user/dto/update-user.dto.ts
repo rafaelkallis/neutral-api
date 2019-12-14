@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 interface UpdateUserDtoProps {
@@ -13,17 +13,17 @@ interface UpdateUserDtoProps {
 export class UpdateUserDto implements UpdateUserDtoProps {
   @IsString()
   @IsOptional()
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public email?: string;
 
   @IsString()
   @IsOptional()
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public firstName?: string;
 
   @IsString()
   @IsOptional()
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public lastName?: string;
 
   private constructor() {}

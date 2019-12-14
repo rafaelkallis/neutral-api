@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
 import { RoleDto } from 'role/dto/role.dto';
@@ -14,38 +14,38 @@ import {
  * Project DTO
  */
 export class ProjectDto extends BaseDto {
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'Mars Shuttle',
     description: 'Title of the project',
   })
   public title: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     example:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui. Fusce ac lobortis ipsum. Praesent vitae pulvinar augue. Phasellus ultricies aliquam ante, efficitur semper ante volutpat sed. In semper turpis ac dui hendrerit, sit amet aliquet velit maximus. Morbi egestas tempor risus, id blandit elit elementum a. Aenean pretium elit a pellentesque mollis. Sed dignissim massa nisi, in consectetur ligula consequat blandit.', // tslint:disable-line:max-line-length
     description: 'Description of the project',
   })
   public description: string;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public ownerId: string;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public state: ProjectState;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public consensuality: number | null;
 
-  @ApiModelProperty({ example: ContributionVisibility.SELF })
+  @ApiProperty({ example: ContributionVisibility.SELF })
   public contributionVisibility: ContributionVisibility;
 
-  @ApiModelProperty({ example: PeerReviewVisibility.SENT })
+  @ApiProperty({ example: PeerReviewVisibility.SENT })
   public peerReviewVisibility: PeerReviewVisibility;
 
-  @ApiModelProperty({ example: SkipManagerReview.IF_CONSENSUAL })
+  @ApiProperty({ example: SkipManagerReview.IF_CONSENSUAL })
   public skipManagerReview: SkipManagerReview;
 
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public roles?: RoleDto[];
 
   public constructor(

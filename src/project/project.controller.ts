@@ -13,10 +13,10 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiImplicitParam,
+  ApiParam,
   ApiOperation,
   ApiResponse,
-  ApiUseTags,
+  ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser, ValidationPipe } from '../common';
 import { UserEntity } from '../user';
@@ -33,7 +33,7 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 @Controller('projects')
 @UseGuards(AuthGuard)
 @UsePipes(ValidationPipe)
-@ApiUseTags('Projects')
+@ApiTags('Projects')
 export class ProjectController {
   private readonly projectService: ProjectService;
 
@@ -46,7 +46,7 @@ export class ProjectController {
    */
   @Get()
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Get a list of projects' })
+  @ApiOperation({ summary: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
   public async getProjects(
     @AuthUser() authUser: UserEntity,
@@ -60,8 +60,8 @@ export class ProjectController {
    */
   @Get(':id')
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Get a project' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Get a project' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getProject(
@@ -88,8 +88,8 @@ export class ProjectController {
    */
   @Patch(':id')
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Update a project' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, description: 'Project updated succesfully' })
   @ApiResponse({
     status: 403,
@@ -135,8 +135,8 @@ export class ProjectController {
   @Delete(':id')
   @HttpCode(204)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Delete a project' })
-  @ApiImplicitParam({ name: 'id' })
+  @ApiOperation({ summary: 'Delete a project' })
+  @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204, description: 'Project deleted succesfully' })
   @ApiResponse({
     status: 403,
@@ -155,7 +155,7 @@ export class ProjectController {
   @Post('/:id/submit-peer-reviews')
   @HttpCode(200)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Submit peer reviews' })
+  @ApiOperation({ summary: 'Submit peer reviews' })
   @ApiResponse({
     status: 200,
     description: 'Peer reviews submitted successfully',
@@ -176,7 +176,7 @@ export class ProjectController {
   @Post('/:id/submit-manager-review')
   @HttpCode(200)
   @ApiBearerAuth()
-  @ApiOperation({ title: 'Submit manager reviews' })
+  @ApiOperation({ summary: 'Submit manager reviews' })
   @ApiResponse({
     status: 200,
     description: 'Manager review submitted successfully',

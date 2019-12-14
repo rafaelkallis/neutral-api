@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
 import {
@@ -14,25 +14,25 @@ import { PeerReviewEntity } from 'role/entities/peer-review.entity';
  * Role DTO
  */
 export class RoleDto extends BaseDto {
-  @ApiModelProperty()
+  @ApiProperty()
   public projectId: string;
 
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public assigneeId: string | null;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public title: string;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public description: string;
 
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public contribution: number | null;
 
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public sentPeerReviews?: PeerReviewDto[];
 
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public receivedPeerReviews?: PeerReviewDto[];
 
   public constructor(

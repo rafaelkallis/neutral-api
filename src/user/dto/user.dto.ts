@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from '../../common/dto/base.dto';
 import { UserEntity } from '../entities/user.entity';
 
@@ -6,13 +6,13 @@ import { UserEntity } from '../entities/user.entity';
  * User DTO
  */
 export class UserDto extends BaseDto {
-  @ApiModelProperty({ required: false })
+  @ApiProperty({ required: false })
   public email: string | null;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public firstName: string;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public lastName: string;
 
   public constructor(

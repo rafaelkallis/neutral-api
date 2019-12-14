@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 interface AssignmentDtoProps {
@@ -12,14 +12,14 @@ interface AssignmentDtoProps {
 export class AssignmentDto {
   @IsString()
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'The assignee id of the role',
   })
   public assigneeId?: string | null;
 
   @IsString()
   @IsOptional()
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'The assignee email of the role',
   })
   public assigneeEmail?: string | null;

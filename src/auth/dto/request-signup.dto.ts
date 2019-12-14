@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 
 interface RequestSignupDtoOptions {
@@ -10,7 +10,7 @@ interface RequestSignupDtoOptions {
  */
 export class RequestSignupDto {
   @IsEmail()
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'me@example.com',
     description: 'Email address to send the magic signup link to',
   })

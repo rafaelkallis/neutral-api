@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 interface RefreshDtoOptions {
@@ -10,7 +10,7 @@ interface RefreshDtoOptions {
  */
 export class RefreshDto {
   @IsString()
-  @ApiModelProperty({
+  @ApiProperty({
     example: '',
     description: 'Refresh token to consume',
   })

@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 interface GetProjectsQueryDtoOptions {
@@ -11,7 +11,7 @@ interface GetProjectsQueryDtoOptions {
 export class GetProjectsQueryDto {
   @IsString()
   @IsOptional()
-  @ApiModelProperty()
+  @ApiProperty()
   public after?: string;
 
   public static from(options: GetProjectsQueryDtoOptions): GetProjectsQueryDto {

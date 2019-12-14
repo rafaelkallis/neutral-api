@@ -1,16 +1,16 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * Base DTO
  */
 export class BaseDto {
-  @ApiModelProperty()
+  @ApiProperty()
   public id: string;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public createdAt: number;
 
-  @ApiModelProperty()
+  @ApiProperty()
   public updatedAt: number;
 
   public constructor(id: string, createdAt: number, updatedAt: number) {

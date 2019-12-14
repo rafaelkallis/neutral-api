@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 interface SubmitSignupDtoOptions {
@@ -11,14 +11,14 @@ interface SubmitSignupDtoOptions {
  */
 export class SubmitSignupDto {
   @IsString()
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'John',
     description: 'First name of the user to sign up',
   })
   public firstName!: string;
 
   @IsString()
-  @ApiModelProperty({
+  @ApiProperty({
     example: 'Doe',
     description: 'Last name of the user to sign up',
   })
