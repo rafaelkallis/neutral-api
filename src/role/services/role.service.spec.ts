@@ -76,8 +76,18 @@ describe('role service', () => {
     test('happy path', async () => {
       const actualRoleDtos = await roleService.getRoles(owner, query);
       const expectedRoleDtos = [
-        await new RoleDtoBuilder(role1, project, [role1, role2], owner).build(),
-        await new RoleDtoBuilder(role2, project, [role1, role2], owner).build(),
+        await RoleDtoBuilder.create()
+          .withRole(role1)
+          .withProject(project)
+          .withProjectRoles([role1, role2])
+          .withAuthUser(owner)
+          .build(),
+        await RoleDtoBuilder.create()
+          .withRole(role2)
+          .withProject(project)
+          .withProjectRoles([role1, role2])
+          .withAuthUser(owner)
+          .build(),
       ];
       expect(actualRoleDtos).toEqual(expectedRoleDtos);
     });
@@ -105,12 +115,11 @@ describe('role service', () => {
 
     test('happy path', async () => {
       const actualRoleDto = await roleService.getRole(owner, role1.id);
-      const expectedRoleDto = await new RoleDtoBuilder(
-        role1,
-        project,
-        [role1, role2],
-        owner,
-      )
+      const expectedRoleDto = await RoleDtoBuilder.create()
+        .withRole(role1)
+        .withProject(project)
+        .withProjectRoles([role1, role2])
+        .withAuthUser(owner)
         .addSentPeerReviews(async () => [sentPeerReview])
         .addReceivedPeerReviews(async () => [receivedPeerReview])
         .build();

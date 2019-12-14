@@ -48,12 +48,12 @@ describe('role dto', () => {
     async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
       role.contribution = 1;
-      const roleDto = await new RoleDtoBuilder(
-        role,
-        project,
-        roles,
-        authUser,
-      ).build();
+      const roleDto = await RoleDtoBuilder.create()
+        .withRole(role)
+        .withProject(project)
+        .withProjectRoles(roles)
+        .withAuthUser(authUser)
+        .build();
       expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
     },
   );
@@ -62,12 +62,12 @@ describe('role dto', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
     role.contribution = 1;
-    const roleDto = await new RoleDtoBuilder(
-      role,
-      project,
-      roles,
-      assignee,
-    ).build();
+    const roleDto = await RoleDtoBuilder.create()
+      .withRole(role)
+      .withProject(project)
+      .withProjectRoles(roles)
+      .withAuthUser(assignee)
+      .build();
     expect(roleDto.contribution).toBeFalsy();
   });
 
@@ -81,7 +81,11 @@ describe('role dto', () => {
   test.each(sentPeerReviewsCases)(
     'sent peer reviews',
     async (authUser, areSentPeerReviewsVisible) => {
-      const roleDto = await new RoleDtoBuilder(role, project, roles, authUser)
+      const roleDto = await RoleDtoBuilder.create()
+        .withRole(role)
+        .withProject(project)
+        .withProjectRoles(roles)
+        .withAuthUser(authUser)
         .addSentPeerReviews(async () => [])
         .build();
       expect(Boolean(roleDto.sentPeerReviews)).toBe(areSentPeerReviewsVisible);
@@ -98,7 +102,11 @@ describe('role dto', () => {
   test.each(receivedPeerReviewsCases)(
     'received peer reviews, ',
     async (authUser, areReceivedPeerReviewsVisible) => {
-      const roleDto = await new RoleDtoBuilder(role, project, roles, authUser)
+      const roleDto = await RoleDtoBuilder.create()
+        .withRole(role)
+        .withProject(project)
+        .withProjectRoles(roles)
+        .withAuthUser(authUser)
         .addReceivedPeerReviews(async () => [])
         .build();
       expect(Boolean(roleDto.receivedPeerReviews)).toBe(

@@ -57,7 +57,12 @@ export class RoleService {
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
-        new RoleDtoBuilder(role, project, projectRoles, authUser).build(),
+        RoleDtoBuilder.create()
+          .withRole(role)
+          .withProject(project)
+          .withProjectRoles(projectRoles)
+          .withAuthUser(authUser)
+          .build(),
       ),
     );
   }
@@ -71,7 +76,11 @@ export class RoleService {
       id: role.projectId,
     });
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return new RoleDtoBuilder(role, project, projectRoles, authUser)
+    return RoleDtoBuilder.create()
+      .withRole(role)
+      .withProject(project)
+      .withProjectRoles(projectRoles)
+      .withAuthUser(authUser)
       .addSentPeerReviews(async () =>
         this.peerReviewRepository.findBySenderRoleId(role.id),
       )
@@ -111,7 +120,12 @@ export class RoleService {
     });
     await this.roleRepository.insert(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return new RoleDtoBuilder(role, project, projectRoles, authUser).build();
+    return RoleDtoBuilder.create()
+      .withRole(role)
+      .withProject(project)
+      .withProjectRoles(projectRoles)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -135,7 +149,12 @@ export class RoleService {
     role.update(body);
     await this.roleRepository.update(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return new RoleDtoBuilder(role, project, projectRoles, authUser).build();
+    return RoleDtoBuilder.create()
+      .withRole(role)
+      .withProject(project)
+      .withProjectRoles(projectRoles)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -195,7 +214,12 @@ export class RoleService {
         await this.assignNewUser(project, role, dto.assigneeEmail);
       }
     }
-    return new RoleDtoBuilder(role, project, projectRoles, authUser).build();
+    return RoleDtoBuilder.create()
+      .withRole(role)
+      .withProject(project)
+      .withProjectRoles(projectRoles)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**

@@ -73,14 +73,37 @@ export class ProjectDto extends BaseDto {
   }
 }
 
-export class ProjectDtoBuilder {
-  private readonly project: ProjectEntity;
-  private readonly authUser: UserEntity;
+interface ProjectStep {
+  withProject(project: ProjectEntity): AuthUserStep;
+}
+
+interface AuthUserStep {
+  withAuthUser(authUser: UserEntity): BuildStep;
+}
+
+interface BuildStep {
+  build(): ProjectDto;
+}
+
+export class ProjectDtoBuilder implements ProjectStep, AuthUserStep, BuildStep {
+  private project!: ProjectEntity;
+  private authUser!: UserEntity;
   private roles?: RoleDto[];
 
-  public constructor(project: ProjectEntity, authUser: UserEntity) {
+  public static create(): ProjectStep {
+    return new ProjectDtoBuilder();
+  }
+
+  private constructor() {}
+
+  public withProject(project: ProjectEntity): AuthUserStep {
     this.project = project;
+    return this;
+  }
+
+  public withAuthUser(authUser: UserEntity): BuildStep {
     this.authUser = authUser;
+    return this;
   }
 
   public addRoles(roles: RoleDto[]): this {

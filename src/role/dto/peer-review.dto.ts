@@ -33,25 +33,60 @@ export class PeerReviewDto extends BaseDto {
   }
 }
 
+interface PeerReviewStep {
+  withPeerReview(peerReview: PeerReviewEntity): RoleStep;
+}
+
+interface RoleStep {
+  withRole(role: RoleEntity): ProjectStep;
+}
+
+interface ProjectStep {
+  withProject(project: ProjectEntity): AuthUserStep;
+}
+
+interface AuthUserStep {
+  withAuthUser(authUser: UserEntity): BuildStep;
+}
+
+interface BuildStep {
+  build(): PeerReviewDto;
+}
+
 /**
  * Peer Review DTO Builder
  */
-export class PeerReviewDtoBuilder {
-  private readonly peerReview: PeerReviewEntity;
-  private readonly role: RoleEntity;
-  private readonly project: ProjectEntity;
-  private readonly authUser: UserEntity;
+export class PeerReviewDtoBuilder
+  implements PeerReviewStep, RoleStep, ProjectStep, AuthUserStep, BuildStep {
+  private peerReview!: PeerReviewEntity;
+  private role!: RoleEntity;
+  private project!: ProjectEntity;
+  private authUser!: UserEntity;
 
-  public constructor(
-    peerReview: PeerReviewEntity,
-    role: RoleEntity,
-    project: ProjectEntity,
-    authUser: UserEntity,
-  ) {
+  private constructor() {}
+
+  public static create(): PeerReviewStep {
+    return new PeerReviewDtoBuilder();
+  }
+
+  public withPeerReview(peerReview: PeerReviewEntity): RoleStep {
     this.peerReview = peerReview;
+    return this;
+  }
+
+  public withRole(role: RoleEntity): ProjectStep {
     this.role = role;
+    return this;
+  }
+
+  public withProject(project: ProjectEntity): AuthUserStep {
     this.project = project;
+    return this;
+  }
+
+  public withAuthUser(authUser: UserEntity): BuildStep {
     this.authUser = authUser;
+    return this;
   }
 
   public build(): PeerReviewDto {

@@ -54,27 +54,80 @@ export class RoleDto extends BaseDto {
   }
 }
 
+interface RoleStep {
+  withRole(role: RoleEntity): ProjectStep;
+}
+
+interface ProjectStep {
+  withProject(project: ProjectEntity): ProjectRolesStep;
+}
+
+interface ProjectRolesStep {
+  withProjectRoles(projectRoles: RoleEntity[]): AuthUserStep;
+}
+
+interface AuthUserStep {
+  withAuthUser(authUser: UserEntity): BuildStep;
+}
+
+interface BuildStep {
+  build(): Promise<RoleDto>;
+  addSentPeerReviews(
+    getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
+  ): BuildStep;
+  addReceivedPeerReviews(
+    getReceivedPeerReviews: () => Promise<PeerReviewEntity[]>,
+  ): BuildStep;
+}
+
 /**
  * Role DTO Builder
  */
-export class RoleDtoBuilder {
-  private readonly role: RoleEntity;
-  private readonly project: ProjectEntity;
-  private readonly projectRoles: RoleEntity[];
-  private readonly authUser: UserEntity;
+export class RoleDtoBuilder
+  implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
+  private role!: RoleEntity;
+  private project!: ProjectEntity;
+  private projectRoles!: RoleEntity[];
+  private authUser!: UserEntity;
   private getSentPeerReviews?: () => Promise<PeerReviewEntity[]>;
   private getReceivedPeerReviews?: () => Promise<PeerReviewEntity[]>;
 
+  private constructor() {}
+
+  public static create(): RoleStep {
+    return new RoleDtoBuilder();
+  }
+
+  public withRole(role: RoleEntity): ProjectStep {
+    this.role = role;
+    return this;
+  }
+
+  public withProject(project: ProjectEntity): ProjectRolesStep {
+    this.project = project;
+    return this;
+  }
+
+  public withProjectRoles(projectRoles: RoleEntity[]): AuthUserStep {
+    this.projectRoles = projectRoles;
+    return this;
+  }
+
+  public withAuthUser(authUser: UserEntity): BuildStep {
+    this.authUser = authUser;
+    return this;
+  }
+
   public addSentPeerReviews(
     getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
-  ): this {
+  ): BuildStep {
     this.getSentPeerReviews = getSentPeerReviews;
     return this;
   }
 
   public addReceivedPeerReviews(
     getReceivedPeerReviews: () => Promise<PeerReviewEntity[]>,
-  ): this {
+  ): BuildStep {
     this.getReceivedPeerReviews = getReceivedPeerReviews;
     return this;
   }
@@ -94,28 +147,26 @@ export class RoleDtoBuilder {
     if (this.getSentPeerReviews && this.shouldExposeSentPeerReviews()) {
       const sentPeerReviews = await this.getSentPeerReviews();
       roleDto.sentPeerReviews = sentPeerReviews.map(pr =>
-        new PeerReviewDtoBuilder(pr, role, project, authUser).build(),
+        PeerReviewDtoBuilder.create()
+          .withPeerReview(pr)
+          .withRole(role)
+          .withProject(project)
+          .withAuthUser(authUser)
+          .build(),
       );
     }
     if (this.getReceivedPeerReviews && this.shouldExposeReceivedPeerReviews()) {
       const receivedPeerReviews = await this.getReceivedPeerReviews();
       roleDto.receivedPeerReviews = receivedPeerReviews.map(pr =>
-        new PeerReviewDtoBuilder(pr, role, project, authUser).build(),
+        PeerReviewDtoBuilder.create()
+          .withPeerReview(pr)
+          .withRole(role)
+          .withProject(project)
+          .withAuthUser(authUser)
+          .build(),
       );
     }
     return roleDto;
-  }
-
-  public constructor(
-    role: RoleEntity,
-    project: ProjectEntity,
-    projectRoles: RoleEntity[],
-    authUser: UserEntity,
-  ) {
-    this.role = role;
-    this.project = project;
-    this.projectRoles = projectRoles;
-    this.authUser = authUser;
   }
 
   private shouldExposeContribution(): boolean {

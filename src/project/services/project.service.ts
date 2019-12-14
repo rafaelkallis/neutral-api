@@ -65,7 +65,10 @@ export class ProjectService {
   ): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.findPage(query);
     return projects.map(project =>
-      new ProjectDtoBuilder(project, authUser).build(),
+      ProjectDtoBuilder.create()
+        .withProject(project)
+        .withAuthUser(authUser)
+        .build(),
     );
   }
 
@@ -77,7 +80,10 @@ export class ProjectService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOne({ id });
-    return new ProjectDtoBuilder(project, authUser).build();
+    return ProjectDtoBuilder.create()
+      .withProject(project)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -101,7 +107,10 @@ export class ProjectService {
       skipManagerReview: dto.skipManagerReview || SkipManagerReview.NO,
     });
     await this.projectRepository.insert(project);
-    return new ProjectDtoBuilder(project, authUser).build();
+    return ProjectDtoBuilder.create()
+      .withProject(project)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -121,7 +130,10 @@ export class ProjectService {
     }
     project.update(dto);
     await this.projectRepository.update(project);
-    return new ProjectDtoBuilder(project, authUser).build();
+    return ProjectDtoBuilder.create()
+      .withProject(project)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -139,14 +151,15 @@ export class ProjectService {
       throw new ProjectNotFormationStateException();
     }
     const roles = await this.roleRepository.findByProjectId(project.id);
-    for (const role of roles) {
-      if (!role.hasAssignee()) {
-        throw new RoleNoUserAssignedException();
-      }
+    if (roles.some(role => !role.hasAssignee())) {
+      throw new RoleNoUserAssignedException();
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.update(project);
-    return new ProjectDtoBuilder(project, authUser).build();
+    return ProjectDtoBuilder.create()
+      .withProject(project)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -176,7 +189,7 @@ export class ProjectService {
     }
 
     const roles = await this.roleRepository.findByProjectId(project.id);
-    const [authUserRole] = roles.filter(role => role.isAssignee(authUser));
+    const authUserRole = roles.find(role => role.isAssignee(authUser));
     if (!authUserRole) {
       throw new InsufficientPermissionsException();
     }
@@ -202,19 +215,17 @@ export class ProjectService {
       }
     }
 
-    const authUserRoleSentPeerReviews = [];
-    for (const [receiverRoleId, score] of Object.entries(dto.peerReviews)) {
-      const peerReview = PeerReviewEntity.from({
-        id: this.randomService.id(),
-        senderRoleId: authUserRole.id,
-        receiverRoleId,
-        score,
-      });
-      authUserRoleSentPeerReviews.push(peerReview);
-    }
-    await this.peerReviewRepository.insert(authUserRoleSentPeerReviews);
-
     authUserRole.hasSubmittedPeerReviews = true;
+    const peerReviews = Object.entries(dto.peerReviews).map(
+      ([receiverRoleId, score]) =>
+        PeerReviewEntity.from({
+          id: this.randomService.id(),
+          senderRoleId: authUserRole.id,
+          receiverRoleId,
+          score,
+        }),
+    );
+    await this.peerReviewRepository.insert(peerReviews);
     await this.roleRepository.update(authUserRole);
 
     /* is final peer review? */
