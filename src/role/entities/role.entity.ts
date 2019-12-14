@@ -54,11 +54,6 @@ export class RoleEntity extends BaseEntity implements RoleEntityOptions {
     return Object.assign(this, options);
   }
 
-  // TODO remove
-  public async getProject(): Promise<ProjectEntity> {
-    return ProjectEntity.findOneOrFail(this.projectId);
-  }
-
   public hasAssignee(): boolean {
     return Boolean(this.assigneeId);
   }

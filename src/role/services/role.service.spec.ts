@@ -18,7 +18,6 @@ import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { AssignmentDto } from '../dto/assignment.dto';
-import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 
 describe('role service', () => {
   let roleService: RoleService;
@@ -90,7 +89,9 @@ describe('role service', () => {
       sentPeerReview = entityFaker.peerReview(role1.id, role2.id);
       receivedPeerReview = entityFaker.peerReview(role2.id, role1.id);
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest.spyOn(role1, 'getProject').mockResolvedValue(project);
+      jest
+        .spyOn(projectRepository, 'findOneByRoleId')
+        .mockResolvedValue(project);
       jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
       jest
         .spyOn(peerReviewRepository, 'findBySenderRoleId')
@@ -161,7 +162,9 @@ describe('role service', () => {
         title: primitiveFaker.words(),
       });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role);
-      jest.spyOn(role, 'getProject').mockResolvedValue(project);
+      jest
+        .spyOn(projectRepository, 'findOneByRoleId')
+        .mockResolvedValue(project);
       jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);
       jest.spyOn(roleRepository, 'update').mockResolvedValue();
     });
@@ -201,7 +204,9 @@ describe('role service', () => {
   describe('delete role', () => {
     beforeEach(async () => {
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest.spyOn(role1, 'getProject').mockResolvedValue(project);
+      jest
+        .spyOn(projectRepository, 'findOneByRoleId')
+        .mockResolvedValue(project);
       jest.spyOn(roleRepository, 'delete').mockResolvedValue();
     });
 
@@ -219,7 +224,9 @@ describe('role service', () => {
       assignee = entityFaker.user();
       dto = AssignmentDto.from({ assigneeId: assignee.id });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
-      jest.spyOn(role1, 'getProject').mockResolvedValue(project);
+      jest
+        .spyOn(projectRepository, 'findOneByRoleId')
+        .mockResolvedValue(project);
       jest.spyOn(userRepository, 'exists').mockResolvedValue(true);
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(assignee);
       jest.spyOn(project, 'getRoles').mockResolvedValue([role1, role2]);

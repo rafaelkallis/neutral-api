@@ -11,7 +11,7 @@ export class ProjectRepository extends BaseRepository<ProjectEntity> {
   /**
    *
    */
-  public async findOneByRoleIdOrFail(roleId: string): Promise<ProjectEntity> {
+  public async findOneByRoleId(roleId: string): Promise<ProjectEntity> {
     const project = await this.createQueryBuilder('project')
       .innerJoin('roles', 'role', 'project.id = role.project_id')
       .where('role.id = :roleId', { roleId })
