@@ -72,7 +72,6 @@ describe('RoleController (e2e)', () => {
         description: role.description,
         contribution: null,
         sentPeerReviews: [],
-        receivedPeerReviews: [],
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
       });

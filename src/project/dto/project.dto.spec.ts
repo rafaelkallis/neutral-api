@@ -12,8 +12,7 @@ describe('project dto', () => {
   });
 
   test('general', () => {
-    const projectDto = ProjectDtoBuilder.create()
-      .withProject(project)
+    const projectDto = ProjectDtoBuilder.of(project)
       .withAuthUser(user)
       .build();
     expect(projectDto).toEqual({
@@ -24,7 +23,6 @@ describe('project dto', () => {
       state: project.state,
       consensuality: null,
       contributionVisibility: project.contributionVisibility,
-      peerReviewVisibility: project.peerReviewVisibility,
       skipManagerReview: project.skipManagerReview,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
@@ -33,8 +31,7 @@ describe('project dto', () => {
 
   test('should expose consensuality if project owner', () => {
     project.consensuality = 1;
-    const projectDto = ProjectDtoBuilder.create()
-      .withProject(project)
+    const projectDto = ProjectDtoBuilder.of(project)
       .withAuthUser(owner)
       .build();
     expect(projectDto.consensuality).toBeTruthy();
@@ -42,8 +39,7 @@ describe('project dto', () => {
 
   test('should not expose consensuality if not project owner', () => {
     project.consensuality = 1;
-    const projectDto = ProjectDtoBuilder.create()
-      .withProject(project)
+    const projectDto = ProjectDtoBuilder.of(project)
       .withAuthUser(user)
       .build();
     expect(projectDto.consensuality).toBeFalsy();

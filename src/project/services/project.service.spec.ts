@@ -60,8 +60,7 @@ describe('project service', () => {
 
     user = entityFaker.user();
     project = entityFaker.project(user.id);
-    projectDto = ProjectDtoBuilder.create()
-      .withProject(project)
+    projectDto = ProjectDtoBuilder.of(project)
       .withAuthUser(user)
       .build();
   });
@@ -82,8 +81,7 @@ describe('project service', () => {
         entityFaker.project(user.id),
       ];
       projectDtos = projects.map(project =>
-        ProjectDtoBuilder.create()
-          .withProject(project)
+        ProjectDtoBuilder.of(project)
           .withAuthUser(user)
           .build(),
       );

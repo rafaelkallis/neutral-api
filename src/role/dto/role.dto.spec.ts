@@ -91,27 +91,4 @@ describe('role dto', () => {
       expect(Boolean(roleDto.sentPeerReviews)).toBe(areSentPeerReviewsVisible);
     },
   );
-
-  const receivedPeerReviewsCases: [UserEntity, boolean][] = [
-    [owner, true],
-    [assignee, false],
-    [projectUser, false],
-    [publicUser, false],
-  ];
-
-  test.each(receivedPeerReviewsCases)(
-    'received peer reviews, ',
-    async (authUser, areReceivedPeerReviewsVisible) => {
-      const roleDto = await RoleDtoBuilder.create()
-        .withRole(role)
-        .withProject(project)
-        .withProjectRoles(roles)
-        .withAuthUser(authUser)
-        .addReceivedPeerReviews(async () => [])
-        .build();
-      expect(Boolean(roleDto.receivedPeerReviews)).toBe(
-        areReceivedPeerReviewsVisible,
-      );
-    },
-  );
 });

@@ -3,7 +3,6 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
-  PeerReviewVisibility,
   SkipManagerReview,
 } from 'project/entities/project.entity';
 import { RoleEntity } from 'role/entities/role.entity';
@@ -37,7 +36,6 @@ class EntityFaker {
       state: ProjectState.FORMATION,
       consensuality: null,
       contributionVisibility: ContributionVisibility.SELF,
-      peerReviewVisibility: PeerReviewVisibility.SENT,
       skipManagerReview: SkipManagerReview.NO,
     });
   }

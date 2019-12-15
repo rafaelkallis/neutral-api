@@ -5,7 +5,6 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
-  PeerReviewVisibility,
   SkipManagerReview,
 } from 'project/entities/project.entity';
 import { ProjectRepository } from 'project/repositories/project.repository';
@@ -65,8 +64,7 @@ export class ProjectService {
   ): Promise<ProjectDto[]> {
     const projects = await this.projectRepository.findPage(query);
     return projects.map(project =>
-      ProjectDtoBuilder.create()
-        .withProject(project)
+      ProjectDtoBuilder.of(project)
         .withAuthUser(authUser)
         .build(),
     );
@@ -80,8 +78,7 @@ export class ProjectService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOne({ id });
-    return ProjectDtoBuilder.create()
-      .withProject(project)
+    return ProjectDtoBuilder.of(project)
       .withAuthUser(authUser)
       .build();
   }
@@ -102,13 +99,10 @@ export class ProjectService {
       consensuality: null,
       contributionVisibility:
         dto.contributionVisibility || ContributionVisibility.SELF,
-      peerReviewVisibility:
-        dto.peerReviewVisibility || PeerReviewVisibility.SENT,
       skipManagerReview: dto.skipManagerReview || SkipManagerReview.NO,
     });
     await this.projectRepository.insert(project);
-    return ProjectDtoBuilder.create()
-      .withProject(project)
+    return ProjectDtoBuilder.of(project)
       .withAuthUser(authUser)
       .build();
   }
@@ -130,8 +124,7 @@ export class ProjectService {
     }
     project.update(dto);
     await this.projectRepository.update(project);
-    return ProjectDtoBuilder.create()
-      .withProject(project)
+    return ProjectDtoBuilder.of(project)
       .withAuthUser(authUser)
       .build();
   }
@@ -156,8 +149,7 @@ export class ProjectService {
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.update(project);
-    return ProjectDtoBuilder.create()
-      .withProject(project)
+    return ProjectDtoBuilder.of(project)
       .withAuthUser(authUser)
       .build();
   }

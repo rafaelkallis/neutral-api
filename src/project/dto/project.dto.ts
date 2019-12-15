@@ -6,7 +6,6 @@ import {
   ProjectEntity,
   ProjectState,
   ContributionVisibility,
-  PeerReviewVisibility,
   SkipManagerReview,
 } from 'project/entities/project.entity';
 
@@ -39,9 +38,6 @@ export class ProjectDto extends BaseDto {
   @ApiProperty({ example: ContributionVisibility.SELF })
   public contributionVisibility: ContributionVisibility;
 
-  @ApiProperty({ example: PeerReviewVisibility.SENT })
-  public peerReviewVisibility: PeerReviewVisibility;
-
   @ApiProperty({ example: SkipManagerReview.IF_CONSENSUAL })
   public skipManagerReview: SkipManagerReview;
 
@@ -56,7 +52,6 @@ export class ProjectDto extends BaseDto {
     state: ProjectState,
     consensuality: number | null,
     contributionVisibility: ContributionVisibility,
-    peerReviewVisibility: PeerReviewVisibility,
     skipManagerReview: SkipManagerReview,
     createdAt: number,
     updatedAt: number,
@@ -68,13 +63,8 @@ export class ProjectDto extends BaseDto {
     this.state = state;
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
-    this.peerReviewVisibility = peerReviewVisibility;
     this.skipManagerReview = skipManagerReview;
   }
-}
-
-interface ProjectStep {
-  withProject(project: ProjectEntity): AuthUserStep;
 }
 
 interface AuthUserStep {
@@ -85,20 +75,17 @@ interface BuildStep {
   build(): ProjectDto;
 }
 
-export class ProjectDtoBuilder implements ProjectStep, AuthUserStep, BuildStep {
-  private project!: ProjectEntity;
+export class ProjectDtoBuilder implements AuthUserStep, BuildStep {
+  private project: ProjectEntity;
   private authUser!: UserEntity;
   private roles?: RoleDto[];
 
-  public static create(): ProjectStep {
-    return new ProjectDtoBuilder();
+  public static of(project: ProjectEntity): AuthUserStep {
+    return new ProjectDtoBuilder(project);
   }
 
-  private constructor() {}
-
-  public withProject(project: ProjectEntity): AuthUserStep {
+  private constructor(project: ProjectEntity) {
     this.project = project;
-    return this;
   }
 
   public withAuthUser(authUser: UserEntity): BuildStep {
@@ -121,7 +108,6 @@ export class ProjectDtoBuilder implements ProjectStep, AuthUserStep, BuildStep {
       project.state,
       this.shouldExposeConsensuality() ? project.consensuality : null,
       project.contributionVisibility,
-      project.peerReviewVisibility,
       project.skipManagerReview,
       project.createdAt,
       project.updatedAt,

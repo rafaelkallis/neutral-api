@@ -31,12 +31,6 @@ export enum SkipManagerReview {
   NO = 'no',
 }
 
-export enum PeerReviewVisibility {
-  SENT = 'sent',
-  SENT_RECEIVEDSCORES = 'sent-receivedscores',
-  SENT_RECEIVED = 'sent-received',
-}
-
 interface ProjectEntityOptions {
   id: string;
   title: string;
@@ -45,7 +39,6 @@ interface ProjectEntityOptions {
   state: ProjectState;
   consensuality: number | null;
   contributionVisibility: ContributionVisibility;
-  peerReviewVisibility: PeerReviewVisibility;
   skipManagerReview: SkipManagerReview;
 }
 
@@ -83,11 +76,6 @@ export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
   @IsEnum(ContributionVisibility)
   @MaxLength(255)
   public contributionVisibility!: ContributionVisibility;
-
-  @Column({ name: 'peer_review_visibility' })
-  @IsEnum(PeerReviewVisibility)
-  @MaxLength(255)
-  public peerReviewVisibility!: PeerReviewVisibility;
 
   @Column({ name: 'skip_manager_review' })
   @IsEnum(SkipManagerReview)

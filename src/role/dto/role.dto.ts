@@ -1,11 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserEntity } from 'user';
-import {
-  ProjectEntity,
-  ContributionVisibility,
-  PeerReviewVisibility,
-} from 'project';
+import { ProjectEntity, ContributionVisibility } from 'project';
 import { RoleEntity } from 'role';
 import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
@@ -31,9 +27,6 @@ export class RoleDto extends BaseDto {
 
   @ApiProperty({ required: false })
   public sentPeerReviews?: PeerReviewDto[];
-
-  @ApiProperty({ required: false })
-  public receivedPeerReviews?: PeerReviewDto[];
 
   public constructor(
     id: string,
@@ -133,7 +126,7 @@ export class RoleDtoBuilder
   }
 
   public async build(): Promise<RoleDto> {
-    const { role, project, authUser } = this;
+    const { role } = this;
     const roleDto = new RoleDto(
       role.id,
       role.projectId,
@@ -147,23 +140,7 @@ export class RoleDtoBuilder
     if (this.getSentPeerReviews && this.shouldExposeSentPeerReviews()) {
       const sentPeerReviews = await this.getSentPeerReviews();
       roleDto.sentPeerReviews = sentPeerReviews.map(pr =>
-        PeerReviewDtoBuilder.create()
-          .withPeerReview(pr)
-          .withRole(role)
-          .withProject(project)
-          .withAuthUser(authUser)
-          .build(),
-      );
-    }
-    if (this.getReceivedPeerReviews && this.shouldExposeReceivedPeerReviews()) {
-      const receivedPeerReviews = await this.getReceivedPeerReviews();
-      roleDto.receivedPeerReviews = receivedPeerReviews.map(pr =>
-        PeerReviewDtoBuilder.create()
-          .withPeerReview(pr)
-          .withRole(role)
-          .withProject(project)
-          .withAuthUser(authUser)
-          .build(),
+        PeerReviewDtoBuilder.of(pr).build(),
       );
     }
     return roleDto;
@@ -211,28 +188,5 @@ export class RoleDtoBuilder
       return true;
     }
     return false;
-  }
-
-  private shouldExposeReceivedPeerReviews(): boolean {
-    const { role, project, authUser } = this;
-    if (project.isOwner(authUser)) {
-      return true;
-    }
-    if (!project.isFinishedState()) {
-      return false;
-    }
-    switch (project.peerReviewVisibility) {
-      case PeerReviewVisibility.SENT_RECEIVED: {
-        return role.isAssignee(authUser);
-      }
-
-      case PeerReviewVisibility.SENT_RECEIVEDSCORES: {
-        return role.isAssignee(authUser);
-      }
-
-      case PeerReviewVisibility.SENT: {
-        return false;
-      }
-    }
   }
 }

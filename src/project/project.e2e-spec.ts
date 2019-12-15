@@ -49,8 +49,7 @@ describe('ProjectController (e2e)', () => {
         .get('/projects')
         .query({ after: projects[0].id });
       expect(response.status).toBe(200);
-      const projectDto = ProjectDtoBuilder.create()
-        .withProject(projects[0])
+      const projectDto = ProjectDtoBuilder.of(projects[0])
         .withAuthUser(user)
         .build();
       expect(response.body).not.toContainEqual(projectDto);
