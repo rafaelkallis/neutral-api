@@ -48,8 +48,7 @@ describe('role dto', () => {
     async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
       role.contribution = 1;
-      const roleDto = await RoleDtoBuilder.create()
-        .withRole(role)
+      const roleDto = await RoleDtoBuilder.of(role)
         .withProject(project)
         .withProjectRoles(roles)
         .withAuthUser(authUser)
@@ -62,8 +61,7 @@ describe('role dto', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
     role.contribution = 1;
-    const roleDto = await RoleDtoBuilder.create()
-      .withRole(role)
+    const roleDto = await RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(roles)
       .withAuthUser(assignee)
@@ -81,8 +79,7 @@ describe('role dto', () => {
   test.each(sentPeerReviewsCases)(
     'sent peer reviews',
     async (authUser, areSentPeerReviewsVisible) => {
-      const roleDto = await RoleDtoBuilder.create()
-        .withRole(role)
+      const roleDto = await RoleDtoBuilder.of(role)
         .withProject(project)
         .withProjectRoles(roles)
         .withAuthUser(authUser)

@@ -43,14 +43,20 @@ export class UserService {
     } else {
       users = await this.userRepository.findPage(query);
     }
-    return users.map(user => new UserDtoBuilder(user, authUser).build());
+    return users.map(user =>
+      UserDtoBuilder.of(user)
+        .withAuthUser(authUser)
+        .build(),
+    );
   }
 
   /**
    * Get the authenticated user
    */
   public async getAuthUser(authUser: UserEntity): Promise<UserDto> {
-    return new UserDtoBuilder(authUser, authUser).build();
+    return UserDtoBuilder.of(authUser)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -77,7 +83,9 @@ export class UserService {
     }
     authUser.update(otherChanges);
     await this.userRepository.update(authUser);
-    return new UserDtoBuilder(authUser, authUser).build();
+    return UserDtoBuilder.of(authUser)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**
@@ -98,7 +106,9 @@ export class UserService {
    */
   public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
     const user = await this.userRepository.findOne({ id });
-    return new UserDtoBuilder(user, authUser).build();
+    return UserDtoBuilder.of(user)
+      .withAuthUser(authUser)
+      .build();
   }
 
   /**

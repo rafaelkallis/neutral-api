@@ -36,7 +36,9 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ after: user.id });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const userDto = new UserDtoBuilder(user, user).build();
+      const userDto = UserDtoBuilder.of(user)
+        .withAuthUser(user)
+        .build();
       expect(response.body).not.toContainEqual(userDto);
       for (const responseUser of response.body) {
         expect(responseUser.id > user.id).toBeTruthy();
@@ -44,26 +46,32 @@ describe('UserController (e2e)', () => {
     });
 
     test('happy path, text search', async () => {
-      let user1 = entityFaker.user();
+      const user1 = entityFaker.user();
       user1.firstName = 'Anna';
       user1.lastName = 'Smith';
       await userRepository.insert(user1);
-      let user2 = entityFaker.user();
+      const user2 = entityFaker.user();
       user2.firstName = 'Hannah';
       user2.lastName = 'Fitzgerald';
       await userRepository.insert(user2);
-      let user3 = entityFaker.user();
+      const user3 = entityFaker.user();
       user3.firstName = 'Nanna';
       user3.lastName = 'Thompson';
       await userRepository.insert(user3);
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const user1Dto = new UserDtoBuilder(user1, user).build();
+      const user1Dto = UserDtoBuilder.of(user1)
+        .withAuthUser(user)
+        .build();
       expect(response.body).toContainEqual(user1Dto);
-      const user2Dto = new UserDtoBuilder(user2, user).build();
+      const user2Dto = UserDtoBuilder.of(user2)
+        .withAuthUser(user)
+        .build();
       expect(response.body).toContainEqual(user2Dto);
-      const user3Dto = new UserDtoBuilder(user3, user).build();
+      const user3Dto = UserDtoBuilder.of(user3)
+        .withAuthUser(user)
+        .build();
       expect(response.body).toContainEqual(user3Dto);
     });
   });

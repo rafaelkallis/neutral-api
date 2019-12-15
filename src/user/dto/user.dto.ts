@@ -30,13 +30,29 @@ export class UserDto extends BaseDto {
   }
 }
 
-export class UserDtoBuilder {
-  private readonly user: UserEntity;
-  private readonly authUser: UserEntity;
+interface AuthUserStep {
+  withAuthUser(authUser: UserEntity): BuildStep;
+}
 
-  public constructor(user: UserEntity, authUser: UserEntity) {
-    this.user = user;
+interface BuildStep {
+  build(): UserDto;
+}
+
+export class UserDtoBuilder implements AuthUserStep, BuildStep {
+  private readonly user: UserEntity;
+  private authUser!: UserEntity;
+
+  public static of(user: UserEntity): AuthUserStep {
+    return new UserDtoBuilder(user);
+  }
+
+  public withAuthUser(authUser: UserEntity): BuildStep {
     this.authUser = authUser;
+    return this;
+  }
+
+  private constructor(user: UserEntity) {
+    this.user = user;
   }
 
   public build(): UserDto {

@@ -68,27 +68,25 @@ interface BuildStep {
   addSentPeerReviews(
     getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): BuildStep;
-  addReceivedPeerReviews(
-    getReceivedPeerReviews: () => Promise<PeerReviewEntity[]>,
-  ): BuildStep;
 }
 
 /**
  * Role DTO Builder
  */
 export class RoleDtoBuilder
-  implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
-  private role!: RoleEntity;
+  implements ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
+  private role: RoleEntity;
   private project!: ProjectEntity;
   private projectRoles!: RoleEntity[];
   private authUser!: UserEntity;
   private getSentPeerReviews?: () => Promise<PeerReviewEntity[]>;
-  private getReceivedPeerReviews?: () => Promise<PeerReviewEntity[]>;
 
-  private constructor() {}
+  private constructor(role: RoleEntity) {
+    this.role = role;
+  }
 
-  public static create(): RoleStep {
-    return new RoleDtoBuilder();
+  public static of(role: RoleEntity): ProjectStep {
+    return new RoleDtoBuilder(role);
   }
 
   public withRole(role: RoleEntity): ProjectStep {
@@ -115,13 +113,6 @@ export class RoleDtoBuilder
     getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): BuildStep {
     this.getSentPeerReviews = getSentPeerReviews;
-    return this;
-  }
-
-  public addReceivedPeerReviews(
-    getReceivedPeerReviews: () => Promise<PeerReviewEntity[]>,
-  ): BuildStep {
-    this.getReceivedPeerReviews = getReceivedPeerReviews;
     return this;
   }
 

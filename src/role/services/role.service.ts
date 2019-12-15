@@ -57,8 +57,7 @@ export class RoleService {
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
-        RoleDtoBuilder.create()
-          .withRole(role)
+        RoleDtoBuilder.of(role)
           .withProject(project)
           .withProjectRoles(projectRoles)
           .withAuthUser(authUser)
@@ -76,16 +75,12 @@ export class RoleService {
       id: role.projectId,
     });
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.create()
-      .withRole(role)
+    return RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(projectRoles)
       .withAuthUser(authUser)
       .addSentPeerReviews(async () =>
         this.peerReviewRepository.findBySenderRoleId(role.id),
-      )
-      .addReceivedPeerReviews(async () =>
-        this.peerReviewRepository.findByReceiverRoleId(role.id),
       )
       .build();
   }
@@ -120,8 +115,7 @@ export class RoleService {
     });
     await this.roleRepository.insert(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.create()
-      .withRole(role)
+    return RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(projectRoles)
       .withAuthUser(authUser)
@@ -149,8 +143,7 @@ export class RoleService {
     role.update(body);
     await this.roleRepository.update(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.create()
-      .withRole(role)
+    return RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(projectRoles)
       .withAuthUser(authUser)
@@ -214,8 +207,7 @@ export class RoleService {
         await this.assignNewUser(project, role, dto.assigneeEmail);
       }
     }
-    return RoleDtoBuilder.create()
-      .withRole(role)
+    return RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(projectRoles)
       .withAuthUser(authUser)

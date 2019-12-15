@@ -10,7 +10,9 @@ describe('user dto', () => {
   });
 
   test('general', () => {
-    const userDto = new UserDtoBuilder(user, user).build();
+    const userDto = UserDtoBuilder.of(user)
+      .withAuthUser(user)
+      .build();
     expect(userDto).toEqual({
       id: user.id,
       email: user.email,
@@ -22,13 +24,17 @@ describe('user dto', () => {
   });
 
   test('should expose email if authenticated user is user', () => {
-    const userDto = new UserDtoBuilder(user, user).build();
+    const userDto = UserDtoBuilder.of(user)
+      .withAuthUser(user)
+      .build();
     expect(userDto.email).toBeTruthy();
   });
 
   test('should not expose email if authenticated user is not user', () => {
     const otherUser = entityFaker.user();
-    const userDto = new UserDtoBuilder(otherUser, user).build();
+    const userDto = UserDtoBuilder.of(otherUser)
+      .withAuthUser(user)
+      .build();
     expect(userDto.email).toBeFalsy();
   });
 });
