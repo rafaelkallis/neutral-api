@@ -18,14 +18,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard, AuthUser, ValidationPipe } from '../common';
-import { UserEntity } from '../user';
+import { ValidationPipe } from 'common';
+import { UserEntity } from 'user';
 import { ProjectApplicationService } from './services/project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectDto } from './dto/project.dto';
 import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
+import { AuthGuard, AuthUser } from 'auth';
 
 /**
  * Project Controller

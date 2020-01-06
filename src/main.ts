@@ -2,15 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from 'app.module';
-import { LogService } from 'common';
 import { CONFIG, Config } from 'config';
+import { Logger, LOGGER } from 'logger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  const logService = app.get(LogService);
+  const logger = app.get<Logger>(LOGGER);
   const config = app.get<Config>(CONFIG);
 
-  app.useLogger(logService);
+  app.useLogger(logger);
 
   app.enableCors({
     origin: config.get('FRONTEND_URL'),

@@ -2,8 +2,8 @@ import { TypeOrmPeerReviewEntity } from 'role/entities/typeorm-peer-review.entit
 import { PeerReview } from 'role/role';
 import { TypeOrmRepository } from 'common';
 import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
-import { Injectable } from '@nestjs/common';
-import { Database } from 'database';
+import { Injectable, Inject } from '@nestjs/common';
+import { Database, DATABASE } from 'database';
 
 /**
  * Peer Review Repository
@@ -15,7 +15,7 @@ export class TypeOrmPeerReviewRepository
   /**
    *
    */
-  public constructor(database: Database) {
+  public constructor(@Inject(DATABASE) database: Database) {
     super(database, TypeOrmPeerReviewEntity);
   }
 

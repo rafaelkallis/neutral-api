@@ -8,13 +8,14 @@ import {
 } from '@nestjs/common';
 import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { SessionState, ValidationPipe } from '../common';
+import { ValidationPipe } from 'common';
 import { AuthService } from './services/auth.service';
 
 import { RefreshDto } from './dto/refresh.dto';
 import { RequestLoginDto } from './dto/request-login.dto';
 import { RequestSignupDto } from './dto/request-signup.dto';
 import { SubmitSignupDto } from './dto/submit-signup.dto';
+import { SessionState } from 'session/session-state';
 
 /**
  * Authentication Controller

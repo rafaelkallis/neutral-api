@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { LogService } from './services/log.service';
 import { RandomService } from './services/random.service';
 import { TokenService } from './services/token.service';
 import { ConfigModule } from 'config';
@@ -10,7 +9,7 @@ import { ConfigModule } from 'config';
  */
 @Module({
   imports: [ConfigModule],
-  providers: [RandomService, TokenService, LogService],
-  exports: [RandomService, TokenService, LogService],
+  providers: [RandomService, TokenService],
+  exports: [RandomService, TokenService],
 })
 export class CommonModule {}

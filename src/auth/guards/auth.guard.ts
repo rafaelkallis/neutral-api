@@ -8,9 +8,8 @@ import {
 
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import { TokenService } from 'common';
-import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
-import { SessionState } from '../middlewares/session.middleware';
-import { Config, CONFIG } from 'config';
+import { UnauthorizedUserException } from 'auth/exceptions/unauthorized-user.exception';
+import { SessionState } from 'session';
 
 /**
  * Auth Guard.
@@ -19,16 +18,13 @@ import { Config, CONFIG } from 'config';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly config: Config;
   private readonly tokenService: TokenService;
   private readonly userRepository: UserRepository;
 
   public constructor(
-    @Inject(CONFIG) config: Config,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     tokenService: TokenService,
   ) {
-    this.config = config;
     this.userRepository = userRepository;
     this.tokenService = tokenService;
   }
@@ -40,6 +36,7 @@ export class AuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const authHeader: string | undefined = req.header('Authorization');
     const session: SessionState = req.session;
+    // TODO chain of responsibility pattern
     if (!session.exists() && !authHeader) {
       /* throw if no authorization scheme is used */
       throw new UnauthorizedUserException();
@@ -67,7 +64,7 @@ export class AuthGuard implements CanActivate {
       user.id,
       payload.maxAge,
     );
-    session.set(newSessionToken, this.config.get('SESSION_TOKEN_LIFETIME_MIN'));
+    session.set(newSessionToken);
     return user;
   }
 

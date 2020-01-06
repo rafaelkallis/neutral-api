@@ -5,7 +5,6 @@ import { EnvalidConfig } from 'config/envalid-config';
 /**
  * Config Module
  */
-@Global()
 @Module({
   providers: [
     {

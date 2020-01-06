@@ -1,8 +1,8 @@
 import { TypeOrmRepository } from 'common';
 import { Project } from 'project/project';
 import { TypeOrmProjectEntity } from 'project/entities/typeorm-project.entity';
-import { Injectable } from '@nestjs/common';
-import { Database } from 'database';
+import { Injectable, Inject } from '@nestjs/common';
+import { Database, DATABASE } from 'database';
 
 /**
  * TypeOrm Project Repository
@@ -14,8 +14,9 @@ export class TypeOrmProjectRepository
   /**
    *
    */
-  public constructor(database: Database) {
+  public constructor(@Inject(DATABASE) database: Database) {
     super(database, TypeOrmProjectEntity);
+    console.log('project repo constructor');
   }
 
   /**

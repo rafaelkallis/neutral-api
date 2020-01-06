@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 
-import { RandomService, SessionState, TokenService } from 'common';
+import { RandomService, TokenService } from 'common';
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TestModule } from 'test/test.module';
@@ -11,6 +11,8 @@ import { RequestLoginDto } from 'auth/dto/request-login.dto';
 import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { EMAIL_SENDER, MockEmailSender } from 'email';
+import { SessionState } from 'session/session-state';
+import { MockSessionState } from 'session';
 
 describe('auth service', () => {
   let entityFaker: EntityFaker;
@@ -69,12 +71,8 @@ describe('auth service', () => {
     beforeEach(() => {
       user = entityFaker.user();
       loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
-      session = {
-        set: jest.fn(),
-        get: jest.fn(),
-        exists: jest.fn(),
-        clear: jest.fn(),
-      };
+      session = new MockSessionState();
+      jest.spyOn(session, 'set');
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
       jest.spyOn(userRepository, 'persist').mockResolvedValue();
     });
@@ -111,12 +109,8 @@ describe('auth service', () => {
     beforeEach(() => {
       user = entityFaker.user();
       signupToken = tokenService.newSignupToken(user.email);
-      session = {
-        set: jest.fn(),
-        get: jest.fn(),
-        exists: jest.fn(),
-        clear: jest.fn(),
-      };
+      session = new MockSessionState();
+      jest.spyOn(session, 'set');
       jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
       jest.spyOn(userRepository, 'persist').mockResolvedValue();
     });
@@ -155,12 +149,8 @@ describe('auth service', () => {
     let session: SessionState;
 
     beforeEach(() => {
-      session = {
-        set: jest.fn(),
-        get: jest.fn(),
-        exists: jest.fn(),
-        clear: jest.fn(),
-      };
+      session = new MockSessionState();
+      jest.spyOn(session, 'clear');
     });
 
     test('happy path', async () => {

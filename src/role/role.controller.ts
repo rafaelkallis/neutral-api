@@ -19,7 +19,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ValidationPipe, AuthGuard, AuthUser } from '../common';
+import { ValidationPipe } from 'common';
 import { UserEntity } from '../user';
 import { RoleService } from './services/role.service';
 import { RoleDto } from './dto/role.dto';
@@ -27,11 +27,13 @@ import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AssignmentDto } from './dto/assignment.dto';
+import { AuthUser, AuthGuard } from 'auth';
 
 /**
  * Role Controller
  */
 @Controller('roles')
+@UseGuards(AuthGuard)
 @ApiTags('Roles')
 export class RoleController {
   private readonly roleService: RoleService;
@@ -44,7 +46,6 @@ export class RoleController {
    * Get roles of a particular project
    */
   @Get()
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiQuery({ name: 'projectId' })
   @ApiOperation({ summary: 'Get a list of roles for a project' })
@@ -64,7 +65,6 @@ export class RoleController {
    * Get the role with the given id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'Get a role' })
@@ -81,7 +81,6 @@ export class RoleController {
    * Create a role
    */
   @Post()
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a role' })
   @ApiResponse({
@@ -111,7 +110,6 @@ export class RoleController {
    * Update a role
    */
   @Patch(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a role' })
   @ApiParam({ name: 'id' })
@@ -136,7 +134,6 @@ export class RoleController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a role' })
   @ApiParam({ name: 'id' })
@@ -160,7 +157,6 @@ export class RoleController {
    */
   @Post(':id/assign')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign a user to a role' })
   @ApiParam({ name: 'id' })

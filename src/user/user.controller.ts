@@ -19,10 +19,11 @@ import {
 } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { GetUsersQueryDto } from './dto/get-users-query.dto';
-import { AuthGuard, AuthUser, ValidationPipe } from '../common';
+import { ValidationPipe } from 'common';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './services/user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard, AuthUser } from 'auth';
 
 /**
  * User Controller

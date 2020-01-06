@@ -1,11 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 
-import {
-  RandomService,
-  SessionState,
-  TokenAlreadyUsedException,
-  TokenService,
-} from 'common';
+import { RandomService, TokenAlreadyUsedException, TokenService } from 'common';
 import { UserRepository, USER_REPOSITORY } from 'user';
 
 import { RefreshDto } from 'auth/dto/refresh.dto';
@@ -15,6 +10,7 @@ import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exception';
 import { Config, CONFIG } from 'config';
 import { EmailSender, EMAIL_SENDER } from 'email';
+import { SessionState } from 'session/session-state';
 
 @Injectable()
 export class AuthService {
@@ -77,7 +73,7 @@ export class AuthService {
     await user.persist();
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
-    session.set(sessionToken, this.config.get('SESSION_TOKEN_LIFETIME_MIN'));
+    session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
     return { accessToken, refreshToken };
@@ -128,7 +124,7 @@ export class AuthService {
     await user.persist();
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
-    session.set(sessionToken, this.config.get('SESSION_TOKEN_LIFETIME_MIN'));
+    session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
     return { accessToken, refreshToken };
