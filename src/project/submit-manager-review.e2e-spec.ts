@@ -3,25 +3,29 @@ import request from 'supertest';
 
 import { AppModule } from 'app.module';
 import { TokenService } from 'common';
-import { UserRepository } from 'user';
-import { ProjectEntity, ProjectState } from 'project/entities/project.entity';
-import { ProjectRepository } from 'project/repositories/project.repository';
-import { entityFaker } from 'test';
+import { ProjectEntity } from 'project/entities/project.entity';
+import {
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project/repositories/project.repository';
+import { EntityFaker } from 'test';
+import { TestModule } from 'test/test.module';
+import { ProjectState } from 'project/project';
 
 describe('submit manager review (e2e)', () => {
-  let userRepository: UserRepository;
+  let entityFaker: EntityFaker;
   let projectRepository: ProjectRepository;
   let session: request.SuperTest<request.Test>;
   let project: ProjectEntity;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TestModule],
     }).compile();
-    userRepository = module.get(UserRepository);
-    projectRepository = module.get(ProjectRepository);
+    entityFaker = module.get(EntityFaker);
+    projectRepository = module.get(PROJECT_REPOSITORY);
     const user = entityFaker.user();
-    await userRepository.insert(user);
+    await user.persist();
     const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
@@ -32,7 +36,7 @@ describe('submit manager review (e2e)', () => {
     /* prepare project */
     project = entityFaker.project(user.id);
     project.state = ProjectState.MANAGER_REVIEW;
-    await projectRepository.insert(project);
+    await project.persist();
   });
 
   test('happy path', async () => {
@@ -40,15 +44,13 @@ describe('submit manager review (e2e)', () => {
       `/projects/${project.id}/submit-manager-review`,
     );
     expect(response.status).toBe(200);
-    const updatedProject = await projectRepository.findOne({
-      id: project.id,
-    });
+    const updatedProject = await projectRepository.findOne(project.id);
     expect(updatedProject.state).toBe(ProjectState.FINISHED);
   });
 
   test('should fail if project is not in manager-review state', async () => {
     project.state = ProjectState.FORMATION;
-    await projectRepository.update(project);
+    await project.persist();
 
     const response = await session.post(
       `/projects/${project.id}/submit-manager-review`,
@@ -58,9 +60,9 @@ describe('submit manager review (e2e)', () => {
 
   test('should fail if authenticated user is not the project owner', async () => {
     const otherUser = entityFaker.user();
-    await userRepository.insert(otherUser);
+    await otherUser.persist();
     project.ownerId = otherUser.id;
-    await projectRepository.update(project);
+    await project.persist();
 
     const response = await session.post(
       `/projects/${project.id}/submit-manager-review`,

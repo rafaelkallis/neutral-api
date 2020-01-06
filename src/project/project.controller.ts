@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser, ValidationPipe } from '../common';
 import { UserEntity } from '../user';
-import { ProjectService } from './services/project.service';
+import { ProjectApplicationService } from './services/project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -35,9 +35,9 @@ import { SubmitPeerReviewsDto } from './dto/submit-peer-reviews.dto';
 @UsePipes(ValidationPipe)
 @ApiTags('Projects')
 export class ProjectController {
-  private readonly projectService: ProjectService;
+  private readonly projectService: ProjectApplicationService;
 
-  public constructor(projectService: ProjectService) {
+  public constructor(projectService: ProjectApplicationService) {
     this.projectService = projectService;
   }
 
@@ -166,7 +166,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
     @Body() dto: SubmitPeerReviewsDto,
-  ): Promise<void> {
+  ): Promise<ProjectDto> {
     return this.projectService.submitPeerReviews(authUser, id, dto);
   }
 
@@ -189,7 +189,7 @@ export class ProjectController {
   public async submitManagerReview(
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
-  ): Promise<void> {
+  ): Promise<ProjectDto> {
     return this.projectService.submitManagerReview(authUser, id);
   }
 }

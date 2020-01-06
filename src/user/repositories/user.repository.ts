@@ -1,21 +1,25 @@
-import { EntityRepository } from 'typeorm';
+import { UserEntity } from 'user/entities/user.entity';
+import { Repository } from 'common';
+import { User } from 'user/user';
 
-import { UserEntity } from '../entities/user.entity';
-import { BaseRepository } from '../../common';
+export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
 /**
  * User Repository
  */
-@EntityRepository(UserEntity)
-export class UserRepository extends BaseRepository<UserEntity> {
+export interface UserRepository extends Repository<User, UserEntity> {
   /**
    * Full text search on user's first name and last name.
    */
-  public async findByName(fullName: string): Promise<UserEntity[]> {
-    return this.createQueryBuilder('user')
-      .where('full_name ILIKE :fullName', { fullName: `%${fullName}%` })
-      .orderBy('id', 'DESC')
-      .take(10)
-      .getMany();
-  }
+  findByName(fullName: string): Promise<UserEntity[]>;
+
+  /**
+   * Find user by email address.
+   */
+  findByEmail(email: string): Promise<UserEntity>;
+
+  /**
+   * Check if a user with the given email exists.
+   */
+  existsByEmail(email: string): Promise<boolean>;
 }

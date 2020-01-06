@@ -1,26 +1,30 @@
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../app.module';
-import { TokenService } from '../common';
+import { AppModule } from 'app.module';
+import { TokenService } from 'common';
 import { UserEntity } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
-import { entityFaker } from '../test';
-import { UserDtoBuilder } from './dto/user.dto';
+import { EntityFaker } from 'test';
+import { TestModule } from 'test/test.module';
+import { UserDto } from './dto/user.dto';
+import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
 
 describe('UserController (e2e)', () => {
+  let entityFaker: EntityFaker;
   let userRepository: UserRepository;
   let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TestModule],
     }).compile();
 
-    userRepository = module.get(UserRepository);
+    entityFaker = module.get(EntityFaker);
+    userRepository = module.get(TypeOrmUserRepository);
     user = entityFaker.user();
-    await userRepository.insert(user);
+    await user.persist();
 
     const app = module.createNestApplication();
     await app.init();
@@ -36,8 +40,9 @@ describe('UserController (e2e)', () => {
       const response = await session.get('/users').query({ after: user.id });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const userDto = UserDtoBuilder.of(user)
-        .withAuthUser(user)
+      const userDto = UserDto.builder()
+        .user(user)
+        .authUser(user)
         .build();
       expect(response.body).not.toContainEqual(userDto);
       for (const responseUser of response.body) {
@@ -49,28 +54,31 @@ describe('UserController (e2e)', () => {
       const user1 = entityFaker.user();
       user1.firstName = 'Anna';
       user1.lastName = 'Smith';
-      await userRepository.insert(user1);
+      await user1.persist();
       const user2 = entityFaker.user();
       user2.firstName = 'Hannah';
       user2.lastName = 'Fitzgerald';
-      await userRepository.insert(user2);
+      await user2.persist();
       const user3 = entityFaker.user();
       user3.firstName = 'Nanna';
       user3.lastName = 'Thompson';
-      await userRepository.insert(user3);
+      await user3.persist();
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const user1Dto = UserDtoBuilder.of(user1)
-        .withAuthUser(user)
+      const user1Dto = UserDto.builder()
+        .user(user1)
+        .authUser(user)
         .build();
       expect(response.body).toContainEqual(user1Dto);
-      const user2Dto = UserDtoBuilder.of(user2)
-        .withAuthUser(user)
+      const user2Dto = UserDto.builder()
+        .user(user2)
+        .authUser(user)
         .build();
       expect(response.body).toContainEqual(user2Dto);
-      const user3Dto = UserDtoBuilder.of(user3)
-        .withAuthUser(user)
+      const user3Dto = UserDto.builder()
+        .user(user3)
+        .authUser(user)
         .build();
       expect(response.body).toContainEqual(user3Dto);
     });
@@ -98,7 +106,7 @@ describe('UserController (e2e)', () => {
       const response = await session.delete('/users/me');
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(userRepository.exists({ id: user.id })).resolves.toBeFalsy();
+      await expect(userRepository.exists(user.id)).resolves.toBeFalsy();
     });
   });
 });

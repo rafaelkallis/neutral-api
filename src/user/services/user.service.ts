@@ -1,33 +1,33 @@
-import { Injectable } from '@nestjs/common';
-import {
-  ConfigService,
-  EmailService,
-  TokenAlreadyUsedException,
-  TokenService,
-} from 'common';
+import { Injectable, Inject } from '@nestjs/common';
+import { TokenAlreadyUsedException, TokenService } from 'common';
 import { UserEntity } from 'user/entities/user.entity';
-import { UserRepository } from 'user/repositories/user.repository';
-import { UserDto, UserDtoBuilder } from 'user/dto/user.dto';
+import {
+  UserRepository,
+  USER_REPOSITORY,
+} from 'user/repositories/user.repository';
+import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
+import { Config, CONFIG } from 'config';
+import { EmailSender, EMAIL_SENDER } from 'email';
 
 @Injectable()
 export class UserService {
   private readonly userRepository: UserRepository;
-  private readonly configService: ConfigService;
+  private readonly config: Config;
   private readonly tokenService: TokenService;
-  private readonly emailService: EmailService;
+  private readonly emailSender: EmailSender;
 
   public constructor(
-    userRepository: UserRepository,
-    configService: ConfigService,
+    @Inject(CONFIG) config: Config,
+    @Inject(USER_REPOSITORY) userRepository: UserRepository,
     tokenService: TokenService,
-    emailService: EmailService,
+    @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
+    this.config = config;
     this.userRepository = userRepository;
-    this.configService = configService;
     this.tokenService = tokenService;
-    this.emailService = emailService;
+    this.emailSender = emailSender;
   }
 
   /**
@@ -40,12 +40,15 @@ export class UserService {
     let users: UserEntity[] = [];
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
+    } else if (query.after) {
+      users = await this.userRepository.findPage(query.after);
     } else {
-      users = await this.userRepository.findPage(query);
+      users = await this.userRepository.findPage();
     }
     return users.map(user =>
-      UserDtoBuilder.of(user)
-        .withAuthUser(authUser)
+      UserDto.builder()
+        .user(user)
+        .authUser(authUser)
         .build(),
     );
   }
@@ -54,8 +57,9 @@ export class UserService {
    * Get the authenticated user
    */
   public async getAuthUser(authUser: UserEntity): Promise<UserDto> {
-    return UserDtoBuilder.of(authUser)
-      .withAuthUser(authUser)
+    return UserDto.builder()
+      .user(authUser)
+      .authUser(authUser)
       .build();
   }
 
@@ -76,15 +80,16 @@ export class UserService {
         authUser.email,
         email,
       );
-      const emailChangeMagicLink = `${this.configService.get(
+      const emailChangeMagicLink = `${this.config.get(
         'FRONTEND_URL',
       )}/email_change/callback?token=${token}`;
-      await this.emailService.sendEmailChangeEmail(email, emailChangeMagicLink);
+      await this.emailSender.sendEmailChangeEmail(email, emailChangeMagicLink);
     }
-    authUser.update(otherChanges);
-    await this.userRepository.update(authUser);
-    return UserDtoBuilder.of(authUser)
-      .withAuthUser(authUser)
+    Object.assign(authUser, otherChanges);
+    await authUser.persist();
+    return UserDto.builder()
+      .user(authUser)
+      .authUser(authUser)
       .build();
   }
 
@@ -93,21 +98,22 @@ export class UserService {
    */
   public async submitEmailChange(token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findOne({ id: payload.sub });
+    const user = await this.userRepository.findOne(payload.sub);
     if (user.email !== payload.curEmail) {
       throw new TokenAlreadyUsedException();
     }
     user.email = payload.newEmail;
-    await this.userRepository.update(user);
+    await user.persist();
   }
 
   /**
    * Get the user with the given id
    */
   public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
-    const user = await this.userRepository.findOne({ id });
-    return UserDtoBuilder.of(user)
-      .withAuthUser(authUser)
+    const user = await this.userRepository.findOne(id);
+    return UserDto.builder()
+      .user(user)
+      .authUser(authUser)
       .build();
   }
 

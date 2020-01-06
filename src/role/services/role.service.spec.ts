@@ -1,31 +1,46 @@
 import { Test } from '@nestjs/testing';
 import { RoleService } from './role.service';
+import { TokenService, RandomService } from 'common';
+import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import {
-  ConfigService,
-  TokenService,
-  RandomService,
-  EmailService,
-} from 'common';
-import { UserEntity, UserRepository } from 'user';
-import { ProjectEntity, ProjectState, ProjectRepository } from 'project';
+  ProjectEntity,
+  ProjectState,
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 import { RoleDtoBuilder } from 'role/dto/role.dto';
-import { RoleRepository } from 'role/repositories/role.repository';
-import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
-import { entityFaker, primitiveFaker } from 'test';
+import {
+  RoleRepository,
+  ROLE_REPOSITORY,
+} from 'role/repositories/role.repository';
+import {
+  PeerReviewRepository,
+  PEER_REVIEW_REPOSITORY,
+} from 'role/repositories/peer-review.repository';
+import { EntityFaker, PrimitiveFaker } from 'test';
+import { TestModule } from 'test/test.module';
 import { GetRolesQueryDto } from '../dto/get-roles-query.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { AssignmentDto } from '../dto/assignment.dto';
+import { TypeOrmRoleRepository } from 'role/repositories/typeorm-role.repository';
+import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
+import { TypeOrmProjectRepository } from 'project/repositories/typeorm-project.repository';
+import { TypeOrmPeerReviewRepository } from 'role/repositories/typeorm-peer-review.repository';
+import { MockEmailSender, EMAIL_SENDER } from 'email';
+import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
 
 describe('role service', () => {
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let roleService: RoleService;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
-  let emailService: EmailService;
+  let emailSender: MockEmailSender;
   let owner: UserEntity;
   let project: ProjectEntity;
   let role1: RoleEntity;
@@ -33,25 +48,33 @@ describe('role service', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
+      imports: [TestModule],
       providers: [
         RoleService,
         RandomService,
-        ConfigService,
-        RoleRepository,
-        UserRepository,
-        ProjectRepository,
-        PeerReviewRepository,
+        TypeOrmRoleRepository,
+        TypeOrmProjectRepository,
+        TypeOrmPeerReviewRepository,
         TokenService,
-        EmailService,
+        {
+          provide: USER_REPOSITORY,
+          useClass: MemoryUserRepository,
+        },
+        {
+          provide: EMAIL_SENDER,
+          useClass: MockEmailSender,
+        },
       ],
     }).compile();
 
+    entityFaker = module.get(EntityFaker);
+    primitiveFaker = module.get(PrimitiveFaker);
     roleService = module.get(RoleService);
-    userRepository = module.get(UserRepository);
-    projectRepository = module.get(ProjectRepository);
-    roleRepository = module.get(RoleRepository);
-    peerReviewRepository = module.get(PeerReviewRepository);
-    emailService = module.get(EmailService);
+    userRepository = module.get(USER_REPOSITORY);
+    projectRepository = module.get(PROJECT_REPOSITORY);
+    roleRepository = module.get(ROLE_REPOSITORY);
+    peerReviewRepository = module.get(PEER_REVIEW_REPOSITORY);
+    emailSender = module.get(EMAIL_SENDER);
     owner = entityFaker.user();
     project = entityFaker.project(owner.id);
     role1 = entityFaker.role(project.id);
@@ -95,7 +118,9 @@ describe('role service', () => {
     let sentPeerReview: PeerReviewEntity;
 
     beforeEach(() => {
-      sentPeerReview = entityFaker.peerReview(role1.id, role2.id);
+      sentPeerReview = peerReviewRepository.createEntity(
+        entityFaker.peerReview(role1.id, role2.id),
+      );
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
       jest
@@ -128,7 +153,7 @@ describe('role service', () => {
         description: primitiveFaker.paragraph(),
       });
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
-      jest.spyOn(roleRepository, 'insert').mockResolvedValue();
+      jest.spyOn(roleRepository, 'persist').mockResolvedValue();
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);
@@ -136,7 +161,7 @@ describe('role service', () => {
 
     test('happy path', async () => {
       await roleService.createRole(owner, body);
-      expect(roleRepository.insert).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: body.projectId,
           assigneeId: null,
@@ -159,9 +184,9 @@ describe('role service', () => {
     let dto: UpdateRoleDto;
 
     beforeEach(() => {
-      user = entityFaker.user();
-      project = entityFaker.project(user.id);
-      role = entityFaker.role(project.id);
+      user = userRepository.createEntity(entityFaker.user());
+      project = projectRepository.createEntity(entityFaker.project(user.id));
+      role = roleRepository.createEntity(entityFaker.role(project.id));
       dto = UpdateRoleDto.from({
         title: primitiveFaker.words(),
       });
@@ -170,7 +195,7 @@ describe('role service', () => {
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);
-      jest.spyOn(roleRepository, 'update').mockResolvedValue();
+      jest.spyOn(roleRepository, 'persist').mockResolvedValue();
     });
 
     test('happy path', async () => {
@@ -183,7 +208,7 @@ describe('role service', () => {
       expect(roleRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({ id: role.id }),
       );
-      expect(roleRepository.update).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({
           title: dto.title,
         }),
@@ -223,7 +248,7 @@ describe('role service', () => {
     let dto: AssignmentDto;
 
     beforeEach(() => {
-      assignee = entityFaker.user();
+      assignee = userRepository.createEntity(entityFaker.user());
       dto = AssignmentDto.from({ assigneeId: assignee.id });
       jest.spyOn(roleRepository, 'findOne').mockResolvedValue(role1);
       jest.spyOn(projectRepository, 'findOne').mockResolvedValue(project);
@@ -232,9 +257,9 @@ describe('role service', () => {
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);
-      jest.spyOn(roleRepository, 'update').mockResolvedValue();
+      jest.spyOn(roleRepository, 'persist').mockResolvedValue();
       jest
-        .spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail')
+        .spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail')
         .mockResolvedValue();
     });
 
@@ -243,7 +268,7 @@ describe('role service', () => {
       expect(roleRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({ id: role1.id }),
       );
-      expect(roleRepository.update).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ assigneeId: assignee.id }),
       );
     });
@@ -257,7 +282,7 @@ describe('role service', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({ email: assignee.email }),
       );
-      expect(roleRepository.update).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ assigneeId: assignee.id }),
       );
     });
@@ -266,22 +291,20 @@ describe('role service', () => {
       const assigneeEmail = primitiveFaker.email();
       dto = AssignmentDto.from({ assigneeEmail });
       jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
-      jest.spyOn(userRepository, 'insert').mockResolvedValue();
+      jest.spyOn(userRepository, 'persist').mockResolvedValue();
       await roleService.assignUser(owner, role1.id, dto);
       expect(roleRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({ id: role1.id }),
       );
-      expect(userRepository.exists).toHaveBeenCalledWith(
+      expect(userRepository.existsByEmail).toHaveBeenCalledWith(assigneeEmail);
+      expect(userRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ email: assigneeEmail }),
       );
-      expect(userRepository.insert).toHaveBeenCalledWith(
-        expect.objectContaining({ email: assigneeEmail }),
-      );
-      expect(roleRepository.update).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ assigneeId: expect.any(String) }),
       );
       expect(
-        emailService.sendUnregisteredUserNewAssignmentEmail,
+        emailSender.sendUnregisteredUserNewAssignmentEmail,
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 
@@ -289,7 +312,7 @@ describe('role service', () => {
       dto.assigneeId = owner.id;
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(owner);
       await roleService.assignUser(owner, role1.id, dto);
-      expect(roleRepository.update).toHaveBeenCalledWith(
+      expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ assigneeId: owner.id }),
       );
     });
@@ -309,7 +332,9 @@ describe('role service', () => {
     });
 
     test('should fail if user already assigned to another role in same project', async () => {
-      const role2 = entityFaker.role(project.id, assignee.id);
+      const role2 = roleRepository.createEntity(
+        entityFaker.role(project.id, assignee.id),
+      );
       jest
         .spyOn(roleRepository, 'findByProjectId')
         .mockResolvedValue([role1, role2]);

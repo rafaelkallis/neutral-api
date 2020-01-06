@@ -1,18 +1,15 @@
-import { EntityRepository } from 'typeorm';
+import { Repository } from 'common';
+import { Role } from 'role/role';
+import { RoleEntity } from 'role/entities/role.entity';
 
-import { RoleEntity } from '../entities/role.entity';
-
-import { BaseRepository } from '../../common/repositories/base.repository';
+export const ROLE_REPOSITORY = Symbol('ROLE_REPOSITORY');
 
 /**
  * Role Repository
  */
-@EntityRepository(RoleEntity)
-export class RoleRepository extends BaseRepository<RoleEntity> {
+export interface RoleRepository extends Repository<Role, RoleEntity> {
   /**
    *
    */
-  public async findByProjectId(projectId: string): Promise<RoleEntity[]> {
-    return this.repository.find({ projectId });
-  }
+  findByProjectId(projectId: string): Promise<RoleEntity[]>;
 }

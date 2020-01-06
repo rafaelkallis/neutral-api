@@ -1,46 +1,60 @@
 import { Test } from '@nestjs/testing';
 
-import {
-  ConfigService,
-  EmailService,
-  RandomService,
-  TokenService,
-} from 'common';
-import { entityFaker, primitiveFaker } from 'test';
+import { RandomService, TokenService } from 'common';
+import { EntityFaker, PrimitiveFaker } from 'test';
+import { TestModule } from 'test/test.module';
 import { UserEntity } from 'user/entities/user.entity';
-import { UserRepository } from 'user/repositories/user.repository';
-import { UserDto, UserDtoBuilder } from 'user/dto/user.dto';
+import {
+  UserRepository,
+  USER_REPOSITORY,
+} from 'user/repositories/user.repository';
+import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { UserService } from 'user/services/user.service';
+import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
+import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
+import { UserModule } from 'user/user.module';
+import { EMAIL_SENDER, MockEmailSender } from 'email';
 
 describe('user service', () => {
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let userService: UserService;
   let userRepository: UserRepository;
-  let emailService: EmailService;
+  let mockEmailSender: MockEmailSender;
   let tokenService: TokenService;
   let user: UserEntity;
   let userDto: UserDto;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
+      imports: [UserModule, TestModule],
       providers: [
         UserService,
-        UserRepository,
+        {
+          provide: USER_REPOSITORY,
+          useClass: MemoryUserRepository,
+        },
         TokenService,
         RandomService,
-        ConfigService,
-        EmailService,
+        {
+          provide: EMAIL_SENDER,
+          useClass: MockEmailSender,
+        },
       ],
     }).compile();
 
+    entityFaker = module.get(EntityFaker);
+    primitiveFaker = module.get(PrimitiveFaker);
     userService = module.get(UserService);
-    userRepository = module.get(UserRepository);
-    emailService = module.get(EmailService);
+    userRepository = module.get(TypeOrmUserRepository);
+    mockEmailSender = module.get(EMAIL_SENDER);
     tokenService = module.get(TokenService);
     user = entityFaker.user();
-    userDto = UserDtoBuilder.of(user)
-      .withAuthUser(user)
+    userDto = UserDto.builder()
+      .user(user)
+      .authUser(user)
       .build();
   });
 
@@ -57,8 +71,9 @@ describe('user service', () => {
       query = GetUsersQueryDto.from({});
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       userDtos = users.map(u =>
-        UserDtoBuilder.of(u)
-          .withAuthUser(user)
+        UserDto.builder()
+          .user(u)
+          .authUser(user)
           .build(),
       );
       jest.spyOn(userRepository, 'findPage').mockResolvedValue(users);
@@ -96,17 +111,18 @@ describe('user service', () => {
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
       dto = UpdateUserDto.from({ email, firstName });
-      jest.spyOn(userRepository, 'update').mockResolvedValue();
-      jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
+      jest.spyOn(userRepository, 'persist').mockResolvedValue();
+      // jest.spyOn(userRepository, 'update').mockResolvedValue();
+      jest.spyOn(mockEmailSender, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await userService.updateUser(user, dto);
-      expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
+      expect(mockEmailSender.sendEmailChangeEmail).toHaveBeenCalledWith(
         email,
         expect.any(String),
       );
-      expect(userRepository.update).toHaveBeenCalledWith(
+      expect(userRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ firstName }),
       );
     });
@@ -124,8 +140,8 @@ describe('user service', () => {
         newEmail,
       );
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-      jest.spyOn(userRepository, 'update').mockResolvedValue();
-      jest.spyOn(emailService, 'sendEmailChangeEmail').mockResolvedValue();
+      jest.spyOn(userRepository, 'persist').mockResolvedValue();
+      jest.spyOn(mockEmailSender, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
@@ -147,8 +163,9 @@ describe('user service', () => {
 
     test('should not expose email of another user', async () => {
       const otherUser = entityFaker.user();
-      const otherUserDto = UserDtoBuilder.of(otherUser)
-        .withAuthUser(user)
+      const otherUserDto = UserDto.builder()
+        .user(otherUser)
+        .authUser(user)
         .build();
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(otherUser);
       await expect(userService.getUser(user, otherUser.id)).resolves.toEqual(

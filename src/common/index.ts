@@ -1,14 +1,16 @@
-export { ConfigService } from './services/config.service';
 export { RandomService } from './services/random.service';
 export { LogService } from './services/log.service';
 export { TokenService } from './services/token.service';
-export { EmailService } from './services/email.service';
 
-export { BaseRepository } from './repositories/base.repository';
+export { Repository } from './repositories/repository.interface';
+export { MemoryRepository } from './repositories/memory.repository';
+export { TypeOrmRepository } from './repositories/typeorm.repository';
 
 export { BaseDto } from './dto/base.dto';
 
-export { BaseEntity } from './entities/base.entity';
+export { Entity } from './entities/entity';
+export { MemoryEntity } from './entities/memory.entity';
+export { TypeOrmEntity } from './entities/typeorm.entity';
 export { BigIntTransformer } from './entities/bigint-transformer';
 
 export {
@@ -18,22 +20,10 @@ export {
 
 export { ValidationPipe } from './pipes/validation.pipe';
 
-export {
-  EntityNotFoundInterceptor,
-} from './interceptors/entity-not-found.interceptor';
-
-export {
-  EntityNotFoundException,
-} from 'common/exceptions/entity-not-found.exception';
-export {
-  TokenAlreadyUsedException,
-} from './exceptions/token-already-used.exception';
-export {
-  InsufficientPermissionsException,
-} from './exceptions/insufficient-permissions.exception';
-export {
-  InvariantViolationException,
-} from './exceptions/invariant-violation.exception';
+export { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
+export { TokenAlreadyUsedException } from './exceptions/token-already-used.exception';
+export { InsufficientPermissionsException } from './exceptions/insufficient-permissions.exception';
+export { InvariantViolationException } from './exceptions/invariant-violation.exception';
 
 export { IsPeerReviews } from './validation/is-peer-reviews';
 

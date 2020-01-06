@@ -1,19 +1,30 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
+import { TestModule } from 'test/test.module';
 import { TokenService } from 'common';
-import { UserRepository } from 'user';
-import { ProjectEntity, ProjectState } from './entities/project.entity';
-import { ProjectRepository } from './repositories/project.repository';
-import { RoleEntity, PeerReviewRepository, RoleRepository } from '../role';
-import { entityFaker, primitiveFaker } from 'test';
+import { ProjectEntity } from 'project/entities/project.entity';
+import {
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project/repositories/project.repository';
+import {
+  RoleEntity,
+  PeerReviewRepository,
+  RoleRepository,
+  PEER_REVIEW_REPOSITORY,
+  ROLE_REPOSITORY,
+} from 'role';
+import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
+import { ProjectState } from 'project/project';
 
 jest.setTimeout(10000);
 
 describe('submit peer review (e2e)', () => {
-  let app: INestApplication;
+  let testUtils: TestUtils;
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
@@ -28,15 +39,17 @@ describe('submit peer review (e2e)', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TestModule],
     }).compile();
-    const userRepository = module.get(UserRepository);
-    projectRepository = module.get(ProjectRepository);
-    roleRepository = module.get(RoleRepository);
-    peerReviewRepository = module.get(PeerReviewRepository);
+    testUtils = module.get(TestUtils);
+    entityFaker = module.get(EntityFaker);
+    primitiveFaker = module.get(PrimitiveFaker);
+    projectRepository = module.get(PROJECT_REPOSITORY);
+    roleRepository = module.get(ROLE_REPOSITORY);
+    peerReviewRepository = module.get(PEER_REVIEW_REPOSITORY);
     const user = entityFaker.user();
-    await userRepository.insert(user);
-    app = module.createNestApplication();
+    await user.persist();
+    const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
     const tokenService = module.get(TokenService);
@@ -46,7 +59,7 @@ describe('submit peer review (e2e)', () => {
     /* prepare project */
     project = entityFaker.project(user.id);
     project.state = ProjectState.PEER_REVIEW;
-    await projectRepository.insert(project);
+    await project.persist();
 
     /* prepare roles */
     role1 = entityFaker.role(project.id, user.id);
@@ -59,10 +72,10 @@ describe('submit peer review (e2e)', () => {
     role3.hasSubmittedPeerReviews = true;
     role4.hasSubmittedPeerReviews = true;
 
-    await roleRepository.insert(role1);
-    await roleRepository.insert(role2);
-    await roleRepository.insert(role3);
-    await roleRepository.insert(role4);
+    await role1.persist();
+    await role2.persist();
+    await role3.persist();
+    await role4.persist();
 
     peerReviews = {
       [role1.id]: {
@@ -98,7 +111,7 @@ describe('submit peer review (e2e)', () => {
           receiverRole.id,
         );
         peerReview.score = peerReviews[senderRole.id][receiverRole.id];
-        await peerReviewRepository.insert(peerReview);
+        await peerReview.persist();
       }
     }
   });
@@ -108,6 +121,7 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
+    await testUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
       role1.id,
     );
@@ -117,9 +131,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOne({
-      id: project.id,
-    });
+    const updatedProject = await projectRepository.findOne(project.id);
     expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);
     expect(updatedProject.consensuality).toEqual(expect.any(Number));
     const updatedRoles = await roleRepository.findByProjectId(project.id);
@@ -130,11 +142,12 @@ describe('submit peer review (e2e)', () => {
 
   test('happy path, not final peer review', async () => {
     role4.hasSubmittedPeerReviews = false;
-    await roleRepository.update(role4);
+    await role4.persist();
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
+    await testUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
       role1.id,
     );
@@ -144,9 +157,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOne({
-      id: project.id,
-    });
+    const updatedProject = await projectRepository.findOne(project.id);
     expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
     const updatedRoles = await roleRepository.findByProjectId(project.id);
     for (const updatedRole of updatedRoles) {
@@ -156,7 +167,7 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if project is not in peer-review state', async () => {
     project.state = ProjectState.FORMATION;
-    await projectRepository.update(project);
+    await project.persist();
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
@@ -166,7 +177,7 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if peer-review already submitted', async () => {
     role1.hasSubmittedPeerReviews = true;
-    await roleRepository.update(role1);
+    await role1.persist();
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)

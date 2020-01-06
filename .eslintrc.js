@@ -31,6 +31,7 @@ module.exports = {
     'prefer-object-spread': ['error'],
     'consistent-return': ['error'],
     'no-invalid-this': ['error'],
+    'no-dupe-class-members': 'off',
     '@typescript-eslint/explicit-function-return-type': [
       'error',
       {

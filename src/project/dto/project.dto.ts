@@ -3,11 +3,12 @@ import { BaseDto } from 'common';
 import { UserEntity } from 'user';
 import { RoleDto } from 'role/dto/role.dto';
 import {
-  ProjectEntity,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from 'project/entities/project.entity';
+} from 'project/project';
+import { RoleEntity } from 'role';
+import { ProjectEntity } from 'project/entities/project.entity';
 
 /**
  * Project DTO
@@ -44,6 +45,10 @@ export class ProjectDto extends BaseDto {
   @ApiProperty({ required: false })
   public roles?: RoleDto[];
 
+  public static builder(): ProjectStep {
+    return new ProjectStep();
+  }
+
   public constructor(
     id: string,
     title: string,
@@ -67,33 +72,33 @@ export class ProjectDto extends BaseDto {
   }
 }
 
-interface AuthUserStep {
-  withAuthUser(authUser: UserEntity): BuildStep;
-}
-
-interface BuildStep {
-  build(): ProjectDto;
-}
-
-export class ProjectDtoBuilder implements AuthUserStep, BuildStep {
-  private project: ProjectEntity;
-  private authUser!: UserEntity;
-  private roles?: RoleDto[];
-
-  public static of(project: ProjectEntity): AuthUserStep {
-    return new ProjectDtoBuilder(project);
+class ProjectStep {
+  project(project: ProjectEntity): AuthUserStep {
+    return new AuthUserStep(project);
   }
+}
 
-  private constructor(project: ProjectEntity) {
+class AuthUserStep {
+  private readonly projectEntity: ProjectEntity;
+  public constructor(projectEntity: ProjectEntity) {
+    this.projectEntity = projectEntity;
+  }
+  authUser(authUser: UserEntity): BuildStep {
+    return new BuildStep(this.projectEntity, authUser);
+  }
+}
+
+class BuildStep {
+  private readonly project: ProjectEntity;
+  private readonly authUser: UserEntity;
+  private roles?: RoleEntity[];
+
+  public constructor(project: ProjectEntity, authUser: UserEntity) {
     this.project = project;
-  }
-
-  public withAuthUser(authUser: UserEntity): BuildStep {
     this.authUser = authUser;
-    return this;
   }
 
-  public addRoles(roles: RoleDto[]): this {
+  public addRoles(roles: RoleEntity[]): this {
     this.roles = roles;
     return this;
   }

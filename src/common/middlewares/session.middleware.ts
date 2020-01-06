@@ -1,7 +1,6 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { CookieOptions, Request, Response } from 'express';
-
-import { ConfigService } from '../services/config.service';
+import { Config, CONFIG } from 'config';
 
 /**
  * Session business object for modifying the session state.
@@ -35,9 +34,9 @@ export interface SessionState {
  */
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
-  private readonly configService: ConfigService;
-  public constructor(configService: ConfigService) {
-    this.configService = configService;
+  private readonly config: Config;
+  public constructor(@Inject(CONFIG) config: Config) {
+    this.config = config;
   }
 
   /**
@@ -52,8 +51,8 @@ export class SessionMiddleware implements NestMiddleware {
       next();
       return;
     }
-    const sessionName = this.configService.get('SESSION_NAME');
-    const secure = this.configService.isProduction();
+    const sessionName = this.config.get('SESSION_NAME');
+    const secure = this.config.isProduction();
     req.session = {
       set(state, lifetimeMin): void {
         const options: CookieOptions = {

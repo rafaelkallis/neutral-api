@@ -1,44 +1,44 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../app.module';
-import { TokenService, EmailService } from '../common';
-import { UserEntity, UserRepository } from '../user';
-import { ProjectEntity, ProjectState, ProjectRepository } from '../project';
-import { RoleEntity, RoleRepository } from '../role';
-import { entityFaker, primitiveFaker } from '../test';
+import { AppModule } from 'app.module';
+import { TokenService } from 'common';
+import { UserEntity } from 'user';
+import { ProjectEntity, ProjectState } from 'project';
+import { RoleEntity } from 'role';
+import { EntityFaker, PrimitiveFaker } from 'test';
+import { TestModule } from 'test/test.module';
+import { EmailSender, EMAIL_SENDER } from 'email';
 
 describe('assign user to role', () => {
-  let app: INestApplication;
-  let userRepository: UserRepository;
-  let projectRepository: ProjectRepository;
-  let roleRepository: RoleRepository;
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let tokenService: TokenService;
-  let emailService: EmailService;
+  let emailSender: EmailSender;
   let user: UserEntity;
   let project: ProjectEntity;
   let role: RoleEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+    const module = await Test.createTestingModule({
+      imports: [AppModule, TestModule],
     }).compile();
-    userRepository = module.get(UserRepository);
-    projectRepository = module.get(ProjectRepository);
-    roleRepository = module.get(RoleRepository);
+    entityFaker = module.get(EntityFaker);
+    primitiveFaker = module.get(PrimitiveFaker);
+
     user = entityFaker.user();
-    await userRepository.insert(user);
+    await user.persist();
     project = entityFaker.project(user.id);
-    await projectRepository.insert(project);
+    await project.persist();
     role = entityFaker.role(project.id);
-    await roleRepository.insert(role);
-    app = module.createNestApplication();
+    await role.persist();
+
+    const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TokenService);
-    emailService = module.get(EmailService);
+    emailSender = module.get(EMAIL_SENDER);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });
@@ -52,7 +52,7 @@ describe('assign user to role', () => {
       assignee = entityFaker.user();
       assigneeId = assignee.id;
       assigneeEmail = assignee.email;
-      await userRepository.insert(assignee);
+      await assignee.persist();
     });
 
     test('happy path', async () => {
@@ -72,14 +72,14 @@ describe('assign user to role', () => {
     });
 
     test("happy path, email of user that doesn't exist", async () => {
-      jest.spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail');
+      jest.spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail');
       assigneeEmail = primitiveFaker.email();
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeEmail });
       expect(response.status).toBe(200);
       expect(
-        emailService.sendUnregisteredUserNewAssignmentEmail,
+        emailSender.sendUnregisteredUserNewAssignmentEmail,
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 
@@ -94,7 +94,7 @@ describe('assign user to role', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.update(project);
+      await project.persist();
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });
@@ -103,9 +103,9 @@ describe('assign user to role', () => {
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
-      await userRepository.update(otherUser);
+      await otherUser.persist();
       project.ownerId = otherUser.id;
-      await projectRepository.update(project);
+      await project.persist();
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });
@@ -114,7 +114,7 @@ describe('assign user to role', () => {
 
     test('should fail is user is already assigned to another role of the same project', async () => {
       const anotherRole = entityFaker.role(project.id, assignee.id);
-      await roleRepository.insert(anotherRole);
+      await anotherRole.persist();
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeId });

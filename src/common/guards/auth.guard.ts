@@ -3,12 +3,14 @@ import {
   createParamDecorator,
   ExecutionContext,
   Injectable,
+  Inject,
 } from '@nestjs/common';
 
-import { UserEntity, UserRepository } from '../../user';
-import { TokenService, ConfigService } from '../../common';
+import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { TokenService } from 'common';
 import { UnauthorizedUserException } from '../exceptions/unauthorized-user.exception';
 import { SessionState } from '../middlewares/session.middleware';
+import { Config, CONFIG } from 'config';
 
 /**
  * Auth Guard.
@@ -17,18 +19,18 @@ import { SessionState } from '../middlewares/session.middleware';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly config: Config;
   private readonly tokenService: TokenService;
-  private readonly configService: ConfigService;
   private readonly userRepository: UserRepository;
 
   public constructor(
+    @Inject(CONFIG) config: Config,
+    @Inject(USER_REPOSITORY) userRepository: UserRepository,
     tokenService: TokenService,
-    configService: ConfigService,
-    userRepository: UserRepository,
   ) {
-    this.tokenService = tokenService;
-    this.configService = configService;
+    this.config = config;
     this.userRepository = userRepository;
+    this.tokenService = tokenService;
   }
 
   /**
@@ -57,7 +59,7 @@ export class AuthGuard implements CanActivate {
 
   private async handleSessionAuth(session: SessionState): Promise<UserEntity> {
     const payload = this.tokenService.validateSessionToken(session.get());
-    const user = await this.userRepository.findOne({ id: payload.sub });
+    const user = await this.userRepository.findOne(payload.sub);
     if (!user) {
       throw new UnauthorizedUserException();
     }
@@ -65,10 +67,7 @@ export class AuthGuard implements CanActivate {
       user.id,
       payload.maxAge,
     );
-    session.set(
-      newSessionToken,
-      this.configService.get('SESSION_TOKEN_LIFETIME_MIN'),
-    );
+    session.set(newSessionToken, this.config.get('SESSION_TOKEN_LIFETIME_MIN'));
     return user;
   }
 
@@ -78,7 +77,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedUserException();
     }
     const payload = this.tokenService.validateAccessToken(content);
-    const user = await this.userRepository.findOne({ id: payload.sub });
+    const user = await this.userRepository.findOne(payload.sub);
     if (!user) {
       throw new UnauthorizedUserException();
     }

@@ -1,46 +1,57 @@
+import { Test } from '@nestjs/testing';
+
 import { UserEntity } from 'user';
 import { ProjectEntity, ProjectState, ContributionVisibility } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { RoleDtoBuilder } from 'role/dto/role.dto';
-import { entityFaker } from 'test';
+import { EntityFaker } from 'test';
+import { TestModule } from 'test/test.module';
 
 describe('role dto', () => {
-  const owner = entityFaker.user();
-  const assignee = entityFaker.user();
-  const projectUser = entityFaker.user();
-  const publicUser = entityFaker.user();
+  let entityFaker: EntityFaker;
+  let users: Record<string, UserEntity>;
   let role: RoleEntity;
   let roles: RoleEntity[];
   let project: ProjectEntity;
 
-  beforeEach(() => {
-    project = entityFaker.project(owner.id);
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      imports: [TestModule],
+    }).compile();
+    entityFaker = module.get(EntityFaker);
+    users = {
+      owner: entityFaker.user(),
+      assignee: entityFaker.user(),
+      projectUser: entityFaker.user(),
+      publicUser: entityFaker.user(),
+    };
+    project = entityFaker.project(users.owner.id);
     project.state = ProjectState.FINISHED;
     roles = [
-      entityFaker.role(project.id, assignee.id),
-      entityFaker.role(project.id, projectUser.id),
+      entityFaker.role(project.id, users.assignee.id),
+      entityFaker.role(project.id, users.projectUser.id),
     ];
     role = roles[0];
   });
 
   const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
-  const contributionCases: [ContributionVisibility, UserEntity, boolean][] = [
-    [PUBLIC, owner, true],
-    [PUBLIC, assignee, true],
-    [PUBLIC, projectUser, true],
-    [PUBLIC, publicUser, true],
-    [PROJECT, owner, true],
-    [PROJECT, assignee, true],
-    [PROJECT, projectUser, true],
-    [PROJECT, publicUser, false],
-    [SELF, owner, true],
-    [SELF, assignee, true],
-    [SELF, projectUser, false],
-    [SELF, publicUser, false],
-    [NONE, owner, true],
-    [NONE, assignee, false],
-    [NONE, projectUser, false],
-    [NONE, publicUser, false],
+  const contributionCases: [ContributionVisibility, string, boolean][] = [
+    [PUBLIC, 'owner', true],
+    [PUBLIC, 'assignee', true],
+    [PUBLIC, 'projectUser', true],
+    [PUBLIC, 'publicUser', true],
+    [PROJECT, 'owner', true],
+    [PROJECT, 'assignee', true],
+    [PROJECT, 'projectUser', true],
+    [PROJECT, 'publicUser', false],
+    [SELF, 'owner', true],
+    [SELF, 'assignee', true],
+    [SELF, 'projectUser', false],
+    [SELF, 'publicUser', false],
+    [NONE, 'owner', true],
+    [NONE, 'assignee', false],
+    [NONE, 'projectUser', false],
+    [NONE, 'publicUser', false],
   ];
 
   test.each(contributionCases)(
@@ -51,7 +62,7 @@ describe('role dto', () => {
       const roleDto = await RoleDtoBuilder.of(role)
         .withProject(project)
         .withProjectRoles(roles)
-        .withAuthUser(authUser)
+        .withAuthUser(users[authUser])
         .build();
       expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
     },
@@ -64,16 +75,16 @@ describe('role dto', () => {
     const roleDto = await RoleDtoBuilder.of(role)
       .withProject(project)
       .withProjectRoles(roles)
-      .withAuthUser(assignee)
+      .withAuthUser(users.assignee)
       .build();
     expect(roleDto.contribution).toBeFalsy();
   });
 
-  const sentPeerReviewsCases: [UserEntity, boolean][] = [
-    [owner, true],
-    [assignee, true],
-    [projectUser, false],
-    [publicUser, false],
+  const sentPeerReviewsCases: [string, boolean][] = [
+    ['owner', true],
+    ['assignee', true],
+    ['projectUser', false],
+    ['publicUser', false],
   ];
 
   test.each(sentPeerReviewsCases)(
@@ -82,7 +93,7 @@ describe('role dto', () => {
       const roleDto = await RoleDtoBuilder.of(role)
         .withProject(project)
         .withProjectRoles(roles)
-        .withAuthUser(authUser)
+        .withAuthUser(users[authUser])
         .addSentPeerReviews(async () => [])
         .build();
       expect(Boolean(roleDto.sentPeerReviews)).toBe(areSentPeerReviewsVisible);

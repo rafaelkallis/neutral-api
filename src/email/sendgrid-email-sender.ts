@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, NotImplementedException } from '@nestjs/common';
+import { Config, CONFIG } from 'config';
+import { EmailSender } from 'email/email-sender';
 import sendgrid from '@sendgrid/mail';
 
-import { ConfigService } from './config.service';
-
 /**
- * Email Service
+ * Sendgrid Email Sender
  */
 @Injectable()
-export class EmailService {
-  public constructor(configService: ConfigService) {
-    sendgrid.setApiKey(configService.get('SENDGRID_API_KEY'));
+export class SendgridEmailSender implements EmailSender {
+  public constructor(@Inject(CONFIG) config: Config) {
+    sendgrid.setApiKey(config.get('SENDGRID_API_KEY'));
   }
 
   /**
@@ -60,12 +60,16 @@ export class EmailService {
   /**
    * Sends an email to a user that was assigned to a role.
    */
-  public async sendNewAssignmentEmail(to: string): Promise<void> {}
+  public async sendNewAssignmentEmail(to: string): Promise<void> {
+    throw new NotImplementedException();
+  }
 
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
   public async sendUnregisteredUserNewAssignmentEmail(
     to: string,
-  ): Promise<void> {}
+  ): Promise<void> {
+    throw new NotImplementedException();
+  }
 }

@@ -1,16 +1,18 @@
-import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from '../app.module';
-import { TokenService } from '../common';
-import { UserEntity, UserRepository } from '../user';
-import { ProjectEntity, ProjectState, ProjectRepository } from '../project';
-import { RoleEntity, RoleRepository } from '../role';
-import { entityFaker, primitiveFaker } from '../test';
+import { AppModule } from 'app.module';
+import { TokenService } from 'common';
+import { UserEntity, UserRepository, TypeOrmUserRepository } from 'user';
+import { ProjectEntity, ProjectState, ProjectRepository } from 'project';
+import { RoleEntity, RoleRepository, TypeOrmRoleRepository } from 'role';
+import { EntityFaker, PrimitiveFaker } from 'test';
+import { TestModule } from 'test/test.module';
+import { TypeOrmProjectRepository } from 'project/repositories/typeorm-project.repository';
 
 describe('RoleController (e2e)', () => {
-  let app: INestApplication;
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -22,18 +24,20 @@ describe('RoleController (e2e)', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TestModule],
     }).compile();
-    userRepository = module.get(UserRepository);
-    projectRepository = module.get(ProjectRepository);
-    roleRepository = module.get(RoleRepository);
-    user = entityFaker.user();
-    await userRepository.insert(user);
-    project = entityFaker.project(user.id);
-    await projectRepository.insert(project);
-    role = entityFaker.role(project.id);
-    await roleRepository.insert(role);
-    app = module.createNestApplication();
+    entityFaker = module.get(EntityFaker);
+    primitiveFaker = module.get(PrimitiveFaker);
+    userRepository = module.get(TypeOrmUserRepository);
+    projectRepository = module.get(TypeOrmProjectRepository);
+    roleRepository = module.get(TypeOrmRoleRepository);
+    user = userRepository.createEntity(entityFaker.user());
+    await user.persist();
+    project = projectRepository.createEntity(entityFaker.project(user.id));
+    await project.persist();
+    role = roleRepository.createEntity(entityFaker.role(project.id));
+    await role.persist();
+    const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TokenService);
@@ -108,7 +112,7 @@ describe('RoleController (e2e)', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.update(project);
+      await project.persist();
       const response = await session.post('/roles').send({
         projectId: project.id,
         title,
@@ -133,16 +137,16 @@ describe('RoleController (e2e)', () => {
 
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.update(project);
+      await project.persist();
       const response = await session.patch(`/roles/${role.id}`).send({ title });
       expect(response.status).toBe(400);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
-      await userRepository.update(otherUser);
+      const otherUser = userRepository.createEntity(entityFaker.user());
+      await otherUser.persist();
       project.ownerId = otherUser.id;
-      await projectRepository.update(project);
+      await project.persist();
       const response = await session.patch(`/roles/${role.id}`).send({ title });
       expect(response.status).toBe(403);
     });
@@ -159,7 +163,7 @@ describe('RoleController (e2e)', () => {
     test('happy path', async () => {
       const response = await session.del(`/roles/${role.id}`);
       expect(response.status).toBe(204);
-      expect(await roleRepository.exists({ id: role.id })).toBeFalsy();
+      expect(await roleRepository.exists(role.id)).toBeFalsy();
     });
   });
 });

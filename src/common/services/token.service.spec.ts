@@ -1,21 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-
-import { ConfigService } from './config.service';
 import { RandomService } from './random.service';
 import { TokenService } from './token.service';
+import { DummyConfig } from 'config';
 
 describe('TokenService', () => {
-  let service: TokenService;
+  let config: DummyConfig;
+  let randomService: RandomService;
+  let tokenService: TokenService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [TokenService, RandomService, ConfigService],
-    }).compile();
-
-    service = module.get<TokenService>(TokenService);
+  beforeEach(() => {
+    config = new DummyConfig();
+    randomService = new RandomService();
+    tokenService = new TokenService(config, randomService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(tokenService).toBeDefined();
   });
 });

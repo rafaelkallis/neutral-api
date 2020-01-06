@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { JWE, JWK, JWS } from '@panva/jose';
 import moment from 'moment';
 
@@ -7,8 +7,8 @@ import { TokenClaimMissingException } from '../exceptions/token-claim-missing.ex
 import { TokenExpiredException } from '../exceptions/token-expired.exception';
 import { TokenFromFutureException } from '../exceptions/token-from-future.exception';
 
-import { ConfigService } from './config.service';
 import { RandomService } from './random.service';
+import { CONFIG, Config } from 'config';
 
 /**
  * Token types used throughout the app.
@@ -81,17 +81,17 @@ export interface EmailChangeToken extends BaseToken {
  */
 @Injectable()
 export class TokenService {
-  private readonly configService: ConfigService;
+  private readonly config: Config;
   private readonly randomService: RandomService;
   private readonly jwk: JWK.Key;
 
   public constructor(
-    configService: ConfigService,
+    @Inject(CONFIG) config: Config,
     randomService: RandomService,
   ) {
-    this.configService = configService;
+    this.config = config;
     this.randomService = randomService;
-    this.jwk = JWK.asKey(this.configService.get('SECRET_HEX'));
+    this.jwk = JWK.asKey(this.config.get('SECRET_HEX'));
   }
 
   /**
@@ -104,7 +104,7 @@ export class TokenService {
       sub: userId,
       iat: moment().unix(),
       exp: moment()
-        .add(this.configService.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')
+        .add(this.config.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
       lastLoginAt,
     };
@@ -132,7 +132,7 @@ export class TokenService {
       sub,
       iat: moment().unix(),
       exp: moment()
-        .add(this.configService.get('SIGNUP_TOKEN_LIFETIME_MIN'), 'minutes')
+        .add(this.config.get('SIGNUP_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
     };
     return this.encrypt(payload);
@@ -159,7 +159,7 @@ export class TokenService {
       sub,
       iat: moment().unix(),
       exp: moment()
-        .add(this.configService.get('ACCESS_TOKEN_LIFETIME_MIN'), 'minutes')
+        .add(this.config.get('ACCESS_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
     };
     return this.sign(payload);
@@ -186,7 +186,7 @@ export class TokenService {
       sub,
       iat: moment().unix(),
       exp: moment()
-        .add(this.configService.get('REFRESH_TOKEN_LIFETIME_MIN'), 'minutes')
+        .add(this.config.get('REFRESH_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
     };
     return this.sign(payload);
@@ -209,7 +209,7 @@ export class TokenService {
   public newSessionToken(sub: string, maxAge?: number): string {
     if (!maxAge) {
       maxAge = moment()
-        .add(this.configService.get('SESSION_MAX_AGE_MIN'), 'minutes')
+        .add(this.config.get('SESSION_MAX_AGE_MIN'), 'minutes')
         .unix();
     }
     const payload: SessionToken = {
@@ -218,7 +218,7 @@ export class TokenService {
       sub,
       iat: moment().unix(),
       exp: moment()
-        .add(this.configService.get('SESSION_TOKEN_LIFETIME_MIN'), 'minutes')
+        .add(this.config.get('SESSION_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
       maxAge,
     };
@@ -255,10 +255,7 @@ export class TokenService {
       sub,
       iat: moment().unix(),
       exp: moment()
-        .add(
-          this.configService.get('EMAIL_CHANGE_TOKEN_LIFETIME_MIN'),
-          'minutes',
-        )
+        .add(this.config.get('EMAIL_CHANGE_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
       curEmail,
       newEmail,

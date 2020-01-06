@@ -1,10 +1,10 @@
-import { EntityRepository } from 'typeorm';
-
-import { BaseRepository } from 'common';
+import { Repository } from 'common';
+import { Project } from 'project/project';
 import { ProjectEntity } from 'project/entities/project.entity';
+
+export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
 
 /**
  * Project Repository
  */
-@EntityRepository(ProjectEntity)
-export class ProjectRepository extends BaseRepository<ProjectEntity> {}
+export interface ProjectRepository extends Repository<Project, ProjectEntity> {}
