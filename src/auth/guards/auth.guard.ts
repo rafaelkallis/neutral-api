@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
-import { TokenService } from 'common';
 import { UnauthorizedUserException } from 'auth/exceptions/unauthorized-user.exception';
 import { SessionState } from 'session';
+import { TOKEN_SERVICE, TokenService } from 'token';
 
 /**
  * Auth Guard.
@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    tokenService: TokenService,
+    @Inject(TOKEN_SERVICE) tokenService: TokenService,
   ) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;

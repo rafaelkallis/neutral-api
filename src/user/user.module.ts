@@ -7,12 +7,19 @@ import { DatabaseModule } from 'database';
 import { ConfigModule } from 'config';
 import { CommonModule } from 'common/common.module';
 import { EmailModule } from 'email';
+import { TokenModule } from 'token';
 
 /**
  * User Module
  */
 @Module({
-  imports: [ConfigModule, DatabaseModule, CommonModule, EmailModule],
+  imports: [
+    ConfigModule,
+    TokenModule,
+    DatabaseModule,
+    CommonModule,
+    EmailModule,
+  ],
   controllers: [UserController],
   providers: [
     UserService,

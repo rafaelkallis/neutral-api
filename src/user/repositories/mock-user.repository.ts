@@ -1,21 +1,20 @@
-import { MemoryRepository, EntityNotFoundException } from 'common';
+import { MockRepository, EntityNotFoundException } from 'common';
 import { UserRepository } from 'user/repositories/user.repository';
 import { User } from 'user/user';
-import { MemoryUserEntity } from 'user/entities/memory-user.entity';
+import { MockUserEntity } from 'user/entities/mock-user.entity';
 
 /**
- * User Repository
+ * Mock User Repository
  */
-export class MemoryUserRepository
-  extends MemoryRepository<User, MemoryUserEntity>
+export class MockUserRepository extends MockRepository<User, MockUserEntity>
   implements UserRepository {
   /**
    *
    */
-  public createEntity(user: User): MemoryUserEntity {
+  public createEntity(user: User): MockUserEntity {
     const createdAt = Date.now();
     const updatedAt = Date.now();
-    return new MemoryUserEntity(
+    return new MockUserEntity(
       this,
       user.id,
       createdAt,
@@ -30,7 +29,7 @@ export class MemoryUserRepository
   /**
    *
    */
-  public async findByName(fullName: string): Promise<MemoryUserEntity[]> {
+  public async findByName(fullName: string): Promise<MockUserEntity[]> {
     return Array.from(this.entities.values()).filter(entity =>
       `${entity.firstName} ${entity.lastName}`.includes(fullName),
     );
@@ -39,7 +38,7 @@ export class MemoryUserRepository
   /**
    *
    */
-  public async findByEmail(email: string): Promise<MemoryUserEntity> {
+  public async findByEmail(email: string): Promise<MockUserEntity> {
     const user = Array.from(this.entities.values()).find(
       entity => entity.email === email,
     );

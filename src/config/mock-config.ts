@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Config, ConfigProps } from 'config/config';
 
 /**
- * Dummy Config
+ * Mock Config
  */
 @Injectable()
-export class DummyConfig extends Config {
+export class MockConfig extends Config {
   private readonly configProps: ConfigProps;
 
   public constructor() {

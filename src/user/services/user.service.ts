@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { TokenAlreadyUsedException, TokenService } from 'common';
+import { TokenAlreadyUsedException } from 'common';
 import { UserEntity } from 'user/entities/user.entity';
 import {
   UserRepository,
@@ -10,6 +10,7 @@ import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { Config, CONFIG } from 'config';
 import { EmailSender, EMAIL_SENDER } from 'email';
+import { TOKEN_SERVICE, TokenService } from 'token';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,7 @@ export class UserService {
   public constructor(
     @Inject(CONFIG) config: Config,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    tokenService: TokenService,
+    @Inject(TOKEN_SERVICE) tokenService: TokenService,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.config = config;

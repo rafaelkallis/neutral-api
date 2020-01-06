@@ -3,7 +3,6 @@ import request from 'supertest';
 
 import { AppModule } from 'app.module';
 import { TestModule } from 'test/test.module';
-import { TokenService } from 'common';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
   ProjectRepository,
@@ -18,6 +17,7 @@ import {
 } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectState } from 'project/project';
+import { TOKEN_SERVICE, TokenService } from 'token';
 
 jest.setTimeout(10000);
 
@@ -52,7 +52,7 @@ describe('submit peer review (e2e)', () => {
     const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get(TokenService);
+    const tokenService = module.get<TokenService>(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
 

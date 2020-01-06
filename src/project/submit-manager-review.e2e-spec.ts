@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TokenService } from 'common';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
   ProjectRepository,
@@ -11,6 +10,7 @@ import {
 import { EntityFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { ProjectState } from 'project/project';
+import { TOKEN_SERVICE, TokenService } from 'token';
 
 describe('submit manager review (e2e)', () => {
   let entityFaker: EntityFaker;
@@ -29,7 +29,7 @@ describe('submit manager review (e2e)', () => {
     const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get(TokenService);
+    const tokenService = module.get<TokenService>(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
 

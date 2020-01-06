@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TokenService } from 'common';
 import { UserEntity } from 'user';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
@@ -14,6 +13,7 @@ import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
 import { TestModule } from 'test/test.module';
 import { ProjectDto } from './dto/project.dto';
 import { ProjectState } from 'project';
+import { TokenService, TOKEN_SERVICE } from 'token';
 
 describe('ProjectController (e2e)', () => {
   let testUtils: TestUtils;
@@ -39,7 +39,7 @@ describe('ProjectController (e2e)', () => {
     const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    tokenService = module.get(TokenService);
+    tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });

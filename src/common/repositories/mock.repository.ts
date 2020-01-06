@@ -1,11 +1,11 @@
 import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 import { Repository } from 'common/repositories/repository.interface';
-import { MemoryEntity } from 'common/entities/memory.entity';
+import { MockEntity } from 'common/entities/mock.entity';
 
 /**
- * Memory Repository
+ * Mock Repository
  */
-export abstract class MemoryRepository<T, TEntity extends MemoryEntity<T>>
+export abstract class MockRepository<T, TEntity extends MockEntity<T>>
   implements Repository<T, TEntity> {
   protected readonly entities: Map<string, TEntity>;
 

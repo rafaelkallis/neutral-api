@@ -2,11 +2,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TokenService } from 'common';
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { EmailSender, EMAIL_SENDER } from 'email';
+import { MockTokenService, TokenService } from 'token';
 
 describe('AuthController (e2e)', () => {
   let entityFaker: EntityFaker;
@@ -18,6 +18,7 @@ describe('AuthController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
+    tokenService = new MockTokenService();
     const module = await Test.createTestingModule({
       imports: [AppModule, TestModule],
     }).compile();
@@ -28,7 +29,6 @@ describe('AuthController (e2e)', () => {
     user = entityFaker.user();
     await user.persist();
     emailService = module.get(EMAIL_SENDER);
-    tokenService = module.get(TokenService);
 
     const app = module.createNestApplication();
     await app.init();

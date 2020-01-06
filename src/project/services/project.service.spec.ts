@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
-import { RandomService, TokenService } from 'common';
+import { RandomService } from 'common';
 import { ContributionsModelService } from './contributions-model.service';
 import { ConsensualityModelService } from './consensuality-model.service';
-import { UserEntity } from 'user';
+import { UserEntity, MockUserRepository } from 'user';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
   ProjectRepository,
@@ -25,6 +25,7 @@ import { GetProjectsQueryDto } from 'project/dto/get-projects-query.dto';
 import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { SkipManagerReview, ProjectState } from 'project/project';
+import { ProjectModule } from 'project/project.module';
 
 describe('project service', () => {
   let projectService: ProjectApplicationService;
@@ -41,14 +42,7 @@ describe('project service', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [TestModule],
-      providers: [
-        ProjectApplicationService,
-        TokenService,
-        RandomService,
-        ContributionsModelService,
-        ConsensualityModelService,
-      ],
+      imports: [ProjectModule, TestModule],
     }).compile();
     const app = module.createNestApplication();
     await app.init();

@@ -3,8 +3,11 @@ import { EntityFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { UserEntity } from 'user/entities/user.entity';
 import { UserDto } from 'user/dto/user.dto';
-import { UserRepository } from 'user/repositories/user.repository';
-import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
+import {
+  UserRepository,
+  USER_REPOSITORY,
+} from 'user/repositories/user.repository';
+import { MockUserRepository } from 'user/repositories/mock-user.repository';
 
 describe('user dto', () => {
   let entityFaker: EntityFaker;
@@ -14,11 +17,11 @@ describe('user dto', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [TestModule],
-      providers: [MemoryUserRepository],
+      providers: [{ provide: USER_REPOSITORY, useClass: MockUserRepository }],
     }).compile();
 
     entityFaker = module.get(EntityFaker);
-    userRepository = module.get(MemoryUserRepository);
+    userRepository = module.get(USER_REPOSITORY);
     user = entityFaker.user();
   });
 

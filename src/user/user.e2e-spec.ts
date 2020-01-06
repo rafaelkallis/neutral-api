@@ -2,13 +2,17 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TokenService } from 'common';
 import { UserEntity } from './entities/user.entity';
-import { UserRepository } from './repositories/user.repository';
+import {
+  UserRepository,
+  USER_REPOSITORY,
+} from './repositories/user.repository';
 import { EntityFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { UserDto } from './dto/user.dto';
 import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
+import { MockUserEntity } from 'user/entities/mock-user.entity';
+import { TOKEN_SERVICE } from 'token';
 
 describe('UserController (e2e)', () => {
   let entityFaker: EntityFaker;
@@ -19,7 +23,10 @@ describe('UserController (e2e)', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [AppModule, TestModule],
-    }).compile();
+    })
+      .overrideProvider(USER_REPOSITORY)
+      .useClass(MockUserEntity)
+      .compile();
 
     entityFaker = module.get(EntityFaker);
     userRepository = module.get(TypeOrmUserRepository);
@@ -30,7 +37,7 @@ describe('UserController (e2e)', () => {
     await app.init();
 
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get(TokenService);
+    const tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });

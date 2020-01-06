@@ -16,7 +16,6 @@ export class TypeOrmProjectRepository
    */
   public constructor(@Inject(DATABASE) database: Database) {
     super(database, TypeOrmProjectEntity);
-    console.log('project repo constructor');
   }
 
   /**

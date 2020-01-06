@@ -1,7 +1,11 @@
 import { Test } from '@nestjs/testing';
 
-import { RandomService, TokenService } from 'common';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import {
+  UserEntity,
+  UserRepository,
+  USER_REPOSITORY,
+  MockUserRepository,
+} from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TestModule } from 'test/test.module';
 
@@ -13,35 +17,38 @@ import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { EMAIL_SENDER, MockEmailSender } from 'email';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
+import { AuthModule } from 'auth/auth.module';
+import { CONFIG, MockConfig } from 'config';
+import { MockTokenService, TOKEN_SERVICE } from 'token';
 
 describe('auth service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
   let userRepository: UserRepository;
-  let emailSender: MockEmailSender;
-  let tokenService: TokenService;
+  let mockEmailSender: MockEmailSender;
+  let tokenService: MockTokenService;
 
   beforeEach(async () => {
+    mockEmailSender = new MockEmailSender();
+    userRepository = new MockUserRepository();
+    tokenService = new MockTokenService();
     const module = await Test.createTestingModule({
-      imports: [TestModule],
-      providers: [
-        AuthService,
-        TokenService,
-        RandomService,
-        {
-          provide: EMAIL_SENDER,
-          useClass: MockEmailSender,
-        },
-      ],
-    }).compile();
+      imports: [AuthModule, TestModule],
+    })
+      .overrideProvider(CONFIG)
+      .useClass(MockConfig)
+      .overrideProvider(USER_REPOSITORY)
+      .useValue(userRepository)
+      .overrideProvider(TOKEN_SERVICE)
+      .useValue(tokenService)
+      .overrideProvider(EMAIL_SENDER)
+      .useValue(mockEmailSender)
+      .compile();
 
     entityFaker = module.get(EntityFaker);
     primitiveFaker = module.get(PrimitiveFaker);
     authService = module.get(AuthService);
-    userRepository = module.get(USER_REPOSITORY);
-    emailSender = module.get(EMAIL_SENDER);
-    tokenService = module.get(TokenService);
   });
 
   it('should be defined', () => {
@@ -53,7 +60,7 @@ describe('auth service', () => {
       jest
         .spyOn(userRepository, 'findOne')
         .mockResolvedValue(entityFaker.user());
-      jest.spyOn(emailSender, 'sendLoginEmail').mockResolvedValue();
+      jest.spyOn(mockEmailSender, 'sendLoginEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
@@ -91,7 +98,7 @@ describe('auth service', () => {
   describe('request magic signup', () => {
     beforeEach(() => {
       jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
-      jest.spyOn(emailSender, 'sendSignupEmail').mockResolvedValue();
+      jest.spyOn(mockEmailSender, 'sendSignupEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {

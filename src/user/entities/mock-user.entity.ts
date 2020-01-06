@@ -1,13 +1,13 @@
 import { IsEmail, IsNumber, IsString, MaxLength } from 'class-validator';
-import { MemoryEntity } from 'common';
+import { MockEntity } from 'common';
 import { UserEntity } from 'user/entities/user.entity';
 import { User } from 'user/user';
-import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
+import { MockUserRepository } from 'user/repositories/mock-user.repository';
 
 /**
- * User Entity
+ * Mock User Entity
  */
-export class MemoryUserEntity extends MemoryEntity<User> implements UserEntity {
+export class MockUserEntity extends MockEntity<User> implements UserEntity {
   @IsEmail()
   @MaxLength(100)
   public email: string;
@@ -24,7 +24,7 @@ export class MemoryUserEntity extends MemoryEntity<User> implements UserEntity {
   public lastLoginAt: number;
 
   public constructor(
-    userRepository: MemoryUserRepository,
+    userRepository: MockUserRepository,
     id: string,
     createdAt: number,
     updatedAt: number,

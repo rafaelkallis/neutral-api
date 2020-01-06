@@ -2,95 +2,35 @@ import { Injectable, Inject } from '@nestjs/common';
 import { JWE, JWK, JWS } from '@panva/jose';
 import moment from 'moment';
 
-import { TokenAudienceIncorrectException } from '../exceptions/token-audience-incorrect.exception';
-import { TokenClaimMissingException } from '../exceptions/token-claim-missing.exception';
-import { TokenExpiredException } from '../exceptions/token-expired.exception';
-import { TokenFromFutureException } from '../exceptions/token-from-future.exception';
+import { TokenAudienceIncorrectException } from 'token/exceptions/token-audience-incorrect.exception';
+import { TokenClaimMissingException } from 'token/exceptions/token-claim-missing.exception';
+import { TokenExpiredException } from 'token/exceptions/token-expired.exception';
+import { TokenFromFutureException } from 'token/exceptions/token-from-future.exception';
 
-import { RandomService } from './random.service';
 import { CONFIG, Config } from 'config';
+import {
+  TokenService,
+  LoginToken,
+  TokenAud,
+  SignupToken,
+  AccessToken,
+  RefreshToken,
+  SessionToken,
+  EmailChangeToken,
+  BaseToken,
+} from 'token/token-service';
+import ObjectID from 'bson-objectid';
 
 /**
- * Token types used throughout the app.
- */
-export enum TokenAud {
-  LOGIN = 'login_token',
-  SIGNUP = 'signup_token',
-  ACCESS = 'access_token',
-  REFRESH = 'refresh_token',
-  SESSION = 'session',
-  EMAIL_CHANGE = 'email_change_token',
-}
-
-interface BaseToken {
-  jti: string;
-  aud: TokenAud;
-  sub: string;
-  iat: number;
-  exp: number;
-}
-
-/**
- * LoginToken interface.
- */
-export interface LoginToken extends BaseToken {
-  aud: TokenAud.LOGIN;
-  lastLoginAt: number;
-}
-
-/**
- * SignupToken interface.
- */
-export interface SignupToken extends BaseToken {
-  aud: TokenAud.SIGNUP;
-}
-
-/**
- * Access token interface.
- */
-export interface AccessToken extends BaseToken {
-  aud: TokenAud.ACCESS;
-}
-
-/**
- * Refresh token interface.
- */
-export interface RefreshToken extends BaseToken {
-  aud: TokenAud.REFRESH;
-}
-
-/**
- * Session token interface.
- */
-export interface SessionToken extends BaseToken {
-  aud: TokenAud.SESSION;
-  maxAge: number;
-}
-
-/**
- * Email change token interface.
- */
-export interface EmailChangeToken extends BaseToken {
-  aud: TokenAud.EMAIL_CHANGE;
-  curEmail: string;
-  newEmail: string;
-}
-
-/**
- * Token Service
+ * Jwt Token Service
  */
 @Injectable()
-export class TokenService {
+export class JwtTokenService implements TokenService {
   private readonly config: Config;
-  private readonly randomService: RandomService;
   private readonly jwk: JWK.Key;
 
-  public constructor(
-    @Inject(CONFIG) config: Config,
-    randomService: RandomService,
-  ) {
+  public constructor(@Inject(CONFIG) config: Config) {
     this.config = config;
-    this.randomService = randomService;
     this.jwk = JWK.asKey(this.config.get('SECRET_HEX'));
   }
 
@@ -99,7 +39,7 @@ export class TokenService {
    */
   public newLoginToken(userId: string, lastLoginAt: number): string {
     const payload: LoginToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.LOGIN,
       sub: userId,
       iat: moment().unix(),
@@ -127,7 +67,7 @@ export class TokenService {
    */
   public newSignupToken(sub: string): string {
     const payload: SignupToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.SIGNUP,
       sub,
       iat: moment().unix(),
@@ -154,7 +94,7 @@ export class TokenService {
    */
   public newAccessToken(sub: string): string {
     const payload: AccessToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.ACCESS,
       sub,
       iat: moment().unix(),
@@ -181,7 +121,7 @@ export class TokenService {
    */
   public newRefreshToken(sub: string): string {
     const payload: RefreshToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.REFRESH,
       sub,
       iat: moment().unix(),
@@ -213,7 +153,7 @@ export class TokenService {
         .unix();
     }
     const payload: SessionToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.SESSION,
       sub,
       iat: moment().unix(),
@@ -250,7 +190,7 @@ export class TokenService {
     newEmail: string,
   ): string {
     const payload: EmailChangeToken = {
-      jti: this.randomService.id(),
+      jti: this.createJti(),
       aud: TokenAud.EMAIL_CHANGE,
       sub,
       iat: moment().unix(),
@@ -272,6 +212,13 @@ export class TokenService {
       throw new TokenAudienceIncorrectException();
     }
     return payload as EmailChangeToken;
+  }
+
+  /**
+   * Creates a new jti (json token id).
+   */
+  private createJti(): string {
+    return new ObjectID().toHexString();
   }
 
   /**

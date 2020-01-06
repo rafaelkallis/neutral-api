@@ -1,12 +1,12 @@
 import { SendgridEmailSender } from 'email/sendgrid-email-sender';
-import { DummyConfig } from 'config';
+import { MockConfig } from 'config';
 
 describe('SendgridEmailSender', () => {
-  let config: DummyConfig;
+  let config: MockConfig;
   let sendgridEmailSender: SendgridEmailSender;
 
   beforeEach(async () => {
-    config = new DummyConfig();
+    config = new MockConfig();
     sendgridEmailSender = new SendgridEmailSender(config);
   });
 

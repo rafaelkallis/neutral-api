@@ -11,6 +11,7 @@ import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { CommonModule } from 'common/common.module';
 import { ConfigModule } from 'config';
+import { TokenModule } from 'token';
 
 /**
  * Role Module
@@ -19,6 +20,7 @@ import { ConfigModule } from 'config';
   imports: [
     ConfigModule,
     CommonModule,
+    TokenModule,
     DatabaseModule,
     EmailModule,
     UserModule,

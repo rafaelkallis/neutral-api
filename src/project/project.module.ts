@@ -14,12 +14,20 @@ import { TypeOrmProjectRepository } from 'project/repositories/typeorm-project.r
 import { EventModule } from 'event';
 import { DatabaseModule } from 'database';
 import { CommonModule } from 'common/common.module';
+import { TokenModule } from 'token';
 
 /**
  * Project Module
  */
 @Module({
-  imports: [EventModule, DatabaseModule, CommonModule, UserModule, RoleModule],
+  imports: [
+    EventModule,
+    DatabaseModule,
+    TokenModule,
+    CommonModule,
+    UserModule,
+    RoleModule,
+  ],
   controllers: [ProjectController],
   providers: [
     {

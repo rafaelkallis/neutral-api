@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing';
 
-import { RandomService, TokenService } from 'common';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { UserEntity } from 'user/entities/user.entity';
@@ -12,45 +11,42 @@ import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { UserService } from 'user/services/user.service';
-import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
-import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
+import { MockUserRepository } from 'user/repositories/mock-user.repository';
 import { UserModule } from 'user/user.module';
-import { EMAIL_SENDER, MockEmailSender } from 'email';
+import { EMAIL_SENDER, MockEmailSender, EmailSender } from 'email';
+import { CONFIG, MockConfig } from 'config';
+import { TOKEN_SERVICE, MockTokenService, TokenService } from 'token';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userService: UserService;
   let userRepository: UserRepository;
-  let mockEmailSender: MockEmailSender;
+  let emailSender: EmailSender;
   let tokenService: TokenService;
   let user: UserEntity;
   let userDto: UserDto;
 
   beforeEach(async () => {
+    userRepository = new MockUserRepository();
+    emailSender = new MockEmailSender();
+    tokenService = new MockTokenService();
     const module = await Test.createTestingModule({
       imports: [UserModule, TestModule],
-      providers: [
-        UserService,
-        {
-          provide: USER_REPOSITORY,
-          useClass: MemoryUserRepository,
-        },
-        TokenService,
-        RandomService,
-        {
-          provide: EMAIL_SENDER,
-          useClass: MockEmailSender,
-        },
-      ],
-    }).compile();
+    })
+      .overrideProvider(CONFIG)
+      .useClass(MockConfig)
+      .overrideProvider(USER_REPOSITORY)
+      .useValue(userRepository)
+      .overrideProvider(EMAIL_SENDER)
+      .useValue(emailSender)
+      .overrideProvider(TOKEN_SERVICE)
+      .useValue(tokenService)
+      .compile();
 
     entityFaker = module.get(EntityFaker);
     primitiveFaker = module.get(PrimitiveFaker);
     userService = module.get(UserService);
-    userRepository = module.get(TypeOrmUserRepository);
-    mockEmailSender = module.get(EMAIL_SENDER);
-    tokenService = module.get(TokenService);
     user = entityFaker.user();
     userDto = UserDto.builder()
       .user(user)
@@ -113,12 +109,12 @@ describe('user service', () => {
       dto = UpdateUserDto.from({ email, firstName });
       jest.spyOn(userRepository, 'persist').mockResolvedValue();
       // jest.spyOn(userRepository, 'update').mockResolvedValue();
-      jest.spyOn(mockEmailSender, 'sendEmailChangeEmail').mockResolvedValue();
+      jest.spyOn(emailSender, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {
       await userService.updateUser(user, dto);
-      expect(mockEmailSender.sendEmailChangeEmail).toHaveBeenCalledWith(
+      expect(emailSender.sendEmailChangeEmail).toHaveBeenCalledWith(
         email,
         expect.any(String),
       );
@@ -141,7 +137,7 @@ describe('user service', () => {
       );
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
       jest.spyOn(userRepository, 'persist').mockResolvedValue();
-      jest.spyOn(mockEmailSender, 'sendEmailChangeEmail').mockResolvedValue();
+      jest.spyOn(emailSender, 'sendEmailChangeEmail').mockResolvedValue();
     });
 
     test('happy path', async () => {

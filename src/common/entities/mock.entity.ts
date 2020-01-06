@@ -1,12 +1,12 @@
 import { IsNumber, IsString, MaxLength, validateSync } from 'class-validator';
 
 import { Entity } from 'common/entities/entity';
-import { MemoryRepository } from 'common/repositories/memory.repository';
+import { MockRepository } from 'common/repositories/mock.repository';
 
 /**
- * Memory Entity
+ * Mock Entity
  */
-export abstract class MemoryEntity<T> implements Entity {
+export abstract class MockEntity<T> implements Entity {
   @IsString()
   @MaxLength(24)
   public id: string;
@@ -17,10 +17,10 @@ export abstract class MemoryEntity<T> implements Entity {
   @IsNumber()
   public updatedAt: number;
 
-  private readonly repository: MemoryRepository<T, MemoryEntity<T>>;
+  private readonly repository: MockRepository<T, MockEntity<T>>;
 
   public constructor(
-    repository: MemoryRepository<T, MemoryEntity<T>>,
+    repository: MockRepository<T, MockEntity<T>>,
     id: string,
     createdAt: number,
     updatedAt: number,

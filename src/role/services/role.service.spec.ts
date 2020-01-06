@@ -1,7 +1,12 @@
 import { Test } from '@nestjs/testing';
 import { RoleService } from './role.service';
-import { TokenService, RandomService } from 'common';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { RandomService } from 'common';
+import {
+  UserEntity,
+  UserRepository,
+  USER_REPOSITORY,
+  MockUserRepository,
+} from 'user';
 import {
   ProjectEntity,
   ProjectState,
@@ -26,11 +31,9 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { AssignmentDto } from '../dto/assignment.dto';
 import { TypeOrmRoleRepository } from 'role/repositories/typeorm-role.repository';
-import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
 import { TypeOrmProjectRepository } from 'project/repositories/typeorm-project.repository';
 import { TypeOrmPeerReviewRepository } from 'role/repositories/typeorm-peer-review.repository';
 import { MockEmailSender, EMAIL_SENDER } from 'email';
-import { MemoryUserRepository } from 'user/repositories/memory-user.repository';
 
 describe('role service', () => {
   let entityFaker: EntityFaker;
@@ -55,10 +58,9 @@ describe('role service', () => {
         TypeOrmRoleRepository,
         TypeOrmProjectRepository,
         TypeOrmPeerReviewRepository,
-        TokenService,
         {
           provide: USER_REPOSITORY,
-          useClass: MemoryUserRepository,
+          useClass: MockUserRepository,
         },
         {
           provide: EMAIL_SENDER,

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 
-import { RandomService, TokenAlreadyUsedException, TokenService } from 'common';
+import { RandomService, TokenAlreadyUsedException } from 'common';
 import { UserRepository, USER_REPOSITORY } from 'user';
 
 import { RefreshDto } from 'auth/dto/refresh.dto';
@@ -11,6 +11,7 @@ import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exce
 import { Config, CONFIG } from 'config';
 import { EmailSender, EMAIL_SENDER } from 'email';
 import { SessionState } from 'session/session-state';
+import { TOKEN_SERVICE, TokenService } from 'token';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
   public constructor(
     @Inject(CONFIG) config: Config,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    tokenService: TokenService,
+    @Inject(TOKEN_SERVICE) tokenService: TokenService,
     randomService: RandomService,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {

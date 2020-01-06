@@ -2,13 +2,13 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TokenService } from 'common';
 import { UserEntity } from 'user';
 import { ProjectEntity, ProjectState } from 'project';
 import { RoleEntity } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TestModule } from 'test/test.module';
 import { EmailSender, EMAIL_SENDER } from 'email';
+import { TokenService, TOKEN_SERVICE } from 'token';
 
 describe('assign user to role', () => {
   let entityFaker: EntityFaker;
@@ -37,7 +37,7 @@ describe('assign user to role', () => {
     const app = module.createNestApplication();
     await app.init();
     session = request.agent(app.getHttpServer());
-    tokenService = module.get(TokenService);
+    tokenService = module.get(TOKEN_SERVICE);
     emailSender = module.get(EMAIL_SENDER);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
