@@ -4,16 +4,15 @@ import {
   OnModuleDestroy,
   Inject,
 } from '@nestjs/common';
+import { Database } from 'database/database';
 import { Config, CONFIG } from 'config';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
 
-/* entities */
-import { TypeOrmUserEntity } from 'user/entities/typeorm-user.entity';
-import { TypeOrmProjectEntity } from 'project/entities/typeorm-project.entity';
-import { TypeOrmRoleEntity } from 'role/entities/typeorm-role.entity';
-import { TypeOrmPeerReviewEntity } from 'role/entities/typeorm-peer-review.entity';
+import { UserEntity } from 'user/entities/user.entity';
+import { ProjectEntity } from 'project/entities/project.entity';
+import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { RoleEntity } from 'role/entities/role.entity';
 
-/* migrations */
 import { UserMigration1564324478234 } from 'database/migration/1564324478234-UserMigration';
 import { ProjectMigration1564574530189 } from 'database/migration/1564574530189-ProjectMigration';
 import { RoleMigration1565196023819 } from 'database/migration/1565196023819-RoleMigration';
@@ -32,7 +31,6 @@ import { PeerReviewRename1576248460000 } from 'database/migration/1576248460000-
 import { AddPeerReviewVisibilityMigration1576252691000 } from 'database/migration/1576252691000-add-peer-review-visibility.migration';
 import { AddHasSubmittedPeerReviewsMigration1576331058000 } from 'database/migration/1576331058000-add-role-has-submitted-peer-reviews.migration';
 import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migration/1576415094000-remove-peer-review-visibility.migration';
-import { Database } from 'database/database';
 
 @Injectable()
 export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
@@ -82,12 +80,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
       name: DatabaseImpl.DEFAULT_CONNECTION,
       type: 'postgres' as 'postgres',
       url: this.config.get('DATABASE_URL'),
-      entities: [
-        TypeOrmUserEntity,
-        TypeOrmProjectEntity,
-        TypeOrmRoleEntity,
-        TypeOrmPeerReviewEntity,
-      ],
+      entities: [UserEntity, ProjectEntity, RoleEntity, PeerReviewEntity],
       migrations: [
         UserMigration1564324478234,
         ProjectMigration1564574530189,

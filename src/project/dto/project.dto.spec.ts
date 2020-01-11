@@ -1,9 +1,7 @@
-import { Test } from '@nestjs/testing';
 import { UserEntity } from 'user';
 import { ProjectEntity } from 'project';
 import { ProjectDto } from 'project/dto/project.dto';
 import { EntityFaker } from 'test';
-import { TestModule } from 'test/test.module';
 
 describe('project dto', () => {
   let entityFaker: EntityFaker;
@@ -12,11 +10,7 @@ describe('project dto', () => {
   let project: ProjectEntity;
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      imports: [TestModule],
-    }).compile();
-
-    entityFaker = module.get(EntityFaker);
+    entityFaker = new EntityFaker();
     owner = entityFaker.user();
     user = entityFaker.user();
     project = entityFaker.project(owner.id);

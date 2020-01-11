@@ -42,7 +42,7 @@ import {
 } from 'project/events';
 import { ProjectEntity } from 'project';
 import { FinalPeerReviewSubmittedEvent } from 'project/events/final-peer-review-submitted.event';
-import { RandomService, InvariantViolationException } from 'common';
+import { InvariantViolationException } from 'common';
 import { EventBus, EVENT_BUS } from 'event';
 
 export interface CreateProjectOptions {
@@ -63,7 +63,6 @@ export class ProjectDomainService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly peerReviewRepository: PeerReviewRepository;
-  private readonly randomService: RandomService;
   private readonly contributionsModelService: ContributionsModelService;
   private readonly consensualityModelService: ConsensualityModelService;
 
@@ -72,7 +71,6 @@ export class ProjectDomainService {
     @Inject(PROJECT_REPOSITORY) projectRepository: ProjectRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
-    randomService: RandomService,
     contributionsModelService: ContributionsModelService,
     consensualityModelService: ConsensualityModelService,
   ) {
@@ -80,7 +78,6 @@ export class ProjectDomainService {
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.peerReviewRepository = peerReviewRepository;
-    this.randomService = randomService;
     this.contributionsModelService = contributionsModelService;
     this.consensualityModelService = consensualityModelService;
   }
@@ -92,8 +89,9 @@ export class ProjectDomainService {
     projectOptions: CreateProjectOptions,
     owner: UserEntity,
   ): Promise<ProjectEntity> {
-    const project = this.projectRepository.createEntity({
-      id: this.randomService.id(),
+    const projectId = this.projectRepository.createId();
+    const project = ProjectEntity.fromProject({
+      id: projectId,
       ownerId: owner.id,
       title: projectOptions.title,
       description: projectOptions.description,
@@ -104,7 +102,7 @@ export class ProjectDomainService {
       skipManagerReview:
         projectOptions.skipManagerReview || SkipManagerReview.NO,
     });
-    await project.persist();
+    await this.projectRepository.persist(project);
     await this.eventBus.publish(
       new ProjectCreatedEvent(project, owner),
       new ProjectFormationStartedEvent(project),
@@ -123,7 +121,7 @@ export class ProjectDomainService {
       throw new ProjectNotFormationStateException();
     }
     Object.assign(project, updateOptions);
-    await project.persist();
+    await this.projectRepository.persist(project);
     await this.eventBus.publish(new ProjectUpdatedEvent(project));
     return project;
   }
@@ -151,7 +149,7 @@ export class ProjectDomainService {
       throw new RoleNoUserAssignedException();
     }
     project.state = ProjectState.PEER_REVIEW;
-    await project.persist();
+    await this.projectRepository.persist(project);
     await this.eventBus.publish(
       new ProjectFormationFinishedEvent(project),
       new ProjectPeerReviewStartedEvent(project),
@@ -181,9 +179,10 @@ export class ProjectDomainService {
     senderRole.hasSubmittedPeerReviews = true;
     const peerReviews: PeerReviewEntity[] = [];
     for (const [receiverRoleId, score] of peerReviewMap.entries()) {
+      const peerReviewId = this.peerReviewRepository.createId();
       peerReviews.push(
-        this.peerReviewRepository.createEntity({
-          id: this.randomService.id(),
+        PeerReviewEntity.fromPeerReview({
+          id: peerReviewId,
           senderRoleId: senderRole.id,
           receiverRoleId,
           score,
@@ -191,7 +190,9 @@ export class ProjectDomainService {
       );
     }
     await Promise.all(
-      peerReviews.map(async peerReview => peerReview.persist()),
+      peerReviews.map(async peerReview =>
+        this.peerReviewRepository.persist(peerReview),
+      ),
     );
     await this.eventBus.publish(
       new PeerReviewsSubmittedEvent(project, senderRole, peerReviews),
@@ -253,6 +254,7 @@ export class ProjectDomainService {
     for (const role of roles) {
       role.contribution = contributions[role.id];
     }
+    await this.roleRepository.persist(...roles);
     const consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );
@@ -260,7 +262,7 @@ export class ProjectDomainService {
 
     if (this.shouldSkipManagerReview(project, consensuality)) {
       project.state = ProjectState.FINISHED;
-      await project.persist();
+      await this.projectRepository.persist(project);
       await this.eventBus.publish(
         new ProjectPeerReviewFinishedEvent(project, roles),
         new ProjectManagerReviewSkippedEvent(project),
@@ -268,7 +270,7 @@ export class ProjectDomainService {
       );
     } else {
       project.state = ProjectState.MANAGER_REVIEW;
-      await project.persist();
+      await this.projectRepository.persist(project);
       await this.eventBus.publish(
         new ProjectPeerReviewFinishedEvent(project, roles),
         new ProjectManagerReviewStartedEvent(project),
@@ -307,7 +309,7 @@ export class ProjectDomainService {
       throw new ProjectNotManagerReviewStateException();
     }
     project.state = ProjectState.FINISHED;
-    await project.persist();
+    await this.projectRepository.persist(project);
     await this.eventBus.publish(
       new ProjectManagerReviewFinishedEvent(project),
       new ProjectFinishedEvent(project),

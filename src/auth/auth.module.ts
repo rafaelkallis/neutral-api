@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CommonModule } from 'common/common.module';
 import { UserModule } from 'user/user.module';
 import { AuthController } from 'auth/auth.controller';
 import { AuthService } from 'auth/services/auth.service';
@@ -11,7 +10,7 @@ import { TokenModule } from 'token';
  * Auth Module
  */
 @Module({
-  imports: [ConfigModule, EmailModule, CommonModule, TokenModule, UserModule],
+  imports: [ConfigModule, EmailModule, TokenModule, UserModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

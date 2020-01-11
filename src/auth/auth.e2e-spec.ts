@@ -4,9 +4,8 @@ import request from 'supertest';
 import { AppModule } from 'app.module';
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { TestModule } from 'test/test.module';
 import { EmailSender, EMAIL_SENDER } from 'email';
-import { MockTokenService, TokenService } from 'token';
+import { TokenService, TOKEN_SERVICE } from 'token';
 
 describe('AuthController (e2e)', () => {
   let entityFaker: EntityFaker;
@@ -18,20 +17,19 @@ describe('AuthController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    tokenService = new MockTokenService();
+    entityFaker = new EntityFaker();
+    primitiveFaker = new PrimitiveFaker();
     const module = await Test.createTestingModule({
-      imports: [AppModule, TestModule],
+      imports: [AppModule],
     }).compile();
-
-    entityFaker = module.get(EntityFaker);
-    primitiveFaker = module.get(PrimitiveFaker);
     userRepository = module.get(USER_REPOSITORY);
-    user = entityFaker.user();
-    await user.persist();
     emailService = module.get(EMAIL_SENDER);
-
+    tokenService = module.get(TOKEN_SERVICE);
     const app = module.createNestApplication();
     await app.init();
+
+    user = entityFaker.user();
+    await userRepository.persist(user);
 
     session = request.agent(app.getHttpServer());
   });

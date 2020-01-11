@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import * as faker from 'faker';
 import ObjectId from 'bson-objectid';
 
-@Injectable()
 export class PrimitiveFaker {
   /**
    * Creates a fake id

@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserEntity } from 'user';
+import { UserEntity, USER_REPOSITORY, UserRepository } from 'user';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
   ProjectRepository,
@@ -10,15 +10,14 @@ import {
 } from 'project/repositories/project.repository';
 import { RoleRepository, ROLE_REPOSITORY, RoleEntity } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
-import { TestModule } from 'test/test.module';
 import { ProjectDto } from './dto/project.dto';
 import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
 
 describe('ProjectController (e2e)', () => {
-  let testUtils: TestUtils;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
+  let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let tokenService: TokenService;
@@ -26,18 +25,18 @@ describe('ProjectController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
+    entityFaker = new EntityFaker();
+    primitiveFaker = new PrimitiveFaker();
     const module = await Test.createTestingModule({
-      imports: [AppModule, TestModule],
+      imports: [AppModule],
     }).compile();
-    testUtils = module.get(TestUtils);
-    entityFaker = module.get(EntityFaker);
-    primitiveFaker = module.get(PrimitiveFaker);
+    userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
     roleRepository = module.get(ROLE_REPOSITORY);
-    user = entityFaker.user();
-    await user.persist();
     const app = module.createNestApplication();
     await app.init();
+    user = entityFaker.user();
+    await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
@@ -51,9 +50,7 @@ describe('ProjectController (e2e)', () => {
         entityFaker.project(user.id),
         entityFaker.project(user.id),
       ];
-      for (const project of projects) {
-        await project.persist();
-      }
+      await projectRepository.persist(...projects);
       const response = await session
         .get('/projects')
         .query({ after: projects[0].id });
@@ -75,7 +72,7 @@ describe('ProjectController (e2e)', () => {
     beforeEach(async () => {
       project = entityFaker.project(user.id);
       project.consensuality = 0.8;
-      await project.persist();
+      await projectRepository.persist(project);
     });
 
     test('happy path', async () => {
@@ -106,7 +103,7 @@ describe('ProjectController (e2e)', () => {
           description,
         }),
       );
-      await testUtils.sleep(500);
+      await TestUtils.sleep(500);
       await projectRepository.findOne(response.body.id);
     });
   });
@@ -117,7 +114,7 @@ describe('ProjectController (e2e)', () => {
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
-      await project.persist();
+      await projectRepository.persist(project);
       title = primitiveFaker.words();
     });
 
@@ -127,16 +124,16 @@ describe('ProjectController (e2e)', () => {
         .send({ title });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ title }));
-      await testUtils.sleep(500);
+      await TestUtils.sleep(500);
       const updatedProject = await projectRepository.findOne(project.id);
       expect(updatedProject.title).toEqual(title);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
-      await otherUser.persist();
+      await userRepository.persist(otherUser);
       project.ownerId = otherUser.id;
-      await project.persist();
+      await projectRepository.persist(project);
       const response = await session
         .patch(`/projects/${project.id}`)
         .send({ title });
@@ -145,7 +142,7 @@ describe('ProjectController (e2e)', () => {
 
     test('should fail if not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await project.persist();
+      await projectRepository.persist(project);
       const response = await session
         .patch(`/projects/${project.id}`)
         .send({ title });
@@ -160,16 +157,14 @@ describe('ProjectController (e2e)', () => {
     beforeEach(async () => {
       project = entityFaker.project(user.id);
       project.state = ProjectState.FORMATION;
-      await project.persist();
+      await projectRepository.persist(project);
       roles = [
         entityFaker.role(project.id, user.id),
         entityFaker.role(project.id, user.id),
         entityFaker.role(project.id, user.id),
         entityFaker.role(project.id, user.id),
       ];
-      for (const role of roles) {
-        await role.persist();
-      }
+      await roleRepository.persist(...roles);
     });
 
     test('happy path', async () => {
@@ -178,16 +173,16 @@ describe('ProjectController (e2e)', () => {
       );
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      await testUtils.sleep(500);
+      await TestUtils.sleep(500);
       const updatedProject = await projectRepository.findOne(project.id);
       expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
-      await otherUser.persist();
+      await userRepository.persist(otherUser);
       project.ownerId = otherUser.id;
-      await project.persist();
+      await projectRepository.persist(project);
       const response = await session.post(
         `/projects/${project.id}/finish-formation`,
       );
@@ -196,7 +191,7 @@ describe('ProjectController (e2e)', () => {
 
     test('should fail if project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await project.persist();
+      await projectRepository.persist(project);
       const response = await session.post(
         `/projects/${project.id}/finish-formation`,
       );
@@ -205,7 +200,7 @@ describe('ProjectController (e2e)', () => {
 
     test('should fail if a role has no user assigned', async () => {
       roles[1].assigneeId = null;
-      await roles[1].persist();
+      await roleRepository.persist(roles[1]);
       const response = await session.post(
         `/projects/${project.id}/finish-formation`,
       );
@@ -218,14 +213,14 @@ describe('ProjectController (e2e)', () => {
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
-      await project.persist();
+      await projectRepository.persist(project);
     });
 
     test('happy path', async () => {
       const response = await session.delete(`/projects/${project.id}`);
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await testUtils.sleep(500);
+      await TestUtils.sleep(500);
       await expect(projectRepository.exists(project.id)).resolves.toBeFalsy();
     });
   });

@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'common';
 import { UserEntity } from 'user';
-import { ProjectApplicationService } from './services/project.service';
+import { ProjectApplicationService } from './services/project-application.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { GetProjectsQueryDto } from './dto/get-projects-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -36,10 +36,10 @@ import { AuthGuard, AuthUser } from 'auth';
 @UsePipes(ValidationPipe)
 @ApiTags('Projects')
 export class ProjectController {
-  private readonly projectService: ProjectApplicationService;
+  private readonly projectApplicationService: ProjectApplicationService;
 
-  public constructor(projectService: ProjectApplicationService) {
-    this.projectService = projectService;
+  public constructor(projectApplicationService: ProjectApplicationService) {
+    this.projectApplicationService = projectApplicationService;
   }
 
   /**
@@ -53,7 +53,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Query() query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    return this.projectService.getProjects(authUser, query);
+    return this.projectApplicationService.getProjects(authUser, query);
   }
 
   /**
@@ -69,7 +69,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
-    return this.projectService.getProject(authUser, id);
+    return this.projectApplicationService.getProject(authUser, id);
   }
 
   /**
@@ -81,7 +81,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Body() dto: CreateProjectDto,
   ): Promise<ProjectDto> {
-    return this.projectService.createProject(authUser, dto);
+    return this.projectApplicationService.createProject(authUser, dto);
   }
 
   /**
@@ -101,7 +101,7 @@ export class ProjectController {
     @Param('id') id: string,
     @Body() dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    return this.projectService.updateProject(authUser, id, dto);
+    return this.projectApplicationService.updateProject(authUser, id, dto);
   }
 
   /**
@@ -127,7 +127,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
-    return this.projectService.finishFormation(authUser, id);
+    return this.projectApplicationService.finishFormation(authUser, id);
   }
 
   /**
@@ -147,7 +147,7 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.projectService.deleteProject(authUser, id);
+    return this.projectApplicationService.deleteProject(authUser, id);
   }
 
   /**
@@ -168,7 +168,7 @@ export class ProjectController {
     @Param('id') id: string,
     @Body() dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
-    return this.projectService.submitPeerReviews(authUser, id, dto);
+    return this.projectApplicationService.submitPeerReviews(authUser, id, dto);
   }
 
   /**
@@ -191,6 +191,6 @@ export class ProjectController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
-    return this.projectService.submitManagerReview(authUser, id);
+    return this.projectApplicationService.submitManagerReview(authUser, id);
   }
 }

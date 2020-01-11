@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotImplementedException } from '@nestjs/common';
+import { Injectable, Inject, HttpService } from '@nestjs/common';
 import { Config, CONFIG } from 'config';
 import { EmailSender } from 'email/email-sender';
 import sendgrid from '@sendgrid/mail';
@@ -8,8 +8,15 @@ import sendgrid from '@sendgrid/mail';
  */
 @Injectable()
 export class SendgridEmailSender implements EmailSender {
-  public constructor(@Inject(CONFIG) config: Config) {
+  private readonly httpService: HttpService;
+  private readonly sendgridApiKey: string;
+  private readonly sendgridUrl: string;
+
+  public constructor(@Inject(CONFIG) config: Config, httpService: HttpService) {
     sendgrid.setApiKey(config.get('SENDGRID_API_KEY'));
+    this.httpService = httpService;
+    this.sendgridApiKey = config.get('SENDGRID_API_KEY');
+    this.sendgridUrl = config.get('SENDGRID_URL');
   }
 
   /**
@@ -19,12 +26,9 @@ export class SendgridEmailSender implements EmailSender {
     to: string,
     loginMagicLink: string,
   ): Promise<void> {
-    await sendgrid.send({
-      from: { email: 'no-reply@covee.network' },
-      to: { email: to },
-      templateId: 'd-3781fe6ff75544bea7a191c029587816',
-      dynamicTemplateData: { loginMagicLink },
-    });
+    const templateId = 'd-3781fe6ff75544bea7a191c029587816';
+    const dynamicTemplateData = { loginMagicLink };
+    await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
   /**
@@ -34,12 +38,15 @@ export class SendgridEmailSender implements EmailSender {
     to: string,
     signupMagicLink: string,
   ): Promise<void> {
-    await sendgrid.send({
-      from: { email: 'no-reply@covee.network' },
-      to: { email: to },
-      templateId: 'd-a578d5b2804847e795e93aea4d40a603',
-      dynamicTemplateData: { signupMagicLink },
-    });
+    const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
+    const dynamicTemplateData = { signupMagicLink };
+    // await sendgrid.send({
+    //   from: { email: 'no-reply@covee.network' },
+    //   to: { email: to },
+    //   templateId,
+    //   dynamicTemplateData,
+    // });
+    await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
   /**
@@ -49,19 +56,24 @@ export class SendgridEmailSender implements EmailSender {
     to: string,
     emailChangeMagicLink: string,
   ): Promise<void> {
-    await sendgrid.send({
-      from: { email: 'no-reply@covee.network' },
-      to: { email: to },
-      templateId: 'd-a578d5b2804847e795e93aea4d40a603',
-      dynamicTemplateData: { emailChangeMagicLink },
-    });
+    const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
+    const dynamicTemplateData = { emailChangeMagicLink };
+    // await sendgrid.send({
+    //   from: { email: 'no-reply@covee.network' },
+    //   to: { email: to },
+    //   templateId,
+    //   dynamicTemplateData,
+    // });
+    await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
   /**
    * Sends an email to a user that was assigned to a role.
    */
   public async sendNewAssignmentEmail(to: string): Promise<void> {
-    throw new NotImplementedException();
+    const templateId = '';
+    const dynamicTemplateData = {};
+    await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
   /**
@@ -70,6 +82,35 @@ export class SendgridEmailSender implements EmailSender {
   public async sendUnregisteredUserNewAssignmentEmail(
     to: string,
   ): Promise<void> {
-    throw new NotImplementedException();
+    const templateId = '';
+    const dynamicTemplateData = {};
+    await this.sendEmail(to, templateId, dynamicTemplateData);
+  }
+
+  /**
+   *
+   */
+  private async sendEmail(
+    to: string,
+    templateId: string,
+    dynamicTemplateData: Record<string, string>,
+  ): Promise<void> {
+    const url = this.sendgridUrl + '/v3/mail/send';
+    const body = {
+      personalizations: [
+        {
+          to: { email: to },
+          dynamic_template_data: dynamicTemplateData,
+        },
+      ],
+      from: { email: 'no-reply@covee.network' },
+      template_id: templateId,
+    };
+    const config = {
+      headers: {
+        Authorization: `Bearer ${this.sendgridApiKey}`,
+      },
+    };
+    await this.httpService.post(url, body, config).toPromise();
   }
 }

@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { PrimitiveFaker } from 'test/fakers/primitive-faker';
 import {
   Project,
@@ -9,11 +8,10 @@ import {
 import { User } from 'user';
 import { Role, PeerReview } from 'role';
 
-@Injectable()
 export class ObjectFaker {
   private readonly primitiveFaker: PrimitiveFaker;
 
-  public constructor(primitiveFaker: PrimitiveFaker) {
+  public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.primitiveFaker = primitiveFaker;
   }
 

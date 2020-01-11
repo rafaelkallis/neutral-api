@@ -1,46 +1,26 @@
 import { TypeOrmRepository, EntityNotFoundException } from 'common';
 import { UserRepository } from 'user/repositories/user.repository';
-import { User } from 'user/user';
 import { Injectable, Inject } from '@nestjs/common';
-import { TypeOrmUserEntity } from 'user/entities/typeorm-user.entity';
+import { UserEntity } from 'user/entities/user.entity';
 import { Database, DATABASE } from 'database';
 
 /**
  * TypeOrm User Repository
  */
 @Injectable()
-export class TypeOrmUserRepository
-  extends TypeOrmRepository<User, TypeOrmUserEntity>
+export class TypeOrmUserRepository extends TypeOrmRepository<UserEntity>
   implements UserRepository {
   /**
    *
    */
   public constructor(@Inject(DATABASE) database: Database) {
-    super(database, TypeOrmUserEntity);
+    super(database, UserEntity);
   }
 
   /**
    *
    */
-  public createEntity(user: User): TypeOrmUserEntity {
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    return new TypeOrmUserEntity(
-      this,
-      user.id,
-      createdAt,
-      updatedAt,
-      user.email,
-      user.firstName,
-      user.lastName,
-      user.lastLoginAt,
-    );
-  }
-
-  /**
-   *
-   */
-  public async findByName(fullName: string): Promise<TypeOrmUserEntity[]> {
+  public async findByName(fullName: string): Promise<UserEntity[]> {
     return this.getInternalRepository()
       .createQueryBuilder('user')
       .where('full_name ILIKE :fullName', { fullName: `%${fullName}%` })
@@ -52,7 +32,7 @@ export class TypeOrmUserRepository
   /**
    *
    */
-  public async findByEmail(email: string): Promise<TypeOrmUserEntity> {
+  public async findByEmail(email: string): Promise<UserEntity> {
     const user = await this.getInternalRepository().findOne({ email });
     if (!user) {
       throw new EntityNotFoundException();

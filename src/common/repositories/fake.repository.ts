@@ -1,30 +1,26 @@
 import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 import { Repository } from 'common/repositories/repository.interface';
-import { MockEntity } from 'common/entities/mock.entity';
+import { AbstractEntity } from 'common/entities/abstract.entity';
 
 /**
- * Mock Repository
+ * Fake Repository
  */
-export abstract class MockRepository<T, TEntity extends MockEntity<T>>
-  implements Repository<T, TEntity> {
+export abstract class FakeRepository<TEntity extends AbstractEntity>
+  implements Repository<TEntity> {
   protected readonly entities: Map<string, TEntity>;
+
+  private idSequence: number;
 
   public constructor() {
     this.entities = new Map();
+    this.idSequence = 0;
   }
 
   /**
    *
    */
-  public abstract createEntity(object: T): TEntity;
-
-  /**
-   *
-   */
-  public async createAndPersistEntity(object: T): Promise<TEntity> {
-    const entity = this.createEntity(object);
-    await entity.persist();
-    return entity;
+  public createId(): string {
+    return String(this.idSequence++);
   }
 
   /**

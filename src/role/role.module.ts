@@ -9,7 +9,6 @@ import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
 import { PEER_REVIEW_REPOSITORY } from 'role/repositories/peer-review.repository';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
-import { CommonModule } from 'common/common.module';
 import { ConfigModule } from 'config';
 import { TokenModule } from 'token';
 
@@ -19,7 +18,6 @@ import { TokenModule } from 'token';
 @Module({
   imports: [
     ConfigModule,
-    CommonModule,
     TokenModule,
     DatabaseModule,
     EmailModule,

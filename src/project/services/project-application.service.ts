@@ -14,7 +14,7 @@ import { GetProjectsQueryDto } from 'project/dto/get-projects-query.dto';
 import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { ProjectDto } from 'project/dto/project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
-import { ProjectDomainService } from 'project/services/project.domain-service';
+import { ProjectDomainService } from 'project/services/project-domain.service';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -67,10 +67,10 @@ export class ProjectApplicationService {
    */
   public async createProject(
     authUser: UserEntity,
-    dto: CreateProjectDto,
+    createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectDomainService.createProject(
-      dto,
+      createProjectDto,
       authUser,
     );
     return ProjectDto.builder()
@@ -85,13 +85,13 @@ export class ProjectApplicationService {
   public async updateProject(
     authUser: UserEntity,
     id: string,
-    dto: UpdateProjectDto,
+    updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOne(id);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    await this.projectDomainService.updateProject(project, dto);
+    await this.projectDomainService.updateProject(project, updateProjectDto);
     return ProjectDto.builder()
       .project(project)
       .authUser(authUser)
@@ -136,9 +136,6 @@ export class ProjectApplicationService {
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findOne(projectId);
-    if (!project.isPeerReviewState()) {
-      throw new ProjectNotPeerReviewStateException();
-    }
     const roles = await this.roleRepository.findByProjectId(project.id);
     const authRole = roles.find(role => role.isAssignee(authUser));
     if (!authRole) {

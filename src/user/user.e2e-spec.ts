@@ -7,11 +7,8 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from './repositories/user.repository';
-import { EntityFaker } from 'test';
-import { TestModule } from 'test/test.module';
+import { EntityFaker, TestUtils } from 'test';
 import { UserDto } from './dto/user.dto';
-import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
-import { MockUserEntity } from 'user/entities/mock-user.entity';
 import { TOKEN_SERVICE } from 'token';
 
 describe('UserController (e2e)', () => {
@@ -21,20 +18,17 @@ describe('UserController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
+    entityFaker = new EntityFaker();
     const module = await Test.createTestingModule({
-      imports: [AppModule, TestModule],
-    })
-      .overrideProvider(USER_REPOSITORY)
-      .useClass(MockUserEntity)
-      .compile();
-
-    entityFaker = module.get(EntityFaker);
-    userRepository = module.get(TypeOrmUserRepository);
-    user = entityFaker.user();
-    await user.persist();
+      imports: [AppModule],
+    }).compile();
 
     const app = module.createNestApplication();
     await app.init();
+
+    userRepository = module.get(USER_REPOSITORY);
+    user = entityFaker.user();
+    await userRepository.persist(user);
 
     session = request.agent(app.getHttpServer());
     const tokenService = module.get(TOKEN_SERVICE);
@@ -61,15 +55,13 @@ describe('UserController (e2e)', () => {
       const user1 = entityFaker.user();
       user1.firstName = 'Anna';
       user1.lastName = 'Smith';
-      await user1.persist();
       const user2 = entityFaker.user();
       user2.firstName = 'Hannah';
       user2.lastName = 'Fitzgerald';
-      await user2.persist();
       const user3 = entityFaker.user();
       user3.firstName = 'Nanna';
       user3.lastName = 'Thompson';
-      await user3.persist();
+      await userRepository.persist(user1, user2, user3);
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();

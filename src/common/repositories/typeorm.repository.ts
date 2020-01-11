@@ -5,15 +5,16 @@ import {
 } from 'typeorm';
 import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 import { Repository } from 'common/repositories/repository.interface';
-import { TypeOrmEntity } from 'common/entities/typeorm.entity';
+import { AbstractEntity } from 'common/entities/abstract.entity';
 import { Database } from 'database';
 import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
+import ObjectID from 'bson-objectid';
 
 /**
  * TypeOrm Repository
  */
-export abstract class TypeOrmRepository<T, TEntity extends TypeOrmEntity<T>>
-  implements Repository<T, TEntity> {
+export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
+  implements Repository<TEntity> {
   private readonly entityManager: EntityManager;
   private readonly entityClass: ObjectType<TEntity>;
 
@@ -25,15 +26,15 @@ export abstract class TypeOrmRepository<T, TEntity extends TypeOrmEntity<T>>
   /**
    *
    */
-  public abstract createEntity(object: T): TEntity;
+  public createId(): string {
+    return new ObjectID().toHexString();
+  }
 
   /**
    *
    */
-  public async createAndPersistEntity(object: T): Promise<TEntity> {
-    const entity = this.createEntity(object);
-    await entity.persist();
-    return entity;
+  public async persist(...entities: TEntity[]): Promise<void> {
+    await this.entityManager.save(entities);
   }
 
   /**
@@ -71,15 +72,6 @@ export abstract class TypeOrmRepository<T, TEntity extends TypeOrmEntity<T>>
       .getRepository(this.entityClass)
       .findOne(id);
     return Boolean(entity);
-  }
-
-  /**
-   *
-   */
-  public async persist(...entities: TEntity[]): Promise<void> {
-    await this.entityManager
-      .getRepository(this.entityClass)
-      .save(entities as any[]);
   }
 
   /**

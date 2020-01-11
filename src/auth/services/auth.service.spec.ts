@@ -1,54 +1,40 @@
-import { Test } from '@nestjs/testing';
-
-import {
-  UserEntity,
-  UserRepository,
-  USER_REPOSITORY,
-  MockUserRepository,
-} from 'user';
+import { UserEntity, UserRepository, FakeUserRepository } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { TestModule } from 'test/test.module';
 
 import { AuthService } from 'auth/services/auth.service';
 import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
 import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
-import { EMAIL_SENDER, MockEmailSender } from 'email';
+import { MockEmailSender } from 'email';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
-import { AuthModule } from 'auth/auth.module';
-import { CONFIG, MockConfig } from 'config';
-import { MockTokenService, TOKEN_SERVICE } from 'token';
+import { MockConfig } from 'config';
+import { MockTokenService } from 'token';
 
 describe('auth service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
+  let config: MockConfig;
   let userRepository: UserRepository;
-  let mockEmailSender: MockEmailSender;
+  let emailSender: MockEmailSender;
   let tokenService: MockTokenService;
 
-  beforeEach(async () => {
-    mockEmailSender = new MockEmailSender();
-    userRepository = new MockUserRepository();
+  beforeEach(() => {
+    entityFaker = new EntityFaker();
+    primitiveFaker = new PrimitiveFaker();
+    config = new MockConfig();
+    emailSender = new MockEmailSender();
+    userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();
-    const module = await Test.createTestingModule({
-      imports: [AuthModule, TestModule],
-    })
-      .overrideProvider(CONFIG)
-      .useClass(MockConfig)
-      .overrideProvider(USER_REPOSITORY)
-      .useValue(userRepository)
-      .overrideProvider(TOKEN_SERVICE)
-      .useValue(tokenService)
-      .overrideProvider(EMAIL_SENDER)
-      .useValue(mockEmailSender)
-      .compile();
 
-    entityFaker = module.get(EntityFaker);
-    primitiveFaker = module.get(PrimitiveFaker);
-    authService = module.get(AuthService);
+    authService = new AuthService(
+      config,
+      userRepository,
+      tokenService,
+      emailSender,
+    );
   });
 
   it('should be defined', () => {
@@ -56,17 +42,26 @@ describe('auth service', () => {
   });
 
   describe('request magic login', () => {
-    beforeEach(() => {
+    let user: UserEntity;
+
+    beforeEach(async () => {
+      user = entityFaker.user();
+      await userRepository.persist(user);
+      config.set('FRONTEND_URL', 'https://example.com');
       jest
         .spyOn(userRepository, 'findOne')
         .mockResolvedValue(entityFaker.user());
-      jest.spyOn(mockEmailSender, 'sendLoginEmail').mockResolvedValue();
+      jest.spyOn(emailSender, 'sendLoginEmail');
     });
 
     test('happy path', async () => {
-      const email = primitiveFaker.email();
-      const dto = RequestLoginDto.from({ email });
-      await expect(authService.requestLogin(dto)).resolves.not.toThrow();
+      const email = user.email;
+      const requestLoginDto = RequestLoginDto.from({ email });
+      await authService.requestLogin(requestLoginDto);
+      expect(emailSender.sendLoginEmail).toHaveBeenCalledWith(
+        email,
+        expect.any(String),
+      );
     });
   });
 
@@ -75,13 +70,14 @@ describe('auth service', () => {
     let loginToken: string;
     let session: SessionState;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       user = entityFaker.user();
+      await userRepository.persist(user);
       loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
       session = new MockSessionState();
       jest.spyOn(session, 'set');
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-      jest.spyOn(userRepository, 'persist').mockResolvedValue();
+      jest.spyOn(userRepository, 'findOne');
+      jest.spyOn(userRepository, 'persist');
     });
 
     test('happy path', async () => {
@@ -97,41 +93,64 @@ describe('auth service', () => {
 
   describe('request magic signup', () => {
     beforeEach(() => {
-      jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
-      jest.spyOn(mockEmailSender, 'sendSignupEmail').mockResolvedValue();
+      jest.spyOn(userRepository, 'exists');
+      jest.spyOn(emailSender, 'sendSignupEmail');
     });
 
     test('happy path', async () => {
       const email = primitiveFaker.email();
       const dto = RequestSignupDto.from({ email });
-      await expect(authService.requestSignup(dto)).resolves.not.toThrow();
+      await authService.requestSignup(dto);
+      expect(emailSender.sendSignupEmail).toHaveBeenCalledWith(
+        email,
+        expect.any(String),
+      );
     });
   });
 
   describe('submit magic signup', () => {
-    let user: UserEntity;
+    let email: string;
+    let firstName: string;
+    let lastName: string;
     let signupToken: string;
+    let submitSignupDto: SubmitSignupDto;
     let session: SessionState;
 
-    beforeEach(() => {
-      user = entityFaker.user();
-      signupToken = tokenService.newSignupToken(user.email);
+    beforeEach(async () => {
+      email = primitiveFaker.email();
+      firstName = primitiveFaker.word();
+      lastName = primitiveFaker.word();
+      signupToken = tokenService.newSignupToken(email);
+      submitSignupDto = SubmitSignupDto.from({ firstName, lastName });
       session = new MockSessionState();
       jest.spyOn(session, 'set');
-      jest.spyOn(userRepository, 'exists').mockResolvedValue(false);
-      jest.spyOn(userRepository, 'persist').mockResolvedValue();
+      jest.spyOn(userRepository, 'persist');
     });
 
     test('happy path', async () => {
-      const { firstName, lastName } = user;
-      const dto = SubmitSignupDto.from({ firstName, lastName });
       await expect(
-        authService.submitSignup(signupToken, dto, session),
+        authService.submitSignup(signupToken, submitSignupDto, session),
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
       });
       expect(session.set).toHaveBeenCalled();
+      expect(userRepository.persist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          firstName,
+          lastName,
+        }),
+      );
+    });
+
+    test('email already used', async () => {
+      const user = entityFaker.user();
+      user.email = email;
+      await userRepository.persist(user);
+      await expect(
+        authService.submitSignup(signupToken, submitSignupDto, session),
+      ).rejects.toThrow();
     });
   });
 

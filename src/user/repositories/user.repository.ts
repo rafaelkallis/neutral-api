@@ -1,13 +1,12 @@
 import { UserEntity } from 'user/entities/user.entity';
 import { Repository } from 'common';
-import { User } from 'user/user';
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
 /**
  * User Repository
  */
-export interface UserRepository extends Repository<User, UserEntity> {
+export interface UserRepository extends Repository<UserEntity> {
   /**
    * Full text search on user's first name and last name.
    */

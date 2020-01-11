@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { TestModule } from 'test/test.module';
 import { ProjectEntity } from 'project/entities/project.entity';
 import {
   ProjectRepository,
@@ -18,13 +17,14 @@ import {
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectState } from 'project/project';
 import { TOKEN_SERVICE, TokenService } from 'token';
+import { UserRepository, USER_REPOSITORY } from 'user';
 
 jest.setTimeout(10000);
 
 describe('submit peer review (e2e)', () => {
-  let testUtils: TestUtils;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
+  let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
@@ -38,19 +38,22 @@ describe('submit peer review (e2e)', () => {
   let peerReviews: Record<string, Record<string, number>>;
 
   beforeEach(async () => {
+    primitiveFaker = new PrimitiveFaker();
+    entityFaker = new EntityFaker();
+
     const module = await Test.createTestingModule({
-      imports: [AppModule, TestModule],
+      imports: [AppModule],
     }).compile();
-    testUtils = module.get(TestUtils);
-    entityFaker = module.get(EntityFaker);
-    primitiveFaker = module.get(PrimitiveFaker);
+    userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
     roleRepository = module.get(ROLE_REPOSITORY);
     peerReviewRepository = module.get(PEER_REVIEW_REPOSITORY);
-    const user = entityFaker.user();
-    await user.persist();
+
     const app = module.createNestApplication();
     await app.init();
+
+    const user = entityFaker.user();
+    await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
     const tokenService = module.get<TokenService>(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
@@ -59,7 +62,7 @@ describe('submit peer review (e2e)', () => {
     /* prepare project */
     project = entityFaker.project(user.id);
     project.state = ProjectState.PEER_REVIEW;
-    await project.persist();
+    await projectRepository.persist(project);
 
     /* prepare roles */
     role1 = entityFaker.role(project.id, user.id);
@@ -72,10 +75,7 @@ describe('submit peer review (e2e)', () => {
     role3.hasSubmittedPeerReviews = true;
     role4.hasSubmittedPeerReviews = true;
 
-    await role1.persist();
-    await role2.persist();
-    await role3.persist();
-    await role4.persist();
+    await roleRepository.persist(role1, role2, role3, role4);
 
     peerReviews = {
       [role1.id]: {
@@ -111,7 +111,7 @@ describe('submit peer review (e2e)', () => {
           receiverRole.id,
         );
         peerReview.score = peerReviews[senderRole.id][receiverRole.id];
-        await peerReview.persist();
+        await peerReviewRepository.persist(peerReview);
       }
     }
   });
@@ -121,7 +121,7 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    await testUtils.sleep(500);
+    await TestUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
       role1.id,
     );
@@ -142,12 +142,12 @@ describe('submit peer review (e2e)', () => {
 
   test('happy path, not final peer review', async () => {
     role4.hasSubmittedPeerReviews = false;
-    await role4.persist();
+    await roleRepository.persist(role4);
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id] });
     expect(response.status).toBe(200);
-    await testUtils.sleep(500);
+    await TestUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
       role1.id,
     );
@@ -167,7 +167,7 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if project is not in peer-review state', async () => {
     project.state = ProjectState.FORMATION;
-    await project.persist();
+    await projectRepository.persist(project);
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
@@ -177,7 +177,7 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if peer-review already submitted', async () => {
     role1.hasSubmittedPeerReviews = true;
-    await role1.persist();
+    await roleRepository.persist(role1);
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)

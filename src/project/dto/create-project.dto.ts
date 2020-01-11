@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
 import { ContributionVisibility, SkipManagerReview } from 'project/project';
-import { CreateProjectOptions } from 'project/services/project.domain-service';
+import { CreateProjectOptions } from 'project/services/project-domain.service';
 
 /**
  * Create project DTO

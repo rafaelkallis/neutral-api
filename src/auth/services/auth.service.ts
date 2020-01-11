@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 
-import { RandomService, TokenAlreadyUsedException } from 'common';
-import { UserRepository, USER_REPOSITORY } from 'user';
+import { TokenAlreadyUsedException } from 'common';
+import { UserRepository, USER_REPOSITORY, UserEntity } from 'user';
 
 import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
@@ -18,19 +18,16 @@ export class AuthService {
   private readonly config: Config;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
-  private readonly randomService: RandomService;
   private readonly emailSender: EmailSender;
 
   public constructor(
     @Inject(CONFIG) config: Config,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
-    randomService: RandomService,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
-    this.randomService = randomService;
     this.emailSender = emailSender;
     this.config = config;
   }
@@ -71,7 +68,7 @@ export class AuthService {
     }
 
     user.lastLoginAt = Date.now();
-    await user.persist();
+    await this.userRepository.persist(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(sessionToken);
@@ -115,14 +112,15 @@ export class AuthService {
       throw new EmailAlreadyUsedException();
     }
 
-    const user = this.userRepository.createEntity({
-      id: this.randomService.id(),
+    const userId = this.userRepository.createId();
+    const user = UserEntity.fromUser({
+      id: userId,
       email: payload.sub,
       firstName: dto.firstName,
       lastName: dto.lastName,
       lastLoginAt: Date.now(),
     });
-    await user.persist();
+    await this.userRepository.persist(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(sessionToken);

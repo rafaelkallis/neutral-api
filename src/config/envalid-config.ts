@@ -22,6 +22,7 @@ export class EnvalidConfig extends Config {
       SECRET_HEX: this.strHex64(),
       DATABASE_URL: envalid.url(),
       SENDGRID_API_KEY: envalid.str(),
+      SENDGRID_URL: envalid.url(),
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num(),
       SIGNUP_TOKEN_LIFETIME_MIN: envalid.num(),
       ACCESS_TOKEN_LIFETIME_MIN: envalid.num(),

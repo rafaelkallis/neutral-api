@@ -28,7 +28,8 @@ async function bootstrap(): Promise<void> {
 
   app.enableShutdownHooks();
 
-  await app.listen(config.get('PORT'));
+  const port = config.get('PORT');
+  await app.listen(port);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

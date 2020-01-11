@@ -4,21 +4,21 @@ import { Event } from 'event/event';
  * Event Subscriber
  */
 export interface EventSubscriber {
-  subscribe(
+  subscribe<TEvent extends Event>(
     event: unknown,
-    subscriber: EventHandler,
+    eventHandler: EventHandler<TEvent>,
   ): Promise<EventSubscription>;
 }
 
 /**
  * Event Handler
  */
-export interface EventHandler {
-  (event: Event): void | Promise<void>;
+export interface EventHandler<TEvent extends Event> {
+  handleEvent(event: TEvent): Promise<void>;
 }
 
 /**
- * Subscription
+ * Event Subscription
  */
 export interface EventSubscription {
   unsubscribe(): Promise<void>;

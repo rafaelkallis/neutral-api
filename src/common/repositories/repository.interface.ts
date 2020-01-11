@@ -1,11 +1,13 @@
+import { AbstractEntity } from 'common/entities/abstract.entity';
+
 /**
  * Repository
  */
-export interface Repository<T, TEntity> {
+export interface Repository<TEntity extends AbstractEntity> {
   /**
    *
    */
-  createEntity(object: T): TEntity;
+  createId(): string;
 
   /**
    *

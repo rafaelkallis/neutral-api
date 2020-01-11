@@ -5,7 +5,6 @@ import { ProjectEntity, ProjectState, ContributionVisibility } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { RoleDtoBuilder } from 'role/dto/role.dto';
 import { EntityFaker } from 'test';
-import { TestModule } from 'test/test.module';
 
 describe('role dto', () => {
   let entityFaker: EntityFaker;
@@ -15,10 +14,7 @@ describe('role dto', () => {
   let project: ProjectEntity;
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      imports: [TestModule],
-    }).compile();
-    entityFaker = module.get(EntityFaker);
+    entityFaker = new EntityFaker();
     users = {
       owner: entityFaker.user(),
       assignee: entityFaker.user(),

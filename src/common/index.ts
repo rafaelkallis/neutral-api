@@ -1,14 +1,10 @@
-export { RandomService } from './services/random.service';
-
-export { Repository } from './repositories/repository.interface';
-export { MockRepository } from './repositories/mock.repository';
-export { TypeOrmRepository } from './repositories/typeorm.repository';
+export { Repository } from 'common/repositories/repository.interface';
+export { FakeRepository } from 'common/repositories/fake.repository';
+export { TypeOrmRepository } from 'common/repositories/typeorm.repository';
 
 export { BaseDto } from './dto/base.dto';
 
-export { Entity } from './entities/entity';
-export { MockEntity } from './entities/mock.entity';
-export { TypeOrmEntity } from './entities/typeorm.entity';
+export { AbstractEntity } from './entities/abstract.entity';
 export { BigIntTransformer } from './entities/bigint-transformer';
 
 export { ValidationPipe } from './pipes/validation.pipe';

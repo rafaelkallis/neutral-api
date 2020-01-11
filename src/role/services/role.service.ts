@@ -1,5 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { RandomService } from 'common';
 import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import {
   ProjectEntity,
@@ -33,7 +32,6 @@ export class RoleService {
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly peerReviewRepository: PeerReviewRepository;
-  private readonly randomService: RandomService;
   private readonly emailSender: EmailSender;
 
   public constructor(
@@ -42,14 +40,12 @@ export class RoleService {
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
-    randomService: RandomService,
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.peerReviewRepository = peerReviewRepository;
     this.emailSender = emailSender;
-    this.randomService = randomService;
   }
 
   /**
@@ -106,8 +102,9 @@ export class RoleService {
     if (dto.assigneeId) {
       await this.userRepository.findOne(dto.assigneeId);
     }
-    const role = this.roleRepository.createEntity({
-      id: this.randomService.id(),
+    const roleId = this.roleRepository.createId();
+    const role = RoleEntity.fromRole({
+      id: roleId,
       projectId: project.id,
       assigneeId: dto.assigneeId || null,
       title: dto.title,
@@ -115,7 +112,7 @@ export class RoleService {
       contribution: null,
       hasSubmittedPeerReviews: false,
     });
-    await role.persist();
+    await this.roleRepository.persist(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDtoBuilder.of(role)
       .withProject(project)
@@ -141,7 +138,7 @@ export class RoleService {
       throw new ProjectNotFormationStateException();
     }
     Object.assign(role, body);
-    await role.persist();
+    await this.roleRepository.persist(role);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDtoBuilder.of(role)
       .withProject(project)
@@ -187,10 +184,10 @@ export class RoleService {
       await this.assignExistingUser(project, role, user, projectRoles);
     }
     if (dto.assigneeEmail) {
-      const doesUserExist = await this.userRepository.existsByEmail(
+      const userExists = await this.userRepository.existsByEmail(
         dto.assigneeEmail,
       );
-      if (doesUserExist) {
+      if (userExists) {
         const user = await this.userRepository.findByEmail(dto.assigneeEmail);
         if (!role.isAssignee(user)) {
           await this.assignExistingUser(project, role, user, projectRoles);
@@ -219,7 +216,7 @@ export class RoleService {
       throw new AlreadyAssignedRoleSameProjectException();
     }
     role.assigneeId = user.id;
-    await role.persist();
+    await this.roleRepository.persist(role);
     await this.emailSender.sendNewAssignmentEmail(user.email);
   }
 
@@ -231,17 +228,18 @@ export class RoleService {
     role: RoleEntity,
     email: string,
   ): Promise<void> {
-    const user = this.userRepository.createEntity({
-      id: this.randomService.id(),
+    const userId = this.userRepository.createId();
+    const user = UserEntity.fromUser({
+      id: userId,
       email,
       firstName: '',
       lastName: '',
       lastLoginAt: 0,
     });
-    await user.persist();
+    await this.userRepository.persist(user);
 
     role.assigneeId = user.id;
-    await role.persist();
+    await this.roleRepository.persist(role);
     await this.emailSender.sendUnregisteredUserNewAssignmentEmail(user.email);
   }
 }

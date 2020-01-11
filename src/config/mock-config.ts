@@ -35,6 +35,7 @@ export class MockConfig extends Config {
       SECRET_HEX: '',
       DATABASE_URL: '',
       SENDGRID_API_KEY: '',
+      SENDGRID_URL: '',
       LOGIN_TOKEN_LIFETIME_MIN: 0,
       SIGNUP_TOKEN_LIFETIME_MIN: 0,
       ACCESS_TOKEN_LIFETIME_MIN: 0,
