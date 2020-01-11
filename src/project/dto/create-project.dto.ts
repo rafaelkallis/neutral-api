@@ -1,21 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
-import {
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/entities/project.entity';
-
-interface CreateProjectDtoOptions {
-  title: string;
-  description: string;
-  contributionVisibility?: ContributionVisibility;
-  skipManagerReview?: SkipManagerReview;
-}
+import { ContributionVisibility, SkipManagerReview } from 'project/project';
+import { CreateProjectOptions } from 'project/services/project-domain.service';
 
 /**
  * Create project DTO
  */
-export class CreateProjectDto {
+export class CreateProjectDto implements CreateProjectOptions {
   @IsString()
   @ApiProperty({
     example: 'Mars Shuttle',
@@ -56,7 +47,7 @@ export class CreateProjectDto {
     description,
     contributionVisibility,
     skipManagerReview,
-  }: CreateProjectDtoOptions): CreateProjectDto {
+  }: CreateProjectOptions): CreateProjectDto {
     const dto = new CreateProjectDto();
     dto.title = title;
     dto.description = description;

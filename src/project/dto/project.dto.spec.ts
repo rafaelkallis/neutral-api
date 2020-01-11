@@ -1,19 +1,25 @@
+import { UserEntity } from 'user';
 import { ProjectEntity } from 'project';
-import { ProjectDtoBuilder } from 'project/dto/project.dto';
-import { entityFaker } from 'test';
+import { ProjectDto } from 'project/dto/project.dto';
+import { EntityFaker } from 'test';
 
 describe('project dto', () => {
-  const owner = entityFaker.user();
-  const user = entityFaker.user();
+  let entityFaker: EntityFaker;
+  let owner: UserEntity;
+  let user: UserEntity;
   let project: ProjectEntity;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    entityFaker = new EntityFaker();
+    owner = entityFaker.user();
+    user = entityFaker.user();
     project = entityFaker.project(owner.id);
   });
 
   test('general', () => {
-    const projectDto = ProjectDtoBuilder.of(project)
-      .withAuthUser(user)
+    const projectDto = ProjectDto.builder()
+      .project(project)
+      .authUser(user)
       .build();
     expect(projectDto).toEqual({
       id: project.id,
@@ -31,16 +37,18 @@ describe('project dto', () => {
 
   test('should expose consensuality if project owner', () => {
     project.consensuality = 1;
-    const projectDto = ProjectDtoBuilder.of(project)
-      .withAuthUser(owner)
+    const projectDto = ProjectDto.builder()
+      .project(project)
+      .authUser(owner)
       .build();
     expect(projectDto.consensuality).toBeTruthy();
   });
 
   test('should not expose consensuality if not project owner', () => {
     project.consensuality = 1;
-    const projectDto = ProjectDtoBuilder.of(project)
-      .withAuthUser(user)
+    const projectDto = ProjectDto.builder()
+      .project(project)
+      .authUser(user)
       .build();
     expect(projectDto.consensuality).toBeFalsy();
   });

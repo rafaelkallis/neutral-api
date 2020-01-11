@@ -1,44 +1,59 @@
-import { IsEmail, IsNumber, IsString, MaxLength } from 'class-validator';
+import { User } from 'user/user';
+import { AbstractEntity, BigIntTransformer } from 'common';
 import { Column, Entity } from 'typeorm';
-import { BaseEntity, BigIntTransformer } from '../../common';
-
-interface UserEntityOptions {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  lastLoginAt: number;
-}
+import { IsEmail, MaxLength, IsString, IsNumber } from 'class-validator';
 
 /**
  * User Entity
  */
 @Entity('users')
-export class UserEntity extends BaseEntity implements UserEntityOptions {
+export class UserEntity extends AbstractEntity implements User {
   @Column()
   @IsEmail()
   @MaxLength(100)
-  public email!: string;
+  public email: string;
 
   @Column({ name: 'first_name' })
   @IsString()
   @MaxLength(100)
-  public firstName!: string;
+  public firstName: string;
 
   @Column({ name: 'last_name' })
   @IsString()
   @MaxLength(100)
-  public lastName!: string;
+  public lastName: string;
 
   @Column({ name: 'last_login_at', transformer: new BigIntTransformer() })
   @IsNumber()
-  public lastLoginAt!: number;
+  public lastLoginAt: number;
 
-  public static from(options: UserEntityOptions): UserEntity {
-    return Object.assign(new UserEntity(), options);
+  public static fromUser(user: User): UserEntity {
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    return new UserEntity(
+      user.id,
+      createdAt,
+      updatedAt,
+      user.email,
+      user.firstName,
+      user.lastName,
+      user.lastLoginAt,
+    );
   }
 
-  public update(options: Partial<UserEntityOptions>): this {
-    return Object.assign(this, options);
+  public constructor(
+    id: string,
+    createdAt: number,
+    updatedAt: number,
+    email: string,
+    firstName: string,
+    lastName: string,
+    lastLoginAt: number,
+  ) {
+    super(id, createdAt, updatedAt);
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.lastLoginAt = lastLoginAt;
   }
 }

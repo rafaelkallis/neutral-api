@@ -1,33 +1,28 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
-import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
-import { CommonModule } from './common/common.module';
-import { ConfigService, SessionMiddleware } from './common';
-import { ProjectModule } from './project/project.module';
-import { RoleModule } from './role/role.module';
-import { UserModule } from './user/user.module';
+import { AppController } from 'app.controller';
+import { AuthModule } from 'auth/auth.module';
+import { ProjectModule } from 'project/project.module';
+import { RoleModule } from 'role/role.module';
+import { UserModule } from 'user/user.module';
+import { ConfigModule } from 'config';
+import { DatabaseModule } from 'database';
+import { EmailModule } from 'email';
+import { LoggerModule } from 'logger';
+import { SessionMiddleware } from 'session';
 
 /**
  * App Module
  */
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
-        type: 'postgres' as 'postgres',
-        url: configService.get('DATABASE_URL'),
-        entities: ['src/**/*.entity.ts'],
-        migrations: ['src/migration/*'],
-        migrationsRun: true,
-        keepConnectionAlive: true,
-      }),
-    }),
+    ConfigModule,
+    LoggerModule,
+    DatabaseModule,
+    EmailModule,
     AuthModule,
     UserModule,
     ProjectModule,

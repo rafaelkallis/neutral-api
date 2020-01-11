@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from '../../common/dto/base.dto';
-import { UserEntity } from '../entities/user.entity';
+import { BaseDto } from 'common/dto/base.dto';
+import { UserEntity } from 'user/entities/user.entity';
 
 /**
  * User DTO
@@ -28,34 +28,40 @@ export class UserDto extends BaseDto {
     this.firstName = firstName;
     this.lastName = lastName;
   }
+
+  public static builder(): UserStep {
+    return new UserStep();
+  }
 }
 
-interface AuthUserStep {
-  withAuthUser(authUser: UserEntity): BuildStep;
+class UserStep {
+  user(user: UserEntity): AuthUserStep {
+    return new AuthUserStep(user);
+  }
 }
 
-interface BuildStep {
-  build(): UserDto;
-}
-
-export class UserDtoBuilder implements AuthUserStep, BuildStep {
+class AuthUserStep {
   private readonly user: UserEntity;
-  private authUser!: UserEntity;
 
-  public static of(user: UserEntity): AuthUserStep {
-    return new UserDtoBuilder(user);
-  }
-
-  public withAuthUser(authUser: UserEntity): BuildStep {
-    this.authUser = authUser;
-    return this;
-  }
-
-  private constructor(user: UserEntity) {
+  public constructor(user: UserEntity) {
     this.user = user;
   }
 
-  public build(): UserDto {
+  authUser(authUser: UserEntity): BuildStep {
+    return new BuildStep(this.user, authUser);
+  }
+}
+
+class BuildStep {
+  private readonly user: UserEntity;
+  private readonly authUser: UserEntity;
+
+  public constructor(user: UserEntity, authUser: UserEntity) {
+    this.user = user;
+    this.authUser = authUser;
+  }
+
+  build(): UserDto {
     const { user } = this;
     return new UserDto(
       user.id,

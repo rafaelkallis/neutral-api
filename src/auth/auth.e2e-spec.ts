@@ -1,39 +1,37 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { EmailService, TokenService } from 'common';
-import { UserEntity, UserRepository } from 'user';
-import { entityFaker, primitiveFaker } from 'test';
+import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { EntityFaker, PrimitiveFaker } from 'test';
+import { EmailSender, EMAIL_SENDER } from 'email';
+import { TokenService, TOKEN_SERVICE } from 'token';
 
 describe('AuthController (e2e)', () => {
-  let app: INestApplication;
+  let entityFaker: EntityFaker;
+  let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
-  let emailService: EmailService;
+  let emailService: EmailSender;
   let tokenService: TokenService;
   let user: UserEntity;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
+    entityFaker = new EntityFaker();
+    primitiveFaker = new PrimitiveFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
-    userRepository = module.get(UserRepository);
-    user = entityFaker.user();
-    await userRepository.insert(user);
-    emailService = module.get(EmailService);
-    tokenService = module.get(TokenService);
-
-    app = module.createNestApplication();
+    userRepository = module.get(USER_REPOSITORY);
+    emailService = module.get(EMAIL_SENDER);
+    tokenService = module.get(TOKEN_SERVICE);
+    const app = module.createNestApplication();
     await app.init();
 
-    session = request.agent(app.getHttpServer());
-  });
+    user = entityFaker.user();
+    await userRepository.persist(user);
 
-  test('should be defined', () => {
-    expect(app).toBeDefined();
+    session = request.agent(app.getHttpServer());
   });
 
   describe('/auth/login (POST)', () => {
@@ -76,7 +74,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
-      const updatedUser = await userRepository.findOne({ id: user.id });
+      const updatedUser = await userRepository.findOne(user.id);
       expect(user.lastLoginAt).toBeLessThan(updatedUser.lastLoginAt);
     });
   });
@@ -110,7 +108,7 @@ describe('AuthController (e2e)', () => {
       signupToken = tokenService.newSignupToken(email);
       jest.spyOn(tokenService, 'newAccessToken');
       jest.spyOn(tokenService, 'newRefreshToken');
-      jest.spyOn(userRepository, 'insert');
+      jest.spyOn(userRepository, 'persist');
     });
 
     test('happy path', async () => {
@@ -125,7 +123,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalled();
       expect(tokenService.newRefreshToken).toHaveBeenCalled();
-      expect(userRepository.insert).toHaveBeenCalled();
+      expect(userRepository.persist).toHaveBeenCalled();
     });
   });
 

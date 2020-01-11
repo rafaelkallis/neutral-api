@@ -7,87 +7,104 @@ import {
 } from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from 'common';
+import { AbstractEntity } from 'common';
 import { UserEntity } from 'user';
-import { RoleEntity } from 'role';
-
-export enum ProjectState {
-  FORMATION = 'formation',
-  PEER_REVIEW = 'peer-review',
-  MANAGER_REVIEW = 'manager-review',
-  FINISHED = 'finished',
-}
-
-export enum ContributionVisibility {
-  PUBLIC = 'public',
-  PROJECT = 'project',
-  SELF = 'self',
-  NONE = 'none',
-}
-
-export enum SkipManagerReview {
-  YES = 'yes',
-  IF_CONSENSUAL = 'if-consensual',
-  NO = 'no',
-}
-
-interface ProjectEntityOptions {
-  id: string;
-  title: string;
-  description: string;
-  ownerId: string;
-  state: ProjectState;
-  consensuality: number | null;
-  contributionVisibility: ContributionVisibility;
-  skipManagerReview: SkipManagerReview;
-}
+import {
+  Project,
+  ProjectState,
+  ContributionVisibility,
+  SkipManagerReview,
+} from 'project/project';
+import { ProjectRepository } from 'project/repositories/project.repository';
 
 /**
  * Project Entity
  */
 @Entity('projects')
-export class ProjectEntity extends BaseEntity implements ProjectEntityOptions {
+export class ProjectEntity extends AbstractEntity implements Project {
   @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
-  public title!: string;
+  public title: string;
 
   @Column({ name: 'description' })
   @IsString()
   @MaxLength(1024)
-  public description!: string;
+  public description: string;
 
   @Column({ name: 'owner_id' })
   @IsString()
   @MaxLength(24)
-  public ownerId!: string;
+  public ownerId: string;
 
-  @Column({ name: 'state' })
+  @Column({ name: 'state', type: 'enum', enum: ProjectState })
   @IsEnum(ProjectState)
   @MaxLength(255)
-  public state!: ProjectState;
+  public state: ProjectState;
 
   @Column({ name: 'consensuality', type: 'real', nullable: true })
   @IsNumber()
   @IsOptional()
-  public consensuality!: number | null;
+  public consensuality: number | null;
 
-  @Column({ name: 'contribution_visibility' })
+  @Column({
+    name: 'contribution_visibility',
+    type: 'enum',
+    enum: ContributionVisibility,
+  })
   @IsEnum(ContributionVisibility)
   @MaxLength(255)
-  public contributionVisibility!: ContributionVisibility;
+  public contributionVisibility: ContributionVisibility;
 
-  @Column({ name: 'skip_manager_review' })
+  @Column({
+    name: 'skip_manager_review',
+    type: 'enum',
+    enum: SkipManagerReview,
+  })
   @IsEnum(SkipManagerReview)
   @MaxLength(255)
-  public skipManagerReview!: SkipManagerReview;
+  public skipManagerReview: SkipManagerReview;
 
-  public static from(options: ProjectEntityOptions): ProjectEntity {
-    return Object.assign(new ProjectEntity(), options);
+  public constructor(
+    id: string,
+    createdAt: number,
+    updatedAt: number,
+    title: string,
+    description: string,
+    ownerId: string,
+    state: ProjectState,
+    consensuality: number | null,
+    contributionVisibility: ContributionVisibility,
+    skipManagerReview: SkipManagerReview,
+  ) {
+    super(id, createdAt, updatedAt);
+    this.title = title;
+    this.description = description;
+    this.ownerId = ownerId;
+    this.state = state;
+    this.consensuality = consensuality;
+    this.contributionVisibility = contributionVisibility;
+    this.skipManagerReview = skipManagerReview;
   }
 
-  public update(options: Partial<ProjectEntityOptions>): this {
-    return Object.assign(this, options);
+  /**
+   *
+   */
+  public static fromProject(project: Project): ProjectEntity {
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    return new ProjectEntity(
+      project.id,
+      createdAt,
+      updatedAt,
+      project.title,
+      project.description,
+      project.ownerId,
+      project.state,
+      project.consensuality,
+      project.contributionVisibility,
+      project.skipManagerReview,
+    );
   }
 
   public isOwner(user: UserEntity): boolean {
