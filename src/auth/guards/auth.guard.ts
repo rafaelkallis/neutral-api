@@ -56,7 +56,7 @@ export class AuthGuard implements CanActivate {
 
   private async handleSessionAuth(session: SessionState): Promise<UserEntity> {
     const payload = this.tokenService.validateSessionToken(session.get());
-    const user = await this.userRepository.findOne(payload.sub);
+    const user = await this.userRepository.findById(payload.sub);
     if (!user) {
       throw new UnauthorizedUserException();
     }
@@ -74,7 +74,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedUserException();
     }
     const payload = this.tokenService.validateAccessToken(content);
-    const user = await this.userRepository.findOne(payload.sub);
+    const user = await this.userRepository.findById(payload.sub);
     if (!user) {
       throw new UnauthorizedUserException();
     }

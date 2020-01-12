@@ -55,7 +55,7 @@ export class ProjectApplicationService {
     authUser: UserEntity,
     id: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOne(id);
+    const project = await this.projectRepository.findById(id);
     return ProjectDto.builder()
       .project(project)
       .authUser(authUser)
@@ -87,7 +87,7 @@ export class ProjectApplicationService {
     id: string,
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOne(id);
+    const project = await this.projectRepository.findById(id);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -102,7 +102,7 @@ export class ProjectApplicationService {
    * Delete a project
    */
   public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
-    const project = await this.projectRepository.findOne(id);
+    const project = await this.projectRepository.findById(id);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -116,7 +116,7 @@ export class ProjectApplicationService {
     authUser: UserEntity,
     id: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOne(id);
+    const project = await this.projectRepository.findById(id);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -135,7 +135,7 @@ export class ProjectApplicationService {
     projectId: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOne(projectId);
+    const project = await this.projectRepository.findById(projectId);
     const roles = await this.roleRepository.findByProjectId(project.id);
     const authRole = roles.find(role => role.isAssignee(authUser));
     if (!authRole) {
@@ -161,7 +161,7 @@ export class ProjectApplicationService {
     authUser: UserEntity,
     projectId: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findOne(projectId);
+    const project = await this.projectRepository.findById(projectId);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }

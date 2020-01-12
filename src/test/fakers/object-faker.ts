@@ -7,7 +7,7 @@ import {
 } from 'project';
 import { User } from 'user';
 import { Role, PeerReview } from 'role';
-import { Notification } from 'notification/notification';
+import { Notification, NotificationType } from 'notification';
 
 export class ObjectFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -79,7 +79,7 @@ export class ObjectFaker {
     return {
       id: this.primitiveFaker.id(),
       ownerId,
-      type: this.primitiveFaker.word(),
+      type: NotificationType.NEW_ASSIGNMENT,
       isRead: false,
       payload: {},
     };

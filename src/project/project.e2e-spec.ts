@@ -104,7 +104,7 @@ describe('ProjectController (e2e)', () => {
         }),
       );
       await TestUtils.sleep(500);
-      await projectRepository.findOne(response.body.id);
+      await projectRepository.findById(response.body.id);
     });
   });
 
@@ -125,7 +125,7 @@ describe('ProjectController (e2e)', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ title }));
       await TestUtils.sleep(500);
-      const updatedProject = await projectRepository.findOne(project.id);
+      const updatedProject = await projectRepository.findById(project.id);
       expect(updatedProject.title).toEqual(title);
     });
 
@@ -174,7 +174,7 @@ describe('ProjectController (e2e)', () => {
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       await TestUtils.sleep(500);
-      const updatedProject = await projectRepository.findOne(project.id);
+      const updatedProject = await projectRepository.findById(project.id);
       expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
     });
 

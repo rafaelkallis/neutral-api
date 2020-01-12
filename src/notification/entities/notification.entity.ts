@@ -1,7 +1,13 @@
 import { AbstractEntity } from 'common';
 import { Column, Entity } from 'typeorm';
-import { MaxLength, IsString, IsBoolean, IsObject } from 'class-validator';
-import { Notification } from 'notification/notification';
+import {
+  MaxLength,
+  IsString,
+  IsBoolean,
+  IsObject,
+  IsEnum,
+} from 'class-validator';
+import { Notification, NotificationType } from 'notification/notification';
 import { User } from 'user';
 
 /**
@@ -14,10 +20,10 @@ export class NotificationEntity extends AbstractEntity implements Notification {
   @MaxLength(24)
   public ownerId: string;
 
-  @Column({ name: 'type' })
-  @IsString()
+  @Column({ name: 'type', type: 'enum', enum: NotificationType })
+  @IsEnum(NotificationType)
   @MaxLength(64)
-  public type: string;
+  public type: NotificationType;
 
   @Column({ name: 'is_read' })
   @IsBoolean()
@@ -48,7 +54,7 @@ export class NotificationEntity extends AbstractEntity implements Notification {
     createdAt: number,
     updatedAt: number,
     ownerId: string,
-    type: string,
+    type: NotificationType,
     isRead: boolean,
     payload: object,
   ) {

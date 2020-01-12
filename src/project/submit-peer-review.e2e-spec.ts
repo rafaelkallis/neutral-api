@@ -131,7 +131,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOne(project.id);
+    const updatedProject = await projectRepository.findById(project.id);
     expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);
     expect(updatedProject.consensuality).toEqual(expect.any(Number));
     const updatedRoles = await roleRepository.findByProjectId(project.id);
@@ -157,7 +157,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id][sentPeerReview.receiverRoleId],
       );
     }
-    const updatedProject = await projectRepository.findOne(project.id);
+    const updatedProject = await projectRepository.findById(project.id);
     expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
     const updatedRoles = await roleRepository.findByProjectId(project.id);
     for (const updatedRole of updatedRoles) {

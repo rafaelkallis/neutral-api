@@ -77,7 +77,7 @@ export class UserDomainService {
    */
   public async submitEmailChange(token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findOne(payload.sub);
+    const user = await this.userRepository.findById(payload.sub);
     if (user.email !== payload.curEmail) {
       throw new TokenAlreadyUsedException();
     }

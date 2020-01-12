@@ -52,9 +52,6 @@ describe('auth service', () => {
       user = entityFaker.user();
       await userRepository.persist(user);
       config.set('FRONTEND_URL', 'https://example.com');
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockResolvedValue(entityFaker.user());
       jest.spyOn(emailSender, 'sendLoginEmail');
     });
 
@@ -80,7 +77,6 @@ describe('auth service', () => {
       loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
       session = new MockSessionState();
       jest.spyOn(session, 'set');
-      jest.spyOn(userRepository, 'findOne');
       jest.spyOn(userRepository, 'persist');
     });
 

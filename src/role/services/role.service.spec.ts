@@ -270,7 +270,6 @@ describe('role service', () => {
 
     test('project owner assignment is allowed', async () => {
       assignmentDto.assigneeId = ownerUser.id;
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(ownerUser);
       await roleService.assignUser(ownerUser, role1.id, assignmentDto);
       expect(roleRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ assigneeId: ownerUser.id }),

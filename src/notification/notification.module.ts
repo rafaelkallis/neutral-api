@@ -8,6 +8,7 @@ import { NotificationApplicationService } from 'notification/services/notificati
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
 import { UserModule } from 'user/user.module';
 import { TokenModule } from 'token';
+import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 
 /**
  * Notification Module
@@ -18,6 +19,7 @@ import { TokenModule } from 'token';
   providers: [
     NotificationApplicationService,
     NotificationDomainService,
+    NotificationFactoryService,
     {
       provide: NOTIFICATION_REPOSITORY,
       useClass: TypeOrmNotificationRepository,

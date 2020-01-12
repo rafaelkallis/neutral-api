@@ -49,7 +49,7 @@ export class UserApplicationService {
    * Get the user with the given id
    */
   public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findById(id);
     return UserDto.builder()
       .user(user)
       .authUser(authUser)

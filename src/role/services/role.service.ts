@@ -64,7 +64,7 @@ export class RoleService {
     authUser: UserEntity,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    const project = await this.projectRepository.findOne(query.projectId);
+    const project = await this.projectRepository.findById(query.projectId);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
@@ -81,8 +81,8 @@ export class RoleService {
    * Get the role with the given id
    */
   public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
-    const role = await this.roleRepository.findOne(id);
-    const project = await this.projectRepository.findOne(role.projectId);
+    const role = await this.roleRepository.findById(id);
+    const project = await this.projectRepository.findById(role.projectId);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDtoBuilder.of(role)
       .withProject(project)
@@ -101,7 +101,7 @@ export class RoleService {
     authUser: UserEntity,
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
-    const project = await this.projectRepository.findOne(dto.projectId);
+    const project = await this.projectRepository.findById(dto.projectId);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -109,7 +109,7 @@ export class RoleService {
       throw new CreateRoleOutsideFormationStateException();
     }
     if (dto.assigneeId) {
-      await this.userRepository.findOne(dto.assigneeId);
+      await this.userRepository.findById(dto.assigneeId);
     }
     const roleId = this.roleRepository.createId();
     const role = RoleEntity.fromRole({
@@ -139,8 +139,8 @@ export class RoleService {
     id: string,
     body: UpdateRoleDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findOne(id);
-    const project = await this.projectRepository.findOne(role.projectId);
+    const role = await this.roleRepository.findById(id);
+    const project = await this.projectRepository.findById(role.projectId);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -162,8 +162,8 @@ export class RoleService {
    * Delete a role
    */
   public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
-    const role = await this.roleRepository.findOne(id);
-    const project = await this.projectRepository.findOne(role.projectId);
+    const role = await this.roleRepository.findById(id);
+    const project = await this.projectRepository.findById(role.projectId);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -179,8 +179,8 @@ export class RoleService {
     id: string,
     dto: AssignmentDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findOne(id);
-    const project = await this.projectRepository.findOne(role.projectId);
+    const role = await this.roleRepository.findById(id);
+    const project = await this.projectRepository.findById(role.projectId);
     if (!project.isOwner(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -192,7 +192,7 @@ export class RoleService {
     }
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     if (dto.assigneeId && dto.assigneeId !== role.assigneeId) {
-      const user = await this.userRepository.findOne(dto.assigneeId);
+      const user = await this.userRepository.findById(dto.assigneeId);
       await this.assignExistingUser(project, role, user, projectRoles);
     }
     if (dto.assigneeEmail) {
@@ -230,7 +230,7 @@ export class RoleService {
     role.assigneeId = user.id;
     await this.roleRepository.persist(role);
     await this.eventPublisher.publish(
-      new ExistingUserAssignedEvent(project, role, user),
+      new ExistingUserAssignedEvent(project, role),
     );
     await this.emailSender.sendNewAssignmentEmail(user.email);
   }

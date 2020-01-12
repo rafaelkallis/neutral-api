@@ -56,12 +56,23 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async findOne(id: string): Promise<TEntity> {
+  public async findById(id: string): Promise<TEntity> {
     const entity = await this.getInternalRepository().findOne(id);
     if (!entity) {
       throw new EntityNotFoundException();
     }
     return entity;
+  }
+
+  /**
+   *
+   */
+  public async findByIds(ids: string[]): Promise<TEntity[]> {
+    const entities = await this.getInternalRepository().findByIds(ids);
+    if (ids.length !== entities.length) {
+      throw new EntityNotFoundException();
+    }
+    return entities;
   }
 
   /**

@@ -74,7 +74,7 @@ describe('AuthController (e2e)', () => {
       });
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
-      const updatedUser = await userRepository.findOne(user.id);
+      const updatedUser = await userRepository.findById(user.id);
       expect(user.lastLoginAt).toBeLessThan(updatedUser.lastLoginAt);
     });
   });

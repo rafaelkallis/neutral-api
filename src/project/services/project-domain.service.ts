@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity } from 'user';
+import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
 import {
   ProjectState,
   SkipManagerReview,
@@ -152,7 +152,7 @@ export class ProjectDomainService {
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
       new ProjectFormationFinishedEvent(project),
-      new ProjectPeerReviewStartedEvent(project),
+      new ProjectPeerReviewStartedEvent(project, roles),
     );
     return project;
   }
@@ -266,7 +266,7 @@ export class ProjectDomainService {
       await this.eventPublisher.publish(
         new ProjectPeerReviewFinishedEvent(project, roles),
         new ProjectManagerReviewSkippedEvent(project),
-        new ProjectFinishedEvent(project),
+        new ProjectFinishedEvent(project, roles),
       );
     } else {
       project.state = ProjectState.MANAGER_REVIEW;
@@ -309,10 +309,11 @@ export class ProjectDomainService {
       throw new ProjectNotManagerReviewStateException();
     }
     project.state = ProjectState.FINISHED;
+    const roles = await this.roleRepository.findByProjectId(project.id);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
       new ProjectManagerReviewFinishedEvent(project),
-      new ProjectFinishedEvent(project),
+      new ProjectFinishedEvent(project, roles),
     );
   }
 }

@@ -17,7 +17,12 @@ export interface Repository<TEntity extends AbstractEntity> {
   /**
    *
    */
-  findOne(id: string): Promise<TEntity>;
+  findById(id: string): Promise<TEntity>;
+
+  /**
+   *
+   */
+  findByIds(ids: string[]): Promise<TEntity[]>;
 
   /**
    *

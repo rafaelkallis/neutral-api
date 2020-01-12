@@ -35,12 +35,19 @@ export abstract class FakeRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async findOne(id: string): Promise<TEntity> {
+  public async findById(id: string): Promise<TEntity> {
     const entity = this.entities.get(id);
     if (!entity) {
       throw new EntityNotFoundException();
     }
     return entity;
+  }
+
+  /**
+   *
+   */
+  public async findByIds(ids: string[]): Promise<TEntity[]> {
+    return Promise.all(ids.map(async id => this.findById(id)));
   }
 
   /**

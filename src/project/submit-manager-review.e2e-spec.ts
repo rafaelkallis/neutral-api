@@ -46,7 +46,7 @@ describe('submit manager review (e2e)', () => {
       `/projects/${project.id}/submit-manager-review`,
     );
     expect(response.status).toBe(200);
-    const updatedProject = await projectRepository.findOne(project.id);
+    const updatedProject = await projectRepository.findById(project.id);
     expect(updatedProject.state).toBe(ProjectState.FINISHED);
   });
 

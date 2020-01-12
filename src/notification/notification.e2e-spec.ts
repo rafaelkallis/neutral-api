@@ -77,7 +77,7 @@ describe('notifications (e2e)', () => {
         `/notifications/${notification.id}/read`,
       );
       expect(response.status).toBe(200);
-      const updatedNotification = await notificationRepository.findOne(
+      const updatedNotification = await notificationRepository.findById(
         notification.id,
       );
       expect(updatedNotification.isRead).toBeTruthy();

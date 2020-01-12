@@ -67,7 +67,7 @@ export class AuthService {
     session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = this.tokenService.validateLoginToken(loginToken);
-    const user = await this.userRepository.findOne(payload.sub);
+    const user = await this.userRepository.findById(payload.sub);
     if (user.lastLoginAt !== payload.lastLoginAt) {
       throw new TokenAlreadyUsedException();
     }

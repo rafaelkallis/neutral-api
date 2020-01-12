@@ -40,7 +40,7 @@ export class NotificationApplicationService {
    * Mark notification as read.
    */
   public async markRead(authUser: UserEntity, id: string): Promise<void> {
-    const notification = await this.notificationRepository.findOne(id);
+    const notification = await this.notificationRepository.findById(id);
     if (!notification.isOwner(authUser)) {
       throw new InsufficientPermissionsException();
     }
