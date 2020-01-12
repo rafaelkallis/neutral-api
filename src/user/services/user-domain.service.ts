@@ -10,8 +10,9 @@ import { EmailSender, EMAIL_SENDER } from 'email';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventBus, EVENT_BUS, Saga } from 'event';
 import { UserUpdatedEvent } from 'user/events/user-updated.event';
-import { EmailUpdatedEvent } from 'user/events/email-updated.event';
+import { EmailChangedEvent } from 'user/events/email-changed.event';
 import { UserDeletedEvent } from 'user/events/user-deleted.event';
+import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
 
 export interface UpdateUserOptions {
   email?: string;
@@ -62,6 +63,7 @@ export class UserDomainService {
         'FRONTEND_URL',
       )}/email_change/callback?token=${token}`;
       await this.emailSender.sendEmailChangeEmail(email, emailChangeMagicLink);
+      await this.eventBus.publish(new EmailChangeRequestedEvent(user, email));
     }
     Object.assign(user, otherChanges);
     await this.userRepository.persist(user);
@@ -79,7 +81,7 @@ export class UserDomainService {
     }
     user.email = payload.newEmail;
     await this.userRepository.persist(user);
-    await this.eventBus.publish(new EmailUpdatedEvent(user));
+    await this.eventBus.publish(new EmailChangedEvent(user));
   }
 
   /**
