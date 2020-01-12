@@ -19,11 +19,13 @@ import { AssignmentDto } from 'role/dto/assignment.dto';
 import { MockEmailSender } from 'email';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
+import { MockEventBus } from 'event';
 
 describe('role service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
+  let eventBus: MockEventBus;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -41,6 +43,7 @@ describe('role service', () => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
 
+    eventBus = new MockEventBus();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
@@ -48,6 +51,7 @@ describe('role service', () => {
     emailSender = new MockEmailSender();
 
     roleService = new RoleService(
+      eventBus,
       userRepository,
       projectRepository,
       roleRepository,

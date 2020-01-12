@@ -25,9 +25,16 @@ import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create
 import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
 import { NoAssigneeException } from 'role/exceptions/no-assignee.exception';
 import { EmailSender, EMAIL_SENDER } from 'email';
+import { EventBus, EVENT_BUS } from 'event';
+import { RoleCreatedEvent } from 'role/events/role-created.event';
+import { RoleUpdatedEvent } from 'role/events/role-updated.event';
+import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
+import { NewUserAssignedEvent } from 'role/events/new-user-assigned.event';
+import { RoleDeletedEvent } from 'role/events/role-deleted.event';
 
 @Injectable()
 export class RoleService {
+  private readonly eventBus: EventBus;
   private readonly userRepository: UserRepository;
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
@@ -35,12 +42,14 @@ export class RoleService {
   private readonly emailSender: EmailSender;
 
   public constructor(
+    @Inject(EVENT_BUS) eventBus: EventBus,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(PROJECT_REPOSITORY) projectRepository: ProjectRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
+    this.eventBus = eventBus;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
@@ -113,6 +122,7 @@ export class RoleService {
       hasSubmittedPeerReviews: false,
     });
     await this.roleRepository.persist(role);
+    await this.eventBus.publish(new RoleCreatedEvent(project, role));
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDtoBuilder.of(role)
       .withProject(project)
@@ -139,6 +149,7 @@ export class RoleService {
     }
     Object.assign(role, body);
     await this.roleRepository.persist(role);
+    await this.eventBus.publish(new RoleUpdatedEvent(role));
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDtoBuilder.of(role)
       .withProject(project)
@@ -157,6 +168,7 @@ export class RoleService {
       throw new UserNotProjectOwnerException();
     }
     await this.roleRepository.delete(role);
+    await this.eventBus.publish(new RoleDeletedEvent(role));
   }
 
   /**
@@ -217,6 +229,9 @@ export class RoleService {
     }
     role.assigneeId = user.id;
     await this.roleRepository.persist(role);
+    await this.eventBus.publish(
+      new ExistingUserAssignedEvent(project, role, user),
+    );
     await this.emailSender.sendNewAssignmentEmail(user.email);
   }
 
@@ -240,6 +255,7 @@ export class RoleService {
 
     role.assigneeId = user.id;
     await this.roleRepository.persist(role);
+    await this.eventBus.publish(new NewUserAssignedEvent(project, role, email));
     await this.emailSender.sendUnregisteredUserNewAssignmentEmail(user.email);
   }
 }

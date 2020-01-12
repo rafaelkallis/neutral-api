@@ -11,12 +11,14 @@ import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
 import { MockConfig } from 'config';
 import { MockTokenService } from 'token';
+import { MockEventBus } from 'event';
 
 describe('auth service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
   let config: MockConfig;
+  let eventBus: MockEventBus;
   let userRepository: UserRepository;
   let emailSender: MockEmailSender;
   let tokenService: MockTokenService;
@@ -25,12 +27,14 @@ describe('auth service', () => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfig();
+    eventBus = new MockEventBus();
     emailSender = new MockEmailSender();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();
 
     authService = new AuthService(
       config,
+      eventBus,
       userRepository,
       tokenService,
       emailSender,

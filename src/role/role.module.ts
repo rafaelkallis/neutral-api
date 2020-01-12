@@ -11,6 +11,7 @@ import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { ConfigModule } from 'config';
 import { TokenModule } from 'token';
+import { EventModule } from 'event';
 
 /**
  * Role Module
@@ -21,6 +22,7 @@ import { TokenModule } from 'token';
     TokenModule,
     DatabaseModule,
     EmailModule,
+    EventModule,
     UserModule,
     forwardRef(() => ProjectModule),
   ],

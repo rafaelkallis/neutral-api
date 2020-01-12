@@ -12,21 +12,26 @@ import { Config, CONFIG } from 'config';
 import { EmailSender, EMAIL_SENDER } from 'email';
 import { SessionState } from 'session/session-state';
 import { TOKEN_SERVICE, TokenService } from 'token';
+import { EVENT_BUS, EventBus } from 'event';
+import { UserSignupEvent } from 'auth/events/user-signup.event';
 
 @Injectable()
 export class AuthService {
   private readonly config: Config;
+  private readonly eventBus: EventBus;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
   private readonly emailSender: EmailSender;
 
   public constructor(
     @Inject(CONFIG) config: Config,
+    @Inject(EVENT_BUS) eventBus: EventBus,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.userRepository = userRepository;
+    this.eventBus = eventBus;
     this.tokenService = tokenService;
     this.emailSender = emailSender;
     this.config = config;
@@ -121,6 +126,7 @@ export class AuthService {
       lastLoginAt: Date.now(),
     });
     await this.userRepository.persist(user);
+    await this.eventBus.publish(new UserSignupEvent(user));
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(sessionToken);

@@ -5,12 +5,13 @@ import { AuthService } from 'auth/services/auth.service';
 import { ConfigModule } from 'config';
 import { EmailModule } from 'email';
 import { TokenModule } from 'token';
+import { EventModule } from 'event';
 
 /**
  * Auth Module
  */
 @Module({
-  imports: [ConfigModule, EmailModule, TokenModule, UserModule],
+  imports: [ConfigModule, EmailModule, TokenModule, EventModule, UserModule],
   controllers: [AuthController],
   providers: [AuthService],
 })
