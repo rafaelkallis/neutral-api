@@ -28,15 +28,21 @@ import { AddPeerReviewVisibilityMigration1576252691000 } from 'database/migratio
 import { AddHasSubmittedPeerReviewsMigration1576331058000 } from 'database/migration/1576331058000-add-role-has-submitted-peer-reviews.migration';
 import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migration/1576415094000-remove-peer-review-visibility.migration';
 import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
+import { Logger, InjectLogger } from 'logger';
 
 @Injectable()
 export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
   private static readonly DEFAULT_CONNECTION = 'DEFAULT_CONNECTION';
   private readonly config: Config;
+  private readonly logger: Logger;
   private readonly connectionManager: ConnectionManager;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(
+    @InjectConfig() config: Config,
+    @InjectLogger() logger: Logger,
+  ) {
     this.config = config;
+    this.logger = logger;
     this.connectionManager = new ConnectionManager();
     this.createConnection();
   }
@@ -53,6 +59,9 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
    */
   public async onModuleInit(): Promise<void> {
     await this.getConnection().connect();
+    this.logger.log('Database connected');
+    await this.getConnection().runMigrations();
+    this.logger.log('Database migrations up to date');
   }
 
   /**
@@ -60,6 +69,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
    */
   public async onModuleDestroy(): Promise<void> {
     await this.getConnection().close();
+    this.logger.log('Database disconnected');
   }
 
   /**
