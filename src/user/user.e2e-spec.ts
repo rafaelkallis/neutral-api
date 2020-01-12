@@ -7,7 +7,7 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from './repositories/user.repository';
-import { EntityFaker, TestUtils } from 'test';
+import { EntityFaker } from 'test';
 import { UserDto } from './dto/user.dto';
 import { TOKEN_SERVICE } from 'token';
 

@@ -1,8 +1,8 @@
 import { TypeOrmRepository, EntityNotFoundException } from 'common';
 import { UserRepository } from 'user/repositories/user.repository';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserEntity } from 'user/entities/user.entity';
-import { Database, DATABASE } from 'database';
+import { Database, InjectDatabase } from 'database';
 
 /**
  * TypeOrm User Repository
@@ -13,7 +13,7 @@ export class TypeOrmUserRepository extends TypeOrmRepository<UserEntity>
   /**
    *
    */
-  public constructor(@Inject(DATABASE) database: Database) {
+  public constructor(@InjectDatabase() database: Database) {
     super(database, UserEntity);
   }
 

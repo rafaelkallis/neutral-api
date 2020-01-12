@@ -1,7 +1,7 @@
 import { TypeOrmRepository } from 'common';
 import { RoleEntity } from 'role/entities/role.entity';
-import { Injectable, Inject } from '@nestjs/common';
-import { Database, DATABASE } from 'database';
+import { Injectable } from '@nestjs/common';
+import { Database, InjectDatabase } from 'database';
 
 /**
  * TypeOrm Role Repository
@@ -11,7 +11,7 @@ export class TypeOrmRoleRepository extends TypeOrmRepository<RoleEntity> {
   /**
    *
    */
-  public constructor(@Inject(DATABASE) database: Database) {
+  public constructor(@InjectDatabase() database: Database) {
     super(database, RoleEntity);
   }
 
