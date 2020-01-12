@@ -2,8 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from 'app.module';
-import { CONFIG, Config } from 'config';
-import { Logger, LOGGER } from 'logger';
+import { Config } from 'config';
+import { CONFIG } from 'config/constants';
+import { Logger } from 'logger';
+import { LOGGER } from 'logger/constants';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);

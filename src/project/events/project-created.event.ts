@@ -1,8 +1,8 @@
 import { ProjectEntity } from 'project/entities/project.entity';
 import { UserEntity } from 'user';
-import { Event } from 'event';
+import { AbstractEvent } from 'event';
 
-export class ProjectCreatedEvent extends Event {
+export class ProjectCreatedEvent extends AbstractEvent {
   public readonly project: ProjectEntity;
   public readonly owner: UserEntity;
 

@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import { SAGA_METADATA } from 'event/constants';
-import { Event } from 'event/event';
+import { AbstractEvent } from 'event/abstract.event';
 import { Type } from '@nestjs/common';
-import { SagaMetadataItem } from 'event/saga-metadata-item';
+import { SagaMetadataItem } from 'event/services/saga-metadata-item';
 
-export function Saga<TEvent extends Event>(
+export function Saga<TEvent extends AbstractEvent>(
   eventType: Type<TEvent>,
 ): PropertyDecorator {
   return (target: object, propertyKey: string | symbol): void => {
     let existingSagaMetadataItems:
-      | SagaMetadataItem<Event>[]
+      | SagaMetadataItem<AbstractEvent>[]
       | undefined = Reflect.getMetadata(SAGA_METADATA, target.constructor);
     if (!existingSagaMetadataItems) {
       existingSagaMetadataItems = [];

@@ -1,10 +1,10 @@
-import { Event } from 'event/event';
 import { Type } from '@nestjs/common';
+import { AbstractEvent } from 'event/abstract.event';
 
 /**
- *
+ * Saga Metadata Item
  */
-export class SagaMetadataItem<TEvent extends Event> {
+export class SagaMetadataItem<TEvent extends AbstractEvent> {
   public readonly eventType: Type<TEvent>;
   public readonly propertyKey: string | symbol;
 

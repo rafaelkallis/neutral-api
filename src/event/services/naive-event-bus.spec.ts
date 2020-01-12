@@ -1,4 +1,4 @@
-import { NaiveEventBus } from 'event/naive-event-bus';
+import { NaiveEventBus } from 'event/services/naive-event-bus';
 
 describe('NaiveEventBus', () => {
   let naiveEventBus: NaiveEventBus;

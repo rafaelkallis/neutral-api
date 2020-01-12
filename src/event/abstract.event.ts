@@ -1,4 +1,7 @@
-export abstract class Event {
+/**
+ * Abstract Event
+ */
+export abstract class AbstractEvent {
   public readonly createdAt: number;
 
   public constructor() {

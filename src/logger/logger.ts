@@ -1,7 +1,5 @@
 import { LoggerService } from '@nestjs/common';
 
-export const LOGGER = Symbol('LOGGER');
-
 /**
  * Logger
  */

@@ -1,11 +1,10 @@
-import { Module, Global } from '@nestjs/common';
-import { LOGGER } from 'logger/logger';
+import { Module } from '@nestjs/common';
+import { LOGGER } from 'logger/constants';
 import { ConsoleLogger } from 'logger/console-logger';
 
 /**
  * Logger Module
  */
-@Global()
 @Module({
   providers: [
     {

@@ -1,8 +1,8 @@
-import { Event } from 'event';
+import { AbstractEvent } from 'event';
 import { RoleEntity } from 'role/entities/role.entity';
 import { ProjectEntity } from 'project';
 
-export class RoleCreatedEvent extends Event {
+export class RoleCreatedEvent extends AbstractEvent {
   public readonly project: ProjectEntity;
   public readonly role: RoleEntity;
 

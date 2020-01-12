@@ -1,6 +1,7 @@
-import { Event } from 'event/event';
-import { EventHandler, EventSubscription } from 'event/event-subscriber';
-import { EventBus } from 'event/event-bus';
+import { EventBus } from 'event/interfaces/event-bus.interface';
+import { EventHandler } from 'event/interfaces/event-handler.interface';
+import { AbstractEvent } from 'event/abstract.event';
+import { EventSubscription } from 'event/interfaces/event-subscription.interface';
 
 /**
  * Naive Event Bus
@@ -15,7 +16,7 @@ export class NaiveEventBus implements EventBus {
   /**
    *
    */
-  public async publish(...events: Event[]): Promise<void> {
+  public async publish(...events: AbstractEvent[]): Promise<void> {
     for (const event of events) {
       const eventSubscriptionSet = this.subscriptions.get(event.constructor);
       if (!eventSubscriptionSet) {
@@ -30,7 +31,7 @@ export class NaiveEventBus implements EventBus {
   /**
    *
    */
-  public async subscribe<TEvent extends Event>(
+  public async subscribe<TEvent extends AbstractEvent>(
     event: unknown,
     eventHandler: EventHandler<TEvent>,
   ): Promise<EventSubscription> {

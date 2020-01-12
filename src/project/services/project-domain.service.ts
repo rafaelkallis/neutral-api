@@ -43,7 +43,7 @@ import {
 import { ProjectEntity } from 'project';
 import { FinalPeerReviewSubmittedEvent } from 'project/events/final-peer-review-submitted.event';
 import { InvariantViolationException } from 'common';
-import { EventBus, EVENT_BUS } from 'event';
+import { EventPublisher, InjectEventPublisher } from 'event';
 
 export interface CreateProjectOptions {
   title: string;
@@ -59,7 +59,7 @@ export interface UpdateProjectOptions {
 
 @Injectable()
 export class ProjectDomainService {
-  private readonly eventBus: EventBus;
+  private readonly eventPublisher: EventPublisher;
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly peerReviewRepository: PeerReviewRepository;
@@ -67,14 +67,14 @@ export class ProjectDomainService {
   private readonly consensualityModelService: ConsensualityModelService;
 
   public constructor(
-    @Inject(EVENT_BUS) eventBus: EventBus,
+    @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(PROJECT_REPOSITORY) projectRepository: ProjectRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
     contributionsModelService: ContributionsModelService,
     consensualityModelService: ConsensualityModelService,
   ) {
-    this.eventBus = eventBus;
+    this.eventPublisher = eventPublisher;
     this.projectRepository = projectRepository;
     this.roleRepository = roleRepository;
     this.peerReviewRepository = peerReviewRepository;
@@ -103,7 +103,7 @@ export class ProjectDomainService {
         projectOptions.skipManagerReview || SkipManagerReview.NO,
     });
     await this.projectRepository.persist(project);
-    await this.eventBus.publish(
+    await this.eventPublisher.publish(
       new ProjectCreatedEvent(project, owner),
       new ProjectFormationStartedEvent(project),
     );
@@ -122,7 +122,7 @@ export class ProjectDomainService {
     }
     Object.assign(project, updateOptions);
     await this.projectRepository.persist(project);
-    await this.eventBus.publish(new ProjectUpdatedEvent(project));
+    await this.eventPublisher.publish(new ProjectUpdatedEvent(project));
     return project;
   }
 
@@ -134,7 +134,7 @@ export class ProjectDomainService {
       throw new ProjectNotFormationStateException();
     }
     await this.projectRepository.delete(project);
-    await this.eventBus.publish(new ProjectDeletedEvent(project));
+    await this.eventPublisher.publish(new ProjectDeletedEvent(project));
   }
 
   /**
@@ -150,7 +150,7 @@ export class ProjectDomainService {
     }
     project.state = ProjectState.PEER_REVIEW;
     await this.projectRepository.persist(project);
-    await this.eventBus.publish(
+    await this.eventPublisher.publish(
       new ProjectFormationFinishedEvent(project),
       new ProjectPeerReviewStartedEvent(project),
     );
@@ -194,14 +194,14 @@ export class ProjectDomainService {
         this.peerReviewRepository.persist(peerReview),
       ),
     );
-    await this.eventBus.publish(
+    await this.eventPublisher.publish(
       new PeerReviewsSubmittedEvent(project, senderRole, peerReviews),
     );
 
     /* is final peer review? */
     if (roles.every(role => role.hasSubmittedPeerReviews)) {
       await this.finishPeerReview(project, roles);
-      await this.eventBus.publish(
+      await this.eventPublisher.publish(
         new FinalPeerReviewSubmittedEvent(project, roles),
       );
     }
@@ -263,7 +263,7 @@ export class ProjectDomainService {
     if (this.shouldSkipManagerReview(project, consensuality)) {
       project.state = ProjectState.FINISHED;
       await this.projectRepository.persist(project);
-      await this.eventBus.publish(
+      await this.eventPublisher.publish(
         new ProjectPeerReviewFinishedEvent(project, roles),
         new ProjectManagerReviewSkippedEvent(project),
         new ProjectFinishedEvent(project),
@@ -271,7 +271,7 @@ export class ProjectDomainService {
     } else {
       project.state = ProjectState.MANAGER_REVIEW;
       await this.projectRepository.persist(project);
-      await this.eventBus.publish(
+      await this.eventPublisher.publish(
         new ProjectPeerReviewFinishedEvent(project, roles),
         new ProjectManagerReviewStartedEvent(project),
       );
@@ -310,7 +310,7 @@ export class ProjectDomainService {
     }
     project.state = ProjectState.FINISHED;
     await this.projectRepository.persist(project);
-    await this.eventBus.publish(
+    await this.eventPublisher.publish(
       new ProjectManagerReviewFinishedEvent(project),
       new ProjectFinishedEvent(project),
     );

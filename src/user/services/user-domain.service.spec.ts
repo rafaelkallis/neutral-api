@@ -1,9 +1,6 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { UserEntity } from 'user/entities/user.entity';
 import { UserRepository } from 'user/repositories/user.repository';
-import { UserDto } from 'user/dto/user.dto';
-import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
-import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
 import { MockEmailSender, EmailSender } from 'email';
 import { MockConfig, Config } from 'config';
@@ -12,13 +9,13 @@ import {
   UserDomainService,
   UpdateUserOptions,
 } from 'user/services/user-domain.service';
-import { MockEventBus } from 'event';
+import { MockEventPublisher } from 'event';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
-  let eventBus: MockEventBus;
+  let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let emailSender: EmailSender;
   let tokenService: TokenService;
@@ -29,13 +26,13 @@ describe('user service', () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
     config = new MockConfig();
-    eventBus = new MockEventBus();
+    eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     emailSender = new MockEmailSender();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,
-      eventBus,
+      eventPublisher,
       userRepository,
       tokenService,
       emailSender,

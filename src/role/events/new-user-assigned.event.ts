@@ -1,8 +1,8 @@
-import { Event } from 'event';
+import { AbstractEvent } from 'event';
 import { RoleEntity } from 'role/entities/role.entity';
 import { ProjectEntity } from 'project';
 
-export class NewUserAssignedEvent extends Event {
+export class NewUserAssignedEvent extends AbstractEvent {
   public readonly project: ProjectEntity;
   public readonly role: RoleEntity;
   public readonly assigneeEmail: string;

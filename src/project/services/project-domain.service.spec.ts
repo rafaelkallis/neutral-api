@@ -6,16 +6,14 @@ import { ProjectRepository } from 'project/repositories/project.repository';
 import {
   RoleEntity,
   RoleRepository,
-  PeerReviewEntity,
   PeerReviewRepository,
   FakeRoleRepository,
   FakePeerReviewRepository,
 } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { ProjectDto } from 'project/dto/project.dto';
 import { SkipManagerReview, ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
-import { EventBus, MockEventBus } from 'event';
+import { MockEventPublisher } from 'event';
 import {
   ProjectDomainService,
   CreateProjectOptions,
@@ -26,7 +24,7 @@ describe('project domain service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventBus: EventBus;
+  let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -36,13 +34,12 @@ describe('project domain service', () => {
   let projectDomainService: ProjectDomainService;
   let ownerUser: UserEntity;
   let project: ProjectEntity;
-  let projectDto: ProjectDto;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
 
-    eventBus = new MockEventBus();
+    eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
@@ -50,7 +47,7 @@ describe('project domain service', () => {
     contributionsModelService = new ContributionsModelService();
     consensualityModelService = new ConsensualityModelService();
     projectDomainService = new ProjectDomainService(
-      eventBus,
+      eventPublisher,
       projectRepository,
       roleRepository,
       peerReviewRepository,
@@ -62,10 +59,6 @@ describe('project domain service', () => {
     await userRepository.persist(ownerUser);
     project = entityFaker.project(ownerUser.id);
     await projectRepository.persist(project);
-    projectDto = ProjectDto.builder()
-      .project(project)
-      .authUser(ownerUser)
-      .build();
   });
 
   test('should be defined', () => {

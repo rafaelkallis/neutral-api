@@ -19,7 +19,7 @@ import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
-import { EventBus, MockEventBus } from 'event';
+import { MockEventPublisher } from 'event';
 import { Config, MockConfig } from 'config';
 import { ProjectDomainService } from 'project/services/project-domain.service';
 
@@ -28,7 +28,7 @@ describe('project application service', () => {
   let primitiveFaker: PrimitiveFaker;
 
   let config: Config;
-  let eventBus: EventBus;
+  let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -46,7 +46,7 @@ describe('project application service', () => {
     entityFaker = new EntityFaker();
 
     config = new MockConfig();
-    eventBus = new MockEventBus();
+    eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
@@ -54,7 +54,7 @@ describe('project application service', () => {
     contributionsModelService = new ContributionsModelService();
     consensualityModelService = new ConsensualityModelService();
     projectDomainService = new ProjectDomainService(
-      eventBus,
+      eventPublisher,
       projectRepository,
       roleRepository,
       peerReviewRepository,

@@ -1,5 +1,3 @@
-export const CONFIG = Symbol('CONFIG');
-
 export interface ConfigProps {
   NODE_ENV: string;
   PORT: number;

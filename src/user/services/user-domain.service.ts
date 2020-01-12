@@ -5,10 +5,10 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from 'user/repositories/user.repository';
-import { Config, CONFIG } from 'config';
+import { Config, InjectConfig } from 'config';
 import { EmailSender, EMAIL_SENDER } from 'email';
 import { TOKEN_SERVICE, TokenService } from 'token';
-import { EventBus, EVENT_BUS, Saga } from 'event';
+import { EventPublisher, InjectEventPublisher } from 'event';
 import { UserUpdatedEvent } from 'user/events/user-updated.event';
 import { EmailChangedEvent } from 'user/events/email-changed.event';
 import { UserDeletedEvent } from 'user/events/user-deleted.event';
@@ -23,20 +23,20 @@ export interface UpdateUserOptions {
 @Injectable()
 export class UserDomainService {
   private readonly config: Config;
-  private readonly eventBus: EventBus;
+  private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
   private readonly emailSender: EmailSender;
 
   public constructor(
-    @Inject(CONFIG) config: Config,
-    @Inject(EVENT_BUS) eventBus: EventBus,
+    @InjectConfig() config: Config,
+    @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
     @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.config = config;
-    this.eventBus = eventBus;
+    this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.emailSender = emailSender;
@@ -63,11 +63,13 @@ export class UserDomainService {
         'FRONTEND_URL',
       )}/email_change/callback?token=${token}`;
       await this.emailSender.sendEmailChangeEmail(email, emailChangeMagicLink);
-      await this.eventBus.publish(new EmailChangeRequestedEvent(user, email));
+      await this.eventPublisher.publish(
+        new EmailChangeRequestedEvent(user, email),
+      );
     }
     Object.assign(user, otherChanges);
     await this.userRepository.persist(user);
-    await this.eventBus.publish(new UserUpdatedEvent(user));
+    await this.eventPublisher.publish(new UserUpdatedEvent(user));
   }
 
   /**
@@ -81,7 +83,7 @@ export class UserDomainService {
     }
     user.email = payload.newEmail;
     await this.userRepository.persist(user);
-    await this.eventBus.publish(new EmailChangedEvent(user));
+    await this.eventPublisher.publish(new EmailChangedEvent(user));
   }
 
   /**
@@ -89,6 +91,6 @@ export class UserDomainService {
    */
   public async deleteUser(user: UserEntity): Promise<void> {
     await this.userRepository.delete(user);
-    await this.eventBus.publish(new UserDeletedEvent(user));
+    await this.eventPublisher.publish(new UserDeletedEvent(user));
   }
 }

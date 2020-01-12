@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { EVENT_BUS } from 'event/event-bus';
-import { NaiveEventBus } from 'event/naive-event-bus';
-import { SagaManagerService } from 'event/saga-manager.service';
 import { LoggerModule } from 'logger';
+import { EVENT_PUBLISHER, EVENT_SUBSCRIBER, EVENT_BUS } from 'event/constants';
+import { NaiveEventBus } from 'event/services/naive-event-bus';
+import { SagaManagerService } from 'event/services/saga-manager.service';
 
 /**
  * Event Module
@@ -14,8 +14,16 @@ import { LoggerModule } from 'logger';
       provide: EVENT_BUS,
       useClass: NaiveEventBus,
     },
+    {
+      provide: EVENT_PUBLISHER,
+      useExisting: EVENT_BUS,
+    },
+    {
+      provide: EVENT_SUBSCRIBER,
+      useExisting: EVENT_BUS,
+    },
     SagaManagerService,
   ],
-  exports: [EVENT_BUS],
+  exports: [EVENT_BUS, EVENT_PUBLISHER, EVENT_SUBSCRIBER],
 })
 export class EventModule {}

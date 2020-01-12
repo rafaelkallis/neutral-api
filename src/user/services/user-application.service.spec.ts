@@ -10,13 +10,13 @@ import { MockConfig, Config } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/services/user-application.service';
 import { UserDomainService } from 'user/services/user-domain.service';
-import { EventBus, MockEventBus } from 'event';
+import { MockEventPublisher } from 'event';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
-  let eventBus: EventBus;
+  let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let emailSender: EmailSender;
   let tokenService: TokenService;
@@ -28,13 +28,13 @@ describe('user service', () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
     config = new MockConfig();
-    eventBus = new MockEventBus();
+    eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     emailSender = new MockEmailSender();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,
-      eventBus,
+      eventPublisher,
       userRepository,
       tokenService,
       emailSender,

@@ -1,6 +1,12 @@
-export { EVENT_BUS, EventBus } from 'event/event-bus';
+export { EventBus } from 'event/interfaces/event-bus.interface';
 export { EventModule } from 'event/event.module';
-export { Event } from 'event/event';
-export { MockEventBus } from 'event/mock-event-bus';
-export { EventSubscriber, EventSubscription } from 'event/event-subscriber';
-export { Saga } from 'event/saga.decorator';
+export { AbstractEvent } from 'event/abstract.event';
+export { MockEventPublisher } from 'event/services/mock-event-publisher';
+export { MockEventSubscriber } from 'event/services/mock-event-subscriber';
+export { EventPublisher } from 'event/interfaces/event-publisher.interface';
+export { EventSubscriber } from 'event/interfaces/event-subscriber.interface';
+export { EventSubscription } from 'event/interfaces/event-subscription.interface';
+export { Saga } from 'event/decorators/saga.decorator';
+export { InjectEventBus } from 'event/decorators/inject-event-bus.decorator';
+export { InjectEventPublisher } from 'event/decorators/inject-event-publisher.decorator';
+export { InjectEventSubscriber } from 'event/decorators/inject-event-subscriber.decorator';

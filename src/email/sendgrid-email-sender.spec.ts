@@ -1,7 +1,8 @@
 import { SendgridEmailSender } from 'email/sendgrid-email-sender';
-import { MockConfig, CONFIG } from 'config';
+import { MockConfig } from 'config';
 import { Test } from '@nestjs/testing';
 import { HttpModule } from '@nestjs/common';
+import { CONFIG } from 'config/constants';
 
 describe('SendgridEmailSender', () => {
   let config: MockConfig;

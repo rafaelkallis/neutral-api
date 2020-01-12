@@ -5,7 +5,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Database } from 'database/database';
-import { Config, CONFIG } from 'config';
+import { Config, InjectConfig } from 'config';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
 
 import { UserEntity } from 'user/entities/user.entity';
@@ -38,7 +38,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
   private readonly config: Config;
   private readonly connectionManager: ConnectionManager;
 
-  public constructor(@Inject(CONFIG) config: Config) {
+  public constructor(@InjectConfig() config: Config) {
     this.config = config;
     this.connectionManager = new ConnectionManager();
     this.createConnection();

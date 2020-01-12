@@ -1,6 +1,6 @@
-import { Module, Global } from '@nestjs/common';
-import { Config, CONFIG } from 'config/config';
+import { Module } from '@nestjs/common';
 import { EnvalidConfig } from 'config/envalid-config';
+import { CONFIG } from 'config/constants';
 
 /**
  * Config Module
