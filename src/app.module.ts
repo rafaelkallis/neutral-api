@@ -13,6 +13,7 @@ import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { LoggerModule } from 'logger';
 import { SessionMiddleware } from 'session';
+import { NotificationModule } from 'notification/notification.module';
 
 /**
  * App Module
@@ -27,6 +28,7 @@ import { SessionMiddleware } from 'session';
     UserModule,
     ProjectModule,
     RoleModule,
+    NotificationModule,
   ],
   controllers: [AppController],
 })

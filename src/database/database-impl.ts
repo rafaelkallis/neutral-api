@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Database } from 'database/database';
 import { Config, InjectConfig } from 'config';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
@@ -12,6 +7,7 @@ import { UserEntity } from 'user/entities/user.entity';
 import { ProjectEntity } from 'project/entities/project.entity';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 import { RoleEntity } from 'role/entities/role.entity';
+import { NotificationEntity } from 'notification/entities/notification.entity';
 
 import { UserMigration1564324478234 } from 'database/migration/1564324478234-UserMigration';
 import { ProjectMigration1564574530189 } from 'database/migration/1564574530189-ProjectMigration';
@@ -31,6 +27,7 @@ import { PeerReviewRename1576248460000 } from 'database/migration/1576248460000-
 import { AddPeerReviewVisibilityMigration1576252691000 } from 'database/migration/1576252691000-add-peer-review-visibility.migration';
 import { AddHasSubmittedPeerReviewsMigration1576331058000 } from 'database/migration/1576331058000-add-role-has-submitted-peer-reviews.migration';
 import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migration/1576415094000-remove-peer-review-visibility.migration';
+import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
 
 @Injectable()
 export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
@@ -80,7 +77,13 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
       name: DatabaseImpl.DEFAULT_CONNECTION,
       type: 'postgres' as 'postgres',
       url: this.config.get('DATABASE_URL'),
-      entities: [UserEntity, ProjectEntity, RoleEntity, PeerReviewEntity],
+      entities: [
+        UserEntity,
+        ProjectEntity,
+        RoleEntity,
+        PeerReviewEntity,
+        NotificationEntity,
+      ],
       migrations: [
         UserMigration1564324478234,
         ProjectMigration1564574530189,
@@ -100,6 +103,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
         AddPeerReviewVisibilityMigration1576252691000,
         AddHasSubmittedPeerReviewsMigration1576331058000,
         RemovePeerReviewVisibilityMigration1576415094000,
+        AddNotificationsMigration1578833839000,
       ],
       migrationsRun: true,
     });

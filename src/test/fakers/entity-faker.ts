@@ -1,7 +1,8 @@
-import { ProjectEntity } from 'project';
-import { UserEntity, User } from 'user';
-import { RoleEntity, PeerReviewEntity } from 'role';
 import { ObjectFaker } from 'test/fakers/object-faker';
+import { ProjectEntity } from 'project';
+import { UserEntity } from 'user';
+import { RoleEntity, PeerReviewEntity } from 'role';
+import { NotificationEntity } from 'notification';
 
 export class EntityFaker {
   private readonly objectFaker: ObjectFaker;
@@ -40,6 +41,15 @@ export class EntityFaker {
   ): PeerReviewEntity {
     return PeerReviewEntity.fromPeerReview(
       this.objectFaker.peerReview(senderRoleId, receiverRoleId),
+    );
+  }
+
+  /**
+   * Create a fake notification
+   */
+  public notification(ownerId: string): NotificationEntity {
+    return NotificationEntity.fromNotification(
+      this.objectFaker.notification(ownerId),
     );
   }
 }

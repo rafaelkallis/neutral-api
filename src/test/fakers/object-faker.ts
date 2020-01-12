@@ -7,6 +7,7 @@ import {
 } from 'project';
 import { User } from 'user';
 import { Role, PeerReview } from 'role';
+import { Notification } from 'notification/notification';
 
 export class ObjectFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -68,6 +69,19 @@ export class ObjectFaker {
       senderRoleId,
       receiverRoleId,
       score: this.primitiveFaker.number(),
+    };
+  }
+
+  /**
+   * Create a fake notification
+   */
+  public notification(ownerId: string): Notification {
+    return {
+      id: this.primitiveFaker.id(),
+      ownerId,
+      type: this.primitiveFaker.word(),
+      isRead: false,
+      payload: {},
     };
   }
 }
