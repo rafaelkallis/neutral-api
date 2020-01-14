@@ -1,4 +1,3 @@
-import { RoleService } from './role.service';
 import { UserEntity, UserRepository, FakeUserRepository } from 'user';
 import {
   ProjectEntity,
@@ -20,8 +19,10 @@ import { MockEmailSender } from 'email';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
 import { MockEventPublisher } from 'event';
+import { RoleDomainService } from 'role/services/role-domain.service';
+import { RoleApplicationService } from 'role/services/role-application.service';
 
-describe('role service', () => {
+describe('role application service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
@@ -32,12 +33,12 @@ describe('role service', () => {
   let peerReviewRepository: PeerReviewRepository;
   let emailSender: MockEmailSender;
 
-  let roleService: RoleService;
+  let roleDomain: RoleDomainService;
+  let roleApplication: RoleApplicationService;
 
   let ownerUser: UserEntity;
   let project: ProjectEntity;
-  let role1: RoleEntity;
-  let role2: RoleEntity;
+  let roles: RoleEntity[];
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
@@ -50,25 +51,30 @@ describe('role service', () => {
     peerReviewRepository = new FakePeerReviewRepository();
     emailSender = new MockEmailSender();
 
-    roleService = new RoleService(
+    roleDomain = new RoleDomainService(
       eventPublisher,
+      userRepository,
+      roleRepository,
+      emailSender,
+    );
+    roleApplication = new RoleApplicationService(
+      roleDomain,
       userRepository,
       projectRepository,
       roleRepository,
       peerReviewRepository,
-      emailSender,
     );
+
     ownerUser = entityFaker.user();
     await userRepository.persist(ownerUser);
     project = entityFaker.project(ownerUser.id);
     await projectRepository.persist(project);
-    role1 = entityFaker.role(project.id);
-    role2 = entityFaker.role(project.id);
-    await roleRepository.persist(role1, role2);
+    roles = [entityFaker.role(project.id), entityFaker.role(project.id)];
+    await roleRepository.persist(...roles);
   });
 
   test('should be defined', () => {
-    expect(roleService).toBeDefined();
+    expect(roleApplication).toBeDefined();
   });
 
   describe('get roles', () => {
@@ -79,19 +85,19 @@ describe('role service', () => {
     });
 
     test('happy path', async () => {
-      const actualRoleDtos = await roleService.getRoles(
+      const actualRoleDtos = await roleApplication.getRoles(
         ownerUser,
         getRolesQueryDto,
       );
       const expectedRoleDtos = [
-        await RoleDtoBuilder.of(role1)
+        await RoleDtoBuilder.of(roles[0])
           .withProject(project)
-          .withProjectRoles([role1, role2])
+          .withProjectRoles(roles)
           .withAuthUser(ownerUser)
           .build(),
-        await RoleDtoBuilder.of(role2)
+        await RoleDtoBuilder.of(roles[1])
           .withProject(project)
-          .withProjectRoles([role1, role2])
+          .withProjectRoles(roles)
           .withAuthUser(ownerUser)
           .build(),
       ];
@@ -103,15 +109,18 @@ describe('role service', () => {
     let sentPeerReview: PeerReviewEntity;
 
     beforeEach(async () => {
-      sentPeerReview = entityFaker.peerReview(role1.id, role2.id);
+      sentPeerReview = entityFaker.peerReview(roles[0].id, roles[1].id);
       await peerReviewRepository.persist(sentPeerReview);
     });
 
     test('happy path', async () => {
-      const actualRoleDto = await roleService.getRole(ownerUser, role1.id);
-      const expectedRoleDto = await RoleDtoBuilder.of(role1)
+      const actualRoleDto = await roleApplication.getRole(
+        ownerUser,
+        roles[0].id,
+      );
+      const expectedRoleDto = await RoleDtoBuilder.of(roles[0])
         .withProject(project)
-        .withProjectRoles([role1, role2])
+        .withProjectRoles(roles)
         .withAuthUser(ownerUser)
         .addSentPeerReviews(async () => [sentPeerReview])
         .build();
@@ -132,27 +141,24 @@ describe('role service', () => {
         title,
         description,
       });
-      jest.spyOn(roleRepository, 'persist');
+      jest.spyOn(roleDomain, 'createRole');
     });
 
     test('happy path', async () => {
-      await roleService.createRole(ownerUser, createRoleDto);
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          projectId: createRoleDto.projectId,
-          assigneeId: null,
-          title: createRoleDto.title,
-          description: createRoleDto.description,
-        }),
+      await roleApplication.createRole(ownerUser, createRoleDto);
+      expect(roleDomain.createRole).toHaveBeenCalledWith(
+        createRoleDto,
+        project,
       );
     });
 
-    test('should fail when project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
+    test('should fail if authenticated user is not project owner', async () => {
+      const otherUser = entityFaker.user();
+      await userRepository.persist(otherUser);
       await expect(
-        roleService.createRole(ownerUser, createRoleDto),
+        roleApplication.createRole(otherUser, createRoleDto),
       ).rejects.toThrow();
+      expect(roleDomain.createRole).not.toHaveBeenCalled();
     });
   });
 
@@ -163,23 +169,22 @@ describe('role service', () => {
       updateRoleDto = UpdateRoleDto.from({
         title: primitiveFaker.words(),
       });
-      jest.spyOn(roleRepository, 'persist');
+      jest.spyOn(roleDomain, 'updateRole');
     });
 
     test('happy path', async () => {
-      const actualRoleDto = await roleService.updateRole(
+      const actualRoleDto = await roleApplication.updateRole(
         ownerUser,
-        role1.id,
+        roles[0].id,
+        updateRoleDto,
+      );
+      expect(roleDomain.updateRole).toHaveBeenCalledWith(
+        project,
+        roles[0],
         updateRoleDto,
       );
       expect(actualRoleDto).toEqual(
         expect.objectContaining({
-          title: updateRoleDto.title,
-        }),
-      );
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: role1.id,
           title: updateRoleDto.title,
         }),
       );
@@ -189,27 +194,29 @@ describe('role service', () => {
       const nonOwnerUser = entityFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
-        roleService.updateRole(nonOwnerUser, role1.id, updateRoleDto),
+        roleApplication.updateRole(nonOwnerUser, roles[0].id, updateRoleDto),
       ).rejects.toThrow();
-    });
-
-    test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
-      await expect(
-        roleService.updateRole(ownerUser, role1.id, updateRoleDto),
-      ).rejects.toThrow();
+      expect(roleDomain.updateRole).not.toHaveBeenCalled();
     });
   });
 
   describe('delete role', () => {
     beforeEach(() => {
-      jest.spyOn(roleRepository, 'delete');
+      jest.spyOn(roleDomain, 'deleteRole');
     });
 
     test('happy path', async () => {
-      await roleService.deleteRole(ownerUser, role1.id);
-      expect(roleRepository.delete).toHaveBeenCalledWith(role1);
+      await roleApplication.deleteRole(ownerUser, roles[0].id);
+      expect(roleDomain.deleteRole).toHaveBeenCalledWith(project, roles[0]);
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const nonOwnerUser = entityFaker.user();
+      await userRepository.persist(nonOwnerUser);
+      await expect(
+        roleApplication.deleteRole(nonOwnerUser, roles[0].id),
+      ).rejects.toThrow();
+      expect(roleDomain.deleteRole).not.toHaveBeenCalled();
     });
   });
 
@@ -221,82 +228,32 @@ describe('role service', () => {
       assigneeUser = entityFaker.user();
       await userRepository.persist(assigneeUser);
       assignmentDto = AssignmentDto.from({ assigneeId: assigneeUser.id });
-      jest.spyOn(userRepository, 'persist');
-      jest.spyOn(roleRepository, 'persist');
-      jest.spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail');
+      jest.spyOn(roleDomain, 'assignUser');
+      jest.spyOn(roleDomain, 'assignUserByEmailAndCreateIfNotExists');
     });
 
     test('happy path', async () => {
-      await roleService.assignUser(ownerUser, role1.id, assignmentDto);
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: role1.id,
-          assigneeId: assigneeUser.id,
-        }),
+      await roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto);
+      expect(roleDomain.assignUser).toHaveBeenCalledWith(
+        project,
+        roles[0],
+        assigneeUser,
+        roles,
       );
     });
 
-    test('happy path, email of existing user', async () => {
+    test('happy path, by email', async () => {
       assignmentDto = AssignmentDto.from({ assigneeEmail: assigneeUser.email });
-      await roleService.assignUser(ownerUser, role1.id, assignmentDto);
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: role1.id,
-          assigneeId: assigneeUser.id,
-        }),
-      );
-    });
-
-    test('happy path, email of non-existing user', async () => {
-      const assigneeEmail = primitiveFaker.email();
-      assignmentDto = AssignmentDto.from({ assigneeEmail });
-      jest.spyOn(userRepository, 'existsByEmail').mockResolvedValue(false);
-      jest.spyOn(userRepository, 'persist').mockResolvedValue();
-      await roleService.assignUser(ownerUser, role1.id, assignmentDto);
-      expect(userRepository.existsByEmail).toHaveBeenCalledWith(assigneeEmail);
-      expect(userRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({ email: assigneeEmail }),
-      );
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: role1.id,
-          assigneeId: expect.any(String),
-        }),
-      );
+      await roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto);
       expect(
-        emailSender.sendUnregisteredUserNewAssignmentEmail,
-      ).toHaveBeenCalledWith(assigneeEmail);
-    });
-
-    test('project owner assignment is allowed', async () => {
-      assignmentDto.assigneeId = ownerUser.id;
-      await roleService.assignUser(ownerUser, role1.id, assignmentDto);
-      expect(roleRepository.persist).toHaveBeenCalledWith(
-        expect.objectContaining({ assigneeId: ownerUser.id }),
-      );
+        roleDomain.assignUserByEmailAndCreateIfNotExists,
+      ).toHaveBeenCalledWith(project, roles[0], assigneeUser.email, roles);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       project.ownerId = primitiveFaker.id();
       await expect(
-        roleService.assignUser(ownerUser, role1.id, assignmentDto),
-      ).rejects.toThrow();
-    });
-
-    test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await expect(
-        roleService.assignUser(ownerUser, role1.id, assignmentDto),
-      ).rejects.toThrow();
-    });
-
-    test('should fail if user already assigned to another role in same project', async () => {
-      const role2 = entityFaker.role(project.id, assigneeUser.id);
-      jest
-        .spyOn(roleRepository, 'findByProjectId')
-        .mockResolvedValue([role1, role2]);
-      await expect(
-        roleService.assignUser(ownerUser, role1.id, assignmentDto),
+        roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto),
       ).rejects.toThrow();
     });
   });

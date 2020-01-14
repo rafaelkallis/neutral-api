@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
@@ -13,8 +13,10 @@ import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectDto } from './dto/project.dto';
 import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
+import { INestApplication } from '@nestjs/common';
 
 describe('ProjectController (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -33,7 +35,7 @@ describe('ProjectController (e2e)', () => {
     userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
     roleRepository = module.get(ROLE_REPOSITORY);
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
     user = entityFaker.user();
     await userRepository.persist(user);

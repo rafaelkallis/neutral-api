@@ -14,6 +14,7 @@ import { EmailModule } from 'email';
 import { LoggerModule } from 'logger';
 import { SessionMiddleware } from 'session';
 import { NotificationModule } from 'notification/notification.module';
+import { ApmModule } from 'apm';
 
 /**
  * App Module
@@ -22,6 +23,7 @@ import { NotificationModule } from 'notification/notification.module';
   imports: [
     ConfigModule,
     LoggerModule,
+    ApmModule,
     DatabaseModule,
     EmailModule,
     AuthModule,

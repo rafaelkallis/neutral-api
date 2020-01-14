@@ -21,13 +21,13 @@ import {
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'common';
 import { UserEntity } from '../user';
-import { RoleService } from './services/role.service';
 import { RoleDto } from './dto/role.dto';
 import { GetRolesQueryDto } from './dto/get-roles-query.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AssignmentDto } from './dto/assignment.dto';
 import { AuthUser, AuthGuard } from 'auth';
+import { RoleApplicationService } from 'role/services/role-application.service';
 
 /**
  * Role Controller
@@ -36,10 +36,10 @@ import { AuthUser, AuthGuard } from 'auth';
 @UseGuards(AuthGuard)
 @ApiTags('Roles')
 export class RoleController {
-  private readonly roleService: RoleService;
+  private readonly roleApplication: RoleApplicationService;
 
-  public constructor(roleService: RoleService) {
-    this.roleService = roleService;
+  public constructor(roleApplication: RoleApplicationService) {
+    this.roleApplication = roleApplication;
   }
 
   /**
@@ -58,7 +58,7 @@ export class RoleController {
     @AuthUser() authUser: UserEntity,
     @Query(ValidationPipe) query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    return this.roleService.getRoles(authUser, query);
+    return this.roleApplication.getRoles(authUser, query);
   }
 
   /**
@@ -74,7 +74,7 @@ export class RoleController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<RoleDto> {
-    return this.roleService.getRole(authUser, id);
+    return this.roleApplication.getRole(authUser, id);
   }
 
   /**
@@ -103,7 +103,7 @@ export class RoleController {
     @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: CreateRoleDto,
   ): Promise<RoleDto> {
-    return this.roleService.createRole(authUser, dto);
+    return this.roleApplication.createRole(authUser, dto);
   }
 
   /**
@@ -126,7 +126,7 @@ export class RoleController {
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateRoleDto,
   ): Promise<RoleDto> {
-    return this.roleService.updateRole(authUser, id, dto);
+    return this.roleApplication.updateRole(authUser, id, dto);
   }
 
   /**
@@ -149,7 +149,7 @@ export class RoleController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.roleService.deleteRole(authUser, id);
+    return this.roleApplication.deleteRole(authUser, id);
   }
 
   /**
@@ -173,6 +173,6 @@ export class RoleController {
     @Param('id') id: string,
     @Body(ValidationPipe) dto: AssignmentDto,
   ): Promise<RoleDto> {
-    return this.roleService.assignUser(authUser, id, dto);
+    return this.roleApplication.assignUser(authUser, id, dto);
   }
 }

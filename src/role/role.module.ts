@@ -1,7 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { UserModule } from 'user/user.module';
 import { ProjectModule } from 'project/project.module';
-import { RoleService } from 'role/services/role.service';
 import { RoleController } from 'role/role.controller';
 import { TypeOrmRoleRepository } from 'role/repositories/typeorm-role.repository';
 import { TypeOrmPeerReviewRepository } from 'role/repositories/typeorm-peer-review.repository';
@@ -12,6 +11,8 @@ import { EmailModule } from 'email';
 import { ConfigModule } from 'config';
 import { TokenModule } from 'token';
 import { EventModule } from 'event';
+import { RoleApplicationService } from 'role/services/role-application.service';
+import { RoleDomainService } from 'role/services/role-domain.service';
 
 /**
  * Role Module
@@ -36,7 +37,8 @@ import { EventModule } from 'event';
       provide: PEER_REVIEW_REPOSITORY,
       useClass: TypeOrmPeerReviewRepository,
     },
-    RoleService,
+    RoleApplicationService,
+    RoleDomainService,
   ],
   exports: [ROLE_REPOSITORY, PEER_REVIEW_REPOSITORY],
 })

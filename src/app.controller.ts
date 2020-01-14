@@ -1,5 +1,4 @@
 import { Controller, Get } from '@nestjs/common';
-import * as os from 'os';
 
 /**
  * App Controller
@@ -10,19 +9,7 @@ export class AppController {
    * Get the status of the app.
    */
   @Get('status')
-  public getStatus(): GetStatusResponse {
-    return {
-      uptime: os.uptime(),
-      loadavg: os.loadavg(),
-      freemem: os.freemem(),
-      totalmem: os.totalmem(),
-    };
+  public getStatus(): { message: string } {
+    return { message: 'service lives!' };
   }
-}
-
-interface GetStatusResponse {
-  uptime: number;
-  loadavg: number[];
-  freemem: number;
-  totalmem: number;
 }

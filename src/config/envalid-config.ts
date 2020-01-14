@@ -17,6 +17,7 @@ export class EnvalidConfig extends Config {
   private createAndValidateConfig(): ConfigProps {
     return envalid.cleanEnv<ConfigProps>(process.env, {
       NODE_ENV: envalid.str({ choices: ['production', 'test', 'development'] }),
+      SERVER_NAME: envalid.str(),
       PORT: envalid.port(),
       FRONTEND_URL: envalid.url(),
       SECRET_HEX: this.strHex64(),
@@ -31,6 +32,8 @@ export class EnvalidConfig extends Config {
       EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num(),
       SESSION_NAME: envalid.str(),
       SESSION_MAX_AGE_MIN: envalid.num(),
+      ELASTIC_APM_SECRET_TOKEN: envalid.str(),
+      ELASTIC_APM_SERVER_URL: envalid.url(),
     });
   }
 

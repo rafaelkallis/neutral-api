@@ -1,5 +1,6 @@
 export interface ConfigProps {
   NODE_ENV: string;
+  SERVER_NAME: string;
   PORT: number;
   FRONTEND_URL: string;
   SECRET_HEX: string;
@@ -14,6 +15,8 @@ export interface ConfigProps {
   EMAIL_CHANGE_TOKEN_LIFETIME_MIN: number;
   SESSION_NAME: string;
   SESSION_MAX_AGE_MIN: number;
+  ELASTIC_APM_SECRET_TOKEN: string;
+  ELASTIC_APM_SERVER_URL: string;
 }
 
 /**

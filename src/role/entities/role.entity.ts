@@ -10,6 +10,7 @@ import { Column, Entity } from 'typeorm';
 import { AbstractEntity } from 'common';
 import { Role } from 'role/role';
 import { User } from 'user';
+import { Project } from 'project';
 
 /**
  * Role Entity
@@ -91,5 +92,9 @@ export class RoleEntity extends AbstractEntity implements Role {
 
   public isAssignee(user: User): boolean {
     return this.assigneeId === user.id;
+  }
+
+  public belongsToProject(project: Project): boolean {
+    return this.projectId === project.id;
   }
 }

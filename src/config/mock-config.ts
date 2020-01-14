@@ -30,7 +30,8 @@ export class MockConfig extends Config {
   private createMockConfigProps(): ConfigProps {
     return {
       NODE_ENV: process.env.NODE_ENV || 'development',
-      PORT: 0,
+      SERVER_NAME: '',
+      PORT: -1,
       FRONTEND_URL: '',
       SECRET_HEX: '',
       DATABASE_URL: '',
@@ -44,6 +45,8 @@ export class MockConfig extends Config {
       EMAIL_CHANGE_TOKEN_LIFETIME_MIN: 0,
       SESSION_NAME: '',
       SESSION_MAX_AGE_MIN: 0,
+      ELASTIC_APM_SECRET_TOKEN: '',
+      ELASTIC_APM_SERVER_URL: '',
     };
   }
 }

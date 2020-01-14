@@ -1,4 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InsufficientPermissionsException } from 'common';
 import { UserEntity } from 'user';
 import {
