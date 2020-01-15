@@ -9,11 +9,13 @@ import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exception';
 import { Config, InjectConfig } from 'config';
-import { EmailSender, EMAIL_SENDER } from 'email';
 import { SessionState } from 'session/session-state';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisher, InjectEventPublisher } from 'event';
-import { UserSignupEvent } from 'auth/events/user-signup.event';
+import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
+import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
+import { SignupEvent } from 'auth/events/signup.event';
+import { SigninEvent } from 'auth/events/signin.event';
 
 @Injectable()
 export class AuthService {
@@ -21,19 +23,16 @@ export class AuthService {
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
-  private readonly emailSender: EmailSender;
 
   public constructor(
     @InjectConfig() config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
-    @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.userRepository = userRepository;
     this.eventPublisher = eventPublisher;
     this.tokenService = tokenService;
-    this.emailSender = emailSender;
     this.config = config;
   }
 
@@ -52,7 +51,9 @@ export class AuthService {
     const magicLoginLink = `${this.config.get(
       'FRONTEND_URL',
     )}/login/callback?token=${encodeURIComponent(loginToken)}`;
-    await this.emailSender.sendLoginEmail(email, magicLoginLink);
+    await this.eventPublisher.publish(
+      new SigninRequestedEvent(user, magicLoginLink),
+    );
   }
 
   /**
@@ -73,6 +74,7 @@ export class AuthService {
     }
 
     user.lastLoginAt = Date.now();
+    await this.eventPublisher.publish(new SigninEvent(user));
     await this.userRepository.persist(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
@@ -97,7 +99,9 @@ export class AuthService {
     const magicSignupLink = `${this.config.get(
       'FRONTEND_URL',
     )}/signup/callback?token=${encodeURIComponent(signupToken)}`;
-    await this.emailSender.sendSignupEmail(email, magicSignupLink);
+    await this.eventPublisher.publish(
+      new SignupRequestedEvent(email, magicSignupLink),
+    );
   }
 
   /**
@@ -126,7 +130,7 @@ export class AuthService {
       lastLoginAt: Date.now(),
     });
     await this.userRepository.persist(user);
-    await this.eventPublisher.publish(new UserSignupEvent(user));
+    await this.eventPublisher.publish(new SignupEvent(user));
 
     const sessionToken = this.tokenService.newSessionToken(user.id);
     session.set(sessionToken);

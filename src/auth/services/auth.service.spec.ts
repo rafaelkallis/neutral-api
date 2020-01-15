@@ -6,12 +6,15 @@ import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
 import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
-import { MockEmailSender } from 'email';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
 import { MockConfig } from 'config';
 import { MockTokenService } from 'token';
 import { MockEventPublisher } from 'event';
+import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
+import { SigninEvent } from 'auth/events/signin.event';
+import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
+import { SignupEvent } from 'auth/events/signup.event';
 
 describe('auth service', () => {
   let entityFaker: EntityFaker;
@@ -20,7 +23,6 @@ describe('auth service', () => {
   let config: MockConfig;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
-  let emailSender: MockEmailSender;
   let tokenService: MockTokenService;
 
   beforeEach(() => {
@@ -28,7 +30,6 @@ describe('auth service', () => {
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfig();
     eventPublisher = new MockEventPublisher();
-    emailSender = new MockEmailSender();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();
 
@@ -37,7 +38,6 @@ describe('auth service', () => {
       eventPublisher,
       userRepository,
       tokenService,
-      emailSender,
     );
   });
 
@@ -52,16 +52,14 @@ describe('auth service', () => {
       user = entityFaker.user();
       await userRepository.persist(user);
       config.set('FRONTEND_URL', 'https://example.com');
-      jest.spyOn(emailSender, 'sendLoginEmail');
     });
 
     test('happy path', async () => {
       const email = user.email;
       const requestLoginDto = RequestLoginDto.from({ email });
       await authService.requestLogin(requestLoginDto);
-      expect(emailSender.sendLoginEmail).toHaveBeenCalledWith(
-        email,
-        expect.any(String),
+      expect(eventPublisher.getPublishedEvents()).toContainEqual(
+        expect.any(SigninRequestedEvent),
       );
     });
   });
@@ -88,22 +86,23 @@ describe('auth service', () => {
         refreshToken: expect.any(String),
       });
       expect(session.set).toHaveBeenCalled();
+      expect(eventPublisher.getPublishedEvents()).toContainEqual(
+        expect.any(SigninEvent),
+      );
     });
   });
 
   describe('request magic signup', () => {
     beforeEach(() => {
       jest.spyOn(userRepository, 'exists');
-      jest.spyOn(emailSender, 'sendSignupEmail');
     });
 
     test('happy path', async () => {
       const email = primitiveFaker.email();
       const dto = RequestSignupDto.from({ email });
       await authService.requestSignup(dto);
-      expect(emailSender.sendSignupEmail).toHaveBeenCalledWith(
-        email,
-        expect.any(String),
+      expect(eventPublisher.getPublishedEvents()).toContainEqual(
+        expect.any(SignupRequestedEvent),
       );
     });
   });
@@ -141,6 +140,9 @@ describe('auth service', () => {
           firstName,
           lastName,
         }),
+      );
+      expect(eventPublisher.getPublishedEvents()).toContainEqual(
+        expect.any(SignupEvent),
       );
     });
 

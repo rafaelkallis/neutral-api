@@ -2,7 +2,6 @@ import { EntityFaker, PrimitiveFaker } from 'test';
 import { UserEntity } from 'user/entities/user.entity';
 import { UserRepository } from 'user/repositories/user.repository';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
-import { MockEmailSender, EmailSender } from 'email';
 import { MockConfig, Config } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import {
@@ -17,7 +16,6 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
-  let emailSender: EmailSender;
   let tokenService: TokenService;
   let userDomainService: UserDomainService;
   let user: UserEntity;
@@ -28,14 +26,12 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
-    emailSender = new MockEmailSender();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,
       eventPublisher,
       userRepository,
       tokenService,
-      emailSender,
     );
 
     user = entityFaker.user();
@@ -56,15 +52,10 @@ describe('user service', () => {
       firstName = primitiveFaker.word();
       updateUserOptions = { email, firstName };
       jest.spyOn(userRepository, 'persist');
-      jest.spyOn(emailSender, 'sendEmailChangeEmail');
     });
 
     test('happy path', async () => {
       await userDomainService.updateUser(user, updateUserOptions);
-      expect(emailSender.sendEmailChangeEmail).toHaveBeenCalledWith(
-        email,
-        expect.any(String),
-      );
       expect(userRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({ firstName }),
       );

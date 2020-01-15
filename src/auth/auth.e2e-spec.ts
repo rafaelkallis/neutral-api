@@ -7,7 +7,7 @@ import { EntityFaker, PrimitiveFaker } from 'test';
 import { EmailSender, EMAIL_SENDER } from 'email';
 import { TokenService, TOKEN_SERVICE } from 'token';
 
-describe('AuthController (e2e)', () => {
+describe('auth (e2e)', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -85,7 +85,7 @@ describe('AuthController (e2e)', () => {
     beforeEach(() => {
       email = primitiveFaker.email();
       jest.spyOn(tokenService, 'newSignupToken');
-      jest.spyOn(emailService, 'sendSignupEmail').mockResolvedValue();
+      jest.spyOn(emailService, 'sendSignupEmail');
     });
 
     test('happy path', async () => {

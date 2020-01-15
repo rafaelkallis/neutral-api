@@ -6,7 +6,6 @@ import {
   USER_REPOSITORY,
 } from 'user/repositories/user.repository';
 import { Config, InjectConfig } from 'config';
-import { EmailSender, EMAIL_SENDER } from 'email';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisher, InjectEventPublisher } from 'event';
 import { UserUpdatedEvent } from 'user/events/user-updated.event';
@@ -26,20 +25,17 @@ export class UserDomainService {
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
-  private readonly emailSender: EmailSender;
 
   public constructor(
     @InjectConfig() config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
-    @Inject(EMAIL_SENDER) emailSender: EmailSender,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.tokenService = tokenService;
-    this.emailSender = emailSender;
   }
 
   /**
@@ -62,9 +58,8 @@ export class UserDomainService {
       const emailChangeMagicLink = `${this.config.get(
         'FRONTEND_URL',
       )}/email_change/callback?token=${token}`;
-      await this.emailSender.sendEmailChangeEmail(email, emailChangeMagicLink);
       await this.eventPublisher.publish(
-        new EmailChangeRequestedEvent(user, email),
+        new EmailChangeRequestedEvent(user, email, emailChangeMagicLink),
       );
     }
     Object.assign(user, otherChanges);

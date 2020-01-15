@@ -7,10 +7,12 @@ import { UserEntity } from 'user/entities/user.entity';
 export class EmailChangeRequestedEvent extends AbstractEvent {
   public readonly user: UserEntity;
   public readonly email: string;
+  public readonly magicEmailChangeLink: string;
 
-  constructor(user: UserEntity, email: string) {
+  constructor(user: UserEntity, email: string, magicEmailChangeLink: string) {
     super();
     this.user = user;
     this.email = email;
+    this.magicEmailChangeLink = magicEmailChangeLink;
   }
 }

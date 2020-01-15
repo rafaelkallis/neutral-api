@@ -5,7 +5,6 @@ import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
-import { MockEmailSender, EmailSender } from 'email';
 import { MockConfig, Config } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/services/user-application.service';
@@ -18,7 +17,6 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
-  let emailSender: EmailSender;
   let tokenService: TokenService;
   let userDomainService: UserDomainService;
   let userApplicationService: UserApplicationService;
@@ -30,14 +28,12 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
-    emailSender = new MockEmailSender();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,
       eventPublisher,
       userRepository,
       tokenService,
-      emailSender,
     );
     userApplicationService = new UserApplicationService(
       userRepository,

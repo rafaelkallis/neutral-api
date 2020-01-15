@@ -104,7 +104,7 @@ export class MockTokenService implements TokenService {
   /**
    * Create a new session token for identifying user sessions.
    */
-  public newSessionToken(sub: string, maxAge: number = 0): string {
+  public newSessionToken(sub: string, maxAge = 0): string {
     const payload: SessionToken = {
       jti: '',
       aud: TokenAud.SESSION,

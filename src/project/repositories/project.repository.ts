@@ -6,4 +6,4 @@ export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
 /**
  * Project Repository
  */
-export interface ProjectRepository extends Repository<ProjectEntity> {}
+export type ProjectRepository = Repository<ProjectEntity>;

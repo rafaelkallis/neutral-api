@@ -2,9 +2,9 @@ import { AbstractEvent } from 'event';
 import { UserEntity } from 'user';
 
 /**
- * User Signup Event
+ * Signup Event
  */
-export class UserSignupEvent extends AbstractEvent {
+export class SignupEvent extends AbstractEvent {
   public readonly user: UserEntity;
 
   constructor(user: UserEntity) {
