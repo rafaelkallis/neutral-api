@@ -20,6 +20,7 @@ import {
   BaseToken,
 } from 'token/token-service';
 import ObjectID from 'bson-objectid';
+import { TokenMalformedException } from 'common/exceptions/token-malformed.exception';
 
 /**
  * Jwt Token Service
@@ -257,9 +258,12 @@ export class JwtTokenService implements TokenService {
    * @return The decrypted payload.
    */
   private decrypt(jwe: string): BaseToken {
-    const payload = JSON.parse(
-      JWE.decrypt(jwe, this.jwk).toString('utf8'),
-    ) as BaseToken;
+    let payload: BaseToken;
+    try {
+      payload = JSON.parse(JWE.decrypt(jwe, this.jwk).toString('utf8'));
+    } catch (error) {
+      throw new TokenMalformedException();
+    }
     this.validateBaseToken(payload);
     return payload;
   }

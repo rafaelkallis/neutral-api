@@ -21,4 +21,11 @@ export class TypeOrmRoleRepository extends TypeOrmRepository<RoleEntity> {
   public async findByProjectId(projectId: string): Promise<RoleEntity[]> {
     return await this.getInternalRepository().find({ projectId });
   }
+
+  /**
+   *
+   */
+  public async findByAssigneeId(assigneeId: string): Promise<RoleEntity[]> {
+    return await this.getInternalRepository().find({ assigneeId });
+  }
 }

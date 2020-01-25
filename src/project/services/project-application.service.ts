@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InsufficientPermissionsException } from 'common';
 import { UserEntity } from 'user';
 import {
@@ -12,13 +8,17 @@ import {
 import { RoleRepository, ROLE_REPOSITORY } from 'role';
 
 import { UserNotProjectOwnerException } from 'project/exceptions/user-not-project-owner.exception';
-import { ProjectNotPeerReviewStateException } from 'project/exceptions/project-not-peer-review-state.exception';
 import { CreateProjectDto } from 'project/dto/create-project.dto';
-import { GetProjectsQueryDto } from 'project/dto/get-projects-query.dto';
+import {
+  GetProjectsQueryDto,
+  GetProjectsType,
+} from 'project/dto/get-projects-query.dto';
 import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { ProjectDto } from 'project/dto/project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { ProjectDomainService } from 'project/services/project-domain.service';
+import { ProjectEntity } from 'project/entities/project.entity';
+import { InvalidProjectTypeQueryException } from 'project/exceptions/invalid-project-type-query.exception';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -43,7 +43,25 @@ export class ProjectApplicationService {
     authUser: UserEntity,
     query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    const projects = await this.projectRepository.findPage(query.after);
+    let projects: ProjectEntity[] = [];
+    switch (query.type) {
+      case GetProjectsType.CREATED: {
+        projects = await this.projectRepository.findByOwnerId(authUser.id);
+        break;
+      }
+      case GetProjectsType.ASSIGNED: {
+        const assignedRoles = await this.roleRepository.findByAssigneeId(
+          authUser.id,
+        );
+        projects = await this.projectRepository.findByIds(
+          assignedRoles.map(role => role.projectId),
+        );
+        break;
+      }
+      default: {
+        throw new InvalidProjectTypeQueryException();
+      }
+    }
     return projects.map(project =>
       ProjectDto.builder()
         .project(project)

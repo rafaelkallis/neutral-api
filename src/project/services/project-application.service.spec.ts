@@ -14,7 +14,10 @@ import { EntityFaker, PrimitiveFaker } from 'test';
 import { ProjectApplicationService } from 'project/services/project-application.service';
 import { ProjectDto } from 'project/dto/project.dto';
 import { CreateProjectDto } from 'project/dto/create-project.dto';
-import { GetProjectsQueryDto } from 'project/dto/get-projects-query.dto';
+import {
+  GetProjectsQueryDto,
+  GetProjectsType,
+} from 'project/dto/get-projects-query.dto';
 import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { ProjectState } from 'project/project';
@@ -81,7 +84,7 @@ describe('project application service', () => {
     expect(projectApplicationService).toBeDefined();
   });
 
-  describe('get projects', () => {
+  describe('get created projects', () => {
     let projects: ProjectEntity[];
     let query: GetProjectsQueryDto;
 
@@ -92,7 +95,7 @@ describe('project application service', () => {
         entityFaker.project(ownerUser.id),
       ];
       await projectRepository.persist(...projects);
-      query = GetProjectsQueryDto.from({});
+      query = new GetProjectsQueryDto(GetProjectsType.CREATED);
     });
 
     test('happy path', async () => {
@@ -104,6 +107,47 @@ describe('project application service', () => {
       );
       const actualProjectDtos = await projectApplicationService.getProjects(
         ownerUser,
+        query,
+      );
+      for (const expectedProjectDto of expectedProjectDtos) {
+        expect(actualProjectDtos).toContainEqual(expectedProjectDto);
+      }
+    });
+  });
+
+  describe('get assigned projects', () => {
+    let projects: ProjectEntity[];
+    let assigneeUser: UserEntity;
+    let roles: RoleEntity[];
+    let query: GetProjectsQueryDto;
+
+    beforeEach(async () => {
+      projects = [
+        entityFaker.project(ownerUser.id),
+        entityFaker.project(ownerUser.id),
+        entityFaker.project(ownerUser.id),
+      ];
+      await projectRepository.persist(...projects);
+      assigneeUser = entityFaker.user();
+      await userRepository.persist(assigneeUser);
+      roles = [
+        entityFaker.role(projects[0].id, assigneeUser.id),
+        entityFaker.role(projects[1].id, assigneeUser.id),
+        entityFaker.role(projects[2].id, assigneeUser.id),
+      ];
+      await roleRepository.persist(...roles);
+      query = new GetProjectsQueryDto(GetProjectsType.ASSIGNED);
+    });
+
+    test('happy path', async () => {
+      const expectedProjectDtos = projects.map(project =>
+        ProjectDto.builder()
+          .project(project)
+          .authUser(ownerUser)
+          .build(),
+      );
+      const actualProjectDtos = await projectApplicationService.getProjects(
+        assigneeUser,
         query,
       );
       for (const expectedProjectDto of expectedProjectDtos) {

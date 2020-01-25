@@ -16,6 +16,7 @@ import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
 import { SignupEvent } from 'auth/events/signup.event';
 import { SigninEvent } from 'auth/events/signin.event';
+import { UserDto } from 'user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -66,7 +67,7 @@ export class AuthService {
   public async submitLogin(
     loginToken: string,
     session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const user = await this.userRepository.findById(payload.sub);
     if (user.lastLoginAt !== payload.lastLoginAt) {
@@ -81,7 +82,11 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
-    return { accessToken, refreshToken };
+    const userDto = UserDto.builder()
+      .user(user)
+      .authUser(user)
+      .build();
+    return { accessToken, refreshToken, user: userDto };
   }
 
   /**
@@ -114,7 +119,7 @@ export class AuthService {
     signupToken: string,
     dto: SubmitSignupDto,
     session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
     const payload = this.tokenService.validateSignupToken(signupToken);
     const userExists = await this.userRepository.existsByEmail(payload.sub);
     if (userExists) {
@@ -136,7 +141,11 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id);
     const refreshToken = this.tokenService.newRefreshToken(user.id);
-    return { accessToken, refreshToken };
+    const userDto = UserDto.builder()
+      .user(user)
+      .authUser(user)
+      .build();
+    return { accessToken, refreshToken, user: userDto };
   }
 
   /**

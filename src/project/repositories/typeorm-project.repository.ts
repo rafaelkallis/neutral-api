@@ -15,4 +15,8 @@ export class TypeOrmProjectRepository extends TypeOrmRepository<ProjectEntity>
   public constructor(@InjectDatabase() database: Database) {
     super(database, ProjectEntity);
   }
+
+  public async findByOwnerId(ownerId: string): Promise<ProjectEntity[]> {
+    return this.getInternalRepository().find({ ownerId });
+  }
 }

@@ -14,4 +14,13 @@ export class FakeRoleRepository extends FakeRepository<RoleEntity> {
       role => role.projectId === projectId,
     );
   }
+
+  /**
+   *
+   */
+  public async findByAssigneeId(assigneeId: string): Promise<RoleEntity[]> {
+    return Array.from(this.entities.values()).filter(
+      role => role.assigneeId === assigneeId,
+    );
+  }
 }

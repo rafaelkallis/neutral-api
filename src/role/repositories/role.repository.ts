@@ -11,4 +11,9 @@ export interface RoleRepository extends Repository<RoleEntity> {
    *
    */
   findByProjectId(projectId: string): Promise<RoleEntity[]>;
+
+  /**
+   *
+   */
+  findByAssigneeId(assigneeId: string): Promise<RoleEntity[]>;
 }

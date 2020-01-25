@@ -71,6 +71,7 @@ describe('auth (e2e)', () => {
       expect(response.body).toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
+        user: expect.any(Object),
       });
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
@@ -120,6 +121,7 @@ describe('auth (e2e)', () => {
       expect(response.body).toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
+        user: expect.any(Object),
       });
       expect(tokenService.newAccessToken).toHaveBeenCalled();
       expect(tokenService.newRefreshToken).toHaveBeenCalled();

@@ -55,15 +55,15 @@ describe('ProjectController (e2e)', () => {
       await projectRepository.persist(...projects);
       const response = await session
         .get('/projects')
-        .query({ after: projects[0].id });
+        .query({ type: 'created' });
       expect(response.status).toBe(200);
-      const projectDto = ProjectDto.builder()
-        .project(projects[0])
-        .authUser(user)
-        .build();
-      expect(response.body).not.toContainEqual(projectDto);
-      for (const responseProject of response.body) {
-        expect(responseProject.id > projects[0].id).toBeTruthy();
+      expect(response.body).toHaveLength(3);
+      for (const project of projects) {
+        expect(response.body).toContainEqual(
+          expect.objectContaining({
+            id: project.id,
+          }),
+        );
       }
     });
   });

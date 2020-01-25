@@ -84,6 +84,7 @@ describe('auth service', () => {
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
+        user: expect.any(Object),
       });
       expect(session.set).toHaveBeenCalled();
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
@@ -132,6 +133,7 @@ describe('auth service', () => {
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
+        user: expect.any(Object),
       });
       expect(session.set).toHaveBeenCalled();
       expect(userRepository.persist).toHaveBeenCalledWith(
