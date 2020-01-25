@@ -1,13 +1,13 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { Config, InjectConfig } from 'config';
-import { EmailSender } from 'email/email-sender';
+import { EmailService } from 'email/email.service';
 import sendgrid from '@sendgrid/mail';
 
 /**
- * Sendgrid Email Sender
+ * Sendgrid Email Service
  */
 @Injectable()
-export class SendgridEmailSender implements EmailSender {
+export class SendgridEmailService implements EmailService {
   private readonly httpService: HttpService;
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;

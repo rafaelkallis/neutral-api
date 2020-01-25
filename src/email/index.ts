@@ -1,3 +1,3 @@
-export { EMAIL_SENDER, EmailSender } from 'email/email-sender';
-export { MockEmailSender } from 'email/mock-email-sender';
+export { EMAIL_SERVICE, EmailService } from 'email/email.service';
+export { MockEmailService } from 'email/mock-email.service';
 export { EmailModule } from 'email/email.module';

@@ -15,12 +15,12 @@ import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
 import { CreateRoleDto } from 'role/dto/create-role.dto';
 import { UpdateRoleDto } from 'role/dto/update-role.dto';
 import { AssignmentDto } from 'role/dto/assignment.dto';
-import { MockEmailSender } from 'email';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
 import { MockEventPublisher } from 'event';
 import { RoleDomainService } from 'role/services/role-domain.service';
 import { RoleApplicationService } from 'role/services/role-application.service';
+import { MockEmailService } from 'email';
 
 describe('role application service', () => {
   let entityFaker: EntityFaker;
@@ -31,7 +31,7 @@ describe('role application service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
-  let emailSender: MockEmailSender;
+  let emailService: MockEmailService;
 
   let roleDomain: RoleDomainService;
   let roleApplication: RoleApplicationService;
@@ -49,13 +49,13 @@ describe('role application service', () => {
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();
-    emailSender = new MockEmailSender();
+    emailService = new MockEmailService();
 
     roleDomain = new RoleDomainService(
       eventPublisher,
       userRepository,
       roleRepository,
-      emailSender,
+      emailService,
     );
     roleApplication = new RoleApplicationService(
       roleDomain,

@@ -11,9 +11,9 @@ import {
 } from 'project';
 import { RoleEntity, RoleRepository } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { EmailSender, EMAIL_SENDER } from 'email';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
+import { EmailService, EMAIL_SERVICE } from 'email';
 
 describe('assign user to role', () => {
   let entityFaker: EntityFaker;
@@ -22,7 +22,7 @@ describe('assign user to role', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
-  let emailSender: EmailSender;
+  let emailService: EmailService;
   let user: UserEntity;
   let project: ProjectEntity;
   let role: RoleEntity;
@@ -38,7 +38,7 @@ describe('assign user to role', () => {
     projectRepository = module.get(PROJECT_REPOSITORY);
     roleRepository = module.get(ROLE_REPOSITORY);
     tokenService = module.get(TOKEN_SERVICE);
-    emailSender = module.get(EMAIL_SENDER);
+    emailService = module.get(EMAIL_SERVICE);
 
     const app = module.createNestApplication();
     await app.init();
@@ -83,14 +83,14 @@ describe('assign user to role', () => {
     });
 
     test("happy path, email of user that doesn't exist", async () => {
-      jest.spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail');
+      jest.spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail');
       assigneeEmail = primitiveFaker.email();
       const response = await session
         .post(`/roles/${role.id}/assign`)
         .send({ assigneeEmail });
       expect(response.status).toBe(200);
       expect(
-        emailSender.sendUnregisteredUserNewAssignmentEmail,
+        emailService.sendUnregisteredUserNewAssignmentEmail,
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 

@@ -1,19 +1,19 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { EmailSender, EMAIL_SENDER } from 'email/email-sender';
 import { Saga } from 'event';
 import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
+import { EmailService, EMAIL_SERVICE } from 'email/email.service';
 
 /**
  * Email Sagas Service
  */
 @Injectable()
 export class EmailSagasService {
-  private readonly emailSender: EmailSender;
+  private readonly emailService: EmailService;
 
-  public constructor(@Inject(EMAIL_SENDER) emailSender: EmailSender) {
-    this.emailSender = emailSender;
+  public constructor(@Inject(EMAIL_SERVICE) emailService: EmailService) {
+    this.emailService = emailService;
   }
 
   /**
@@ -23,7 +23,7 @@ export class EmailSagasService {
   public async emailChangeRequested(
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
-    await this.emailSender.sendEmailChangeEmail(
+    await this.emailService.sendEmailChangeEmail(
       event.email,
       event.magicEmailChangeLink,
     );
@@ -34,7 +34,7 @@ export class EmailSagasService {
    */
   @Saga(SigninRequestedEvent)
   public async signinRequested(event: SigninRequestedEvent): Promise<void> {
-    await this.emailSender.sendLoginEmail(
+    await this.emailService.sendLoginEmail(
       event.user.email,
       event.magicSigninLink,
     );
@@ -45,6 +45,6 @@ export class EmailSagasService {
    */
   @Saga(SignupRequestedEvent)
   public async signupRequested(event: SignupRequestedEvent): Promise<void> {
-    await this.emailSender.sendSignupEmail(event.email, event.magicSignupLink);
+    await this.emailService.sendSignupEmail(event.email, event.magicSignupLink);
   }
 }

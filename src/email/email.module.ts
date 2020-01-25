@@ -1,8 +1,10 @@
 import { Module, HttpModule } from '@nestjs/common';
-import { EMAIL_SENDER } from 'email/email-sender';
-import { SendgridEmailSender } from 'email/sendgrid-email-sender';
 import { ConfigModule } from 'config';
 import { EmailSagasService } from 'email/email-sagas.service';
+import { EMAIL_TEMPLATE_ENGINE } from 'email/email-template-engine.service';
+import { HandlebarsEmailTemplateEngineService } from 'email/handlebars-email-template-engine.service';
+import { EMAIL_SERVICE } from 'email/email.service';
+import { SendgridEmailService } from 'email/sendgrid-email.service';
 
 /**
  * Email Module
@@ -11,11 +13,15 @@ import { EmailSagasService } from 'email/email-sagas.service';
   imports: [ConfigModule, HttpModule],
   providers: [
     {
-      provide: EMAIL_SENDER,
-      useClass: SendgridEmailSender,
+      provide: EMAIL_SERVICE,
+      useClass: SendgridEmailService,
+    },
+    {
+      provide: EMAIL_TEMPLATE_ENGINE,
+      useClass: HandlebarsEmailTemplateEngineService,
     },
     EmailSagasService,
   ],
-  exports: [EMAIL_SENDER],
+  exports: [EMAIL_SERVICE],
 })
 export class EmailModule {}

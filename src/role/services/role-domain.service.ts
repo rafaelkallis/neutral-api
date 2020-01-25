@@ -8,7 +8,6 @@ import {
 import { ProjectNotFormationStateException } from 'role/exceptions/project-not-formation-state.exception';
 import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create-role-outside-formation-state.exception';
 import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
-import { EmailSender, EMAIL_SENDER } from 'email';
 import { EventPublisher, InjectEventPublisher } from 'event';
 import { RoleCreatedEvent } from 'role/events/role-created.event';
 import { RoleUpdatedEvent } from 'role/events/role-updated.event';
@@ -18,6 +17,7 @@ import { RoleDeletedEvent } from 'role/events/role-deleted.event';
 import { InvariantViolationException } from 'common';
 import { UserUnassignedEvent } from 'role/events/user-unassigned.event';
 import { ProjectEntity } from 'project';
+import { EmailService, EMAIL_SERVICE } from 'email';
 
 export interface CreateRoleOptions {
   readonly title: string;
@@ -34,18 +34,18 @@ export class RoleDomainService {
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly roleRepository: RoleRepository;
-  private readonly emailSender: EmailSender;
+  private readonly emailService: EmailService;
 
   public constructor(
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
-    @Inject(EMAIL_SENDER) emailSender: EmailSender,
+    @Inject(EMAIL_SERVICE) emailService: EmailService,
   ) {
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.roleRepository = roleRepository;
-    this.emailSender = emailSender;
+    this.emailService = emailService;
   }
 
   /**
@@ -132,7 +132,7 @@ export class RoleDomainService {
       await this.eventPublisher.publish(
         new ExistingUserAssignedEvent(project, role),
       );
-      await this.emailSender.sendNewAssignmentEmail(user.email);
+      await this.emailService.sendNewAssignmentEmail(user.email);
     }
   }
 
@@ -173,6 +173,6 @@ export class RoleDomainService {
     await this.eventPublisher.publish(
       new NewUserAssignedEvent(project, role, email),
     );
-    await this.emailSender.sendUnregisteredUserNewAssignmentEmail(user.email);
+    await this.emailService.sendUnregisteredUserNewAssignmentEmail(user.email);
   }
 }

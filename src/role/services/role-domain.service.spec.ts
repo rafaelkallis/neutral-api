@@ -8,10 +8,10 @@ import {
 import { RoleEntity } from 'role/entities/role.entity';
 import { RoleRepository } from 'role/repositories/role.repository';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { MockEmailSender } from 'email';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { MockEventPublisher } from 'event';
 import { RoleDomainService } from 'role/services/role-domain.service';
+import { MockEmailService } from 'email';
 
 describe('role domain service', () => {
   let entityFaker: EntityFaker;
@@ -21,7 +21,7 @@ describe('role domain service', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
-  let emailSender: MockEmailSender;
+  let emailService: MockEmailService;
 
   let roleDomain: RoleDomainService;
 
@@ -37,13 +37,13 @@ describe('role domain service', () => {
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
-    emailSender = new MockEmailSender();
+    emailService = new MockEmailService();
 
     roleDomain = new RoleDomainService(
       eventPublisher,
       userRepository,
       roleRepository,
-      emailSender,
+      emailService,
     );
     ownerUser = entityFaker.user();
     await userRepository.persist(ownerUser);
@@ -139,7 +139,7 @@ describe('role domain service', () => {
       assigneeUser = entityFaker.user();
       await userRepository.persist(assigneeUser);
       jest.spyOn(roleRepository, 'persist');
-      jest.spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail');
+      jest.spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail');
     });
 
     test('happy path', async () => {
@@ -186,7 +186,7 @@ describe('role domain service', () => {
       jest.spyOn(userRepository, 'persist');
       jest.spyOn(roleRepository, 'persist');
       jest.spyOn(roleDomain, 'assignUser');
-      jest.spyOn(emailSender, 'sendUnregisteredUserNewAssignmentEmail');
+      jest.spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail');
     });
 
     test('happy path, existing user', async () => {
@@ -222,7 +222,7 @@ describe('role domain service', () => {
         }),
       );
       expect(
-        emailSender.sendUnregisteredUserNewAssignmentEmail,
+        emailService.sendUnregisteredUserNewAssignmentEmail,
       ).toHaveBeenCalledWith(assigneeEmail);
     });
 

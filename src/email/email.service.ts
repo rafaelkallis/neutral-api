@@ -1,9 +1,10 @@
-export const EMAIL_SENDER = Symbol('EMAIL_SENDER');
+export const EMAIL_SERVICE = Symbol('EMAIL_SERVICE');
 
 /**
- * Email Sender
+ * Email Service.
+ * Facade for email operations.
  */
-export interface EmailSender {
+export interface EmailService {
   /**
    * Sends an email with the login template.
    */
