@@ -2,9 +2,9 @@ import { Module, HttpModule } from '@nestjs/common';
 import { ConfigModule } from 'config';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EMAIL_TEMPLATE_ENGINE } from 'email/email-template-engine.service';
-import { HandlebarsEmailTemplateEngineService } from 'email/handlebars-email-template-engine.service';
 import { EMAIL_SERVICE } from 'email/email.service';
 import { SendgridEmailService } from 'email/sendgrid-email.service';
+import { NunjucksEmailTemplateEngineService } from 'email/nunjucks-email-template-engine.service';
 
 /**
  * Email Module
@@ -18,7 +18,7 @@ import { SendgridEmailService } from 'email/sendgrid-email.service';
     },
     {
       provide: EMAIL_TEMPLATE_ENGINE,
-      useClass: HandlebarsEmailTemplateEngineService,
+      useClass: NunjucksEmailTemplateEngineService,
     },
     EmailSagasService,
   ],

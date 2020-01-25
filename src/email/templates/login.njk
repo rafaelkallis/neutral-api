@@ -1,0 +1,6 @@
+{% extends "base.njk" %}
+{% from "base.njk" import par, cta %}
+
+{{ par("Hi there,") }}
+{{ par("You have requested a login.") }}
+{{ cta("Login", "{{ loginMagicLink }}") }}

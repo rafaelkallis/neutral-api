@@ -7,25 +7,25 @@ export interface EmailTemplateEngineService {
   /**
    *
    */
-  renderLoginEmail(loginMagicLink: string): Promise<string>;
+  renderLoginHtml(loginMagicLink: string): Promise<string>;
 
   /**
    *
    */
-  renderSignupEmail(signupMagicLink: string): Promise<string>;
+  renderSignupHtml(signupMagicLink: string): Promise<string>;
 
   /**
    *
    */
-  renderEmailChangeEmail(emailChangeMagicLink: string): Promise<string>;
+  renderEmailChangeHtml(emailChangeMagicLink: string): Promise<string>;
 
   /**
    *
    */
-  renderNewAssignmentEmail(): Promise<string>;
+  renderNewAssignmentHtml(): Promise<string>;
 
   /**
    *
    */
-  renderUnregisteredUserNewAssignmentEmail(): Promise<string>;
+  renderUnregisteredUserNewAssignmentHtml(): Promise<string>;
 }
