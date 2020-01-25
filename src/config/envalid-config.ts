@@ -17,23 +17,30 @@ export class EnvalidConfig extends Config {
   private createAndValidateConfig(): ConfigProps {
     return envalid.cleanEnv<ConfigProps>(process.env, {
       NODE_ENV: envalid.str({ choices: ['production', 'test', 'development'] }),
-      SERVER_NAME: envalid.str(),
-      PORT: envalid.port(),
-      FRONTEND_URL: envalid.url(),
-      SECRET_HEX: this.strHex64(),
-      DATABASE_URL: envalid.url(),
-      SENDGRID_API_KEY: envalid.str(),
-      SENDGRID_URL: envalid.url(),
-      LOGIN_TOKEN_LIFETIME_MIN: envalid.num(),
-      SIGNUP_TOKEN_LIFETIME_MIN: envalid.num(),
-      ACCESS_TOKEN_LIFETIME_MIN: envalid.num(),
-      REFRESH_TOKEN_LIFETIME_MIN: envalid.num(),
-      SESSION_TOKEN_LIFETIME_MIN: envalid.num(),
-      EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num(),
-      SESSION_NAME: envalid.str(),
-      SESSION_MAX_AGE_MIN: envalid.num(),
-      ELASTIC_APM_SECRET_TOKEN: envalid.str(),
-      ELASTIC_APM_SERVER_URL: envalid.url(),
+      SERVER_NAME: envalid.str({ devDefault: 'development-server' }),
+      PORT: envalid.port({ devDefault: 4000 }),
+      FRONTEND_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
+      SECRET_HEX: this.strHex64({
+        devDefault:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+      }),
+      DATABASE_URL: envalid.url({
+        devDefault: 'postgres://covee-saas:password@localhost:5432/covee-saas',
+      }),
+      SENDGRID_API_KEY: envalid.str({ devDefault: 'sendgrid-api-key' }),
+      SENDGRID_URL: envalid.url({ devDefault: 'http://localhost:3050' }),
+      LOGIN_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 10 }),
+      SIGNUP_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 20 }),
+      ACCESS_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 60 * 24 * 365 }),
+      REFRESH_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 7200 }),
+      SESSION_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 60 * 24 * 7 }),
+      EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 20 }),
+      SESSION_NAME: envalid.str({ devDefault: 'id' }),
+      SESSION_MAX_AGE_MIN: envalid.num({ devDefault: 60 * 24 * 365 }),
+      ELASTIC_APM_SECRET_TOKEN: envalid.str({ devDefault: '' }),
+      ELASTIC_APM_SERVER_URL: envalid.url({
+        devDefault: 'http://localhost:8200',
+      }),
     });
   }
 

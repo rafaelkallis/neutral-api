@@ -1,27 +1,27 @@
-# ------------------------ BUILD
+# installer
+FROM node:lts-alpine as installer
 
-FROM node:12-alpine AS build-env
-# https://github.com/nodejs/docker-node
+WORKDIR app
+COPY package*.json ./
 
-COPY . ./app
-WORKDIR /app
+RUN npm install
 
-RUN yarn
-RUN yarn build
-#ENTRYPOINT ["serve", "-s build"]
+# builder
+FROM node:lts-alpine as builder
+WORKDIR app
+COPY src src/
+COPY tsconfig.json .
+COPY --from=installer app ./
 
+RUN npm run build
 
-# ------------------------ RUNTIME
+# runner
+FROM node:lts-alpine as runner
 
-FROM nginx:1.17.3-alpine AS runtime
+RUN adduser -h appuser -D appuser
+WORKDIR /home/appuser
+USER appuser
 
-# have a bash and curl
-RUN apk add --update curl && rm -rf /var/cache/apk/*
-RUN apk add --update bash && rm -rf /var/cache/apk/*
+COPY --from=builder app ./
 
-COPY --from=build-env /app/build /app
-WORKDIR /app
-
-EXPOSE 80
-
-ENTRYPOINT ["node", "start:prod"]
+CMD ["npm", "start"]
