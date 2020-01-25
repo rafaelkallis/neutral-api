@@ -3,23 +3,21 @@
 </p>
 <h1 align="center">Covee Network 2.0</h1>
 
-## Installation
+## Usage
 
 ```bash
+
 $ npm install
-```
+$ docker-compose up
 
-## Running the app
-
-```bash
 # development
-$ npm run start
+$ npm run dev
 
-# watch mode
-$ npm run start:dev
+# development watch mode
+$ npm run dev:watch
 
 # production mode
-$ npm run start:prod
+$ npm run start
 ```
 
 ## Test
@@ -38,18 +36,3 @@ $ npm run test:cov
 ## Documentation
 
 Start the app and visit `/docs`.
-
-
-## Docker containerization
-
-Change directory to ```covee-saas-backend``` and execute:
-
-1. Create Docker container
-```
-docker build . -t covee/saas-backend:latest
-```
-
-1. To run the frontend execute:
-```
-docker run -d -p 80:80 covee/saas-backend:latest
-```
