@@ -5,6 +5,7 @@ import { ProjectEntity, ContributionVisibility } from 'project';
 import { RoleEntity } from 'role';
 import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { InternalServerErrorException } from '@nestjs/common';
 
 /**
  * Role DTO
@@ -25,8 +26,19 @@ export class RoleDto extends BaseDto {
   @ApiProperty({ required: false })
   public contribution: number | null;
 
-  @ApiProperty({ required: false })
-  public sentPeerReviews?: PeerReviewDto[];
+  @ApiProperty({
+    required: false,
+    description:
+      'The submitted peer reviews of the role assignee. Only visible to the project manager and the role assignee.',
+  })
+  public submittedPeerReviews: PeerReviewDto[] | null;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Specifies whether or not the assigned user has submitted peer reviews. Only visible to the project manager and the assignee.',
+  })
+  public hasSubmittedPeerReviews: boolean | null;
 
   public constructor(
     id: string,
@@ -35,6 +47,8 @@ export class RoleDto extends BaseDto {
     title: string,
     description: string,
     contribution: number | null,
+    submittedPeerReviews: PeerReviewDto[] | null,
+    hasSubmittedPeerReviews: boolean | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -44,80 +58,78 @@ export class RoleDto extends BaseDto {
     this.title = title;
     this.description = description;
     this.contribution = contribution;
+    this.submittedPeerReviews = submittedPeerReviews;
+    this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
+  }
+
+  public static builder(): RoleStep {
+    return new RoleDtoBuilder();
   }
 }
 
 interface RoleStep {
-  withRole(role: RoleEntity): ProjectStep;
+  role(role: RoleEntity): ProjectStep;
 }
 
 interface ProjectStep {
-  withProject(project: ProjectEntity): ProjectRolesStep;
+  project(project: ProjectEntity): ProjectRolesStep;
 }
 
 interface ProjectRolesStep {
-  withProjectRoles(projectRoles: RoleEntity[]): AuthUserStep;
+  projectRoles(projectRoles: RoleEntity[]): AuthUserStep;
 }
 
 interface AuthUserStep {
-  withAuthUser(authUser: UserEntity): BuildStep;
+  authUser(authUser: UserEntity): BuildStep;
 }
 
 interface BuildStep {
   build(): Promise<RoleDto>;
-  addSentPeerReviews(
-    getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
+  addSubmittedPeerReviews(
+    getSubmittedPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): BuildStep;
 }
 
 /**
  * Role DTO Builder
  */
-export class RoleDtoBuilder
-  implements ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
-  private role: RoleEntity;
-  private project!: ProjectEntity;
-  private projectRoles!: RoleEntity[];
-  private authUser!: UserEntity;
-  private getSentPeerReviews?: () => Promise<PeerReviewEntity[]>;
+class RoleDtoBuilder
+  implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
+  private _role!: RoleEntity;
+  private _project!: ProjectEntity;
+  private _projectRoles!: RoleEntity[];
+  private _authUser!: UserEntity;
+  private _getSubmittedPeerReviews?: () => Promise<PeerReviewEntity[]>;
 
-  private constructor(role: RoleEntity) {
-    this.role = role;
-  }
-
-  public static of(role: RoleEntity): ProjectStep {
-    return new RoleDtoBuilder(role);
-  }
-
-  public withRole(role: RoleEntity): ProjectStep {
-    this.role = role;
+  public role(role: RoleEntity): ProjectStep {
+    this._role = role;
     return this;
   }
 
-  public withProject(project: ProjectEntity): ProjectRolesStep {
-    this.project = project;
+  public project(project: ProjectEntity): ProjectRolesStep {
+    this._project = project;
     return this;
   }
 
-  public withProjectRoles(projectRoles: RoleEntity[]): AuthUserStep {
-    this.projectRoles = projectRoles;
+  public projectRoles(projectRoles: RoleEntity[]): AuthUserStep {
+    this._projectRoles = projectRoles;
     return this;
   }
 
-  public withAuthUser(authUser: UserEntity): BuildStep {
-    this.authUser = authUser;
+  public authUser(authUser: UserEntity): BuildStep {
+    this._authUser = authUser;
     return this;
   }
 
-  public addSentPeerReviews(
+  public addSubmittedPeerReviews(
     getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
   ): BuildStep {
-    this.getSentPeerReviews = getSentPeerReviews;
+    this._getSubmittedPeerReviews = getSentPeerReviews;
     return this;
   }
 
   public async build(): Promise<RoleDto> {
-    const { role } = this;
+    const { _role: role } = this;
     const roleDto = new RoleDto(
       role.id,
       role.projectId,
@@ -125,12 +137,19 @@ export class RoleDtoBuilder
       role.title,
       role.description,
       this.shouldExposeContribution() ? role.contribution : null,
+      null,
+      this.shouldExposeHasSubmittedPeerReviews()
+        ? role.hasSubmittedPeerReviews
+        : null,
       role.createdAt,
       role.updatedAt,
     );
-    if (this.getSentPeerReviews && this.shouldExposeSentPeerReviews()) {
-      const sentPeerReviews = await this.getSentPeerReviews();
-      roleDto.sentPeerReviews = sentPeerReviews.map(pr =>
+    if (
+      this._getSubmittedPeerReviews &&
+      this.shouldExposeSubmittedPeerReviews()
+    ) {
+      const submittedPeerReviews = await this._getSubmittedPeerReviews();
+      roleDto.submittedPeerReviews = submittedPeerReviews.map(pr =>
         PeerReviewDtoBuilder.of(pr).build(),
       );
     }
@@ -138,7 +157,12 @@ export class RoleDtoBuilder
   }
 
   private shouldExposeContribution(): boolean {
-    const { role, project, projectRoles, authUser } = this;
+    const {
+      _role: role,
+      _project: project,
+      _projectRoles: projectRoles,
+      _authUser: authUser,
+    } = this;
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
         return project.isFinishedState();
@@ -167,11 +191,26 @@ export class RoleDtoBuilder
       case ContributionVisibility.NONE: {
         return project.isOwner(authUser);
       }
+
+      default: {
+        throw new InternalServerErrorException();
+      }
     }
   }
 
-  private shouldExposeSentPeerReviews(): boolean {
-    const { role, project, authUser } = this;
+  private shouldExposeHasSubmittedPeerReviews(): boolean {
+    const { _role: role, _project: project, _authUser: authUser } = this;
+    if (project.isOwner(authUser)) {
+      return true;
+    }
+    if (role.isAssignee(authUser)) {
+      return true;
+    }
+    return false;
+  }
+
+  private shouldExposeSubmittedPeerReviews(): boolean {
+    const { _role: role, _project: project, _authUser: authUser } = this;
     if (project.isOwner(authUser)) {
       return true;
     }

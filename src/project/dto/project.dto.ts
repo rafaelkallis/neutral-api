@@ -91,14 +91,14 @@ class AuthUserStep {
 class BuildStep {
   private readonly project: ProjectEntity;
   private readonly authUser: UserEntity;
-  private roles?: RoleEntity[];
+  private roles?: RoleDto[];
 
   public constructor(project: ProjectEntity, authUser: UserEntity) {
     this.project = project;
     this.authUser = authUser;
   }
 
-  public addRoles(roles: RoleEntity[]): this {
+  public addRoles(roles: RoleDto[]): this {
     this.roles = roles;
     return this;
   }

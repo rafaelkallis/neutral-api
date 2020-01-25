@@ -13,7 +13,7 @@ import {
   PeerReviewRepository,
   PEER_REVIEW_REPOSITORY,
 } from 'role/repositories/peer-review.repository';
-import { RoleDto, RoleDtoBuilder } from 'role/dto/role.dto';
+import { RoleDto } from 'role/dto/role.dto';
 import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
 import { CreateRoleDto } from 'role/dto/create-role.dto';
 import { UpdateRoleDto } from 'role/dto/update-role.dto';
@@ -54,10 +54,11 @@ export class RoleApplicationService {
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
-        RoleDtoBuilder.of(role)
-          .withProject(project)
-          .withProjectRoles(projectRoles)
-          .withAuthUser(authUser)
+        RoleDto.builder()
+          .role(role)
+          .project(project)
+          .projectRoles(projectRoles)
+          .authUser(authUser)
           .build(),
       ),
     );
@@ -70,11 +71,12 @@ export class RoleApplicationService {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.of(role)
-      .withProject(project)
-      .withProjectRoles(projectRoles)
-      .withAuthUser(authUser)
-      .addSentPeerReviews(async () =>
+    return RoleDto.builder()
+      .role(role)
+      .project(project)
+      .projectRoles(projectRoles)
+      .authUser(authUser)
+      .addSubmittedPeerReviews(async () =>
         this.peerReviewRepository.findBySenderRoleId(role.id),
       )
       .build();
@@ -93,10 +95,11 @@ export class RoleApplicationService {
     }
     const role = await this.roleDomain.createRole(dto, project);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.of(role)
-      .withProject(project)
-      .withProjectRoles(projectRoles)
-      .withAuthUser(authUser)
+    return RoleDto.builder()
+      .role(role)
+      .project(project)
+      .projectRoles(projectRoles)
+      .authUser(authUser)
       .build();
   }
 
@@ -115,10 +118,11 @@ export class RoleApplicationService {
     }
     await this.roleDomain.updateRole(project, role, updateRoleDto);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
-    return RoleDtoBuilder.of(role)
-      .withProject(project)
-      .withProjectRoles(projectRoles)
-      .withAuthUser(authUser)
+    return RoleDto.builder()
+      .role(role)
+      .project(project)
+      .projectRoles(projectRoles)
+      .authUser(authUser)
       .build();
   }
 
@@ -162,10 +166,11 @@ export class RoleApplicationService {
         projectRoles,
       );
     }
-    return RoleDtoBuilder.of(role)
-      .withProject(project)
-      .withProjectRoles(projectRoles)
-      .withAuthUser(authUser)
+    return RoleDto.builder()
+      .role(role)
+      .project(project)
+      .projectRoles(projectRoles)
+      .authUser(authUser)
       .build();
   }
 }

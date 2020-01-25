@@ -7,7 +7,7 @@ import {
 } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
 import { PeerReviewEntity } from 'role/entities/peer-review.entity';
-import { RoleDtoBuilder } from 'role/dto/role.dto';
+import { RoleDto } from 'role/dto/role.dto';
 import { RoleRepository } from 'role/repositories/role.repository';
 import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
 import { EntityFaker, PrimitiveFaker } from 'test';
@@ -90,15 +90,17 @@ describe('role application service', () => {
         getRolesQueryDto,
       );
       const expectedRoleDtos = [
-        await RoleDtoBuilder.of(roles[0])
-          .withProject(project)
-          .withProjectRoles(roles)
-          .withAuthUser(ownerUser)
+        await RoleDto.builder()
+          .role(roles[0])
+          .project(project)
+          .projectRoles(roles)
+          .authUser(ownerUser)
           .build(),
-        await RoleDtoBuilder.of(roles[1])
-          .withProject(project)
-          .withProjectRoles(roles)
-          .withAuthUser(ownerUser)
+        await RoleDto.builder()
+          .role(roles[1])
+          .project(project)
+          .projectRoles(roles)
+          .authUser(ownerUser)
           .build(),
       ];
       expect(actualRoleDtos).toEqual(expectedRoleDtos);
@@ -118,11 +120,12 @@ describe('role application service', () => {
         ownerUser,
         roles[0].id,
       );
-      const expectedRoleDto = await RoleDtoBuilder.of(roles[0])
-        .withProject(project)
-        .withProjectRoles(roles)
-        .withAuthUser(ownerUser)
-        .addSentPeerReviews(async () => [sentPeerReview])
+      const expectedRoleDto = await RoleDto.builder()
+        .role(roles[0])
+        .project(project)
+        .projectRoles(roles)
+        .authUser(ownerUser)
+        .addSubmittedPeerReviews(async () => [sentPeerReview])
         .build();
       expect(actualRoleDto).toEqual(expectedRoleDto);
     });

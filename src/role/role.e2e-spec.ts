@@ -14,7 +14,7 @@ import { EntityFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
 
-describe('RoleController (e2e)', () => {
+describe('roles (e2e)', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -64,6 +64,8 @@ describe('RoleController (e2e)', () => {
         title: role.title,
         description: role.description,
         contribution: null,
+        submittedPeerReviews: null,
+        hasSubmittedPeerReviews: false,
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
       });
@@ -81,7 +83,8 @@ describe('RoleController (e2e)', () => {
         title: role.title,
         description: role.description,
         contribution: null,
-        sentPeerReviews: [],
+        submittedPeerReviews: [],
+        hasSubmittedPeerReviews: false,
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
       });
@@ -111,6 +114,8 @@ describe('RoleController (e2e)', () => {
         title,
         description,
         contribution: null,
+        submittedPeerReviews: null,
+        hasSubmittedPeerReviews: false,
         createdAt: expect.any(Number),
         updatedAt: expect.any(Number),
       });

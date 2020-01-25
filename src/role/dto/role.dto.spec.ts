@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { UserEntity } from 'user';
 import { ProjectEntity, ProjectState, ContributionVisibility } from 'project';
 import { RoleEntity } from 'role/entities/role.entity';
-import { RoleDtoBuilder } from 'role/dto/role.dto';
+import { RoleDto } from 'role/dto/role.dto';
 import { EntityFaker } from 'test';
 
 describe('role dto', () => {
@@ -28,6 +28,7 @@ describe('role dto', () => {
       entityFaker.role(project.id, users.projectUser.id),
     ];
     role = roles[0];
+    role.hasSubmittedPeerReviews = true;
   });
 
   const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
@@ -55,10 +56,11 @@ describe('role dto', () => {
     async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
       role.contribution = 1;
-      const roleDto = await RoleDtoBuilder.of(role)
-        .withProject(project)
-        .withProjectRoles(roles)
-        .withAuthUser(users[authUser])
+      const roleDto = await RoleDto.builder()
+        .role(role)
+        .project(project)
+        .projectRoles(roles)
+        .authUser(users[authUser])
         .build();
       expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
     },
@@ -68,10 +70,11 @@ describe('role dto', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
     role.contribution = 1;
-    const roleDto = await RoleDtoBuilder.of(role)
-      .withProject(project)
-      .withProjectRoles(roles)
-      .withAuthUser(users.assignee)
+    const roleDto = await RoleDto.builder()
+      .role(role)
+      .project(project)
+      .projectRoles(roles)
+      .authUser(users.assignee)
       .build();
     expect(roleDto.contribution).toBeFalsy();
   });
@@ -86,13 +89,39 @@ describe('role dto', () => {
   test.each(sentPeerReviewsCases)(
     'sent peer reviews',
     async (authUser, areSentPeerReviewsVisible) => {
-      const roleDto = await RoleDtoBuilder.of(role)
-        .withProject(project)
-        .withProjectRoles(roles)
-        .withAuthUser(users[authUser])
-        .addSentPeerReviews(async () => [])
+      const roleDto = await RoleDto.builder()
+        .role(role)
+        .project(project)
+        .projectRoles(roles)
+        .authUser(users[authUser])
+        .addSubmittedPeerReviews(async () => [])
         .build();
-      expect(Boolean(roleDto.sentPeerReviews)).toBe(areSentPeerReviewsVisible);
+      expect(Boolean(roleDto.submittedPeerReviews)).toBe(
+        areSentPeerReviewsVisible,
+      );
+    },
+  );
+
+  const hasSubmittedPeerReviewsCases: [string, boolean][] = [
+    ['owner', true],
+    ['assignee', true],
+    ['projectUser', false],
+    ['publicUser', false],
+  ];
+
+  test.each(hasSubmittedPeerReviewsCases)(
+    'has submitted peer reviews',
+    async (authUser, isHasSubmittedPeerReviewsVisible) => {
+      const roleDto = await RoleDto.builder()
+        .role(role)
+        .project(project)
+        .projectRoles(roles)
+        .authUser(users[authUser])
+        .addSubmittedPeerReviews(async () => [])
+        .build();
+      expect(Boolean(roleDto.hasSubmittedPeerReviews)).toBe(
+        isHasSubmittedPeerReviewsVisible,
+      );
     },
   );
 });
