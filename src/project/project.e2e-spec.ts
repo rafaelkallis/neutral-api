@@ -134,7 +134,7 @@ describe('ProjectController (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
       await userRepository.persist(otherUser);
-      project.ownerId = otherUser.id;
+      project.creatorId = otherUser.id;
       await projectRepository.persist(project);
       const response = await session
         .patch(`/projects/${project.id}`)
@@ -183,7 +183,7 @@ describe('ProjectController (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
       await userRepository.persist(otherUser);
-      project.ownerId = otherUser.id;
+      project.creatorId = otherUser.id;
       await projectRepository.persist(project);
       const response = await session.post(
         `/projects/${project.id}/finish-formation`,

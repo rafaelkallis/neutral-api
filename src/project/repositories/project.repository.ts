@@ -10,5 +10,5 @@ export interface ProjectRepository extends Repository<ProjectEntity> {
   /**
    *
    */
-  findByOwnerId(ownerId: string): Promise<ProjectEntity[]>;
+  findByCreatorId(creatorId: string): Promise<ProjectEntity[]>;
 }

@@ -46,7 +46,7 @@ export class ProjectApplicationService {
     let projects: ProjectEntity[] = [];
     switch (query.type) {
       case GetProjectsType.CREATED: {
-        projects = await this.projectRepository.findByOwnerId(authUser.id);
+        projects = await this.projectRepository.findByCreatorId(authUser.id);
         break;
       }
       case GetProjectsType.ASSIGNED: {
@@ -110,7 +110,7 @@ export class ProjectApplicationService {
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(id);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.projectDomainService.updateProject(project, updateProjectDto);
@@ -125,7 +125,7 @@ export class ProjectApplicationService {
    */
   public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
     const project = await this.projectRepository.findById(id);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.projectDomainService.deleteProject(project);
@@ -139,7 +139,7 @@ export class ProjectApplicationService {
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(id);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.projectDomainService.finishFormation(project);
@@ -184,7 +184,7 @@ export class ProjectApplicationService {
     projectId: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(projectId);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.projectDomainService.submitManagerReview(project);

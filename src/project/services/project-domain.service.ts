@@ -87,12 +87,12 @@ export class ProjectDomainService {
    */
   public async createProject(
     projectOptions: CreateProjectOptions,
-    owner: UserEntity,
+    creator: UserEntity,
   ): Promise<ProjectEntity> {
     const projectId = this.projectRepository.createId();
     const project = ProjectEntity.fromProject({
       id: projectId,
-      ownerId: owner.id,
+      creatorId: creator.id,
       title: projectOptions.title,
       description: projectOptions.description,
       state: ProjectState.FORMATION,
@@ -104,7 +104,7 @@ export class ProjectDomainService {
     });
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
-      new ProjectCreatedEvent(project, owner),
+      new ProjectCreatedEvent(project, creator),
       new ProjectFormationStartedEvent(project),
     );
     return project;

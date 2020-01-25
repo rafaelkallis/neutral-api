@@ -22,7 +22,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  ownerId: string;
+  creatorId: string;
   state: ProjectState;
   consensuality: number | null;
   contributionVisibility: ContributionVisibility;

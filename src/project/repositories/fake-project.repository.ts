@@ -10,9 +10,9 @@ export class FakeProjectRepository extends FakeRepository<ProjectEntity>
   /**
    *
    */
-  public async findByOwnerId(ownerId: string): Promise<ProjectEntity[]> {
+  public async findByCreatorId(creatorId: string): Promise<ProjectEntity[]> {
     return Array.from(this.entities.values()).filter(
-      entity => entity.ownerId === ownerId,
+      entity => entity.creatorId === creatorId,
     );
   }
 }

@@ -169,7 +169,7 @@ class RoleDtoBuilder
       }
 
       case ContributionVisibility.PROJECT: {
-        if (project.isOwner(authUser)) {
+        if (project.isCreator(authUser)) {
           return true;
         }
         if (!project.isFinishedState()) {
@@ -179,7 +179,7 @@ class RoleDtoBuilder
       }
 
       case ContributionVisibility.SELF: {
-        if (project.isOwner(authUser)) {
+        if (project.isCreator(authUser)) {
           return true;
         }
         if (!project.isFinishedState()) {
@@ -189,7 +189,7 @@ class RoleDtoBuilder
       }
 
       case ContributionVisibility.NONE: {
-        return project.isOwner(authUser);
+        return project.isCreator(authUser);
       }
 
       default: {
@@ -200,7 +200,7 @@ class RoleDtoBuilder
 
   private shouldExposeHasSubmittedPeerReviews(): boolean {
     const { _role: role, _project: project, _authUser: authUser } = this;
-    if (project.isOwner(authUser)) {
+    if (project.isCreator(authUser)) {
       return true;
     }
     if (role.isAssignee(authUser)) {
@@ -211,7 +211,7 @@ class RoleDtoBuilder
 
   private shouldExposeSubmittedPeerReviews(): boolean {
     const { _role: role, _project: project, _authUser: authUser } = this;
-    if (project.isOwner(authUser)) {
+    if (project.isCreator(authUser)) {
       return true;
     }
     if (role.isAssignee(authUser)) {

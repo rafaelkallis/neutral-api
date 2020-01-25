@@ -32,10 +32,10 @@ export class ProjectEntity extends AbstractEntity implements Project {
   @MaxLength(1024)
   public description: string;
 
-  @Column({ name: 'owner_id' })
+  @Column({ name: 'creator_id' })
   @IsString()
   @MaxLength(24)
-  public ownerId: string;
+  public creatorId: string;
 
   @Column({ name: 'state', type: 'enum', enum: ProjectState })
   @IsEnum(ProjectState)
@@ -71,7 +71,7 @@ export class ProjectEntity extends AbstractEntity implements Project {
     updatedAt: number,
     title: string,
     description: string,
-    ownerId: string,
+    creatorId: string,
     state: ProjectState,
     consensuality: number | null,
     contributionVisibility: ContributionVisibility,
@@ -80,7 +80,7 @@ export class ProjectEntity extends AbstractEntity implements Project {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
-    this.ownerId = ownerId;
+    this.creatorId = creatorId;
     this.state = state;
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
@@ -99,7 +99,7 @@ export class ProjectEntity extends AbstractEntity implements Project {
       updatedAt,
       project.title,
       project.description,
-      project.ownerId,
+      project.creatorId,
       project.state,
       project.consensuality,
       project.contributionVisibility,
@@ -107,8 +107,8 @@ export class ProjectEntity extends AbstractEntity implements Project {
     );
   }
 
-  public isOwner(user: UserEntity): boolean {
-    return this.ownerId === user.id;
+  public isCreator(user: UserEntity): boolean {
+    return this.creatorId === user.id;
   }
 
   public isFormationState(): boolean {

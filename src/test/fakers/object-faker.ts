@@ -32,10 +32,10 @@ export class ObjectFaker {
   /**
    * Create fake project
    */
-  public project(ownerId: string): Project {
+  public project(creatorId: string): Project {
     return {
       id: this.primitiveFaker.id(),
-      ownerId,
+      creatorId: creatorId,
       title: this.primitiveFaker.words(),
       description: this.primitiveFaker.paragraph(),
       state: ProjectState.FORMATION,

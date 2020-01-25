@@ -156,7 +156,7 @@ describe('roles (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = entityFaker.user();
       await userRepository.persist(otherUser);
-      project.ownerId = otherUser.id;
+      project.creatorId = otherUser.id;
       await projectRepository.persist(project);
       const response = await session.patch(`/roles/${role.id}`).send({ title });
       expect(response.status).toBe(403);
@@ -165,7 +165,7 @@ describe('roles (e2e)', () => {
     test('should fail is project owner is assigned', async () => {
       const response = await session
         .patch(`/roles/${role.id}`)
-        .send({ assigneeId: project.ownerId });
+        .send({ assigneeId: project.creatorId });
       expect(response.status).toBe(400);
     });
   });

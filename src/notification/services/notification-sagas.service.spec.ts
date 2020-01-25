@@ -90,7 +90,7 @@ describe('notification sagas', () => {
 
     expect(notificationRepository.persist).toHaveBeenCalledWith(
       expect.objectContaining({
-        ownerId: project.ownerId,
+        ownerId: project.creatorId,
         type: NotificationType.MANAGER_REVIEW_REQUESTED,
         payload: {
           project: {

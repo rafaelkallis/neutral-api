@@ -90,7 +90,7 @@ export class RoleApplicationService {
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
     const project = await this.projectRepository.findById(dto.projectId);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     const role = await this.roleDomain.createRole(dto, project);
@@ -113,7 +113,7 @@ export class RoleApplicationService {
   ): Promise<RoleDto> {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.roleDomain.updateRole(project, role, updateRoleDto);
@@ -132,7 +132,7 @@ export class RoleApplicationService {
   public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     await this.roleDomain.deleteRole(project, role);
@@ -148,7 +148,7 @@ export class RoleApplicationService {
   ): Promise<RoleDto> {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
-    if (!project.isOwner(authUser)) {
+    if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
     if (!dto.assigneeId && !dto.assigneeEmail) {

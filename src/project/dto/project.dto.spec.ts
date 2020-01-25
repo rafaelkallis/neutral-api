@@ -25,7 +25,7 @@ describe('project dto', () => {
       id: project.id,
       title: project.title,
       description: project.description,
-      ownerId: project.ownerId,
+      creatorId: project.creatorId,
       state: project.state,
       consensuality: null,
       contributionVisibility: project.contributionVisibility,

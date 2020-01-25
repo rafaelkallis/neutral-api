@@ -254,7 +254,7 @@ describe('role application service', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      project.ownerId = primitiveFaker.id();
+      project.creatorId = primitiveFaker.id();
       await expect(
         roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto),
       ).rejects.toThrow();

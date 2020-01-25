@@ -29,6 +29,7 @@ import { AddHasSubmittedPeerReviewsMigration1576331058000 } from 'database/migra
 import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migration/1576415094000-remove-peer-review-visibility.migration';
 import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
 import { Logger, InjectLogger } from 'logger';
+import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migration/1579969356000-rename-project-owner-to-creator-migration';
 
 @Injectable()
 export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
@@ -114,8 +115,8 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
         AddHasSubmittedPeerReviewsMigration1576331058000,
         RemovePeerReviewVisibilityMigration1576415094000,
         AddNotificationsMigration1578833839000,
+        RenameProjectOwnerToCreatorMigration1579969356000,
       ],
-      migrationsRun: true,
     });
   }
 }

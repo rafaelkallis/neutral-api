@@ -97,14 +97,14 @@ export class NotificationSagasService {
     const notifications: ProjectFinishedNotification[] = [
       this.notificationFactory.createProjectFinishedNotification(
         event.project,
-        event.project.ownerId,
+        event.project.creatorId,
       ),
     ];
     for (const role of event.roles) {
       if (!role.assigneeId) {
         throw new InternalServerErrorException();
       }
-      if (event.project.ownerId === role.assigneeId) {
+      if (event.project.creatorId === role.assigneeId) {
         continue;
       }
       const notification = this.notificationFactory.createProjectFinishedNotification(

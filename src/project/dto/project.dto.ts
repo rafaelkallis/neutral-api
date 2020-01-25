@@ -28,7 +28,7 @@ export class ProjectDto extends BaseDto {
   public description: string;
 
   @ApiProperty()
-  public ownerId: string;
+  public creatorId: string;
 
   @ApiProperty()
   public state: ProjectState;
@@ -53,7 +53,7 @@ export class ProjectDto extends BaseDto {
     id: string,
     title: string,
     description: string,
-    ownerId: string,
+    creatorId: string,
     state: ProjectState,
     consensuality: number | null,
     contributionVisibility: ContributionVisibility,
@@ -64,7 +64,7 @@ export class ProjectDto extends BaseDto {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
-    this.ownerId = ownerId;
+    this.creatorId = creatorId;
     this.state = state;
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
@@ -109,7 +109,7 @@ class BuildStep {
       project.id,
       project.title,
       project.description,
-      project.ownerId,
+      project.creatorId,
       project.state,
       this.shouldExposeConsensuality() ? project.consensuality : null,
       project.contributionVisibility,
@@ -125,6 +125,6 @@ class BuildStep {
 
   private shouldExposeConsensuality(): boolean {
     const { project, authUser } = this;
-    return project.isOwner(authUser);
+    return project.isCreator(authUser);
   }
 }

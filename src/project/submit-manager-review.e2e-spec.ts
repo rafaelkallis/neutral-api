@@ -63,7 +63,7 @@ describe('submit manager review (e2e)', () => {
   test('should fail if authenticated user is not the project owner', async () => {
     const otherUser = entityFaker.user();
     await userRepository.persist(otherUser);
-    project.ownerId = otherUser.id;
+    project.creatorId = otherUser.id;
     await projectRepository.persist(project);
 
     const response = await session.post(

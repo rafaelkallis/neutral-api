@@ -92,7 +92,7 @@ export class NotificationFactoryService {
   ): ManagerReviewRequestedNotification {
     return {
       id: this.notificationRepository.createId(),
-      ownerId: project.ownerId,
+      ownerId: project.creatorId,
       type: NotificationType.MANAGER_REVIEW_REQUESTED,
       isRead: false,
       payload: {

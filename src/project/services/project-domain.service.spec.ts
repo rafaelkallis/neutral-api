@@ -32,7 +32,7 @@ describe('project domain service', () => {
   let contributionsModelService: ContributionsModelService;
   let consensualityModelService: ConsensualityModelService;
   let projectDomainService: ProjectDomainService;
-  let ownerUser: UserEntity;
+  let creatorUser: UserEntity;
   let project: ProjectEntity;
 
   beforeEach(async () => {
@@ -55,9 +55,9 @@ describe('project domain service', () => {
       consensualityModelService,
     );
 
-    ownerUser = entityFaker.user();
-    await userRepository.persist(ownerUser);
-    project = entityFaker.project(ownerUser.id);
+    creatorUser = entityFaker.user();
+    await userRepository.persist(creatorUser);
+    project = entityFaker.project(creatorUser.id);
     await projectRepository.persist(project);
   });
 
@@ -78,12 +78,15 @@ describe('project domain service', () => {
     });
 
     test('happy path', async () => {
-      await projectDomainService.createProject(createProjectOptions, ownerUser);
+      await projectDomainService.createProject(
+        createProjectOptions,
+        creatorUser,
+      );
       expect(projectRepository.persist).toHaveBeenCalledWith(
         expect.objectContaining({
           title,
           description,
-          ownerId: ownerUser.id,
+          creatorId: creatorUser.id,
         }),
       );
     });
@@ -128,9 +131,9 @@ describe('project domain service', () => {
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
-      role1 = entityFaker.role(project.id, ownerUser.id);
-      role2 = entityFaker.role(project.id, ownerUser.id);
-      role3 = entityFaker.role(project.id, ownerUser.id);
+      role1 = entityFaker.role(project.id, creatorUser.id);
+      role2 = entityFaker.role(project.id, creatorUser.id);
+      role3 = entityFaker.role(project.id, creatorUser.id);
       await roleRepository.persist(role1, role2, role3);
       jest.spyOn(roleRepository, 'findByProjectId');
       jest.spyOn(projectRepository, 'persist');
@@ -183,7 +186,7 @@ describe('project domain service', () => {
       project.state = ProjectState.PEER_REVIEW;
       await projectRepository.persist(project);
       roles = [
-        entityFaker.role(project.id, ownerUser.id),
+        entityFaker.role(project.id, creatorUser.id),
         entityFaker.role(project.id),
         entityFaker.role(project.id),
         entityFaker.role(project.id),
