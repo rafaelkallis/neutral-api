@@ -1,6 +1,16 @@
 {% extends "base.njk" %}
 {% from "base.njk" import par, cta %}
 
+{% block title %}
+  Covee Magic Login
+{% endblock %}
+
+{% block preheader %}
+  Your magic login link has arrived.
+{% endblock %}
+
+{% block content %}
 {{ par("Hi there,") }}
 {{ par("You have requested a login.") }}
 {{ cta("Login", "{{ loginMagicLink }}") }}
+{% endblock %}

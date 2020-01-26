@@ -1,10 +1,17 @@
 import { Module, HttpModule } from '@nestjs/common';
 import { ConfigModule } from 'config';
 import { EmailSagasService } from 'email/email-sagas.service';
-import { EMAIL_TEMPLATE_ENGINE } from 'email/email-template-engine.service';
 import { EMAIL_SERVICE } from 'email/email.service';
 import { SendgridEmailService } from 'email/sendgrid-email.service';
-import { NunjucksEmailTemplateEngineService } from 'email/nunjucks-email-template-engine.service';
+import { EMAIL_SENDER, SendgridEmailSenderService } from 'email/email-sender';
+import {
+  EMAIL_HTML_RENDERER,
+  NunjucksEmailHtmlRendererService,
+} from 'email/email-html-renderer';
+import {
+  EMAIL_PLAINTEXT_RENDERER,
+  DefaultEmailPlaintextRendererService,
+} from 'email/email-plaintext-renderer';
 
 /**
  * Email Module
@@ -17,8 +24,16 @@ import { NunjucksEmailTemplateEngineService } from 'email/nunjucks-email-templat
       useClass: SendgridEmailService,
     },
     {
-      provide: EMAIL_TEMPLATE_ENGINE,
-      useClass: NunjucksEmailTemplateEngineService,
+      provide: EMAIL_HTML_RENDERER,
+      useClass: NunjucksEmailHtmlRendererService,
+    },
+    {
+      provide: EMAIL_PLAINTEXT_RENDERER,
+      useClass: DefaultEmailPlaintextRendererService,
+    },
+    {
+      provide: EMAIL_SENDER,
+      useClass: SendgridEmailSenderService,
     },
     EmailSagasService,
   ],

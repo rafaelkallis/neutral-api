@@ -1,6 +1,7 @@
 {% extends "base.njk" %}
 {% from "base.njk" import par, cta %}
 
+{% block content %}
 {{ par("Hi there,") }}
 {{
   par(
@@ -10,3 +11,4 @@
 {{ cta("Call To Action", "http://htmlemail.io") }}
 {{ par("This is a really simple email template. Its sole purpose is to get the recipient to click the button with no distractions.") }}
 {{ par("Good luck! Hope it works.") }}
+{% endblock %}

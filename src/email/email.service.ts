@@ -1,8 +1,13 @@
+import { Inject } from '@nestjs/common';
+
 export const EMAIL_SERVICE = Symbol('EMAIL_SERVICE');
+
+export function InjectEmailService(): ParameterDecorator {
+  return Inject(EMAIL_SERVICE);
+}
 
 /**
  * Email Service.
- * Facade for email operations.
  */
 export interface EmailService {
   /**
