@@ -1,4 +1,4 @@
-import { JwtTokenService } from 'token/jwt-token-service';
+import { JwtTokenService } from 'token/jwt-token.service';
 import { MockConfigService } from 'config';
 
 describe('JwtTokenService', () => {

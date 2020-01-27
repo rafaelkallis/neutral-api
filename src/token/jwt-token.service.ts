@@ -18,7 +18,7 @@ import {
   SessionToken,
   EmailChangeToken,
   BaseToken,
-} from 'token/token-service';
+} from 'token/token.service';
 import ObjectID from 'bson-objectid';
 import { TokenMalformedException } from 'common/exceptions/token-malformed.exception';
 

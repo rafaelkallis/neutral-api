@@ -9,7 +9,7 @@ import {
   RefreshToken,
   SessionToken,
   EmailChangeToken,
-} from 'token/token-service';
+} from 'token/token.service';
 
 /**
  * Mock Token Service
