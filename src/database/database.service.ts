@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService, InjectConfig } from 'config';
+import { LoggerService, InjectLogger } from 'logger';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
 
 import { UserEntity } from 'user/entities/user.entity';
@@ -27,19 +28,18 @@ import { AddPeerReviewVisibilityMigration1576252691000 } from 'database/migratio
 import { AddHasSubmittedPeerReviewsMigration1576331058000 } from 'database/migration/1576331058000-add-role-has-submitted-peer-reviews.migration';
 import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migration/1576415094000-remove-peer-review-visibility.migration';
 import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
-import { Logger, InjectLogger } from 'logger';
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migration/1579969356000-rename-project-owner-to-creator-migration';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private static readonly DEFAULT_CONNECTION = 'DEFAULT_CONNECTION';
   private readonly config: ConfigService;
-  private readonly logger: Logger;
+  private readonly logger: LoggerService;
   private readonly connectionManager: ConnectionManager;
 
   public constructor(
     @InjectConfig() config: ConfigService,
-    @InjectLogger() logger: Logger,
+    @InjectLogger() logger: LoggerService,
   ) {
     this.config = config;
     this.logger = logger;

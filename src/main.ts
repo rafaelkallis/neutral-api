@@ -3,12 +3,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'app.module';
 import { ConfigService } from 'config';
 import { CONFIG } from 'config/constants';
-import { Logger } from 'logger';
+import { LoggerService } from 'logger';
 import { LOGGER } from 'logger/constants';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  const logger = app.get<Logger>(LOGGER);
+  const logger = app.get<LoggerService>(LOGGER);
   const config = app.get<ConfigService>(CONFIG);
 
   app.useLogger(logger);

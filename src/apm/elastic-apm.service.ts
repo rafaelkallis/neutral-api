@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Logger, InjectLogger } from 'logger';
+import { LoggerService, InjectLogger } from 'logger';
 import apm from 'elastic-apm-node/start';
 import { ConfigService, InjectConfig } from 'config';
 import { Request } from 'express';
@@ -18,11 +18,11 @@ import { UserEntity } from 'user';
 export class ElasticApmService extends ApmService
   implements OnModuleInit, OnModuleDestroy {
   private readonly config: ConfigService;
-  private readonly logger: Logger;
+  private readonly logger: LoggerService;
 
   public constructor(
     @InjectConfig() config: ConfigService,
-    @InjectLogger() logger: Logger,
+    @InjectLogger() logger: LoggerService,
   ) {
     super();
     this.config = config;

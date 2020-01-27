@@ -5,7 +5,7 @@ import {
   SendEmailOptions,
 } from 'email/email-sender/email-sender.service';
 import { Transporter, createTransport } from 'nodemailer';
-import { Logger, InjectLogger } from 'logger';
+import { LoggerService, InjectLogger } from 'logger';
 
 /**
  * Smtp Email Sender
@@ -13,11 +13,11 @@ import { Logger, InjectLogger } from 'logger';
 @Injectable()
 export class SmtpEmailSenderService
   implements EmailSenderService, OnModuleInit, OnModuleDestroy {
-  private readonly logger: Logger;
+  private readonly logger: LoggerService;
   private readonly transporter: Transporter;
 
   public constructor(
-    @InjectLogger() logger: Logger,
+    @InjectLogger() logger: LoggerService,
     @InjectConfig() config: ConfigService,
   ) {
     this.logger = logger;

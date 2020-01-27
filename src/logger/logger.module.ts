@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { LOGGER } from 'logger/constants';
-import { ConsoleLogger } from 'logger/console-logger';
+import { ConsoleLoggerService } from 'logger/console-logger.service';
 
 /**
  * Logger Module
@@ -9,7 +9,7 @@ import { ConsoleLogger } from 'logger/console-logger';
   providers: [
     {
       provide: LOGGER,
-      useClass: ConsoleLogger,
+      useClass: ConsoleLoggerService,
     },
   ],
   exports: [LOGGER],

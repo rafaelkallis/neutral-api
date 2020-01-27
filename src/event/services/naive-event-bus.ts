@@ -2,10 +2,12 @@ import { EventBus } from 'event/interfaces/event-bus.interface';
 import { EventHandler } from 'event/interfaces/event-handler.interface';
 import { AbstractEvent } from 'event/abstract.event';
 import { EventSubscription } from 'event/interfaces/event-subscription.interface';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Naive Event Bus
  */
+@Injectable()
 export class NaiveEventBus implements EventBus {
   private readonly subscriptions: Map<unknown, Set<EventHandler<any>>>;
 

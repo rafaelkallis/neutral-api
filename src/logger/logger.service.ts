@@ -1,9 +1,9 @@
-import { LoggerService } from '@nestjs/common';
+import { LoggerService as NestLoggerService } from '@nestjs/common';
 
 /**
  * Logger
  */
-export interface Logger extends LoggerService {
+export interface LoggerService extends NestLoggerService {
   /**
    * Log a message at the default level.
    */
