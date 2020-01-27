@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
-interface GetUsersQueryDtoOptions {
-  after?: string;
-  q?: string;
-}
-
 /**
  * Get users query DTO
  */
@@ -25,9 +20,8 @@ export class GetUsersQueryDto {
   })
   public q?: string;
 
-  public static from(options: GetUsersQueryDtoOptions): GetUsersQueryDto {
-    return Object.assign(new GetUsersQueryDto(), options);
+  public constructor(after?: string, q?: string) {
+    this.after = after;
+    this.q = q;
   }
-
-  private constructor() {}
 }

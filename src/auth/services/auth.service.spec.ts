@@ -55,7 +55,7 @@ describe('auth service', () => {
 
     test('happy path', async () => {
       const email = user.email;
-      const requestLoginDto = RequestLoginDto.from({ email });
+      const requestLoginDto = new RequestLoginDto(email);
       await authService.requestLogin(requestLoginDto);
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
         expect.any(SigninRequestedEvent),
@@ -99,7 +99,7 @@ describe('auth service', () => {
 
     test('happy path', async () => {
       const email = primitiveFaker.email();
-      const dto = RequestSignupDto.from({ email });
+      const dto = new RequestSignupDto(email);
       await authService.requestSignup(dto);
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
         expect.any(SignupRequestedEvent),
@@ -120,7 +120,7 @@ describe('auth service', () => {
       firstName = primitiveFaker.word();
       lastName = primitiveFaker.word();
       signupToken = tokenService.newSignupToken(email);
-      submitSignupDto = SubmitSignupDto.from({ firstName, lastName });
+      submitSignupDto = new SubmitSignupDto(firstName, lastName);
       session = new MockSessionState();
       jest.spyOn(session, 'set');
       jest.spyOn(userRepository, 'persist');
@@ -167,7 +167,7 @@ describe('auth service', () => {
     });
 
     test('happy path', async () => {
-      const dto = RefreshDto.from({ refreshToken });
+      const dto = new RefreshDto(refreshToken);
       expect(authService.refresh(dto)).toEqual({
         accessToken: expect.any(String),
       });

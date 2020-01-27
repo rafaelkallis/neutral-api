@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 
-interface RequestSignupDtoOptions {
-  email: string;
-}
-
 /**
  * Request Signup DTO
  */
@@ -14,13 +10,9 @@ export class RequestSignupDto {
     example: 'me@example.com',
     description: 'Email address to send the magic signup link to',
   })
-  public email!: string;
+  public email: string;
 
-  private constructor() {}
-
-  public static from({ email }: RequestSignupDtoOptions): RequestSignupDto {
-    const dto = new RequestSignupDto();
-    dto.email = email;
-    return dto;
+  public constructor(email: string) {
+    this.email = email;
   }
 }

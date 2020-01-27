@@ -29,9 +29,8 @@ export class UpdateProjectDto implements UpdateProjectDtoProps {
   })
   public description?: string;
 
-  private constructor() {}
-
-  public static from(props: UpdateProjectDtoProps): UpdateProjectDto {
-    return Object.assign(new UpdateProjectDto(), props);
+  public constructor(title?: string, description?: string) {
+    this.title = title;
+    this.description = description;
   }
 }

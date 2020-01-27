@@ -12,7 +12,7 @@ export class CreateProjectDto implements CreateProjectOptions {
     example: 'Mars Shuttle',
     description: 'Title of the project',
   })
-  public title!: string;
+  public title: string;
 
   @IsString()
   @ApiProperty({
@@ -20,7 +20,7 @@ export class CreateProjectDto implements CreateProjectOptions {
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui. Fusce ac lobortis ipsum. Praesent vitae pulvinar augue. Phasellus ultricies aliquam ante, efficitur semper ante volutpat sed. In semper turpis ac dui hendrerit, sit amet aliquet velit maximus. Morbi egestas tempor risus, id blandit elit elementum a. Aenean pretium elit a pellentesque mollis. Sed dignissim massa nisi, in consectetur ligula consequat blandit.', // tslint:disable-line:max-line-length
     description: 'Description of the project',
   })
-  public description!: string;
+  public description: string;
 
   @IsEnum(ContributionVisibility)
   @IsOptional()
@@ -40,19 +40,15 @@ export class CreateProjectDto implements CreateProjectOptions {
   })
   public skipManagerReview?: SkipManagerReview;
 
-  private constructor() {}
-
-  public static from({
-    title,
-    description,
-    contributionVisibility,
-    skipManagerReview,
-  }: CreateProjectOptions): CreateProjectDto {
-    const dto = new CreateProjectDto();
-    dto.title = title;
-    dto.description = description;
-    dto.contributionVisibility = contributionVisibility;
-    dto.skipManagerReview = skipManagerReview;
-    return dto;
+  public constructor(
+    title: string,
+    description: string,
+    contributionVisibility?: ContributionVisibility,
+    skipManagerReview?: SkipManagerReview,
+  ) {
+    this.title = title;
+    this.description = description;
+    this.contributionVisibility = contributionVisibility;
+    this.skipManagerReview = skipManagerReview;
   }
 }

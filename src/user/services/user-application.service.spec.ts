@@ -54,7 +54,7 @@ describe('user service', () => {
     let expectedUserDtos: UserDto[];
 
     beforeEach(async () => {
-      query = GetUsersQueryDto.from({});
+      query = new GetUsersQueryDto();
       users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
       for (const user of users) {
         user.firstName += 'ann';
@@ -79,7 +79,7 @@ describe('user service', () => {
     });
 
     test('happy path, text search', async () => {
-      query = GetUsersQueryDto.from({ q: 'ann' });
+      query = new GetUsersQueryDto(undefined, 'ann');
       const actualUserDtos = await userApplicationService.getUsers(user, query);
       for (const expectedUserDto of expectedUserDtos) {
         expect(actualUserDtos).toContainEqual(expectedUserDto);
@@ -133,7 +133,7 @@ describe('user service', () => {
     beforeEach(() => {
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
-      updateUserDto = UpdateUserDto.from({ email, firstName });
+      updateUserDto = new UpdateUserDto(email, firstName);
       jest.spyOn(userDomainService, 'updateUser');
     });
 

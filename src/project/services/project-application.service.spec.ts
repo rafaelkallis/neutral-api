@@ -169,7 +169,7 @@ describe('project application service', () => {
     beforeEach(() => {
       title = primitiveFaker.words();
       description = primitiveFaker.paragraph();
-      createProjectDto = CreateProjectDto.from({ title, description });
+      createProjectDto = new CreateProjectDto(title, description);
       jest.spyOn(projectDomainService, 'createProject');
     });
 
@@ -193,7 +193,7 @@ describe('project application service', () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
       title = primitiveFaker.words();
-      updateProjectDto = UpdateProjectDto.from({ title });
+      updateProjectDto = new UpdateProjectDto(title);
       jest.spyOn(projectDomainService, 'updateProject');
     });
 
@@ -311,12 +311,10 @@ describe('project application service', () => {
         }
       }
 
-      submitPeerReviewsDto = SubmitPeerReviewsDto.from({
-        peerReviews: {
-          [roles[1].id]: 1 / 3,
-          [roles[2].id]: 1 / 3,
-          [roles[3].id]: 1 / 3,
-        },
+      submitPeerReviewsDto = new SubmitPeerReviewsDto({
+        [roles[1].id]: 1 / 3,
+        [roles[2].id]: 1 / 3,
+        [roles[3].id]: 1 / 3,
       });
       jest.spyOn(projectDomainService, 'submitPeerReviews');
     });

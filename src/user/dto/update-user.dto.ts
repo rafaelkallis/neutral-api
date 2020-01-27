@@ -1,16 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-interface UpdateUserDtoProps {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
 /**
  * Update user DTO
  */
-export class UpdateUserDto implements UpdateUserDtoProps {
+export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
@@ -26,9 +20,9 @@ export class UpdateUserDto implements UpdateUserDtoProps {
   @ApiProperty({ required: false })
   public lastName?: string;
 
-  private constructor() {}
-
-  public static from(props: UpdateUserDtoProps): UpdateUserDto {
-    return Object.assign(new UpdateUserDto(), props);
+  public constructor(email?: string, firstName?: string, lastName?: string) {
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 }
