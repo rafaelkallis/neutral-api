@@ -1,4 +1,4 @@
-export { Config } from 'config/config';
-export { MockConfig } from 'config/mock-config';
+export { ConfigService } from 'config/config.service';
+export { MockConfigService } from 'config/mock-config.service';
 export { ConfigModule } from 'config/config.module';
 export { InjectConfig } from 'config/inject-config.decorator';

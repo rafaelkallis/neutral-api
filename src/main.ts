@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'app.module';
-import { Config } from 'config';
+import { ConfigService } from 'config';
 import { CONFIG } from 'config/constants';
 import { Logger } from 'logger';
 import { LOGGER } from 'logger/constants';
@@ -9,7 +9,7 @@ import { LOGGER } from 'logger/constants';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const logger = app.get<Logger>(LOGGER);
-  const config = app.get<Config>(CONFIG);
+  const config = app.get<ConfigService>(CONFIG);
 
   app.useLogger(logger);
 

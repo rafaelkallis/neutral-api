@@ -7,7 +7,7 @@ import { TokenClaimMissingException } from 'token/exceptions/token-claim-missing
 import { TokenExpiredException } from 'token/exceptions/token-expired.exception';
 import { TokenFromFutureException } from 'token/exceptions/token-from-future.exception';
 
-import { Config, InjectConfig } from 'config';
+import { ConfigService, InjectConfig } from 'config';
 import {
   TokenService,
   LoginToken,
@@ -27,10 +27,10 @@ import { TokenMalformedException } from 'common/exceptions/token-malformed.excep
  */
 @Injectable()
 export class JwtTokenService implements TokenService {
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly jwk: JWK.Key;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(@InjectConfig() config: ConfigService) {
     this.config = config;
     this.jwk = JWK.asKey(this.config.get('SECRET_HEX'));
   }

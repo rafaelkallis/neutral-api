@@ -1,14 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
-
 import { TokenAlreadyUsedException } from 'common';
 import { UserRepository, USER_REPOSITORY, UserEntity } from 'user';
-
 import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
 import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
-import { EmailAlreadyUsedException } from '../exceptions/email-already-used.exception';
-import { Config, InjectConfig } from 'config';
+import { EmailAlreadyUsedException } from 'auth/exceptions/email-already-used.exception';
+import { ConfigService, InjectConfig } from 'config';
 import { SessionState } from 'session/session-state';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisher, InjectEventPublisher } from 'event';
@@ -20,13 +18,13 @@ import { UserDto } from 'user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
 
   public constructor(
-    @InjectConfig() config: Config,
+    @InjectConfig() config: ConfigService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,

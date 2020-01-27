@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EnvalidConfig } from 'config/envalid-config';
+import { EnvalidConfigService } from 'config/envalid-config.service';
 import { CONFIG } from 'config/constants';
 
 /**
@@ -9,7 +9,7 @@ import { CONFIG } from 'config/constants';
   providers: [
     {
       provide: CONFIG,
-      useClass: EnvalidConfig,
+      useClass: EnvalidConfigService,
     },
   ],
   exports: [CONFIG],

@@ -1,6 +1,5 @@
 import { UserEntity, UserRepository, FakeUserRepository } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
-
 import { AuthService } from 'auth/services/auth.service';
 import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
@@ -8,7 +7,7 @@ import { RequestSignupDto } from 'auth/dto/request-signup.dto';
 import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
-import { MockConfig } from 'config';
+import { MockConfigService } from 'config';
 import { MockTokenService } from 'token';
 import { MockEventPublisher } from 'event';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
@@ -20,7 +19,7 @@ describe('auth service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
-  let config: MockConfig;
+  let config: MockConfigService;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let tokenService: MockTokenService;
@@ -28,7 +27,7 @@ describe('auth service', () => {
   beforeEach(() => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
-    config = new MockConfig();
+    config = new MockConfigService();
     eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();

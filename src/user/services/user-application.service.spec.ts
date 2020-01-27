@@ -5,7 +5,7 @@ import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
-import { MockConfig, Config } from 'config';
+import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/services/user-application.service';
 import { UserDomainService } from 'user/services/user-domain.service';
@@ -14,7 +14,7 @@ import { MockEventPublisher } from 'event';
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
-  let config: Config;
+  let config: ConfigService;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let tokenService: TokenService;
@@ -25,7 +25,7 @@ describe('user service', () => {
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
-    config = new MockConfig();
+    config = new MockConfigService();
     eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();

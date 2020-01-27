@@ -2,7 +2,7 @@ import { EntityFaker, PrimitiveFaker } from 'test';
 import { UserEntity } from 'user/entities/user.entity';
 import { UserRepository } from 'user/repositories/user.repository';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
-import { MockConfig, Config } from 'config';
+import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import {
   UserDomainService,
@@ -13,7 +13,7 @@ import { MockEventPublisher } from 'event';
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
-  let config: Config;
+  let config: ConfigService;
   let eventPublisher: MockEventPublisher;
   let userRepository: UserRepository;
   let tokenService: TokenService;
@@ -23,7 +23,7 @@ describe('user service', () => {
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
-    config = new MockConfig();
+    config = new MockConfigService();
     eventPublisher = new MockEventPublisher();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();

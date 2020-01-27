@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Logger, InjectLogger } from 'logger';
 import apm from 'elastic-apm-node/start';
-import { Config, InjectConfig } from 'config';
+import { ConfigService, InjectConfig } from 'config';
 import { Request } from 'express';
 import { ApmService, ApmTransaction } from 'apm/apm.service';
 import { UserEntity } from 'user';
@@ -17,11 +17,11 @@ import { UserEntity } from 'user';
 @Injectable()
 export class ElasticApmService extends ApmService
   implements OnModuleInit, OnModuleDestroy {
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly logger: Logger;
 
   public constructor(
-    @InjectConfig() config: Config,
+    @InjectConfig() config: ConfigService,
     @InjectLogger() logger: Logger,
   ) {
     super();

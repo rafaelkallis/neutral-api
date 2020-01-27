@@ -5,7 +5,7 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from 'user/repositories/user.repository';
-import { Config, InjectConfig } from 'config';
+import { ConfigService, InjectConfig } from 'config';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisher, InjectEventPublisher } from 'event';
 import { UserUpdatedEvent } from 'user/events/user-updated.event';
@@ -21,13 +21,13 @@ export interface UpdateUserOptions {
 
 @Injectable()
 export class UserDomainService {
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
 
   public constructor(
-    @InjectConfig() config: Config,
+    @InjectConfig() config: ConfigService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,

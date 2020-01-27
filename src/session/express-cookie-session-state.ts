@@ -1,4 +1,4 @@
-import { Config } from 'config';
+import { ConfigService } from 'config';
 import { SessionState } from 'session/session-state';
 import { Request, Response, CookieOptions } from 'express';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -7,11 +7,15 @@ import { InternalServerErrorException } from '@nestjs/common';
  *
  */
 export class ExpressCookieSessionState implements SessionState {
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly request: Request;
   private readonly response: Response;
 
-  public constructor(config: Config, request: Request, response: Response) {
+  public constructor(
+    config: ConfigService,
+    request: Request,
+    response: Response,
+  ) {
     this.config = config;
     this.request = request;
     this.response = response;

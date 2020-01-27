@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  NotImplementedException,
-  OnModuleDestroy,
-  OnModuleInit,
-} from '@nestjs/common';
-import { Config, InjectConfig } from 'config';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { ConfigService, InjectConfig } from 'config';
 import {
   EmailSenderService,
   SendEmailOptions,
@@ -23,7 +18,7 @@ export class SmtpEmailSenderService
 
   public constructor(
     @InjectLogger() logger: Logger,
-    @InjectConfig() config: Config,
+    @InjectConfig() config: ConfigService,
   ) {
     this.logger = logger;
     const smtpUrl = config.get('SMTP_URL');

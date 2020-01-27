@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Database } from 'database/database';
-import { Config, InjectConfig } from 'config';
+import { ConfigService, InjectConfig } from 'config';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
 
 import { UserEntity } from 'user/entities/user.entity';
@@ -34,12 +34,12 @@ import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migr
 @Injectable()
 export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
   private static readonly DEFAULT_CONNECTION = 'DEFAULT_CONNECTION';
-  private readonly config: Config;
+  private readonly config: ConfigService;
   private readonly logger: Logger;
   private readonly connectionManager: ConnectionManager;
 
   public constructor(
-    @InjectConfig() config: Config,
+    @InjectConfig() config: ConfigService,
     @InjectLogger() logger: Logger,
   ) {
     this.config = config;

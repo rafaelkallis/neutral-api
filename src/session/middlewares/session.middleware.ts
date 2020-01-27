@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { Config, InjectConfig } from 'config';
+import { ConfigService, InjectConfig } from 'config';
 import { ExpressCookieSessionState } from 'session/express-cookie-session-state';
 import { SessionState } from 'session/session-state';
 
@@ -12,9 +12,9 @@ import { SessionState } from 'session/session-state';
  */
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
-  private readonly config: Config;
+  private readonly config: ConfigService;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(@InjectConfig() config: ConfigService) {
     this.config = config;
   }
 

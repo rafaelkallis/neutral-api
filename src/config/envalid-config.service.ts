@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import envalid from 'envalid';
-import { Config, ConfigProps } from 'config/config';
+import { ConfigService, ConfigProps } from 'config/config.service';
 
 /**
  * Envalid Config Service
  */
 @Injectable()
-export class EnvalidConfig extends Config {
+export class EnvalidConfigService extends ConfigService {
   private readonly config: ConfigProps;
 
   public constructor() {

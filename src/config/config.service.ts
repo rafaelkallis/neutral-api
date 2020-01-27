@@ -23,7 +23,7 @@ export interface ConfigProps {
 /**
  * Config
  */
-export abstract class Config {
+export abstract class ConfigService {
   /**
    * Get a config variable.
    */
