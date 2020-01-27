@@ -47,7 +47,12 @@ export class SelfManagedEmailService implements EmailService {
     to: string,
     signupMagicLink: string,
   ): Promise<void> {
-    throw new NotImplementedException();
+    const subject = '[Covee] magin signup link';
+    const html = this.emailHtmlRenderer.renderSignupEmailHtml(signupMagicLink);
+    const text = this.emailPlaintextRenderer.renderSignupEmailPlaintext(
+      signupMagicLink,
+    );
+    await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
   public async sendEmailChangeEmail(

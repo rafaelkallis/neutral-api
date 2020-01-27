@@ -22,7 +22,14 @@ export class DefaultEmailPlaintextRendererService
    *
    */
   public renderSignupEmailPlaintext(signupMagicLink: string): string {
-    throw new NotImplementedException();
+    return `
+      Hi there,
+
+      Here's the magic signup link you have requested:
+
+      >> Covee Signup
+      ${signupMagicLink}
+    `;
   }
 
   /**

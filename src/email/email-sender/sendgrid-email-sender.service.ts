@@ -27,26 +27,24 @@ export class SendgridEmailSenderService implements EmailSenderService {
     const body = {
       personalizations: [
         {
-          to: { email: options.to },
+          to: [{ email: options.to }],
           subject: options.subject,
         },
       ],
       from: {
-        email: 'no-reply@covee.network',
-        name: 'Covee Network',
-      },
-      reply_to: {
-        email: 'no-reply@covee.network',
+        // TODO set to no-reply@covee.network
+        email: 'no-reply@example.com',
         name: 'Covee Network',
       },
       content: [
-        { type: 'text/html', value: options.html },
         { type: 'text/plain', value: options.text },
+        { type: 'text/html', value: options.html },
       ],
     };
     const config = {
       headers: {
         Authorization: `Bearer ${this.sendgridApiKey}`,
+        Accept: 'application/json',
       },
     };
     await this.httpService.post(url, body, config).toPromise();

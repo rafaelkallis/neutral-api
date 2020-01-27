@@ -2,7 +2,6 @@ import { Module, HttpModule } from '@nestjs/common';
 import { ConfigModule } from 'config';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EMAIL_SERVICE } from 'email/email.service';
-import { SendgridEmailService } from 'email/sendgrid-email.service';
 import { EMAIL_SENDER, SendgridEmailSenderService } from 'email/email-sender';
 import {
   EMAIL_HTML_RENDERER,
@@ -12,6 +11,7 @@ import {
   EMAIL_PLAINTEXT_RENDERER,
   DefaultEmailPlaintextRendererService,
 } from 'email/email-plaintext-renderer';
+import { SelfManagedEmailService } from 'email/self-managed-email.service';
 
 /**
  * Email Module
@@ -21,7 +21,7 @@ import {
   providers: [
     {
       provide: EMAIL_SERVICE,
-      useClass: SendgridEmailService,
+      useClass: SelfManagedEmailService,
     },
     {
       provide: EMAIL_HTML_RENDERER,

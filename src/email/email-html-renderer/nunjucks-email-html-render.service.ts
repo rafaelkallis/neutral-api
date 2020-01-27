@@ -31,7 +31,13 @@ export class NunjucksEmailHtmlRendererService
    *
    */
   public renderSignupEmailHtml(signupMagicLink: string): string {
-    throw new NotImplementedException();
+    const title = 'Covee Magic Signup';
+    const preheader = 'Your magic signup link has arrived.';
+    return this.environment.render('signup.njk', {
+      title,
+      preheader,
+      signupMagicLink,
+    });
   }
 
   /**
