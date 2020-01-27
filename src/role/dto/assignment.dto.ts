@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
-interface AssignmentDtoProps {
-  assigneeId?: string;
-  assigneeEmail?: string;
-}
-
 /**
  * Assignment DTO
  */
@@ -24,9 +19,11 @@ export class AssignmentDto {
   })
   public assigneeEmail?: string | null;
 
-  private constructor() {}
-
-  public static from(props: AssignmentDtoProps): AssignmentDto {
-    return Object.assign(new AssignmentDto(), props);
+  public constructor(
+    assigneeId?: string | null,
+    assigneeEmail?: string | null,
+  ) {
+    this.assigneeId = assigneeId;
+    this.assigneeEmail = assigneeEmail;
   }
 }

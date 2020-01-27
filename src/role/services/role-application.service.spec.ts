@@ -80,7 +80,7 @@ describe('role application service', () => {
     let getRolesQueryDto: GetRolesQueryDto;
 
     beforeEach(() => {
-      getRolesQueryDto = GetRolesQueryDto.from({ projectId: project.id });
+      getRolesQueryDto = new GetRolesQueryDto(project.id);
     });
 
     test('happy path', async () => {
@@ -138,11 +138,12 @@ describe('role application service', () => {
     beforeEach(() => {
       title = primitiveFaker.words();
       description = primitiveFaker.paragraph();
-      createRoleDto = CreateRoleDto.from({
-        projectId: project.id,
+      createRoleDto = new CreateRoleDto(
+        project.id,
+        undefined,
         title,
         description,
-      });
+      );
       jest.spyOn(roleDomain, 'createRole');
     });
 
@@ -165,12 +166,12 @@ describe('role application service', () => {
   });
 
   describe('update role', () => {
+    let newTitle: string;
     let updateRoleDto: UpdateRoleDto;
 
     beforeEach(() => {
-      updateRoleDto = UpdateRoleDto.from({
-        title: primitiveFaker.words(),
-      });
+      newTitle = primitiveFaker.words();
+      updateRoleDto = new UpdateRoleDto(newTitle);
       jest.spyOn(roleDomain, 'updateRole');
     });
 
@@ -187,7 +188,7 @@ describe('role application service', () => {
       );
       expect(actualRoleDto).toEqual(
         expect.objectContaining({
-          title: updateRoleDto.title,
+          title: newTitle,
         }),
       );
     });
@@ -229,7 +230,7 @@ describe('role application service', () => {
     beforeEach(async () => {
       assigneeUser = entityFaker.user();
       await userRepository.persist(assigneeUser);
-      assignmentDto = AssignmentDto.from({ assigneeId: assigneeUser.id });
+      assignmentDto = new AssignmentDto(assigneeUser.id);
       jest.spyOn(roleDomain, 'assignUser');
       jest.spyOn(roleDomain, 'assignUserByEmailAndCreateIfNotExists');
     });
@@ -245,7 +246,7 @@ describe('role application service', () => {
     });
 
     test('happy path, by email', async () => {
-      assignmentDto = AssignmentDto.from({ assigneeEmail: assigneeUser.email });
+      assignmentDto = new AssignmentDto(undefined, assigneeUser.email);
       await roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto);
       expect(
         roleDomain.assignUserByEmailAndCreateIfNotExists,

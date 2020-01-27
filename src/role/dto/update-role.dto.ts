@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-interface UpdateRoleDtoProps {
-  title?: string;
-  description?: string;
-}
-
 /**
  * Update role DTO
  */
@@ -29,9 +24,8 @@ export class UpdateRoleDto {
   })
   public description?: string;
 
-  private constructor() {}
-
-  public static from(props: UpdateRoleDtoProps): UpdateRoleDto {
-    return Object.assign(new UpdateRoleDto(), props);
+  public constructor(title?: string, description?: string) {
+    this.title = title;
+    this.description = description;
   }
 }
