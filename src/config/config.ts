@@ -5,8 +5,9 @@ export interface ConfigProps {
   FRONTEND_URL: string;
   SECRET_HEX: string;
   DATABASE_URL: string;
-  SENDGRID_API_KEY: string;
-  SENDGRID_URL: string;
+  SMTP_URL: string;
+  // SENDGRID_API_KEY: string;
+  // SENDGRID_URL: string;
   LOGIN_TOKEN_LIFETIME_MIN: number;
   SIGNUP_TOKEN_LIFETIME_MIN: number;
   ACCESS_TOKEN_LIFETIME_MIN: number;

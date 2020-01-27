@@ -2,7 +2,7 @@ import { Module, HttpModule } from '@nestjs/common';
 import { ConfigModule } from 'config';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EMAIL_SERVICE } from 'email/email.service';
-import { EMAIL_SENDER, SendgridEmailSenderService } from 'email/email-sender';
+import { EMAIL_SENDER, SmtpEmailSenderService } from 'email/email-sender';
 import {
   EMAIL_HTML_RENDERER,
   NunjucksEmailHtmlRendererService,
@@ -12,12 +12,13 @@ import {
   DefaultEmailPlaintextRendererService,
 } from 'email/email-plaintext-renderer';
 import { SelfManagedEmailService } from 'email/self-managed-email.service';
+import { LoggerModule } from 'logger';
 
 /**
  * Email Module
  */
 @Module({
-  imports: [ConfigModule, HttpModule],
+  imports: [LoggerModule, ConfigModule, HttpModule],
   providers: [
     {
       provide: EMAIL_SERVICE,
@@ -33,7 +34,7 @@ import { SelfManagedEmailService } from 'email/self-managed-email.service';
     },
     {
       provide: EMAIL_SENDER,
-      useClass: SendgridEmailSenderService,
+      useClass: SmtpEmailSenderService,
     },
     EmailSagasService,
   ],

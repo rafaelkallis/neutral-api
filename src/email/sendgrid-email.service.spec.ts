@@ -4,7 +4,7 @@ import { HttpModule } from '@nestjs/common';
 import { CONFIG } from 'config/constants';
 import { SendgridEmailService } from 'email/sendgrid-email.service';
 
-describe('SendgridEmailService', () => {
+describe.skip('SendgridEmailService', () => {
   let config: MockConfig;
   let sendgridEmail: SendgridEmailService;
 
