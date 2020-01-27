@@ -1,5 +1,4 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Database } from 'database/database';
 import { ConfigService, InjectConfig } from 'config';
 import { Connection, ConnectionManager, EntityManager } from 'typeorm';
 
@@ -32,7 +31,7 @@ import { Logger, InjectLogger } from 'logger';
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migration/1579969356000-rename-project-owner-to-creator-migration';
 
 @Injectable()
-export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
+export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private static readonly DEFAULT_CONNECTION = 'DEFAULT_CONNECTION';
   private readonly config: ConfigService;
   private readonly logger: Logger;
@@ -77,7 +76,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
    *
    */
   private getConnection(): Connection {
-    return this.connectionManager.get(DatabaseImpl.DEFAULT_CONNECTION);
+    return this.connectionManager.get(DatabaseService.DEFAULT_CONNECTION);
   }
 
   /**
@@ -85,7 +84,7 @@ export class DatabaseImpl implements Database, OnModuleInit, OnModuleDestroy {
    */
   private createConnection(): void {
     this.connectionManager.create({
-      name: DatabaseImpl.DEFAULT_CONNECTION,
+      name: DatabaseService.DEFAULT_CONNECTION,
       type: 'postgres' as 'postgres',
       url: this.config.get('DATABASE_URL'),
       entities: [

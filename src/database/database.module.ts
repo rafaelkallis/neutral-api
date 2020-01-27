@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from 'config';
-import { Database } from 'database/database';
-import { DatabaseImpl } from 'database/database-impl';
-import { DATABASE } from 'database/constants';
+import { DatabaseService } from 'database/database.service';
 import { LoggerModule } from 'logger';
 
 /**
@@ -10,7 +8,7 @@ import { LoggerModule } from 'logger';
  */
 @Module({
   imports: [ConfigModule, LoggerModule],
-  providers: [{ provide: DATABASE, useClass: DatabaseImpl }],
-  exports: [DATABASE],
+  providers: [DatabaseService],
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}

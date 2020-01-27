@@ -1,6 +1,6 @@
 import { TypeOrmRepository } from 'common';
 import { Injectable } from '@nestjs/common';
-import { Database, InjectDatabase } from 'database';
+import { DatabaseService, InjectDatabase } from 'database';
 import { NotificationRepository } from 'notification/repositories/notification.repository';
 import { NotificationEntity } from 'notification/entities/notification.entity';
 
@@ -14,7 +14,7 @@ export class TypeOrmNotificationRepository
   /**
    *
    */
-  public constructor(@InjectDatabase() database: Database) {
+  public constructor(@InjectDatabase() database: DatabaseService) {
     super(database, NotificationEntity);
   }
 

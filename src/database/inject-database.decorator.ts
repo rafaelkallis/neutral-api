@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
-import { DATABASE } from 'database/constants';
+import { DatabaseService } from 'database/database.service';
 
 export function InjectDatabase(): ParameterDecorator {
-  return Inject(DATABASE);
+  return Inject(DatabaseService);
 }

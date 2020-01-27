@@ -6,7 +6,7 @@ import {
 import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 import { Repository } from 'common/repositories/repository.interface';
 import { AbstractEntity } from 'common/entities/abstract.entity';
-import { Database } from 'database';
+import { DatabaseService } from 'database';
 import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
 import ObjectID from 'bson-objectid';
 
@@ -18,7 +18,10 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
   private readonly entityManager: EntityManager;
   private readonly entityClass: ObjectType<TEntity>;
 
-  public constructor(database: Database, entityClass: ObjectType<TEntity>) {
+  public constructor(
+    database: DatabaseService,
+    entityClass: ObjectType<TEntity>,
+  ) {
     this.entityManager = database.getEntityManager();
     this.entityClass = entityClass;
   }
