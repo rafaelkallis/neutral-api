@@ -11,7 +11,7 @@ export class GetRolesQueryDto {
 
   @IsString()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   public after?: string;
 
   public constructor(projectId: string, after?: string) {

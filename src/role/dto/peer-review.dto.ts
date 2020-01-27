@@ -6,13 +6,13 @@ import { PeerReviewEntity } from 'role/entities/peer-review.entity';
  * Peer Review DTO
  */
 export class PeerReviewDto extends BaseDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   public senderRoleId: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   public receiverRoleId: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   public score: number | null;
 
   public constructor(

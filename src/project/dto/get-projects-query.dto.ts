@@ -12,10 +12,14 @@ export enum GetProjectsType {
 export class GetProjectsQueryDto {
   @IsEnum(GetProjectsType)
   @IsOptional()
-  @ApiProperty()
-  public type?: GetProjectsType;
+  @ApiProperty({
+    example: GetProjectsType.ASSIGNED,
+    description: 'Specify the relation type to the projects you want to fetch.',
+    enum: GetProjectsType,
+  })
+  public type: GetProjectsType;
 
-  public constructor(type?: GetProjectsType) {
+  public constructor(type: GetProjectsType) {
     this.type = type;
   }
 }

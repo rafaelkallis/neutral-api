@@ -9,6 +9,7 @@ export class AssignmentDto {
   @IsOptional()
   @ApiProperty({
     description: 'The assignee id of the role',
+    required: false,
   })
   public assigneeId?: string | null;
 
@@ -16,6 +17,7 @@ export class AssignmentDto {
   @IsOptional()
   @ApiProperty({
     description: 'The assignee email of the role',
+    required: false,
   })
   public assigneeEmail?: string | null;
 
