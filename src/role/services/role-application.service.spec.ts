@@ -1,7 +1,6 @@
 import { UserEntity, UserRepository, FakeUserRepository } from 'user';
 import {
   ProjectEntity,
-  ProjectState,
   ProjectRepository,
   FakeProjectRepository,
 } from 'project';

@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRendererService } from 'email/email-plaintext-renderer/email-plaintext-renderer.service';
 
 /**

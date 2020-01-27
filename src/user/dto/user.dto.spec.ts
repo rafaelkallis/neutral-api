@@ -1,17 +1,13 @@
 import { EntityFaker } from 'test';
 import { UserEntity } from 'user/entities/user.entity';
 import { UserDto } from 'user/dto/user.dto';
-import { UserRepository } from 'user/repositories/user.repository';
-import { FakeUserRepository } from 'user/repositories/fake-user.repository';
 
 describe('user dto', () => {
   let entityFaker: EntityFaker;
-  let userRepository: UserRepository;
   let user: UserEntity;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
-    userRepository = new FakeUserRepository();
     user = entityFaker.user();
   });
 

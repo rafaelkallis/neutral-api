@@ -4,7 +4,6 @@ import { NotificationDomainService } from 'notification/services/notification-do
 import { NotificationEntity } from 'notification/entities/notification.entity';
 import { EntityFaker } from 'test';
 import { UserEntity } from 'user';
-import { NotificationReadEvent } from 'notification/events/notification-read.event';
 import { NotificationApplicationService } from 'notification/services/notification-application.service';
 import { NotificationDto } from 'notification/dto/notification.dto';
 

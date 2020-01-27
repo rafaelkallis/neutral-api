@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JWE, JWK, JWS } from '@panva/jose';
 import moment from 'moment';
 

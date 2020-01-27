@@ -7,7 +7,6 @@ import {
   ContributionVisibility,
   SkipManagerReview,
 } from 'project/project';
-import { RoleEntity } from 'role';
 import { ProjectEntity } from 'project/entities/project.entity';
 
 /**

@@ -15,7 +15,6 @@ import {
   ContributionVisibility,
   SkipManagerReview,
 } from 'project/project';
-import { ProjectRepository } from 'project/repositories/project.repository';
 
 /**
  * Project Entity

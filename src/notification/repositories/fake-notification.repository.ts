@@ -1,5 +1,4 @@
-import { FakeRepository, EntityNotFoundException } from 'common';
-import { Notification } from 'notification/notification';
+import { FakeRepository } from 'common';
 import { NotificationRepository } from 'notification/repositories/notification.repository';
 import { NotificationEntity } from 'notification/entities/notification.entity';
 

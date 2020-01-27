@@ -1,6 +1,5 @@
 import { FakeRepository, EntityNotFoundException } from 'common';
 import { UserRepository } from 'user/repositories/user.repository';
-import { User } from 'user/user';
 import { UserEntity } from 'user/entities/user.entity';
 
 /**

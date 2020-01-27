@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   UseGuards,
-  NotImplementedException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,

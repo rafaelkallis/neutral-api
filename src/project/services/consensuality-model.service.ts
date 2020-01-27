@@ -155,7 +155,6 @@ export class ConsensualityModelService {
     peerReviews: Record<string, Record<string, number>>,
   ): number {
     const peers = Object.keys(peerReviews);
-    const n = peers.length;
     function Rkij(k: string, i: string, j: string): number {
       return peerReviews[k][i] / peerReviews[k][j];
     }

@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserEntity } from 'user';
 import {
   ProjectState,
   SkipManagerReview,

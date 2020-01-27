@@ -1,6 +1,5 @@
 import { FakeRepository } from 'common';
 import { RoleEntity } from 'role/entities/role.entity';
-import { Role } from 'role/role';
 
 /**
  * Fake Role Repository

@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Environment, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import { EmailHtmlRendererService } from 'email/email-html-renderer/email-html-renderer.service';

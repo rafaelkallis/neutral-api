@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
@@ -10,7 +10,6 @@ import {
 } from 'project/repositories/project.repository';
 import { RoleRepository, ROLE_REPOSITORY, RoleEntity } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
-import { ProjectDto } from './dto/project.dto';
 import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { INestApplication } from '@nestjs/common';
