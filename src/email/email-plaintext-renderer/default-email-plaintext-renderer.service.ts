@@ -36,20 +36,35 @@ export class DefaultEmailPlaintextRendererService
    *
    */
   public renderEmailChangeEmailPlaintext(emailChangeMagicLink: string): string {
-    throw new NotImplementedException();
+    return `
+      Hi there,
+
+      Here's the magic email-change link you have requested:
+
+      >> Confirm Email
+      ${emailChangeMagicLink}
+    `;
   }
 
   /**
    *
    */
   public renderNewAssignmentEmailPlaintext(): string {
-    throw new NotImplementedException();
+    return `
+      Hi there,
+
+      You have a new assignment.
+    `;
   }
 
   /**
    *
    */
   public renderUnregisteredUserNewAssignmentEmailPlaintext(): string {
-    throw new NotImplementedException();
+    return `
+      Hi there,
+
+      You have a new assignment.
+    `;
   }
 }

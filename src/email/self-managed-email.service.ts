@@ -35,7 +35,7 @@ export class SelfManagedEmailService implements EmailService {
     to: string,
     loginMagicLink: string,
   ): Promise<void> {
-    const subject = '[Covee] magin login link';
+    const subject = '[Covee] magic login link';
     const html = this.emailHtmlRenderer.renderLoginEmailHtml(loginMagicLink);
     const text = this.emailPlaintextRenderer.renderLoginEmailPlaintext(
       loginMagicLink,
@@ -47,7 +47,7 @@ export class SelfManagedEmailService implements EmailService {
     to: string,
     signupMagicLink: string,
   ): Promise<void> {
-    const subject = '[Covee] magin signup link';
+    const subject = '[Covee] magic signup link';
     const html = this.emailHtmlRenderer.renderSignupEmailHtml(signupMagicLink);
     const text = this.emailPlaintextRenderer.renderSignupEmailPlaintext(
       signupMagicLink,
@@ -59,14 +59,24 @@ export class SelfManagedEmailService implements EmailService {
     to: string,
     emailChangeMagicLink: string,
   ): Promise<void> {
-    throw new NotImplementedException();
+    const subject = '[Covee] email change confirmation';
+    const html = this.emailHtmlRenderer.renderEmailChangeEmailHtml(
+      emailChangeMagicLink,
+    );
+    const text = this.emailPlaintextRenderer.renderEmailChangeEmailPlaintext(
+      emailChangeMagicLink,
+    );
+    await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
   /**
    * Sends an email to a user that was assigned to a role.
    */
   public async sendNewAssignmentEmail(to: string): Promise<void> {
-    throw new NotImplementedException();
+    const subject = '[Covee] new assignment';
+    const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml();
+    const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
+    await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
   /**
@@ -75,6 +85,9 @@ export class SelfManagedEmailService implements EmailService {
   public async sendUnregisteredUserNewAssignmentEmail(
     to: string,
   ): Promise<void> {
-    throw new NotImplementedException();
+    const subject = '[Covee] assignment invitation';
+    const html = this.emailHtmlRenderer.renderUnregisteredUserNewAssignmentEmailHtml();
+    const text = this.emailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext();
+    await this.emailSender.sendEmail({ to, subject, html, text });
   }
 }

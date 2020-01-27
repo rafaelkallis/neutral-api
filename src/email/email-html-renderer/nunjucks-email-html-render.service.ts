@@ -18,46 +18,36 @@ export class NunjucksEmailHtmlRendererService
   }
 
   public renderLoginEmailHtml(loginMagicLink: string): string {
-    const title = 'Covee Magic Login';
-    const preheader = 'Your magic login link has arrived.';
-    return this.environment.render('login.njk', {
-      title,
-      preheader,
-      loginMagicLink,
-    });
+    return this.environment.render('login.njk', { loginMagicLink });
   }
 
   /**
    *
    */
   public renderSignupEmailHtml(signupMagicLink: string): string {
-    const title = 'Covee Magic Signup';
-    const preheader = 'Your magic signup link has arrived.';
-    return this.environment.render('signup.njk', {
-      title,
-      preheader,
-      signupMagicLink,
-    });
+    return this.environment.render('signup.njk', { signupMagicLink });
   }
 
   /**
    *
    */
   public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
-    throw new NotImplementedException();
+    return this.environment.render('email-change.njk', {
+      emailChangeMagicLink,
+    });
   }
 
   /**
    *
    */
   public renderNewAssignmentEmailHtml(): string {
-    throw new NotImplementedException();
+    return this.environment.render('new-assignment.njk');
   }
 
   /**
    *
    */
   public renderUnregisteredUserNewAssignmentEmailHtml(): string {
-    throw new NotImplementedException();
+    return this.environment.render('unregistered-user-new-assignment.njk');
   }
 }

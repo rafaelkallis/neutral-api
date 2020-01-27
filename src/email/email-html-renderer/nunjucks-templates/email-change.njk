@@ -1,0 +1,16 @@
+{% extends "base.njk" %}
+{% from "base.njk" import par, cta %}
+
+{% block title %}
+  Covee Email Change Confirmation
+{% endblock %}
+
+{% block preheader %}
+  Your magic email-change link has arrived.
+{% endblock %}
+
+{% block content %}
+{{ par("Hi there,") }}
+{{ par("You have requested an email change.") }}
+{{ cta("Confirm Email", "{{ emailChangeMagicLink }}") }}
+{% endblock %}

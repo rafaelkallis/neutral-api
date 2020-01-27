@@ -1,0 +1,15 @@
+{% extends "base.njk" %}
+{% from "base.njk" import par, cta %}
+
+{% block title %}
+  Covee Assignment Invitation
+{% endblock %}
+
+{% block preheader %}
+  You have an assignment invitation.
+{% endblock %}
+
+{% block content %}
+{{ par("Hi there,") }}
+{{ par("You have a new assignment.") }}
+{% endblock %}
