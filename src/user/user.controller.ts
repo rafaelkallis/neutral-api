@@ -17,13 +17,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserDto } from './dto/user.dto';
-import { GetUsersQueryDto } from './dto/get-users-query.dto';
+import { UserDto } from 'user/dto/user.dto';
+import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { ValidationPipe } from 'common';
-import { UserEntity } from './entities/user.entity';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard, AuthUser } from 'auth';
+import { UserEntity } from 'user/entities/user.entity';
+import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { UserApplicationService } from 'user/services/user-application.service';
+import { AuthGuard, AuthUser } from 'auth';
 
 /**
  * User Controller
@@ -31,10 +31,10 @@ import { UserApplicationService } from 'user/services/user-application.service';
 @Controller('users')
 @ApiTags('Users')
 export class UserController {
-  private readonly userApplicationService: UserApplicationService;
+  private readonly userApplication: UserApplicationService;
 
-  public constructor(userApplicationService: UserApplicationService) {
-    this.userApplicationService = userApplicationService;
+  public constructor(userApplication: UserApplicationService) {
+    this.userApplication = userApplication;
   }
 
   /**
@@ -49,7 +49,7 @@ export class UserController {
     @AuthUser() authUser: UserEntity,
     @Query(ValidationPipe) query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    return this.userApplicationService.getUsers(authUser, query);
+    return this.userApplication.getUsers(authUser, query);
   }
 
   /**
@@ -61,7 +61,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
   public async getAuthUser(@AuthUser() authUser: UserEntity): Promise<UserDto> {
-    return this.userApplicationService.getAuthUser(authUser);
+    return this.userApplication.getAuthUser(authUser);
   }
 
   /**
@@ -78,7 +78,7 @@ export class UserController {
     @AuthUser() authUser: UserEntity,
     @Param('id') id: string,
   ): Promise<UserDto> {
-    return this.userApplicationService.getUser(authUser, id);
+    return this.userApplication.getUser(authUser, id);
   }
 
   /**
@@ -96,7 +96,7 @@ export class UserController {
     @AuthUser() authUser: UserEntity,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<UserDto> {
-    return this.userApplicationService.updateAuthUser(authUser, dto);
+    return this.userApplication.updateAuthUser(authUser, dto);
   }
 
   /**
@@ -108,7 +108,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The updated user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async submitEmailChange(@Param('token') token: string): Promise<void> {
-    return this.userApplicationService.submitEmailChange(token);
+    return this.userApplication.submitEmailChange(token);
   }
 
   /**
@@ -124,6 +124,6 @@ export class UserController {
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: UserEntity): Promise<void> {
-    return this.userApplicationService.deleteAuthUser(authUser);
+    return this.userApplication.deleteAuthUser(authUser);
   }
 }
