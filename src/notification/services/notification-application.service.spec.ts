@@ -1,4 +1,4 @@
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { FakeNotificationRepository } from 'notification/repositories/fake-notification.repository';
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
 import { NotificationEntity } from 'notification/entities/notification.entity';
@@ -9,7 +9,7 @@ import { NotificationDto } from 'notification/dto/notification.dto';
 
 describe('notification application service', () => {
   let entityFaker: EntityFaker;
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let notificationRepository: FakeNotificationRepository;
   let notificationDomainService: NotificationDomainService;
   let notificationApplicationService: NotificationApplicationService;
@@ -17,7 +17,7 @@ describe('notification application service', () => {
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     notificationRepository = new FakeNotificationRepository();
     notificationDomainService = new NotificationDomainService(
       eventPublisher,

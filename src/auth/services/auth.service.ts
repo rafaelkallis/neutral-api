@@ -9,7 +9,7 @@ import { EmailAlreadyUsedException } from 'auth/exceptions/email-already-used.ex
 import { ConfigService, InjectConfig } from 'config';
 import { SessionState } from 'session/session-state';
 import { TOKEN_SERVICE, TokenService } from 'token';
-import { EventPublisher, InjectEventPublisher } from 'event';
+import { EventPublisherService, InjectEventPublisher } from 'event';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
 import { SignupEvent } from 'auth/events/signup.event';
@@ -19,13 +19,13 @@ import { UserDto } from 'user/dto/user.dto';
 @Injectable()
 export class AuthService {
   private readonly config: ConfigService;
-  private readonly eventPublisher: EventPublisher;
+  private readonly eventPublisher: EventPublisherService;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
 
   public constructor(
     @InjectConfig() config: ConfigService,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
   ) {

@@ -9,7 +9,7 @@ import { RoleEntity } from 'role/entities/role.entity';
 import { RoleRepository } from 'role/repositories/role.repository';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { RoleDomainService } from 'role/services/role-domain.service';
 import { MockEmailService } from 'email';
 
@@ -17,7 +17,7 @@ describe('role domain service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -33,7 +33,7 @@ describe('role domain service', () => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
 
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();

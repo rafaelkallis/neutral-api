@@ -9,7 +9,7 @@ import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
 import { MockConfigService } from 'config';
 import { MockTokenService } from 'token';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninEvent } from 'auth/events/signin.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
@@ -20,7 +20,7 @@ describe('auth service', () => {
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
   let config: MockConfigService;
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: MockTokenService;
 
@@ -28,7 +28,7 @@ describe('auth service', () => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfigService();
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();
 

@@ -8,13 +8,13 @@ import {
   UserDomainService,
   UpdateUserOptions,
 } from 'user/services/user-domain.service';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: ConfigService;
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: TokenService;
   let userDomainService: UserDomainService;
@@ -24,7 +24,7 @@ describe('user service', () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
     config = new MockConfigService();
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(

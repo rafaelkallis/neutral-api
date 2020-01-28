@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { EventPublisher, InjectEventPublisher } from 'event';
+import { EventPublisherService, InjectEventPublisher } from 'event';
 import {
   NOTIFICATION_REPOSITORY,
   NotificationRepository,
@@ -10,11 +10,11 @@ import { NotificationAlreadyReadException } from 'notification/exceptions/notifi
 
 @Injectable()
 export class NotificationDomainService {
-  private readonly eventPublisher: EventPublisher;
+  private readonly eventPublisher: EventPublisherService;
   private readonly notificationRepository: NotificationRepository;
 
   public constructor(
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(NOTIFICATION_REPOSITORY)
     notificationRepository: NotificationRepository,
   ) {

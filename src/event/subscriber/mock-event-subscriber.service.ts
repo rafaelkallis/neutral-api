@@ -1,12 +1,16 @@
-import { EventSubscriber } from 'event/interfaces/event-subscriber.interface';
+import { Injectable } from '@nestjs/common';
+import {
+  EventSubscriberService,
+  EventHandler,
+  EventSubscription,
+} from 'event/subscriber/event-subscriber.service';
 import { AbstractEvent } from 'event/abstract.event';
-import { EventHandler } from 'event/interfaces/event-handler.interface';
-import { EventSubscription } from 'event/interfaces/event-subscription.interface';
 
 /**
  * Mock Event Subscriber
  */
-export class MockEventSubscriber implements EventSubscriber {
+@Injectable()
+export class MockEventSubscriberService implements EventSubscriberService {
   /**
    *
    */

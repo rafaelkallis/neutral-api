@@ -1,10 +1,10 @@
 import { AbstractEvent } from 'event/abstract.event';
-import { EventPublisher } from 'event/interfaces/event-publisher.interface';
+import { EventPublisherService } from 'event/publisher/event-publisher.service';
 
 /**
  * Mock Event Publisher
  */
-export class MockEventPublisher implements EventPublisher {
+export class MockEventPublisherService implements EventPublisherService {
   private readonly publishedEvents: AbstractEvent[];
 
   public constructor() {

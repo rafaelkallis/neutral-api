@@ -22,14 +22,14 @@ import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { ProjectDomainService } from 'project/services/project-domain.service';
 
 describe('project application service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -46,7 +46,7 @@ describe('project application service', () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
 
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();

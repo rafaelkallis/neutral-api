@@ -3,6 +3,6 @@ import { AbstractEvent } from 'event/abstract.event';
 /**
  * Event Publisher
  */
-export interface EventPublisher {
+export interface EventPublisherService {
   publish(...events: AbstractEvent[]): Promise<void>;
 }

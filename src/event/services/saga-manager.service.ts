@@ -3,23 +3,25 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
 import { SAGA_METADATA } from 'event/constants';
 import { LoggerService, InjectLogger } from 'logger';
-import { InjectEventSubscriber } from 'event/decorators/inject-event-subscriber.decorator';
-import { EventSubscriber } from 'event/interfaces/event-subscriber.interface';
-import { EventSubscription } from 'event/interfaces/event-subscription.interface';
+import { InjectEventSubscriber } from 'event/subscriber/inject-event-subscriber.decorator';
+import {
+  EventSubscriberService,
+  EventSubscription,
+  EventHandler,
+} from 'event/subscriber/event-subscriber.service';
 import { SagaMetadataItem } from 'event/services/saga-metadata-item';
 import { AbstractEvent } from 'event/abstract.event';
-import { EventHandler } from 'event/interfaces/event-handler.interface';
 
 @Injectable()
 export class SagaManagerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger: LoggerService;
-  private readonly eventSubscriber: EventSubscriber;
+  private readonly eventSubscriber: EventSubscriberService;
   private readonly modulesContainer: ModulesContainer;
   private readonly sagaEventSubscriptions: EventSubscription[];
 
   public constructor(
     @InjectLogger() logger: LoggerService,
-    @InjectEventSubscriber() eventSubscriber: EventSubscriber,
+    @InjectEventSubscriber() eventSubscriber: EventSubscriberService,
     modulesContainer: ModulesContainer,
   ) {
     this.logger = logger;

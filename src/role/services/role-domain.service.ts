@@ -8,7 +8,7 @@ import {
 import { ProjectNotFormationStateException } from 'role/exceptions/project-not-formation-state.exception';
 import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create-role-outside-formation-state.exception';
 import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
-import { EventPublisher, InjectEventPublisher } from 'event';
+import { EventPublisherService, InjectEventPublisher } from 'event';
 import { RoleCreatedEvent } from 'role/events/role-created.event';
 import { RoleUpdatedEvent } from 'role/events/role-updated.event';
 import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
@@ -31,13 +31,13 @@ export interface UpdateRoleOptions {
 
 @Injectable()
 export class RoleDomainService {
-  private readonly eventPublisher: EventPublisher;
+  private readonly eventPublisher: EventPublisherService;
   private readonly userRepository: UserRepository;
   private readonly roleRepository: RoleRepository;
   private readonly emailService: EmailService;
 
   public constructor(
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(EMAIL_SERVICE) emailService: EmailService,

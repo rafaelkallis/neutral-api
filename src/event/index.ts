@@ -1,12 +1,19 @@
-export { EventBus } from 'event/interfaces/event-bus.interface';
-export { EventModule } from 'event/event.module';
 export { AbstractEvent } from 'event/abstract.event';
-export { MockEventPublisher } from 'event/services/mock-event-publisher';
-export { MockEventSubscriber } from 'event/services/mock-event-subscriber';
-export { EventPublisher } from 'event/interfaces/event-publisher.interface';
-export { EventSubscriber } from 'event/interfaces/event-subscriber.interface';
-export { EventSubscription } from 'event/interfaces/event-subscription.interface';
+
+export { EventBusService } from 'event/bus/event-bus.service';
+export { InjectEventBus } from 'event/bus/inject-event-bus.decorator';
+
+export { EventPublisherService } from 'event/publisher/event-publisher.service';
+export { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
+export { InjectEventPublisher } from 'event/publisher/inject-event-publisher.decorator';
+
+export {
+  EventSubscriberService,
+  EventSubscription,
+} from 'event/subscriber/event-subscriber.service';
+export { MockEventSubscriberService } from 'event/subscriber/mock-event-subscriber.service';
+export { InjectEventSubscriber } from 'event/subscriber/inject-event-subscriber.decorator';
+
 export { Saga } from 'event/decorators/saga.decorator';
-export { InjectEventBus } from 'event/decorators/inject-event-bus.decorator';
-export { InjectEventPublisher } from 'event/decorators/inject-event-publisher.decorator';
-export { InjectEventSubscriber } from 'event/decorators/inject-event-subscriber.decorator';
+
+export { EventModule } from 'event/event.module';

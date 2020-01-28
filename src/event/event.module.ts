@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'logger';
-import { EVENT_PUBLISHER, EVENT_SUBSCRIBER, EVENT_BUS } from 'event/constants';
-import { NaiveEventBus } from 'event/services/naive-event-bus';
+import {
+  EVENT_PUBLISHER,
+  EVENT_SUBSCRIBER,
+  EVENT_BUS,
+  EVENT_SERIALIZER,
+} from 'event/constants';
+import { NaiveEventBusService } from 'event/bus/naive-event-bus.service';
 import { SagaManagerService } from 'event/services/saga-manager.service';
+import { JsonEventSerializerService } from 'event/serializer/json-event-serializer.service';
 
 /**
  * Event Module
@@ -12,7 +18,7 @@ import { SagaManagerService } from 'event/services/saga-manager.service';
   providers: [
     {
       provide: EVENT_BUS,
-      useClass: NaiveEventBus,
+      useClass: NaiveEventBusService,
     },
     {
       provide: EVENT_PUBLISHER,
@@ -21,6 +27,10 @@ import { SagaManagerService } from 'event/services/saga-manager.service';
     {
       provide: EVENT_SUBSCRIBER,
       useExisting: EVENT_BUS,
+    },
+    {
+      provide: EVENT_SERIALIZER,
+      useClass: JsonEventSerializerService,
     },
     SagaManagerService,
   ],

@@ -16,7 +16,7 @@ import { UpdateRoleDto } from 'role/dto/update-role.dto';
 import { AssignmentDto } from 'role/dto/assignment.dto';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { RoleDomainService } from 'role/services/role-domain.service';
 import { RoleApplicationService } from 'role/services/role-application.service';
 import { MockEmailService } from 'email';
@@ -25,7 +25,7 @@ describe('role application service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -43,7 +43,7 @@ describe('role application service', () => {
     entityFaker = new EntityFaker();
     primitiveFaker = new PrimitiveFaker();
 
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();

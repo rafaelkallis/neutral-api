@@ -43,7 +43,7 @@ import {
 import { ProjectEntity } from 'project';
 import { FinalPeerReviewSubmittedEvent } from 'project/events/final-peer-review-submitted.event';
 import { InvariantViolationException } from 'common';
-import { EventPublisher, InjectEventPublisher } from 'event';
+import { EventPublisherService, InjectEventPublisher } from 'event';
 
 export interface CreateProjectOptions {
   title: string;
@@ -59,7 +59,7 @@ export interface UpdateProjectOptions {
 
 @Injectable()
 export class ProjectDomainService {
-  private readonly eventPublisher: EventPublisher;
+  private readonly eventPublisher: EventPublisherService;
   private readonly projectRepository: ProjectRepository;
   private readonly roleRepository: RoleRepository;
   private readonly peerReviewRepository: PeerReviewRepository;
@@ -67,7 +67,7 @@ export class ProjectDomainService {
   private readonly consensualityModelService: ConsensualityModelService;
 
   public constructor(
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(PROJECT_REPOSITORY) projectRepository: ProjectRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,

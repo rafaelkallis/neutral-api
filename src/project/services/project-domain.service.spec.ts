@@ -13,7 +13,7 @@ import {
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { SkipManagerReview, ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import {
   ProjectDomainService,
   CreateProjectOptions,
@@ -24,7 +24,7 @@ describe('project domain service', () => {
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
@@ -39,7 +39,7 @@ describe('project domain service', () => {
     primitiveFaker = new PrimitiveFaker();
     entityFaker = new EntityFaker();
 
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     userRepository = new FakeUserRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();

@@ -1,4 +1,4 @@
-import { MockEventPublisher } from 'event';
+import { MockEventPublisherService } from 'event';
 import { FakeNotificationRepository } from 'notification/repositories/fake-notification.repository';
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
 import { NotificationEntity } from 'notification/entities/notification.entity';
@@ -8,14 +8,14 @@ import { NotificationReadEvent } from 'notification/events/notification-read.eve
 
 describe('notification domain service', () => {
   let entityFaker: EntityFaker;
-  let eventPublisher: MockEventPublisher;
+  let eventPublisher: MockEventPublisherService;
   let notificationRepository: FakeNotificationRepository;
   let notificationDomainService: NotificationDomainService;
   let user: UserEntity;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
-    eventPublisher = new MockEventPublisher();
+    eventPublisher = new MockEventPublisherService();
     notificationRepository = new FakeNotificationRepository();
     notificationDomainService = new NotificationDomainService(
       eventPublisher,
