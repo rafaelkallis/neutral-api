@@ -1,6 +1,6 @@
 import { TypeOrmRepository } from 'common';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, InjectDatabase } from 'database';
+import { DatabaseClientService } from 'database';
 import { NotificationRepository } from 'notification/repositories/notification.repository';
 import { NotificationEntity } from 'notification/entities/notification.entity';
 
@@ -14,14 +14,14 @@ export class TypeOrmNotificationRepository
   /**
    *
    */
-  public constructor(@InjectDatabase() database: DatabaseService) {
-    super(database, NotificationEntity);
+  public constructor(databaseClient: DatabaseClientService) {
+    super(databaseClient, NotificationEntity);
   }
 
   /**
    *
    */
   public async findByOwnerId(ownerId: string): Promise<NotificationEntity[]> {
-    return this.getInternalRepository().find({ ownerId });
+    return this.internalRepository.find({ ownerId });
   }
 }

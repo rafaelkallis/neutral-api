@@ -6,7 +6,7 @@ import {
 import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
 import { Repository } from 'common/repositories/repository.interface';
 import { AbstractEntity } from 'common/entities/abstract.entity';
-import { DatabaseService } from 'database';
+import { DatabaseClientService } from 'database';
 import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
 import ObjectID from 'bson-objectid';
 
@@ -15,15 +15,15 @@ import ObjectID from 'bson-objectid';
  */
 export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
   implements Repository<TEntity> {
-  private readonly entityManager: EntityManager;
-  private readonly entityClass: ObjectType<TEntity>;
+  protected readonly entityManager: EntityManager;
+  protected readonly internalRepository: InternalRepository<TEntity>;
 
   public constructor(
-    database: DatabaseService,
-    entityClass: ObjectType<TEntity>,
+    databaseClient: DatabaseClientService,
+    Entity: ObjectType<TEntity>,
   ) {
-    this.entityManager = database.getEntityManager();
-    this.entityClass = entityClass;
+    this.entityManager = databaseClient.getEntityManager();
+    this.internalRepository = this.entityManager.getRepository(Entity);
   }
 
   /**
@@ -44,7 +44,7 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    *
    */
   public async findPage(afterId?: string): Promise<TEntity[]> {
-    let builder = this.getInternalRepository()
+    let builder = this.internalRepository
       .createQueryBuilder()
       .orderBy('id', 'DESC')
       .take(10);
@@ -60,7 +60,7 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    *
    */
   public async findById(id: string): Promise<TEntity> {
-    const entity = await this.getInternalRepository().findOne(id);
+    const entity = await this.internalRepository.findOne(id);
     if (!entity) {
       throw new EntityNotFoundException();
     }
@@ -71,7 +71,7 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    *
    */
   public async findByIds(ids: string[]): Promise<TEntity[]> {
-    const entities = await this.getInternalRepository().findByIds(ids);
+    const entities = await this.internalRepository.findByIds(ids);
     if (ids.length !== entities.length) {
       throw new EntityNotFoundException();
     }
@@ -82,9 +82,7 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    *
    */
   public async exists(id: string): Promise<boolean> {
-    const entity = await this.entityManager
-      .getRepository(this.entityClass)
-      .findOne(id);
+    const entity = await this.internalRepository.findOne(id);
     return Boolean(entity);
   }
 
@@ -93,7 +91,7 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    */
   public async refresh(...entities: TEntity[]): Promise<void> {
     const ids = entities.map(entity => entity.id);
-    const newEntities = await this.getInternalRepository().findByIds(ids);
+    const newEntities = await this.internalRepository.findByIds(ids);
     if (entities.length !== newEntities.length) {
       // TODO log
       throw new InvariantViolationException();
@@ -108,13 +106,6 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
    */
   public async delete(...entities: TEntity[]): Promise<void> {
     const ids = entities.map(entity => entity.id);
-    await this.entityManager.getRepository(this.entityClass).delete(ids);
-  }
-
-  /**
-   *
-   */
-  protected getInternalRepository(): InternalRepository<TEntity> {
-    return this.entityManager.getRepository(this.entityClass);
+    await this.internalRepository.delete(ids);
   }
 }

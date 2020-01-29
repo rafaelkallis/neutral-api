@@ -4,11 +4,11 @@ import {
   EVENT_PUBLISHER,
   EVENT_SUBSCRIBER,
   EVENT_BUS,
-  EVENT_SERIALIZER,
+  // EVENT_SERIALIZER,
 } from 'event/constants';
 import { NaiveEventBusService } from 'event/bus/naive-event-bus.service';
 import { SagaManagerService } from 'event/services/saga-manager.service';
-import { JsonEventSerializerService } from 'event/serializer/json-event-serializer.service';
+// import { JsonEventSerializerService } from 'event/serializer/json-event-serializer.service';
 
 /**
  * Event Module
@@ -28,10 +28,10 @@ import { JsonEventSerializerService } from 'event/serializer/json-event-serializ
       provide: EVENT_SUBSCRIBER,
       useExisting: EVENT_BUS,
     },
-    {
-      provide: EVENT_SERIALIZER,
-      useClass: JsonEventSerializerService,
-    },
+    // {
+    //   provide: EVENT_SERIALIZER,
+    //   useClass: JsonEventSerializerService,
+    // },
     SagaManagerService,
   ],
   exports: [EVENT_BUS, EVENT_PUBLISHER, EVENT_SUBSCRIBER],

@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -16,6 +17,7 @@ import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
 import { EmailService, EMAIL_SERVICE } from 'email';
 
 describe('assign user to role', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let tokenService: TokenService;
@@ -40,7 +42,7 @@ describe('assign user to role', () => {
     tokenService = module.get(TOKEN_SERVICE);
     emailService = module.get(EMAIL_SERVICE);
 
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     user = entityFaker.user();
@@ -52,6 +54,10 @@ describe('assign user to role', () => {
     session = request.agent(app.getHttpServer());
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('/roles/:id/assign (POST)', () => {

@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -13,6 +14,7 @@ import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
 
 describe('submit manager review (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
@@ -26,7 +28,7 @@ describe('submit manager review (e2e)', () => {
     }).compile();
     userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
     const user = entityFaker.user();
     await userRepository.persist(user);
@@ -39,6 +41,10 @@ describe('submit manager review (e2e)', () => {
     project = entityFaker.project(user.id);
     project.state = ProjectState.MANAGER_REVIEW;
     await projectRepository.persist(project);
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   test('happy path', async () => {

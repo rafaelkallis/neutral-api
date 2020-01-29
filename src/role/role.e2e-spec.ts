@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -15,6 +16,7 @@ import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
 
 describe('roles (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -36,7 +38,7 @@ describe('roles (e2e)', () => {
     userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
     roleRepository = module.get(ROLE_REPOSITORY);
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     user = entityFaker.user();
@@ -49,6 +51,10 @@ describe('roles (e2e)', () => {
     tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('/roles (GET)', () => {

@@ -1,3 +1,2 @@
-export { DatabaseService } from 'database/database.service';
+export { DatabaseClientService } from 'database/database-client.service';
 export { DatabaseModule } from 'database/database.module';
-export { InjectDatabase } from 'database/inject-database.decorator';

@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -8,6 +9,7 @@ import { TokenService, TOKEN_SERVICE } from 'token';
 import { EmailService, EMAIL_SERVICE } from 'email';
 
 describe('auth (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -25,13 +27,17 @@ describe('auth (e2e)', () => {
     userRepository = module.get(USER_REPOSITORY);
     emailService = module.get(EMAIL_SERVICE);
     tokenService = module.get(TOKEN_SERVICE);
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     user = entityFaker.user();
     await userRepository.persist(user);
 
     session = request.agent(app.getHttpServer());
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('/auth/login (POST)', () => {

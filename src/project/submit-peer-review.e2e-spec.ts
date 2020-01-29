@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -22,6 +23,7 @@ import { UserRepository, USER_REPOSITORY } from 'user';
 jest.setTimeout(10000);
 
 describe('submit peer review (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
@@ -49,7 +51,7 @@ describe('submit peer review (e2e)', () => {
     roleRepository = module.get(ROLE_REPOSITORY);
     peerReviewRepository = module.get(PEER_REVIEW_REPOSITORY);
 
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     const user = entityFaker.user();
@@ -114,6 +116,10 @@ describe('submit peer review (e2e)', () => {
         await peerReviewRepository.persist(peerReview);
       }
     }
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   test('happy path, final peer review', async () => {

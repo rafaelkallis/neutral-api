@@ -1,7 +1,7 @@
 import { TypeOrmRepository } from 'common';
 import { RoleEntity } from 'role/entities/role.entity';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, InjectDatabase } from 'database';
+import { DatabaseClientService } from 'database';
 
 /**
  * TypeOrm Role Repository
@@ -11,21 +11,21 @@ export class TypeOrmRoleRepository extends TypeOrmRepository<RoleEntity> {
   /**
    *
    */
-  public constructor(@InjectDatabase() database: DatabaseService) {
-    super(database, RoleEntity);
+  public constructor(databaseClient: DatabaseClientService) {
+    super(databaseClient, RoleEntity);
   }
 
   /**
    *
    */
   public async findByProjectId(projectId: string): Promise<RoleEntity[]> {
-    return await this.getInternalRepository().find({ projectId });
+    return await this.internalRepository.find({ projectId });
   }
 
   /**
    *
    */
   public async findByAssigneeId(assigneeId: string): Promise<RoleEntity[]> {
-    return await this.getInternalRepository().find({ assigneeId });
+    return await this.internalRepository.find({ assigneeId });
   }
 }

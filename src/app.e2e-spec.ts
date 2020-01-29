@@ -4,7 +4,7 @@ import request from 'supertest';
 
 import { AppModule } from './app.module';
 
-describe('AppController (e2e)', () => {
+describe('app (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -14,6 +14,10 @@ describe('AppController (e2e)', () => {
 
     app = module.createNestApplication();
     await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   test('should be defined', async () => {

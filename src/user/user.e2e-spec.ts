@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -11,7 +12,8 @@ import { EntityFaker } from 'test';
 import { UserDto } from './dto/user.dto';
 import { TOKEN_SERVICE } from 'token';
 
-describe('UserController (e2e)', () => {
+describe('user (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let userRepository: UserRepository;
   let user: UserEntity;
@@ -23,7 +25,7 @@ describe('UserController (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     userRepository = module.get(USER_REPOSITORY);
@@ -34,6 +36,10 @@ describe('UserController (e2e)', () => {
     const tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('/users (GET)', () => {

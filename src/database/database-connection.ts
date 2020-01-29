@@ -1,7 +1,10 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService, InjectConfig } from 'config';
-import { LoggerService, InjectLogger } from 'logger';
-import { Connection, ConnectionManager, EntityManager } from 'typeorm';
+import { Inject } from '@nestjs/common';
+import { FactoryProvider } from '@nestjs/common/interfaces';
+import { Connection, ConnectionManager } from 'typeorm';
+import { ConfigService } from 'config';
+import { LoggerService } from 'logger';
+import { CONFIG } from 'config/constants';
+import { LOGGER } from 'logger/constants';
 
 import { UserEntity } from 'user/entities/user.entity';
 import { ProjectEntity } from 'project/entities/project.entity';
@@ -30,63 +33,22 @@ import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migra
 import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migration/1579969356000-rename-project-owner-to-creator-migration';
 
-@Injectable()
-export class DatabaseService implements OnModuleInit, OnModuleDestroy {
-  private static readonly DEFAULT_CONNECTION = 'DEFAULT_CONNECTION';
-  private readonly config: ConfigService;
-  private readonly logger: LoggerService;
-  private readonly connectionManager: ConnectionManager;
+export const DATABASE_CONNECTION = Symbol('DATABASE_CONNECTION');
 
-  public constructor(
-    @InjectConfig() config: ConfigService,
-    @InjectLogger() logger: LoggerService,
-  ) {
-    this.config = config;
-    this.logger = logger;
-    this.connectionManager = new ConnectionManager();
-    this.createConnection();
-  }
+export function InjectDatabaseConnection(): ParameterDecorator {
+  return Inject(DATABASE_CONNECTION);
+}
 
-  /**
-   *
-   */
-  public getEntityManager(): EntityManager {
-    return this.getConnection().manager;
-  }
-
-  /**
-   *
-   */
-  public async onModuleInit(): Promise<void> {
-    await this.getConnection().connect();
-    this.logger.log('Database connected');
-    await this.getConnection().runMigrations();
-    this.logger.log('Database migrations up to date');
-  }
-
-  /**
-   *
-   */
-  public async onModuleDestroy(): Promise<void> {
-    await this.getConnection().close();
-    this.logger.log('Database disconnected');
-  }
-
-  /**
-   *
-   */
-  private getConnection(): Connection {
-    return this.connectionManager.get(DatabaseService.DEFAULT_CONNECTION);
-  }
-
-  /**
-   *
-   */
-  private createConnection(): void {
-    this.connectionManager.create({
-      name: DatabaseService.DEFAULT_CONNECTION,
+export const DatabaseConnectionProvider: FactoryProvider<Promise<
+  Connection
+>> = {
+  provide: DATABASE_CONNECTION,
+  useFactory: async (config: ConfigService, logger: LoggerService) => {
+    const connectionManager = new ConnectionManager();
+    const connection = connectionManager.create({
+      name: 'default',
       type: 'postgres' as 'postgres',
-      url: this.config.get('DATABASE_URL'),
+      url: config.get('DATABASE_URL'),
       entities: [
         UserEntity,
         ProjectEntity,
@@ -117,5 +79,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         RenameProjectOwnerToCreatorMigration1579969356000,
       ],
     });
-  }
-}
+    await connection.connect();
+    logger.log('Database connected');
+    await connection.runMigrations();
+    logger.log('Database migrations up to date');
+    return connection;
+  },
+  inject: [CONFIG, LOGGER],
+};

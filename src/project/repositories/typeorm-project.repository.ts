@@ -1,7 +1,7 @@
 import { TypeOrmRepository } from 'common';
 import { ProjectEntity } from 'project/entities/project.entity';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, InjectDatabase } from 'database';
+import { DatabaseClientService } from 'database';
 import { ProjectRepository } from 'project/repositories/project.repository';
 
 /**
@@ -13,11 +13,11 @@ export class TypeOrmProjectRepository extends TypeOrmRepository<ProjectEntity>
   /**
    *
    */
-  public constructor(@InjectDatabase() database: DatabaseService) {
-    super(database, ProjectEntity);
+  public constructor(databaseClient: DatabaseClientService) {
+    super(databaseClient, ProjectEntity);
   }
 
   public async findByCreatorId(creatorId: string): Promise<ProjectEntity[]> {
-    return this.getInternalRepository().find({ creatorId: creatorId });
+    return this.internalRepository.find({ creatorId: creatorId });
   }
 }

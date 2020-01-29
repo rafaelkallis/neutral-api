@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app.module';
@@ -12,6 +13,7 @@ import { NotificationEntity } from 'notification/entities/notification.entity';
 import { NotificationDto } from 'notification/dto/notification.dto';
 
 describe('notifications (e2e)', () => {
+  let app: INestApplication;
   let entityFaker: EntityFaker;
   let userRepository: UserRepository;
   let notificationRepository: NotificationRepository;
@@ -24,7 +26,7 @@ describe('notifications (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    const app = module.createNestApplication();
+    app = module.createNestApplication();
     await app.init();
 
     userRepository = module.get(USER_REPOSITORY);
@@ -37,6 +39,10 @@ describe('notifications (e2e)', () => {
     const tokenService = module.get(TOKEN_SERVICE);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('/notifications (GET)', () => {

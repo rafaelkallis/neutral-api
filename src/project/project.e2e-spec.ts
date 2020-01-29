@@ -44,6 +44,10 @@ describe('ProjectController (e2e)', () => {
     await session.post(`/auth/login/${loginToken}`);
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   describe('/projects (GET)', () => {
     test('happy path', async () => {
       const projects = [

@@ -2,7 +2,7 @@ import { PeerReviewEntity } from 'role/entities/peer-review.entity';
 import { TypeOrmRepository } from 'common';
 import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, InjectDatabase } from 'database';
+import { DatabaseClientService } from 'database';
 
 /**
  * Peer Review Repository
@@ -14,8 +14,8 @@ export class TypeOrmPeerReviewRepository
   /**
    *
    */
-  public constructor(@InjectDatabase() database: DatabaseService) {
-    super(database, PeerReviewEntity);
+  public constructor(databaseClient: DatabaseClientService) {
+    super(databaseClient, PeerReviewEntity);
   }
 
   /**
@@ -24,7 +24,7 @@ export class TypeOrmPeerReviewRepository
   public async findBySenderRoleId(
     senderRoleId: string,
   ): Promise<PeerReviewEntity[]> {
-    return this.getInternalRepository().find({ senderRoleId });
+    return this.internalRepository.find({ senderRoleId });
   }
 
   /**
@@ -33,6 +33,6 @@ export class TypeOrmPeerReviewRepository
   public async findByReceiverRoleId(
     receiverRoleId: string,
   ): Promise<PeerReviewEntity[]> {
-    return this.getInternalRepository().find({ receiverRoleId });
+    return this.internalRepository.find({ receiverRoleId });
   }
 }
