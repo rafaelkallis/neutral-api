@@ -11,7 +11,6 @@ import { UserModule } from 'user/user.module';
 import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
-import { LoggerModule } from 'logger';
 import { SessionMiddleware } from 'session';
 import { NotificationModule } from 'notification/notification.module';
 import { ApmModule } from 'apm';
@@ -22,7 +21,6 @@ import { ApmModule } from 'apm';
 @Module({
   imports: [
     ConfigModule,
-    LoggerModule,
     ApmModule,
     DatabaseModule,
     EmailModule,

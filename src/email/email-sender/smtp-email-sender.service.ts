@@ -1,11 +1,15 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService, InjectConfig } from 'config';
 import {
   EmailSenderService,
   SendEmailOptions,
 } from 'email/email-sender/email-sender.service';
 import { Transporter, createTransport } from 'nodemailer';
-import { LoggerService, InjectLogger } from 'logger';
 
 /**
  * Smtp Email Sender
@@ -13,14 +17,11 @@ import { LoggerService, InjectLogger } from 'logger';
 @Injectable()
 export class SmtpEmailSenderService
   implements EmailSenderService, OnModuleInit, OnModuleDestroy {
-  private readonly logger: LoggerService;
+  private readonly logger: Logger;
   private readonly transporter: Transporter;
 
-  public constructor(
-    @InjectLogger() logger: LoggerService,
-    @InjectConfig() config: ConfigService,
-  ) {
-    this.logger = logger;
+  public constructor(@InjectConfig() config: ConfigService) {
+    this.logger = new Logger(SmtpEmailSenderService.name, true);
     const smtpUrl = config.get('SMTP_URL');
     this.transporter = createTransport(smtpUrl);
   }

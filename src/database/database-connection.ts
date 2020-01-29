@@ -2,9 +2,7 @@ import { Inject } from '@nestjs/common';
 import { FactoryProvider } from '@nestjs/common/interfaces';
 import { Connection, ConnectionManager } from 'typeorm';
 import { ConfigService } from 'config';
-import { LoggerService } from 'logger';
 import { CONFIG } from 'config/constants';
-import { LOGGER } from 'logger/constants';
 
 import { UserEntity } from 'user/entities/user.entity';
 import { ProjectEntity } from 'project/entities/project.entity';
@@ -43,7 +41,7 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
   Connection
 >> = {
   provide: DATABASE_CONNECTION,
-  useFactory: async (config: ConfigService, logger: LoggerService) => {
+  useFactory: async (config: ConfigService) => {
     const connectionManager = new ConnectionManager();
     const connection = connectionManager.create({
       name: 'default',
@@ -80,10 +78,8 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
       ],
     });
     await connection.connect();
-    logger.log('Database connected');
     await connection.runMigrations();
-    logger.log('Database migrations up to date');
     return connection;
   },
-  inject: [CONFIG, LOGGER],
+  inject: [CONFIG],
 };

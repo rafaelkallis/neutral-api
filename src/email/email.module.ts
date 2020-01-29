@@ -12,13 +12,12 @@ import {
   DefaultEmailPlaintextRendererService,
 } from 'email/email-plaintext-renderer';
 import { SelfManagedEmailService } from 'email/self-managed-email.service';
-import { LoggerModule } from 'logger';
 
 /**
  * Email Module
  */
 @Module({
-  imports: [LoggerModule, ConfigModule, HttpModule],
+  imports: [ConfigModule, HttpModule],
   providers: [
     {
       provide: EMAIL_SERVICE,

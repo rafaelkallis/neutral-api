@@ -1,22 +1,18 @@
 import 'reflect-metadata';
-import { OnModuleInit, Type } from '@nestjs/common';
+import { OnModuleInit, Type, Logger } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
 import { HANDLE_EVENT_METADATA, EVENT_METADATA } from 'event/constants';
-import { LoggerService } from 'logger';
 import { AbstractEvent } from 'event/abstract.event';
 import { HandleEventMetadataItem } from 'event/services/handle-event-metadata-item';
 
 export abstract class EventSerializerService implements OnModuleInit {
   public static readonly EVENT_KEY_FIELD = '_type';
 
-  private readonly logger: LoggerService;
+  private readonly logger: Logger;
   private readonly modulesContainer: ModulesContainer;
   private readonly eventTypeMap: Map<string, Type<AbstractEvent>>;
 
-  public constructor(
-    logger: LoggerService,
-    modulesContainer: ModulesContainer,
-  ) {
+  public constructor(logger: Logger, modulesContainer: ModulesContainer) {
     this.logger = logger;
     this.modulesContainer = modulesContainer;
     this.eventTypeMap = new Map();

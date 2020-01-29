@@ -1,16 +1,13 @@
 import 'reflect-metadata';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable, Type, Logger } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-import { LoggerService, InjectLogger } from 'logger';
 import { AbstractEvent } from 'event/abstract.event';
 import { EventSerializerService } from 'event/serializer/event-serializer.service';
 
 @Injectable()
 export class JsonEventSerializerService extends EventSerializerService {
-  public constructor(
-    @InjectLogger() logger: LoggerService,
-    modulesContainer: ModulesContainer,
-  ) {
+  public constructor(modulesContainer: ModulesContainer) {
+    const logger = new Logger(JsonEventSerializerService.name, true);
     super(logger, modulesContainer);
   }
 

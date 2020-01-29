@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from 'logger';
 import {
   EVENT_PUBLISHER,
   EVENT_SUBSCRIBER,
@@ -14,7 +13,6 @@ import { SagaManagerService } from 'event/services/saga-manager.service';
  * Event Module
  */
 @Module({
-  imports: [LoggerModule],
   providers: [
     {
       provide: EVENT_BUS,

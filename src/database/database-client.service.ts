@@ -1,19 +1,16 @@
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
-import { LoggerService, InjectLogger } from 'logger';
+import { Injectable, OnApplicationShutdown, Logger } from '@nestjs/common';
 import { Connection, EntityManager } from 'typeorm';
 import { InjectDatabaseConnection } from 'database/database-connection';
 
 @Injectable()
 export class DatabaseClientService implements OnApplicationShutdown {
+  private readonly logger: Logger;
   private readonly connection: Connection;
-  private readonly logger: LoggerService;
 
-  public constructor(
-    @InjectDatabaseConnection() connection: Connection,
-    @InjectLogger() logger: LoggerService,
-  ) {
+  public constructor(@InjectDatabaseConnection() connection: Connection) {
+    this.logger = new Logger(DatabaseClientService.name, true);
     this.connection = connection;
-    this.logger = logger;
+    this.logger.log('Database connected');
   }
 
   /**

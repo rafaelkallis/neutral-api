@@ -1,8 +1,12 @@
 import 'reflect-metadata';
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
 import { SAGA_METADATA } from 'event/constants';
-import { LoggerService, InjectLogger } from 'logger';
 import { InjectEventSubscriber } from 'event/subscriber/inject-event-subscriber.decorator';
 import {
   EventSubscriberService,
@@ -14,17 +18,16 @@ import { AbstractEvent } from 'event/abstract.event';
 
 @Injectable()
 export class SagaManagerService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger: LoggerService;
+  private readonly logger: Logger;
   private readonly eventSubscriber: EventSubscriberService;
   private readonly modulesContainer: ModulesContainer;
   private readonly sagaEventSubscriptions: EventSubscription[];
 
   public constructor(
-    @InjectLogger() logger: LoggerService,
     @InjectEventSubscriber() eventSubscriber: EventSubscriberService,
     modulesContainer: ModulesContainer,
   ) {
-    this.logger = logger;
+    this.logger = new Logger(SagaManagerService.name, true);
     this.eventSubscriber = eventSubscriber;
     this.modulesContainer = modulesContainer;
     this.sagaEventSubscriptions = [];
