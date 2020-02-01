@@ -1,16 +1,17 @@
-import { FakeRepository, EntityNotFoundException } from 'common';
+import { FakeRepository } from 'common';
 import { UserRepository } from 'user/repositories/user.repository';
-import { UserEntity } from 'user/entities/user.entity';
+import { UserModel } from 'user/user.model';
+import { UserNotFoundException } from 'user/exceptions/user-not-found.exception';
 
 /**
  * Fake User Repository
  */
-export class FakeUserRepository extends FakeRepository<UserEntity>
+export class FakeUserRepository extends FakeRepository<UserModel>
   implements UserRepository {
   /**
    *
    */
-  public async findByName(fullName: string): Promise<UserEntity[]> {
+  public async findByName(fullName: string): Promise<UserModel[]> {
     return Array.from(this.entities.values()).filter(entity =>
       `${entity.firstName} ${entity.lastName}`.includes(fullName),
     );
@@ -19,12 +20,12 @@ export class FakeUserRepository extends FakeRepository<UserEntity>
   /**
    *
    */
-  public async findByEmail(email: string): Promise<UserEntity> {
+  public async findByEmail(email: string): Promise<UserModel> {
     const user = Array.from(this.entities.values()).find(
       entity => entity.email === email,
     );
     if (!user) {
-      throw new EntityNotFoundException();
+      this.throwEntityNotFoundException();
     }
     return user;
   }
@@ -37,5 +38,12 @@ export class FakeUserRepository extends FakeRepository<UserEntity>
       entity => entity.email === email,
     );
     return Boolean(user);
+  }
+
+  /**
+   *
+   */
+  protected throwEntityNotFoundException(): never {
+    throw new UserNotFoundException();
   }
 }

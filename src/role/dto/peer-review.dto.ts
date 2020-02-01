@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { PeerReviewModel } from 'role/peer-review.model';
 
 /**
  * Peer Review DTO
@@ -38,13 +38,13 @@ interface BuildStep {
  * Peer Review DTO Builder
  */
 export class PeerReviewDtoBuilder implements BuildStep {
-  private readonly peerReview: PeerReviewEntity;
+  private readonly peerReview: PeerReviewModel;
 
-  private constructor(peerReview: PeerReviewEntity) {
+  private constructor(peerReview: PeerReviewModel) {
     this.peerReview = peerReview;
   }
 
-  public static of(peerReview: PeerReviewEntity): BuildStep {
+  public static of(peerReview: PeerReviewModel): BuildStep {
     return new PeerReviewDtoBuilder(peerReview);
   }
 

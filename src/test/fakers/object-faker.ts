@@ -5,7 +5,6 @@ import {
   ContributionVisibility,
   SkipManagerReview,
 } from 'project';
-import { User } from 'user';
 import { Role, PeerReview } from 'role';
 import { Notification, NotificationType } from 'notification';
 
@@ -14,19 +13,6 @@ export class ObjectFaker {
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.primitiveFaker = primitiveFaker;
-  }
-
-  /**
-   * Create fake user
-   */
-  public user(): User {
-    return {
-      id: this.primitiveFaker.id(),
-      email: this.primitiveFaker.email(),
-      firstName: this.primitiveFaker.word(),
-      lastName: this.primitiveFaker.word(),
-      lastLoginAt: this.primitiveFaker.timestampUnix(),
-    };
   }
 
   /**

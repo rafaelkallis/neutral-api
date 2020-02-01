@@ -1,12 +1,12 @@
-import { ProjectEntity } from 'project/entities/project.entity';
-import { UserEntity } from 'user';
+import { ProjectModel } from 'project/project.model';
+import { UserModel } from 'user';
 import { AbstractEvent } from 'event';
 
 export class ProjectCreatedEvent extends AbstractEvent {
-  public readonly project: ProjectEntity;
-  public readonly owner: UserEntity;
+  public readonly project: ProjectModel;
+  public readonly owner: UserModel;
 
-  public constructor(project: ProjectEntity, owner: UserEntity) {
+  public constructor(project: ProjectModel, owner: UserModel) {
     super();
     this.project = project;
     this.owner = owner;

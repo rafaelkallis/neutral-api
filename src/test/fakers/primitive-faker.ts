@@ -17,10 +17,17 @@ export class PrimitiveFaker {
   }
 
   /**
-   * Creates a fake unix timestamp
+   * Creates a fake unix timestamp (in seconds)
    */
-  public timestampUnix(): number {
+  public timestampUnixSeconds(): number {
     return Math.floor(faker.date.recent().getTime() / 1000);
+  }
+
+  /**
+   * Creates a fake unix timestamp (in milliseconds)
+   */
+  public timestampUnixMillis(): number {
+    return faker.date.recent().getTime();
   }
 
   /**

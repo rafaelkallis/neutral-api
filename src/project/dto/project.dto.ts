@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import { RoleDto } from 'role/dto/role.dto';
 import {
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
 } from 'project/project';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 
 /**
  * Project DTO
@@ -72,27 +72,27 @@ export class ProjectDto extends BaseDto {
 }
 
 class ProjectStep {
-  project(project: ProjectEntity): AuthUserStep {
+  project(project: ProjectModel): AuthUserStep {
     return new AuthUserStep(project);
   }
 }
 
 class AuthUserStep {
-  private readonly projectEntity: ProjectEntity;
-  public constructor(projectEntity: ProjectEntity) {
+  private readonly projectEntity: ProjectModel;
+  public constructor(projectEntity: ProjectModel) {
     this.projectEntity = projectEntity;
   }
-  authUser(authUser: UserEntity): BuildStep {
+  authUser(authUser: UserModel): BuildStep {
     return new BuildStep(this.projectEntity, authUser);
   }
 }
 
 class BuildStep {
-  private readonly project: ProjectEntity;
-  private readonly authUser: UserEntity;
+  private readonly project: ProjectModel;
+  private readonly authUser: UserModel;
   private roles?: RoleDto[];
 
-  public constructor(project: ProjectEntity, authUser: UserEntity) {
+  public constructor(project: ProjectModel, authUser: UserModel) {
     this.project = project;
     this.authUser = authUser;
   }

@@ -1,5 +1,4 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { UserEntity } from 'user/entities/user.entity';
 import { UserRepository } from 'user/repositories/user.repository';
 import { FakeUserRepository } from 'user/repositories/fake-user.repository';
 import { MockConfigService, ConfigService } from 'config';
@@ -9,6 +8,7 @@ import {
   UpdateUserOptions,
 } from 'user/services/user-domain.service';
 import { MockEventPublisherService } from 'event';
+import { UserModel } from 'user/user.model';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
@@ -18,7 +18,7 @@ describe('user service', () => {
   let userRepository: UserRepository;
   let tokenService: TokenService;
   let userDomainService: UserDomainService;
-  let user: UserEntity;
+  let user: UserModel;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();

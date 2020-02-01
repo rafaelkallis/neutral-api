@@ -1,15 +1,15 @@
 import { AbstractEvent } from 'event';
-import { UserEntity } from 'user/entities/user.entity';
+import { UserModel } from 'user/user.model';
 
 /**
  * Email Change Requested Event
  */
 export class EmailChangeRequestedEvent extends AbstractEvent {
-  public readonly user: UserEntity;
+  public readonly user: UserModel;
   public readonly email: string;
   public readonly magicEmailChangeLink: string;
 
-  constructor(user: UserEntity, email: string, magicEmailChangeLink: string) {
+  constructor(user: UserModel, email: string, magicEmailChangeLink: string) {
     super();
     this.user = user;
     this.email = email;

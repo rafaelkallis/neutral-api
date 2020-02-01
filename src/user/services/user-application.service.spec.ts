@@ -1,5 +1,4 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { UserEntity } from 'user/entities/user.entity';
 import { UserRepository } from 'user/repositories/user.repository';
 import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
@@ -10,6 +9,7 @@ import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/services/user-application.service';
 import { UserDomainService } from 'user/services/user-domain.service';
 import { MockEventPublisherService } from 'event';
+import { UserModel } from 'user/user.model';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
@@ -20,7 +20,7 @@ describe('user service', () => {
   let tokenService: TokenService;
   let userDomainService: UserDomainService;
   let userApplicationService: UserApplicationService;
-  let user: UserEntity;
+  let user: UserModel;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
@@ -50,7 +50,7 @@ describe('user service', () => {
 
   describe('get users', () => {
     let query: GetUsersQueryDto;
-    let users: UserEntity[];
+    let users: UserModel[];
     let expectedUserDtos: UserDto[];
 
     beforeEach(async () => {

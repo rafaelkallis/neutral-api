@@ -1,11 +1,11 @@
-import { UserEntity, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, FakeUserRepository } from 'user';
 import {
-  ProjectEntity,
+  ProjectModel,
   ProjectRepository,
   FakeProjectRepository,
 } from 'project';
-import { RoleEntity } from 'role/entities/role.entity';
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { RoleModel } from 'role/role.model';
+import { PeerReviewModel } from 'role/peer-review.model';
 import { RoleDto } from 'role/dto/role.dto';
 import { RoleRepository } from 'role/repositories/role.repository';
 import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
@@ -35,9 +35,9 @@ describe('role application service', () => {
   let roleDomain: RoleDomainService;
   let roleApplication: RoleApplicationService;
 
-  let ownerUser: UserEntity;
-  let project: ProjectEntity;
-  let roles: RoleEntity[];
+  let ownerUser: UserModel;
+  let project: ProjectModel;
+  let roles: RoleModel[];
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
@@ -107,7 +107,7 @@ describe('role application service', () => {
   });
 
   describe('get role', () => {
-    let sentPeerReview: PeerReviewEntity;
+    let sentPeerReview: PeerReviewModel;
 
     beforeEach(async () => {
       sentPeerReview = entityFaker.peerReview(roles[0].id, roles[1].id);
@@ -224,7 +224,7 @@ describe('role application service', () => {
   });
 
   describe('assign user', () => {
-    let assigneeUser: UserEntity;
+    let assigneeUser: UserModel;
     let assignmentDto: AssignmentDto;
 
     beforeEach(async () => {

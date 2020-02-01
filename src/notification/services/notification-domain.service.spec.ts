@@ -1,9 +1,9 @@
 import { MockEventPublisherService } from 'event';
 import { FakeNotificationRepository } from 'notification/repositories/fake-notification.repository';
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 import { EntityFaker } from 'test';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import { NotificationReadEvent } from 'notification/events/notification-read.event';
 
 describe('notification domain service', () => {
@@ -11,7 +11,7 @@ describe('notification domain service', () => {
   let eventPublisher: MockEventPublisherService;
   let notificationRepository: FakeNotificationRepository;
   let notificationDomainService: NotificationDomainService;
-  let user: UserEntity;
+  let user: UserModel;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
@@ -29,7 +29,7 @@ describe('notification domain service', () => {
   });
 
   describe('read notification', () => {
-    let notification: NotificationEntity;
+    let notification: NotificationModel;
 
     beforeEach(async () => {
       notification = entityFaker.notification(user.id);

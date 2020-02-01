@@ -14,7 +14,7 @@ import {
 import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 import { Saga } from 'event';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 import {
   ProjectPeerReviewStartedEvent,
   ProjectManagerReviewStartedEvent,
@@ -46,9 +46,7 @@ export class NotificationSagasService {
       event.project,
       event.role,
     );
-    const notificationEntity = NotificationEntity.fromNotification(
-      notification,
-    );
+    const notificationEntity = NotificationModel.fromNotification(notification);
     await this.notificationRepository.persist(notificationEntity);
   }
 
@@ -68,7 +66,7 @@ export class NotificationSagasService {
       notifications.push(notification);
     }
     const notificationEntities = notifications.map(n =>
-      NotificationEntity.fromNotification(n),
+      NotificationModel.fromNotification(n),
     );
     await this.notificationRepository.persist(...notificationEntities);
   }
@@ -83,9 +81,7 @@ export class NotificationSagasService {
     const notification = this.notificationFactory.createManagerReviewRequestedNotification(
       event.project,
     );
-    const notificationEntity = NotificationEntity.fromNotification(
-      notification,
-    );
+    const notificationEntity = NotificationModel.fromNotification(notification);
     await this.notificationRepository.persist(notificationEntity);
   }
 
@@ -114,7 +110,7 @@ export class NotificationSagasService {
       notifications.push(notification);
     }
     const notificationEntities = notifications.map(n =>
-      NotificationEntity.fromNotification(n),
+      NotificationModel.fromNotification(n),
     );
     await this.notificationRepository.persist(...notificationEntities);
   }

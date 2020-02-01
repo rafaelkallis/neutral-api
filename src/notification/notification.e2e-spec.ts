@@ -2,22 +2,21 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app.module';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { EntityFaker } from 'test';
 import { TOKEN_SERVICE } from 'token';
 import {
   NotificationRepository,
   NOTIFICATION_REPOSITORY,
 } from 'notification/repositories/notification.repository';
-import { NotificationEntity } from 'notification/entities/notification.entity';
-import { NotificationDto } from 'notification/dto/notification.dto';
+import { NotificationModel } from 'notification/notification.model';
 
 describe('notifications (e2e)', () => {
   let app: INestApplication;
   let entityFaker: EntityFaker;
   let userRepository: UserRepository;
   let notificationRepository: NotificationRepository;
-  let user: UserEntity;
+  let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -46,7 +45,7 @@ describe('notifications (e2e)', () => {
   });
 
   describe('/notifications (GET)', () => {
-    let notifications: NotificationEntity[];
+    let notifications: NotificationModel[];
 
     beforeEach(async () => {
       notifications = [
@@ -63,14 +62,20 @@ describe('notifications (e2e)', () => {
       expect(response.body).toBeDefined();
       expect(response.body).toHaveLength(3);
       for (const notification of notifications) {
-        const expectedNotification = NotificationDto.fromEntity(notification);
-        expect(response.body).toContainEqual(expectedNotification);
+        expect(response.body).toContainEqual({
+          id: notification.id,
+          type: notification.type,
+          isRead: notification.isRead,
+          payload: notification.payload,
+          createdAt: expect.any(Number),
+          updatedAt: expect.any(Number),
+        });
       }
     });
   });
 
   describe('/notifications/:id/read (POST)', () => {
-    let notification: NotificationEntity;
+    let notification: NotificationModel;
 
     beforeEach(async () => {
       notification = entityFaker.notification(user.id);

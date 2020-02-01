@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
@@ -19,7 +19,7 @@ describe('submit manager review (e2e)', () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let session: request.SuperTest<request.Test>;
-  let project: ProjectEntity;
+  let project: ProjectModel;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();

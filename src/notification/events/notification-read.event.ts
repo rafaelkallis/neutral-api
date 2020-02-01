@@ -1,13 +1,13 @@
 import { AbstractEvent } from 'event';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 
 /**
  * Notification Event
  */
 export class NotificationReadEvent extends AbstractEvent {
-  public readonly notification: NotificationEntity;
+  public readonly notification: NotificationModel;
 
-  constructor(notification: NotificationEntity) {
+  constructor(notification: NotificationModel) {
     super();
     this.notification = notification;
   }

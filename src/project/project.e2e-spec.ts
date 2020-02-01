@@ -2,13 +2,13 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserEntity, USER_REPOSITORY, UserRepository } from 'user';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { UserModel, USER_REPOSITORY, UserRepository } from 'user';
+import { ProjectModel } from 'project/project.model';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project/repositories/project.repository';
-import { RoleRepository, ROLE_REPOSITORY, RoleEntity } from 'role';
+import { RoleRepository, ROLE_REPOSITORY, RoleModel } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
@@ -22,7 +22,7 @@ describe('ProjectController (e2e)', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let tokenService: TokenService;
-  let user: UserEntity;
+  let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -72,7 +72,7 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id (GET)', () => {
-    let project: ProjectEntity;
+    let project: ProjectModel;
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
@@ -114,7 +114,7 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id (PATCH)', () => {
-    let project: ProjectEntity;
+    let project: ProjectModel;
     let title: string;
 
     beforeEach(async () => {
@@ -156,8 +156,8 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id/finish-formation (POST)', () => {
-    let project: ProjectEntity;
-    let roles: RoleEntity[];
+    let project: ProjectModel;
+    let roles: RoleModel[];
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);
@@ -214,7 +214,7 @@ describe('ProjectController (e2e)', () => {
   });
 
   describe('/projects/:id (DELETE)', () => {
-    let project: ProjectEntity;
+    let project: ProjectModel;
 
     beforeEach(async () => {
       project = entityFaker.project(user.id);

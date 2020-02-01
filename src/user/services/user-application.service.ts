@@ -1,5 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity } from 'user/entities/user.entity';
 import {
   UserRepository,
   USER_REPOSITORY,
@@ -8,6 +7,7 @@ import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { UserDomainService } from 'user/services/user-domain.service';
+import { UserModel } from 'user/user.model';
 
 @Injectable()
 export class UserApplicationService {
@@ -26,10 +26,10 @@ export class UserApplicationService {
    * Get users
    */
   public async getUsers(
-    authUser: UserEntity,
+    authUser: UserModel,
     query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    let users: UserEntity[] = [];
+    let users: UserModel[] = [];
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
     } else if (query.after) {
@@ -48,7 +48,7 @@ export class UserApplicationService {
   /**
    * Get the user with the given id
    */
-  public async getUser(authUser: UserEntity, id: string): Promise<UserDto> {
+  public async getUser(authUser: UserModel, id: string): Promise<UserDto> {
     const user = await this.userRepository.findById(id);
     return UserDto.builder()
       .user(user)
@@ -59,7 +59,7 @@ export class UserApplicationService {
   /**
    * Get the authenticated user
    */
-  public async getAuthUser(authUser: UserEntity): Promise<UserDto> {
+  public async getAuthUser(authUser: UserModel): Promise<UserDto> {
     return UserDto.builder()
       .user(authUser)
       .authUser(authUser)
@@ -73,7 +73,7 @@ export class UserApplicationService {
    * to verify the new email address.
    */
   public async updateAuthUser(
-    authUser: UserEntity,
+    authUser: UserModel,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
     await this.userDomainService.updateUser(authUser, updateUserDto);
@@ -93,7 +93,7 @@ export class UserApplicationService {
   /**
    * Delete the authenticated user
    */
-  public async deleteAuthUser(authUser: UserEntity): Promise<void> {
+  public async deleteAuthUser(authUser: UserModel): Promise<void> {
     await this.userDomainService.deleteUser(authUser);
   }
 }

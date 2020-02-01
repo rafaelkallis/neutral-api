@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { EmailService, EMAIL_SERVICE } from 'email';
@@ -15,7 +15,7 @@ describe('auth (e2e)', () => {
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
-  let user: UserEntity;
+  let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {

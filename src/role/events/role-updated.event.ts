@@ -1,10 +1,10 @@
 import { AbstractEvent } from 'event';
-import { RoleEntity } from 'role/entities/role.entity';
+import { RoleModel } from 'role/role.model';
 
 export class RoleUpdatedEvent extends AbstractEvent {
-  public readonly role: RoleEntity;
+  public readonly role: RoleModel;
 
-  constructor(role: RoleEntity) {
+  constructor(role: RoleModel) {
     super();
     this.role = role;
   }

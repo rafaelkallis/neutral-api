@@ -1,10 +1,10 @@
 import { ContributionsModelService } from 'project/services/contributions-model.service';
 import { ConsensualityModelService } from 'project/services/consensuality-model.service';
-import { UserEntity, FakeUserRepository, UserRepository } from 'user';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { UserModel, FakeUserRepository, UserRepository } from 'user';
+import { ProjectModel } from 'project/project.model';
 import { ProjectRepository } from 'project/repositories/project.repository';
 import {
-  RoleEntity,
+  RoleModel,
   RoleRepository,
   PeerReviewRepository,
   FakeRoleRepository,
@@ -32,8 +32,8 @@ describe('project domain service', () => {
   let contributionsModelService: ContributionsModelService;
   let consensualityModelService: ConsensualityModelService;
   let projectDomainService: ProjectDomainService;
-  let creatorUser: UserEntity;
-  let project: ProjectEntity;
+  let creatorUser: UserModel;
+  let project: ProjectModel;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
@@ -124,9 +124,9 @@ describe('project domain service', () => {
   });
 
   describe('finish formation', () => {
-    let role1: RoleEntity;
-    let role2: RoleEntity;
-    let role3: RoleEntity;
+    let role1: RoleModel;
+    let role2: RoleModel;
+    let role3: RoleModel;
 
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
@@ -179,7 +179,7 @@ describe('project domain service', () => {
   });
 
   describe('submit peer reviews', () => {
-    let roles: RoleEntity[];
+    let roles: RoleModel[];
     let peerReviewMap: Map<string, number>;
 
     beforeEach(async () => {

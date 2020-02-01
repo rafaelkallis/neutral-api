@@ -4,7 +4,7 @@ import {
   NOTIFICATION_REPOSITORY,
   NotificationRepository,
 } from 'notification/repositories/notification.repository';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 import { NotificationReadEvent } from 'notification/events/notification-read.event';
 import { NotificationAlreadyReadException } from 'notification/exceptions/notification-already-read.exception';
 
@@ -25,7 +25,7 @@ export class NotificationDomainService {
   /**
    * Mark notification as read.
    */
-  public async markRead(notification: NotificationEntity): Promise<void> {
+  public async markRead(notification: NotificationModel): Promise<void> {
     if (notification.isRead) {
       throw new NotificationAlreadyReadException();
     }

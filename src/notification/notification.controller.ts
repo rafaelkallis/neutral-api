@@ -14,7 +14,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser } from 'auth';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import { NotificationDto } from 'notification/dto/notification.dto';
 import { NotificationApplicationService } from 'notification/services/notification-application.service';
 
@@ -41,7 +41,7 @@ export class NotificationController {
   @ApiOperation({ summary: 'Get all notifications' })
   @ApiResponse({ status: 200, description: 'A list of notifications' })
   public async getNotificationsByAuthUser(
-    @AuthUser() authUser: UserEntity,
+    @AuthUser() authUser: UserModel,
   ): Promise<NotificationDto[]> {
     return this.notificationApplicationService.getNotificationsByAuthUser(
       authUser,
@@ -65,7 +65,7 @@ export class NotificationController {
     description: 'Notification does not belong to authenticated user',
   })
   public async readNotification(
-    @AuthUser() authUser: UserEntity,
+    @AuthUser() authUser: UserModel,
     @Param('id') id: string,
   ): Promise<void> {
     await this.notificationApplicationService.markRead(authUser, id);

@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import {
   ProjectState,
   SkipManagerReview,
@@ -10,9 +10,9 @@ import {
   PROJECT_REPOSITORY,
 } from 'project/repositories/project.repository';
 import {
-  RoleEntity,
+  RoleModel,
   RoleRepository,
-  PeerReviewEntity,
+  PeerReviewModel,
   PeerReviewRepository,
   ROLE_REPOSITORY,
   PEER_REVIEW_REPOSITORY,
@@ -40,7 +40,7 @@ import {
   ProjectManagerReviewFinishedEvent,
   ProjectFinishedEvent,
 } from 'project/events';
-import { ProjectEntity } from 'project';
+import { ProjectModel } from 'project';
 import { FinalPeerReviewSubmittedEvent } from 'project/events/final-peer-review-submitted.event';
 import { InvariantViolationException } from 'common';
 import { EventPublisherService, InjectEventPublisher } from 'event';
@@ -87,10 +87,10 @@ export class ProjectDomainService {
    */
   public async createProject(
     projectOptions: CreateProjectOptions,
-    creator: UserEntity,
-  ): Promise<ProjectEntity> {
+    creator: UserModel,
+  ): Promise<ProjectModel> {
     const projectId = this.projectRepository.createId();
-    const project = ProjectEntity.fromProject({
+    const project = ProjectModel.fromProject({
       id: projectId,
       creatorId: creator.id,
       title: projectOptions.title,
@@ -114,9 +114,9 @@ export class ProjectDomainService {
    * Update a project
    */
   public async updateProject(
-    project: ProjectEntity,
+    project: ProjectModel,
     updateOptions: UpdateProjectOptions,
-  ): Promise<ProjectEntity> {
+  ): Promise<ProjectModel> {
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
@@ -129,7 +129,7 @@ export class ProjectDomainService {
   /**
    * Delete a project
    */
-  public async deleteProject(project: ProjectEntity): Promise<void> {
+  public async deleteProject(project: ProjectModel): Promise<void> {
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
@@ -140,7 +140,7 @@ export class ProjectDomainService {
   /**
    * Finish project formation
    */
-  public async finishFormation(project: ProjectEntity): Promise<ProjectEntity> {
+  public async finishFormation(project: ProjectModel): Promise<ProjectModel> {
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
     }
@@ -161,9 +161,9 @@ export class ProjectDomainService {
    * Call to submit reviews over one's project peers.
    */
   public async submitPeerReviews(
-    project: ProjectEntity,
-    roles: RoleEntity[],
-    senderRole: RoleEntity,
+    project: ProjectModel,
+    roles: RoleModel[],
+    senderRole: RoleModel,
     peerReviewMap: ReadonlyMap<string, number>,
   ): Promise<void> {
     if (!project.isPeerReviewState()) {
@@ -177,17 +177,20 @@ export class ProjectDomainService {
     }
 
     senderRole.hasSubmittedPeerReviews = true;
-    const peerReviews: PeerReviewEntity[] = [];
+    const peerReviews: PeerReviewModel[] = [];
     for (const [receiverRoleId, score] of peerReviewMap.entries()) {
       const peerReviewId = this.peerReviewRepository.createId();
-      peerReviews.push(
-        PeerReviewEntity.fromPeerReview({
-          id: peerReviewId,
-          senderRoleId: senderRole.id,
-          receiverRoleId,
-          score,
-        }),
+      const createdAt = Date.now();
+      const updatedAt = Date.now();
+      const peerReview = new PeerReviewModel(
+        peerReviewId,
+        createdAt,
+        updatedAt,
+        senderRole.id,
+        receiverRoleId,
+        score,
       );
+      peerReviews.push(peerReview);
     }
     await Promise.all(
       peerReviews.map(async peerReview =>
@@ -209,8 +212,8 @@ export class ProjectDomainService {
 
   private isValidPeerReviewMap(
     peerReviewMap: ReadonlyMap<string, number>,
-    senderRole: RoleEntity,
-    roles: RoleEntity[],
+    senderRole: RoleModel,
+    roles: RoleModel[],
   ): boolean {
     /* no self review */
     if (peerReviewMap.has(senderRole.id)) {
@@ -231,8 +234,8 @@ export class ProjectDomainService {
    * Gets called when final peer review is submitted for a team.
    */
   private async finishPeerReview(
-    project: ProjectEntity,
-    roles: RoleEntity[],
+    project: ProjectModel,
+    roles: RoleModel[],
   ): Promise<void> {
     if (!project.isPeerReviewState()) {
       throw new InvariantViolationException();
@@ -279,7 +282,7 @@ export class ProjectDomainService {
   }
 
   private shouldSkipManagerReview(
-    project: ProjectEntity,
+    project: ProjectModel,
     consensuality: number,
   ): boolean {
     switch (project.skipManagerReview) {
@@ -304,7 +307,7 @@ export class ProjectDomainService {
   /**
    * Call to submit the manager review.
    */
-  public async submitManagerReview(project: ProjectEntity): Promise<void> {
+  public async submitManagerReview(project: ProjectModel): Promise<void> {
     if (!project.isManagerReviewState()) {
       throw new ProjectNotManagerReviewStateException();
     }

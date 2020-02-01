@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common/dto/base.dto';
-import { UserEntity } from 'user/entities/user.entity';
+import { UserModel } from 'user/user.model';
 
 /**
  * User DTO
@@ -35,28 +35,28 @@ export class UserDto extends BaseDto {
 }
 
 class UserStep {
-  user(user: UserEntity): AuthUserStep {
+  user(user: UserModel): AuthUserStep {
     return new AuthUserStep(user);
   }
 }
 
 class AuthUserStep {
-  private readonly user: UserEntity;
+  private readonly user: UserModel;
 
-  public constructor(user: UserEntity) {
+  public constructor(user: UserModel) {
     this.user = user;
   }
 
-  authUser(authUser: UserEntity): BuildStep {
+  authUser(authUser: UserModel): BuildStep {
     return new BuildStep(this.user, authUser);
   }
 }
 
 class BuildStep {
-  private readonly user: UserEntity;
-  private readonly authUser: UserEntity;
+  private readonly user: UserModel;
+  private readonly authUser: UserModel;
 
-  public constructor(user: UserEntity, authUser: UserEntity) {
+  public constructor(user: UserModel, authUser: UserModel) {
     this.user = user;
     this.authUser = authUser;
   }

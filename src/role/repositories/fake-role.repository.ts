@@ -1,14 +1,15 @@
 import { FakeRepository } from 'common';
-import { RoleEntity } from 'role/entities/role.entity';
+import { RoleModel } from 'role/role.model';
+import { RoleNotFoundException } from 'role/exceptions/role-not-found.exception';
 
 /**
  * Fake Role Repository
  */
-export class FakeRoleRepository extends FakeRepository<RoleEntity> {
+export class FakeRoleRepository extends FakeRepository<RoleModel> {
   /**
    *
    */
-  public async findByProjectId(projectId: string): Promise<RoleEntity[]> {
+  public async findByProjectId(projectId: string): Promise<RoleModel[]> {
     return Array.from(this.entities.values()).filter(
       role => role.projectId === projectId,
     );
@@ -17,9 +18,16 @@ export class FakeRoleRepository extends FakeRepository<RoleEntity> {
   /**
    *
    */
-  public async findByAssigneeId(assigneeId: string): Promise<RoleEntity[]> {
+  public async findByAssigneeId(assigneeId: string): Promise<RoleModel[]> {
     return Array.from(this.entities.values()).filter(
       role => role.assigneeId === assigneeId,
     );
+  }
+
+  /**
+   *
+   */
+  protected throwEntityNotFoundException(): never {
+    throw new RoleNotFoundException();
   }
 }

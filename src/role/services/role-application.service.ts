@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import {
   ProjectRepository,
   UserNotProjectOwnerException,
@@ -47,7 +47,7 @@ export class RoleApplicationService {
    * Get roles of a particular project
    */
   public async getRoles(
-    authUser: UserEntity,
+    authUser: UserModel,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
     const project = await this.projectRepository.findById(query.projectId);
@@ -67,7 +67,7 @@ export class RoleApplicationService {
   /**
    * Get the role with the given id
    */
-  public async getRole(authUser: UserEntity, id: string): Promise<RoleDto> {
+  public async getRole(authUser: UserModel, id: string): Promise<RoleDto> {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
@@ -86,7 +86,7 @@ export class RoleApplicationService {
    * Create a role
    */
   public async createRole(
-    authUser: UserEntity,
+    authUser: UserModel,
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
     const project = await this.projectRepository.findById(dto.projectId);
@@ -107,7 +107,7 @@ export class RoleApplicationService {
    * Update a role
    */
   public async updateRole(
-    authUser: UserEntity,
+    authUser: UserModel,
     id: string,
     updateRoleDto: UpdateRoleDto,
   ): Promise<RoleDto> {
@@ -129,7 +129,7 @@ export class RoleApplicationService {
   /**
    * Delete a role
    */
-  public async deleteRole(authUser: UserEntity, id: string): Promise<void> {
+  public async deleteRole(authUser: UserModel, id: string): Promise<void> {
     const role = await this.roleRepository.findById(id);
     const project = await this.projectRepository.findById(role.projectId);
     if (!project.isCreator(authUser)) {
@@ -142,7 +142,7 @@ export class RoleApplicationService {
    * Assign user to a role
    */
   public async assignUser(
-    authUser: UserEntity,
+    authUser: UserModel,
     id: string,
     dto: AssignmentDto,
   ): Promise<RoleDto> {

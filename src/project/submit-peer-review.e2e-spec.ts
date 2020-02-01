@@ -3,13 +3,13 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project/repositories/project.repository';
 import {
-  RoleEntity,
+  RoleModel,
   PeerReviewRepository,
   RoleRepository,
   PEER_REVIEW_REPOSITORY,
@@ -32,11 +32,11 @@ describe('submit peer review (e2e)', () => {
   let peerReviewRepository: PeerReviewRepository;
   let session: request.SuperTest<request.Test>;
 
-  let project: ProjectEntity;
-  let role1: RoleEntity;
-  let role2: RoleEntity;
-  let role3: RoleEntity;
-  let role4: RoleEntity;
+  let project: ProjectModel;
+  let role1: RoleModel;
+  let role2: RoleModel;
+  let role3: RoleModel;
+  let role4: RoleModel;
   let peerReviews: Record<string, Record<string, number>>;
 
   beforeEach(async () => {

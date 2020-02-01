@@ -1,9 +1,9 @@
 import { MockEventPublisherService } from 'event';
 import { FakeNotificationRepository } from 'notification/repositories/fake-notification.repository';
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 import { EntityFaker } from 'test';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import { NotificationApplicationService } from 'notification/services/notification-application.service';
 import { NotificationDto } from 'notification/dto/notification.dto';
 
@@ -13,7 +13,7 @@ describe('notification application service', () => {
   let notificationRepository: FakeNotificationRepository;
   let notificationDomainService: NotificationDomainService;
   let notificationApplicationService: NotificationApplicationService;
-  let user: UserEntity;
+  let user: UserModel;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
@@ -35,7 +35,7 @@ describe('notification application service', () => {
   });
 
   describe('get auth user notifications', () => {
-    let notifications: NotificationEntity[];
+    let notifications: NotificationModel[];
 
     beforeEach(async () => {
       notifications = [
@@ -51,16 +51,14 @@ describe('notification application service', () => {
         user,
       );
       for (const notification of notifications) {
-        const expectedNotificationDto = NotificationDto.fromEntity(
-          notification,
-        );
+        const expectedNotificationDto = NotificationDto.fromModel(notification);
         expect(actualNotificationDtos).toContainEqual(expectedNotificationDto);
       }
     });
   });
 
   describe('mark read', () => {
-    let notification: NotificationEntity;
+    let notification: NotificationModel;
 
     beforeEach(async () => {
       notification = entityFaker.notification(user.id);

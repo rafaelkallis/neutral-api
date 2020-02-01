@@ -1,15 +1,15 @@
-import { UserEntity } from 'user';
-import { ProjectEntity, ProjectState, ContributionVisibility } from 'project';
-import { RoleEntity } from 'role/entities/role.entity';
+import { UserModel } from 'user';
+import { ProjectModel, ProjectState, ContributionVisibility } from 'project';
+import { RoleModel } from 'role/role.model';
 import { RoleDto } from 'role/dto/role.dto';
 import { EntityFaker } from 'test';
 
 describe('role dto', () => {
   let entityFaker: EntityFaker;
-  let users: Record<string, UserEntity>;
-  let role: RoleEntity;
-  let roles: RoleEntity[];
-  let project: ProjectEntity;
+  let users: Record<string, UserModel>;
+  let role: RoleModel;
+  let roles: RoleModel[];
+  let project: ProjectModel;
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();

@@ -1,4 +1,4 @@
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { PeerReviewModel } from 'role/peer-review.model';
 import { Repository } from 'common';
 
 export const PEER_REVIEW_REPOSITORY = Symbol('PEER_REVIEW_REPOSITORY');
@@ -6,14 +6,14 @@ export const PEER_REVIEW_REPOSITORY = Symbol('PEER_REVIEW_REPOSITORY');
 /**
  * Peer Review Repository
  */
-export interface PeerReviewRepository extends Repository<PeerReviewEntity> {
+export interface PeerReviewRepository extends Repository<PeerReviewModel> {
   /**
    *
    */
-  findBySenderRoleId(senderRoleId: string): Promise<PeerReviewEntity[]>;
+  findBySenderRoleId(senderRoleId: string): Promise<PeerReviewModel[]>;
 
   /**
    *
    */
-  findByReceiverRoleId(receiverRoleId: string): Promise<PeerReviewEntity[]>;
+  findByReceiverRoleId(receiverRoleId: string): Promise<PeerReviewModel[]>;
 }

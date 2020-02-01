@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
-import { UserEntity } from 'user';
-import { ProjectEntity, ContributionVisibility } from 'project';
-import { RoleEntity } from 'role';
+import { UserModel } from 'user';
+import { ProjectModel, ContributionVisibility } from 'project';
+import { RoleModel } from 'role';
 import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { PeerReviewModel } from 'role/peer-review.model';
 import { InternalServerErrorException } from '@nestjs/common';
 
 /**
@@ -68,25 +68,25 @@ export class RoleDto extends BaseDto {
 }
 
 interface RoleStep {
-  role(role: RoleEntity): ProjectStep;
+  role(role: RoleModel): ProjectStep;
 }
 
 interface ProjectStep {
-  project(project: ProjectEntity): ProjectRolesStep;
+  project(project: ProjectModel): ProjectRolesStep;
 }
 
 interface ProjectRolesStep {
-  projectRoles(projectRoles: RoleEntity[]): AuthUserStep;
+  projectRoles(projectRoles: RoleModel[]): AuthUserStep;
 }
 
 interface AuthUserStep {
-  authUser(authUser: UserEntity): BuildStep;
+  authUser(authUser: UserModel): BuildStep;
 }
 
 interface BuildStep {
   build(): Promise<RoleDto>;
   addSubmittedPeerReviews(
-    getSubmittedPeerReviews: () => Promise<PeerReviewEntity[]>,
+    getSubmittedPeerReviews: () => Promise<PeerReviewModel[]>,
   ): BuildStep;
 }
 
@@ -95,34 +95,34 @@ interface BuildStep {
  */
 class RoleDtoBuilder
   implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
-  private _role!: RoleEntity;
-  private _project!: ProjectEntity;
-  private _projectRoles!: RoleEntity[];
-  private _authUser!: UserEntity;
-  private _getSubmittedPeerReviews?: () => Promise<PeerReviewEntity[]>;
+  private _role!: RoleModel;
+  private _project!: ProjectModel;
+  private _projectRoles!: RoleModel[];
+  private _authUser!: UserModel;
+  private _getSubmittedPeerReviews?: () => Promise<PeerReviewModel[]>;
 
-  public role(role: RoleEntity): ProjectStep {
+  public role(role: RoleModel): ProjectStep {
     this._role = role;
     return this;
   }
 
-  public project(project: ProjectEntity): ProjectRolesStep {
+  public project(project: ProjectModel): ProjectRolesStep {
     this._project = project;
     return this;
   }
 
-  public projectRoles(projectRoles: RoleEntity[]): AuthUserStep {
+  public projectRoles(projectRoles: RoleModel[]): AuthUserStep {
     this._projectRoles = projectRoles;
     return this;
   }
 
-  public authUser(authUser: UserEntity): BuildStep {
+  public authUser(authUser: UserModel): BuildStep {
     this._authUser = authUser;
     return this;
   }
 
   public addSubmittedPeerReviews(
-    getSentPeerReviews: () => Promise<PeerReviewEntity[]>,
+    getSentPeerReviews: () => Promise<PeerReviewModel[]>,
   ): BuildStep {
     this._getSubmittedPeerReviews = getSentPeerReviews;
     return this;

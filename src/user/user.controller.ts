@@ -20,10 +20,10 @@ import {
 import { UserDto } from 'user/dto/user.dto';
 import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
 import { ValidationPipe } from 'common';
-import { UserEntity } from 'user/entities/user.entity';
 import { UpdateUserDto } from 'user/dto/update-user.dto';
 import { UserApplicationService } from 'user/services/user-application.service';
 import { AuthGuard, AuthUser } from 'auth';
+import { UserModel } from 'user/user.model';
 
 /**
  * User Controller
@@ -46,7 +46,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get a list of users' })
   @ApiResponse({ status: 200, description: 'A list of users' })
   public async getUsers(
-    @AuthUser() authUser: UserEntity,
+    @AuthUser() authUser: UserModel,
     @Query(ValidationPipe) query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
     return this.userApplication.getUsers(authUser, query);
@@ -60,7 +60,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get the authenticated user' })
   @ApiResponse({ status: 200, description: 'The authenticated user' })
-  public async getAuthUser(@AuthUser() authUser: UserEntity): Promise<UserDto> {
+  public async getAuthUser(@AuthUser() authUser: UserModel): Promise<UserDto> {
     return this.userApplication.getAuthUser(authUser);
   }
 
@@ -75,7 +75,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'The requested user' })
   @ApiResponse({ status: 404, description: 'User not found' })
   public async getUser(
-    @AuthUser() authUser: UserEntity,
+    @AuthUser() authUser: UserModel,
     @Param('id') id: string,
   ): Promise<UserDto> {
     return this.userApplication.getUser(authUser, id);
@@ -93,7 +93,7 @@ export class UserController {
   @ApiOperation({ summary: 'Update the authenticated user' })
   @ApiResponse({ status: 200, description: 'User succesfully updated' })
   public async updateAuthUser(
-    @AuthUser() authUser: UserEntity,
+    @AuthUser() authUser: UserModel,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<UserDto> {
     return this.userApplication.updateAuthUser(authUser, dto);
@@ -123,7 +123,7 @@ export class UserController {
     status: 204,
     description: 'Authenticated user deleted succesfully',
   })
-  public async deleteAuthUser(@AuthUser() authUser: UserEntity): Promise<void> {
+  public async deleteAuthUser(@AuthUser() authUser: UserModel): Promise<void> {
     return this.userApplication.deleteAuthUser(authUser);
   }
 }

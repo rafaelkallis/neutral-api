@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common/dto/base.dto';
-import { NotificationEntity } from 'notification/entities/notification.entity';
+import { NotificationModel } from 'notification/notification.model';
 
 /**
  * Notification DTO
@@ -29,16 +29,16 @@ export class NotificationDto extends BaseDto {
     this.payload = payload;
   }
 
-  public static fromEntity(
-    notificationEntity: NotificationEntity,
+  public static fromModel(
+    notificationModel: NotificationModel,
   ): NotificationDto {
     return new NotificationDto(
-      notificationEntity.id,
-      notificationEntity.createdAt,
-      notificationEntity.updatedAt,
-      notificationEntity.type,
-      notificationEntity.isRead,
-      notificationEntity.payload,
+      notificationModel.id,
+      notificationModel.createdAt,
+      notificationModel.updatedAt,
+      notificationModel.type,
+      notificationModel.isRead,
+      notificationModel.payload,
     );
   }
 }

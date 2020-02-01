@@ -9,7 +9,7 @@ import apm from 'elastic-apm-node/start';
 import { ConfigService, InjectConfig } from 'config';
 import { Request } from 'express';
 import { ApmService, ApmTransaction } from 'apm/apm.service';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 
 /**
  * Elastic Apm Service
@@ -41,7 +41,7 @@ export class ElasticApmService extends ApmService
    */
   public createTransaction(
     _request: Request,
-    authUser?: UserEntity,
+    authUser?: UserModel,
   ): ApmTransaction {
     const transaction = apm.startTransaction();
     if (!transaction) {

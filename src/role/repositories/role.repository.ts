@@ -1,19 +1,19 @@
 import { Repository } from 'common';
-import { RoleEntity } from 'role/entities/role.entity';
+import { RoleModel } from 'role/role.model';
 
 export const ROLE_REPOSITORY = Symbol('ROLE_REPOSITORY');
 
 /**
  * Role Repository
  */
-export interface RoleRepository extends Repository<RoleEntity> {
+export interface RoleRepository extends Repository<RoleModel> {
   /**
    *
    */
-  findByProjectId(projectId: string): Promise<RoleEntity[]>;
+  findByProjectId(projectId: string): Promise<RoleModel[]>;
 
   /**
    *
    */
-  findByAssigneeId(assigneeId: string): Promise<RoleEntity[]>;
+  findByAssigneeId(assigneeId: string): Promise<RoleModel[]>;
 }

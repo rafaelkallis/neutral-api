@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TokenAlreadyUsedException } from 'common';
-import { UserEntity } from 'user/entities/user.entity';
 import {
   UserRepository,
   USER_REPOSITORY,
@@ -12,6 +11,7 @@ import { UserUpdatedEvent } from 'user/events/user-updated.event';
 import { EmailChangedEvent } from 'user/events/email-changed.event';
 import { UserDeletedEvent } from 'user/events/user-deleted.event';
 import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
+import { UserModel } from 'user/user.model';
 
 export interface UpdateUserOptions {
   email?: string;
@@ -45,7 +45,7 @@ export class UserDomainService {
    * to verify the new email address.
    */
   public async updateUser(
-    user: UserEntity,
+    user: UserModel,
     updateUserOptions: UpdateUserOptions,
   ): Promise<void> {
     const { email, ...otherChanges } = updateUserOptions;
@@ -84,7 +84,7 @@ export class UserDomainService {
   /**
    * Delete a user
    */
-  public async deleteUser(user: UserEntity): Promise<void> {
+  public async deleteUser(user: UserModel): Promise<void> {
     await this.userRepository.delete(user);
     await this.eventPublisher.publish(new UserDeletedEvent(user));
   }

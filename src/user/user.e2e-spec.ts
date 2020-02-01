@@ -3,7 +3,6 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserEntity } from './entities/user.entity';
 import {
   UserRepository,
   USER_REPOSITORY,
@@ -11,12 +10,13 @@ import {
 import { EntityFaker } from 'test';
 import { UserDto } from './dto/user.dto';
 import { TOKEN_SERVICE } from 'token';
+import { UserModel } from 'user/user.model';
 
 describe('user (e2e)', () => {
   let app: INestApplication;
   let entityFaker: EntityFaker;
   let userRepository: UserRepository;
-  let user: UserEntity;
+  let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -71,21 +71,16 @@ describe('user (e2e)', () => {
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const user1Dto = UserDto.builder()
-        .user(user1)
-        .authUser(user)
-        .build();
-      expect(response.body).toContainEqual(user1Dto);
-      const user2Dto = UserDto.builder()
-        .user(user2)
-        .authUser(user)
-        .build();
-      expect(response.body).toContainEqual(user2Dto);
-      const user3Dto = UserDto.builder()
-        .user(user3)
-        .authUser(user)
-        .build();
-      expect(response.body).toContainEqual(user3Dto);
+      for (const queryUser of [user1, user2, user3]) {
+        expect(response.body).toContainEqual({
+          id: queryUser.id,
+          email: null,
+          firstName: queryUser.firstName,
+          lastName: queryUser.lastName,
+          createdAt: expect.any(Number),
+          updatedAt: expect.any(Number),
+        });
+      }
     });
   });
 

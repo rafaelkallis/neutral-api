@@ -1,14 +1,5 @@
-import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  MaxLength,
-  IsOptional,
-} from 'class-validator';
 import { Column, Entity } from 'typeorm';
-
 import { AbstractEntity } from 'common';
-import { UserEntity } from 'user';
 import {
   Project,
   ProjectState,
@@ -22,28 +13,18 @@ import {
 @Entity('projects')
 export class ProjectEntity extends AbstractEntity implements Project {
   @Column({ name: 'title' })
-  @IsString()
-  @MaxLength(100)
   public title: string;
 
   @Column({ name: 'description' })
-  @IsString()
-  @MaxLength(1024)
   public description: string;
 
   @Column({ name: 'creator_id' })
-  @IsString()
-  @MaxLength(24)
   public creatorId: string;
 
   @Column({ name: 'state', type: 'enum', enum: ProjectState })
-  @IsEnum(ProjectState)
-  @MaxLength(255)
   public state: ProjectState;
 
   @Column({ name: 'consensuality', type: 'real', nullable: true })
-  @IsNumber()
-  @IsOptional()
   public consensuality: number | null;
 
   @Column({
@@ -51,8 +32,6 @@ export class ProjectEntity extends AbstractEntity implements Project {
     type: 'enum',
     enum: ContributionVisibility,
   })
-  @IsEnum(ContributionVisibility)
-  @MaxLength(255)
   public contributionVisibility: ContributionVisibility;
 
   @Column({
@@ -60,8 +39,6 @@ export class ProjectEntity extends AbstractEntity implements Project {
     type: 'enum',
     enum: SkipManagerReview,
   })
-  @IsEnum(SkipManagerReview)
-  @MaxLength(255)
   public skipManagerReview: SkipManagerReview;
 
   public constructor(
@@ -84,45 +61,5 @@ export class ProjectEntity extends AbstractEntity implements Project {
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
-  }
-
-  /**
-   *
-   */
-  public static fromProject(project: Project): ProjectEntity {
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    return new ProjectEntity(
-      project.id,
-      createdAt,
-      updatedAt,
-      project.title,
-      project.description,
-      project.creatorId,
-      project.state,
-      project.consensuality,
-      project.contributionVisibility,
-      project.skipManagerReview,
-    );
-  }
-
-  public isCreator(user: UserEntity): boolean {
-    return this.creatorId === user.id;
-  }
-
-  public isFormationState(): boolean {
-    return this.state === ProjectState.FORMATION;
-  }
-
-  public isPeerReviewState(): boolean {
-    return this.state === ProjectState.PEER_REVIEW;
-  }
-
-  public isManagerReviewState(): boolean {
-    return this.state === ProjectState.MANAGER_REVIEW;
-  }
-
-  public isFinishedState(): boolean {
-    return this.state === ProjectState.FINISHED;
   }
 }

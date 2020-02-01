@@ -1,11 +1,11 @@
-import { UserEntity, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, FakeUserRepository } from 'user';
 import {
-  ProjectEntity,
+  ProjectModel,
   ProjectState,
   ProjectRepository,
   FakeProjectRepository,
 } from 'project';
-import { RoleEntity } from 'role/entities/role.entity';
+import { RoleModel } from 'role/role.model';
 import { RoleRepository } from 'role/repositories/role.repository';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
@@ -25,9 +25,9 @@ describe('role domain service', () => {
 
   let roleDomain: RoleDomainService;
 
-  let ownerUser: UserEntity;
-  let project: ProjectEntity;
-  let roles: RoleEntity[];
+  let ownerUser: UserModel;
+  let project: ProjectModel;
+  let roles: RoleModel[];
 
   beforeEach(async () => {
     entityFaker = new EntityFaker();
@@ -133,7 +133,7 @@ describe('role domain service', () => {
   });
 
   describe('assign user', () => {
-    let assigneeUser: UserEntity;
+    let assigneeUser: UserModel;
 
     beforeEach(async () => {
       assigneeUser = entityFaker.user();
@@ -178,7 +178,7 @@ describe('role domain service', () => {
   });
 
   describe('assign user by email', () => {
-    let assigneeUser: UserEntity;
+    let assigneeUser: UserModel;
 
     beforeEach(async () => {
       assigneeUser = entityFaker.user();

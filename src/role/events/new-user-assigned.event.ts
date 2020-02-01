@@ -1,13 +1,17 @@
 import { AbstractEvent } from 'event';
-import { RoleEntity } from 'role/entities/role.entity';
-import { ProjectEntity } from 'project';
+import { ProjectModel } from 'project';
+import { RoleModel } from 'role/role.model';
 
 export class NewUserAssignedEvent extends AbstractEvent {
-  public readonly project: ProjectEntity;
-  public readonly role: RoleEntity;
+  public readonly project: ProjectModel;
+  public readonly role: RoleModel;
   public readonly assigneeEmail: string;
 
-  constructor(project: ProjectEntity, role: RoleEntity, assigneeEmail: string) {
+  public constructor(
+    project: ProjectModel,
+    role: RoleModel,
+    assigneeEmail: string,
+  ) {
     super();
     this.project = project;
     this.role = role;

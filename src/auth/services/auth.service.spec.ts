@@ -1,4 +1,4 @@
-import { UserEntity, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, FakeUserRepository } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { AuthService } from 'auth/services/auth.service';
 import { RefreshDto } from 'auth/dto/refresh.dto';
@@ -45,7 +45,7 @@ describe('auth service', () => {
   });
 
   describe('request magic login', () => {
-    let user: UserEntity;
+    let user: UserModel;
 
     beforeEach(async () => {
       user = entityFaker.user();
@@ -64,7 +64,7 @@ describe('auth service', () => {
   });
 
   describe('submit magic login', () => {
-    let user: UserEntity;
+    let user: UserModel;
     let loginToken: string;
     let session: SessionState;
 
@@ -158,7 +158,7 @@ describe('auth service', () => {
   });
 
   describe('refresh', () => {
-    let user: UserEntity;
+    let user: UserModel;
     let refreshToken: string;
 
     beforeEach(() => {

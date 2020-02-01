@@ -1,14 +1,14 @@
 import { Repository } from 'common';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 
 export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
 
 /**
  * Project Repository
  */
-export interface ProjectRepository extends Repository<ProjectEntity> {
+export interface ProjectRepository extends Repository<ProjectModel> {
   /**
    *
    */
-  findByCreatorId(creatorId: string): Promise<ProjectEntity[]>;
+  findByCreatorId(creatorId: string): Promise<ProjectModel[]>;
 }

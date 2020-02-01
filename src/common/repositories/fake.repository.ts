@@ -1,13 +1,12 @@
-import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
-import { Repository } from 'common/repositories/repository.interface';
-import { AbstractEntity } from 'common/entities/abstract.entity';
+import { Repository } from 'common/repositories/repository';
+import { AbstractModel } from 'common/abstract.model';
 
 /**
  * Fake Repository
  */
-export abstract class FakeRepository<TEntity extends AbstractEntity>
-  implements Repository<TEntity> {
-  protected readonly entities: Map<string, TEntity>;
+export abstract class FakeRepository<TModel extends AbstractModel>
+  implements Repository<TModel> {
+  protected readonly entities: Map<string, TModel>;
 
   private idSequence: number;
 
@@ -26,7 +25,7 @@ export abstract class FakeRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async findPage(afterId?: string): Promise<TEntity[]> {
+  public async findPage(afterId?: string): Promise<TModel[]> {
     return Array.from(this.entities.values()).filter(entity =>
       afterId ? afterId < entity.id : true,
     );
@@ -35,10 +34,10 @@ export abstract class FakeRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async findById(id: string): Promise<TEntity> {
+  public async findById(id: string): Promise<TModel> {
     const entity = this.entities.get(id);
     if (!entity) {
-      throw new EntityNotFoundException();
+      throw this.throwEntityNotFoundException();
     }
     return entity;
   }
@@ -46,7 +45,7 @@ export abstract class FakeRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async findByIds(ids: string[]): Promise<TEntity[]> {
+  public async findByIds(ids: string[]): Promise<TModel[]> {
     return Promise.all(ids.map(async id => this.findById(id)));
   }
 
@@ -60,25 +59,24 @@ export abstract class FakeRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async persist(...entities: TEntity[]): Promise<void> {
+  public async persist(...entities: TModel[]): Promise<void> {
     for (const entity of entities) {
+      entity.validate();
       this.entities.set(entity.id, entity);
+    }
+  }
+
+  public async delete(...entities: TModel[]): Promise<void> {
+    for (const entity of entities) {
+      if (!this.entities.has(entity.id)) {
+        this.throwEntityNotFoundException();
+      }
+      this.entities.delete(entity.id);
     }
   }
 
   /**
    *
    */
-  public async refresh(...entities: TEntity[]): Promise<void> {
-    for (const entity of entities) {
-      const newEntity = this.entities.get(entity.id);
-      Object.assign(entity, newEntity);
-    }
-  }
-
-  public async delete(...entities: TEntity[]): Promise<void> {
-    for (const entity of entities) {
-      this.entities.delete(entity.id);
-    }
-  }
+  protected abstract throwEntityNotFoundException(): never;
 }

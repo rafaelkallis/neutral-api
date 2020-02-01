@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InsufficientPermissionsException } from 'common';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
@@ -17,7 +17,7 @@ import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { ProjectDto } from 'project/dto/project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
 import { ProjectDomainService } from 'project/services/project-domain.service';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 import { InvalidProjectTypeQueryException } from 'project/exceptions/invalid-project-type-query.exception';
 
 @Injectable()
@@ -40,10 +40,10 @@ export class ProjectApplicationService {
    * Get projects
    */
   public async getProjects(
-    authUser: UserEntity,
+    authUser: UserModel,
     query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    let projects: ProjectEntity[] = [];
+    let projects: ProjectModel[] = [];
     switch (query.type) {
       case GetProjectsType.CREATED: {
         projects = await this.projectRepository.findByCreatorId(authUser.id);
@@ -74,7 +74,7 @@ export class ProjectApplicationService {
    * Get a project
    */
   public async getProject(
-    authUser: UserEntity,
+    authUser: UserModel,
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(id);
@@ -88,7 +88,7 @@ export class ProjectApplicationService {
    * Create a project
    */
   public async createProject(
-    authUser: UserEntity,
+    authUser: UserModel,
     createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectDomainService.createProject(
@@ -105,7 +105,7 @@ export class ProjectApplicationService {
    * Update a project
    */
   public async updateProject(
-    authUser: UserEntity,
+    authUser: UserModel,
     id: string,
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
@@ -123,7 +123,7 @@ export class ProjectApplicationService {
   /**
    * Delete a project
    */
-  public async deleteProject(authUser: UserEntity, id: string): Promise<void> {
+  public async deleteProject(authUser: UserModel, id: string): Promise<void> {
     const project = await this.projectRepository.findById(id);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
@@ -135,7 +135,7 @@ export class ProjectApplicationService {
    * Finish project formation
    */
   public async finishFormation(
-    authUser: UserEntity,
+    authUser: UserModel,
     id: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(id);
@@ -153,7 +153,7 @@ export class ProjectApplicationService {
    * Call to submit reviews over one's project peers.
    */
   public async submitPeerReviews(
-    authUser: UserEntity,
+    authUser: UserModel,
     projectId: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
@@ -180,7 +180,7 @@ export class ProjectApplicationService {
    * Call to submit the manager review.
    */
   public async submitManagerReview(
-    authUser: UserEntity,
+    authUser: UserModel,
     projectId: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(projectId);

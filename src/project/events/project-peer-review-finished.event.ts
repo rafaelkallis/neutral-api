@@ -1,12 +1,12 @@
-import { ProjectEntity } from 'project/entities/project.entity';
-import { RoleEntity } from 'role';
+import { ProjectModel } from 'project/project.model';
+import { RoleModel } from 'role';
 import { AbstractEvent } from 'event';
 
 export class ProjectPeerReviewFinishedEvent extends AbstractEvent {
-  public readonly project: ProjectEntity;
-  public readonly roles: RoleEntity[];
+  public readonly project: ProjectModel;
+  public readonly roles: RoleModel[];
 
-  constructor(project: ProjectEntity, roles: RoleEntity[]) {
+  constructor(project: ProjectModel, roles: RoleModel[]) {
     super();
     this.project = project;
     this.roles = roles;

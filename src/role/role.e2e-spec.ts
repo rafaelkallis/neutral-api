@@ -3,14 +3,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import {
-  ProjectEntity,
+  ProjectModel,
   ProjectState,
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project';
-import { RoleEntity, RoleRepository } from 'role';
+import { RoleModel, RoleRepository } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
@@ -23,9 +23,9 @@ describe('roles (e2e)', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let tokenService: TokenService;
-  let user: UserEntity;
-  let project: ProjectEntity;
-  let role: RoleEntity;
+  let user: UserModel;
+  let project: ProjectModel;
+  let role: RoleModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -72,8 +72,8 @@ describe('roles (e2e)', () => {
         contribution: null,
         submittedPeerReviews: null,
         hasSubmittedPeerReviews: false,
-        createdAt: role.createdAt,
-        updatedAt: role.updatedAt,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
       });
     });
   });
@@ -91,8 +91,8 @@ describe('roles (e2e)', () => {
         contribution: null,
         submittedPeerReviews: [],
         hasSubmittedPeerReviews: false,
-        createdAt: role.createdAt,
-        updatedAt: role.updatedAt,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
       });
     });
   });

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
-import { RoleEntity } from 'role/entities/role.entity';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
+import { RoleModel } from 'role/role.model';
 import {
   RoleRepository,
   ROLE_REPOSITORY,
@@ -16,7 +16,7 @@ import { NewUserAssignedEvent } from 'role/events/new-user-assigned.event';
 import { RoleDeletedEvent } from 'role/events/role-deleted.event';
 import { InvariantViolationException } from 'common';
 import { UserUnassignedEvent } from 'role/events/user-unassigned.event';
-import { ProjectEntity } from 'project';
+import { ProjectModel } from 'project';
 import { EmailService, EMAIL_SERVICE } from 'email';
 
 export interface CreateRoleOptions {
@@ -53,21 +53,31 @@ export class RoleDomainService {
    */
   public async createRole(
     createRoleOptions: CreateRoleOptions,
-    project: ProjectEntity,
-  ): Promise<RoleEntity> {
+    project: ProjectModel,
+  ): Promise<RoleModel> {
     if (!project.isFormationState()) {
       throw new CreateRoleOutsideFormationStateException();
     }
     const roleId = this.roleRepository.createId();
-    const role = RoleEntity.fromRole({
-      id: roleId,
-      projectId: project.id,
-      assigneeId: null,
-      title: createRoleOptions.title,
-      description: createRoleOptions.description,
-      contribution: null,
-      hasSubmittedPeerReviews: false,
-    });
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    const projectId = project.id;
+    const assigneeId = null;
+    const title = createRoleOptions.title;
+    const description = createRoleOptions.description;
+    const contribution = null;
+    const hasSubmittedPeerReviews = false;
+    const role = new RoleModel(
+      roleId,
+      createdAt,
+      updatedAt,
+      projectId,
+      assigneeId,
+      title,
+      description,
+      contribution,
+      hasSubmittedPeerReviews,
+    );
     await this.roleRepository.persist(role);
     await this.eventPublisher.publish(new RoleCreatedEvent(project, role));
     return role;
@@ -77,8 +87,8 @@ export class RoleDomainService {
    * Update a role
    */
   public async updateRole(
-    project: ProjectEntity,
-    role: RoleEntity,
+    project: ProjectModel,
+    role: RoleModel,
     updateRoleOptions: UpdateRoleOptions,
   ): Promise<void> {
     if (!project.isFormationState()) {
@@ -93,8 +103,8 @@ export class RoleDomainService {
    * Delete a role
    */
   public async deleteRole(
-    project: ProjectEntity,
-    role: RoleEntity,
+    project: ProjectModel,
+    role: RoleModel,
   ): Promise<void> {
     if (!project.isFormationState()) {
       throw new ProjectNotFormationStateException();
@@ -107,10 +117,10 @@ export class RoleDomainService {
    * Assign user to a role
    */
   public async assignUser(
-    project: ProjectEntity,
-    role: RoleEntity,
-    user: UserEntity,
-    projectRoles: RoleEntity[],
+    project: ProjectModel,
+    role: RoleModel,
+    user: UserModel,
+    projectRoles: RoleModel[],
   ): Promise<void> {
     if (!role.belongsToProject(project)) {
       throw new InvariantViolationException();
@@ -140,10 +150,10 @@ export class RoleDomainService {
    * Create and assign a user.
    */
   public async assignUserByEmailAndCreateIfNotExists(
-    project: ProjectEntity,
-    role: RoleEntity,
+    project: ProjectModel,
+    role: RoleModel,
     email: string,
-    projectRoles: RoleEntity[],
+    projectRoles: RoleModel[],
   ): Promise<void> {
     if (!role.belongsToProject(project)) {
       throw new InvariantViolationException();
@@ -159,13 +169,20 @@ export class RoleDomainService {
     }
     // TODO should this be in here?
     const userId = this.userRepository.createId();
-    const user = UserEntity.fromUser({
-      id: userId,
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    const firstName = '';
+    const lastName = '';
+    const lastLoginAt = 0;
+    const user = new UserModel(
+      userId,
+      createdAt,
+      updatedAt,
       email,
-      firstName: '',
-      lastName: '',
-      lastLoginAt: 0,
-    });
+      firstName,
+      lastName,
+      lastLoginAt,
+    );
     await this.userRepository.persist(user);
 
     role.assigneeId = user.id;

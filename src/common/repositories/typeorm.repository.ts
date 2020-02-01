@@ -3,18 +3,19 @@ import {
   ObjectType,
   EntityManager,
 } from 'typeorm';
-import { EntityNotFoundException } from 'common/exceptions/entity-not-found.exception';
-import { Repository } from 'common/repositories/repository.interface';
+import { Repository } from 'common/repositories/repository';
 import { AbstractEntity } from 'common/entities/abstract.entity';
 import { DatabaseClientService } from 'database';
-import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
 import ObjectID from 'bson-objectid';
+import { AbstractModel } from 'common/abstract.model';
 
 /**
  * TypeOrm Repository
  */
-export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
-  implements Repository<TEntity> {
+export abstract class TypeOrmRepository<
+  TModel extends AbstractModel,
+  TEntity extends AbstractEntity
+> implements Repository<TModel> {
   protected readonly entityManager: EntityManager;
   protected readonly internalRepository: InternalRepository<TEntity>;
 
@@ -36,14 +37,18 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async persist(...entities: TEntity[]): Promise<void> {
+  public async persist(...models: TModel[]): Promise<void> {
+    for (const model of models) {
+      model.validate();
+    }
+    const entities = models.map(m => this.toEntity(m));
     await this.entityManager.save(entities);
   }
 
   /**
    *
    */
-  public async findPage(afterId?: string): Promise<TEntity[]> {
+  public async findPage(afterId?: string): Promise<TModel[]> {
     let builder = this.internalRepository
       .createQueryBuilder()
       .orderBy('id', 'DESC')
@@ -53,29 +58,32 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
       builder = builder.andWhere('id > :afterId', { afterId });
     }
     const entities = await builder.getMany();
-    return entities;
+    const models = entities.map(e => this.toModel(e));
+    return models;
   }
 
   /**
    *
    */
-  public async findById(id: string): Promise<TEntity> {
+  public async findById(id: string): Promise<TModel> {
     const entity = await this.internalRepository.findOne(id);
     if (!entity) {
-      throw new EntityNotFoundException();
+      this.throwEntityNotFoundException();
     }
-    return entity;
+    const model = this.toModel(entity);
+    return model;
   }
 
   /**
    *
    */
-  public async findByIds(ids: string[]): Promise<TEntity[]> {
+  public async findByIds(ids: string[]): Promise<TModel[]> {
     const entities = await this.internalRepository.findByIds(ids);
     if (ids.length !== entities.length) {
-      throw new EntityNotFoundException();
+      this.throwEntityNotFoundException();
     }
-    return entities;
+    const models = entities.map(e => this.toModel(e));
+    return models;
   }
 
   /**
@@ -89,23 +97,23 @@ export abstract class TypeOrmRepository<TEntity extends AbstractEntity>
   /**
    *
    */
-  public async refresh(...entities: TEntity[]): Promise<void> {
-    const ids = entities.map(entity => entity.id);
-    const newEntities = await this.internalRepository.findByIds(ids);
-    if (entities.length !== newEntities.length) {
-      // TODO log
-      throw new InvariantViolationException();
-    }
-    for (let i = 0; i < entities.length; i++) {
-      Object.assign(entities[i], newEntities[i]);
-    }
+  public async delete(...models: TModel[]): Promise<void> {
+    const ids = models.map(m => m.id);
+    await this.internalRepository.delete(ids);
   }
 
   /**
-   *
+   * Throw entity-specific not-found exception
    */
-  public async delete(...entities: TEntity[]): Promise<void> {
-    const ids = entities.map(entity => entity.id);
-    await this.internalRepository.delete(ids);
-  }
+  protected abstract throwEntityNotFoundException(): never;
+
+  /**
+   * Used to map a domain model to a persistence entity.
+   */
+  protected abstract toEntity(model: TModel): TEntity;
+
+  /**
+   * Used to map a persistence entity to a domain model.
+   */
+  protected abstract toModel(entity: TEntity): TModel;
 }

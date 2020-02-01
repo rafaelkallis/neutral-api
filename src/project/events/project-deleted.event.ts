@@ -1,10 +1,10 @@
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectModel } from 'project/project.model';
 import { AbstractEvent } from 'event';
 
 export class ProjectDeletedEvent extends AbstractEvent {
-  public readonly project: ProjectEntity;
+  public readonly project: ProjectModel;
 
-  public constructor(project: ProjectEntity) {
+  public constructor(project: ProjectModel) {
     super();
     this.project = project;
   }

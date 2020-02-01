@@ -1,10 +1,10 @@
 import { ContributionsModelService } from './contributions-model.service';
 import { ConsensualityModelService } from './consensuality-model.service';
-import { UserEntity, FakeUserRepository, UserRepository } from 'user';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { UserModel, FakeUserRepository, UserRepository } from 'user';
+import { ProjectModel } from 'project/project.model';
 import { ProjectRepository } from 'project/repositories/project.repository';
 import {
-  RoleEntity,
+  RoleModel,
   RoleRepository,
   PeerReviewRepository,
   FakeRoleRepository,
@@ -38,8 +38,8 @@ describe('project application service', () => {
   let consensualityModelService: ConsensualityModelService;
   let projectDomainService: ProjectDomainService;
   let projectApplicationService: ProjectApplicationService;
-  let ownerUser: UserEntity;
-  let project: ProjectEntity;
+  let ownerUser: UserModel;
+  let project: ProjectModel;
   let projectDto: ProjectDto;
 
   beforeEach(async () => {
@@ -82,7 +82,7 @@ describe('project application service', () => {
   });
 
   describe('get created projects', () => {
-    let projects: ProjectEntity[];
+    let projects: ProjectModel[];
     let query: GetProjectsQueryDto;
 
     beforeEach(async () => {
@@ -113,9 +113,9 @@ describe('project application service', () => {
   });
 
   describe('get assigned projects', () => {
-    let projects: ProjectEntity[];
-    let assigneeUser: UserEntity;
-    let roles: RoleEntity[];
+    let projects: ProjectModel[];
+    let assigneeUser: UserModel;
+    let roles: RoleModel[];
     let query: GetProjectsQueryDto;
 
     beforeEach(async () => {
@@ -224,9 +224,9 @@ describe('project application service', () => {
   });
 
   describe('finish formation', () => {
-    let role1: RoleEntity;
-    let role2: RoleEntity;
-    let role3: RoleEntity;
+    let role1: RoleModel;
+    let role2: RoleModel;
+    let role3: RoleModel;
 
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
@@ -276,7 +276,7 @@ describe('project application service', () => {
   });
 
   describe('submit peer reviews', () => {
-    let roles: RoleEntity[];
+    let roles: RoleModel[];
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {

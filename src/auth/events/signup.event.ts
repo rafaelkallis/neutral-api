@@ -1,13 +1,13 @@
 import { AbstractEvent } from 'event';
-import { UserEntity } from 'user';
+import { UserModel } from 'user';
 
 /**
  * Signup Event
  */
 export class SignupEvent extends AbstractEvent {
-  public readonly user: UserEntity;
+  public readonly user: UserModel;
 
-  constructor(user: UserEntity) {
+  constructor(user: UserModel) {
     super();
     this.user = user;
   }

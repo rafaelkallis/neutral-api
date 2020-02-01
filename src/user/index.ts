@@ -1,5 +1,6 @@
-export * from 'user/entities/user.entity';
-export * from 'user/repositories/user.repository';
-export * from 'user/repositories/typeorm-user.repository';
-export * from 'user/user';
+export {
+  UserRepository,
+  USER_REPOSITORY,
+} from 'user/repositories/user.repository';
 export { FakeUserRepository } from 'user/repositories/fake-user.repository';
+export { UserModel } from 'user/user.model';

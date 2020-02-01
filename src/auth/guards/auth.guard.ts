@@ -6,7 +6,7 @@ import {
   Inject,
 } from '@nestjs/common';
 
-import { UserEntity, UserRepository, USER_REPOSITORY } from 'user';
+import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { UnauthorizedUserException } from 'auth/exceptions/unauthorized-user.exception';
 import { SessionState } from 'session';
 import { TOKEN_SERVICE, TokenService } from 'token';
@@ -54,7 +54,7 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private async handleSessionAuth(session: SessionState): Promise<UserEntity> {
+  private async handleSessionAuth(session: SessionState): Promise<UserModel> {
     const payload = this.tokenService.validateSessionToken(session.get());
     const user = await this.userRepository.findById(payload.sub);
     if (!user) {
@@ -68,7 +68,7 @@ export class AuthGuard implements CanActivate {
     return user;
   }
 
-  private async handleAuthHeaderAuth(authHeader: string): Promise<UserEntity> {
+  private async handleAuthHeaderAuth(authHeader: string): Promise<UserModel> {
     const [prefix, content] = authHeader.split(' ');
     if (!prefix || prefix.toLowerCase() !== 'bearer') {
       throw new UnauthorizedUserException();
@@ -82,4 +82,4 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((_, req): UserEntity => req.user);
+export const AuthUser = createParamDecorator((_, req): UserModel => req.user);

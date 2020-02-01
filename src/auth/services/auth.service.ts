@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TokenAlreadyUsedException } from 'common';
-import { UserRepository, USER_REPOSITORY, UserEntity } from 'user';
+import { UserRepository, USER_REPOSITORY, UserModel } from 'user';
 import { RefreshDto } from 'auth/dto/refresh.dto';
 import { RequestLoginDto } from 'auth/dto/request-login.dto';
 import { RequestSignupDto } from 'auth/dto/request-signup.dto';
@@ -125,13 +125,21 @@ export class AuthService {
     }
 
     const userId = this.userRepository.createId();
-    const user = UserEntity.fromUser({
-      id: userId,
-      email: payload.sub,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      lastLoginAt: Date.now(),
-    });
+    // TODO code smell
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    const email = payload.sub;
+    const { firstName, lastName } = dto;
+    const lastLoginAt = Date.now();
+    const user = new UserModel(
+      userId,
+      createdAt,
+      updatedAt,
+      email,
+      firstName,
+      lastName,
+      lastLoginAt,
+    );
     await this.userRepository.persist(user);
     await this.eventPublisher.publish(new SignupEvent(user));
 
