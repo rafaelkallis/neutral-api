@@ -1,4 +1,4 @@
-import { UserModel, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, UserFakeRepository } from 'user';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { AuthService } from 'auth/services/auth.service';
 import { RefreshDto } from 'auth/dto/refresh.dto';
@@ -29,7 +29,7 @@ describe('auth service', () => {
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     tokenService = new MockTokenService();
 
     authService = new AuthService(

@@ -1,6 +1,6 @@
 import { IsNumber, IsString, MaxLength } from 'class-validator';
 
-import { RoleModel } from 'role/role.model';
+import { RoleModel } from 'role/domain/RoleModel';
 import { AbstractModel } from 'common';
 import { PeerReview } from 'role/role';
 

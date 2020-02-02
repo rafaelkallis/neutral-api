@@ -1,11 +1,11 @@
-import { IsString, IsNumber, MaxLength, validateSync } from 'class-validator';
+import { IsNumber, validateSync } from 'class-validator';
+import { IsIdentifier } from 'common/validation/is-identifier';
 
 /**
  *
  */
 export abstract class AbstractModel {
-  @IsString()
-  @MaxLength(24)
+  @IsIdentifier()
   public id: string;
 
   @IsNumber()

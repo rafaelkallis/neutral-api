@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Saga } from 'event';
-import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
+import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
 import { EmailService, EMAIL_SERVICE } from 'email/email.service';

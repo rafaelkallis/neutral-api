@@ -1,10 +1,4 @@
 import { PrimitiveFaker } from 'test/fakers/primitive-faker';
-import {
-  Project,
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project';
 import { Role, PeerReview } from 'role';
 import { Notification, NotificationType } from 'notification';
 
@@ -13,22 +7,6 @@ export class ObjectFaker {
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.primitiveFaker = primitiveFaker;
-  }
-
-  /**
-   * Create fake project
-   */
-  public project(creatorId: string): Project {
-    return {
-      id: this.primitiveFaker.id(),
-      creatorId: creatorId,
-      title: this.primitiveFaker.words(),
-      description: this.primitiveFaker.paragraph(),
-      state: ProjectState.FORMATION,
-      consensuality: null,
-      contributionVisibility: ContributionVisibility.SELF,
-      skipManagerReview: SkipManagerReview.NO,
-    };
   }
 
   /**

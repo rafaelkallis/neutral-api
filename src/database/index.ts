@@ -1,2 +1,2 @@
-export { DatabaseClientService } from 'database/database-client.service';
-export { DatabaseModule } from 'database/database.module';
+export { DatabaseClientService } from 'database/DatabaseClientService';
+export { DatabaseModule } from 'database/DatabaseModule';

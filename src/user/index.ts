@@ -1,6 +1,3 @@
-export {
-  UserRepository,
-  USER_REPOSITORY,
-} from 'user/repositories/user.repository';
-export { FakeUserRepository } from 'user/repositories/fake-user.repository';
-export { UserModel } from 'user/user.model';
+export { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
+export { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
+export { UserModel } from 'user/domain/UserModel';

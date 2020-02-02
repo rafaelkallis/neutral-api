@@ -1,13 +1,11 @@
-export { ProjectModel } from 'project/project.model';
-export {
-  PROJECT_REPOSITORY,
-  ProjectRepository,
-} from 'project/repositories/project.repository';
-export { FakeProjectRepository } from 'project/repositories/fake-project.repository';
-export { UserNotProjectOwnerException } from 'project/exceptions/user-not-project-owner.exception';
 export {
   SkipManagerReview,
   ContributionVisibility,
-  Project,
   ProjectState,
-} from 'project/project';
+  ProjectModel,
+} from 'project/domain/ProjectModel';
+export {
+  PROJECT_REPOSITORY,
+  ProjectRepository,
+} from 'project/domain/ProjectRepository';
+export { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';

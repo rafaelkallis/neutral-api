@@ -8,8 +8,8 @@ import { TOKEN_SERVICE } from 'token';
 import {
   NotificationRepository,
   NOTIFICATION_REPOSITORY,
-} from 'notification/repositories/notification.repository';
-import { NotificationModel } from 'notification/notification.model';
+} from 'notification/domain/NotificationRepository';
+import { NotificationModel } from 'notification/domain/NotificationModel';
 
 describe('notifications (e2e)', () => {
   let app: INestApplication;

@@ -1,16 +1,13 @@
-export { RoleModel } from 'role/role.model';
+export { RoleModel } from 'role/domain/RoleModel';
 export { PeerReviewModel } from 'role/peer-review.model';
 
-export {
-  ROLE_REPOSITORY,
-  RoleRepository,
-} from 'role/repositories/role.repository';
+export { ROLE_REPOSITORY, RoleRepository } from 'role/domain/RoleRepository';
 export {
   PEER_REVIEW_REPOSITORY,
   PeerReviewRepository,
-} from 'role/repositories/peer-review.repository';
+} from 'role/domain/PeerReviewRepository';
 
-export { FakeRoleRepository } from 'role/repositories/fake-role.repository';
-export { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
+export { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
+export { FakePeerReviewRepository } from 'role/infrastructure/PeerReviewFakeRepository';
 
 export { Role, PeerReview } from 'role/role';

@@ -5,14 +5,14 @@ import helmet from 'helmet';
 
 import { AppController } from 'app.controller';
 import { AuthModule } from 'auth/auth.module';
-import { ProjectModule } from 'project/project.module';
-import { RoleModule } from 'role/role.module';
-import { UserModule } from 'user/user.module';
+import { ProjectModule } from 'project/ProjectModule';
+import { RoleModule } from 'role/RoleModule';
+import { UserModule } from 'user/UserModule';
 import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { SessionMiddleware } from 'session';
-import { NotificationModule } from 'notification/notification.module';
+import { NotificationModule } from 'notification/NotificationModule';
 import { ApmModule } from 'apm';
 
 /**

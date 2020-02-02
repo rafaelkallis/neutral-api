@@ -3,11 +3,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { ProjectModel } from 'project/project.model';
+import { ProjectModel } from 'project/domain/ProjectModel';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
-} from 'project/repositories/project.repository';
+} from 'project/domain/ProjectRepository';
 import {
   RoleModel,
   PeerReviewRepository,
@@ -16,7 +16,7 @@ import {
   ROLE_REPOSITORY,
 } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
-import { ProjectState } from 'project/project';
+import { ProjectState } from 'project/domain/ProjectModel';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
 

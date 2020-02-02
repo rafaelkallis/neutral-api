@@ -13,7 +13,7 @@ import {
 import { RoleModel, RoleRepository } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
-import { ROLE_REPOSITORY } from 'role/repositories/role.repository';
+import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 import { EmailService, EMAIL_SERVICE } from 'email';
 
 describe('assign user to role', () => {
