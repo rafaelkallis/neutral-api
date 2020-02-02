@@ -1,23 +1,23 @@
-import { TypeOrmRepository } from 'common';
-import { UserRepository } from 'user/repositories/user.repository';
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from 'user/entities/user.entity';
+import { TypeOrmRepository } from 'common';
+import { UserRepository } from 'user/domain/UserRepository';
+import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { DatabaseClientService } from 'database';
-import { UserModel } from 'user/user.model';
-import { UserNotFoundException } from 'user/exceptions/user-not-found.exception';
+import { UserModel } from 'user/domain/UserModel';
+import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 /**
  * TypeOrm User Repository
  */
 @Injectable()
 export class TypeOrmUserRepository
-  extends TypeOrmRepository<UserModel, UserEntity>
+  extends TypeOrmRepository<UserModel, UserTypeOrmEntity>
   implements UserRepository {
   /**
    *
    */
   public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, UserEntity);
+    super(databaseClient, UserTypeOrmEntity);
   }
 
   /**
@@ -64,7 +64,7 @@ export class TypeOrmUserRepository
   /**
    *
    */
-  protected toModel(userEntity: UserEntity): UserModel {
+  protected toModel(userEntity: UserTypeOrmEntity): UserModel {
     return new UserModel(
       userEntity.id,
       userEntity.createdAt,
@@ -79,8 +79,8 @@ export class TypeOrmUserRepository
   /**
    *
    */
-  protected toEntity(userModel: UserModel): UserEntity {
-    return new UserEntity(
+  protected toEntity(userModel: UserModel): UserTypeOrmEntity {
+    return new UserTypeOrmEntity(
       userModel.id,
       userModel.createdAt,
       userModel.updatedAt,

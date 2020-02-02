@@ -1,17 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TokenAlreadyUsedException } from 'common';
-import {
-  UserRepository,
-  USER_REPOSITORY,
-} from 'user/repositories/user.repository';
+import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { ConfigService, InjectConfig } from 'config';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisherService, InjectEventPublisher } from 'event';
-import { UserUpdatedEvent } from 'user/events/user-updated.event';
-import { EmailChangedEvent } from 'user/events/email-changed.event';
-import { UserDeletedEvent } from 'user/events/user-deleted.event';
-import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
-import { UserModel } from 'user/user.model';
+import { UserUpdatedEvent } from 'user/domain/events/UserUpdatedEvent';
+import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
+import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
+import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
+import { UserModel } from 'user/domain/UserModel';
 
 export interface UpdateUserOptions {
   email?: string;

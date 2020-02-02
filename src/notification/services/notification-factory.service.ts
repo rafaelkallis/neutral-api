@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Role } from 'role';
-import { Project } from 'project';
+import { ProjectModel } from 'project';
 import {
   NotificationRepository,
   NOTIFICATION_REPOSITORY,
@@ -32,7 +32,7 @@ export class NotificationFactoryService {
    *
    */
   public createNewAssignmentNotification(
-    project: Project,
+    project: ProjectModel,
     role: Role,
   ): NewAssignmentNotification {
     if (!role.assigneeId) {
@@ -60,7 +60,7 @@ export class NotificationFactoryService {
    *
    */
   public createPeerReviewRequestedNotification(
-    project: Project,
+    project: ProjectModel,
     role: Role,
   ): PeerReviewRequestedNotification {
     if (!role.assigneeId) {
@@ -88,7 +88,7 @@ export class NotificationFactoryService {
    *
    */
   public createManagerReviewRequestedNotification(
-    project: Project,
+    project: ProjectModel,
   ): ManagerReviewRequestedNotification {
     return {
       id: this.notificationRepository.createId(),
@@ -108,7 +108,7 @@ export class NotificationFactoryService {
    *
    */
   public createProjectFinishedNotification(
-    project: Project,
+    project: ProjectModel,
     projectMemberId: string,
   ): ProjectFinishedNotification {
     return {

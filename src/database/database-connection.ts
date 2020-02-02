@@ -4,10 +4,10 @@ import { Connection, ConnectionManager } from 'typeorm';
 import { ConfigService } from 'config';
 import { CONFIG } from 'config/constants';
 
-import { UserEntity } from 'user/entities/user.entity';
+import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { ProjectEntity } from 'project/entities/project.entity';
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
-import { RoleEntity } from 'role/entities/role.entity';
+import { PeerReviewTypeOrmEntity } from 'role/entities/peer-review-typeorm-entity';
+import { RoleTypeOrmEntity } from 'role/entities/role-typeorm-entity';
 import { NotificationEntity } from 'notification/entities/notification.entity';
 
 import { UserMigration1564324478234 } from 'database/migration/1564324478234-UserMigration';
@@ -48,10 +48,10 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
       type: 'postgres' as 'postgres',
       url: config.get('DATABASE_URL'),
       entities: [
-        UserEntity,
+        UserTypeOrmEntity,
         ProjectEntity,
-        RoleEntity,
-        PeerReviewEntity,
+        RoleTypeOrmEntity,
+        PeerReviewTypeOrmEntity,
         NotificationEntity,
       ],
       migrations: [

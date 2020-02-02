@@ -1,10 +1,10 @@
 import { AbstractEvent } from 'event';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 /**
- * User Deleted Event
+ * Email Changed Event
  */
-export class UserDeletedEvent extends AbstractEvent {
+export class EmailChangedEvent extends AbstractEvent {
   public readonly user: UserModel;
 
   constructor(user: UserModel) {

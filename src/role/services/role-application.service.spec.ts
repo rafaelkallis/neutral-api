@@ -1,4 +1,4 @@
-import { UserModel, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, UserFakeRepository } from 'user';
 import {
   ProjectModel,
   ProjectRepository,
@@ -44,7 +44,7 @@ describe('role application service', () => {
     primitiveFaker = new PrimitiveFaker();
 
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();

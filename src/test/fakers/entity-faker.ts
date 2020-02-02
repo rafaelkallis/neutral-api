@@ -7,7 +7,7 @@ import {
 import { RoleModel, PeerReviewModel } from 'role';
 import { NotificationModel, NotificationType } from 'notification';
 import { PrimitiveFaker } from 'test';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 // TODO call ModelFaker
 export class EntityFaker {

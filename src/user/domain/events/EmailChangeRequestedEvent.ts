@@ -1,5 +1,5 @@
 import { AbstractEvent } from 'event';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 /**
  * Email Change Requested Event

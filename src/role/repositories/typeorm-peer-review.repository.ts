@@ -1,4 +1,4 @@
-import { PeerReviewEntity } from 'role/entities/peer-review.entity';
+import { PeerReviewTypeOrmEntity } from 'role/entities/peer-review-typeorm-entity';
 import { TypeOrmRepository } from 'common';
 import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
 import { Injectable } from '@nestjs/common';
@@ -11,13 +11,13 @@ import { PeerReviewNotFoundException } from 'role/exceptions/peer-review-not-fou
  */
 @Injectable()
 export class TypeOrmPeerReviewRepository
-  extends TypeOrmRepository<PeerReviewModel, PeerReviewEntity>
+  extends TypeOrmRepository<PeerReviewModel, PeerReviewTypeOrmEntity>
   implements PeerReviewRepository {
   /**
    *
    */
   public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, PeerReviewEntity);
+    super(databaseClient, PeerReviewTypeOrmEntity);
   }
 
   /**
@@ -56,7 +56,9 @@ export class TypeOrmPeerReviewRepository
   /**
    *
    */
-  protected toModel(peerReviewEntity: PeerReviewEntity): PeerReviewModel {
+  protected toModel(
+    peerReviewEntity: PeerReviewTypeOrmEntity,
+  ): PeerReviewModel {
     return new PeerReviewModel(
       peerReviewEntity.id,
       peerReviewEntity.createdAt,
@@ -70,8 +72,10 @@ export class TypeOrmPeerReviewRepository
   /**
    *
    */
-  protected toEntity(peerReviewModel: PeerReviewModel): PeerReviewEntity {
-    return new PeerReviewEntity(
+  protected toEntity(
+    peerReviewModel: PeerReviewModel,
+  ): PeerReviewTypeOrmEntity {
+    return new PeerReviewTypeOrmEntity(
       peerReviewModel.id,
       peerReviewModel.createdAt,
       peerReviewModel.updatedAt,

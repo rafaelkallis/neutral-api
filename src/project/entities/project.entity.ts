@@ -1,17 +1,16 @@
 import { Column, Entity } from 'typeorm';
-import { AbstractEntity } from 'common';
+import { TypeOrmEntity } from 'common';
 import {
-  Project,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from 'project/project';
+} from 'project/project.model';
 
 /**
  * Project Entity
  */
 @Entity('projects')
-export class ProjectEntity extends AbstractEntity implements Project {
+export class ProjectEntity extends TypeOrmEntity {
   @Column({ name: 'title' })
   public title: string;
 

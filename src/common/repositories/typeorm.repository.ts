@@ -4,7 +4,7 @@ import {
   EntityManager,
 } from 'typeorm';
 import { Repository } from 'common/repositories/repository';
-import { AbstractEntity } from 'common/entities/abstract.entity';
+import { TypeOrmEntity } from 'common/entities/typeorm-entity';
 import { DatabaseClientService } from 'database';
 import ObjectID from 'bson-objectid';
 import { AbstractModel } from 'common/abstract.model';
@@ -14,7 +14,7 @@ import { AbstractModel } from 'common/abstract.model';
  */
 export abstract class TypeOrmRepository<
   TModel extends AbstractModel,
-  TEntity extends AbstractEntity
+  TEntity extends TypeOrmEntity
 > implements Repository<TModel> {
   protected readonly entityManager: EntityManager;
   protected readonly internalRepository: InternalRepository<TEntity>;

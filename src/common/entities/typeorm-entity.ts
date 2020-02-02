@@ -2,9 +2,9 @@ import { PrimaryColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { BigIntTransformer } from 'common/entities/bigint-transformer';
 
 /**
- * Abstract Entity
+ * TypeOrm Entity
  */
-export abstract class AbstractEntity {
+export abstract class TypeOrmEntity {
   @PrimaryColumn()
   public id: string;
 

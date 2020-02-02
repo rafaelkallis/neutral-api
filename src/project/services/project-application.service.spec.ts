@@ -1,7 +1,7 @@
 import { ContributionsModelService } from './contributions-model.service';
 import { ConsensualityModelService } from './consensuality-model.service';
-import { UserModel, FakeUserRepository, UserRepository } from 'user';
-import { ProjectModel } from 'project/project.model';
+import { UserModel, UserFakeRepository } from 'user';
+import { ProjectModel, ProjectState } from 'project/project.model';
 import { ProjectRepository } from 'project/repositories/project.repository';
 import {
   RoleModel,
@@ -20,7 +20,6 @@ import {
 } from 'project/dto/get-projects-query.dto';
 import { UpdateProjectDto } from 'project/dto/update-project.dto';
 import { SubmitPeerReviewsDto } from 'project/dto/submit-peer-reviews.dto';
-import { ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
 import { MockEventPublisherService } from 'event';
 import { ProjectDomainService } from 'project/services/project-domain.service';
@@ -30,7 +29,7 @@ describe('project application service', () => {
   let primitiveFaker: PrimitiveFaker;
 
   let eventPublisher: MockEventPublisherService;
-  let userRepository: UserRepository;
+  let userRepository: UserFakeRepository;
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
@@ -47,7 +46,7 @@ describe('project application service', () => {
     entityFaker = new EntityFaker();
 
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();

@@ -1,5 +1,5 @@
 import { TypeOrmRepository } from 'common';
-import { RoleEntity } from 'role/entities/role.entity';
+import { RoleTypeOrmEntity } from 'role/entities/role-typeorm-entity';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
 import { RoleModel } from 'role/role.model';
@@ -11,13 +11,13 @@ import { RoleNotFoundException } from 'role/exceptions/role-not-found.exception'
  */
 @Injectable()
 export class TypeOrmRoleRepository
-  extends TypeOrmRepository<RoleModel, RoleEntity>
+  extends TypeOrmRepository<RoleModel, RoleTypeOrmEntity>
   implements RoleRepository {
   /**
    *
    */
   public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, RoleEntity);
+    super(databaseClient, RoleTypeOrmEntity);
   }
 
   /**
@@ -48,25 +48,25 @@ export class TypeOrmRoleRepository
   /**
    *
    */
-  protected toModel(roleEntity: RoleEntity): RoleModel {
+  protected toModel(roleTypeOrmEntity: RoleTypeOrmEntity): RoleModel {
     return new RoleModel(
-      roleEntity.id,
-      roleEntity.createdAt,
-      roleEntity.updatedAt,
-      roleEntity.projectId,
-      roleEntity.assigneeId,
-      roleEntity.title,
-      roleEntity.description,
-      roleEntity.contribution,
-      roleEntity.hasSubmittedPeerReviews,
+      roleTypeOrmEntity.id,
+      roleTypeOrmEntity.createdAt,
+      roleTypeOrmEntity.updatedAt,
+      roleTypeOrmEntity.projectId,
+      roleTypeOrmEntity.assigneeId,
+      roleTypeOrmEntity.title,
+      roleTypeOrmEntity.description,
+      roleTypeOrmEntity.contribution,
+      roleTypeOrmEntity.hasSubmittedPeerReviews,
     );
   }
 
   /**
    *
    */
-  protected toEntity(roleModel: RoleModel): RoleEntity {
-    return new RoleEntity(
+  protected toEntity(roleModel: RoleModel): RoleTypeOrmEntity {
+    return new RoleTypeOrmEntity(
       roleModel.id,
       roleModel.createdAt,
       roleModel.updatedAt,

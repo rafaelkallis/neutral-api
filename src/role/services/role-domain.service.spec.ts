@@ -1,4 +1,4 @@
-import { UserModel, UserRepository, FakeUserRepository } from 'user';
+import { UserModel, UserRepository, UserFakeRepository } from 'user';
 import {
   ProjectModel,
   ProjectState,
@@ -34,7 +34,7 @@ describe('role domain service', () => {
     primitiveFaker = new PrimitiveFaker();
 
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
     emailService = new MockEmailService();

@@ -9,7 +9,7 @@ import {
   PROJECT_REPOSITORY,
 } from 'project/repositories/project.repository';
 import { EntityFaker } from 'test';
-import { ProjectState } from 'project/project';
+import { ProjectState } from 'project/project.model';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
 

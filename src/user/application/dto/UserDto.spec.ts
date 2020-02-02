@@ -1,6 +1,6 @@
 import { EntityFaker } from 'test';
-import { UserDto } from 'user/dto/user.dto';
-import { UserModel } from 'user/user.model';
+import { UserDto } from 'user/application/dto/UserDto';
+import { UserModel } from 'user/domain/UserModel';
 
 describe('user dto', () => {
   let entityFaker: EntityFaker;

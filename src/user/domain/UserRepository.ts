@@ -1,5 +1,5 @@
 import { Repository } from 'common';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 

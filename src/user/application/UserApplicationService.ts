@@ -1,13 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
-import {
-  UserRepository,
-  USER_REPOSITORY,
-} from 'user/repositories/user.repository';
-import { UserDto } from 'user/dto/user.dto';
-import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
-import { UpdateUserDto } from 'user/dto/update-user.dto';
-import { UserDomainService } from 'user/services/user-domain.service';
-import { UserModel } from 'user/user.model';
+import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
+import { UserDto } from 'user/application/dto/UserDto';
+import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
+import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
+import { UserDomainService } from 'user/domain/UserDomainService';
+import { UserModel } from 'user/domain/UserModel';
 
 @Injectable()
 export class UserApplicationService {

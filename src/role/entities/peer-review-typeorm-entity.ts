@@ -1,11 +1,11 @@
 import { Column, Entity } from 'typeorm';
-import { AbstractEntity } from 'common';
+import { TypeOrmEntity } from 'common';
 
 /**
- * Peer Review Entity
+ * Peer Review TypeOrm Entity
  */
 @Entity('peer_reviews')
-export class PeerReviewEntity extends AbstractEntity {
+export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'sender_role_id' })
   public senderRoleId: string;
 

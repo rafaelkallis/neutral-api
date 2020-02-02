@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common/dto/base.dto';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 /**
  * User DTO

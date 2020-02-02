@@ -16,7 +16,7 @@ import {
   ROLE_REPOSITORY,
 } from 'role';
 import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
-import { ProjectState } from 'project/project';
+import { ProjectState } from 'project/project.model';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
 

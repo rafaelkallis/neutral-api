@@ -5,61 +5,56 @@ import {
   MaxLength,
   IsOptional,
 } from 'class-validator';
-import { Column, Entity } from 'typeorm';
-
-import { AbstractModel } from 'common';
+import { AbstractModel, IsIdentifier } from 'common';
 import { UserModel } from 'user';
-import {
-  Project,
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/project';
+
+export enum ProjectState {
+  FORMATION = 'formation',
+  PEER_REVIEW = 'peer-review',
+  MANAGER_REVIEW = 'manager-review',
+  FINISHED = 'finished',
+}
+
+export enum ContributionVisibility {
+  PUBLIC = 'public',
+  PROJECT = 'project',
+  SELF = 'self',
+  NONE = 'none',
+}
+
+export enum SkipManagerReview {
+  YES = 'yes',
+  IF_CONSENSUAL = 'if-consensual',
+  NO = 'no',
+}
 
 /**
- * Project Entity
+ * Project Model
  */
-@Entity('projects')
 export class ProjectModel extends AbstractModel {
-  @Column({ name: 'title' })
   @IsString()
   @MaxLength(100)
   public title: string;
 
-  @Column({ name: 'description' })
   @IsString()
   @MaxLength(1024)
   public description: string;
 
-  @Column({ name: 'creator_id' })
-  @IsString()
-  @MaxLength(24)
+  @IsIdentifier()
   public creatorId: string;
 
-  @Column({ name: 'state', type: 'enum', enum: ProjectState })
   @IsEnum(ProjectState)
   @MaxLength(255)
   public state: ProjectState;
 
-  @Column({ name: 'consensuality', type: 'real', nullable: true })
   @IsNumber()
   @IsOptional()
   public consensuality: number | null;
 
-  @Column({
-    name: 'contribution_visibility',
-    type: 'enum',
-    enum: ContributionVisibility,
-  })
   @IsEnum(ContributionVisibility)
   @MaxLength(255)
   public contributionVisibility: ContributionVisibility;
 
-  @Column({
-    name: 'skip_manager_review',
-    type: 'enum',
-    enum: SkipManagerReview,
-  })
   @IsEnum(SkipManagerReview)
   @MaxLength(255)
   public skipManagerReview: SkipManagerReview;
@@ -84,26 +79,6 @@ export class ProjectModel extends AbstractModel {
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
-  }
-
-  /**
-   *
-   */
-  public static fromProject(project: Project): ProjectModel {
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    return new ProjectModel(
-      project.id,
-      createdAt,
-      updatedAt,
-      project.title,
-      project.description,
-      project.creatorId,
-      project.state,
-      project.consensuality,
-      project.contributionVisibility,
-      project.skipManagerReview,
-    );
   }
 
   public isCreator(user: UserModel): boolean {

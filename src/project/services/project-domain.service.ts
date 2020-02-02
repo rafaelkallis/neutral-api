@@ -1,11 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserModel } from 'user';
 import {
-  ProjectState,
-  SkipManagerReview,
-  ContributionVisibility,
-} from 'project/project';
-import {
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project/repositories/project.repository';
@@ -40,7 +35,12 @@ import {
   ProjectManagerReviewFinishedEvent,
   ProjectFinishedEvent,
 } from 'project/events';
-import { ProjectModel } from 'project';
+import {
+  ProjectModel,
+  ProjectState,
+  SkipManagerReview,
+  ContributionVisibility,
+} from 'project/project.model';
 import { FinalPeerReviewSubmittedEvent } from 'project/events/final-peer-review-submitted.event';
 import { InvariantViolationException } from 'common';
 import { EventPublisherService, InjectEventPublisher } from 'event';
@@ -89,19 +89,31 @@ export class ProjectDomainService {
     projectOptions: CreateProjectOptions,
     creator: UserModel,
   ): Promise<ProjectModel> {
+    // TODO needs factory!
     const projectId = this.projectRepository.createId();
-    const project = ProjectModel.fromProject({
-      id: projectId,
-      creatorId: creator.id,
-      title: projectOptions.title,
-      description: projectOptions.description,
-      state: ProjectState.FORMATION,
-      consensuality: null,
-      contributionVisibility:
-        projectOptions.contributionVisibility || ContributionVisibility.SELF,
-      skipManagerReview:
-        projectOptions.skipManagerReview || SkipManagerReview.NO,
-    });
+    const createdAt = Date.now();
+    const updatedAt = Date.now();
+    const title = projectOptions.title;
+    const description = projectOptions.description;
+    const creatorId = creator.id;
+    const state = ProjectState.FORMATION;
+    const consensuality = null;
+    const contributionVisibility =
+      projectOptions.contributionVisibility || ContributionVisibility.SELF;
+    const skipManagerReview =
+      projectOptions.skipManagerReview || SkipManagerReview.NO;
+    const project = new ProjectModel(
+      projectId,
+      createdAt,
+      updatedAt,
+      title,
+      description,
+      creatorId,
+      state,
+      consensuality,
+      contributionVisibility,
+      skipManagerReview,
+    );
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
       new ProjectCreatedEvent(project, creator),

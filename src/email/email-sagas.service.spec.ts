@@ -1,7 +1,7 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
 import { MockEmailService } from 'email/mock-email.service';
 import { EmailSagasService } from 'email/email-sagas.service';
-import { EmailChangeRequestedEvent } from 'user/events/email-change-requested.event';
+import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
 

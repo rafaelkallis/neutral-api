@@ -1,14 +1,14 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { UserRepository } from 'user/repositories/user.repository';
-import { FakeUserRepository } from 'user/repositories/fake-user.repository';
+import { UserRepository } from 'user/domain/UserRepository';
+import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import {
   UserDomainService,
   UpdateUserOptions,
-} from 'user/services/user-domain.service';
+} from 'user/domain/UserDomainService';
 import { MockEventPublisherService } from 'event';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
@@ -25,7 +25,7 @@ describe('user service', () => {
     entityFaker = new EntityFaker();
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,

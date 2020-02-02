@@ -6,7 +6,7 @@ import { NOTIFICATION_REPOSITORY } from 'notification/repositories/notification.
 import { TypeOrmNotificationRepository } from 'notification/repositories/typeorm-notification.repository';
 import { NotificationApplicationService } from 'notification/services/notification-application.service';
 import { NotificationDomainService } from 'notification/services/notification-domain.service';
-import { UserModule } from 'user/user.module';
+import { UserModule } from 'user/UserModule';
 import { TokenModule } from 'token';
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 

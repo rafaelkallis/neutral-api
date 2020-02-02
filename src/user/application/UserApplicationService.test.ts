@@ -1,15 +1,15 @@
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { UserRepository } from 'user/repositories/user.repository';
-import { UserDto } from 'user/dto/user.dto';
-import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
-import { UpdateUserDto } from 'user/dto/update-user.dto';
-import { FakeUserRepository } from 'user/repositories/fake-user.repository';
+import { UserRepository } from 'user/domain/UserRepository';
+import { UserDto } from 'user/application/dto/UserDto';
+import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
+import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
+import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
-import { UserApplicationService } from 'user/services/user-application.service';
-import { UserDomainService } from 'user/services/user-domain.service';
+import { UserApplicationService } from 'user/application/UserApplicationService';
+import { UserDomainService } from 'user/domain/UserDomainService';
 import { MockEventPublisherService } from 'event';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 describe('user service', () => {
   let entityFaker: EntityFaker;
@@ -27,7 +27,7 @@ describe('user service', () => {
     entityFaker = new EntityFaker();
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     tokenService = new MockTokenService();
     userDomainService = new UserDomainService(
       config,

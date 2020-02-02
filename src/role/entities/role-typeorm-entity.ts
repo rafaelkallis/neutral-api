@@ -1,11 +1,11 @@
 import { Column, Entity } from 'typeorm';
-import { AbstractEntity } from 'common';
+import { TypeOrmEntity } from 'common';
 
 /**
  * Role Entity
  */
 @Entity('roles')
-export class RoleEntity extends AbstractEntity {
+export class RoleTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'project_id' })
   public projectId: string;
 

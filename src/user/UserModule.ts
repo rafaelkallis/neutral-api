@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller';
-import { TypeOrmUserRepository } from 'user/repositories/typeorm-user.repository';
-import { USER_REPOSITORY } from 'user/repositories/user.repository';
+import { UserController } from './UserController';
+import { TypeOrmUserRepository } from 'user/infrastructure/UserTypeOrmRepository';
+import { USER_REPOSITORY } from 'user/domain/UserRepository';
 import { DatabaseModule } from 'database';
 import { ConfigModule } from 'config';
 import { EmailModule } from 'email';
 import { TokenModule } from 'token';
-import { UserApplicationService } from 'user/services/user-application.service';
-import { UserDomainService } from 'user/services/user-domain.service';
+import { UserApplicationService } from 'user/application/UserApplicationService';
+import { UserDomainService } from 'user/domain/UserDomainService';
 import { EventModule } from 'event';
 
 /**

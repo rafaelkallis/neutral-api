@@ -3,14 +3,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import {
-  UserRepository,
-  USER_REPOSITORY,
-} from './repositories/user.repository';
+import { UserRepository, USER_REPOSITORY } from './domain/UserRepository';
 import { EntityFaker } from 'test';
-import { UserDto } from './dto/user.dto';
+import { UserDto } from './application/dto/UserDto';
 import { TOKEN_SERVICE } from 'token';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 describe('user (e2e)', () => {
   let app: INestApplication;

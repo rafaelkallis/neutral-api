@@ -1,4 +1,4 @@
-import { AbstractEntity } from 'common';
+import { TypeOrmEntity } from 'common';
 import { Column, Entity } from 'typeorm';
 import { NotificationType } from 'notification/notification';
 
@@ -6,7 +6,7 @@ import { NotificationType } from 'notification/notification';
  * Notification Entity
  */
 @Entity('notifications')
-export class NotificationEntity extends AbstractEntity {
+export class NotificationEntity extends TypeOrmEntity {
   @Column({ name: 'owner_id' })
   public ownerId: string;
 

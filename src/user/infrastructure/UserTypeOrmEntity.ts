@@ -1,11 +1,11 @@
-import { AbstractEntity, BigIntTransformer } from 'common';
+import { TypeOrmEntity, BigIntTransformer } from 'common';
 import { Column, Entity } from 'typeorm';
 
 /**
- * User Entity
+ * User TypeOrm Entity
  */
 @Entity('users')
-export class UserEntity extends AbstractEntity {
+export class UserTypeOrmEntity extends TypeOrmEntity {
   @Column()
   public email: string;
 

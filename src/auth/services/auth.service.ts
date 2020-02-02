@@ -14,7 +14,7 @@ import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
 import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
 import { SignupEvent } from 'auth/events/signup.event';
 import { SigninEvent } from 'auth/events/signin.event';
-import { UserDto } from 'user/dto/user.dto';
+import { UserDto } from 'user/application/dto/UserDto';
 
 @Injectable()
 export class AuthService {

@@ -17,13 +17,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserDto } from 'user/dto/user.dto';
-import { GetUsersQueryDto } from 'user/dto/get-users-query.dto';
+import { UserDto } from 'user/application/dto/UserDto';
+import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { ValidationPipe } from 'common';
-import { UpdateUserDto } from 'user/dto/update-user.dto';
-import { UserApplicationService } from 'user/services/user-application.service';
+import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
+import { UserApplicationService } from 'user/application/UserApplicationService';
 import { AuthGuard, AuthUser } from 'auth';
-import { UserModel } from 'user/user.model';
+import { UserModel } from 'user/domain/UserModel';
 
 /**
  * User Controller

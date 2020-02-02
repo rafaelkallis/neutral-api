@@ -1,12 +1,12 @@
 import { FakeRepository } from 'common';
-import { UserRepository } from 'user/repositories/user.repository';
-import { UserModel } from 'user/user.model';
-import { UserNotFoundException } from 'user/exceptions/user-not-found.exception';
+import { UserRepository } from 'user/domain/UserRepository';
+import { UserModel } from 'user/domain/UserModel';
+import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 /**
- * Fake User Repository
+ * User Fake Repository
  */
-export class FakeUserRepository extends FakeRepository<UserModel>
+export class UserFakeRepository extends FakeRepository<UserModel>
   implements UserRepository {
   /**
    *

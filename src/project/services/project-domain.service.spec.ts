@@ -1,7 +1,11 @@
 import { ContributionsModelService } from 'project/services/contributions-model.service';
 import { ConsensualityModelService } from 'project/services/consensuality-model.service';
-import { UserModel, FakeUserRepository, UserRepository } from 'user';
-import { ProjectModel } from 'project/project.model';
+import { UserModel, UserRepository, UserFakeRepository } from 'user';
+import {
+  ProjectModel,
+  SkipManagerReview,
+  ProjectState,
+} from 'project/project.model';
 import { ProjectRepository } from 'project/repositories/project.repository';
 import {
   RoleModel,
@@ -11,7 +15,6 @@ import {
   FakePeerReviewRepository,
 } from 'role';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { SkipManagerReview, ProjectState } from 'project/project';
 import { FakeProjectRepository } from 'project/repositories/fake-project.repository';
 import { MockEventPublisherService } from 'event';
 import {
@@ -40,7 +43,7 @@ describe('project domain service', () => {
     entityFaker = new EntityFaker();
 
     eventPublisher = new MockEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new UserFakeRepository();
     projectRepository = new FakeProjectRepository();
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();

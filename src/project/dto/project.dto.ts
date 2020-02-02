@@ -3,11 +3,11 @@ import { BaseDto } from 'common';
 import { UserModel } from 'user';
 import { RoleDto } from 'role/dto/role.dto';
 import {
+  ProjectModel,
   ProjectState,
   ContributionVisibility,
   SkipManagerReview,
-} from 'project/project';
-import { ProjectModel } from 'project/project.model';
+} from 'project/project.model';
 
 /**
  * Project DTO

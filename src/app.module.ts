@@ -7,7 +7,7 @@ import { AppController } from 'app.controller';
 import { AuthModule } from 'auth/auth.module';
 import { ProjectModule } from 'project/project.module';
 import { RoleModule } from 'role/role.module';
-import { UserModule } from 'user/user.module';
+import { UserModule } from 'user/UserModule';
 import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
