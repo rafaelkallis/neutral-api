@@ -12,7 +12,7 @@ import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { SessionMiddleware } from 'session';
-import { NotificationModule } from 'notification/notification.module';
+import { NotificationModule } from 'notification/NotificationModule';
 import { ApmModule } from 'apm';
 
 /**

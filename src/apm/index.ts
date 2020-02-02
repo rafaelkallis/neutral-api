@@ -1,1 +1,1 @@
-export { ApmModule } from 'apm/apm.module';
+export { ApmModule } from 'apm/ApmModule';
