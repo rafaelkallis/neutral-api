@@ -15,11 +15,9 @@ import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.ev
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 import { Saga } from 'event';
 import { NotificationModel } from 'notification/notification.model';
-import {
-  ProjectPeerReviewStartedEvent,
-  ProjectManagerReviewStartedEvent,
-  ProjectFinishedEvent,
-} from 'project/events';
+import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
+import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
+import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 
 @Injectable()
 export class NotificationSagasService {

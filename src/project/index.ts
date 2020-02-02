@@ -3,9 +3,9 @@ export {
   ContributionVisibility,
   ProjectState,
   ProjectModel,
-} from 'project/project.model';
+} from 'project/domain/ProjectModel';
 export {
   PROJECT_REPOSITORY,
   ProjectRepository,
-} from 'project/repositories/project.repository';
-export { FakeProjectRepository } from 'project/repositories/fake-project.repository';
+} from 'project/domain/ProjectRepository';
+export { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';

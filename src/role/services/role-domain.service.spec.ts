@@ -3,7 +3,7 @@ import {
   ProjectModel,
   ProjectState,
   ProjectRepository,
-  FakeProjectRepository,
+  ProjectFakeRepository,
 } from 'project';
 import { RoleModel } from 'role/role.model';
 import { RoleRepository } from 'role/repositories/role.repository';
@@ -35,7 +35,7 @@ describe('role domain service', () => {
 
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
-    projectRepository = new FakeProjectRepository();
+    projectRepository = new ProjectFakeRepository();
     roleRepository = new FakeRoleRepository();
     emailService = new MockEmailService();
 

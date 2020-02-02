@@ -5,7 +5,7 @@ import { ConfigService } from 'config';
 import { CONFIG } from 'config/constants';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
-import { ProjectEntity } from 'project/entities/project.entity';
+import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'role/entities/peer-review-typeorm-entity';
 import { RoleTypeOrmEntity } from 'role/entities/role-typeorm-entity';
 import { NotificationEntity } from 'notification/entities/notification.entity';
@@ -49,7 +49,7 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
       url: config.get('DATABASE_URL'),
       entities: [
         UserTypeOrmEntity,
-        ProjectEntity,
+        ProjectTypeOrmEntity,
         RoleTypeOrmEntity,
         PeerReviewTypeOrmEntity,
         NotificationEntity,

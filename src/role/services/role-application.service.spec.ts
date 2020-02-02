@@ -2,7 +2,7 @@ import { UserModel, UserRepository, UserFakeRepository } from 'user';
 import {
   ProjectModel,
   ProjectRepository,
-  FakeProjectRepository,
+  ProjectFakeRepository,
 } from 'project';
 import { RoleModel } from 'role/role.model';
 import { PeerReviewModel } from 'role/peer-review.model';
@@ -45,7 +45,7 @@ describe('role application service', () => {
 
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
-    projectRepository = new FakeProjectRepository();
+    projectRepository = new ProjectFakeRepository();
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();
     emailService = new MockEmailService();

@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
-import { ProjectModule } from 'project/project.module';
+import { ProjectModule } from 'project/ProjectModule';
 import { RoleController } from 'role/role.controller';
 import { TypeOrmRoleRepository } from 'role/repositories/typeorm-role.repository';
 import { TypeOrmPeerReviewRepository } from 'role/repositories/typeorm-peer-review.repository';

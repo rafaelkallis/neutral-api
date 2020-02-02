@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { ProjectRepository, PROJECT_REPOSITORY } from 'project';
-import { UserNotProjectOwnerException } from 'project/exceptions';
+import { UserNotProjectOwnerException } from 'project/application/exceptions/UserNotProjectOwnerException';
 import {
   RoleRepository,
   ROLE_REPOSITORY,

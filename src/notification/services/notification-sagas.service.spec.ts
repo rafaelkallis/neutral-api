@@ -4,11 +4,9 @@ import { NotificationSagasService } from 'notification/services/notification-sag
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
 import { NotificationType } from 'notification/notification';
-import {
-  ProjectPeerReviewStartedEvent,
-  ProjectManagerReviewStartedEvent,
-  ProjectFinishedEvent,
-} from 'project/events';
+import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
+import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
+import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 
 describe('notification sagas', () => {
   let entityFaker: EntityFaker;
