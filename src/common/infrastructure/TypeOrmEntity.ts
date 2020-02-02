@@ -1,5 +1,5 @@
 import { PrimaryColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { BigIntTransformer } from 'common/entities/bigint-transformer';
+import { BigIntTransformer } from 'common/infrastructure/BigIntTransformer';
 
 /**
  * TypeOrm Entity

@@ -1,5 +1,5 @@
-import { Repository } from 'common/repositories/repository';
-import { AbstractModel } from 'common/abstract.model';
+import { Repository } from 'common/domain/Repository';
+import { AbstractModel } from 'common/domain/AbstractModel';
 
 /**
  * Fake Repository

@@ -4,20 +4,20 @@ import request from 'supertest';
 
 import { AppModule } from 'app.module';
 import { UserRepository, USER_REPOSITORY } from './domain/UserRepository';
-import { EntityFaker } from 'test';
 import { UserDto } from './application/dto/UserDto';
 import { TOKEN_SERVICE } from 'token';
 import { UserModel } from 'user/domain/UserModel';
+import { ModelFaker } from 'test';
 
 describe('user (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let userRepository: UserRepository;
   let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -26,7 +26,7 @@ describe('user (e2e)', () => {
     await app.init();
 
     userRepository = module.get(USER_REPOSITORY);
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
 
     session = request.agent(app.getHttpServer());
@@ -55,13 +55,13 @@ describe('user (e2e)', () => {
     });
 
     test('happy path, text search', async () => {
-      const user1 = entityFaker.user();
+      const user1 = modelFaker.user();
       user1.firstName = 'Anna';
       user1.lastName = 'Smith';
-      const user2 = entityFaker.user();
+      const user2 = modelFaker.user();
       user2.firstName = 'Hannah';
       user2.lastName = 'Fitzgerald';
-      const user3 = entityFaker.user();
+      const user3 = modelFaker.user();
       user3.firstName = 'Nanna';
       user3.lastName = 'Thompson';
       await userRepository.persist(user1, user2, user3);

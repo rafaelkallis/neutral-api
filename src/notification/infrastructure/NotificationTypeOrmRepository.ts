@@ -5,6 +5,7 @@ import { NotificationRepository } from 'notification/domain/NotificationReposito
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { NotificationModel } from 'notification/domain/NotificationModel';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
+import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
 
 /**
  * TypeOrm Notification Repository
@@ -16,8 +17,15 @@ export class NotificationTypeOrmRepository
   /**
    *
    */
-  public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, NotificationTypeOrmEntity);
+  public constructor(
+    databaseClient: DatabaseClientService,
+    notificationTypeOrmEntityMapper: NotificationTypeOrmEntityMapperService,
+  ) {
+    super(
+      databaseClient,
+      NotificationTypeOrmEntity,
+      notificationTypeOrmEntityMapper,
+    );
   }
 
   /**
@@ -27,7 +35,9 @@ export class NotificationTypeOrmRepository
     const notificationEntities = await this.internalRepository.find({
       ownerId,
     });
-    const notificationModel = notificationEntities.map(e => this.toModel(e));
+    const notificationModel = notificationEntities.map(e =>
+      this.entityMapper.toModel(e),
+    );
     return notificationModel;
   }
 
@@ -36,39 +46,5 @@ export class NotificationTypeOrmRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new NotificationNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected toModel(
-    notificationEntity: NotificationTypeOrmEntity,
-  ): NotificationModel {
-    return new NotificationModel(
-      notificationEntity.id,
-      notificationEntity.createdAt,
-      notificationEntity.updatedAt,
-      notificationEntity.ownerId,
-      notificationEntity.type,
-      notificationEntity.isRead,
-      notificationEntity.payload,
-    );
-  }
-
-  /**
-   *
-   */
-  protected toEntity(
-    notificationModel: NotificationModel,
-  ): NotificationTypeOrmEntity {
-    return new NotificationTypeOrmEntity(
-      notificationModel.id,
-      notificationModel.createdAt,
-      notificationModel.updatedAt,
-      notificationModel.ownerId,
-      notificationModel.type,
-      notificationModel.isRead,
-      notificationModel.payload,
-    );
   }
 }

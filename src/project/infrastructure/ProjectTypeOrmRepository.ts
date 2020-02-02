@@ -5,9 +5,10 @@ import { DatabaseClientService } from 'database';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { ProjectModel } from 'project/domain/ProjectModel';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
+import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 
 /**
- * TypeOrm Project Repository
+ * Project TypeOrm Repository
  */
 @Injectable()
 export class ProjectTypeOrmRepository
@@ -16,15 +17,20 @@ export class ProjectTypeOrmRepository
   /**
    *
    */
-  public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, ProjectTypeOrmEntity);
+  public constructor(
+    databaseClient: DatabaseClientService,
+    projectEntityMapper: ProjectTypeOrmEntityMapperService,
+  ) {
+    super(databaseClient, ProjectTypeOrmEntity, projectEntityMapper);
   }
 
   public async findByCreatorId(creatorId: string): Promise<ProjectModel[]> {
     const projectEntities = await this.internalRepository.find({
       creatorId: creatorId,
     });
-    const projectModels = projectEntities.map(p => this.toModel(p));
+    const projectModels = projectEntities.map(p =>
+      this.entityMapper.toModel(p),
+    );
     return projectModels;
   }
 
@@ -33,41 +39,5 @@ export class ProjectTypeOrmRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new ProjectNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected toModel(projectEntity: ProjectTypeOrmEntity): ProjectModel {
-    return new ProjectModel(
-      projectEntity.id,
-      projectEntity.createdAt,
-      projectEntity.updatedAt,
-      projectEntity.title,
-      projectEntity.description,
-      projectEntity.creatorId,
-      projectEntity.state,
-      projectEntity.consensuality,
-      projectEntity.contributionVisibility,
-      projectEntity.skipManagerReview,
-    );
-  }
-
-  /**
-   *
-   */
-  protected toEntity(projectModel: ProjectModel): ProjectTypeOrmEntity {
-    return new ProjectTypeOrmEntity(
-      projectModel.id,
-      projectModel.createdAt,
-      projectModel.updatedAt,
-      projectModel.title,
-      projectModel.description,
-      projectModel.creatorId,
-      projectModel.state,
-      projectModel.consensuality,
-      projectModel.contributionVisibility,
-      projectModel.skipManagerReview,
-    );
   }
 }

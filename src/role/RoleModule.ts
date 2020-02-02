@@ -13,6 +13,8 @@ import { TokenModule } from 'token';
 import { EventModule } from 'event';
 import { RoleApplicationService } from 'role/application/RoleApplicationService';
 import { RoleDomainService } from 'role/domain/RoleDomainService';
+import { RoleTypeOrmEntityMapperService } from 'role/infrastructure/RoleTypeOrmEntityMapperService';
+import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerReviewTypeOrmEntityMapperService';
 
 /**
  * Role Module
@@ -39,6 +41,8 @@ import { RoleDomainService } from 'role/domain/RoleDomainService';
     },
     RoleApplicationService,
     RoleDomainService,
+    RoleTypeOrmEntityMapperService,
+    PeerReviewTypeOrmEntityMapperService,
   ],
   exports: [ROLE_REPOSITORY, PEER_REVIEW_REPOSITORY],
 })

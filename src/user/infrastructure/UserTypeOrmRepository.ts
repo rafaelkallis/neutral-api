@@ -5,6 +5,7 @@ import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { DatabaseClientService } from 'database';
 import { UserModel } from 'user/domain/UserModel';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
+import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
 
 /**
  * TypeOrm User Repository
@@ -16,8 +17,11 @@ export class TypeOrmUserRepository
   /**
    *
    */
-  public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, UserTypeOrmEntity);
+  public constructor(
+    databaseClient: DatabaseClientService,
+    userTypeOrmEntityMapper: UserTypeOrmEntityMapperService,
+  ) {
+    super(databaseClient, UserTypeOrmEntity, userTypeOrmEntityMapper);
   }
 
   /**

@@ -15,7 +15,7 @@ import {
   PEER_REVIEW_REPOSITORY,
   ROLE_REPOSITORY,
 } from 'role';
-import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
+import { ModelFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectState } from 'project/domain/ProjectModel';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
@@ -24,7 +24,7 @@ jest.setTimeout(10000);
 
 describe('submit peer review (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
@@ -41,7 +41,7 @@ describe('submit peer review (e2e)', () => {
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
 
     const module = await Test.createTestingModule({
       imports: [AppModule],
@@ -54,7 +54,7 @@ describe('submit peer review (e2e)', () => {
     app = module.createNestApplication();
     await app.init();
 
-    const user = entityFaker.user();
+    const user = modelFaker.user();
     await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
     const tokenService = module.get<TokenService>(TOKEN_SERVICE);
@@ -62,15 +62,15 @@ describe('submit peer review (e2e)', () => {
     await session.post(`/auth/login/${loginToken}`);
 
     /* prepare project */
-    project = entityFaker.project(user.id);
+    project = modelFaker.project(user.id);
     project.state = ProjectState.PEER_REVIEW;
     await projectRepository.persist(project);
 
     /* prepare roles */
-    role1 = entityFaker.role(project.id, user.id);
-    role2 = entityFaker.role(project.id);
-    role3 = entityFaker.role(project.id);
-    role4 = entityFaker.role(project.id);
+    role1 = modelFaker.role(project.id, user.id);
+    role2 = modelFaker.role(project.id);
+    role3 = modelFaker.role(project.id);
+    role4 = modelFaker.role(project.id);
 
     role1.hasSubmittedPeerReviews = false;
     role2.hasSubmittedPeerReviews = true;
@@ -108,7 +108,7 @@ describe('submit peer review (e2e)', () => {
         if (senderRole === receiverRole) {
           continue;
         }
-        const peerReview = entityFaker.peerReview(
+        const peerReview = modelFaker.peerReview(
           senderRole.id,
           receiverRole.id,
         );

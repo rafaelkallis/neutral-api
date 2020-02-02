@@ -7,14 +7,14 @@ import {
 } from 'project';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleRepository } from 'role/domain/RoleRepository';
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { MockEventPublisherService } from 'event';
 import { RoleDomainService } from 'role/domain/RoleDomainService';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 import { MockEmailService } from 'email';
 
 describe('role domain service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
   let eventPublisher: MockEventPublisherService;
@@ -30,7 +30,7 @@ describe('role domain service', () => {
   let roles: RoleModel[];
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
 
     eventPublisher = new MockEventPublisherService();
@@ -45,11 +45,11 @@ describe('role domain service', () => {
       roleRepository,
       emailService,
     );
-    ownerUser = entityFaker.user();
+    ownerUser = modelFaker.user();
     await userRepository.persist(ownerUser);
-    project = entityFaker.project(ownerUser.id);
+    project = modelFaker.project(ownerUser.id);
     await projectRepository.persist(project);
-    roles = [entityFaker.role(project.id), entityFaker.role(project.id)];
+    roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
     await roleRepository.persist(...roles);
   });
 
@@ -136,7 +136,7 @@ describe('role domain service', () => {
     let assigneeUser: UserModel;
 
     beforeEach(async () => {
-      assigneeUser = entityFaker.user();
+      assigneeUser = modelFaker.user();
       await userRepository.persist(assigneeUser);
       jest.spyOn(roleRepository, 'persist');
       jest.spyOn(emailService, 'sendUnregisteredUserNewAssignmentEmail');
@@ -168,7 +168,7 @@ describe('role domain service', () => {
     });
 
     test('should fail if user already assigned to another role in same project', async () => {
-      const role3 = entityFaker.role(project.id, assigneeUser.id);
+      const role3 = modelFaker.role(project.id, assigneeUser.id);
       await roleRepository.persist(role3);
       roles.push(role3);
       await expect(
@@ -181,7 +181,7 @@ describe('role domain service', () => {
     let assigneeUser: UserModel;
 
     beforeEach(async () => {
-      assigneeUser = entityFaker.user();
+      assigneeUser = modelFaker.user();
       await userRepository.persist(assigneeUser);
       jest.spyOn(userRepository, 'persist');
       jest.spyOn(roleRepository, 'persist');

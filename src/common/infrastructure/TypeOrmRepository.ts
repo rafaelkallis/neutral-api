@@ -3,11 +3,12 @@ import {
   ObjectType,
   EntityManager,
 } from 'typeorm';
-import { Repository } from 'common/repositories/repository';
-import { TypeOrmEntity } from 'common/entities/typeorm-entity';
+import { Repository } from 'common/domain/Repository';
+import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
 import { DatabaseClientService } from 'database';
 import ObjectID from 'bson-objectid';
-import { AbstractModel } from 'common/abstract.model';
+import { AbstractModel } from 'common/domain/AbstractModel';
+import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
 
 /**
  * TypeOrm Repository
@@ -18,13 +19,16 @@ export abstract class TypeOrmRepository<
 > implements Repository<TModel> {
   protected readonly entityManager: EntityManager;
   protected readonly internalRepository: InternalRepository<TEntity>;
+  protected readonly entityMapper: TypeOrmEntityMapperService<TModel, TEntity>;
 
   public constructor(
     databaseClient: DatabaseClientService,
     Entity: ObjectType<TEntity>,
+    typeOrmEntityMapper: TypeOrmEntityMapperService<TModel, TEntity>,
   ) {
     this.entityManager = databaseClient.getEntityManager();
     this.internalRepository = this.entityManager.getRepository(Entity);
+    this.entityMapper = typeOrmEntityMapper;
   }
 
   /**
@@ -41,7 +45,7 @@ export abstract class TypeOrmRepository<
     for (const model of models) {
       model.validate();
     }
-    const entities = models.map(m => this.toEntity(m));
+    const entities = models.map(m => this.entityMapper.toEntity(m));
     await this.entityManager.save(entities);
   }
 
@@ -58,7 +62,7 @@ export abstract class TypeOrmRepository<
       builder = builder.andWhere('id > :afterId', { afterId });
     }
     const entities = await builder.getMany();
-    const models = entities.map(e => this.toModel(e));
+    const models = entities.map(e => this.entityMapper.toModel(e));
     return models;
   }
 
@@ -70,7 +74,7 @@ export abstract class TypeOrmRepository<
     if (!entity) {
       this.throwEntityNotFoundException();
     }
-    const model = this.toModel(entity);
+    const model = this.entityMapper.toModel(entity);
     return model;
   }
 
@@ -82,7 +86,7 @@ export abstract class TypeOrmRepository<
     if (ids.length !== entities.length) {
       this.throwEntityNotFoundException();
     }
-    const models = entities.map(e => this.toModel(e));
+    const models = entities.map(e => this.entityMapper.toModel(e));
     return models;
   }
 
@@ -106,14 +110,4 @@ export abstract class TypeOrmRepository<
    * Throw entity-specific not-found exception
    */
   protected abstract throwEntityNotFoundException(): never;
-
-  /**
-   * Used to map a domain model to a persistence entity.
-   */
-  protected abstract toEntity(model: TModel): TEntity;
-
-  /**
-   * Used to map a persistence entity to a domain model.
-   */
-  protected abstract toModel(entity: TEntity): TModel;
 }

@@ -9,8 +9,7 @@ import { NotificationModel, NotificationType } from 'notification';
 import { PrimitiveFaker } from 'test';
 import { UserModel } from 'user/domain/UserModel';
 
-// TODO call ModelFaker
-export class EntityFaker {
+export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {

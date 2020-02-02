@@ -9,12 +9,12 @@ import {
 import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ValidationPipe } from 'common';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './application/AuthService';
 
-import { RefreshDto } from './dto/refresh.dto';
-import { RequestLoginDto } from './dto/request-login.dto';
-import { RequestSignupDto } from './dto/request-signup.dto';
-import { SubmitSignupDto } from './dto/submit-signup.dto';
+import { RefreshDto } from './application/dto/RefreshDto';
+import { RequestLoginDto } from './application/dto/RequestLoginDto';
+import { RequestSignupDto } from './application/dto/RequestSignupDto';
+import { SubmitSignupDto } from './application/dto/SubmitSignupDto';
 import { SessionState } from 'session/session-state';
 
 /**

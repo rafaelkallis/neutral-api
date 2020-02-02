@@ -1,5 +1,5 @@
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { NotificationSagasService } from 'notification/application/NotificationSagasService';
 import { NotificationFactoryService } from 'notification/application/NotificationFactoryService';
 import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
@@ -9,13 +9,13 @@ import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 
 describe('notification sagas', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let notificationRepository: NotificationFakeRepository;
   let notificationFactory: NotificationFactoryService;
   let notificationSagas: NotificationSagasService;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     notificationRepository = new NotificationFakeRepository();
     notificationFactory = new NotificationFactoryService(
       notificationRepository,
@@ -32,10 +32,10 @@ describe('notification sagas', () => {
   });
 
   test('existing user assigned', async () => {
-    const owner = entityFaker.user();
-    const project = entityFaker.project(owner.id);
-    const assignee = entityFaker.user();
-    const role = entityFaker.role(project.id, assignee.id);
+    const owner = modelFaker.user();
+    const project = modelFaker.project(owner.id);
+    const assignee = modelFaker.user();
+    const role = modelFaker.role(project.id, assignee.id);
     const event = new ExistingUserAssignedEvent(project, role);
 
     await notificationSagas.existingUserAssigned(event);
@@ -59,17 +59,13 @@ describe('notification sagas', () => {
   });
 
   test('peer review requested', async () => {
-    const owner = entityFaker.user();
-    const project = entityFaker.project(owner.id);
-    const assignees = [
-      entityFaker.user(),
-      entityFaker.user(),
-      entityFaker.user(),
-    ];
+    const owner = modelFaker.user();
+    const project = modelFaker.project(owner.id);
+    const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
     const roles = [
-      entityFaker.role(project.id, assignees[0].id),
-      entityFaker.role(project.id, assignees[1].id),
-      entityFaker.role(project.id, assignees[2].id),
+      modelFaker.role(project.id, assignees[0].id),
+      modelFaker.role(project.id, assignees[1].id),
+      modelFaker.role(project.id, assignees[2].id),
     ];
     const event = new ProjectPeerReviewStartedEvent(project, roles);
 
@@ -80,8 +76,8 @@ describe('notification sagas', () => {
   });
 
   test('manager review requested', async () => {
-    const owner = entityFaker.user();
-    const project = entityFaker.project(owner.id);
+    const owner = modelFaker.user();
+    const project = modelFaker.project(owner.id);
     const event = new ProjectManagerReviewStartedEvent(project);
 
     await notificationSagas.managerReviewStarted(event);
@@ -101,17 +97,13 @@ describe('notification sagas', () => {
   });
 
   test('project finished', async () => {
-    const owner = entityFaker.user();
-    const project = entityFaker.project(owner.id);
-    const assignees = [
-      entityFaker.user(),
-      entityFaker.user(),
-      entityFaker.user(),
-    ];
+    const owner = modelFaker.user();
+    const project = modelFaker.project(owner.id);
+    const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
     const roles = [
-      entityFaker.role(project.id, assignees[0].id),
-      entityFaker.role(project.id, assignees[1].id),
-      entityFaker.role(project.id, assignees[2].id),
+      modelFaker.role(project.id, assignees[0].id),
+      modelFaker.role(project.id, assignees[1].id),
+      modelFaker.role(project.id, assignees[2].id),
     ];
     const event = new ProjectFinishedEvent(project, roles);
 

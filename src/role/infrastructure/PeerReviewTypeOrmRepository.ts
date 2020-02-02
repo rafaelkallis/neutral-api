@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
 import { PeerReviewModel } from 'role/peer-review.model';
 import { PeerReviewNotFoundException } from 'role/domain/exceptions/PeerReviewNotFoundException';
+import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerReviewTypeOrmEntityMapperService';
 
 /**
  * Peer Review Repository
@@ -16,8 +17,15 @@ export class TypeOrmPeerReviewRepository
   /**
    *
    */
-  public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, PeerReviewTypeOrmEntity);
+  public constructor(
+    databaseClient: DatabaseClientService,
+    peerReviewTypeOrmEntityMapper: PeerReviewTypeOrmEntityMapperService,
+  ) {
+    super(
+      databaseClient,
+      PeerReviewTypeOrmEntity,
+      peerReviewTypeOrmEntityMapper,
+    );
   }
 
   /**
@@ -29,7 +37,9 @@ export class TypeOrmPeerReviewRepository
     const peerReviewEntities = await this.internalRepository.find({
       senderRoleId,
     });
-    const peerReviewModels = peerReviewEntities.map(e => this.toModel(e));
+    const peerReviewModels = peerReviewEntities.map(e =>
+      this.entityMapper.toModel(e),
+    );
     return peerReviewModels;
   }
 
@@ -42,7 +52,9 @@ export class TypeOrmPeerReviewRepository
     const peerReviewEntities = await this.internalRepository.find({
       receiverRoleId,
     });
-    const peerReviewModels = peerReviewEntities.map(e => this.toModel(e));
+    const peerReviewModels = peerReviewEntities.map(e =>
+      this.entityMapper.toModel(e),
+    );
     return peerReviewModels;
   }
 
@@ -51,37 +63,5 @@ export class TypeOrmPeerReviewRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new PeerReviewNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected toModel(
-    peerReviewEntity: PeerReviewTypeOrmEntity,
-  ): PeerReviewModel {
-    return new PeerReviewModel(
-      peerReviewEntity.id,
-      peerReviewEntity.createdAt,
-      peerReviewEntity.updatedAt,
-      peerReviewEntity.senderRoleId,
-      peerReviewEntity.receiverRoleId,
-      peerReviewEntity.score,
-    );
-  }
-
-  /**
-   *
-   */
-  protected toEntity(
-    peerReviewModel: PeerReviewModel,
-  ): PeerReviewTypeOrmEntity {
-    return new PeerReviewTypeOrmEntity(
-      peerReviewModel.id,
-      peerReviewModel.createdAt,
-      peerReviewModel.updatedAt,
-      peerReviewModel.senderRoleId,
-      peerReviewModel.receiverRoleId,
-      peerReviewModel.score,
-    );
   }
 }

@@ -1,12 +1,12 @@
-export { Repository } from 'common/repositories/repository';
-export { FakeRepository } from 'common/repositories/fake.repository';
-export { TypeOrmRepository } from 'common/repositories/typeorm.repository';
+export { Repository } from 'common/domain/Repository';
+export { FakeRepository } from 'common/infrastructure/FakeRepository';
+export { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
 
-export { BaseDto } from './dto/base.dto';
-export { AbstractModel } from 'common/abstract.model';
+export { BaseDto } from './application/dto/BaseDto';
+export { AbstractModel } from 'common/domain/AbstractModel';
 
-export { TypeOrmEntity } from 'common/entities/typeorm-entity';
-export { BigIntTransformer } from './entities/bigint-transformer';
+export { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+export { BigIntTransformer } from './infrastructure/BigIntTransformer';
 
 export { ValidationPipe } from './pipes/validation.pipe';
 

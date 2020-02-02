@@ -9,7 +9,7 @@ import { PeerReviewModel } from 'role/peer-review.model';
 import { RoleDto } from 'role/application/dto/RoleDto';
 import { RoleRepository } from 'role/domain/RoleRepository';
 import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { GetRolesQueryDto } from 'role/application/dto/GetRolesQueryDto';
 import { CreateRoleDto } from 'role/application/dto/CreateRoleDto';
 import { UpdateRoleDto } from 'role/application/dto/UpdateRoleDto';
@@ -22,7 +22,7 @@ import { MockEmailService } from 'email';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 
 describe('role application service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
   let eventPublisher: MockEventPublisherService;
@@ -40,7 +40,7 @@ describe('role application service', () => {
   let roles: RoleModel[];
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
 
     eventPublisher = new MockEventPublisherService();
@@ -64,11 +64,11 @@ describe('role application service', () => {
       peerReviewRepository,
     );
 
-    ownerUser = entityFaker.user();
+    ownerUser = modelFaker.user();
     await userRepository.persist(ownerUser);
-    project = entityFaker.project(ownerUser.id);
+    project = modelFaker.project(ownerUser.id);
     await projectRepository.persist(project);
-    roles = [entityFaker.role(project.id), entityFaker.role(project.id)];
+    roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
     await roleRepository.persist(...roles);
   });
 
@@ -110,7 +110,7 @@ describe('role application service', () => {
     let sentPeerReview: PeerReviewModel;
 
     beforeEach(async () => {
-      sentPeerReview = entityFaker.peerReview(roles[0].id, roles[1].id);
+      sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
       await peerReviewRepository.persist(sentPeerReview);
     });
 
@@ -156,7 +156,7 @@ describe('role application service', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await userRepository.persist(otherUser);
       await expect(
         roleApplication.createRole(otherUser, createRoleDto),
@@ -194,7 +194,7 @@ describe('role application service', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const nonOwnerUser = entityFaker.user();
+      const nonOwnerUser = modelFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
         roleApplication.updateRole(nonOwnerUser, roles[0].id, updateRoleDto),
@@ -214,7 +214,7 @@ describe('role application service', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const nonOwnerUser = entityFaker.user();
+      const nonOwnerUser = modelFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
         roleApplication.deleteRole(nonOwnerUser, roles[0].id),
@@ -228,7 +228,7 @@ describe('role application service', () => {
     let assignmentDto: AssignmentDto;
 
     beforeEach(async () => {
-      assigneeUser = entityFaker.user();
+      assigneeUser = modelFaker.user();
       await userRepository.persist(assigneeUser);
       assignmentDto = new AssignmentDto(assigneeUser.id);
       jest.spyOn(roleDomain, 'assignUser');

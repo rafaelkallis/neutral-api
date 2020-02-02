@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppController } from 'app.controller';
-import { AuthModule } from 'auth/auth.module';
+import { AuthModule } from 'auth/AuthModule';
 import { ProjectModule } from 'project/ProjectModule';
 import { RoleModule } from 'role/RoleModule';
 import { UserModule } from 'user/UserModule';

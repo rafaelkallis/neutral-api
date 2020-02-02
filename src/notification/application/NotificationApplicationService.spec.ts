@@ -2,13 +2,13 @@ import { MockEventPublisherService } from 'event';
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { NotificationDomainService } from 'notification/domain/NotificationDomainService';
 import { NotificationModel } from 'notification/domain/NotificationModel';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { UserModel } from 'user';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 
 describe('notification application service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let eventPublisher: MockEventPublisherService;
   let notificationRepository: NotificationFakeRepository;
   let notificationDomainService: NotificationDomainService;
@@ -16,7 +16,7 @@ describe('notification application service', () => {
   let user: UserModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     eventPublisher = new MockEventPublisherService();
     notificationRepository = new NotificationFakeRepository();
     notificationDomainService = new NotificationDomainService(
@@ -27,7 +27,7 @@ describe('notification application service', () => {
       notificationRepository,
       notificationDomainService,
     );
-    user = entityFaker.user();
+    user = modelFaker.user();
   });
 
   it('should be defined', () => {
@@ -39,9 +39,9 @@ describe('notification application service', () => {
 
     beforeEach(async () => {
       notifications = [
-        entityFaker.notification(user.id),
-        entityFaker.notification(user.id),
-        entityFaker.notification(user.id),
+        modelFaker.notification(user.id),
+        modelFaker.notification(user.id),
+        modelFaker.notification(user.id),
       ];
       await notificationRepository.persist(...notifications);
     });
@@ -61,7 +61,7 @@ describe('notification application service', () => {
     let notification: NotificationModel;
 
     beforeEach(async () => {
-      notification = entityFaker.notification(user.id);
+      notification = modelFaker.notification(user.id);
       notification.isRead = false;
       await notificationRepository.persist(notification);
       jest.spyOn(notificationDomainService, 'markRead');
@@ -75,7 +75,7 @@ describe('notification application service', () => {
     });
 
     test('should fail if authenticated user tries to mark a notification owner by another user as read', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await expect(
         notificationApplicationService.markRead(otherUser, notification.id),
       ).rejects.toThrow();

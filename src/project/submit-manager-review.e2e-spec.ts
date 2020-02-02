@@ -8,21 +8,21 @@ import {
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project/domain/ProjectRepository';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { ProjectState } from 'project/domain/ProjectModel';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
 
 describe('submit manager review (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let session: request.SuperTest<request.Test>;
   let project: ProjectModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -30,7 +30,7 @@ describe('submit manager review (e2e)', () => {
     projectRepository = module.get(PROJECT_REPOSITORY);
     app = module.createNestApplication();
     await app.init();
-    const user = entityFaker.user();
+    const user = modelFaker.user();
     await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
     const tokenService = module.get<TokenService>(TOKEN_SERVICE);
@@ -38,7 +38,7 @@ describe('submit manager review (e2e)', () => {
     await session.post(`/auth/login/${loginToken}`);
 
     /* prepare project */
-    project = entityFaker.project(user.id);
+    project = modelFaker.project(user.id);
     project.state = ProjectState.MANAGER_REVIEW;
     await projectRepository.persist(project);
   });
@@ -67,7 +67,7 @@ describe('submit manager review (e2e)', () => {
   });
 
   test('should fail if authenticated user is not the project owner', async () => {
-    const otherUser = entityFaker.user();
+    const otherUser = modelFaker.user();
     await userRepository.persist(otherUser);
     project.creatorId = otherUser.id;
     await projectRepository.persist(project);

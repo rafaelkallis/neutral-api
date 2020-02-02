@@ -9,14 +9,14 @@ import {
   PROJECT_REPOSITORY,
 } from 'project/domain/ProjectRepository';
 import { RoleRepository, ROLE_REPOSITORY, RoleModel } from 'role';
-import { EntityFaker, PrimitiveFaker, TestUtils } from 'test';
+import { ModelFaker, PrimitiveFaker, TestUtils } from 'test';
 import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { INestApplication } from '@nestjs/common';
 
 describe('ProjectController (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
@@ -26,7 +26,7 @@ describe('ProjectController (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
@@ -36,7 +36,7 @@ describe('ProjectController (e2e)', () => {
     roleRepository = module.get(ROLE_REPOSITORY);
     app = module.createNestApplication();
     await app.init();
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TOKEN_SERVICE);
@@ -51,9 +51,9 @@ describe('ProjectController (e2e)', () => {
   describe('/projects (GET)', () => {
     test('happy path', async () => {
       const projects = [
-        entityFaker.project(user.id),
-        entityFaker.project(user.id),
-        entityFaker.project(user.id),
+        modelFaker.project(user.id),
+        modelFaker.project(user.id),
+        modelFaker.project(user.id),
       ];
       await projectRepository.persist(...projects);
       const response = await session
@@ -75,7 +75,7 @@ describe('ProjectController (e2e)', () => {
     let project: ProjectModel;
 
     beforeEach(async () => {
-      project = entityFaker.project(user.id);
+      project = modelFaker.project(user.id);
       project.consensuality = 0.8;
       await projectRepository.persist(project);
     });
@@ -118,7 +118,7 @@ describe('ProjectController (e2e)', () => {
     let title: string;
 
     beforeEach(async () => {
-      project = entityFaker.project(user.id);
+      project = modelFaker.project(user.id);
       await projectRepository.persist(project);
       title = primitiveFaker.words();
     });
@@ -135,7 +135,7 @@ describe('ProjectController (e2e)', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await projectRepository.persist(project);
@@ -160,14 +160,14 @@ describe('ProjectController (e2e)', () => {
     let roles: RoleModel[];
 
     beforeEach(async () => {
-      project = entityFaker.project(user.id);
+      project = modelFaker.project(user.id);
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
       roles = [
-        entityFaker.role(project.id, user.id),
-        entityFaker.role(project.id, user.id),
-        entityFaker.role(project.id, user.id),
-        entityFaker.role(project.id, user.id),
+        modelFaker.role(project.id, user.id),
+        modelFaker.role(project.id, user.id),
+        modelFaker.role(project.id, user.id),
+        modelFaker.role(project.id, user.id),
       ];
       await roleRepository.persist(...roles);
     });
@@ -184,7 +184,7 @@ describe('ProjectController (e2e)', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await projectRepository.persist(project);
@@ -217,7 +217,7 @@ describe('ProjectController (e2e)', () => {
     let project: ProjectModel;
 
     beforeEach(async () => {
-      project = entityFaker.project(user.id);
+      project = modelFaker.project(user.id);
       await projectRepository.persist(project);
     });
 

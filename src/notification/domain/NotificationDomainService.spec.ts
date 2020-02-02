@@ -2,26 +2,26 @@ import { MockEventPublisherService } from 'event';
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { NotificationDomainService } from 'notification/domain/NotificationDomainService';
 import { NotificationModel } from 'notification/domain/NotificationModel';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { UserModel } from 'user';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 
 describe('notification domain service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let eventPublisher: MockEventPublisherService;
   let notificationRepository: NotificationFakeRepository;
   let notificationDomainService: NotificationDomainService;
   let user: UserModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     eventPublisher = new MockEventPublisherService();
     notificationRepository = new NotificationFakeRepository();
     notificationDomainService = new NotificationDomainService(
       eventPublisher,
       notificationRepository,
     );
-    user = entityFaker.user();
+    user = modelFaker.user();
   });
 
   it('should be defined', () => {
@@ -32,7 +32,7 @@ describe('notification domain service', () => {
     let notification: NotificationModel;
 
     beforeEach(async () => {
-      notification = entityFaker.notification(user.id);
+      notification = modelFaker.notification(user.id);
       notification.isRead = false;
       await notificationRepository.persist(notification);
       jest.spyOn(notificationRepository, 'persist');

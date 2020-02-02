@@ -1,13 +1,13 @@
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { UserDto } from 'user/application/dto/UserDto';
 import { UserModel } from 'user/domain/UserModel';
 
 describe('user dto', () => {
-  let entityFaker: EntityFaker;
+  let entityFaker: ModelFaker;
   let user: UserModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    entityFaker = new ModelFaker();
     user = entityFaker.user();
   });
 

@@ -1,19 +1,19 @@
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { MockEmailService } from 'email/mock-email.service';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
-import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
-import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
+import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
+import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
 
 describe('email sagas', () => {
   let primitiveFaker: PrimitiveFaker;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let emailService: MockEmailService;
   let emailSagas: EmailSagasService;
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     emailService = new MockEmailService();
     emailSagas = new EmailSagasService(emailService);
   });
@@ -24,7 +24,7 @@ describe('email sagas', () => {
 
   test('email change requested', async () => {
     jest.spyOn(emailService, 'sendEmailChangeEmail');
-    const user = entityFaker.user();
+    const user = modelFaker.user();
     const email = primitiveFaker.email();
     const emailChangeMagicLink = '';
     const event = new EmailChangeRequestedEvent(
@@ -43,7 +43,7 @@ describe('email sagas', () => {
 
   test('login requested', async () => {
     jest.spyOn(emailService, 'sendLoginEmail');
-    const user = entityFaker.user();
+    const user = modelFaker.user();
     const signinMagicLink = '';
     const event = new SigninRequestedEvent(user, signinMagicLink);
 

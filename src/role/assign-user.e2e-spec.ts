@@ -11,14 +11,14 @@ import {
   PROJECT_REPOSITORY,
 } from 'project';
 import { RoleModel, RoleRepository } from 'role';
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 import { EmailService, EMAIL_SERVICE } from 'email';
 
 describe('assign user to role', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let tokenService: TokenService;
   let userRepository: UserRepository;
@@ -31,7 +31,7 @@ describe('assign user to role', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
@@ -45,11 +45,11 @@ describe('assign user to role', () => {
     app = module.createNestApplication();
     await app.init();
 
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
-    project = entityFaker.project(user.id);
+    project = modelFaker.project(user.id);
     await projectRepository.persist(project);
-    role = entityFaker.role(project.id);
+    role = modelFaker.role(project.id);
     await roleRepository.persist(role);
     session = request.agent(app.getHttpServer());
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
@@ -66,7 +66,7 @@ describe('assign user to role', () => {
     let assigneeEmail: string;
 
     beforeEach(async () => {
-      assignee = entityFaker.user();
+      assignee = modelFaker.user();
       assigneeId = assignee.id;
       assigneeEmail = assignee.email;
       await userRepository.persist(assignee);
@@ -120,7 +120,7 @@ describe('assign user to role', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await projectRepository.persist(project);
@@ -131,7 +131,7 @@ describe('assign user to role', () => {
     });
 
     test('should fail is user is already assigned to another role of the same project', async () => {
-      const anotherRole = entityFaker.role(project.id, assignee.id);
+      const anotherRole = modelFaker.role(project.id, assignee.id);
       await roleRepository.persist(anotherRole);
       const response = await session
         .post(`/roles/${role.id}/assign`)

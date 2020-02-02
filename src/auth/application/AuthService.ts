@@ -1,19 +1,19 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TokenAlreadyUsedException } from 'common';
 import { UserRepository, USER_REPOSITORY, UserModel } from 'user';
-import { RefreshDto } from 'auth/dto/refresh.dto';
-import { RequestLoginDto } from 'auth/dto/request-login.dto';
-import { RequestSignupDto } from 'auth/dto/request-signup.dto';
-import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
-import { EmailAlreadyUsedException } from 'auth/exceptions/email-already-used.exception';
+import { RefreshDto } from 'auth/application/dto/RefreshDto';
+import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
+import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
+import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
+import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { ConfigService, InjectConfig } from 'config';
 import { SessionState } from 'session/session-state';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { EventPublisherService, InjectEventPublisher } from 'event';
-import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
-import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
-import { SignupEvent } from 'auth/events/signup.event';
-import { SigninEvent } from 'auth/events/signin.event';
+import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
+import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
+import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
+import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
 import { UserDto } from 'user/application/dto/UserDto';
 
 @Injectable()

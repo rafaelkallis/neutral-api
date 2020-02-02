@@ -14,6 +14,8 @@ import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmR
 import { EventModule } from 'event';
 import { DatabaseModule } from 'database';
 import { TokenModule } from 'token';
+import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
+import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 
 /**
  * Project Module
@@ -30,6 +32,8 @@ import { TokenModule } from 'token';
     ProjectDomainService,
     ContributionsModelService,
     ConsensualityModelService,
+    ProjectTypeOrmEntityMapperService,
+    ProjectModelFactoryService,
   ],
   exports: [PROJECT_REPOSITORY],
 })

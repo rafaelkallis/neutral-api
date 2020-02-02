@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app.module';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 import { TOKEN_SERVICE } from 'token';
 import {
   NotificationRepository,
@@ -13,14 +13,14 @@ import { NotificationModel } from 'notification/domain/NotificationModel';
 
 describe('notifications (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let userRepository: UserRepository;
   let notificationRepository: NotificationRepository;
   let user: UserModel;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -31,7 +31,7 @@ describe('notifications (e2e)', () => {
     userRepository = module.get(USER_REPOSITORY);
     notificationRepository = module.get(NOTIFICATION_REPOSITORY);
 
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
 
     session = request.agent(app.getHttpServer());
@@ -49,9 +49,9 @@ describe('notifications (e2e)', () => {
 
     beforeEach(async () => {
       notifications = [
-        entityFaker.notification(user.id),
-        entityFaker.notification(user.id),
-        entityFaker.notification(user.id),
+        modelFaker.notification(user.id),
+        modelFaker.notification(user.id),
+        modelFaker.notification(user.id),
       ];
       await notificationRepository.persist(...notifications);
     });
@@ -78,7 +78,7 @@ describe('notifications (e2e)', () => {
     let notification: NotificationModel;
 
     beforeEach(async () => {
-      notification = entityFaker.notification(user.id);
+      notification = modelFaker.notification(user.id);
       notification.isRead = false;
       await notificationRepository.persist(notification);
     });

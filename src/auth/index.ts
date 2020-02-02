@@ -1,1 +1,1 @@
-export { AuthGuard, AuthUser } from 'auth/guards/auth.guard';
+export { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';

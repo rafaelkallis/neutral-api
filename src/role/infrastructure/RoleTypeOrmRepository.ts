@@ -5,6 +5,7 @@ import { DatabaseClientService } from 'database';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleRepository } from 'role/domain/RoleRepository';
 import { RoleNotFoundException } from 'role/application/exceptions/RoleNotFoundException';
+import { RoleTypeOrmEntityMapperService } from 'role/infrastructure/RoleTypeOrmEntityMapperService';
 
 /**
  * TypeOrm Role Repository
@@ -16,8 +17,11 @@ export class TypeOrmRoleRepository
   /**
    *
    */
-  public constructor(databaseClient: DatabaseClientService) {
-    super(databaseClient, RoleTypeOrmEntity);
+  public constructor(
+    databaseClient: DatabaseClientService,
+    roleEntityMapper: RoleTypeOrmEntityMapperService,
+  ) {
+    super(databaseClient, RoleTypeOrmEntity, roleEntityMapper);
   }
 
   /**
@@ -25,7 +29,7 @@ export class TypeOrmRoleRepository
    */
   public async findByProjectId(projectId: string): Promise<RoleModel[]> {
     const roleEntities = await this.internalRepository.find({ projectId });
-    const roleModels = roleEntities.map(e => this.toModel(e));
+    const roleModels = roleEntities.map(e => this.entityMapper.toModel(e));
     return roleModels;
   }
 
@@ -34,7 +38,7 @@ export class TypeOrmRoleRepository
    */
   public async findByAssigneeId(assigneeId: string): Promise<RoleModel[]> {
     const roleEntities = await this.internalRepository.find({ assigneeId });
-    const roleModels = roleEntities.map(e => this.toModel(e));
+    const roleModels = roleEntities.map(e => this.entityMapper.toModel(e));
     return roleModels;
   }
 
@@ -43,39 +47,5 @@ export class TypeOrmRoleRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new RoleNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected toModel(roleTypeOrmEntity: RoleTypeOrmEntity): RoleModel {
-    return new RoleModel(
-      roleTypeOrmEntity.id,
-      roleTypeOrmEntity.createdAt,
-      roleTypeOrmEntity.updatedAt,
-      roleTypeOrmEntity.projectId,
-      roleTypeOrmEntity.assigneeId,
-      roleTypeOrmEntity.title,
-      roleTypeOrmEntity.description,
-      roleTypeOrmEntity.contribution,
-      roleTypeOrmEntity.hasSubmittedPeerReviews,
-    );
-  }
-
-  /**
-   *
-   */
-  protected toEntity(roleModel: RoleModel): RoleTypeOrmEntity {
-    return new RoleTypeOrmEntity(
-      roleModel.id,
-      roleModel.createdAt,
-      roleModel.updatedAt,
-      roleModel.projectId,
-      roleModel.assigneeId,
-      roleModel.title,
-      roleModel.description,
-      roleModel.contribution,
-      roleModel.hasSubmittedPeerReviews,
-    );
   }
 }

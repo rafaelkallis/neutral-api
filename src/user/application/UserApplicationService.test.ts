@@ -1,4 +1,4 @@
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
@@ -12,7 +12,7 @@ import { MockEventPublisherService } from 'event';
 import { UserModel } from 'user/domain/UserModel';
 
 describe('user service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: ConfigService;
   let eventPublisher: MockEventPublisherService;
@@ -24,7 +24,7 @@ describe('user service', () => {
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
@@ -40,7 +40,7 @@ describe('user service', () => {
       userDomainService,
     );
 
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
   });
 
@@ -55,7 +55,7 @@ describe('user service', () => {
 
     beforeEach(async () => {
       query = new GetUsersQueryDto();
-      users = [entityFaker.user(), entityFaker.user(), entityFaker.user()];
+      users = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
       for (const user of users) {
         user.firstName += 'ann';
       }
@@ -99,7 +99,7 @@ describe('user service', () => {
     });
 
     test('should not expose email of another user', async () => {
-      const anotherUser = entityFaker.user();
+      const anotherUser = modelFaker.user();
       await userRepository.persist(anotherUser);
       const expectedAnotherUserDto = UserDto.builder()
         .user(anotherUser)

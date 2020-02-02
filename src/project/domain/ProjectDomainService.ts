@@ -42,6 +42,7 @@ import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/ProjectManagerReviewFinishedEvent';
+import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
 
 export interface CreateProjectOptions {
   title: string;
@@ -63,6 +64,7 @@ export class ProjectDomainService {
   private readonly peerReviewRepository: PeerReviewRepository;
   private readonly contributionsModelService: ContributionsModelService;
   private readonly consensualityModelService: ConsensualityModelService;
+  private readonly projectModelFactory: ProjectModelFactoryService;
 
   public constructor(
     @InjectEventPublisher() eventPublisher: EventPublisherService,
@@ -71,6 +73,7 @@ export class ProjectDomainService {
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
     contributionsModelService: ContributionsModelService,
     consensualityModelService: ConsensualityModelService,
+    projectModelFactory: ProjectModelFactoryService,
   ) {
     this.eventPublisher = eventPublisher;
     this.projectRepository = projectRepository;
@@ -78,6 +81,7 @@ export class ProjectDomainService {
     this.peerReviewRepository = peerReviewRepository;
     this.contributionsModelService = contributionsModelService;
     this.consensualityModelService = consensualityModelService;
+    this.projectModelFactory = projectModelFactory;
   }
 
   /**
@@ -87,31 +91,10 @@ export class ProjectDomainService {
     projectOptions: CreateProjectOptions,
     creator: UserModel,
   ): Promise<ProjectModel> {
-    // TODO needs factory!
-    const projectId = this.projectRepository.createId();
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    const title = projectOptions.title;
-    const description = projectOptions.description;
-    const creatorId = creator.id;
-    const state = ProjectState.FORMATION;
-    const consensuality = null;
-    const contributionVisibility =
-      projectOptions.contributionVisibility || ContributionVisibility.SELF;
-    const skipManagerReview =
-      projectOptions.skipManagerReview || SkipManagerReview.NO;
-    const project = new ProjectModel(
-      projectId,
-      createdAt,
-      updatedAt,
-      title,
-      description,
-      creatorId,
-      state,
-      consensuality,
-      contributionVisibility,
-      skipManagerReview,
-    );
+    const project = this.projectModelFactory.createProject({
+      ...projectOptions,
+      creatorId: creator.id,
+    });
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
       new ProjectCreatedEvent(project, creator),

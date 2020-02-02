@@ -11,13 +11,13 @@ import {
   PROJECT_REPOSITORY,
 } from 'project';
 import { RoleModel, RoleRepository } from 'role';
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 
 describe('roles (e2e)', () => {
   let app: INestApplication;
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
@@ -29,7 +29,7 @@ describe('roles (e2e)', () => {
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -41,11 +41,11 @@ describe('roles (e2e)', () => {
     app = module.createNestApplication();
     await app.init();
 
-    user = entityFaker.user();
+    user = modelFaker.user();
     await userRepository.persist(user);
-    project = entityFaker.project(user.id);
+    project = modelFaker.project(user.id);
     await projectRepository.persist(project);
-    role = entityFaker.role(project.id);
+    role = modelFaker.role(project.id);
     await roleRepository.persist(role);
     session = request.agent(app.getHttpServer());
     tokenService = module.get(TOKEN_SERVICE);
@@ -160,7 +160,7 @@ describe('roles (e2e)', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = entityFaker.user();
+      const otherUser = modelFaker.user();
       await userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await projectRepository.persist(project);

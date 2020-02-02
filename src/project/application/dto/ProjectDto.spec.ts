@@ -1,19 +1,19 @@
 import { UserModel } from 'user';
 import { ProjectModel } from 'project';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 
 describe('project dto', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let owner: UserModel;
   let user: UserModel;
   let project: ProjectModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
-    owner = entityFaker.user();
-    user = entityFaker.user();
-    project = entityFaker.project(owner.id);
+    modelFaker = new ModelFaker();
+    owner = modelFaker.user();
+    user = modelFaker.user();
+    project = modelFaker.project(owner.id);
   });
 
   test('general', () => {

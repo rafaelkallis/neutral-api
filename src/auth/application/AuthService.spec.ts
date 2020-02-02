@@ -1,22 +1,22 @@
 import { UserModel, UserRepository, UserFakeRepository } from 'user';
-import { EntityFaker, PrimitiveFaker } from 'test';
-import { AuthService } from 'auth/services/auth.service';
-import { RefreshDto } from 'auth/dto/refresh.dto';
-import { RequestLoginDto } from 'auth/dto/request-login.dto';
-import { RequestSignupDto } from 'auth/dto/request-signup.dto';
-import { SubmitSignupDto } from 'auth/dto/submit-signup.dto';
+import { ModelFaker, PrimitiveFaker } from 'test';
+import { AuthService } from 'auth/application/AuthService';
+import { RefreshDto } from 'auth/application/dto/RefreshDto';
+import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
+import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
+import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
 import { MockConfigService } from 'config';
 import { MockTokenService } from 'token';
 import { MockEventPublisherService } from 'event';
-import { SignupRequestedEvent } from 'auth/events/signup-requested.event';
-import { SigninEvent } from 'auth/events/signin.event';
-import { SigninRequestedEvent } from 'auth/events/signin-requested.event';
-import { SignupEvent } from 'auth/events/signup.event';
+import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
+import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
+import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
+import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
 
 describe('auth service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
   let config: MockConfigService;
@@ -25,7 +25,7 @@ describe('auth service', () => {
   let tokenService: MockTokenService;
 
   beforeEach(() => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
@@ -48,7 +48,7 @@ describe('auth service', () => {
     let user: UserModel;
 
     beforeEach(async () => {
-      user = entityFaker.user();
+      user = modelFaker.user();
       await userRepository.persist(user);
       config.set('FRONTEND_URL', 'https://example.com');
     });
@@ -69,7 +69,7 @@ describe('auth service', () => {
     let session: SessionState;
 
     beforeEach(async () => {
-      user = entityFaker.user();
+      user = modelFaker.user();
       await userRepository.persist(user);
       loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
       session = new MockSessionState();
@@ -148,7 +148,7 @@ describe('auth service', () => {
     });
 
     test('email already used', async () => {
-      const user = entityFaker.user();
+      const user = modelFaker.user();
       user.email = email;
       await userRepository.persist(user);
       await expect(
@@ -162,7 +162,7 @@ describe('auth service', () => {
     let refreshToken: string;
 
     beforeEach(() => {
-      user = entityFaker.user();
+      user = modelFaker.user();
       refreshToken = tokenService.newRefreshToken(user.id);
     });
 

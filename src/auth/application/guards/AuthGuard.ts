@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import { UnauthorizedUserException } from 'auth/exceptions/unauthorized-user.exception';
+import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'session';
 import { TOKEN_SERVICE, TokenService } from 'token';
 

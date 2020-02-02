@@ -14,7 +14,7 @@ import {
   FakeRoleRepository,
   FakePeerReviewRepository,
 } from 'role';
-import { EntityFaker, PrimitiveFaker } from 'test';
+import { ModelFaker, PrimitiveFaker } from 'test';
 import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
 import { MockEventPublisherService } from 'event';
 import {
@@ -22,9 +22,10 @@ import {
   CreateProjectOptions,
   UpdateProjectOptions,
 } from 'project/domain/ProjectDomainService';
+import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
 
 describe('project domain service', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
   let eventPublisher: MockEventPublisherService;
@@ -34,13 +35,14 @@ describe('project domain service', () => {
   let peerReviewRepository: PeerReviewRepository;
   let contributionsModelService: ContributionsModelService;
   let consensualityModelService: ConsensualityModelService;
+  let projectModelFactory: ProjectModelFactoryService;
   let projectDomainService: ProjectDomainService;
   let creatorUser: UserModel;
   let project: ProjectModel;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
 
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
@@ -49,6 +51,7 @@ describe('project domain service', () => {
     peerReviewRepository = new FakePeerReviewRepository();
     contributionsModelService = new ContributionsModelService();
     consensualityModelService = new ConsensualityModelService();
+    projectModelFactory = new ProjectModelFactoryService();
     projectDomainService = new ProjectDomainService(
       eventPublisher,
       projectRepository,
@@ -56,11 +59,12 @@ describe('project domain service', () => {
       peerReviewRepository,
       contributionsModelService,
       consensualityModelService,
+      projectModelFactory,
     );
 
-    creatorUser = entityFaker.user();
+    creatorUser = modelFaker.user();
     await userRepository.persist(creatorUser);
-    project = entityFaker.project(creatorUser.id);
+    project = modelFaker.project(creatorUser.id);
     await projectRepository.persist(project);
   });
 
@@ -134,9 +138,9 @@ describe('project domain service', () => {
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
-      role1 = entityFaker.role(project.id, creatorUser.id);
-      role2 = entityFaker.role(project.id, creatorUser.id);
-      role3 = entityFaker.role(project.id, creatorUser.id);
+      role1 = modelFaker.role(project.id, creatorUser.id);
+      role2 = modelFaker.role(project.id, creatorUser.id);
+      role3 = modelFaker.role(project.id, creatorUser.id);
       await roleRepository.persist(role1, role2, role3);
       jest.spyOn(roleRepository, 'findByProjectId');
       jest.spyOn(projectRepository, 'persist');
@@ -189,10 +193,10 @@ describe('project domain service', () => {
       project.state = ProjectState.PEER_REVIEW;
       await projectRepository.persist(project);
       roles = [
-        entityFaker.role(project.id, creatorUser.id),
-        entityFaker.role(project.id),
-        entityFaker.role(project.id),
-        entityFaker.role(project.id),
+        modelFaker.role(project.id, creatorUser.id),
+        modelFaker.role(project.id),
+        modelFaker.role(project.id),
+        modelFaker.role(project.id),
       ];
       roles[0].hasSubmittedPeerReviews = false;
       roles[1].hasSubmittedPeerReviews = true;
@@ -209,7 +213,7 @@ describe('project domain service', () => {
           if (senderRole === roles[0]) {
             continue;
           }
-          const peerReview = entityFaker.peerReview(
+          const peerReview = modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
           );

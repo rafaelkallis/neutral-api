@@ -9,6 +9,7 @@ import { TokenModule } from 'token';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { UserDomainService } from 'user/domain/UserDomainService';
 import { EventModule } from 'event';
+import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
 
 /**
  * User Module
@@ -25,6 +26,7 @@ import { EventModule } from 'event';
   providers: [
     UserApplicationService,
     UserDomainService,
+    UserTypeOrmEntityMapperService,
     { provide: USER_REPOSITORY, useClass: TypeOrmUserRepository },
   ],
   exports: [USER_REPOSITORY],

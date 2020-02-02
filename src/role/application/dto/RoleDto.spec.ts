@@ -2,28 +2,28 @@ import { UserModel } from 'user';
 import { ProjectModel, ProjectState, ContributionVisibility } from 'project';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleDto } from 'role/application/dto/RoleDto';
-import { EntityFaker } from 'test';
+import { ModelFaker } from 'test';
 
 describe('role dto', () => {
-  let entityFaker: EntityFaker;
+  let modelFaker: ModelFaker;
   let users: Record<string, UserModel>;
   let role: RoleModel;
   let roles: RoleModel[];
   let project: ProjectModel;
 
   beforeEach(async () => {
-    entityFaker = new EntityFaker();
+    modelFaker = new ModelFaker();
     users = {
-      owner: entityFaker.user(),
-      assignee: entityFaker.user(),
-      projectUser: entityFaker.user(),
-      publicUser: entityFaker.user(),
+      owner: modelFaker.user(),
+      assignee: modelFaker.user(),
+      projectUser: modelFaker.user(),
+      publicUser: modelFaker.user(),
     };
-    project = entityFaker.project(users.owner.id);
+    project = modelFaker.project(users.owner.id);
     project.state = ProjectState.FINISHED;
     roles = [
-      entityFaker.role(project.id, users.assignee.id),
-      entityFaker.role(project.id, users.projectUser.id),
+      modelFaker.role(project.id, users.assignee.id),
+      modelFaker.role(project.id, users.projectUser.id),
     ];
     role = roles[0];
     role.hasSubmittedPeerReviews = true;

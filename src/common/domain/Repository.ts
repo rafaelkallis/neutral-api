@@ -1,4 +1,4 @@
-import { AbstractModel } from 'common/abstract.model';
+import { AbstractModel } from 'common/domain/AbstractModel';
 
 /**
  * Repository
