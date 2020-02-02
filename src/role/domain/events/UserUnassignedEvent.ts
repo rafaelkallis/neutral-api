@@ -1,5 +1,5 @@
 import { AbstractEvent } from 'event';
-import { RoleModel } from 'role/role.model';
+import { RoleModel } from 'role/domain/RoleModel';
 import { ProjectModel } from 'project';
 
 /**

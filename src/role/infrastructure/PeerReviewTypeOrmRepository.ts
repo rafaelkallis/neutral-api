@@ -1,10 +1,10 @@
-import { PeerReviewTypeOrmEntity } from 'role/entities/peer-review-typeorm-entity';
+import { PeerReviewTypeOrmEntity } from 'role/infrastructure/PeerReviewTypeOrmEntity';
 import { TypeOrmRepository } from 'common';
-import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
+import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
 import { PeerReviewModel } from 'role/peer-review.model';
-import { PeerReviewNotFoundException } from 'role/exceptions/peer-review-not-found.exception';
+import { PeerReviewNotFoundException } from 'role/domain/exceptions/PeerReviewNotFoundException';
 
 /**
  * Peer Review Repository

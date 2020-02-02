@@ -5,12 +5,12 @@ import {
   ProjectRepository,
   ProjectFakeRepository,
 } from 'project';
-import { RoleModel } from 'role/role.model';
-import { RoleRepository } from 'role/repositories/role.repository';
+import { RoleModel } from 'role/domain/RoleModel';
+import { RoleRepository } from 'role/domain/RoleRepository';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
 import { MockEventPublisherService } from 'event';
-import { RoleDomainService } from 'role/services/role-domain.service';
+import { RoleDomainService } from 'role/domain/RoleDomainService';
+import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 import { MockEmailService } from 'email';
 
 describe('role domain service', () => {

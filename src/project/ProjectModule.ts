@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { UserModule } from 'user/UserModule';
-import { RoleModule } from 'role/role.module';
+import { RoleModule } from 'role/RoleModule';
 
 import { ProjectController } from 'project/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';

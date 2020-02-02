@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import { AppController } from 'app.controller';
 import { AuthModule } from 'auth/auth.module';
 import { ProjectModule } from 'project/ProjectModule';
-import { RoleModule } from 'role/role.module';
+import { RoleModule } from 'role/RoleModule';
 import { UserModule } from 'user/UserModule';
 import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';

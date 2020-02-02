@@ -2,7 +2,7 @@ import { FakeNotificationRepository } from 'notification/repositories/fake-notif
 import { EntityFaker } from 'test';
 import { NotificationSagasService } from 'notification/services/notification-sagas.service';
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
-import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
+import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
 import { NotificationType } from 'notification/notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';

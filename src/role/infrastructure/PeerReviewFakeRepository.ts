@@ -1,7 +1,7 @@
 import { PeerReviewModel } from 'role/peer-review.model';
 import { FakeRepository } from 'common';
-import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
-import { PeerReviewNotFoundException } from 'role/exceptions/peer-review-not-found.exception';
+import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
+import { PeerReviewNotFoundException } from 'role/domain/exceptions/PeerReviewNotFoundException';
 
 /**
  * Fake Peer Review Repository

@@ -1,7 +1,7 @@
 import { UserModel } from 'user';
 import { ProjectModel, ProjectState, ContributionVisibility } from 'project';
-import { RoleModel } from 'role/role.model';
-import { RoleDto } from 'role/dto/role.dto';
+import { RoleModel } from 'role/domain/RoleModel';
+import { RoleDto } from 'role/application/dto/RoleDto';
 import { EntityFaker } from 'test';
 
 describe('role dto', () => {

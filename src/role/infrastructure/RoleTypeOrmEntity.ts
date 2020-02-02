@@ -2,7 +2,7 @@ import { Column, Entity } from 'typeorm';
 import { TypeOrmEntity } from 'common';
 
 /**
- * Role Entity
+ * Role TypeOrm Entity
  */
 @Entity('roles')
 export class RoleTypeOrmEntity extends TypeOrmEntity {

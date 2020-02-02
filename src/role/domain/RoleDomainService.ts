@@ -1,23 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import { RoleModel } from 'role/role.model';
-import {
-  RoleRepository,
-  ROLE_REPOSITORY,
-} from 'role/repositories/role.repository';
-import { ProjectNotFormationStateException } from 'role/exceptions/project-not-formation-state.exception';
-import { CreateRoleOutsideFormationStateException } from 'role/exceptions/create-role-outside-formation-state.exception';
-import { AlreadyAssignedRoleSameProjectException } from 'role/exceptions/already-assigned-role-same-project.exception';
+import { RoleModel } from 'role/domain/RoleModel';
+import { RoleRepository, ROLE_REPOSITORY } from 'role/domain/RoleRepository';
+import { CreateRoleOutsideFormationStateException } from 'role/domain/exceptions/CreateRoleOutsideFormationStateException';
+import { AlreadyAssignedRoleSameProjectException } from 'role/domain/exceptions/AlreadyAssignedRoleSameProjectException';
 import { EventPublisherService, InjectEventPublisher } from 'event';
-import { RoleCreatedEvent } from 'role/events/role-created.event';
-import { RoleUpdatedEvent } from 'role/events/role-updated.event';
-import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
-import { NewUserAssignedEvent } from 'role/events/new-user-assigned.event';
-import { RoleDeletedEvent } from 'role/events/role-deleted.event';
+import { RoleCreatedEvent } from 'role/domain/events/RoleCreatedEvent';
+import { RoleUpdatedEvent } from 'role/domain/events/RoleUpdatedEvent';
+import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
+import { NewUserAssignedEvent } from 'role/domain/events/NewUserAssignedEvent';
+import { RoleDeletedEvent } from 'role/domain/events/RoleDeletedEvent';
 import { InvariantViolationException } from 'common';
-import { UserUnassignedEvent } from 'role/events/user-unassigned.event';
 import { ProjectModel } from 'project';
 import { EmailService, EMAIL_SERVICE } from 'email';
+import { UserUnassignedEvent } from 'role/domain/events/UserUnassignedEvent';
+import { ProjectNotFormationStateException } from 'project/domain/exceptions/ProjectNotFormationStateException';
 
 export interface CreateRoleOptions {
   readonly title: string;

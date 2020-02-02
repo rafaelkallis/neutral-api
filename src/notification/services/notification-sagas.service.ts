@@ -11,7 +11,7 @@ import {
   PeerReviewRequestedNotification,
   ProjectFinishedNotification,
 } from 'notification/notification';
-import { ExistingUserAssignedEvent } from 'role/events/existing-user-assigned.event';
+import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
 import { NotificationFactoryService } from 'notification/services/notification-factory.service';
 import { Saga } from 'event';
 import { NotificationModel } from 'notification/notification.model';

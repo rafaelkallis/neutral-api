@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserModel } from 'user';
-import { RoleDto } from 'role/dto/role.dto';
+import { RoleDto } from 'role/application/dto/RoleDto';
 import {
   ProjectModel,
   ProjectState,

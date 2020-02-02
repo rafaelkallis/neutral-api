@@ -1,5 +1,5 @@
 import { Repository } from 'common';
-import { RoleModel } from 'role/role.model';
+import { RoleModel } from 'role/domain/RoleModel';
 
 export const ROLE_REPOSITORY = Symbol('ROLE_REPOSITORY');
 

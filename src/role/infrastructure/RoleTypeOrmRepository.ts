@@ -1,10 +1,10 @@
 import { TypeOrmRepository } from 'common';
-import { RoleTypeOrmEntity } from 'role/entities/role-typeorm-entity';
+import { RoleTypeOrmEntity } from 'role/infrastructure/RoleTypeOrmEntity';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
-import { RoleModel } from 'role/role.model';
-import { RoleRepository } from 'role/repositories/role.repository';
-import { RoleNotFoundException } from 'role/exceptions/role-not-found.exception';
+import { RoleModel } from 'role/domain/RoleModel';
+import { RoleRepository } from 'role/domain/RoleRepository';
+import { RoleNotFoundException } from 'role/application/exceptions/RoleNotFoundException';
 
 /**
  * TypeOrm Role Repository

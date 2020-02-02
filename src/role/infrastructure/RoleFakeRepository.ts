@@ -1,6 +1,6 @@
 import { FakeRepository } from 'common';
-import { RoleModel } from 'role/role.model';
-import { RoleNotFoundException } from 'role/exceptions/role-not-found.exception';
+import { RoleModel } from 'role/domain/RoleModel';
+import { RoleNotFoundException } from 'role/application/exceptions/RoleNotFoundException';
 
 /**
  * Fake Role Repository

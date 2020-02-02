@@ -1,6 +1,6 @@
 import { AbstractEvent } from 'event';
 import { ProjectModel } from 'project';
-import { RoleModel } from 'role/role.model';
+import { RoleModel } from 'role/domain/RoleModel';
 
 export class NewUserAssignedEvent extends AbstractEvent {
   public readonly project: ProjectModel;

@@ -21,13 +21,13 @@ import {
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'common';
 import { UserModel } from 'user';
-import { RoleDto } from './dto/role.dto';
-import { GetRolesQueryDto } from './dto/get-roles-query.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignmentDto } from './dto/assignment.dto';
+import { RoleDto } from './application/dto/RoleDto';
+import { GetRolesQueryDto } from './application/dto/GetRolesQueryDto';
+import { CreateRoleDto } from './application/dto/CreateRoleDto';
+import { UpdateRoleDto } from './application/dto/UpdateRoleDto';
+import { AssignmentDto } from './application/dto/AssignmentDto';
 import { AuthUser, AuthGuard } from 'auth';
-import { RoleApplicationService } from 'role/services/role-application.service';
+import { RoleApplicationService } from 'role/application/RoleApplicationService';
 
 /**
  * Role Controller

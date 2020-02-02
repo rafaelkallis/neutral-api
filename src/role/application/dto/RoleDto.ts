@@ -3,7 +3,10 @@ import { BaseDto } from 'common';
 import { UserModel } from 'user';
 import { ProjectModel, ContributionVisibility } from 'project';
 import { RoleModel } from 'role';
-import { PeerReviewDto, PeerReviewDtoBuilder } from 'role/dto/peer-review.dto';
+import {
+  PeerReviewDto,
+  PeerReviewDtoBuilder,
+} from 'role/application/dto/PeerReviewDto';
 import { PeerReviewModel } from 'role/peer-review.model';
 import { InternalServerErrorException } from '@nestjs/common';
 

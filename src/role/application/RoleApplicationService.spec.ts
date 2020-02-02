@@ -4,22 +4,22 @@ import {
   ProjectRepository,
   ProjectFakeRepository,
 } from 'project';
-import { RoleModel } from 'role/role.model';
+import { RoleModel } from 'role/domain/RoleModel';
 import { PeerReviewModel } from 'role/peer-review.model';
-import { RoleDto } from 'role/dto/role.dto';
-import { RoleRepository } from 'role/repositories/role.repository';
-import { PeerReviewRepository } from 'role/repositories/peer-review.repository';
+import { RoleDto } from 'role/application/dto/RoleDto';
+import { RoleRepository } from 'role/domain/RoleRepository';
+import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
 import { EntityFaker, PrimitiveFaker } from 'test';
-import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
-import { CreateRoleDto } from 'role/dto/create-role.dto';
-import { UpdateRoleDto } from 'role/dto/update-role.dto';
-import { AssignmentDto } from 'role/dto/assignment.dto';
-import { FakeRoleRepository } from 'role/repositories/fake-role.repository';
-import { FakePeerReviewRepository } from 'role/repositories/fake-peer-review.repository';
+import { GetRolesQueryDto } from 'role/application/dto/GetRolesQueryDto';
+import { CreateRoleDto } from 'role/application/dto/CreateRoleDto';
+import { UpdateRoleDto } from 'role/application/dto/UpdateRoleDto';
+import { AssignmentDto } from 'role/application/dto/AssignmentDto';
+import { FakePeerReviewRepository } from 'role/infrastructure/PeerReviewFakeRepository';
 import { MockEventPublisherService } from 'event';
-import { RoleDomainService } from 'role/services/role-domain.service';
-import { RoleApplicationService } from 'role/services/role-application.service';
+import { RoleDomainService } from 'role/domain/RoleDomainService';
+import { RoleApplicationService } from 'role/application/RoleApplicationService';
 import { MockEmailService } from 'email';
+import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 
 describe('role application service', () => {
   let entityFaker: EntityFaker;

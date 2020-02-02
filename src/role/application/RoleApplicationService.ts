@@ -2,21 +2,18 @@ import { Injectable, Inject } from '@nestjs/common';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { ProjectRepository, PROJECT_REPOSITORY } from 'project';
 import { UserNotProjectOwnerException } from 'project/application/exceptions/UserNotProjectOwnerException';
-import {
-  RoleRepository,
-  ROLE_REPOSITORY,
-} from 'role/repositories/role.repository';
+import { RoleRepository, ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 import {
   PeerReviewRepository,
   PEER_REVIEW_REPOSITORY,
-} from 'role/repositories/peer-review.repository';
-import { RoleDto } from 'role/dto/role.dto';
-import { GetRolesQueryDto } from 'role/dto/get-roles-query.dto';
-import { CreateRoleDto } from 'role/dto/create-role.dto';
-import { UpdateRoleDto } from 'role/dto/update-role.dto';
-import { AssignmentDto } from 'role/dto/assignment.dto';
-import { NoAssigneeException } from 'role/exceptions/no-assignee.exception';
-import { RoleDomainService } from 'role/services/role-domain.service';
+} from 'role/domain/PeerReviewRepository';
+import { RoleDto } from 'role/application/dto/RoleDto';
+import { GetRolesQueryDto } from 'role/application/dto/GetRolesQueryDto';
+import { CreateRoleDto } from 'role/application/dto/CreateRoleDto';
+import { UpdateRoleDto } from 'role/application/dto/UpdateRoleDto';
+import { AssignmentDto } from 'role/application/dto/AssignmentDto';
+import { NoAssigneeException } from 'role/domain/exceptions/NoAssigneeException';
+import { RoleDomainService } from 'role/domain/RoleDomainService';
 
 @Injectable()
 export class RoleApplicationService {
