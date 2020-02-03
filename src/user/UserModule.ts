@@ -10,6 +10,7 @@ import { UserApplicationService } from 'user/application/UserApplicationService'
 import { UserDomainService } from 'user/domain/UserDomainService';
 import { EventModule } from 'event';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
+import { UserModelFactoryService } from 'user/domain/UserModelFactoryService';
 
 /**
  * User Module
@@ -24,11 +25,12 @@ import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmE
   ],
   controllers: [UserController],
   providers: [
-    UserApplicationService,
     UserDomainService,
+    UserModelFactoryService,
+    UserApplicationService,
     UserTypeOrmEntityMapperService,
     { provide: USER_REPOSITORY, useClass: TypeOrmUserRepository },
   ],
-  exports: [USER_REPOSITORY],
+  exports: [USER_REPOSITORY, UserModelFactoryService],
 })
 export class UserModule {}

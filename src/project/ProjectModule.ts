@@ -24,17 +24,17 @@ import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/Projec
   imports: [EventModule, DatabaseModule, TokenModule, UserModule, RoleModule],
   controllers: [ProjectController],
   providers: [
+    ProjectDomainService,
+    ProjectModelFactoryService,
     {
       provide: PROJECT_REPOSITORY,
       useClass: ProjectTypeOrmRepository,
     },
     ProjectApplicationService,
-    ProjectDomainService,
     ContributionsModelService,
     ConsensualityModelService,
     ProjectTypeOrmEntityMapperService,
-    ProjectModelFactoryService,
   ],
-  exports: [PROJECT_REPOSITORY],
+  exports: [PROJECT_REPOSITORY, ProjectModelFactoryService],
 })
 export class ProjectModule {}

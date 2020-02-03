@@ -9,7 +9,7 @@ import {
 import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ValidationPipe } from 'common';
-import { AuthService } from './application/AuthService';
+import { AuthService } from './application/AuthApplicationService';
 
 import { RefreshDto } from './application/dto/RefreshDto';
 import { RequestLoginDto } from './application/dto/RequestLoginDto';

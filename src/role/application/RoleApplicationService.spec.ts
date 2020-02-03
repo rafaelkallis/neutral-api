@@ -20,6 +20,7 @@ import { RoleDomainService } from 'role/domain/RoleDomainService';
 import { RoleApplicationService } from 'role/application/RoleApplicationService';
 import { MockEmailService } from 'email';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
+import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
 
 describe('role application service', () => {
   let modelFaker: ModelFaker;
@@ -31,6 +32,7 @@ describe('role application service', () => {
   let roleRepository: RoleRepository;
   let peerReviewRepository: PeerReviewRepository;
   let emailService: MockEmailService;
+  let roleModelFactory: RoleModelFactoryService;
 
   let roleDomain: RoleDomainService;
   let roleApplication: RoleApplicationService;
@@ -49,12 +51,14 @@ describe('role application service', () => {
     roleRepository = new FakeRoleRepository();
     peerReviewRepository = new FakePeerReviewRepository();
     emailService = new MockEmailService();
+    roleModelFactory = new RoleModelFactoryService();
 
     roleDomain = new RoleDomainService(
       eventPublisher,
       userRepository,
       roleRepository,
       emailService,
+      roleModelFactory,
     );
     roleApplication = new RoleApplicationService(
       roleDomain,

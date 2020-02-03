@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TokenAlreadyUsedException } from 'common';
-import { UserRepository, USER_REPOSITORY, UserModel } from 'user';
+import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
@@ -15,6 +15,7 @@ import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequeste
 import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
 import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
 import { UserDto } from 'user/application/dto/UserDto';
+import { UserModelFactoryService } from 'user/domain/UserModelFactoryService';
 
 @Injectable()
 export class AuthService {
@@ -22,17 +23,20 @@ export class AuthService {
   private readonly eventPublisher: EventPublisherService;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
+  private readonly userModelFactory: UserModelFactoryService;
 
   public constructor(
     @InjectConfig() config: ConfigService,
     @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
+    userModelFactory: UserModelFactoryService,
   ) {
-    this.userRepository = userRepository;
-    this.eventPublisher = eventPublisher;
-    this.tokenService = tokenService;
     this.config = config;
+    this.eventPublisher = eventPublisher;
+    this.userRepository = userRepository;
+    this.tokenService = tokenService;
+    this.userModelFactory = userModelFactory;
   }
 
   /**
@@ -124,22 +128,13 @@ export class AuthService {
       throw new EmailAlreadyUsedException();
     }
 
-    const userId = this.userRepository.createId();
-    // TODO code smell
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
     const email = payload.sub;
     const { firstName, lastName } = dto;
-    const lastLoginAt = Date.now();
-    const user = new UserModel(
-      userId,
-      createdAt,
-      updatedAt,
+    const user = this.userModelFactory.createUser({
       email,
       firstName,
       lastName,
-      lastLoginAt,
-    );
+    });
     await this.userRepository.persist(user);
     await this.eventPublisher.publish(new SignupEvent(user));
 

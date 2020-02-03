@@ -15,6 +15,7 @@ import { RoleApplicationService } from 'role/application/RoleApplicationService'
 import { RoleDomainService } from 'role/domain/RoleDomainService';
 import { RoleTypeOrmEntityMapperService } from 'role/infrastructure/RoleTypeOrmEntityMapperService';
 import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerReviewTypeOrmEntityMapperService';
+import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
 
 /**
  * Role Module
@@ -31,6 +32,8 @@ import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerRe
   ],
   controllers: [RoleController],
   providers: [
+    RoleDomainService,
+    RoleModelFactoryService,
     {
       provide: ROLE_REPOSITORY,
       useClass: TypeOrmRoleRepository,
@@ -40,10 +43,9 @@ import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerRe
       useClass: TypeOrmPeerReviewRepository,
     },
     RoleApplicationService,
-    RoleDomainService,
     RoleTypeOrmEntityMapperService,
     PeerReviewTypeOrmEntityMapperService,
   ],
-  exports: [ROLE_REPOSITORY, PEER_REVIEW_REPOSITORY],
+  exports: [ROLE_REPOSITORY, PEER_REVIEW_REPOSITORY, RoleModelFactoryService],
 })
 export class RoleModule {}

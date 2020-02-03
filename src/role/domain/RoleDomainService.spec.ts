@@ -12,6 +12,7 @@ import { MockEventPublisherService } from 'event';
 import { RoleDomainService } from 'role/domain/RoleDomainService';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 import { MockEmailService } from 'email';
+import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
 
 describe('role domain service', () => {
   let modelFaker: ModelFaker;
@@ -22,6 +23,7 @@ describe('role domain service', () => {
   let projectRepository: ProjectRepository;
   let roleRepository: RoleRepository;
   let emailService: MockEmailService;
+  let roleModelFactory: RoleModelFactoryService;
 
   let roleDomain: RoleDomainService;
 
@@ -38,12 +40,14 @@ describe('role domain service', () => {
     projectRepository = new ProjectFakeRepository();
     roleRepository = new FakeRoleRepository();
     emailService = new MockEmailService();
+    roleModelFactory = new RoleModelFactoryService();
 
     roleDomain = new RoleDomainService(
       eventPublisher,
       userRepository,
       roleRepository,
       emailService,
+      roleModelFactory,
     );
     ownerUser = modelFaker.user();
     await userRepository.persist(ownerUser);

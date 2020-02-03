@@ -15,6 +15,7 @@ import { ProjectModel } from 'project';
 import { EmailService, EMAIL_SERVICE } from 'email';
 import { UserUnassignedEvent } from 'role/domain/events/UserUnassignedEvent';
 import { ProjectNotFormationStateException } from 'project/domain/exceptions/ProjectNotFormationStateException';
+import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
 
 export interface CreateRoleOptions {
   readonly title: string;
@@ -32,17 +33,20 @@ export class RoleDomainService {
   private readonly userRepository: UserRepository;
   private readonly roleRepository: RoleRepository;
   private readonly emailService: EmailService;
+  private readonly roleModelFactory: RoleModelFactoryService;
 
   public constructor(
     @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
     @Inject(EMAIL_SERVICE) emailService: EmailService,
+    roleModelFactory: RoleModelFactoryService,
   ) {
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.roleRepository = roleRepository;
     this.emailService = emailService;
+    this.roleModelFactory = roleModelFactory;
   }
 
   /**
@@ -55,26 +59,14 @@ export class RoleDomainService {
     if (!project.isFormationState()) {
       throw new CreateRoleOutsideFormationStateException();
     }
-    const roleId = this.roleRepository.createId();
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
     const projectId = project.id;
-    const assigneeId = null;
     const title = createRoleOptions.title;
     const description = createRoleOptions.description;
-    const contribution = null;
-    const hasSubmittedPeerReviews = false;
-    const role = new RoleModel(
-      roleId,
-      createdAt,
-      updatedAt,
+    const role = this.roleModelFactory.createRole({
       projectId,
-      assigneeId,
       title,
       description,
-      contribution,
-      hasSubmittedPeerReviews,
-    );
+    });
     await this.roleRepository.persist(role);
     await this.eventPublisher.publish(new RoleCreatedEvent(project, role));
     return role;
