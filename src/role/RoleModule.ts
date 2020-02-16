@@ -1,7 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { ProjectModule } from 'project/ProjectModule';
-import { RoleController } from 'role/RoleController';
 import { TypeOrmRoleRepository } from 'role/infrastructure/RoleTypeOrmRepository';
 import { TypeOrmPeerReviewRepository } from 'role/infrastructure/PeerReviewTypeOrmRepository';
 import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
@@ -30,7 +29,6 @@ import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
     UserModule,
     forwardRef(() => ProjectModule),
   ],
-  controllers: [RoleController],
   providers: [
     RoleDomainService,
     RoleModelFactoryService,

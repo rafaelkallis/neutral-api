@@ -14,7 +14,7 @@ import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequeste
 import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
 import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
 import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
-import { UserModelFactoryService } from 'user/domain/UserModelFactoryService';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe('auth service', () => {
   let modelFaker: ModelFaker;
@@ -24,7 +24,6 @@ describe('auth service', () => {
   let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: MockTokenService;
-  let userModelFactory: UserModelFactoryService;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -33,14 +32,12 @@ describe('auth service', () => {
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
     tokenService = new MockTokenService();
-    userModelFactory = new UserModelFactoryService();
 
     authService = new AuthService(
       config,
       eventPublisher,
       userRepository,
       tokenService,
-      userModelFactory,
     );
   });
 
@@ -59,7 +56,7 @@ describe('auth service', () => {
 
     test('happy path', async () => {
       const email = user.email;
-      const requestLoginDto = new RequestLoginDto(email);
+      const requestLoginDto = new RequestLoginDto(email.value);
       await authService.requestLogin(requestLoginDto);
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
         expect.any(SigninRequestedEvent),
@@ -153,7 +150,7 @@ describe('auth service', () => {
 
     test('email already used', async () => {
       const user = modelFaker.user();
-      user.email = email;
+      user.email = Email.from(email);
       await userRepository.persist(user);
       await expect(
         authService.submitSignup(signupToken, submitSignupDto, session),
@@ -167,7 +164,7 @@ describe('auth service', () => {
 
     beforeEach(() => {
       user = modelFaker.user();
-      refreshToken = tokenService.newRefreshToken(user.id);
+      refreshToken = tokenService.newRefreshToken(user.id.value);
     });
 
     test('happy path', async () => {

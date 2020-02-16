@@ -64,12 +64,12 @@ class BuildStep {
   build(): UserDto {
     const { user } = this;
     return new UserDto(
-      user.id,
-      this.shouldExposeEmail() ? user.email : null,
-      user.firstName,
-      user.lastName,
-      user.createdAt,
-      user.updatedAt,
+      user.id.value,
+      this.shouldExposeEmail() ? user.email.value : null,
+      user.name.first,
+      user.name.last,
+      user.createdAt.value,
+      user.updatedAt.value,
     );
   }
 

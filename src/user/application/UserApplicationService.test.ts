@@ -7,9 +7,9 @@ import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/application/UserApplicationService';
-import { UserDomainService } from 'user/domain/UserDomainService';
 import { MockEventPublisherService } from 'event';
 import { UserModel } from 'user/domain/UserModel';
+import { Name } from 'user/domain/value-objects/Name';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
@@ -18,7 +18,6 @@ describe('user service', () => {
   let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: TokenService;
-  let userDomainService: UserDomainService;
   let userApplicationService: UserApplicationService;
   let user: UserModel;
 
@@ -29,15 +28,11 @@ describe('user service', () => {
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
     tokenService = new MockTokenService();
-    userDomainService = new UserDomainService(
-      config,
-      eventPublisher,
-      userRepository,
-      tokenService,
-    );
     userApplicationService = new UserApplicationService(
       userRepository,
-      userDomainService,
+      eventPublisher,
+      tokenService,
+      config,
     );
 
     user = modelFaker.user();
@@ -57,7 +52,7 @@ describe('user service', () => {
       query = new GetUsersQueryDto();
       users = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
       for (const user of users) {
-        user.firstName += 'ann';
+        user.name = Name.from(user.name.first + 'ann', user.name.last);
       }
       await userRepository.persist(...users);
       expectedUserDtos = users.map(u =>
@@ -94,7 +89,10 @@ describe('user service', () => {
         .user(user)
         .authUser(user)
         .build();
-      const actualUserDto = await userApplicationService.getUser(user, user.id);
+      const actualUserDto = await userApplicationService.getUser(
+        user,
+        user.id.value,
+      );
       expect(actualUserDto).toEqual(expectedUserDto);
     });
 
@@ -107,7 +105,7 @@ describe('user service', () => {
         .build();
       const actualAnotherUserDto = await userApplicationService.getUser(
         user,
-        anotherUser.id,
+        anotherUser.id.value,
       );
       expect(actualAnotherUserDto).toEqual(expectedAnotherUserDto);
       expect(actualAnotherUserDto.email).toBeNull();
@@ -134,15 +132,12 @@ describe('user service', () => {
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
       updateUserDto = new UpdateUserDto(email, firstName);
-      jest.spyOn(userDomainService, 'updateUser');
     });
 
     test('happy path', async () => {
       await userApplicationService.updateAuthUser(user, updateUserDto);
-      expect(userDomainService.updateUser).toHaveBeenCalledWith(
-        user,
-        updateUserDto,
-      );
+      expect(user.email.value).not.toEqual(email);
+      expect(user.name.first).toEqual(firstName);
     });
   });
 
@@ -153,29 +148,21 @@ describe('user service', () => {
     beforeEach(() => {
       newEmail = primitiveFaker.word();
       emailChangeToken = tokenService.newEmailChangeToken(
-        user.id,
-        user.email,
+        user.id.value,
+        user.email.value,
         newEmail,
       );
-      jest.spyOn(userDomainService, 'submitEmailChange');
     });
 
     test('happy path', async () => {
       await userApplicationService.submitEmailChange(emailChangeToken);
-      expect(userDomainService.submitEmailChange).toHaveBeenCalledWith(
-        emailChangeToken,
-      );
+      expect(user.email.value).toEqual(newEmail);
     });
   });
 
   describe('delete authenticated user', () => {
-    beforeEach(() => {
-      jest.spyOn(userDomainService, 'deleteUser');
-    });
-
     test('happy path', async () => {
       await userApplicationService.deleteAuthUser(user);
-      expect(userDomainService.deleteUser).toHaveBeenCalledWith(user);
     });
   });
 });

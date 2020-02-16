@@ -1,18 +1,20 @@
-import { PeerReviewTypeOrmEntity } from 'role/infrastructure/PeerReviewTypeOrmEntity';
-import { TypeOrmRepository } from 'common';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
-import { PeerReviewModel } from 'role/peer-review.model';
-import { PeerReviewNotFoundException } from 'role/domain/exceptions/PeerReviewNotFoundException';
+import { PeerReviewModel } from 'role/domain/PeerReviewModel';
+import { PeerReviewNotFoundException } from 'project/domain/exceptions/PeerReviewNotFoundException';
 import { PeerReviewTypeOrmEntityMapperService } from 'role/infrastructure/PeerReviewTypeOrmEntityMapperService';
+import { SimpleTypeOrmRepository } from 'common/infrastructure/SimpleTypeOrmRepository';
+import { ObjectType } from 'typeorm';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Peer Review Repository
  */
 @Injectable()
 export class TypeOrmPeerReviewRepository
-  extends TypeOrmRepository<PeerReviewModel, PeerReviewTypeOrmEntity>
+  extends SimpleTypeOrmRepository<PeerReviewModel, PeerReviewTypeOrmEntity>
   implements PeerReviewRepository {
   /**
    *
@@ -21,22 +23,20 @@ export class TypeOrmPeerReviewRepository
     databaseClient: DatabaseClientService,
     peerReviewTypeOrmEntityMapper: PeerReviewTypeOrmEntityMapperService,
   ) {
-    super(
-      databaseClient,
-      PeerReviewTypeOrmEntity,
-      peerReviewTypeOrmEntityMapper,
-    );
+    super(databaseClient, peerReviewTypeOrmEntityMapper);
   }
 
   /**
    *
    */
   public async findBySenderRoleId(
-    senderRoleId: string,
+    senderRoleId: Id,
   ): Promise<PeerReviewModel[]> {
-    const peerReviewEntities = await this.internalRepository.find({
-      senderRoleId,
-    });
+    const peerReviewEntities = await this.entityManager
+      .getRepository(PeerReviewTypeOrmEntity)
+      .find({
+        senderRoleId: senderRoleId.value,
+      });
     const peerReviewModels = peerReviewEntities.map(e =>
       this.entityMapper.toModel(e),
     );
@@ -47,11 +47,13 @@ export class TypeOrmPeerReviewRepository
    *
    */
   public async findByReceiverRoleId(
-    receiverRoleId: string,
+    receiverRoleId: Id,
   ): Promise<PeerReviewModel[]> {
-    const peerReviewEntities = await this.internalRepository.find({
-      receiverRoleId,
-    });
+    const peerReviewEntities = await this.entityManager
+      .getRepository(PeerReviewTypeOrmEntity)
+      .find({
+        receiverRoleId: receiverRoleId.value,
+      });
     const peerReviewModels = peerReviewEntities.map(e =>
       this.entityMapper.toModel(e),
     );
@@ -63,5 +65,12 @@ export class TypeOrmPeerReviewRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new PeerReviewNotFoundException();
+  }
+
+  /**
+   *
+   */
+  protected getEntityType(): ObjectType<PeerReviewTypeOrmEntity> {
+    return PeerReviewTypeOrmEntity;
   }
 }

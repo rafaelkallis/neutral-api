@@ -1,10 +1,4 @@
 import { UserModel, UserRepository, UserFakeRepository } from 'user';
-import {
-  ProjectModel,
-  ProjectState,
-  ProjectRepository,
-  ProjectFakeRepository,
-} from 'project';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleRepository } from 'role/domain/RoleRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
@@ -13,6 +7,11 @@ import { RoleDomainService } from 'role/domain/RoleDomainService';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 import { MockEmailService } from 'email';
 import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
+import { Email } from 'user/domain/value-objects/Email';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { ProjectModel } from 'project/domain/ProjectModel';
+import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
 
 describe('role domain service', () => {
   let modelFaker: ModelFaker;
@@ -209,7 +208,7 @@ describe('role domain service', () => {
     });
 
     test('happy path, non-existing user', async () => {
-      const assigneeEmail = primitiveFaker.email();
+      const assigneeEmail = Email.from(primitiveFaker.email());
       await roleDomain.assignUserByEmailAndCreateIfNotExists(
         project,
         roles[0],

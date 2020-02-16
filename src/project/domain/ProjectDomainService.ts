@@ -21,12 +21,7 @@ import { ProjectNotManagerReviewStateException } from 'project/domain/exceptions
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { InvalidPeerReviewsException } from 'project/domain/exceptions/InvalidPeerReviewsException';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
-import {
-  ProjectModel,
-  ProjectState,
-  SkipManagerReview,
-  ContributionVisibility,
-} from 'project/domain/ProjectModel';
+import { ProjectModel } from 'project/domain/ProjectModel';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { InvariantViolationException } from 'common';
 import { EventPublisherService, InjectEventPublisher } from 'event';
@@ -42,11 +37,18 @@ import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/ProjectManagerReviewFinishedEvent';
-import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
+import { PeerReviewModelFactoryService } from 'role/domain/PeerReviewModelFactoryService';
+import { Id } from 'common/domain/value-objects/Id';
+import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 
 export interface CreateProjectOptions {
-  title: string;
-  description: string;
+  title: ProjectTitle;
+  description: ProjectDescription;
   contributionVisibility?: ContributionVisibility;
   skipManagerReview?: SkipManagerReview;
 }
@@ -64,7 +66,7 @@ export class ProjectDomainService {
   private readonly peerReviewRepository: PeerReviewRepository;
   private readonly contributionsModelService: ContributionsModelService;
   private readonly consensualityModelService: ConsensualityModelService;
-  private readonly projectModelFactory: ProjectModelFactoryService;
+  private readonly peerReviewModelFactory: PeerReviewModelFactoryService;
 
   public constructor(
     @InjectEventPublisher() eventPublisher: EventPublisherService,
@@ -73,7 +75,7 @@ export class ProjectDomainService {
     @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
     contributionsModelService: ContributionsModelService,
     consensualityModelService: ConsensualityModelService,
-    projectModelFactory: ProjectModelFactoryService,
+    peerReviewModelFactory: PeerReviewModelFactoryService,
   ) {
     this.eventPublisher = eventPublisher;
     this.projectRepository = projectRepository;
@@ -81,7 +83,7 @@ export class ProjectDomainService {
     this.peerReviewRepository = peerReviewRepository;
     this.contributionsModelService = contributionsModelService;
     this.consensualityModelService = consensualityModelService;
-    this.projectModelFactory = projectModelFactory;
+    this.peerReviewModelFactory = peerReviewModelFactory;
   }
 
   /**
@@ -91,9 +93,9 @@ export class ProjectDomainService {
     projectOptions: CreateProjectOptions,
     creator: UserModel,
   ): Promise<ProjectModel> {
-    const project = this.projectModelFactory.createProject({
+    const project = ProjectModel.create({
       ...projectOptions,
-      creatorId: creator.id,
+      creator,
     });
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(
@@ -110,7 +112,7 @@ export class ProjectDomainService {
     project: ProjectModel,
     updateOptions: UpdateProjectOptions,
   ): Promise<ProjectModel> {
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     Object.assign(project, updateOptions);
@@ -123,7 +125,7 @@ export class ProjectDomainService {
    * Delete a project
    */
   public async deleteProject(project: ProjectModel): Promise<void> {
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     await this.projectRepository.delete(project);
@@ -134,7 +136,7 @@ export class ProjectDomainService {
    * Finish project formation
    */
   public async finishFormation(project: ProjectModel): Promise<ProjectModel> {
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     const roles = await this.roleRepository.findByProjectId(project.id);
@@ -159,7 +161,7 @@ export class ProjectDomainService {
     senderRole: RoleModel,
     peerReviewMap: ReadonlyMap<string, number>,
   ): Promise<void> {
-    if (!project.isPeerReviewState()) {
+    if (!project.state.isPeerReview()) {
       throw new ProjectNotPeerReviewStateException();
     }
     if (senderRole.hasSubmittedPeerReviews) {
@@ -172,17 +174,11 @@ export class ProjectDomainService {
     senderRole.hasSubmittedPeerReviews = true;
     const peerReviews: PeerReviewModel[] = [];
     for (const [receiverRoleId, score] of peerReviewMap.entries()) {
-      const peerReviewId = this.peerReviewRepository.createId();
-      const createdAt = Date.now();
-      const updatedAt = Date.now();
-      const peerReview = new PeerReviewModel(
-        peerReviewId,
-        createdAt,
-        updatedAt,
-        senderRole.id,
-        receiverRoleId,
+      const peerReview = this.peerReviewModelFactory.createPeerReview({
+        senderRoleId: senderRole.id,
+        receiverRoleId: Id.from(receiverRoleId),
         score,
-      );
+      });
       peerReviews.push(peerReview);
     }
     await Promise.all(
@@ -209,14 +205,14 @@ export class ProjectDomainService {
     roles: RoleModel[],
   ): boolean {
     /* no self review */
-    if (peerReviewMap.has(senderRole.id)) {
+    if (peerReviewMap.has(senderRole.id.value)) {
       return false;
     }
     const otherRoles = roles.filter(role => !senderRole.equals(role));
 
     /* check if peer review ids match other role ids */
     for (const otherRole of otherRoles) {
-      if (!peerReviewMap.has(otherRole.id)) {
+      if (!peerReviewMap.has(otherRole.id.value)) {
         return false;
       }
     }
@@ -230,33 +226,38 @@ export class ProjectDomainService {
     project: ProjectModel,
     roles: RoleModel[],
   ): Promise<void> {
-    if (!project.isPeerReviewState()) {
+    if (!project.state.isPeerReview()) {
       throw new InvariantViolationException();
     }
     /* build peer review index */
     const projectPeerReviews: Record<string, Record<string, number>> = {};
     for (const role of roles) {
-      projectPeerReviews[role.id] = {};
+      projectPeerReviews[role.id.value] = {};
       for (const peerReview of await this.peerReviewRepository.findBySenderRoleId(
         role.id,
       )) {
         const { receiverRoleId, score } = peerReview;
-        projectPeerReviews[role.id][receiverRoleId] = score;
+        projectPeerReviews[role.id.value][receiverRoleId.value] = score;
       }
     }
     const contributions = this.contributionsModelService.computeContributions(
       projectPeerReviews,
     );
     for (const role of roles) {
-      role.contribution = contributions[role.id];
+      role.contribution = contributions[role.id.value];
     }
     await this.roleRepository.persist(...roles);
     const consensuality = this.consensualityModelService.computeConsensuality(
       projectPeerReviews,
     );
-    project.consensuality = consensuality;
+    project.consensuality = Consensuality.from(consensuality);
 
-    if (this.shouldSkipManagerReview(project, consensuality)) {
+    if (
+      project.skipManagerReview.shouldSkipManagerReview(
+        project,
+        this.consensualityModelService,
+      )
+    ) {
       project.state = ProjectState.FINISHED;
       await this.projectRepository.persist(project);
       await this.eventPublisher.publish(
@@ -274,34 +275,11 @@ export class ProjectDomainService {
     }
   }
 
-  private shouldSkipManagerReview(
-    project: ProjectModel,
-    consensuality: number,
-  ): boolean {
-    switch (project.skipManagerReview) {
-      case SkipManagerReview.YES: {
-        return true;
-      }
-      case SkipManagerReview.IF_CONSENSUAL: {
-        const isConsensual = this.consensualityModelService.isConsensual(
-          consensuality,
-        );
-        return isConsensual;
-      }
-      case SkipManagerReview.NO: {
-        return false;
-      }
-      default: {
-        return false;
-      }
-    }
-  }
-
   /**
    * Call to submit the manager review.
    */
   public async submitManagerReview(project: ProjectModel): Promise<void> {
-    if (!project.isManagerReviewState()) {
+    if (!project.state.isManagerReview()) {
       throw new ProjectNotManagerReviewStateException();
     }
     project.state = ProjectState.FINISHED;

@@ -82,7 +82,9 @@ describe('auth (e2e)', () => {
       expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
       expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
       const updatedUser = await userRepository.findById(user.id);
-      expect(user.lastLoginAt).toBeLessThan(updatedUser.lastLoginAt);
+      expect(user.lastLoginAt.value).toBeLessThan(
+        updatedUser.lastLoginAt.value,
+      );
     });
   });
 
@@ -139,7 +141,7 @@ describe('auth (e2e)', () => {
     let refreshToken: string;
 
     beforeEach(() => {
-      refreshToken = tokenService.newRefreshToken(user.id);
+      refreshToken = tokenService.newRefreshToken(user.id.value);
       jest.spyOn(tokenService, 'newAccessToken');
       jest.spyOn(tokenService, 'newRefreshToken');
     });

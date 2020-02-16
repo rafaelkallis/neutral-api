@@ -10,6 +10,7 @@ import {
   NOTIFICATION_REPOSITORY,
 } from 'notification/domain/NotificationRepository';
 import { NotificationModel } from 'notification/domain/NotificationModel';
+import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 
 describe('notifications (e2e)', () => {
   let app: INestApplication;
@@ -79,7 +80,7 @@ describe('notifications (e2e)', () => {
 
     beforeEach(async () => {
       notification = modelFaker.notification(user.id);
-      notification.isRead = false;
+      notification.isRead = NotificationIsRead.from(false);
       await notificationRepository.persist(notification);
     });
 

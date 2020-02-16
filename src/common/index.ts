@@ -1,9 +1,4 @@
-export { Repository } from 'common/domain/Repository';
-export { FakeRepository } from 'common/infrastructure/FakeRepository';
-export { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
-
 export { BaseDto } from './application/dto/BaseDto';
-export { AbstractModel } from 'common/domain/AbstractModel';
 
 export { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
 export { BigIntTransformer } from './infrastructure/BigIntTransformer';

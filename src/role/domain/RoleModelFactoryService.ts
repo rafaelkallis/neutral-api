@@ -1,8 +1,11 @@
 import { ModelFactoryService } from 'common/domain/ModelFactoryService';
 import { RoleModel } from 'role/domain/RoleModel';
+import { Id } from 'common/domain/value-objects/Id';
+import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 
 export interface CreateRoleOptions {
-  projectId: string;
+  projectId: Id;
   title: string;
   description: string;
 }
@@ -12,9 +15,9 @@ export class RoleModelFactoryService extends ModelFactoryService {
    *
    */
   public createRole(roleOptions: CreateRoleOptions): RoleModel {
-    const roleId = this.createId();
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
+    const roleId = Id.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
     const { projectId, title, description } = roleOptions;
     const assigneeId = null;
     const contribution = null;

@@ -1,19 +1,14 @@
 import { UserModel, UserRepository, UserFakeRepository } from 'user';
-import {
-  ProjectModel,
-  ProjectRepository,
-  ProjectFakeRepository,
-} from 'project';
 import { RoleModel } from 'role/domain/RoleModel';
-import { PeerReviewModel } from 'role/peer-review.model';
-import { RoleDto } from 'role/application/dto/RoleDto';
+import { PeerReviewModel } from 'role/domain/PeerReviewModel';
+import { RoleDto } from 'project/application/dto/RoleDto';
 import { RoleRepository } from 'role/domain/RoleRepository';
 import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
-import { GetRolesQueryDto } from 'role/application/dto/GetRolesQueryDto';
-import { CreateRoleDto } from 'role/application/dto/CreateRoleDto';
-import { UpdateRoleDto } from 'role/application/dto/UpdateRoleDto';
-import { AssignmentDto } from 'role/application/dto/AssignmentDto';
+import { GetRolesQueryDto } from 'project/application/GetRolesQueryDto';
+import { CreateRoleDto } from 'project/application/dto/CreateRoleDto';
+import { UpdateRoleDto } from 'project/application/dto/UpdateRoleDto';
+import { AssignmentDto } from 'project/application/dto/AssignmentDto';
 import { FakePeerReviewRepository } from 'role/infrastructure/PeerReviewFakeRepository';
 import { MockEventPublisherService } from 'event';
 import { RoleDomainService } from 'role/domain/RoleDomainService';
@@ -21,6 +16,10 @@ import { RoleApplicationService } from 'role/application/RoleApplicationService'
 import { MockEmailService } from 'email';
 import { FakeRoleRepository } from 'role/infrastructure/RoleFakeRepository';
 import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
+import { Id } from 'common/domain/value-objects/Id';
+import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { ProjectModel } from 'project/domain/ProjectModel';
+import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
 
 describe('role application service', () => {
   let modelFaker: ModelFaker;
@@ -84,7 +83,7 @@ describe('role application service', () => {
     let getRolesQueryDto: GetRolesQueryDto;
 
     beforeEach(() => {
-      getRolesQueryDto = new GetRolesQueryDto(project.id);
+      getRolesQueryDto = new GetRolesQueryDto(project.id.value);
     });
 
     test('happy path', async () => {
@@ -121,7 +120,7 @@ describe('role application service', () => {
     test('happy path', async () => {
       const actualRoleDto = await roleApplication.getRole(
         ownerUser,
-        roles[0].id,
+        roles[0].id.value,
       );
       const expectedRoleDto = await RoleDto.builder()
         .role(roles[0])
@@ -143,7 +142,7 @@ describe('role application service', () => {
       title = primitiveFaker.words();
       description = primitiveFaker.paragraph();
       createRoleDto = new CreateRoleDto(
-        project.id,
+        project.id.value,
         undefined,
         title,
         description,
@@ -182,7 +181,7 @@ describe('role application service', () => {
     test('happy path', async () => {
       const actualRoleDto = await roleApplication.updateRole(
         ownerUser,
-        roles[0].id,
+        roles[0].id.value,
         updateRoleDto,
       );
       expect(roleDomain.updateRole).toHaveBeenCalledWith(
@@ -201,7 +200,11 @@ describe('role application service', () => {
       const nonOwnerUser = modelFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
-        roleApplication.updateRole(nonOwnerUser, roles[0].id, updateRoleDto),
+        roleApplication.updateRole(
+          nonOwnerUser,
+          roles[0].id.value,
+          updateRoleDto,
+        ),
       ).rejects.toThrow();
       expect(roleDomain.updateRole).not.toHaveBeenCalled();
     });
@@ -213,7 +216,7 @@ describe('role application service', () => {
     });
 
     test('happy path', async () => {
-      await roleApplication.deleteRole(ownerUser, roles[0].id);
+      await roleApplication.deleteRole(ownerUser, roles[0].id.value);
       expect(roleDomain.deleteRole).toHaveBeenCalledWith(project, roles[0]);
     });
 
@@ -221,7 +224,7 @@ describe('role application service', () => {
       const nonOwnerUser = modelFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
-        roleApplication.deleteRole(nonOwnerUser, roles[0].id),
+        roleApplication.deleteRole(nonOwnerUser, roles[0].id.value),
       ).rejects.toThrow();
       expect(roleDomain.deleteRole).not.toHaveBeenCalled();
     });
@@ -234,13 +237,17 @@ describe('role application service', () => {
     beforeEach(async () => {
       assigneeUser = modelFaker.user();
       await userRepository.persist(assigneeUser);
-      assignmentDto = new AssignmentDto(assigneeUser.id);
+      assignmentDto = new AssignmentDto(assigneeUser.id.value);
       jest.spyOn(roleDomain, 'assignUser');
       jest.spyOn(roleDomain, 'assignUserByEmailAndCreateIfNotExists');
     });
 
     test('happy path', async () => {
-      await roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto);
+      await roleApplication.assignUser(
+        ownerUser,
+        roles[0].id.value,
+        assignmentDto,
+      );
       expect(roleDomain.assignUser).toHaveBeenCalledWith(
         project,
         roles[0],
@@ -250,17 +257,21 @@ describe('role application service', () => {
     });
 
     test('happy path, by email', async () => {
-      assignmentDto = new AssignmentDto(undefined, assigneeUser.email);
-      await roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto);
+      assignmentDto = new AssignmentDto(undefined, assigneeUser.email.value);
+      await roleApplication.assignUser(
+        ownerUser,
+        roles[0].id.value,
+        assignmentDto,
+      );
       expect(
         roleDomain.assignUserByEmailAndCreateIfNotExists,
       ).toHaveBeenCalledWith(project, roles[0], assigneeUser.email, roles);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      project.creatorId = primitiveFaker.id();
+      project.creatorId = Id.from(primitiveFaker.id());
       await expect(
-        roleApplication.assignUser(ownerUser, roles[0].id, assignmentDto),
+        roleApplication.assignUser(ownerUser, roles[0].id.value, assignmentDto),
       ).rejects.toThrow();
     });
   });

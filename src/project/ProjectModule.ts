@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { RoleModule } from 'role/RoleModule';
 
-import { ProjectController } from 'project/ProjectController';
+import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { ProjectDomainService } from 'project/domain/ProjectDomainService';
 import { ContributionsModelService } from 'project/domain/ContributionsModelService';
@@ -14,18 +14,19 @@ import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmR
 import { EventModule } from 'event';
 import { DatabaseModule } from 'database';
 import { TokenModule } from 'token';
-import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
 import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
+import { PeerReviewModelFactoryService } from 'role/domain/PeerReviewModelFactoryService';
+import { RoleController } from 'project/presentation/RoleController';
 
 /**
  * Project Module
  */
 @Module({
   imports: [EventModule, DatabaseModule, TokenModule, UserModule, RoleModule],
-  controllers: [ProjectController],
+  controllers: [ProjectController, RoleController],
   providers: [
     ProjectDomainService,
-    ProjectModelFactoryService,
+    PeerReviewModelFactoryService,
     {
       provide: PROJECT_REPOSITORY,
       useClass: ProjectTypeOrmRepository,
@@ -35,6 +36,6 @@ import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/Projec
     ConsensualityModelService,
     ProjectTypeOrmEntityMapperService,
   ],
-  exports: [PROJECT_REPOSITORY, ProjectModelFactoryService],
+  exports: [PROJECT_REPOSITORY],
 })
 export class ProjectModule {}

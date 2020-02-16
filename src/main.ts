@@ -4,7 +4,7 @@ import { AppModule } from 'app.module';
 import { ConfigService } from 'config';
 import { CONFIG } from 'config/constants';
 
-async function bootstrap(): Promise<void> {
+async function main(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get<ConfigService>(CONFIG);
 
@@ -28,4 +28,4 @@ async function bootstrap(): Promise<void> {
   await app.listen(port);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+main();

@@ -33,11 +33,11 @@ export class NotificationDto extends BaseDto {
     notificationModel: NotificationModel,
   ): NotificationDto {
     return new NotificationDto(
-      notificationModel.id,
-      notificationModel.createdAt,
-      notificationModel.updatedAt,
-      notificationModel.type,
-      notificationModel.isRead,
+      notificationModel.id.value,
+      notificationModel.createdAt.value,
+      notificationModel.updatedAt.value,
+      notificationModel.type.toValue(),
+      notificationModel.isRead.value,
       notificationModel.payload,
     );
   }

@@ -24,7 +24,7 @@ export class EmailSagasService {
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
     await this.emailService.sendEmailChangeEmail(
-      event.email,
+      event.email.value,
       event.magicEmailChangeLink,
     );
   }
@@ -35,7 +35,7 @@ export class EmailSagasService {
   @Saga(SigninRequestedEvent)
   public async signinRequested(event: SigninRequestedEvent): Promise<void> {
     await this.emailService.sendLoginEmail(
-      event.user.email,
+      event.user.email.value,
       event.magicSigninLink,
     );
   }
@@ -45,6 +45,9 @@ export class EmailSagasService {
    */
   @Saga(SignupRequestedEvent)
   public async signupRequested(event: SignupRequestedEvent): Promise<void> {
-    await this.emailService.sendSignupEmail(event.email, event.magicSignupLink);
+    await this.emailService.sendSignupEmail(
+      event.email.value,
+      event.magicSignupLink,
+    );
   }
 }

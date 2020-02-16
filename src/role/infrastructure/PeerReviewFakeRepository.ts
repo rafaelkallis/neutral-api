@@ -1,21 +1,22 @@
-import { PeerReviewModel } from 'role/peer-review.model';
-import { FakeRepository } from 'common';
+import { PeerReviewModel } from 'role/domain/PeerReviewModel';
 import { PeerReviewRepository } from 'role/domain/PeerReviewRepository';
-import { PeerReviewNotFoundException } from 'role/domain/exceptions/PeerReviewNotFoundException';
+import { PeerReviewNotFoundException } from 'project/domain/exceptions/PeerReviewNotFoundException';
+import { MemoryRepository } from 'common/infrastructure/MemoryRepository';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Fake Peer Review Repository
  */
-export class FakePeerReviewRepository extends FakeRepository<PeerReviewModel>
+export class FakePeerReviewRepository extends MemoryRepository<PeerReviewModel>
   implements PeerReviewRepository {
   /**
    *
    */
   public async findBySenderRoleId(
-    senderRoleId: string,
+    senderRoleId: Id,
   ): Promise<PeerReviewModel[]> {
-    return Array.from(this.entities.values()).filter(
-      peerReview => peerReview.senderRoleId === senderRoleId,
+    return Array.from(this.models.values()).filter(peerReview =>
+      peerReview.senderRoleId.equals(senderRoleId),
     );
   }
 
@@ -23,10 +24,10 @@ export class FakePeerReviewRepository extends FakeRepository<PeerReviewModel>
    *
    */
   public async findByReceiverRoleId(
-    receiverRoleId: string,
+    receiverRoleId: Id,
   ): Promise<PeerReviewModel[]> {
-    return Array.from(this.entities.values()).filter(
-      peerReview => peerReview.receiverRoleId === receiverRoleId,
+    return Array.from(this.models.values()).filter(peerReview =>
+      peerReview.receiverRoleId.equals(receiverRoleId),
     );
   }
 

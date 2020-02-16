@@ -5,10 +5,9 @@ import { NotificationController } from 'notification/NotificationController';
 import { NOTIFICATION_REPOSITORY } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
-import { NotificationDomainService } from 'notification/domain/NotificationDomainService';
 import { UserModule } from 'user/UserModule';
 import { TokenModule } from 'token';
-import { NotificationFactoryService } from 'notification/application/NotificationFactoryService';
+import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
 
 /**
@@ -19,7 +18,6 @@ import { NotificationTypeOrmEntityMapperService } from 'notification/infrastruct
   controllers: [NotificationController],
   providers: [
     NotificationApplicationService,
-    NotificationDomainService,
     NotificationFactoryService,
     NotificationTypeOrmEntityMapperService,
     {

@@ -6,8 +6,8 @@ import { CONFIG } from 'config/constants';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { PeerReviewTypeOrmEntity } from 'role/infrastructure/PeerReviewTypeOrmEntity';
-import { RoleTypeOrmEntity } from 'role/infrastructure/RoleTypeOrmEntity';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 
 import { UserMigration1564324478234 } from 'database/migration/1564324478234-UserMigration';

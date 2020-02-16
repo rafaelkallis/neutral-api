@@ -4,17 +4,17 @@ import request from 'supertest';
 
 import { AppModule } from 'app.module';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import {
-  ProjectModel,
-  ProjectState,
-  ProjectRepository,
-  PROJECT_REPOSITORY,
-} from 'project';
 import { RoleModel, RoleRepository } from 'role';
 import { ModelFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 import { EmailService, EMAIL_SERVICE } from 'email';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import {
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project/domain/ProjectRepository';
+import { ProjectModel } from 'project/domain/ProjectModel';
 
 describe('assign user to role', () => {
   let app: INestApplication;
@@ -67,8 +67,8 @@ describe('assign user to role', () => {
 
     beforeEach(async () => {
       assignee = modelFaker.user();
-      assigneeId = assignee.id;
-      assigneeEmail = assignee.email;
+      assigneeId = assignee.id.value;
+      assigneeEmail = assignee.email.value;
       await userRepository.persist(assignee);
     });
 

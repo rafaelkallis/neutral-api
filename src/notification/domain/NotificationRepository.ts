@@ -1,5 +1,6 @@
-import { Repository } from 'common';
+import { Repository } from 'common/domain/Repository';
 import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Id } from 'common/domain/value-objects/Id';
 
 export const NOTIFICATION_REPOSITORY = Symbol('NOTIFICATION_REPOSITORY');
 
@@ -10,5 +11,5 @@ export interface NotificationRepository extends Repository<NotificationModel> {
   /**
    * Finds notifications by user owner id.
    */
-  findByOwnerId(ownerId: string): Promise<NotificationModel[]>;
+  findByOwnerId(ownerId: Id): Promise<NotificationModel[]>;
 }

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
 import { PeerReviewModel } from 'role';
-import { PeerReviewTypeOrmEntity } from 'role/infrastructure/PeerReviewTypeOrmEntity';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { Id } from 'common/domain/value-objects/Id';
+import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 
 /**
  * PeerReview TypeOrm Entity Mapper
@@ -15,11 +18,11 @@ export class PeerReviewTypeOrmEntityMapperService
    */
   public toModel(peerReviewEntity: PeerReviewTypeOrmEntity): PeerReviewModel {
     return new PeerReviewModel(
-      peerReviewEntity.id,
-      peerReviewEntity.createdAt,
-      peerReviewEntity.updatedAt,
-      peerReviewEntity.senderRoleId,
-      peerReviewEntity.receiverRoleId,
+      Id.from(peerReviewEntity.id),
+      CreatedAt.from(peerReviewEntity.createdAt),
+      UpdatedAt.from(peerReviewEntity.updatedAt),
+      Id.from(peerReviewEntity.senderRoleId),
+      Id.from(peerReviewEntity.receiverRoleId),
       peerReviewEntity.score,
     );
   }
@@ -29,11 +32,11 @@ export class PeerReviewTypeOrmEntityMapperService
    */
   public toEntity(peerReviewModel: PeerReviewModel): PeerReviewTypeOrmEntity {
     return new PeerReviewTypeOrmEntity(
-      peerReviewModel.id,
-      peerReviewModel.createdAt,
-      peerReviewModel.updatedAt,
-      peerReviewModel.senderRoleId,
-      peerReviewModel.receiverRoleId,
+      peerReviewModel.id.value,
+      peerReviewModel.createdAt.value,
+      peerReviewModel.updatedAt.value,
+      peerReviewModel.senderRoleId.value,
+      peerReviewModel.receiverRoleId.value,
       peerReviewModel.score,
     );
   }

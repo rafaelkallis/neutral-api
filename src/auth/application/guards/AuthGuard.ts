@@ -10,6 +10,7 @@ import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'session';
 import { TOKEN_SERVICE, TokenService } from 'token';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Auth Guard.
@@ -56,12 +57,12 @@ export class AuthGuard implements CanActivate {
 
   private async handleSessionAuth(session: SessionState): Promise<UserModel> {
     const payload = this.tokenService.validateSessionToken(session.get());
-    const user = await this.userRepository.findById(payload.sub);
+    const user = await this.userRepository.findById(Id.from(payload.sub));
     if (!user) {
       throw new UnauthorizedUserException();
     }
     const newSessionToken = this.tokenService.newSessionToken(
-      user.id,
+      user.id.value,
       payload.maxAge,
     );
     session.set(newSessionToken);
@@ -74,7 +75,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedUserException();
     }
     const payload = this.tokenService.validateAccessToken(content);
-    const user = await this.userRepository.findById(payload.sub);
+    const user = await this.userRepository.findById(Id.from(payload.sub));
     if (!user) {
       throw new UnauthorizedUserException();
     }

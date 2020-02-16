@@ -1,5 +1,5 @@
 export { RoleModel } from 'role/domain/RoleModel';
-export { PeerReviewModel } from 'role/peer-review.model';
+export { PeerReviewModel } from 'role/domain/PeerReviewModel';
 
 export { ROLE_REPOSITORY, RoleRepository } from 'role/domain/RoleRepository';
 export {

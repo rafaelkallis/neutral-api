@@ -1,11 +1,7 @@
 import { ContributionsModelService } from 'project/domain/ContributionsModelService';
 import { ConsensualityModelService } from 'project/domain/ConsensualityModelService';
 import { UserModel, UserRepository, UserFakeRepository } from 'user';
-import {
-  ProjectModel,
-  SkipManagerReview,
-  ProjectState,
-} from 'project/domain/ProjectModel';
+import { ProjectModel } from 'project/domain/ProjectModel';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import {
   RoleModel,
@@ -22,7 +18,11 @@ import {
   CreateProjectOptions,
   UpdateProjectOptions,
 } from 'project/domain/ProjectDomainService';
-import { ProjectModelFactoryService } from 'project/domain/ProjectModelFactoryService';
+import { PeerReviewModelFactoryService } from 'role/domain/PeerReviewModelFactoryService';
+import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 
 describe('project domain service', () => {
   let modelFaker: ModelFaker;
@@ -35,7 +35,7 @@ describe('project domain service', () => {
   let peerReviewRepository: PeerReviewRepository;
   let contributionsModelService: ContributionsModelService;
   let consensualityModelService: ConsensualityModelService;
-  let projectModelFactory: ProjectModelFactoryService;
+  let peerReviewModelFactory: PeerReviewModelFactoryService;
   let projectDomainService: ProjectDomainService;
   let creatorUser: UserModel;
   let project: ProjectModel;
@@ -51,7 +51,7 @@ describe('project domain service', () => {
     peerReviewRepository = new FakePeerReviewRepository();
     contributionsModelService = new ContributionsModelService();
     consensualityModelService = new ConsensualityModelService();
-    projectModelFactory = new ProjectModelFactoryService();
+    peerReviewModelFactory = new PeerReviewModelFactoryService();
     projectDomainService = new ProjectDomainService(
       eventPublisher,
       projectRepository,
@@ -59,7 +59,7 @@ describe('project domain service', () => {
       peerReviewRepository,
       contributionsModelService,
       consensualityModelService,
-      projectModelFactory,
+      peerReviewModelFactory,
     );
 
     creatorUser = modelFaker.user();
@@ -73,13 +73,13 @@ describe('project domain service', () => {
   });
 
   describe('create project', () => {
-    let title: string;
-    let description: string;
+    let title: ProjectTitle;
+    let description: ProjectDescription;
     let createProjectOptions: CreateProjectOptions;
 
     beforeEach(() => {
-      title = primitiveFaker.words();
-      description = primitiveFaker.paragraph();
+      title = ProjectTitle.from(primitiveFaker.words());
+      description = ProjectDescription.from(primitiveFaker.paragraph());
       createProjectOptions = { title, description };
       jest.spyOn(projectRepository, 'persist');
     });
@@ -222,9 +222,9 @@ describe('project domain service', () => {
       }
 
       peerReviewMap = new Map();
-      peerReviewMap.set(roles[1].id, 1 / 3);
-      peerReviewMap.set(roles[2].id, 1 / 3);
-      peerReviewMap.set(roles[3].id, 1 / 3);
+      peerReviewMap.set(roles[1].id.value, 1 / 3);
+      peerReviewMap.set(roles[2].id.value, 1 / 3);
+      peerReviewMap.set(roles[3].id.value, 1 / 3);
 
       jest.spyOn(roleRepository, 'findByProjectId');
       jest.spyOn(peerReviewRepository, 'findBySenderRoleId');
@@ -341,7 +341,7 @@ describe('project domain service', () => {
     });
 
     test('should fail if a peer review is for non-existing peer', async () => {
-      peerReviewMap.delete(roles[1].id);
+      peerReviewMap.delete(roles[1].id.value);
       peerReviewMap.set(primitiveFaker.id(), 1 / 3);
       await expect(
         projectDomainService.submitPeerReviews(

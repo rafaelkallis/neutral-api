@@ -1,6 +1,6 @@
 import { TypeOrmEntity } from 'common';
 import { Column, Entity } from 'typeorm';
-import { NotificationType } from 'notification/notification';
+import { NotificationTypeValue } from 'notification/domain/value-objects/NotificationType';
 
 /**
  * Notification TypeOrm Entity
@@ -10,8 +10,8 @@ export class NotificationTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'owner_id' })
   public ownerId: string;
 
-  @Column({ name: 'type', type: 'enum', enum: NotificationType })
-  public type: NotificationType;
+  @Column({ name: 'type', type: 'enum', enum: NotificationTypeValue })
+  public type: NotificationTypeValue;
 
   @Column({ name: 'is_read' })
   public isRead: boolean;
@@ -24,7 +24,7 @@ export class NotificationTypeOrmEntity extends TypeOrmEntity {
     createdAt: number,
     updatedAt: number,
     ownerId: string,
-    type: NotificationType,
+    type: NotificationTypeValue,
     isRead: boolean,
     payload: object,
   ) {

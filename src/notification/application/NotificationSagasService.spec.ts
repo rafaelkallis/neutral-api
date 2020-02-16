@@ -1,9 +1,9 @@
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { ModelFaker } from 'test';
 import { NotificationSagasService } from 'notification/application/NotificationSagasService';
-import { NotificationFactoryService } from 'notification/application/NotificationFactoryService';
-import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
-import { NotificationType } from 'notification/notification';
+import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
+import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -17,9 +17,7 @@ describe('notification sagas', () => {
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     notificationRepository = new NotificationFakeRepository();
-    notificationFactory = new NotificationFactoryService(
-      notificationRepository,
-    );
+    notificationFactory = new NotificationFactoryService();
     notificationSagas = new NotificationSagasService(
       notificationRepository,
       notificationFactory,

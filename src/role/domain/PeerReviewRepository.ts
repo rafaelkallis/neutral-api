@@ -1,5 +1,6 @@
-import { PeerReviewModel } from 'role/peer-review.model';
-import { Repository } from 'common';
+import { Repository } from 'common/domain/Repository';
+import { PeerReviewModel } from 'role/domain/PeerReviewModel';
+import { Id } from 'common/domain/value-objects/Id';
 
 export const PEER_REVIEW_REPOSITORY = Symbol('PEER_REVIEW_REPOSITORY');
 
@@ -10,10 +11,10 @@ export interface PeerReviewRepository extends Repository<PeerReviewModel> {
   /**
    *
    */
-  findBySenderRoleId(senderRoleId: string): Promise<PeerReviewModel[]>;
+  findBySenderRoleId(senderRoleId: Id): Promise<PeerReviewModel[]>;
 
   /**
    *
    */
-  findByReceiverRoleId(receiverRoleId: string): Promise<PeerReviewModel[]>;
+  findByReceiverRoleId(receiverRoleId: Id): Promise<PeerReviewModel[]>;
 }

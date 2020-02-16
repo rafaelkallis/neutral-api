@@ -10,9 +10,10 @@ import {
 } from 'project/domain/ProjectRepository';
 import { RoleRepository, ROLE_REPOSITORY, RoleModel } from 'role';
 import { ModelFaker, PrimitiveFaker, TestUtils } from 'test';
-import { ProjectState } from 'project';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { INestApplication } from '@nestjs/common';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
 
 describe('ProjectController (e2e)', () => {
   let app: INestApplication;
@@ -76,7 +77,7 @@ describe('ProjectController (e2e)', () => {
 
     beforeEach(async () => {
       project = modelFaker.project(user.id);
-      project.consensuality = 0.8;
+      project.consensuality = Consensuality.from(0.8);
       await projectRepository.persist(project);
     });
 

@@ -2,20 +2,21 @@ import { Injectable, Inject } from '@nestjs/common';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleRepository, ROLE_REPOSITORY } from 'role/domain/RoleRepository';
-import { CreateRoleOutsideFormationStateException } from 'role/domain/exceptions/CreateRoleOutsideFormationStateException';
-import { AlreadyAssignedRoleSameProjectException } from 'role/domain/exceptions/AlreadyAssignedRoleSameProjectException';
+import { MultipleAssignmentsWithinProjectException } from 'project/domain/exceptions/MultipleAssignmentsWithinProjectException';
 import { EventPublisherService, InjectEventPublisher } from 'event';
-import { RoleCreatedEvent } from 'role/domain/events/RoleCreatedEvent';
-import { RoleUpdatedEvent } from 'role/domain/events/RoleUpdatedEvent';
-import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
-import { NewUserAssignedEvent } from 'role/domain/events/NewUserAssignedEvent';
-import { RoleDeletedEvent } from 'role/domain/events/RoleDeletedEvent';
+import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
+import { RoleUpdatedEvent } from 'project/domain/RoleUpdatedEvent';
+import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
+import { RoleDeletedEvent } from 'project/domain/events/RoleDeletedEvent';
 import { InvariantViolationException } from 'common';
-import { ProjectModel } from 'project';
 import { EmailService, EMAIL_SERVICE } from 'email';
-import { UserUnassignedEvent } from 'role/domain/events/UserUnassignedEvent';
+import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectNotFormationStateException } from 'project/domain/exceptions/ProjectNotFormationStateException';
 import { RoleModelFactoryService } from 'role/domain/RoleModelFactoryService';
+import { Name } from 'user/domain/value-objects/Name';
+import { Email } from 'user/domain/value-objects/Email';
+import { ProjectModel } from 'project/domain/ProjectModel';
 
 export interface CreateRoleOptions {
   readonly title: string;
@@ -56,8 +57,8 @@ export class RoleDomainService {
     createRoleOptions: CreateRoleOptions,
     project: ProjectModel,
   ): Promise<RoleModel> {
-    if (!project.isFormationState()) {
-      throw new CreateRoleOutsideFormationStateException();
+    if (!project.state.isFormation()) {
+      throw new ProjectNotFormationStateException();
     }
     const projectId = project.id;
     const title = createRoleOptions.title;
@@ -80,7 +81,7 @@ export class RoleDomainService {
     role: RoleModel,
     updateRoleOptions: UpdateRoleOptions,
   ): Promise<void> {
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     Object.assign(role, updateRoleOptions);
@@ -95,7 +96,7 @@ export class RoleDomainService {
     project: ProjectModel,
     role: RoleModel,
   ): Promise<void> {
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     await this.roleRepository.delete(role);
@@ -114,16 +115,16 @@ export class RoleDomainService {
     if (!role.belongsToProject(project)) {
       throw new InvariantViolationException();
     }
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     if (!role.isAssignee(user)) {
       if (projectRoles.some(r => r.isAssignee(user))) {
-        throw new AlreadyAssignedRoleSameProjectException();
+        throw new MultipleAssignmentsWithinProjectException();
       }
-      if (role.hasAssignee()) {
+      if (role.assigneeId) {
         await this.eventPublisher.publish(
-          new UserUnassignedEvent(project, role),
+          new UserUnassignedEvent(project, role, role.assigneeId),
         );
       }
       role.assigneeId = user.id;
@@ -131,7 +132,7 @@ export class RoleDomainService {
       await this.eventPublisher.publish(
         new ExistingUserAssignedEvent(project, role),
       );
-      await this.emailService.sendNewAssignmentEmail(user.email);
+      await this.emailService.sendNewAssignmentEmail(user.email.value);
     }
   }
 
@@ -141,13 +142,13 @@ export class RoleDomainService {
   public async assignUserByEmailAndCreateIfNotExists(
     project: ProjectModel,
     role: RoleModel,
-    email: string,
+    email: Email,
     projectRoles: RoleModel[],
   ): Promise<void> {
     if (!role.belongsToProject(project)) {
       throw new InvariantViolationException();
     }
-    if (!project.isFormationState()) {
+    if (!project.state.isFormation()) {
       throw new ProjectNotFormationStateException();
     }
     const userExists = await this.userRepository.existsByEmail(email);
@@ -156,22 +157,10 @@ export class RoleDomainService {
       await this.assignUser(project, role, user, projectRoles);
       return;
     }
-    // TODO should this be in here?
-    const userId = this.userRepository.createId();
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    const firstName = '';
-    const lastName = '';
-    const lastLoginAt = 0;
-    const user = new UserModel(
-      userId,
-      createdAt,
-      updatedAt,
-      email,
-      firstName,
-      lastName,
-      lastLoginAt,
-    );
+    const first = '';
+    const last = '';
+    const name = Name.from(first, last);
+    const user = UserModel.create(email, name);
     await this.userRepository.persist(user);
 
     role.assigneeId = user.id;
@@ -179,6 +168,8 @@ export class RoleDomainService {
     await this.eventPublisher.publish(
       new NewUserAssignedEvent(project, role, email),
     );
-    await this.emailService.sendUnregisteredUserNewAssignmentEmail(user.email);
+    await this.emailService.sendUnregisteredUserNewAssignmentEmail(
+      user.email.value,
+    );
   }
 }

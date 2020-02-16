@@ -1,3 +1,6 @@
+import { Id } from 'common/domain/value-objects/Id';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+
 /**
  * Token types used throughout the app.
  */
@@ -73,7 +76,7 @@ export interface TokenService {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  newLoginToken(userId: string, lastLoginAt: number): string;
+  newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string;
 
   /**
    * Validate and decrypt a login token.

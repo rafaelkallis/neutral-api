@@ -49,8 +49,8 @@ export class ElasticApmService extends ApmService
     }
     if (authUser) {
       apm.setUserContext({
-        id: authUser.id,
-        email: authUser.email,
+        id: authUser.id.value,
+        email: authUser.email.value,
       });
     }
     return {

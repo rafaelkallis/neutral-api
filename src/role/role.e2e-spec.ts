@@ -4,16 +4,16 @@ import request from 'supertest';
 
 import { AppModule } from 'app.module';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import {
-  ProjectModel,
-  ProjectState,
-  ProjectRepository,
-  PROJECT_REPOSITORY,
-} from 'project';
 import { RoleModel, RoleRepository } from 'role';
 import { ModelFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { ROLE_REPOSITORY } from 'role/domain/RoleRepository';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import {
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project/domain/ProjectRepository';
+import { ProjectModel } from 'project/domain/ProjectModel';
 
 describe('roles (e2e)', () => {
   let app: INestApplication;

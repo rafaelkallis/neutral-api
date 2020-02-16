@@ -9,9 +9,9 @@ import {
   PROJECT_REPOSITORY,
 } from 'project/domain/ProjectRepository';
 import { ModelFaker } from 'test';
-import { ProjectState } from 'project/domain/ProjectModel';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
 
 describe('submit manager review (e2e)', () => {
   let app: INestApplication;

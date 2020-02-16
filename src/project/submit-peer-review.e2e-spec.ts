@@ -16,9 +16,9 @@ import {
   ROLE_REPOSITORY,
 } from 'role';
 import { ModelFaker, PrimitiveFaker, TestUtils } from 'test';
-import { ProjectState } from 'project/domain/ProjectModel';
 import { TOKEN_SERVICE, TokenService } from 'token';
 import { UserRepository, USER_REPOSITORY } from 'user';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
 
 jest.setTimeout(10000);
 
@@ -80,25 +80,25 @@ describe('submit peer review (e2e)', () => {
     await roleRepository.persist(role1, role2, role3, role4);
 
     peerReviews = {
-      [role1.id]: {
-        [role2.id]: 0.3,
-        [role3.id]: 0.2,
-        [role4.id]: 0.5,
+      [role1.id.value]: {
+        [role2.id.value]: 0.3,
+        [role3.id.value]: 0.2,
+        [role4.id.value]: 0.5,
       },
-      [role2.id]: {
-        [role1.id]: 0.8,
-        [role3.id]: 0.1,
-        [role4.id]: 0.1,
+      [role2.id.value]: {
+        [role1.id.value]: 0.8,
+        [role3.id.value]: 0.1,
+        [role4.id.value]: 0.1,
       },
-      [role3.id]: {
-        [role1.id]: 0.8,
-        [role2.id]: 0.1,
-        [role4.id]: 0.1,
+      [role3.id.value]: {
+        [role1.id.value]: 0.8,
+        [role2.id.value]: 0.1,
+        [role4.id.value]: 0.1,
       },
-      [role4.id]: {
-        [role1.id]: 0.8,
-        [role2.id]: 0.1,
-        [role3.id]: 0.1,
+      [role4.id.value]: {
+        [role1.id.value]: 0.8,
+        [role2.id.value]: 0.1,
+        [role3.id.value]: 0.1,
       },
     };
 
@@ -112,7 +112,8 @@ describe('submit peer review (e2e)', () => {
           senderRole.id,
           receiverRole.id,
         );
-        peerReview.score = peerReviews[senderRole.id][receiverRole.id];
+        peerReview.score =
+          peerReviews[senderRole.id.value][receiverRole.id.value];
         await peerReviewRepository.persist(peerReview);
       }
     }
@@ -125,7 +126,7 @@ describe('submit peer review (e2e)', () => {
   test('happy path, final peer review', async () => {
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id] });
+      .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
     await TestUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
@@ -134,7 +135,7 @@ describe('submit peer review (e2e)', () => {
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(
-        peerReviews[role1.id][sentPeerReview.receiverRoleId],
+        peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
       );
     }
     const updatedProject = await projectRepository.findById(project.id);
@@ -151,7 +152,7 @@ describe('submit peer review (e2e)', () => {
     await roleRepository.persist(role4);
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id] });
+      .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
     await TestUtils.sleep(500);
     const sentPeerReviews = await peerReviewRepository.findBySenderRoleId(
@@ -160,7 +161,7 @@ describe('submit peer review (e2e)', () => {
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {
       expect(sentPeerReview.score).toBe(
-        peerReviews[role1.id][sentPeerReview.receiverRoleId],
+        peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
       );
     }
     const updatedProject = await projectRepository.findById(project.id);
@@ -177,7 +178,7 @@ describe('submit peer review (e2e)', () => {
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id] });
+      .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);
   });
 
@@ -187,18 +188,18 @@ describe('submit peer review (e2e)', () => {
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id] });
+      .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);
   });
 
   test('should fail if a peer review is for non-existing peer', async () => {
-    peerReviews[role1.id][primitiveFaker.id()] =
-      peerReviews[role1.id][role2.id];
-    delete peerReviews[role1.id][role2.id];
+    peerReviews[role1.id.value][primitiveFaker.id()] =
+      peerReviews[role1.id.value][role2.id.value];
+    delete peerReviews[role1.id.value][role2.id.value];
 
     const response = await session
       .post(`/projects/${project.id}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id] });
+      .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);
   });
 });

@@ -1,5 +1,6 @@
-import { Repository } from 'common';
+import { Repository } from 'common/domain/Repository';
 import { RoleModel } from 'role/domain/RoleModel';
+import { Id } from 'common/domain/value-objects/Id';
 
 export const ROLE_REPOSITORY = Symbol('ROLE_REPOSITORY');
 
@@ -10,10 +11,10 @@ export interface RoleRepository extends Repository<RoleModel> {
   /**
    *
    */
-  findByProjectId(projectId: string): Promise<RoleModel[]>;
+  findByProjectId(projectId: Id): Promise<RoleModel[]>;
 
   /**
    *
    */
-  findByAssigneeId(assigneeId: string): Promise<RoleModel[]>;
+  findByAssigneeId(assigneeId: Id): Promise<RoleModel[]>;
 }

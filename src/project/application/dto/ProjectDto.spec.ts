@@ -1,7 +1,8 @@
-import { UserModel } from 'user';
-import { ProjectModel } from 'project';
+import { UserModel } from 'user/domain/UserModel';
+import { ProjectModel } from 'project/domain/ProjectModel';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ModelFaker } from 'test';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
 
 describe('project dto', () => {
   let modelFaker: ModelFaker;
@@ -28,15 +29,15 @@ describe('project dto', () => {
       creatorId: project.creatorId,
       state: project.state,
       consensuality: null,
-      contributionVisibility: project.contributionVisibility,
-      skipManagerReview: project.skipManagerReview,
+      contributionVisibility: project.contributionVisibility.toValue(),
+      skipManagerReview: project.skipManagerReview.toValue(),
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
     });
   });
 
   test('should expose consensuality if project owner', () => {
-    project.consensuality = 1;
+    project.consensuality = Consensuality.from(1);
     const projectDto = ProjectDto.builder()
       .project(project)
       .authUser(owner)
@@ -45,7 +46,7 @@ describe('project dto', () => {
   });
 
   test('should not expose consensuality if not project owner', () => {
-    project.consensuality = 1;
+    project.consensuality = Consensuality.from(1);
     const projectDto = ProjectDto.builder()
       .project(project)
       .authUser(user)

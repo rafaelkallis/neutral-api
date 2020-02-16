@@ -1,0 +1,110 @@
+import { ObjectType } from 'typeorm';
+import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { DatabaseClientService } from 'database';
+import { Model } from 'common/domain/Model';
+import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
+import { Id } from 'common/domain/value-objects/Id';
+import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
+
+/**
+ * TypeOrm Repository
+ */
+export abstract class SimpleTypeOrmRepository<
+  TModel extends Model,
+  TEntity extends TypeOrmEntity
+> extends TypeOrmRepository<TModel> {
+  protected readonly entityMapper: TypeOrmEntityMapperService<TModel, TEntity>;
+
+  public constructor(
+    databaseClient: DatabaseClientService,
+    typeOrmEntityMapper: TypeOrmEntityMapperService<TModel, TEntity>,
+  ) {
+    super(databaseClient);
+    this.entityMapper = typeOrmEntityMapper;
+  }
+
+  /**
+   *
+   */
+  public async persist(...models: TModel[]): Promise<void> {
+    for (const model of models) {
+      model.validate();
+    }
+    const entities = models.map(m => this.entityMapper.toEntity(m));
+    await this.entityManager.save(entities);
+  }
+
+  /**
+   *
+   */
+  public async findPage(afterId?: Id): Promise<TModel[]> {
+    let builder = this.entityManager
+      .getRepository(this.getEntityType())
+      .createQueryBuilder()
+      .orderBy('id', 'DESC')
+      .take(10);
+
+    if (afterId) {
+      builder = builder.andWhere('id > :afterId', { afterId: afterId.value });
+    }
+    const entities = await builder.getMany();
+    const models = entities.map(e => this.entityMapper.toModel(e));
+    return models;
+  }
+
+  /**
+   *
+   */
+  public async findById(id: Id): Promise<TModel> {
+    const entity = await this.entityManager
+      .getRepository(this.getEntityType())
+      .findOne(id.value);
+    if (!entity) {
+      this.throwEntityNotFoundException();
+    }
+    const model = this.entityMapper.toModel(entity);
+    return model;
+  }
+
+  /**
+   *
+   */
+  public async findByIds(ids: Id[]): Promise<TModel[]> {
+    const entities = await this.entityManager
+      .getRepository(this.getEntityType())
+      .findByIds(ids);
+    if (ids.length !== entities.length) {
+      this.throwEntityNotFoundException();
+    }
+    const models = entities.map(e => this.entityMapper.toModel(e));
+    return models;
+  }
+
+  /**
+   *
+   */
+  public async exists(id: Id): Promise<boolean> {
+    const entity = await this.entityManager
+      .getRepository(this.getEntityType())
+      .findOne(id.value);
+    return Boolean(entity);
+  }
+
+  /**
+   *
+   */
+  public async delete(...models: TModel[]): Promise<void> {
+    const ids = models.map(m => m.id.value);
+    await this.entityManager.getRepository(this.getEntityType()).delete(ids);
+  }
+
+  /**
+   * Throw entity-specific not-found exception
+   */
+  protected abstract throwEntityNotFoundException(): never;
+
+  /**
+   *
+   */
+  protected abstract getEntityType(): ObjectType<TEntity>;
+}

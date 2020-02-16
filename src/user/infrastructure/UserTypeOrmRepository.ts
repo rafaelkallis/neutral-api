@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { TypeOrmRepository } from 'common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { DatabaseClientService } from 'database';
 import { UserModel } from 'user/domain/UserModel';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
+import { SimpleTypeOrmRepository } from 'common/infrastructure/SimpleTypeOrmRepository';
+import { ObjectType } from 'typeorm';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * TypeOrm User Repository
  */
 @Injectable()
-export class TypeOrmUserRepository
-  extends TypeOrmRepository<UserModel, UserTypeOrmEntity>
+export class UserTypeOrmRepository
+  extends SimpleTypeOrmRepository<UserModel, UserTypeOrmEntity>
   implements UserRepository {
   /**
    *
@@ -21,40 +23,45 @@ export class TypeOrmUserRepository
     databaseClient: DatabaseClientService,
     userTypeOrmEntityMapper: UserTypeOrmEntityMapperService,
   ) {
-    super(databaseClient, UserTypeOrmEntity, userTypeOrmEntityMapper);
+    super(databaseClient, userTypeOrmEntityMapper);
   }
 
   /**
    *
    */
   public async findByName(fullName: string): Promise<UserModel[]> {
-    const userEntities = await this.internalRepository
+    const userEntities = await this.entityManager
+      .getRepository(UserTypeOrmEntity)
       .createQueryBuilder('user')
       .where('full_name ILIKE :fullName', { fullName: `%${fullName}%` })
       .orderBy('id', 'DESC')
       .take(10)
       .getMany();
-    const userModels = userEntities.map(e => this.toModel(e));
+    const userModels = userEntities.map(e => this.entityMapper.toModel(e));
     return userModels;
   }
 
   /**
    *
    */
-  public async findByEmail(email: string): Promise<UserModel> {
-    const userEntity = await this.internalRepository.findOne({ email });
+  public async findByEmail(email: Email): Promise<UserModel> {
+    const userEntity = await this.entityManager
+      .getRepository(UserTypeOrmEntity)
+      .findOne({ email: email.value });
     if (!userEntity) {
       this.throwEntityNotFoundException();
     }
-    const userModel = this.toModel(userEntity);
+    const userModel = this.entityMapper.toModel(userEntity);
     return userModel;
   }
 
   /**
    *
    */
-  public async existsByEmail(email: string): Promise<boolean> {
-    const userEntity = await this.internalRepository.findOne({ email });
+  public async existsByEmail(email: Email): Promise<boolean> {
+    const userEntity = await this.entityManager
+      .getRepository(UserTypeOrmEntity)
+      .findOne({ email: email.value });
     return Boolean(userEntity);
   }
 
@@ -68,30 +75,7 @@ export class TypeOrmUserRepository
   /**
    *
    */
-  protected toModel(userEntity: UserTypeOrmEntity): UserModel {
-    return new UserModel(
-      userEntity.id,
-      userEntity.createdAt,
-      userEntity.updatedAt,
-      userEntity.email,
-      userEntity.firstName,
-      userEntity.lastName,
-      userEntity.lastLoginAt,
-    );
-  }
-
-  /**
-   *
-   */
-  protected toEntity(userModel: UserModel): UserTypeOrmEntity {
-    return new UserTypeOrmEntity(
-      userModel.id,
-      userModel.createdAt,
-      userModel.updatedAt,
-      userModel.email,
-      userModel.firstName,
-      userModel.lastName,
-      userModel.lastLoginAt,
-    );
+  protected getEntityType(): ObjectType<UserTypeOrmEntity> {
+    return UserTypeOrmEntity;
   }
 }

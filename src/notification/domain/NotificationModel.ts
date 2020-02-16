@@ -1,55 +1,32 @@
-import { AbstractModel } from 'common';
-import {
-  MaxLength,
-  IsString,
-  IsBoolean,
-  IsObject,
-  IsEnum,
-} from 'class-validator';
-import { Notification, NotificationType } from 'notification/notification';
+import { IsObject } from 'class-validator';
+import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { UserModel } from 'user';
+import { Id } from 'common/domain/value-objects/Id';
+import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
+import { NotificationAlreadyReadException } from 'notification/domain/exceptions/NotificationAlreadyReadException';
+import { AggregateRoot } from 'common/domain/AggregateRoot';
+import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 
 /**
  * Notification Model
  */
-export class NotificationModel extends AbstractModel {
-  @IsString()
-  @MaxLength(24)
-  public ownerId: string;
-
-  @IsEnum(NotificationType)
-  @MaxLength(64)
+export class NotificationModel extends AggregateRoot {
+  public ownerId: Id;
   public type: NotificationType;
-
-  @IsBoolean()
-  public isRead: boolean;
+  public isRead: NotificationIsRead;
 
   @IsObject()
   public payload: object;
 
-  public static fromNotification(
-    notification: Notification,
-  ): NotificationModel {
-    const createdAt = Date.now();
-    const updatedAt = Date.now();
-    return new NotificationModel(
-      notification.id,
-      createdAt,
-      updatedAt,
-      notification.ownerId,
-      notification.type,
-      notification.isRead,
-      notification.payload,
-    );
-  }
-
   public constructor(
-    id: string,
-    createdAt: number,
-    updatedAt: number,
-    ownerId: string,
+    id: Id,
+    createdAt: CreatedAt,
+    updatedAt: UpdatedAt,
+    ownerId: Id,
     type: NotificationType,
-    isRead: boolean,
+    isRead: NotificationIsRead,
     payload: object,
   ) {
     super(id, createdAt, updatedAt);
@@ -57,6 +34,17 @@ export class NotificationModel extends AbstractModel {
     this.type = type;
     this.isRead = isRead;
     this.payload = payload;
+  }
+
+  /**
+   *
+   */
+  public markRead(): void {
+    if (this.isRead.value) {
+      throw new NotificationAlreadyReadException();
+    }
+    this.isRead = NotificationIsRead.from(true);
+    this.apply(new NotificationReadEvent(this));
   }
 
   /**

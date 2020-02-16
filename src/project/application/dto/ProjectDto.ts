@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common';
 import { UserModel } from 'user';
-import { RoleDto } from 'role/application/dto/RoleDto';
-import {
-  ProjectModel,
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/domain/ProjectModel';
+import { RoleDto } from 'project/application/dto/RoleDto';
+import { ProjectModel } from 'project/domain/ProjectModel';
+import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
+import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 
 /**
  * Project DTO
@@ -29,17 +27,17 @@ export class ProjectDto extends BaseDto {
   @ApiProperty()
   public creatorId: string;
 
-  @ApiProperty()
-  public state: ProjectState;
+  @ApiProperty({ example: ProjectStateValue.FORMATION })
+  public state: ProjectStateValue;
 
   @ApiProperty()
   public consensuality: number | null;
 
-  @ApiProperty({ example: ContributionVisibility.SELF })
-  public contributionVisibility: ContributionVisibility;
+  @ApiProperty({ example: ContributionVisibilityValue.SELF })
+  public contributionVisibility: ContributionVisibilityValue;
 
-  @ApiProperty({ example: SkipManagerReview.IF_CONSENSUAL })
-  public skipManagerReview: SkipManagerReview;
+  @ApiProperty({ example: SkipManagerReviewValue.IF_CONSENSUAL })
+  public skipManagerReview: SkipManagerReviewValue;
 
   @ApiProperty({ required: false })
   public roles?: RoleDto[];
@@ -53,10 +51,10 @@ export class ProjectDto extends BaseDto {
     title: string,
     description: string,
     creatorId: string,
-    state: ProjectState,
+    state: ProjectStateValue,
     consensuality: number | null,
-    contributionVisibility: ContributionVisibility,
-    skipManagerReview: SkipManagerReview,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: SkipManagerReviewValue,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -105,16 +103,20 @@ class BuildStep {
   public build(): ProjectDto {
     const { project, roles } = this;
     const projectDto = new ProjectDto(
-      project.id,
-      project.title,
-      project.description,
-      project.creatorId,
-      project.state,
-      this.shouldExposeConsensuality() ? project.consensuality : null,
-      project.contributionVisibility,
-      project.skipManagerReview,
-      project.createdAt,
-      project.updatedAt,
+      project.id.value,
+      project.title.value,
+      project.description.value,
+      project.creatorId.value,
+      project.state.toValue(),
+      this.shouldExposeConsensuality()
+        ? project.consensuality
+          ? project.consensuality.value
+          : null
+        : null,
+      project.contributionVisibility.toValue(),
+      project.skipManagerReview.toValue(),
+      project.createdAt.value,
+      project.updatedAt.value,
     );
     if (roles) {
       projectDto.roles = roles;

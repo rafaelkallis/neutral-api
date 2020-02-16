@@ -1,18 +1,21 @@
-import { TypeOrmRepository } from 'common';
-import { RoleTypeOrmEntity } from 'role/infrastructure/RoleTypeOrmEntity';
+import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
 import { RoleModel } from 'role/domain/RoleModel';
 import { RoleRepository } from 'role/domain/RoleRepository';
-import { RoleNotFoundException } from 'role/application/exceptions/RoleNotFoundException';
+import { RoleNotFoundException } from 'project/domain/exceptions/RoleNotFoundException';
 import { RoleTypeOrmEntityMapperService } from 'role/infrastructure/RoleTypeOrmEntityMapperService';
+import { SimpleTypeOrmRepository } from 'common/infrastructure/SimpleTypeOrmRepository';
+import { ObjectType } from 'typeorm';
+import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * TypeOrm Role Repository
  */
 @Injectable()
 export class TypeOrmRoleRepository
-  extends TypeOrmRepository<RoleModel, RoleTypeOrmEntity>
+  extends SimpleTypeOrmRepository<RoleModel, RoleTypeOrmEntity>
   implements RoleRepository {
   /**
    *
@@ -21,14 +24,16 @@ export class TypeOrmRoleRepository
     databaseClient: DatabaseClientService,
     roleEntityMapper: RoleTypeOrmEntityMapperService,
   ) {
-    super(databaseClient, RoleTypeOrmEntity, roleEntityMapper);
+    super(databaseClient, roleEntityMapper);
   }
 
   /**
    *
    */
-  public async findByProjectId(projectId: string): Promise<RoleModel[]> {
-    const roleEntities = await this.internalRepository.find({ projectId });
+  public async findByProjectId(projectId: Id): Promise<RoleModel[]> {
+    const roleEntities = await this.entityManager
+      .getRepository(RoleTypeOrmEntity)
+      .find({ projectId: projectId.value });
     const roleModels = roleEntities.map(e => this.entityMapper.toModel(e));
     return roleModels;
   }
@@ -36,8 +41,10 @@ export class TypeOrmRoleRepository
   /**
    *
    */
-  public async findByAssigneeId(assigneeId: string): Promise<RoleModel[]> {
-    const roleEntities = await this.internalRepository.find({ assigneeId });
+  public async findByAssigneeId(assigneeId: Id): Promise<RoleModel[]> {
+    const roleEntities = await this.entityManager
+      .getRepository(RoleTypeOrmEntity)
+      .find({ assigneeId: assigneeId.value });
     const roleModels = roleEntities.map(e => this.entityMapper.toModel(e));
     return roleModels;
   }
@@ -47,5 +54,12 @@ export class TypeOrmRoleRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new RoleNotFoundException();
+  }
+
+  /**
+   *
+   */
+  protected getEntityType(): ObjectType<ProjectTypeOrmEntity> {
+    return RoleTypeOrmEntity;
   }
 }

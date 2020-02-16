@@ -1,10 +1,8 @@
 import { Column, Entity } from 'typeorm';
 import { TypeOrmEntity } from 'common';
-import {
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/domain/ProjectModel';
+import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
+import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 
 /**
  * Project TypeOrm Entity
@@ -20,8 +18,8 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'creator_id' })
   public creatorId: string;
 
-  @Column({ name: 'state', type: 'enum', enum: ProjectState })
-  public state: ProjectState;
+  @Column({ name: 'state', type: 'enum', enum: ProjectStateValue })
+  public state: ProjectStateValue;
 
   @Column({ name: 'consensuality', type: 'real', nullable: true })
   public consensuality: number | null;
@@ -29,16 +27,16 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({
     name: 'contribution_visibility',
     type: 'enum',
-    enum: ContributionVisibility,
+    enum: ContributionVisibilityValue,
   })
-  public contributionVisibility: ContributionVisibility;
+  public contributionVisibility: ContributionVisibilityValue;
 
   @Column({
     name: 'skip_manager_review',
     type: 'enum',
-    enum: SkipManagerReview,
+    enum: SkipManagerReviewValue,
   })
-  public skipManagerReview: SkipManagerReview;
+  public skipManagerReview: SkipManagerReviewValue;
 
   public constructor(
     id: string,
@@ -47,10 +45,10 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     title: string,
     description: string,
     creatorId: string,
-    state: ProjectState,
+    state: ProjectStateValue,
     consensuality: number | null,
-    contributionVisibility: ContributionVisibility,
-    skipManagerReview: SkipManagerReview,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: SkipManagerReviewValue,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;

@@ -1,19 +1,24 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
-import { ProjectRepository, PROJECT_REPOSITORY } from 'project';
 import { UserNotProjectOwnerException } from 'project/application/exceptions/UserNotProjectOwnerException';
 import { RoleRepository, ROLE_REPOSITORY } from 'role/domain/RoleRepository';
 import {
   PeerReviewRepository,
   PEER_REVIEW_REPOSITORY,
 } from 'role/domain/PeerReviewRepository';
-import { RoleDto } from 'role/application/dto/RoleDto';
-import { GetRolesQueryDto } from 'role/application/dto/GetRolesQueryDto';
-import { CreateRoleDto } from 'role/application/dto/CreateRoleDto';
-import { UpdateRoleDto } from 'role/application/dto/UpdateRoleDto';
-import { AssignmentDto } from 'role/application/dto/AssignmentDto';
-import { NoAssigneeException } from 'role/domain/exceptions/NoAssigneeException';
+import { RoleDto } from 'project/application/dto/RoleDto';
+import { GetRolesQueryDto } from 'project/application/GetRolesQueryDto';
+import { CreateRoleDto } from 'project/application/dto/CreateRoleDto';
+import { UpdateRoleDto } from 'project/application/dto/UpdateRoleDto';
+import { AssignmentDto } from 'project/application/dto/AssignmentDto';
+import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { RoleDomainService } from 'role/domain/RoleDomainService';
+import { Email } from 'user/domain/value-objects/Email';
+import { Id } from 'common/domain/value-objects/Id';
+import {
+  ProjectRepository,
+  PROJECT_REPOSITORY,
+} from 'project/domain/ProjectRepository';
 
 @Injectable()
 export class RoleApplicationService {
@@ -44,7 +49,9 @@ export class RoleApplicationService {
     authUser: UserModel,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    const project = await this.projectRepository.findById(query.projectId);
+    const project = await this.projectRepository.findById(
+      Id.from(query.projectId),
+    );
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return Promise.all(
       projectRoles.map(async role =>
@@ -61,8 +68,8 @@ export class RoleApplicationService {
   /**
    * Get the role with the given id
    */
-  public async getRole(authUser: UserModel, id: string): Promise<RoleDto> {
-    const role = await this.roleRepository.findById(id);
+  public async getRole(authUser: UserModel, roleId: string): Promise<RoleDto> {
+    const role = await this.roleRepository.findById(Id.from(roleId));
     const project = await this.projectRepository.findById(role.projectId);
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     return RoleDto.builder()
@@ -83,7 +90,9 @@ export class RoleApplicationService {
     authUser: UserModel,
     dto: CreateRoleDto,
   ): Promise<RoleDto> {
-    const project = await this.projectRepository.findById(dto.projectId);
+    const project = await this.projectRepository.findById(
+      Id.from(dto.projectId),
+    );
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -102,10 +111,10 @@ export class RoleApplicationService {
    */
   public async updateRole(
     authUser: UserModel,
-    id: string,
+    roleId: string,
     updateRoleDto: UpdateRoleDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findById(id);
+    const role = await this.roleRepository.findById(Id.from(roleId));
     const project = await this.projectRepository.findById(role.projectId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
@@ -123,8 +132,8 @@ export class RoleApplicationService {
   /**
    * Delete a role
    */
-  public async deleteRole(authUser: UserModel, id: string): Promise<void> {
-    const role = await this.roleRepository.findById(id);
+  public async deleteRole(authUser: UserModel, roleId: string): Promise<void> {
+    const role = await this.roleRepository.findById(Id.from(roleId));
     const project = await this.projectRepository.findById(role.projectId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
@@ -137,10 +146,10 @@ export class RoleApplicationService {
    */
   public async assignUser(
     authUser: UserModel,
-    id: string,
+    roleId: string,
     dto: AssignmentDto,
   ): Promise<RoleDto> {
-    const role = await this.roleRepository.findById(id);
+    const role = await this.roleRepository.findById(Id.from(roleId));
     const project = await this.projectRepository.findById(role.projectId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
@@ -150,13 +159,13 @@ export class RoleApplicationService {
     }
     const projectRoles = await this.roleRepository.findByProjectId(project.id);
     if (dto.assigneeId) {
-      const user = await this.userRepository.findById(dto.assigneeId);
+      const user = await this.userRepository.findById(Id.from(dto.assigneeId));
       await this.roleDomain.assignUser(project, role, user, projectRoles);
     } else if (dto.assigneeEmail) {
       await this.roleDomain.assignUserByEmailAndCreateIfNotExists(
         project,
         role,
-        dto.assigneeEmail,
+        Email.from(dto.assigneeEmail),
         projectRoles,
       );
     }

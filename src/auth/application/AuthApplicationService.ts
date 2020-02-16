@@ -15,7 +15,11 @@ import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequeste
 import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
 import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
 import { UserDto } from 'user/application/dto/UserDto';
-import { UserModelFactoryService } from 'user/domain/UserModelFactoryService';
+import { Email } from 'user/domain/value-objects/Email';
+import { Name } from 'user/domain/value-objects/Name';
+import { UserModel } from 'user';
+import { Id } from 'common/domain/value-objects/Id';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
 @Injectable()
 export class AuthService {
@@ -23,20 +27,17 @@ export class AuthService {
   private readonly eventPublisher: EventPublisherService;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenService;
-  private readonly userModelFactory: UserModelFactoryService;
 
   public constructor(
     @InjectConfig() config: ConfigService,
     @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_SERVICE) tokenService: TokenService,
-    userModelFactory: UserModelFactoryService,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.tokenService = tokenService;
-    this.userModelFactory = userModelFactory;
   }
 
   /**
@@ -45,7 +46,7 @@ export class AuthService {
    * An email with a magic link is sent to the given email address
    */
   public async requestLogin(dto: RequestLoginDto): Promise<void> {
-    const { email } = dto;
+    const email = Email.from(dto.email);
     const user = await this.userRepository.findByEmail(email);
     const loginToken = this.tokenService.newLoginToken(
       user.id,
@@ -71,19 +72,20 @@ export class AuthService {
     session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
     const payload = this.tokenService.validateLoginToken(loginToken);
-    const user = await this.userRepository.findById(payload.sub);
-    if (user.lastLoginAt !== payload.lastLoginAt) {
+    const userId = Id.from(payload.sub);
+    const user = await this.userRepository.findById(userId);
+    if (!user.lastLoginAt.equals(LastLoginAt.from(payload.lastLoginAt))) {
       throw new TokenAlreadyUsedException();
     }
 
-    user.lastLoginAt = Date.now();
+    user.lastLoginAt = LastLoginAt.now();
     await this.eventPublisher.publish(new SigninEvent(user));
     await this.userRepository.persist(user);
 
-    const sessionToken = this.tokenService.newSessionToken(user.id);
+    const sessionToken = this.tokenService.newSessionToken(user.id.value);
     session.set(sessionToken);
-    const accessToken = this.tokenService.newAccessToken(user.id);
-    const refreshToken = this.tokenService.newRefreshToken(user.id);
+    const accessToken = this.tokenService.newAccessToken(user.id.value);
+    const refreshToken = this.tokenService.newRefreshToken(user.id.value);
     const userDto = UserDto.builder()
       .user(user)
       .authUser(user)
@@ -97,12 +99,12 @@ export class AuthService {
    * A magic link is sent to the given email address
    */
   public async requestSignup(dto: RequestSignupDto): Promise<void> {
-    const { email } = dto;
+    const email = Email.from(dto.email);
     const userExists = await this.userRepository.existsByEmail(email);
     if (userExists) {
       throw new EmailAlreadyUsedException();
     }
-    const signupToken = this.tokenService.newSignupToken(email);
+    const signupToken = this.tokenService.newSignupToken(email.value);
     const magicSignupLink = `${this.config.get(
       'FRONTEND_URL',
     )}/signup/callback?token=${encodeURIComponent(signupToken)}`;
@@ -123,25 +125,24 @@ export class AuthService {
     session: SessionState,
   ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
     const payload = this.tokenService.validateSignupToken(signupToken);
-    const userExists = await this.userRepository.existsByEmail(payload.sub);
+    const email = Email.from(payload.sub);
+    const userExists = await this.userRepository.existsByEmail(email);
     if (userExists) {
       throw new EmailAlreadyUsedException();
     }
 
-    const email = payload.sub;
-    const { firstName, lastName } = dto;
-    const user = this.userModelFactory.createUser({
-      email,
-      firstName,
-      lastName,
-    });
+    const name = Name.from(dto.firstName, dto.lastName);
+    const user = UserModel.create(email, name);
     await this.userRepository.persist(user);
-    await this.eventPublisher.publish(new SignupEvent(user));
+    await this.eventPublisher.publish(
+      new SignupEvent(user),
+      ...user.getDomainEvents(),
+    );
 
-    const sessionToken = this.tokenService.newSessionToken(user.id);
+    const sessionToken = this.tokenService.newSessionToken(user.id.value);
     session.set(sessionToken);
-    const accessToken = this.tokenService.newAccessToken(user.id);
-    const refreshToken = this.tokenService.newRefreshToken(user.id);
+    const accessToken = this.tokenService.newAccessToken(user.id.value);
+    const refreshToken = this.tokenService.newRefreshToken(user.id.value);
     const userDto = UserDto.builder()
       .user(user)
       .authUser(user)

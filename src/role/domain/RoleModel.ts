@@ -6,22 +6,20 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { AbstractModel } from 'common';
-import { ProjectModel } from 'project';
-import { UserModel } from 'user';
+import { Model } from 'common/domain/Model';
+import { ProjectModel } from 'project/domain/ProjectModel';
+import { UserModel } from 'user/domain/UserModel';
+import { Id } from 'common/domain/value-objects/Id';
+import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 
 /**
  * Role Model
  */
-export class RoleModel extends AbstractModel {
-  @IsString()
-  @MaxLength(24)
-  public projectId: string;
+export class RoleModel extends Model {
+  public projectId: Id;
 
-  @IsOptional()
-  @IsString()
-  @MaxLength(24)
-  public assigneeId: string | null;
+  public assigneeId: Id | null;
 
   @IsString()
   @MaxLength(100)
@@ -39,11 +37,11 @@ export class RoleModel extends AbstractModel {
   public hasSubmittedPeerReviews: boolean;
 
   public constructor(
-    id: string,
-    createdAt: number,
-    updatedAt: number,
-    projectId: string,
-    assigneeId: string | null,
+    id: Id,
+    createdAt: CreatedAt,
+    updatedAt: UpdatedAt,
+    projectId: Id,
+    assigneeId: Id | null,
     title: string,
     description: string,
     contribution: number | null,
