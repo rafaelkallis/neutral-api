@@ -3,10 +3,11 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { AppModule } from 'app.module';
-import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
+import { User } from 'user/domain/User';
 import { ModelFaker, PrimitiveFaker } from 'test';
 import { TokenService, TOKEN_SERVICE } from 'token';
 import { EmailService, EMAIL_SERVICE } from 'email';
+import { USER_REPOSITORY, UserRepository } from 'user/domain/UserRepository';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
@@ -15,7 +16,7 @@ describe('auth (e2e)', () => {
   let userRepository: UserRepository;
   let emailService: EmailService;
   let tokenService: TokenService;
-  let user: UserModel;
+  let user: User;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -49,14 +50,14 @@ describe('auth (e2e)', () => {
     test('happy path', async () => {
       const response = await session
         .post('/auth/login')
-        .send({ email: user.email });
+        .send({ email: user.email.value });
       expect(response.status).toBe(200);
       expect(tokenService.newLoginToken).toHaveBeenCalledWith(
         user.id,
         user.lastLoginAt,
       );
       expect(emailService.sendLoginEmail).toHaveBeenCalledWith(
-        user.email,
+        user.email.value,
         expect.any(String),
       );
     });
@@ -79,8 +80,8 @@ describe('auth (e2e)', () => {
         refreshToken: expect.any(String),
         user: expect.any(Object),
       });
-      expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
-      expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id);
+      expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id.value);
+      expect(tokenService.newRefreshToken).toHaveBeenCalledWith(user.id.value);
       const updatedUser = await userRepository.findById(user.id);
       expect(user.lastLoginAt.value).toBeLessThan(
         updatedUser.lastLoginAt.value,
@@ -152,7 +153,7 @@ describe('auth (e2e)', () => {
         .send({ refreshToken });
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ accessToken: expect.any(String) });
-      expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id);
+      expect(tokenService.newAccessToken).toHaveBeenCalledWith(user.id.value);
     });
   });
 

@@ -1,44 +1,26 @@
-import { ValueObject } from 'common/domain/ValueObject';
-import { Validator } from 'class-validator';
+import { UnitDecimalValueObject } from 'common/domain/value-objects/UnitDecimalValueObject';
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
 
 /**
  *
  */
-export class Consensuality extends ValueObject<Consensuality> {
-  public readonly value: number;
-
+export class Consensuality extends UnitDecimalValueObject<Consensuality> {
   private constructor(value: number) {
-    super();
-    this.value = value;
+    super(value);
   }
 
   /**
    *
    */
   public static from(value: number): Consensuality {
-    const validator = new Validator();
-    if (
-      !validator.isNumber(value) ||
-      !validator.max(value, 1) ||
-      !validator.min(value, 0)
-    ) {
-      throw new InvalidConsensualityException();
-    }
     return new Consensuality(value);
   }
 
-  /**
-   *
-   */
-  public equals(other: Consensuality): boolean {
-    return this.value === other.value;
+  public isConsensual(): boolean {
+    return this.value >= 0.8;
   }
 
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value.toFixed(1000);
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidConsensualityException();
   }
 }

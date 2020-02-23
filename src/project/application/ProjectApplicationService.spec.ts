@@ -1,16 +1,5 @@
-import { ContributionsModelService } from 'project/domain/ContributionsModelService';
-import { ConsensualityModelService } from 'project/domain/ConsensualityModelService';
-import { UserModel, UserFakeRepository } from 'user';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
-import {
-  RoleModel,
-  RoleRepository,
-  PeerReviewRepository,
-  FakeRoleRepository,
-  FakePeerReviewRepository,
-  PeerReviewModel,
-} from 'role';
 import { ModelFaker, PrimitiveFaker } from 'test';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
@@ -22,12 +11,23 @@ import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
 import { MockEventPublisherService } from 'event';
-import { ProjectDomainService } from 'project/domain/ProjectDomainService';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
-import { PeerReviewModelFactoryService } from 'role/domain/PeerReviewModelFactoryService';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
-import { GetRolesQueryDto } from 'project/application/GetRolesQueryDto';
+import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
+import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
+import { Role } from 'project/domain/Role';
+import { PeerReview } from 'project/domain/PeerReview';
+import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
+import { User } from 'user/domain/User';
+import { ContributionsComputer } from 'project/domain/ContributionsComputer';
+import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import { FakeContributionsComputerService } from 'project/infrastructure/FakeContributionsComputerService';
+import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
+import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { RoleCollection } from 'project/domain/RoleCollection';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
@@ -36,16 +36,12 @@ describe('project application service', () => {
   let eventPublisher: MockEventPublisherService;
   let userRepository: UserFakeRepository;
   let projectRepository: ProjectRepository;
-  let roleRepository: RoleRepository;
-  let peerReviewRepository: PeerReviewRepository;
-  let contributionsModelService: ContributionsModelService;
-  let consensualityModelService: ConsensualityModelService;
-  let peerReviewModelFactory: PeerReviewModelFactoryService;
-  let projectDomainService: ProjectDomainService;
+  let contributionsComputer: ContributionsComputer;
+  let consensualityComputer: ConsensualityComputer;
   let projectApplication: ProjectApplicationService;
-  let ownerUser: UserModel;
-  let project: ProjectModel;
-  let roles: RoleModel[];
+  let ownerUser: User;
+  let project: Project;
+  let roles: Role[];
   let projectDto: ProjectDto;
 
   beforeEach(async () => {
@@ -55,34 +51,24 @@ describe('project application service', () => {
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
     projectRepository = new ProjectFakeRepository();
-    roleRepository = new FakeRoleRepository();
-    peerReviewRepository = new FakePeerReviewRepository();
-    contributionsModelService = new ContributionsModelService();
-    consensualityModelService = new ConsensualityModelService();
-    peerReviewModelFactory = new PeerReviewModelFactoryService();
-    projectDomainService = new ProjectDomainService(
-      eventPublisher,
-      projectRepository,
-      roleRepository,
-      peerReviewRepository,
-      contributionsModelService,
-      consensualityModelService,
-      peerReviewModelFactory,
-    );
+    contributionsComputer = new FakeContributionsComputerService();
+    consensualityComputer = new FakeConsensualityComputerService();
     projectApplication = new ProjectApplicationService(
       projectRepository,
-      roleRepository,
       userRepository,
-      peerReviewRepository,
       eventPublisher,
+      contributionsComputer,
+      consensualityComputer,
     );
 
     ownerUser = modelFaker.user();
     await userRepository.persist(ownerUser);
+
     project = modelFaker.project(ownerUser.id);
-    await projectRepository.persist(project);
     roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
-    await roleRepository.persist(...roles);
+    project.roles = new RoleCollection(roles);
+    await projectRepository.persist(project);
+
     projectDto = ProjectDto.builder()
       .project(project)
       .authUser(ownerUser)
@@ -94,7 +80,7 @@ describe('project application service', () => {
   });
 
   describe('get created projects', () => {
-    let projects: ProjectModel[];
+    let projects: Project[];
     let query: GetProjectsQueryDto;
 
     beforeEach(async () => {
@@ -125,26 +111,21 @@ describe('project application service', () => {
   });
 
   describe('get assigned projects', () => {
-    let projects: ProjectModel[];
-    let assigneeUser: UserModel;
-    let roles: RoleModel[];
+    let projects: Project[];
+    let assigneeUser: User;
     let query: GetProjectsQueryDto;
 
     beforeEach(async () => {
-      projects = [
-        modelFaker.project(ownerUser.id),
-        modelFaker.project(ownerUser.id),
-        modelFaker.project(ownerUser.id),
-      ];
-      await projectRepository.persist(...projects);
       assigneeUser = modelFaker.user();
       await userRepository.persist(assigneeUser);
-      roles = [
-        modelFaker.role(projects[0].id, assigneeUser.id),
-        modelFaker.role(projects[1].id, assigneeUser.id),
-        modelFaker.role(projects[2].id, assigneeUser.id),
-      ];
-      await roleRepository.persist(...roles);
+      projects = [];
+      for (let i = 0; i < 3; i++) {
+        projects[i] = modelFaker.project(ownerUser.id);
+        projects[i].roles = new RoleCollection([
+          modelFaker.role(projects[i].id, assigneeUser.id),
+        ]);
+      }
+      await projectRepository.persist(...projects);
       query = new GetProjectsQueryDto(GetProjectsType.ASSIGNED);
     });
 
@@ -204,11 +185,11 @@ describe('project application service', () => {
   });
 
   describe('get role', () => {
-    let sentPeerReview: PeerReviewModel;
+    let sentPeerReview: PeerReview;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
-      await peerReviewRepository.persist(sentPeerReview);
+      project.peerReviews.add(sentPeerReview);
     });
 
     test('happy path', async () => {
@@ -236,28 +217,25 @@ describe('project application service', () => {
       title = primitiveFaker.words();
       description = primitiveFaker.paragraph();
       createProjectDto = new CreateProjectDto(title, description);
-      jest.spyOn(projectDomainService, 'createProject');
+      jest.spyOn(projectRepository, 'persist');
     });
 
     test('happy path', async () => {
       await projectApplication.createProject(ownerUser, createProjectDto);
-      expect(projectDomainService.createProject).toHaveBeenCalledWith(
-        createProjectDto,
-        ownerUser,
-      );
+      expect(projectRepository.persist).toHaveBeenCalled();
     });
   });
 
   describe('update project', () => {
-    let title: string;
+    let newTitle: ProjectTitle;
     let updateProjectDto: UpdateProjectDto;
 
     beforeEach(async () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
-      title = primitiveFaker.words();
-      updateProjectDto = new UpdateProjectDto(title);
-      jest.spyOn(projectDomainService, 'updateProject');
+      newTitle = ProjectTitle.from(primitiveFaker.words());
+      updateProjectDto = new UpdateProjectDto(newTitle.value);
+      jest.spyOn(project, 'update');
     });
 
     test('happy path', async () => {
@@ -266,10 +244,7 @@ describe('project application service', () => {
         project.id.value,
         updateProjectDto,
       );
-      expect(projectDomainService.updateProject).toHaveBeenCalledWith(
-        project,
-        updateProjectDto,
-      );
+      expect(project.update).toHaveBeenCalledWith(newTitle, undefined);
     });
 
     test('should fail if non-owner updates project', async () => {
@@ -282,7 +257,7 @@ describe('project application service', () => {
           updateProjectDto,
         ),
       ).rejects.toThrow();
-      expect(projectDomainService.updateProject).not.toHaveBeenCalled();
+      expect(project.update).not.toHaveBeenCalled();
     });
   });
 
@@ -304,8 +279,8 @@ describe('project application service', () => {
         description,
       );
       expect(project.addRole).toHaveBeenCalledWith(
-        { title, description },
-        roles,
+        RoleTitle.from(title),
+        RoleDescription.from(description),
       );
     });
 
@@ -325,21 +300,27 @@ describe('project application service', () => {
   });
 
   describe('update role', () => {
-    let newTitle: string;
+    let newTitle: RoleTitle;
+    let roleToUpdate: Role;
 
     beforeEach(() => {
-      newTitle = primitiveFaker.words();
+      newTitle = RoleTitle.from(primitiveFaker.words());
+      roleToUpdate = roles[0];
       jest.spyOn(project, 'updateRole');
     });
 
     test('happy path', async () => {
       await projectApplication.updateRole(
         ownerUser,
-        roles[0].id.value,
-        newTitle,
+        roleToUpdate.id.value,
+        newTitle.value,
       );
-      expect(project.updateRole).toHaveBeenCalledWith(roles[0], newTitle);
-      expect(roles[0].title).toEqual(newTitle);
+      expect(project.updateRole).toHaveBeenCalledWith(
+        roleToUpdate.id,
+        newTitle,
+        undefined,
+      );
+      expect(roleToUpdate.title).toEqual(newTitle);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -349,53 +330,51 @@ describe('project application service', () => {
         projectApplication.updateRole(
           nonOwnerUser,
           roles[0].id.value,
-          newTitle,
+          newTitle.value,
         ),
       ).rejects.toThrow();
       expect(project.updateRole).not.toHaveBeenCalled();
     });
   });
 
-  describe('delete role', () => {
+  describe('remove role', () => {
+    let roleToRemove: Role;
+
     beforeEach(() => {
+      roleToRemove = roles[0];
       jest.spyOn(project, 'removeRole');
     });
 
     test('happy path', async () => {
-      await projectApplication.removeRole(ownerUser, roles[0].id.value);
-      expect(project.removeRole).toHaveBeenCalledWith(project, roles[0], roles);
+      await projectApplication.removeRole(ownerUser, roleToRemove.id.value);
+      expect(project.removeRole).toHaveBeenCalledWith(roleToRemove.id);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       const nonOwnerUser = modelFaker.user();
       await userRepository.persist(nonOwnerUser);
       await expect(
-        projectApplication.removeRole(nonOwnerUser, roles[0].id.value),
+        projectApplication.removeRole(nonOwnerUser, roleToRemove.id.value),
       ).rejects.toThrow();
       expect(project.removeRole).not.toHaveBeenCalled();
     });
   });
 
   describe('finish formation', () => {
-    let role1: RoleModel;
-    let role2: RoleModel;
-    let role3: RoleModel;
-
+    let assignees: User[];
     beforeEach(async () => {
+      assignees = [modelFaker.user(), modelFaker.user()];
+      await userRepository.persist(...assignees);
+      roles[0].assigneeId = assignees[0].id;
+      roles[1].assigneeId = assignees[1].id;
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
-      role1 = modelFaker.role(project.id, ownerUser.id);
-      role2 = modelFaker.role(project.id, ownerUser.id);
-      role3 = modelFaker.role(project.id, ownerUser.id);
-      await roleRepository.persist(role1, role2, role3);
-      jest.spyOn(projectDomainService, 'finishFormation');
+      jest.spyOn(project, 'finishFormation');
     });
 
     test('happy path', async () => {
       await projectApplication.finishFormation(ownerUser, project.id.value);
-      expect(projectDomainService.finishFormation).toHaveBeenCalledWith(
-        project,
-      );
+      expect(project.finishFormation).toHaveBeenCalledWith();
     });
 
     test('should fail if authenticated user is ot project owner', async () => {
@@ -404,18 +383,19 @@ describe('project application service', () => {
       await expect(
         projectApplication.finishFormation(notOwnerUser, project.id.value),
       ).rejects.toThrow();
-      expect(projectDomainService.finishFormation).not.toHaveBeenCalled();
+      expect(project.finishFormation).not.toHaveBeenCalled();
     });
   });
 
   describe('delete project', () => {
     beforeEach(() => {
-      jest.spyOn(projectDomainService, 'deleteProject');
+      jest.spyOn(project, 'delete');
+      jest.spyOn(projectRepository, 'delete');
     });
 
     test('happy path', async () => {
       await projectApplication.deleteProject(ownerUser, project.id.value);
-      expect(projectDomainService.deleteProject).toHaveBeenCalledWith(project);
+      expect(project.delete).toHaveBeenCalledWith();
     });
 
     test('should fail if authenticated user is ot project owner', async () => {
@@ -424,52 +404,51 @@ describe('project application service', () => {
       await expect(
         projectApplication.deleteProject(notOwnerUser, project.id.value),
       ).rejects.toThrow();
-      expect(projectDomainService.deleteProject).not.toHaveBeenCalled();
+      expect(project.delete).not.toHaveBeenCalled();
     });
   });
 
   describe('submit peer reviews', () => {
-    let roles: RoleModel[];
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
       roles = [
         modelFaker.role(project.id, ownerUser.id),
         modelFaker.role(project.id),
         modelFaker.role(project.id),
         modelFaker.role(project.id),
       ];
-      roles[0].hasSubmittedPeerReviews = false;
-      roles[1].hasSubmittedPeerReviews = true;
-      roles[2].hasSubmittedPeerReviews = true;
-      roles[3].hasSubmittedPeerReviews = true;
-      await roleRepository.persist(...roles);
+      project.roles = new RoleCollection(roles);
+      roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
+      roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
+      roles[2].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
+      roles[3].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
       for (const senderRole of roles) {
         for (const receiverRole of roles) {
-          if (senderRole === receiverRole) {
+          if (senderRole.equals(receiverRole)) {
             // no self review
             continue;
           }
-          if (senderRole === roles[0]) {
+          if (senderRole.equals(roles[0])) {
             continue;
           }
           const peerReview = modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
           );
-          await peerReviewRepository.persist(peerReview);
+          project.peerReviews.add(peerReview);
         }
       }
+      await projectRepository.persist(project);
 
       submitPeerReviewsDto = new SubmitPeerReviewsDto({
         [roles[1].id.value]: 1 / 3,
         [roles[2].id.value]: 1 / 3,
         [roles[3].id.value]: 1 / 3,
       });
-      jest.spyOn(projectDomainService, 'submitPeerReviews');
+      jest.spyOn(project, 'submitPeerReviews');
     });
 
     describe('happy path', () => {
@@ -479,11 +458,11 @@ describe('project application service', () => {
           project.id.value,
           submitPeerReviewsDto,
         );
-        expect(projectDomainService.submitPeerReviews).toHaveBeenCalledWith(
-          project,
-          roles,
+        expect(project.submitPeerReviews).toHaveBeenCalledWith(
           roles[0],
-          expect.any(Map),
+          expect.any(Array),
+          contributionsComputer,
+          consensualityComputer,
         );
       });
 
@@ -497,7 +476,7 @@ describe('project application service', () => {
             submitPeerReviewsDto,
           ),
         ).rejects.toThrow();
-        expect(projectDomainService.submitPeerReviews).not.toHaveBeenCalled();
+        expect(project.submitPeerReviews).not.toHaveBeenCalled();
       });
     });
 
@@ -505,7 +484,7 @@ describe('project application service', () => {
       beforeEach(async () => {
         project.state = ProjectState.MANAGER_REVIEW;
         await projectRepository.persist(project);
-        jest.spyOn(projectDomainService, 'submitManagerReview');
+        jest.spyOn(project, 'submitManagerReview');
       });
 
       test('happy path', async () => {
@@ -513,9 +492,7 @@ describe('project application service', () => {
           ownerUser,
           project.id.value,
         );
-        expect(projectDomainService.submitManagerReview).toHaveBeenCalledWith(
-          project,
-        );
+        expect(project.submitManagerReview).toHaveBeenCalledWith();
       });
 
       test('should fail if authenticated user is not project owner', async () => {
@@ -523,7 +500,7 @@ describe('project application service', () => {
         await expect(
           projectApplication.submitManagerReview(otherUser, project.id.value),
         ).rejects.toThrow();
-        expect(projectDomainService.submitManagerReview).not.toHaveBeenCalled();
+        expect(project.submitManagerReview).not.toHaveBeenCalled();
       });
     });
   });

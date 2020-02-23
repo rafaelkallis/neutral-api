@@ -8,7 +8,7 @@ import { MockConfigService, ConfigService } from 'config';
 import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { MockEventPublisherService } from 'event';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { Name } from 'user/domain/value-objects/Name';
 
 describe('user service', () => {
@@ -19,7 +19,7 @@ describe('user service', () => {
   let userRepository: UserRepository;
   let tokenService: TokenService;
   let userApplicationService: UserApplicationService;
-  let user: UserModel;
+  let user: User;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
@@ -45,7 +45,7 @@ describe('user service', () => {
 
   describe('get users', () => {
     let query: GetUsersQueryDto;
-    let users: UserModel[];
+    let users: User[];
     let expectedUserDtos: UserDto[];
 
     beforeEach(async () => {

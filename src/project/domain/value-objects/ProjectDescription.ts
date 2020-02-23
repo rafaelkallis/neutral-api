@@ -1,20 +1,13 @@
-import { ValueObject } from 'common/domain/ValueObject';
-import { Validator } from 'class-validator';
+import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
 import { InvalidProjectDescriptionException } from 'project/domain/exceptions/InvalidProjectDescriptionException';
 
 /**
  *
  */
-export class ProjectDescription extends ValueObject<ProjectDescription> {
-  public readonly value: string;
-
+export class ProjectDescription extends StringValueObject<ProjectDescription> {
   private constructor(value: string) {
-    super();
-    const validator = new Validator();
-    if (!validator.isString(value) || !validator.maxLength(value, 1024)) {
-      throw new InvalidProjectDescriptionException();
-    }
-    this.value = value;
+    super(value);
+    this.assertMaxLength(1024);
   }
 
   /**
@@ -24,17 +17,7 @@ export class ProjectDescription extends ValueObject<ProjectDescription> {
     return new ProjectDescription(value);
   }
 
-  /**
-   *
-   */
-  public equals(other: ProjectDescription): boolean {
-    return this.value === other.value;
-  }
-
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidProjectDescriptionException();
   }
 }

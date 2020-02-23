@@ -1,21 +1,13 @@
-import {
-  Injectable,
-  Inject,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InsufficientPermissionsException } from 'common';
-import { UserModel, UserRepository, USER_REPOSITORY } from 'user';
+import {
+  UserRepository,
+  InjectUserRepository,
+} from 'user/domain/UserRepository';
 import {
   ProjectRepository,
-  PROJECT_REPOSITORY,
+  InjectProjectRepository,
 } from 'project/domain/ProjectRepository';
-import {
-  RoleRepository,
-  ROLE_REPOSITORY,
-  PeerReviewRepository,
-  PEER_REVIEW_REPOSITORY,
-  RoleModel,
-} from 'role';
 
 import { UserNotProjectOwnerException } from 'project/application/exceptions/UserNotProjectOwnerException';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
@@ -26,10 +18,7 @@ import {
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import {
-  ProjectModel,
-  CreateProjectOptions,
-} from 'project/domain/ProjectModel';
+import { Project, CreateProjectOptions } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { Id } from 'common/domain/value-objects/Id';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -41,50 +30,59 @@ import { RoleDto } from 'project/application/dto/RoleDto';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
-import { GetRolesQueryDto } from 'project/application/GetRolesQueryDto';
+import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { User } from 'user/domain/User';
+import {
+  ContributionsComputer,
+  InjectContributionsComputer,
+} from 'project/domain/ContributionsComputer';
+import {
+  ConsensualityComputer,
+  InjectConsensualityComputer,
+} from 'project/domain/ConsensualityComputer';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
-  private readonly roleRepository: RoleRepository;
   private readonly userRepository: UserRepository;
-  private readonly peerReviewRepository: PeerReviewRepository;
   private readonly eventPublisher: EventPublisherService;
+  private readonly contributionsComputer: ContributionsComputer;
+  private readonly consensualityComputer: ConsensualityComputer;
 
   public constructor(
-    @Inject(PROJECT_REPOSITORY) projectRepository: ProjectRepository,
-    @Inject(ROLE_REPOSITORY) roleRepository: RoleRepository,
-    @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    @Inject(PEER_REVIEW_REPOSITORY) peerReviewRepository: PeerReviewRepository,
+    @InjectProjectRepository() projectRepository: ProjectRepository,
+    @InjectUserRepository() userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisherService,
+    @InjectContributionsComputer() contributionsComputer: ContributionsComputer,
+    @InjectConsensualityComputer() consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
-    this.roleRepository = roleRepository;
     this.userRepository = userRepository;
-    this.peerReviewRepository = peerReviewRepository;
     this.eventPublisher = eventPublisher;
+    this.contributionsComputer = contributionsComputer;
+    this.consensualityComputer = consensualityComputer;
   }
 
   /**
    * Get projects
    */
   public async getProjects(
-    authUser: UserModel,
+    authUser: User,
     query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    let projects: ProjectModel[] = [];
+    let projects: Project[] = [];
     switch (query.type) {
       case GetProjectsType.CREATED: {
         projects = await this.projectRepository.findByCreatorId(authUser.id);
         break;
       }
       case GetProjectsType.ASSIGNED: {
-        const assignedRoles = await this.roleRepository.findByAssigneeId(
+        projects = await this.projectRepository.findByRoleAssigneeId(
           authUser.id,
-        );
-        projects = await this.projectRepository.findByIds(
-          assignedRoles.map(role => role.projectId),
         );
         break;
       }
@@ -103,10 +101,7 @@ export class ProjectApplicationService {
   /**
    * Get a project
    */
-  public async getProject(
-    authUser: UserModel,
-    id: string,
-  ): Promise<ProjectDto> {
+  public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
     return ProjectDto.builder()
       .project(project)
@@ -118,19 +113,17 @@ export class ProjectApplicationService {
    * Get roles of a particular project
    */
   public async getRoles(
-    authUser: UserModel,
+    authUser: User,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    const project = await this.projectRepository.findById(
-      Id.from(query.projectId),
-    );
-    const projectRoles = await this.roleRepository.findByProjectId(project.id);
+    const projectId = Id.from(query.projectId);
+    const project = await this.projectRepository.findById(projectId);
     return Promise.all(
-      projectRoles.map(async role =>
+      project.roles.toArray().map(async role =>
         RoleDto.builder()
           .role(role)
           .project(project)
-          .projectRoles(projectRoles)
+          .projectRoles([...project.roles.toArray()])
           .authUser(authUser)
           .build(),
       ),
@@ -140,18 +133,18 @@ export class ProjectApplicationService {
   /**
    * Get the role with the given id
    */
-  public async getRole(authUser: UserModel, roleId: string): Promise<RoleDto> {
-    const role = await this.roleRepository.findById(Id.from(roleId));
-    const project = await this.projectRepository.findById(role.projectId);
-    const projectRoles = await this.roleRepository.findByProjectId(project.id);
+  public async getRole(authUser: User, rawRoleId: string): Promise<RoleDto> {
+    const roleId = Id.from(rawRoleId);
+    const project = await this.projectRepository.findByRoleId(roleId);
+    const role = project.roles.find(roleId);
     return RoleDto.builder()
       .role(role)
       .project(project)
-      .projectRoles(projectRoles)
+      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
-      .addSubmittedPeerReviews(async () =>
-        this.peerReviewRepository.findBySenderRoleId(role.id),
-      )
+      .addSubmittedPeerReviews(async () => [
+        ...project.peerReviews.findBySenderRole(role.id),
+      ])
       .build();
   }
 
@@ -159,7 +152,7 @@ export class ProjectApplicationService {
    * Create a project
    */
   public async createProject(
-    authUser: UserModel,
+    authUser: User,
     createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto> {
     const createProjectOptions: CreateProjectOptions = {
@@ -177,9 +170,9 @@ export class ProjectApplicationService {
         createProjectDto.contributionVisibility,
       );
     }
-    const project = ProjectModel.create(createProjectOptions);
-    await this.eventPublisher.publish(...project.getDomainEvents());
+    const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
+    await this.eventPublisher.publish(...project.getDomainEvents());
     return ProjectDto.builder()
       .project(project)
       .authUser(authUser)
@@ -190,7 +183,7 @@ export class ProjectApplicationService {
    * Update a project
    */
   public async updateProject(
-    authUser: UserModel,
+    authUser: User,
     id: string,
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
@@ -216,8 +209,12 @@ export class ProjectApplicationService {
   /**
    * Delete a project
    */
-  public async deleteProject(authUser: UserModel, id: string): Promise<void> {
-    const project = await this.projectRepository.findById(Id.from(id));
+  public async deleteProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<void> {
+    const projectId = Id.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
@@ -230,23 +227,24 @@ export class ProjectApplicationService {
    * Add a role
    */
   public async addRole(
-    authUser: UserModel,
+    authUser: User,
     projectId: string,
-    title: string,
-    description: string,
+    rawTitle: string,
+    rawDescription: string,
   ): Promise<RoleDto> {
     const project = await this.projectRepository.findById(Id.from(projectId));
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    const role = project.addRole(title, description, roles);
-    await this.roleRepository.persist(role);
+    const title = RoleTitle.from(rawTitle);
+    const description = RoleDescription.from(rawDescription);
+    const role = project.addRole(title, description);
+    await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
     return RoleDto.builder()
       .role(role)
       .project(project)
-      .projectRoles(roles)
+      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }
@@ -255,34 +253,28 @@ export class ProjectApplicationService {
    * Update a role
    */
   public async updateRole(
-    authUser: UserModel,
-    roleId: string,
-    title?: string,
-    description?: string,
+    authUser: User,
+    rawRoleId: string,
+    rawTitle?: string,
+    rawDescription?: string,
   ): Promise<RoleDto> {
-    const project = await this.projectRepository.findByRoleId(Id.from(roleId));
+    const roleId = Id.from(rawRoleId);
+    const project = await this.projectRepository.findByRoleId(roleId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    let roleToUpdate: RoleModel | undefined = undefined;
-    for (const role of roles) {
-      if (role.id.value === roleId) {
-        roleToUpdate = role;
-        break;
-      }
-    }
-    if (!roleToUpdate) {
-      throw new InternalServerErrorException();
-    }
-    project.updateRole(roleToUpdate, title, description);
+    const roleToUpdate = project.roles.find(roleId);
+    const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
+    const description = rawDescription
+      ? RoleDescription.from(rawDescription)
+      : undefined;
+    project.updateRole(roleId, title, description);
     await this.projectRepository.persist(project);
-    await this.roleRepository.persist(roleToUpdate);
     await this.eventPublisher.publish(...project.getDomainEvents());
     return RoleDto.builder()
       .role(roleToUpdate)
       .project(project)
-      .projectRoles(roles)
+      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }
@@ -290,25 +282,14 @@ export class ProjectApplicationService {
   /**
    * Remove a role
    */
-  public async removeRole(authUser: UserModel, roleId: string): Promise<void> {
-    const project = await this.projectRepository.findByRoleId(Id.from(roleId));
+  public async removeRole(authUser: User, rawRoleId: string): Promise<void> {
+    const roleId = Id.from(rawRoleId);
+    const project = await this.projectRepository.findByRoleId(roleId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    let roleToRemove: RoleModel | undefined = undefined;
-    for (const role of roles) {
-      if (role.id.value === roleId) {
-        roleToRemove = role;
-        break;
-      }
-    }
-    if (!roleToRemove) {
-      throw new InternalServerErrorException();
-    }
-    project.removeRole(project, roleToRemove, roles);
+    project.removeRole(roleId);
     await this.projectRepository.persist(project);
-    await this.roleRepository.delete(roleToRemove);
     await this.eventPublisher.publish(...project.getDomainEvents());
   }
 
@@ -316,7 +297,7 @@ export class ProjectApplicationService {
    * Assign user to a role
    */
   public async assignUserToRole(
-    authUser: UserModel,
+    authUser: User,
     rawRoleId: string,
     rawAssigneeId?: string | null,
     rawAssigneeEmail?: string | null,
@@ -326,21 +307,11 @@ export class ProjectApplicationService {
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    let roleToAssign: RoleModel | undefined = undefined;
-    for (const role of roles) {
-      if (role.id.equals(roleId)) {
-        roleToAssign = role;
-        break;
-      }
-    }
-    if (!roleToAssign) {
-      throw new InternalServerErrorException();
-    }
+    const roleToAssign = project.roles.find(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }
-    let userToAssign: UserModel | undefined = undefined;
+    let userToAssign: User | undefined = undefined;
     if (rawAssigneeId) {
       const assigneeId = Id.from(rawAssigneeId);
       userToAssign = await this.userRepository.findById(assigneeId);
@@ -356,25 +327,25 @@ export class ProjectApplicationService {
           new ExistingUserAssignedEvent(project, roleToAssign),
         );
       } else {
-        const user = UserModel.createEmpty(assigneeEmail);
+        const user = User.createEmpty(assigneeEmail);
         await this.userRepository.persist(user);
         await this.eventPublisher.publish(
           ...user.getDomainEvents(),
           new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),
         );
+        userToAssign = user;
       }
     }
     if (!userToAssign) {
       throw new InternalServerErrorException();
     }
-    project.assignUserToRole(userToAssign, roleToAssign, roles);
+    project.assignUserToRole(userToAssign, roleToAssign);
     await this.projectRepository.persist(project);
-    await this.roleRepository.persist(roleToAssign);
     await this.eventPublisher.publish(...project.getDomainEvents());
     return RoleDto.builder()
       .role(roleToAssign)
       .project(project)
-      .projectRoles(roles)
+      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }
@@ -383,15 +354,15 @@ export class ProjectApplicationService {
    * Finish project formation
    */
   public async finishFormation(
-    authUser: UserModel,
-    id: string,
+    authUser: User,
+    rawProjectId: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findById(Id.from(id));
+    const projectId = Id.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    project.finishFormation(roles);
+    project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
     return ProjectDto.builder()
@@ -404,29 +375,30 @@ export class ProjectApplicationService {
    * Call to submit reviews over one's project peers.
    */
   public async submitPeerReviews(
-    authUser: UserModel,
-    projectId: string,
+    authUser: User,
+    rawProjectId: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findById(Id.from(projectId));
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    const authRole = roles.find(role => role.isAssignee(authUser));
-    if (!authRole) {
+    const projectId = Id.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project.roles.anyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    const peerReviewMap = new Map();
-    for (const [receiverId, score] of Object.entries(dto.peerReviews)) {
-      peerReviewMap.set(Id.from(receiverId), score);
-    }
-    const peerReviews = project.submitPeerReviews(
+    const authRole = project.roles.findByAssignee(authUser);
+    const peerReviews: [Id, PeerReviewScore][] = Object.entries(
+      dto.peerReviews,
+    ).map(([receiverRoleId, score]) => [
+      Id.from(receiverRoleId),
+      PeerReviewScore.from(score),
+    ]);
+    project.submitPeerReviews(
       authRole,
-      peerReviewMap,
-      roles,
+      peerReviews,
+      this.contributionsComputer,
+      this.consensualityComputer,
     );
-    await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    await this.roleRepository.persist(...roles);
-    await this.peerReviewRepository.persist(...peerReviews);
+    await this.eventPublisher.publish(...project.getDomainEvents());
     return ProjectDto.builder()
       .project(project)
       .authUser(authUser)
@@ -437,15 +409,14 @@ export class ProjectApplicationService {
    * Call to submit the manager review.
    */
   public async submitManagerReview(
-    authUser: UserModel,
+    authUser: User,
     projectId: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(projectId));
     if (!project.isCreator(authUser)) {
       throw new UserNotProjectOwnerException();
     }
-    const roles = await this.roleRepository.findByProjectId(project.id);
-    project.submitManagerReview(roles);
+    project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
     return ProjectDto.builder()

@@ -1,13 +1,13 @@
 import { AbstractEvent } from 'event';
-import { RoleModel } from 'role/domain/RoleModel';
+import { Role } from 'project/domain/Role';
 
 /**
  *
  */
 export class RoleDeletedEvent extends AbstractEvent {
-  public readonly role: RoleModel;
+  public readonly role: Role;
 
-  constructor(role: RoleModel) {
+  constructor(role: Role) {
     super();
     this.role = role;
   }

@@ -1,15 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'common';
-import { UserModel } from 'user';
-import { RoleModel } from 'role';
+import { BaseDto } from 'common/application/dto/BaseDto';
+import { User } from 'user/domain/User';
+import { Role } from 'project/domain/Role';
 import {
   PeerReviewDto,
   PeerReviewDtoBuilder,
 } from 'project/application/dto/PeerReviewDto';
-import { PeerReviewModel } from 'role/domain/PeerReviewModel';
+import { PeerReview } from 'project/domain/PeerReview';
 import { InternalServerErrorException } from '@nestjs/common';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
+import { ProjectState } from 'project/domain/value-objects/ProjectState';
 
 /**
  * Role DTO
@@ -72,25 +73,25 @@ export class RoleDto extends BaseDto {
 }
 
 interface RoleStep {
-  role(role: RoleModel): ProjectStep;
+  role(role: Role): ProjectStep;
 }
 
 interface ProjectStep {
-  project(project: ProjectModel): ProjectRolesStep;
+  project(project: Project): ProjectRolesStep;
 }
 
 interface ProjectRolesStep {
-  projectRoles(projectRoles: RoleModel[]): AuthUserStep;
+  projectRoles(projectRoles: Role[]): AuthUserStep;
 }
 
 interface AuthUserStep {
-  authUser(authUser: UserModel): BuildStep;
+  authUser(authUser: User): BuildStep;
 }
 
 interface BuildStep {
   build(): Promise<RoleDto>;
   addSubmittedPeerReviews(
-    getSubmittedPeerReviews: () => Promise<PeerReviewModel[]>,
+    getSubmittedPeerReviews: () => Promise<PeerReview[]>,
   ): BuildStep;
 }
 
@@ -99,34 +100,34 @@ interface BuildStep {
  */
 class RoleDtoBuilder
   implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
-  private _role!: RoleModel;
-  private _project!: ProjectModel;
-  private _projectRoles!: RoleModel[];
-  private _authUser!: UserModel;
-  private _getSubmittedPeerReviews?: () => Promise<PeerReviewModel[]>;
+  private _role!: Role;
+  private _project!: Project;
+  private _projectRoles!: Role[];
+  private _authUser!: User;
+  private _getSubmittedPeerReviews?: () => Promise<PeerReview[]>;
 
-  public role(role: RoleModel): ProjectStep {
+  public role(role: Role): ProjectStep {
     this._role = role;
     return this;
   }
 
-  public project(project: ProjectModel): ProjectRolesStep {
+  public project(project: Project): ProjectRolesStep {
     this._project = project;
     return this;
   }
 
-  public projectRoles(projectRoles: RoleModel[]): AuthUserStep {
+  public projectRoles(projectRoles: Role[]): AuthUserStep {
     this._projectRoles = projectRoles;
     return this;
   }
 
-  public authUser(authUser: UserModel): BuildStep {
+  public authUser(authUser: User): BuildStep {
     this._authUser = authUser;
     return this;
   }
 
   public addSubmittedPeerReviews(
-    getSentPeerReviews: () => Promise<PeerReviewModel[]>,
+    getSentPeerReviews: () => Promise<PeerReview[]>,
   ): BuildStep {
     this._getSubmittedPeerReviews = getSentPeerReviews;
     return this;
@@ -138,12 +139,14 @@ class RoleDtoBuilder
       role.id.value,
       role.projectId.value,
       role.assigneeId ? role.assigneeId.value : null,
-      role.title,
-      role.description,
-      this.shouldExposeContribution() ? role.contribution : null,
+      role.title.value,
+      role.description.value,
+      this.shouldExposeContribution() && !!role.contribution
+        ? role.contribution.value
+        : null,
       null,
       this.shouldExposeHasSubmittedPeerReviews()
-        ? role.hasSubmittedPeerReviews
+        ? role.hasSubmittedPeerReviews.value
         : null,
       role.createdAt.value,
       role.updatedAt.value,
@@ -169,27 +172,27 @@ class RoleDtoBuilder
     } = this;
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
-        return project.state.isFinished();
+        return project.state.equals(ProjectState.FINISHED);
       }
 
       case ContributionVisibility.PROJECT: {
         if (project.isCreator(authUser)) {
           return true;
         }
-        if (!project.state.isFinished()) {
+        if (!project.state.equals(ProjectState.FINISHED)) {
           return false;
         }
-        return projectRoles.some(r => r.isAssignee(authUser));
+        return projectRoles.some(r => r.isAssignedToUser(authUser));
       }
 
       case ContributionVisibility.SELF: {
         if (project.isCreator(authUser)) {
           return true;
         }
-        if (!project.state.isFinished()) {
+        if (!project.state.equals(ProjectState.FINISHED)) {
           return false;
         }
-        return role.isAssignee(authUser);
+        return role.isAssignedToUser(authUser);
       }
 
       case ContributionVisibility.NONE: {
@@ -207,7 +210,7 @@ class RoleDtoBuilder
     if (project.isCreator(authUser)) {
       return true;
     }
-    if (role.isAssignee(authUser)) {
+    if (role.isAssignedToUser(authUser)) {
       return true;
     }
     return false;
@@ -218,7 +221,7 @@ class RoleDtoBuilder
     if (project.isCreator(authUser)) {
       return true;
     }
-    if (role.isAssignee(authUser)) {
+    if (role.isAssignedToUser(authUser)) {
       return true;
     }
     return false;

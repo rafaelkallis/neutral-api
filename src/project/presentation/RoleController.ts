@@ -19,10 +19,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ValidationPipe } from 'common';
-import { UserModel } from 'user';
+import { ValidationPipe } from 'common/application/pipes/ValidationPipe';
+import { User } from 'user/domain/User';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import { GetRolesQueryDto } from 'project/application/GetRolesQueryDto';
+import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { CreateRoleDto } from 'project/application/dto/CreateRoleDto';
 import { UpdateRoleDto } from 'project/application/dto/UpdateRoleDto';
 import { AssignmentDto } from 'project/application/dto/AssignmentDto';
@@ -55,7 +55,7 @@ export class RoleController {
     description: 'Project not found',
   })
   public async getRoles(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Query(ValidationPipe) query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
     return this.projectApplication.getRoles(authUser, query);
@@ -71,7 +71,7 @@ export class RoleController {
   @ApiResponse({ status: HttpStatus.OK, description: 'A roles' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Role not found' })
   public async getRole(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<RoleDto> {
     return this.projectApplication.getRole(authUser, id);
@@ -100,7 +100,7 @@ export class RoleController {
     description: 'Assignee not found',
   })
   public async createRole(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateRoleDto,
   ): Promise<RoleDto> {
     const { projectId, title, description } = dto;
@@ -128,7 +128,7 @@ export class RoleController {
     description: "Authenticated user is not the role's project owner",
   })
   public async updateRole(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') roleId: string,
     @Body(ValidationPipe) dto: UpdateRoleDto,
   ): Promise<RoleDto> {
@@ -158,7 +158,7 @@ export class RoleController {
     description: "Authenticated user is not the role's project owner",
   })
   public async deleteRole(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') roleId: string,
   ): Promise<void> {
     return this.projectApplication.removeRole(authUser, roleId);
@@ -181,7 +181,7 @@ export class RoleController {
     description: "Authenticated user is not the role's project owner",
   })
   public async assignUser(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body(ValidationPipe) dto: AssignmentDto,
   ): Promise<RoleDto> {

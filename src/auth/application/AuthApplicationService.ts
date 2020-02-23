@@ -17,7 +17,7 @@ import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
 import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
@@ -132,7 +132,7 @@ export class AuthService {
     }
 
     const name = Name.from(dto.firstName, dto.lastName);
-    const user = UserModel.create(email, name);
+    const user = User.create(email, name);
     await this.userRepository.persist(user);
     await this.eventPublisher.publish(
       new SignupEvent(user),

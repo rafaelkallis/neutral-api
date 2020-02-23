@@ -1,20 +1,13 @@
-import { ValueObject } from 'common/domain/ValueObject';
-import { Validator } from 'class-validator';
 import { InvalidProjectTitleException } from 'project/domain/exceptions/InvalidProjectTitleException';
+import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
 
 /**
  *
  */
-export class ProjectTitle extends ValueObject<ProjectTitle> {
-  public readonly value: string;
-
-  private constructor(value: string) {
-    super();
-    const validator = new Validator();
-    if (!validator.isString(value) || !validator.maxLength(value, 100)) {
-      throw new InvalidProjectTitleException();
-    }
-    this.value = value;
+export class ProjectTitle extends StringValueObject<ProjectTitle> {
+  protected constructor(value: string) {
+    super(value);
+    this.assertMaxLength(100);
   }
 
   /**
@@ -24,17 +17,7 @@ export class ProjectTitle extends ValueObject<ProjectTitle> {
     return new ProjectTitle(value);
   }
 
-  /**
-   *
-   */
-  public equals(other: ProjectTitle): boolean {
-    return this.value === other.value;
-  }
-
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidProjectTitleException();
   }
 }

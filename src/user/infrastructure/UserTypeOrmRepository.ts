@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { DatabaseClientService } from 'database';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
-import { SimpleTypeOrmRepository } from 'common/infrastructure/SimpleTypeOrmRepository';
+import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
 import { ObjectType } from 'typeorm';
 import { Email } from 'user/domain/value-objects/Email';
 
@@ -14,7 +14,7 @@ import { Email } from 'user/domain/value-objects/Email';
  */
 @Injectable()
 export class UserTypeOrmRepository
-  extends SimpleTypeOrmRepository<UserModel, UserTypeOrmEntity>
+  extends TypeOrmRepository<User, UserTypeOrmEntity>
   implements UserRepository {
   /**
    *
@@ -29,7 +29,7 @@ export class UserTypeOrmRepository
   /**
    *
    */
-  public async findByName(fullName: string): Promise<UserModel[]> {
+  public async findByName(fullName: string): Promise<User[]> {
     const userEntities = await this.entityManager
       .getRepository(UserTypeOrmEntity)
       .createQueryBuilder('user')
@@ -44,7 +44,7 @@ export class UserTypeOrmRepository
   /**
    *
    */
-  public async findByEmail(email: Email): Promise<UserModel> {
+  public async findByEmail(email: Email): Promise<User> {
     const userEntity = await this.entityManager
       .getRepository(UserTypeOrmEntity)
       .findOne({ email: email.value });

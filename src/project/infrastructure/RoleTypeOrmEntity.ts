@@ -1,13 +1,18 @@
-import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'common';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 
 /**
  * Role TypeOrm Entity
  */
 @Entity('roles')
 export class RoleTypeOrmEntity extends TypeOrmEntity {
-  @Column({ name: 'project_id' })
-  public projectId: string;
+  @ManyToOne(
+    () => ProjectTypeOrmEntity,
+    // project => project.roles,
+  )
+  @JoinColumn({ name: 'project_id' })
+  public project: ProjectTypeOrmEntity;
 
   @Column({ name: 'assignee_id', type: 'varchar', length: 20, nullable: true })
   public assigneeId: string | null;
@@ -28,7 +33,7 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     id: string,
     createdAt: number,
     updatedAt: number,
-    projectId: string,
+    project: ProjectTypeOrmEntity,
     assigneeId: string | null,
     title: string,
     description: string,
@@ -36,7 +41,7 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     hasSubmittedPeerReviews: boolean,
   ) {
     super(id, createdAt, updatedAt);
-    this.projectId = projectId;
+    this.project = project;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;

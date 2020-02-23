@@ -1,8 +1,8 @@
 import { MockEventPublisherService } from 'event';
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { ModelFaker } from 'test';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
@@ -12,7 +12,7 @@ describe('notification application service', () => {
   let eventPublisher: MockEventPublisherService;
   let notificationRepository: NotificationFakeRepository;
   let notificationApplicationService: NotificationApplicationService;
-  let user: UserModel;
+  let user: User;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
@@ -30,7 +30,7 @@ describe('notification application service', () => {
   });
 
   describe('get auth user notifications', () => {
-    let notifications: NotificationModel[];
+    let notifications: Notification[];
 
     beforeEach(async () => {
       notifications = [
@@ -53,7 +53,7 @@ describe('notification application service', () => {
   });
 
   describe('mark read', () => {
-    let notification: NotificationModel;
+    let notification: Notification;
 
     beforeEach(async () => {
       notification = modelFaker.notification(user.id);

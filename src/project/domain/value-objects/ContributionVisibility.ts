@@ -1,5 +1,3 @@
-import { InternalServerErrorException } from '@nestjs/common';
-import { Validator } from 'class-validator';
 import { InvalidContributionVisibilityException } from 'project/domain/exceptions/InvalidContributionVisibility';
 import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
 
@@ -13,20 +11,20 @@ export enum ContributionVisibilityValue {
 /**
  *
  */
-export abstract class ContributionVisibility extends EnumValueObject<
+export class ContributionVisibility extends EnumValueObject<
   ContributionVisibilityValue,
   ContributionVisibility
 > {
-  public static PUBLIC = ContributionVisibility.from(
+  public static readonly PUBLIC = new ContributionVisibility(
     ContributionVisibilityValue.PUBLIC,
   );
-  public static PROJECT = ContributionVisibility.from(
+  public static readonly PROJECT = new ContributionVisibility(
     ContributionVisibilityValue.PROJECT,
   );
-  public static SELF = ContributionVisibility.from(
+  public static readonly SELF = new ContributionVisibility(
     ContributionVisibilityValue.SELF,
   );
-  public static NONE = ContributionVisibility.from(
+  public static readonly NONE = new ContributionVisibility(
     ContributionVisibilityValue.NONE,
   );
 
@@ -36,86 +34,30 @@ export abstract class ContributionVisibility extends EnumValueObject<
   public static from(
     value: ContributionVisibilityValue,
   ): ContributionVisibility {
-    const validator = new Validator();
-    if (!validator.isEnum(value, ContributionVisibilityValue)) {
-      throw new InvalidContributionVisibilityException();
-    }
     switch (value) {
       case ContributionVisibilityValue.PUBLIC: {
-        return PublicContributionVisibility.INSTANCE;
+        return ContributionVisibility.PUBLIC;
       }
       case ContributionVisibilityValue.PROJECT: {
-        return ProjectContributionVisibility.INSTANCE;
+        return ContributionVisibility.PROJECT;
       }
       case ContributionVisibilityValue.SELF: {
-        return SelfContributionVisibility.INSTANCE;
+        return ContributionVisibility.SELF;
       }
       case ContributionVisibilityValue.NONE: {
-        return NoneContributionVisibility.INSTANCE;
+        return ContributionVisibility.NONE;
       }
       default: {
-        throw new InternalServerErrorException();
+        throw new InvalidContributionVisibilityException();
       }
     }
   }
-}
 
-class PublicContributionVisibility extends ContributionVisibility {
-  public static readonly INSTANCE = new PublicContributionVisibility();
-
-  private constructor() {
-    super();
+  protected getEnumType(): Record<string, string> {
+    return ContributionVisibilityValue;
   }
 
-  /**
-   *
-   */
-  public toValue(): ContributionVisibilityValue {
-    return ContributionVisibilityValue.PUBLIC;
-  }
-}
-
-class ProjectContributionVisibility extends ContributionVisibility {
-  public static readonly INSTANCE = new ProjectContributionVisibility();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ContributionVisibilityValue {
-    return ContributionVisibilityValue.PROJECT;
-  }
-}
-
-class SelfContributionVisibility extends ContributionVisibility {
-  public static readonly INSTANCE = new SelfContributionVisibility();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ContributionVisibilityValue {
-    return ContributionVisibilityValue.SELF;
-  }
-}
-
-class NoneContributionVisibility extends ContributionVisibility {
-  public static readonly INSTANCE = new NoneContributionVisibility();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ContributionVisibilityValue {
-    return ContributionVisibilityValue.NONE;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidContributionVisibilityException();
   }
 }

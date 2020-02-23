@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SimpleTypeOrmRepository } from 'common/infrastructure/SimpleTypeOrmRepository';
+import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
 import { DatabaseClientService } from 'database';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
 import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
 import { ObjectType } from 'typeorm';
@@ -14,7 +14,7 @@ import { Id } from 'common/domain/value-objects/Id';
  */
 @Injectable()
 export class NotificationTypeOrmRepository
-  extends SimpleTypeOrmRepository<NotificationModel, NotificationTypeOrmEntity>
+  extends TypeOrmRepository<Notification, NotificationTypeOrmEntity>
   implements NotificationRepository {
   /**
    *
@@ -29,7 +29,7 @@ export class NotificationTypeOrmRepository
   /**
    *
    */
-  public async findByOwnerId(ownerId: Id): Promise<NotificationModel[]> {
+  public async findByOwnerId(ownerId: Id): Promise<Notification[]> {
     const notificationEntities = await this.entityManager
       .getRepository(NotificationTypeOrmEntity)
       .find({

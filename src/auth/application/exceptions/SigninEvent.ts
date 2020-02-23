@@ -1,13 +1,13 @@
 import { AbstractEvent } from 'event';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 
 /**
  * Signin Event
  */
 export class SigninEvent extends AbstractEvent {
-  public readonly user: UserModel;
+  public readonly user: User;
 
-  constructor(user: UserModel) {
+  constructor(user: User) {
     super();
     this.user = user;
   }

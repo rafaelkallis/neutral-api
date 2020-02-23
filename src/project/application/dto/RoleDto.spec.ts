@@ -1,17 +1,19 @@
-import { UserModel } from 'user';
-import { RoleModel } from 'role/domain/RoleModel';
+import { User } from 'user/domain/User';
+import { Role } from 'project/domain/Role';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { ModelFaker } from 'test';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
+import { Contribution } from 'project/domain/value-objects/Contribution';
+import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 
 describe('role dto', () => {
   let modelFaker: ModelFaker;
-  let users: Record<string, UserModel>;
-  let role: RoleModel;
-  let roles: RoleModel[];
-  let project: ProjectModel;
+  let users: Record<string, User>;
+  let role: Role;
+  let roles: Role[];
+  let project: Project;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
@@ -28,7 +30,7 @@ describe('role dto', () => {
       modelFaker.role(project.id, users.projectUser.id),
     ];
     role = roles[0];
-    role.hasSubmittedPeerReviews = true;
+    role.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
   });
 
   const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
@@ -55,7 +57,7 @@ describe('role dto', () => {
     'contributions',
     async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
-      role.contribution = 1;
+      role.contribution = Contribution.from(1);
       const roleDto = await RoleDto.builder()
         .role(role)
         .project(project)
@@ -69,7 +71,7 @@ describe('role dto', () => {
   test('should not show contribution if not project owner and if project not finished', async () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
-    role.contribution = 1;
+    role.contribution = Contribution.from(1);
     const roleDto = await RoleDto.builder()
       .role(role)
       .project(project)

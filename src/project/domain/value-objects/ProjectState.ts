@@ -1,7 +1,9 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { Validator } from 'class-validator';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
+import { ProjectNotFormationStateException } from 'project/domain/exceptions/ProjectNotFormationStateException';
+import { ProjectNotPeerReviewStateException } from 'project/domain/exceptions/ProjectNotPeerReviewStateException';
+import { ProjectNotManagerReviewStateException } from 'project/domain/exceptions/ProjectNotManagerReviewStateException';
 
 export enum ProjectStateValue {
   FORMATION = 'formation',
@@ -13,16 +15,22 @@ export enum ProjectStateValue {
 /**
  *
  */
-export abstract class ProjectState extends EnumValueObject<
+export class ProjectState extends EnumValueObject<
   ProjectStateValue,
   ProjectState
 > {
-  public static FORMATION = ProjectState.from(ProjectStateValue.FORMATION);
-  public static PEER_REVIEW = ProjectState.from(ProjectStateValue.PEER_REVIEW);
-  public static MANAGER_REVIEW = ProjectState.from(
+  public static readonly FORMATION = new ProjectState(
+    ProjectStateValue.FORMATION,
+  );
+  public static readonly PEER_REVIEW = new ProjectState(
+    ProjectStateValue.PEER_REVIEW,
+  );
+  public static readonly MANAGER_REVIEW = new ProjectState(
     ProjectStateValue.MANAGER_REVIEW,
   );
-  public static FINISHED = ProjectState.from(ProjectStateValue.FINISHED);
+  public static readonly FINISHED = new ProjectState(
+    ProjectStateValue.FINISHED,
+  );
 
   /**
    *
@@ -34,108 +42,46 @@ export abstract class ProjectState extends EnumValueObject<
     }
     switch (value) {
       case ProjectStateValue.FORMATION: {
-        return FormationProjectState.INSTANCE;
+        return ProjectState.FORMATION;
       }
       case ProjectStateValue.PEER_REVIEW: {
-        return PeerReviewProjectState.INSTANCE;
+        return ProjectState.PEER_REVIEW;
       }
       case ProjectStateValue.MANAGER_REVIEW: {
-        return ManagerReviewProjectState.INSTANCE;
+        return ProjectState.MANAGER_REVIEW;
       }
       case ProjectStateValue.FINISHED: {
-        return FinishedProjectState.INSTANCE;
+        return ProjectState.FINISHED;
       }
       default: {
-        throw new InternalServerErrorException();
+        throw new InvalidProjectStateException();
       }
     }
   }
 
-  public isFormation(): boolean {
-    return this.equals(ProjectState.FORMATION);
+  public assertFormation(): void {
+    if (!this.equals(ProjectState.FORMATION)) {
+      throw new ProjectNotFormationStateException();
+    }
   }
 
-  public isPeerReview(): boolean {
-    return this.equals(ProjectState.PEER_REVIEW);
+  public assertPeerReview(): void {
+    if (!this.equals(ProjectState.PEER_REVIEW)) {
+      throw new ProjectNotPeerReviewStateException();
+    }
   }
 
-  public isManagerReview(): boolean {
-    return this.equals(ProjectState.MANAGER_REVIEW);
+  public assertManagerReview(): void {
+    if (!this.equals(ProjectState.MANAGER_REVIEW)) {
+      throw new ProjectNotManagerReviewStateException();
+    }
   }
 
-  public isFinished(): boolean {
-    return this.equals(ProjectState.FINISHED);
-  }
-}
-
-/**
- *
- */
-class FormationProjectState extends ProjectState {
-  public static readonly INSTANCE = new FormationProjectState();
-
-  private constructor() {
-    super();
+  protected getEnumType(): Record<string, string> {
+    return ProjectStateValue;
   }
 
-  /**
-   *
-   */
-  public toValue(): ProjectStateValue {
-    return ProjectStateValue.FORMATION;
-  }
-}
-
-/**
- *
- */
-class PeerReviewProjectState extends ProjectState {
-  public static readonly INSTANCE = new PeerReviewProjectState();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ProjectStateValue {
-    return ProjectStateValue.PEER_REVIEW;
-  }
-}
-
-/**
- *
- */
-class ManagerReviewProjectState extends ProjectState {
-  public static readonly INSTANCE = new ManagerReviewProjectState();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ProjectStateValue {
-    return ProjectStateValue.MANAGER_REVIEW;
-  }
-}
-
-/**
- *
- */
-class FinishedProjectState extends ProjectState {
-  public static readonly INSTANCE = new FinishedProjectState();
-
-  private constructor() {
-    super();
-  }
-
-  /**
-   *
-   */
-  public toValue(): ProjectStateValue {
-    return ProjectStateValue.FINISHED;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidProjectStateException();
   }
 }

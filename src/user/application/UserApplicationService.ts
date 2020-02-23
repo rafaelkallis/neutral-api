@@ -3,7 +3,7 @@ import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { EventPublisherService, InjectEventPublisher } from 'event';
 import { Id } from 'common/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
@@ -36,10 +36,10 @@ export class UserApplicationService {
    * Get users
    */
   public async getUsers(
-    authUser: UserModel,
+    authUser: User,
     query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    let users: UserModel[] = [];
+    let users: User[] = [];
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
     } else if (query.after) {
@@ -58,7 +58,7 @@ export class UserApplicationService {
   /**
    * Get the user with the given id
    */
-  public async getUser(authUser: UserModel, id: string): Promise<UserDto> {
+  public async getUser(authUser: User, id: string): Promise<UserDto> {
     const user = await this.userRepository.findById(Id.from(id));
     return UserDto.builder()
       .user(user)
@@ -69,7 +69,7 @@ export class UserApplicationService {
   /**
    * Get the authenticated user
    */
-  public async getAuthUser(authUser: UserModel): Promise<UserDto> {
+  public async getAuthUser(authUser: User): Promise<UserDto> {
     return UserDto.builder()
       .user(authUser)
       .authUser(authUser)
@@ -83,7 +83,7 @@ export class UserApplicationService {
    * to verify the new email address.
    */
   public async updateAuthUser(
-    authUser: UserModel,
+    authUser: User,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
     const { email: newEmail } = updateUserDto;
@@ -138,7 +138,7 @@ export class UserApplicationService {
   /**
    * Delete the authenticated user
    */
-  public async deleteAuthUser(authUser: UserModel): Promise<void> {
+  public async deleteAuthUser(authUser: User): Promise<void> {
     authUser.delete();
     this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.delete(authUser);

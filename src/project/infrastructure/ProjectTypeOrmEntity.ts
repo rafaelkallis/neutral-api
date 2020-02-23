@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'common';
-import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
 import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
+import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 
 /**
  * Project TypeOrm Entity
@@ -31,12 +32,28 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   })
   public contributionVisibility: ContributionVisibilityValue;
 
-  @Column({
-    name: 'skip_manager_review',
-    type: 'enum',
-    enum: SkipManagerReviewValue,
-  })
-  public skipManagerReview: SkipManagerReviewValue;
+  @Column({ name: 'skip_manager_review' })
+  public skipManagerReview: string;
+
+  @OneToMany(
+    () => RoleTypeOrmEntity,
+    role => role.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public roles: ReadonlyArray<RoleTypeOrmEntity>;
+
+  @OneToMany(
+    () => PeerReviewTypeOrmEntity,
+    peerReview => peerReview.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>;
 
   public constructor(
     id: string,
@@ -48,7 +65,9 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     state: ProjectStateValue,
     consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
-    skipManagerReview: SkipManagerReviewValue,
+    skipManagerReview: string,
+    roles: ReadonlyArray<RoleTypeOrmEntity>,
+    peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -58,5 +77,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
+    this.roles = roles;
+    this.peerReviews = peerReviews;
   }
 }

@@ -1,70 +1,108 @@
+import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'database';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
-import { ObjectType, In } from 'typeorm';
+import { ObjectType } from 'typeorm';
 import { Id } from 'common/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
-import { RoleModel } from 'role';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 
 /**
  * Project TypeOrm Repository
  */
 @Injectable()
-export class ProjectTypeOrmRepository extends TypeOrmRepository<ProjectModel>
+export class ProjectTypeOrmRepository
+  extends TypeOrmRepository<Project, ProjectTypeOrmEntity>
   implements ProjectRepository {
-  private entityMapper: ProjectTypeOrmEntityMapperService;
   /**
    *
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    entityMapper: ProjectTypeOrmEntityMapperService,
+    projectEntityMapper: ProjectTypeOrmEntityMapperService,
   ) {
-    super(databaseClient);
-    this.entityMapper = entityMapper;
+    super(databaseClient, projectEntityMapper);
   }
 
-  public async findByCreatorId(creatorId: Id): Promise<ProjectModel[]> {
+  public async persist(...projectModels: Project[]): Promise<void> {
+    const roleIdsToDelete = projectModels
+      .flatMap(projectModel => projectModel.roles.getRemovedModels())
+      .map(projectModel => projectModel.id.value);
+    if (roleIdsToDelete.length > 0) {
+      await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
+    }
+    const peerReviewIdsToDelete = projectModels
+      .flatMap(projectModel => projectModel.peerReviews.getRemovedModels())
+      .map(peerReviewModel => peerReviewModel.id.value);
+    if (peerReviewIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        PeerReviewTypeOrmEntity,
+        peerReviewIdsToDelete,
+      );
+    }
+    await super.persist(...projectModels);
+  }
+
+  public async findByCreatorId(creatorId: Id): Promise<Project[]> {
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({
         creatorId: creatorId.value,
       });
-    const projectIds = projectEntities.map(p => p.id);
-    const roleEntities = await this.entityManager
-      .getRepository(RoleTypeOrmEntity)
-      .find({ projectId: In(projectIds) });
-    const projectModels = projectEntities.map(projectEntity => {
-      const roleEntitiesOfProject = roleEntities.filter(
-        roleEntity => roleEntity.projectId === projectEntity.id,
-      );
-      return this.entityMapper.toModel(projectEntity, roleEntitiesOfProject);
-    });
+    const projectModels = projectEntities.map(p =>
+      this.entityMapper.toModel(p),
+    );
     return projectModels;
   }
 
-  public async findByRoleId(roleId: Id): Promise<ProjectModel> {
+  public async findByRoleId(roleId: Id): Promise<Project> {
     const projectEntity = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
-      .innerJoin(RoleTypeOrmEntity, 'role', 'role.project_id = project.id')
+      .leftJoinAndSelect('project.roles', 'role')
+      .leftJoinAndSelect('project.peerReviews', 'peerReview')
       .where('role.id = :roleId', { roleId: roleId.value })
       .getOne();
     if (!projectEntity) {
-      throw new ProjectNotFoundException();
+      this.throwEntityNotFoundException();
     }
-    const roleEntities = await this.entityManager
-      .getRepository(RoleTypeOrmEntity)
-      .find({ projectId: projectEntity.id });
-    const projectModel = this.entityMapper.toModel(projectEntity, roleEntities);
+    const projectModel = this.entityMapper.toModel(projectEntity);
     return projectModel;
+  }
+
+  public async findByRoleAssigneeId(assigneeId: Id): Promise<Project[]> {
+    const projectEntities = await this.entityManager
+      .getRepository(ProjectTypeOrmEntity)
+      .createQueryBuilder('project')
+      .leftJoinAndSelect(
+        RoleTypeOrmEntity,
+        'role',
+        'role.project_id = project.id',
+      )
+      .leftJoinAndSelect('project.peerReviews', 'peerReview')
+      .where('role.assigneeId = :assigneeId', { assigneeId: assigneeId.value })
+      .getMany();
+    const projectModels = projectEntities.map(p =>
+      this.entityMapper.toModel(p),
+    );
+    return projectModels;
+  }
+
+  /**
+   *
+   */
+  protected throwEntityNotFoundException(): never {
+    throw new ProjectNotFoundException();
+  }
+
+  /**
+   *
+   */
+  protected getEntityType(): ObjectType<ProjectTypeOrmEntity> {
+    return ProjectTypeOrmEntity;
   }
 }

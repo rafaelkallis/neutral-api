@@ -18,8 +18,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ValidationPipe } from 'common';
-import { UserModel } from 'user';
+import { ValidationPipe } from 'common/application/pipes/ValidationPipe';
+import { User } from 'user/domain/User';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { AuthGuard, AuthUser } from 'auth';
 import { GetProjectsQueryDto } from 'project/application/dto/GetProjectsQueryDto';
@@ -50,7 +50,7 @@ export class ProjectController {
   @ApiOperation({ summary: 'Get a list of projects' })
   @ApiResponse({ status: 200, description: 'A list of projects' })
   public async getProjects(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Query() query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
     return this.projectApplicationService.getProjects(authUser, query);
@@ -66,7 +66,7 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'The requested project' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   public async getProject(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.getProject(authUser, id);
@@ -78,7 +78,7 @@ export class ProjectController {
   @Post()
   @ApiBearerAuth()
   public async createProject(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Body() dto: CreateProjectDto,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.createProject(authUser, dto);
@@ -97,7 +97,7 @@ export class ProjectController {
     description: 'Authenticated user is not the project owner',
   })
   public async updateProject(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body() dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
@@ -124,7 +124,7 @@ export class ProjectController {
     description: 'Authenticated user is not the project owner',
   })
   public async finishFormation(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.finishFormation(authUser, id);
@@ -144,7 +144,7 @@ export class ProjectController {
     description: 'Authenticated user is not the project owner',
   })
   public async deleteProject(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
     return this.projectApplicationService.deleteProject(authUser, id);
@@ -164,7 +164,7 @@ export class ProjectController {
   @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
   @ApiResponse({ status: 400, description: 'Not a project participant' })
   public async submitPeerReviews(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
     @Body() dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
@@ -188,7 +188,7 @@ export class ProjectController {
   })
   @ApiResponse({ status: 400, description: 'Not the project owner' })
   public async submitManagerReview(
-    @AuthUser() authUser: UserModel,
+    @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.submitManagerReview(authUser, id);

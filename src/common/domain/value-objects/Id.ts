@@ -1,5 +1,4 @@
-import { ValueObject } from 'common/domain/ValueObject';
-import { Validator } from 'class-validator';
+import { ValueObject } from 'common/domain/value-objects/ValueObject';
 import { InvalidIdException } from 'common/domain/exceptions/InvalidIdException';
 import ObjectID from 'bson-objectid';
 
@@ -11,18 +10,15 @@ export class Id extends ValueObject<Id> {
 
   protected constructor(value: string) {
     super();
-    const validator = new Validator();
-    if (!validator.isMongoId(value) || !validator.maxLength(value, 24)) {
-      throw new InvalidIdException();
-    }
     this.value = value;
+    this.assertId();
   }
 
   /**
    *
    */
   public static create(): Id {
-    return Id.from(new ObjectID().toHexString());
+    return new Id(new ObjectID().toHexString());
   }
 
   /**
@@ -58,5 +54,11 @@ export class Id extends ValueObject<Id> {
    */
   public toString(): string {
     return this.value;
+  }
+
+  protected assertId(): void {
+    if (!ObjectID.isValid(this.value)) {
+      throw new InvalidIdException();
+    }
   }
 }

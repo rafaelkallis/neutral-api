@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
-import { NotificationModel } from 'notification';
+import { Notification } from 'notification/domain/Notification';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Id } from 'common/domain/value-objects/Id';
 import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
@@ -14,14 +14,12 @@ import { NotificationIsRead } from 'notification/domain/value-objects/Notificati
 @Injectable()
 export class NotificationTypeOrmEntityMapperService
   implements
-    TypeOrmEntityMapperService<NotificationModel, NotificationTypeOrmEntity> {
+    TypeOrmEntityMapperService<Notification, NotificationTypeOrmEntity> {
   /**
    *
    */
-  public toModel(
-    notificationEntity: NotificationTypeOrmEntity,
-  ): NotificationModel {
-    return new NotificationModel(
+  public toModel(notificationEntity: NotificationTypeOrmEntity): Notification {
+    return new Notification(
       Id.from(notificationEntity.id),
       CreatedAt.from(notificationEntity.createdAt),
       UpdatedAt.from(notificationEntity.updatedAt),
@@ -35,17 +33,15 @@ export class NotificationTypeOrmEntityMapperService
   /**
    *
    */
-  public toEntity(
-    notificationModel: NotificationModel,
-  ): NotificationTypeOrmEntity {
+  public toEntity(notification: Notification): NotificationTypeOrmEntity {
     return new NotificationTypeOrmEntity(
-      notificationModel.id.value,
-      notificationModel.createdAt.value,
-      notificationModel.updatedAt.value,
-      notificationModel.ownerId.value,
-      notificationModel.type.toValue(),
-      notificationModel.isRead.value,
-      notificationModel.payload,
+      notification.id.value,
+      notification.createdAt.value,
+      notification.updatedAt.value,
+      notification.ownerId.value,
+      notification.type.value,
+      notification.isRead.value,
+      notification.payload,
     );
   }
 }

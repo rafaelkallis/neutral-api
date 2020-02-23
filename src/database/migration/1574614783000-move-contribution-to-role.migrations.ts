@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Add peer reviews table and remove peer reviews attribute from role.
+ * Normalize contributions, move projects.contributions -> roles.contribution.
  */
 export class MoveContributionToRoleMigration1574614783000
   implements MigrationInterface {

@@ -6,7 +6,7 @@ import { AppModule } from 'app.module';
 import { UserRepository, USER_REPOSITORY } from './domain/UserRepository';
 import { UserDto } from './application/dto/UserDto';
 import { TOKEN_SERVICE } from 'token';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { ModelFaker } from 'test';
 import { Name } from 'user/domain/value-objects/Name';
 
@@ -14,7 +14,7 @@ describe('user (e2e)', () => {
   let app: INestApplication;
   let modelFaker: ModelFaker;
   let userRepository: UserRepository;
-  let user: UserModel;
+  let user: User;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -42,7 +42,9 @@ describe('user (e2e)', () => {
 
   describe('/users (GET)', () => {
     test('happy path', async () => {
-      const response = await session.get('/users').query({ after: user.id });
+      const response = await session
+        .get('/users')
+        .query({ after: user.id.value });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       const userDto = UserDto.builder()
@@ -68,7 +70,7 @@ describe('user (e2e)', () => {
       expect(response.body).toBeDefined();
       for (const queryUser of [user1, user2, user3]) {
         expect(response.body).toContainEqual({
-          id: queryUser.id,
+          id: queryUser.id.value,
           email: null,
           firstName: queryUser.name.first,
           lastName: queryUser.name.last,

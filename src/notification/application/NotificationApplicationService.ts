@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 import {
   NOTIFICATION_REPOSITORY,
   NotificationRepository,
@@ -29,7 +29,7 @@ export class NotificationApplicationService {
    * Get notification of authenticated user.
    */
   public async getNotificationsByAuthUser(
-    authUser: UserModel,
+    authUser: User,
   ): Promise<NotificationDto[]> {
     const notifications = await this.notificationRepository.findByOwnerId(
       authUser.id,
@@ -42,7 +42,7 @@ export class NotificationApplicationService {
   /**
    * Mark notification as read.
    */
-  public async markRead(authUser: UserModel, id: string): Promise<void> {
+  public async markRead(authUser: User, id: string): Promise<void> {
     const notification = await this.notificationRepository.findById(
       Id.from(id),
     );

@@ -1,4 +1,4 @@
-import { ValueObject } from 'common/domain/ValueObject';
+import { ValueObject } from 'common/domain/value-objects/ValueObject';
 import { Validator } from 'class-validator';
 import { InvalidEmailException } from 'user/domain/exceptions/InvalidEmailException';
 

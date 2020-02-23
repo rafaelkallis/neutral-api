@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
 import { Email } from 'user/domain/value-objects/Email';
 import { Id } from 'common/domain/value-objects/Id';
@@ -14,12 +14,12 @@ import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
  */
 @Injectable()
 export class UserTypeOrmEntityMapperService
-  implements TypeOrmEntityMapperService<UserModel, UserTypeOrmEntity> {
+  implements TypeOrmEntityMapperService<User, UserTypeOrmEntity> {
   /**
    *
    */
-  public toModel(userEntity: UserTypeOrmEntity): UserModel {
-    return new UserModel(
+  public toModel(userEntity: UserTypeOrmEntity): User {
+    return new User(
       Id.from(userEntity.id),
       CreatedAt.from(userEntity.createdAt),
       UpdatedAt.from(userEntity.updatedAt),
@@ -32,7 +32,7 @@ export class UserTypeOrmEntityMapperService
   /**
    *
    */
-  public toEntity(userModel: UserModel): UserTypeOrmEntity {
+  public toEntity(userModel: User): UserTypeOrmEntity {
     return new UserTypeOrmEntity(
       userModel.id.value,
       userModel.createdAt.value,

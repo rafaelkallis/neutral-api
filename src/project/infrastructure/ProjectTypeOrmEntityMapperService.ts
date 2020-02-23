@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Id } from 'common/domain/value-objects/Id';
 import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
@@ -10,8 +10,17 @@ import { ContributionVisibility } from 'project/domain/value-objects/Contributio
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
-import { RoleModel } from 'role';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { Role } from 'project/domain/Role';
+import { PeerReview } from 'project/domain/PeerReview';
+import { RoleCollection } from 'project/domain/RoleCollection';
+import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { Contribution } from 'project/domain/value-objects/Contribution';
+import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 
 /**
  * Project TypeOrm Entity Mapper
@@ -21,25 +30,39 @@ export class ProjectTypeOrmEntityMapperService {
   /**
    *
    */
-  public toModel(
-    projectEntity: ProjectTypeOrmEntity,
-    roleEntities: RoleTypeOrmEntity[],
-  ): ProjectModel {
-    const roles = roleEntities.map(
-      roleEntity =>
-        new RoleModel(
-          Id.from(roleEntity.id),
-          CreatedAt.from(roleEntity.createdAt),
-          UpdatedAt.from(roleEntity.updatedAt),
-          Id.from(roleEntity.projectId),
-          roleEntity.assigneeId ? Id.from(roleEntity.assigneeId) : null,
-          roleEntity.title,
-          roleEntity.description,
-          roleEntity.contribution,
-          roleEntity.hasSubmittedPeerReviews,
-        ),
+  public toModel(projectEntity: ProjectTypeOrmEntity): Project {
+    const roles = new RoleCollection(
+      projectEntity.roles.map(
+        roleEntity =>
+          new Role(
+            Id.from(roleEntity.id),
+            CreatedAt.from(roleEntity.createdAt),
+            UpdatedAt.from(roleEntity.updatedAt),
+            Id.from(projectEntity.id),
+            roleEntity.assigneeId ? Id.from(roleEntity.assigneeId) : null,
+            RoleTitle.from(roleEntity.title),
+            RoleDescription.from(roleEntity.description),
+            roleEntity.contribution
+              ? Contribution.from(roleEntity.contribution)
+              : null,
+            HasSubmittedPeerReviews.from(roleEntity.hasSubmittedPeerReviews),
+          ),
+      ),
     );
-    return new ProjectModel(
+    const peerReviews = new PeerReviewCollection(
+      projectEntity.peerReviews.map(
+        peerReviewEntity =>
+          new PeerReview(
+            Id.from(peerReviewEntity.id),
+            CreatedAt.from(peerReviewEntity.createdAt),
+            UpdatedAt.from(peerReviewEntity.updatedAt),
+            Id.from(peerReviewEntity.senderRoleId),
+            Id.from(peerReviewEntity.receiverRoleId),
+            PeerReviewScore.from(peerReviewEntity.score),
+          ),
+      ),
+    );
+    return new Project(
       Id.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),
@@ -53,24 +76,58 @@ export class ProjectTypeOrmEntityMapperService {
       ContributionVisibility.from(projectEntity.contributionVisibility),
       SkipManagerReview.from(projectEntity.skipManagerReview),
       roles,
+      peerReviews,
     );
   }
 
   /**
    *
    */
-  public toEntity(projectModel: ProjectModel): ProjectTypeOrmEntity {
-    return new ProjectTypeOrmEntity(
+  public toEntity(projectModel: Project): ProjectTypeOrmEntity {
+    const roleEntities: RoleTypeOrmEntity[] = [];
+    const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
+    const projectEntity = new ProjectTypeOrmEntity(
       projectModel.id.value,
       projectModel.createdAt.value,
       projectModel.updatedAt.value,
       projectModel.title.value,
       projectModel.description.value,
       projectModel.creatorId.value,
-      projectModel.state.toValue(),
+      projectModel.state.value,
       projectModel.consensuality ? projectModel.consensuality.value : null,
-      projectModel.contributionVisibility.toValue(),
-      projectModel.skipManagerReview.toValue(),
+      projectModel.contributionVisibility.value,
+      projectModel.skipManagerReview.value,
+      roleEntities,
+      peerReviewEntities,
     );
+    for (const role of projectModel.roles) {
+      roleEntities.push(
+        new RoleTypeOrmEntity(
+          role.id.value,
+          role.createdAt.value,
+          role.updatedAt.value,
+          projectEntity,
+          role.assigneeId ? role.assigneeId.value : null,
+          role.title.value,
+          role.description.value,
+          role.contribution ? role.contribution.value : null,
+          role.hasSubmittedPeerReviews.value,
+        ),
+      );
+    }
+    for (const peerReview of projectModel.peerReviews) {
+      peerReviewEntities.push(
+        new PeerReviewTypeOrmEntity(
+          peerReview.id.value,
+          peerReview.createdAt.value,
+          peerReview.updatedAt.value,
+          projectEntity,
+          peerReview.senderRoleId.value,
+          peerReview.receiverRoleId.value,
+          peerReview.score.value,
+        ),
+      );
+    }
+    return projectEntity;
   }
 }

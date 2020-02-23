@@ -1,18 +1,14 @@
-import { RoleModel } from 'role/domain/RoleModel';
+import { Role } from 'project/domain/Role';
 import { Email } from 'user/domain/value-objects/Email';
 import { AbstractEvent } from 'event/abstract.event';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 
 export class NewUserAssignedEvent extends AbstractEvent {
-  public readonly project: ProjectModel;
-  public readonly role: RoleModel;
+  public readonly project: Project;
+  public readonly role: Role;
   public readonly assigneeEmail: Email;
 
-  public constructor(
-    project: ProjectModel,
-    role: RoleModel,
-    assigneeEmail: Email,
-  ) {
+  public constructor(project: Project, role: Role, assigneeEmail: Email) {
     super();
     this.project = project;
     this.role = role;

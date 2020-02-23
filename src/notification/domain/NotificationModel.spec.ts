@@ -1,6 +1,6 @@
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { ModelFaker } from 'test';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
@@ -8,7 +8,7 @@ import { NotificationFactoryService } from 'notification/domain/NotificationFact
 describe('notification model', () => {
   let modelFaker: ModelFaker;
   let notificationFactory: NotificationFactoryService;
-  let user: UserModel;
+  let user: User;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -28,7 +28,7 @@ describe('notification model', () => {
   });
 
   describe('read notification', () => {
-    let notification: NotificationModel;
+    let notification: Notification;
 
     beforeEach(() => {
       notification = modelFaker.notification(user.id);

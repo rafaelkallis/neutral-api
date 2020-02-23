@@ -1,9 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
-import { RoleModel } from 'role/domain/RoleModel';
+import { Role } from 'project/domain/Role';
 import { Id } from 'common/domain/value-objects/Id';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
@@ -14,9 +14,9 @@ export class NotificationFactoryService {
    *
    */
   public createNewAssignmentNotification(
-    project: ProjectModel,
-    role: RoleModel,
-  ): NotificationModel {
+    project: Project,
+    role: Role,
+  ): Notification {
     if (!role.assigneeId) {
       throw new Error('role has no assignment');
     }
@@ -39,9 +39,9 @@ export class NotificationFactoryService {
    *
    */
   public createPeerReviewRequestedNotification(
-    project: ProjectModel,
-    role: RoleModel,
-  ): NotificationModel {
+    project: Project,
+    role: Role,
+  ): Notification {
     if (!role.assigneeId) {
       throw new InternalServerErrorException();
     }
@@ -64,8 +64,8 @@ export class NotificationFactoryService {
    *
    */
   public createManagerReviewRequestedNotification(
-    project: ProjectModel,
-  ): NotificationModel {
+    project: Project,
+  ): Notification {
     const ownerId = project.creatorId;
     const type = NotificationType.MANAGER_REVIEW_REQUESTED;
     const payload = {
@@ -81,9 +81,9 @@ export class NotificationFactoryService {
    *
    */
   public createProjectFinishedNotification(
-    project: ProjectModel,
+    project: Project,
     projectMemberId: Id,
-  ): NotificationModel {
+  ): Notification {
     const ownerId = projectMemberId;
     const type = NotificationType.PROJECT_FINISHED;
     const payload = {
@@ -99,12 +99,12 @@ export class NotificationFactoryService {
     ownerId: Id,
     type: NotificationType,
     payload: object,
-  ): NotificationModel {
+  ): Notification {
     const id = Id.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const isRead = NotificationIsRead.from(false);
-    return new NotificationModel(
+    return new Notification(
       id,
       createdAt,
       updatedAt,

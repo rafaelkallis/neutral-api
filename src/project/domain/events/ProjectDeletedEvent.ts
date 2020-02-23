@@ -1,10 +1,10 @@
-import { ProjectModel } from 'project/domain/ProjectModel';
-import { AbstractEvent } from 'event';
+import { Project } from 'project/domain/Project';
+import { AbstractEvent } from 'event/abstract.event';
 
 export class ProjectDeletedEvent extends AbstractEvent {
-  public readonly project: ProjectModel;
+  public readonly project: Project;
 
-  public constructor(project: ProjectModel) {
+  public constructor(project: Project) {
     super();
     this.project = project;
   }

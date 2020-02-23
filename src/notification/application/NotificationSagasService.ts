@@ -10,7 +10,7 @@ import {
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Saga } from 'event';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -50,8 +50,8 @@ export class NotificationSagasService {
   public async peerReviewStarted(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
-    const notifications: NotificationModel[] = [];
-    for (const role of event.roles) {
+    const notifications: Notification[] = [];
+    for (const role of event.project.roles) {
       const notification = this.notificationFactory.createPeerReviewRequestedNotification(
         event.project,
         role,
@@ -78,14 +78,16 @@ export class NotificationSagasService {
    *
    */
   @Saga(ProjectFinishedEvent)
-  public async projectFinished(event: ProjectFinishedEvent): Promise<void> {
-    const notifications: NotificationModel[] = [
+  public async handleProjectFinished(
+    event: ProjectFinishedEvent,
+  ): Promise<void> {
+    const notifications: Notification[] = [
       this.notificationFactory.createProjectFinishedNotification(
         event.project,
         event.project.creatorId,
       ),
     ];
-    for (const role of event.roles) {
+    for (const role of event.project.roles) {
       if (!role.assigneeId) {
         throw new InternalServerErrorException();
       }

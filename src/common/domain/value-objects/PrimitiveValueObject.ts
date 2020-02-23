@@ -1,4 +1,4 @@
-import { ValueObject } from 'common/domain/ValueObject';
+import { ValueObject } from 'common/domain/value-objects/ValueObject';
 
 /**
  *

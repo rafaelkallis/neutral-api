@@ -1,7 +1,6 @@
 import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
 import { Validator } from 'class-validator';
 import { InvalidNotificationTypeException } from 'notification/domain/exceptions/InvalidNotificationTypeException';
-import { InternalServerErrorException } from '@nestjs/common';
 
 /**
  *
@@ -13,20 +12,20 @@ export enum NotificationTypeValue {
   PROJECT_FINISHED = 'project_finished',
 }
 
-export abstract class NotificationType extends EnumValueObject<
+export class NotificationType extends EnumValueObject<
   NotificationTypeValue,
   NotificationType
 > {
-  public static readonly NEW_ASSIGNMENT = NotificationType.from(
+  public static readonly NEW_ASSIGNMENT = new NotificationType(
     NotificationTypeValue.NEW_ASSIGNMENT,
   );
-  public static readonly PEER_REVIEW_REQUESTED = NotificationType.from(
+  public static readonly PEER_REVIEW_REQUESTED = new NotificationType(
     NotificationTypeValue.PEER_REVIEW_REQUESTED,
   );
-  public static readonly MANAGER_REVIEW_REQUESTED = NotificationType.from(
+  public static readonly MANAGER_REVIEW_REQUESTED = new NotificationType(
     NotificationTypeValue.MANAGER_REVIEW_REQUESTED,
   );
-  public static readonly PROJECT_FINISHED = NotificationType.from(
+  public static readonly PROJECT_FINISHED = new NotificationType(
     NotificationTypeValue.PROJECT_FINISHED,
   );
 
@@ -52,52 +51,16 @@ export abstract class NotificationType extends EnumValueObject<
         return NotificationType.PROJECT_FINISHED;
       }
       default: {
-        throw new InternalServerErrorException();
+        throw new InvalidNotificationTypeException();
       }
     }
   }
-}
 
-export class NewAssignmentNotificationType extends NotificationType {
-  public static readonly INSTANCE = new NewAssignmentNotificationType();
-  private constructor() {
-    super();
+  protected getEnumType(): Record<string, string> {
+    return NotificationTypeValue;
   }
 
-  public toValue(): NotificationTypeValue {
-    return NotificationTypeValue.NEW_ASSIGNMENT;
-  }
-}
-
-export class PeerReviewRequestedNotificationType extends NotificationType {
-  public static readonly INSTANCE = new PeerReviewRequestedNotificationType();
-  private constructor() {
-    super();
-  }
-
-  public toValue(): NotificationTypeValue {
-    return NotificationTypeValue.PEER_REVIEW_REQUESTED;
-  }
-}
-
-export class ManagerReviewRequestedNotificationType extends NotificationType {
-  public static readonly INSTANCE = new ManagerReviewRequestedNotificationType();
-  private constructor() {
-    super();
-  }
-
-  public toValue(): NotificationTypeValue {
-    return NotificationTypeValue.MANAGER_REVIEW_REQUESTED;
-  }
-}
-
-export class ProjectFinishedNotificationType extends NotificationType {
-  public static readonly INSTANCE = new ProjectFinishedNotificationType();
-  private constructor() {
-    super();
-  }
-
-  public toValue(): NotificationTypeValue {
-    return NotificationTypeValue.PROJECT_FINISHED;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidNotificationTypeException();
   }
 }
