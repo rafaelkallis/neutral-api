@@ -5,20 +5,18 @@ import {
   InternalServerErrorException,
   CallHandler,
   HttpException,
-  Inject,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { Request } from 'express';
-import { APM_SERVICE } from 'apm/constants';
-import { ApmService } from 'apm/ApmService';
+import { Request, Response } from 'express';
+import { Apm, InjectApm } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
 
 @Injectable()
 export class ApmInterceptor implements NestInterceptor {
-  private readonly apm: ApmService;
+  private readonly apm: Apm;
 
-  public constructor(@Inject(APM_SERVICE) apm: ApmService) {
+  public constructor(@InjectApm() apm: Apm) {
     this.apm = apm;
   }
 
@@ -36,8 +34,12 @@ export class ApmInterceptor implements NestInterceptor {
     const request = context
       .switchToHttp()
       .getRequest<Request & { user: User }>();
-    // console.log(context.getClass().name, context.getHandler().name);
-    const apmTransaction = this.apm.createTransaction(request, request.user);
+    const response = context.switchToHttp().getResponse<Response>();
+    const apmTransaction = this.apm.createTransaction(
+      request,
+      response,
+      request.user,
+    );
 
     return next.handle().pipe(
       tap(() => {
