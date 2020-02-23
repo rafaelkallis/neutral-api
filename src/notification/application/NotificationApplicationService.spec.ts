@@ -1,31 +1,26 @@
 import { MockEventPublisherService } from 'event';
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
-import { NotificationDomainService } from 'notification/domain/NotificationDomainService';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { ModelFaker } from 'test';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
+import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
   let eventPublisher: MockEventPublisherService;
   let notificationRepository: NotificationFakeRepository;
-  let notificationDomainService: NotificationDomainService;
   let notificationApplicationService: NotificationApplicationService;
-  let user: UserModel;
+  let user: User;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     eventPublisher = new MockEventPublisherService();
     notificationRepository = new NotificationFakeRepository();
-    notificationDomainService = new NotificationDomainService(
-      eventPublisher,
-      notificationRepository,
-    );
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,
-      notificationDomainService,
+      eventPublisher,
     );
     user = modelFaker.user();
   });
@@ -35,7 +30,7 @@ describe('notification application service', () => {
   });
 
   describe('get auth user notifications', () => {
-    let notifications: NotificationModel[];
+    let notifications: Notification[];
 
     beforeEach(async () => {
       notifications = [
@@ -58,28 +53,32 @@ describe('notification application service', () => {
   });
 
   describe('mark read', () => {
-    let notification: NotificationModel;
+    let notification: Notification;
 
     beforeEach(async () => {
       notification = modelFaker.notification(user.id);
-      notification.isRead = false;
+      notification.isRead = NotificationIsRead.from(false);
       await notificationRepository.persist(notification);
-      jest.spyOn(notificationDomainService, 'markRead');
+      jest.spyOn(notification, 'markRead');
     });
 
     test('happy path', async () => {
-      await notificationApplicationService.markRead(user, notification.id);
-      expect(notificationDomainService.markRead).toHaveBeenCalledWith(
-        notification,
+      await notificationApplicationService.markRead(
+        user,
+        notification.id.value,
       );
+      expect(notification.markRead).toHaveBeenCalled();
     });
 
     test('should fail if authenticated user tries to mark a notification owner by another user as read', async () => {
       const otherUser = modelFaker.user();
       await expect(
-        notificationApplicationService.markRead(otherUser, notification.id),
+        notificationApplicationService.markRead(
+          otherUser,
+          notification.id.value,
+        ),
       ).rejects.toThrow();
-      expect(notificationDomainService.markRead).not.toHaveBeenCalledWith();
+      expect(notification.markRead).not.toHaveBeenCalledWith();
     });
   });
 });

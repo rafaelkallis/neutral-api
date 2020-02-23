@@ -6,14 +6,15 @@ import { AppModule } from 'app.module';
 import { UserRepository, USER_REPOSITORY } from './domain/UserRepository';
 import { UserDto } from './application/dto/UserDto';
 import { TOKEN_SERVICE } from 'token';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { ModelFaker } from 'test';
+import { Name } from 'user/domain/value-objects/Name';
 
 describe('user (e2e)', () => {
   let app: INestApplication;
   let modelFaker: ModelFaker;
   let userRepository: UserRepository;
-  let user: UserModel;
+  let user: User;
   let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
@@ -41,7 +42,9 @@ describe('user (e2e)', () => {
 
   describe('/users (GET)', () => {
     test('happy path', async () => {
-      const response = await session.get('/users').query({ after: user.id });
+      const response = await session
+        .get('/users')
+        .query({ after: user.id.value });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       const userDto = UserDto.builder()
@@ -56,24 +59,21 @@ describe('user (e2e)', () => {
 
     test('happy path, text search', async () => {
       const user1 = modelFaker.user();
-      user1.firstName = 'Anna';
-      user1.lastName = 'Smith';
+      user1.name = Name.from('Anna', 'Smith');
       const user2 = modelFaker.user();
-      user2.firstName = 'Hannah';
-      user2.lastName = 'Fitzgerald';
+      user2.name = Name.from('Hannah', 'Fitzgerald');
       const user3 = modelFaker.user();
-      user3.firstName = 'Nanna';
-      user3.lastName = 'Thompson';
+      user3.name = Name.from('Nanna', 'Thompson');
       await userRepository.persist(user1, user2, user3);
       const response = await session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       for (const queryUser of [user1, user2, user3]) {
         expect(response.body).toContainEqual({
-          id: queryUser.id,
+          id: queryUser.id.value,
           email: null,
-          firstName: queryUser.firstName,
-          lastName: queryUser.lastName,
+          firstName: queryUser.name.first,
+          lastName: queryUser.name.last,
           createdAt: expect.any(Number),
           updatedAt: expect.any(Number),
         });

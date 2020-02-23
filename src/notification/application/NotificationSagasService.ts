@@ -7,14 +7,10 @@ import {
   NotificationRepository,
   NOTIFICATION_REPOSITORY,
 } from 'notification/domain/NotificationRepository';
-import {
-  PeerReviewRequestedNotification,
-  ProjectFinishedNotification,
-} from 'notification/notification';
-import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
-import { NotificationFactoryService } from 'notification/application/NotificationFactoryService';
+import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Saga } from 'event';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -44,8 +40,7 @@ export class NotificationSagasService {
       event.project,
       event.role,
     );
-    const notificationEntity = NotificationModel.fromNotification(notification);
-    await this.notificationRepository.persist(notificationEntity);
+    await this.notificationRepository.persist(notification);
   }
 
   /**
@@ -55,18 +50,15 @@ export class NotificationSagasService {
   public async peerReviewStarted(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
-    const notifications: PeerReviewRequestedNotification[] = [];
-    for (const role of event.roles) {
+    const notifications: Notification[] = [];
+    for (const role of event.project.roles) {
       const notification = this.notificationFactory.createPeerReviewRequestedNotification(
         event.project,
         role,
       );
       notifications.push(notification);
     }
-    const notificationEntities = notifications.map(n =>
-      NotificationModel.fromNotification(n),
-    );
-    await this.notificationRepository.persist(...notificationEntities);
+    await this.notificationRepository.persist(...notifications);
   }
 
   /**
@@ -79,22 +71,23 @@ export class NotificationSagasService {
     const notification = this.notificationFactory.createManagerReviewRequestedNotification(
       event.project,
     );
-    const notificationEntity = NotificationModel.fromNotification(notification);
-    await this.notificationRepository.persist(notificationEntity);
+    await this.notificationRepository.persist(notification);
   }
 
   /**
    *
    */
   @Saga(ProjectFinishedEvent)
-  public async projectFinished(event: ProjectFinishedEvent): Promise<void> {
-    const notifications: ProjectFinishedNotification[] = [
+  public async handleProjectFinished(
+    event: ProjectFinishedEvent,
+  ): Promise<void> {
+    const notifications: Notification[] = [
       this.notificationFactory.createProjectFinishedNotification(
         event.project,
         event.project.creatorId,
       ),
     ];
-    for (const role of event.roles) {
+    for (const role of event.project.roles) {
       if (!role.assigneeId) {
         throw new InternalServerErrorException();
       }
@@ -107,9 +100,6 @@ export class NotificationSagasService {
       );
       notifications.push(notification);
     }
-    const notificationEntities = notifications.map(n =>
-      NotificationModel.fromNotification(n),
-    );
-    await this.notificationRepository.persist(...notificationEntities);
+    await this.notificationRepository.persist(...notifications);
   }
 }

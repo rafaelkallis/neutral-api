@@ -6,14 +6,13 @@ import helmet from 'helmet';
 import { AppController } from 'app.controller';
 import { AuthModule } from 'auth/AuthModule';
 import { ProjectModule } from 'project/ProjectModule';
-import { RoleModule } from 'role/RoleModule';
 import { UserModule } from 'user/UserModule';
 import { ConfigModule } from 'config';
 import { DatabaseModule } from 'database';
 import { EmailModule } from 'email';
 import { SessionMiddleware } from 'session';
 import { NotificationModule } from 'notification/NotificationModule';
-import { ApmModule } from 'apm';
+import { ApmModule } from 'apm/ApmModule';
 
 /**
  * App Module
@@ -27,7 +26,6 @@ import { ApmModule } from 'apm';
     AuthModule,
     UserModule,
     ProjectModule,
-    RoleModule,
     NotificationModule,
   ],
   controllers: [AppController],

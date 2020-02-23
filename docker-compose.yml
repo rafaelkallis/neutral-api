@@ -9,7 +9,7 @@ services:
       - "5432:5432"
     restart: "always"
   smtp:
-    image: "namshi/smtp"
+    image: "bytemark/smtp"
     ports:
       - "127.0.0.1:25:25"
     restart: "always"

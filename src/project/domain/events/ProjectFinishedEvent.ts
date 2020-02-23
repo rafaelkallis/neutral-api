@@ -1,14 +1,11 @@
-import { ProjectModel } from 'project/domain/ProjectModel';
-import { AbstractEvent } from 'event';
-import { RoleModel } from 'role';
+import { Project } from 'project/domain/Project';
+import { AbstractEvent } from 'event/abstract.event';
 
 export class ProjectFinishedEvent extends AbstractEvent {
-  public readonly project: ProjectModel;
-  public readonly roles: RoleModel[];
+  public readonly project: Project;
 
-  public constructor(project: ProjectModel, roles: RoleModel[]) {
+  public constructor(project: Project) {
     super();
     this.project = project;
-    this.roles = roles;
   }
 }

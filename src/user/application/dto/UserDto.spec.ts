@@ -1,10 +1,10 @@
 import { ModelFaker } from 'test';
 import { UserDto } from 'user/application/dto/UserDto';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 
 describe('user dto', () => {
   let entityFaker: ModelFaker;
-  let user: UserModel;
+  let user: User;
 
   beforeEach(async () => {
     entityFaker = new ModelFaker();
@@ -17,12 +17,12 @@ describe('user dto', () => {
       .authUser(user)
       .build();
     expect(userDto).toEqual({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      id: user.id.value,
+      email: user.email.value,
+      firstName: user.name.first,
+      lastName: user.name.last,
+      createdAt: user.createdAt.value,
+      updatedAt: user.updatedAt.value,
     });
   });
 

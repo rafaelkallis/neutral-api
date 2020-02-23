@@ -1,13 +1,14 @@
-import { UserModel } from 'user';
-import { ProjectModel } from 'project';
+import { User } from 'user/domain/User';
+import { Project } from 'project/domain/Project';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ModelFaker } from 'test';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
 
 describe('project dto', () => {
   let modelFaker: ModelFaker;
-  let owner: UserModel;
-  let user: UserModel;
-  let project: ProjectModel;
+  let owner: User;
+  let user: User;
+  let project: Project;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
@@ -22,21 +23,21 @@ describe('project dto', () => {
       .authUser(user)
       .build();
     expect(projectDto).toEqual({
-      id: project.id,
-      title: project.title,
-      description: project.description,
-      creatorId: project.creatorId,
-      state: project.state,
+      id: project.id.value,
+      title: project.title.value,
+      description: project.description.value,
+      creatorId: project.creatorId.value,
+      state: project.state.value,
       consensuality: null,
-      contributionVisibility: project.contributionVisibility,
-      skipManagerReview: project.skipManagerReview,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
+      contributionVisibility: project.contributionVisibility.value,
+      skipManagerReview: project.skipManagerReview.value,
+      createdAt: project.createdAt.value,
+      updatedAt: project.updatedAt.value,
     });
   });
 
   test('should expose consensuality if project owner', () => {
-    project.consensuality = 1;
+    project.consensuality = Consensuality.from(1);
     const projectDto = ProjectDto.builder()
       .project(project)
       .authUser(owner)
@@ -45,7 +46,7 @@ describe('project dto', () => {
   });
 
   test('should not expose consensuality if not project owner', () => {
-    project.consensuality = 1;
+    project.consensuality = Consensuality.from(1);
     const projectDto = ProjectDto.builder()
       .project(project)
       .authUser(user)

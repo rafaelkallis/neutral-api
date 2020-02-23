@@ -21,6 +21,8 @@ import {
 } from 'token/token.service';
 import ObjectID from 'bson-objectid';
 import { TokenMalformedException } from 'common/exceptions/token-malformed.exception';
+import { Id } from 'common/domain/value-objects/Id';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
 /**
  * Jwt Token Service
@@ -38,16 +40,16 @@ export class JwtTokenService implements TokenService {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  public newLoginToken(userId: string, lastLoginAt: number): string {
+  public newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string {
     const payload: LoginToken = {
       jti: this.createJti(),
       aud: TokenAud.LOGIN,
-      sub: userId,
+      sub: userId.value,
       iat: moment().unix(),
       exp: moment()
         .add(this.config.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')
         .unix(),
-      lastLoginAt,
+      lastLoginAt: lastLoginAt.value,
     };
     return this.encrypt(payload);
   }

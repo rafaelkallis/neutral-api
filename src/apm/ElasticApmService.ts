@@ -1,22 +1,22 @@
 import {
   Injectable,
   OnModuleInit,
-  OnModuleDestroy,
   InternalServerErrorException,
   Logger,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import apm from 'elastic-apm-node/start';
 import { ConfigService, InjectConfig } from 'config';
 import { Request } from 'express';
 import { ApmService, ApmTransaction } from 'apm/ApmService';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 
 /**
  * Elastic Apm Service
  */
 @Injectable()
 export class ElasticApmService extends ApmService
-  implements OnModuleInit, OnModuleDestroy {
+  implements OnModuleInit, OnApplicationShutdown {
   private readonly logger: Logger;
   private readonly config: ConfigService;
 
@@ -31,7 +31,7 @@ export class ElasticApmService extends ApmService
     this.logger.log('Elastic apm connected');
   }
 
-  public async onModuleDestroy(): Promise<void> {
+  public async onApplicationShutdown(): Promise<void> {
     await this.stopApm();
     this.logger.log('Elastic apm disconnected');
   }
@@ -39,18 +39,15 @@ export class ElasticApmService extends ApmService
   /**
    *
    */
-  public createTransaction(
-    _request: Request,
-    authUser?: UserModel,
-  ): ApmTransaction {
+  public createTransaction(_request: Request, authUser?: User): ApmTransaction {
     const transaction = apm.startTransaction();
     if (!transaction) {
       throw new InternalServerErrorException();
     }
     if (authUser) {
       apm.setUserContext({
-        id: authUser.id,
-        email: authUser.email,
+        id: authUser.id.value,
+        email: authUser.email.value,
       });
     }
     return {

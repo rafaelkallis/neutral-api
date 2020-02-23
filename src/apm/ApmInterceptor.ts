@@ -12,7 +12,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { Request } from 'express';
 import { APM_SERVICE } from 'apm/constants';
 import { ApmService } from 'apm/ApmService';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 
 @Injectable()
 export class ApmInterceptor implements NestInterceptor {
@@ -35,7 +35,7 @@ export class ApmInterceptor implements NestInterceptor {
     }
     const request = context
       .switchToHttp()
-      .getRequest<Request & { user: UserModel }>();
+      .getRequest<Request & { user: User }>();
     // console.log(context.getClass().name, context.getHandler().name);
     const apmTransaction = this.apm.createTransaction(request, request.user);
 

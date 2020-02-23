@@ -11,10 +11,13 @@ import { EventBusService } from 'event/bus/event-bus.service';
  */
 @Injectable()
 export class NaiveEventBusService implements EventBusService {
-  private readonly subscriptions: Map<unknown, Set<EventHandler<any>>>;
+  private readonly domainEventSubscriptions: Map<
+    unknown,
+    Set<EventHandler<any>>
+  >;
 
   public constructor() {
-    this.subscriptions = new Map();
+    this.domainEventSubscriptions = new Map();
   }
 
   /**
@@ -22,7 +25,9 @@ export class NaiveEventBusService implements EventBusService {
    */
   public async publish(...events: AbstractEvent[]): Promise<void> {
     for (const event of events) {
-      const eventSubscriptionSet = this.subscriptions.get(event.constructor);
+      const eventSubscriptionSet = this.domainEventSubscriptions.get(
+        event.constructor,
+      );
       if (!eventSubscriptionSet) {
         continue;
       }
@@ -39,10 +44,10 @@ export class NaiveEventBusService implements EventBusService {
     event: unknown,
     eventHandler: EventHandler<TEvent>,
   ): Promise<EventSubscription> {
-    if (!this.subscriptions.has(event)) {
-      this.subscriptions.set(event, new Set());
+    if (!this.domainEventSubscriptions.has(event)) {
+      this.domainEventSubscriptions.set(event, new Set());
     }
-    const eventSubscriptionSet = this.subscriptions.get(event);
+    const eventSubscriptionSet = this.domainEventSubscriptions.get(event);
     eventSubscriptionSet?.add(eventHandler);
     return {
       async unsubscribe(): Promise<void> {

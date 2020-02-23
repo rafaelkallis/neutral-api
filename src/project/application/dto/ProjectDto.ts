@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'common';
-import { UserModel } from 'user';
-import { RoleDto } from 'role/application/dto/RoleDto';
-import {
-  ProjectModel,
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/domain/ProjectModel';
+import { BaseDto } from 'common/application/dto/BaseDto';
+import { User } from 'user/domain/User';
+import { RoleDto } from 'project/application/dto/RoleDto';
+import { Project } from 'project/domain/Project';
+import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
+import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 
 /**
  * Project DTO
@@ -29,17 +27,17 @@ export class ProjectDto extends BaseDto {
   @ApiProperty()
   public creatorId: string;
 
-  @ApiProperty()
-  public state: ProjectState;
+  @ApiProperty({ example: ProjectStateValue.FORMATION })
+  public state: ProjectStateValue;
 
   @ApiProperty()
   public consensuality: number | null;
 
-  @ApiProperty({ example: ContributionVisibility.SELF })
-  public contributionVisibility: ContributionVisibility;
+  @ApiProperty({ example: ContributionVisibilityValue.SELF })
+  public contributionVisibility: ContributionVisibilityValue;
 
-  @ApiProperty({ example: SkipManagerReview.IF_CONSENSUAL })
-  public skipManagerReview: SkipManagerReview;
+  @ApiProperty({ example: SkipManagerReview.IF_CONSENSUAL.value })
+  public skipManagerReview: string;
 
   @ApiProperty({ required: false })
   public roles?: RoleDto[];
@@ -53,10 +51,10 @@ export class ProjectDto extends BaseDto {
     title: string,
     description: string,
     creatorId: string,
-    state: ProjectState,
+    state: ProjectStateValue,
     consensuality: number | null,
-    contributionVisibility: ContributionVisibility,
-    skipManagerReview: SkipManagerReview,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: string,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -72,27 +70,27 @@ export class ProjectDto extends BaseDto {
 }
 
 class ProjectStep {
-  project(project: ProjectModel): AuthUserStep {
+  project(project: Project): AuthUserStep {
     return new AuthUserStep(project);
   }
 }
 
 class AuthUserStep {
-  private readonly projectEntity: ProjectModel;
-  public constructor(projectEntity: ProjectModel) {
+  private readonly projectEntity: Project;
+  public constructor(projectEntity: Project) {
     this.projectEntity = projectEntity;
   }
-  authUser(authUser: UserModel): BuildStep {
+  authUser(authUser: User): BuildStep {
     return new BuildStep(this.projectEntity, authUser);
   }
 }
 
 class BuildStep {
-  private readonly project: ProjectModel;
-  private readonly authUser: UserModel;
+  private readonly project: Project;
+  private readonly authUser: User;
   private roles?: RoleDto[];
 
-  public constructor(project: ProjectModel, authUser: UserModel) {
+  public constructor(project: Project, authUser: User) {
     this.project = project;
     this.authUser = authUser;
   }
@@ -105,16 +103,20 @@ class BuildStep {
   public build(): ProjectDto {
     const { project, roles } = this;
     const projectDto = new ProjectDto(
-      project.id,
-      project.title,
-      project.description,
-      project.creatorId,
-      project.state,
-      this.shouldExposeConsensuality() ? project.consensuality : null,
-      project.contributionVisibility,
-      project.skipManagerReview,
-      project.createdAt,
-      project.updatedAt,
+      project.id.value,
+      project.title.value,
+      project.description.value,
+      project.creatorId.value,
+      project.state.value,
+      this.shouldExposeConsensuality()
+        ? project.consensuality
+          ? project.consensuality.value
+          : null
+        : null,
+      project.contributionVisibility.value,
+      project.skipManagerReview.value,
+      project.createdAt.value,
+      project.updatedAt.value,
     );
     if (roles) {
       projectDto.roles = roles;

@@ -1,9 +1,9 @@
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { ModelFaker } from 'test';
 import { NotificationSagasService } from 'notification/application/NotificationSagasService';
-import { NotificationFactoryService } from 'notification/application/NotificationFactoryService';
-import { ExistingUserAssignedEvent } from 'role/domain/events/ExistingUserAssignedEvent';
-import { NotificationType } from 'notification/notification';
+import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
+import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -17,9 +17,7 @@ describe('notification sagas', () => {
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     notificationRepository = new NotificationFakeRepository();
-    notificationFactory = new NotificationFactoryService(
-      notificationRepository,
-    );
+    notificationFactory = new NotificationFactoryService();
     notificationSagas = new NotificationSagasService(
       notificationRepository,
       notificationFactory,
@@ -42,18 +40,7 @@ describe('notification sagas', () => {
 
     expect(notificationRepository.persist).toHaveBeenCalledWith(
       expect.objectContaining({
-        ownerId: role.assigneeId,
         type: NotificationType.NEW_ASSIGNMENT,
-        payload: {
-          project: {
-            id: project.id,
-            title: project.title,
-          },
-          role: {
-            id: role.id,
-            title: role.title,
-          },
-        },
       }),
     );
   });
@@ -62,12 +49,12 @@ describe('notification sagas', () => {
     const owner = modelFaker.user();
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
-    const roles = [
+    project.roles.add(
       modelFaker.role(project.id, assignees[0].id),
       modelFaker.role(project.id, assignees[1].id),
       modelFaker.role(project.id, assignees[2].id),
-    ];
-    const event = new ProjectPeerReviewStartedEvent(project, roles);
+    );
+    const event = new ProjectPeerReviewStartedEvent(project);
 
     await notificationSagas.peerReviewStarted(event);
 
@@ -84,14 +71,7 @@ describe('notification sagas', () => {
 
     expect(notificationRepository.persist).toHaveBeenCalledWith(
       expect.objectContaining({
-        ownerId: project.creatorId,
         type: NotificationType.MANAGER_REVIEW_REQUESTED,
-        payload: {
-          project: {
-            id: project.id,
-            title: project.title,
-          },
-        },
       }),
     );
   });
@@ -100,14 +80,14 @@ describe('notification sagas', () => {
     const owner = modelFaker.user();
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
-    const roles = [
+    project.roles.add(
       modelFaker.role(project.id, assignees[0].id),
       modelFaker.role(project.id, assignees[1].id),
       modelFaker.role(project.id, assignees[2].id),
-    ];
-    const event = new ProjectFinishedEvent(project, roles);
+    );
+    const event = new ProjectFinishedEvent(project);
 
-    await notificationSagas.projectFinished(event);
+    await notificationSagas.handleProjectFinished(event);
 
     expect(notificationRepository.persist).toHaveBeenCalled();
     // TODO: more assertions

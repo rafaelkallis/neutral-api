@@ -19,15 +19,15 @@ export class EnvalidConfigService extends ConfigService {
       NODE_ENV: envalid.str({ choices: ['production', 'test', 'development'] }),
       SERVER_NAME: envalid.str({ devDefault: 'development-server' }),
       PORT: envalid.port({ devDefault: 4000 }),
-      FRONTEND_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
+      FRONTEND_URL: envalid.url({ devDefault: 'http://127.0.0.1:3000' }),
       SECRET_HEX: this.strHex64({
         devDefault:
           '0000000000000000000000000000000000000000000000000000000000000000',
       }),
       DATABASE_URL: envalid.url({
-        devDefault: 'postgres://covee-saas:password@localhost:5432/covee-saas',
+        devDefault: 'postgres://covee-saas:password@127.0.0.1:5432/covee-saas',
       }),
-      SMTP_URL: envalid.url({ devDefault: 'smtp://localhost:25/?pool=true' }),
+      SMTP_URL: envalid.url({ devDefault: 'smtp://127.0.0.1:25/?pool=true' }),
       // SENDGRID_API_KEY: envalid.str({ devDefault: 'sendgrid-api-key' }),
       // SENDGRID_URL: envalid.url({ devDefault: 'http://localhost:3050' }),
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 10 }),
@@ -40,7 +40,7 @@ export class EnvalidConfigService extends ConfigService {
       SESSION_MAX_AGE_MIN: envalid.num({ devDefault: 60 * 24 * 365 }),
       ELASTIC_APM_SECRET_TOKEN: envalid.str({ devDefault: '' }),
       ELASTIC_APM_SERVER_URL: envalid.url({
-        devDefault: 'http://localhost:8200',
+        devDefault: 'http://127.0.0.1:8200',
       }),
     });
   }

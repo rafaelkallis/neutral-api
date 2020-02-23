@@ -1,10 +1,9 @@
-import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'common';
-import {
-  ProjectState,
-  ContributionVisibility,
-  SkipManagerReview,
-} from 'project/domain/ProjectModel';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
+import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
+import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 
 /**
  * Project TypeOrm Entity
@@ -20,8 +19,8 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'creator_id' })
   public creatorId: string;
 
-  @Column({ name: 'state', type: 'enum', enum: ProjectState })
-  public state: ProjectState;
+  @Column({ name: 'state', type: 'enum', enum: ProjectStateValue })
+  public state: ProjectStateValue;
 
   @Column({ name: 'consensuality', type: 'real', nullable: true })
   public consensuality: number | null;
@@ -29,16 +28,32 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({
     name: 'contribution_visibility',
     type: 'enum',
-    enum: ContributionVisibility,
+    enum: ContributionVisibilityValue,
   })
-  public contributionVisibility: ContributionVisibility;
+  public contributionVisibility: ContributionVisibilityValue;
 
-  @Column({
-    name: 'skip_manager_review',
-    type: 'enum',
-    enum: SkipManagerReview,
-  })
-  public skipManagerReview: SkipManagerReview;
+  @Column({ name: 'skip_manager_review' })
+  public skipManagerReview: string;
+
+  @OneToMany(
+    () => RoleTypeOrmEntity,
+    role => role.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public roles: ReadonlyArray<RoleTypeOrmEntity>;
+
+  @OneToMany(
+    () => PeerReviewTypeOrmEntity,
+    peerReview => peerReview.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>;
 
   public constructor(
     id: string,
@@ -47,10 +62,12 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     title: string,
     description: string,
     creatorId: string,
-    state: ProjectState,
+    state: ProjectStateValue,
     consensuality: number | null,
-    contributionVisibility: ContributionVisibility,
-    skipManagerReview: SkipManagerReview,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: string,
+    roles: ReadonlyArray<RoleTypeOrmEntity>,
+    peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -60,5 +77,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
+    this.roles = roles;
+    this.peerReviews = peerReviews;
   }
 }

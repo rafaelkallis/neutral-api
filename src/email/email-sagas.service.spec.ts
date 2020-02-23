@@ -4,6 +4,7 @@ import { EmailSagasService } from 'email/email-sagas.service';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
 import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe('email sagas', () => {
   let primitiveFaker: PrimitiveFaker;
@@ -25,7 +26,7 @@ describe('email sagas', () => {
   test('email change requested', async () => {
     jest.spyOn(emailService, 'sendEmailChangeEmail');
     const user = modelFaker.user();
-    const email = primitiveFaker.email();
+    const email = Email.from(primitiveFaker.email());
     const emailChangeMagicLink = '';
     const event = new EmailChangeRequestedEvent(
       user,
@@ -36,7 +37,7 @@ describe('email sagas', () => {
     await emailSagas.emailChangeRequested(event);
 
     expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
-      email,
+      email.value,
       emailChangeMagicLink,
     );
   });
@@ -50,7 +51,7 @@ describe('email sagas', () => {
     await emailSagas.signinRequested(event);
 
     expect(emailService.sendLoginEmail).toHaveBeenCalledWith(
-      user.email,
+      user.email.value,
       signinMagicLink,
     );
   });
@@ -59,7 +60,7 @@ describe('email sagas', () => {
     jest.spyOn(emailService, 'sendSignupEmail');
     const email = primitiveFaker.email();
     const signupMagicLink = '';
-    const event = new SignupRequestedEvent(email, signupMagicLink);
+    const event = new SignupRequestedEvent(Email.from(email), signupMagicLink);
 
     await emailSagas.signupRequested(event);
 

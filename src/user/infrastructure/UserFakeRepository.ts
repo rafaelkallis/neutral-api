@@ -1,28 +1,29 @@
-import { FakeRepository } from 'common';
 import { UserRepository } from 'user/domain/UserRepository';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
+import { MemoryRepository } from 'common/infrastructure/MemoryRepository';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
- * User Fake Repository
+ * User Memory Repository
  */
-export class UserFakeRepository extends FakeRepository<UserModel>
+export class UserFakeRepository extends MemoryRepository<User>
   implements UserRepository {
   /**
    *
    */
-  public async findByName(fullName: string): Promise<UserModel[]> {
-    return Array.from(this.entities.values()).filter(entity =>
-      `${entity.firstName} ${entity.lastName}`.includes(fullName),
+  public async findByName(fullName: string): Promise<User[]> {
+    return Array.from(this.models.values()).filter(entity =>
+      entity.name.toString().includes(fullName),
     );
   }
 
   /**
    *
    */
-  public async findByEmail(email: string): Promise<UserModel> {
-    const user = Array.from(this.entities.values()).find(
-      entity => entity.email === email,
+  public async findByEmail(email: Email): Promise<User> {
+    const user = Array.from(this.models.values()).find(entity =>
+      entity.email.equals(email),
     );
     if (!user) {
       this.throwEntityNotFoundException();
@@ -33,9 +34,9 @@ export class UserFakeRepository extends FakeRepository<UserModel>
   /**
    *
    */
-  public async existsByEmail(email: string): Promise<boolean> {
-    const user = Array.from(this.entities.values()).find(
-      entity => entity.email === email,
+  public async existsByEmail(email: Email): Promise<boolean> {
+    const user = Array.from(this.models.values()).find(entity =>
+      entity.email.equals(email),
     );
     return Boolean(user);
   }

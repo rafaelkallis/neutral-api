@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { UserModel } from 'user';
+import { User } from 'user/domain/User';
 
 /**
  *
@@ -24,6 +24,6 @@ export abstract class ApmService {
    */
   public abstract createTransaction(
     request: Request,
-    user?: UserModel,
+    user?: User,
   ): ApmTransaction;
 }

@@ -1,12 +1,12 @@
-import { ProjectModel } from 'project/domain/ProjectModel';
-import { UserModel } from 'user';
-import { AbstractEvent } from 'event';
+import { Project } from 'project/domain/Project';
+import { User } from 'user/domain/User';
+import { AbstractEvent } from 'event/abstract.event';
 
 export class ProjectCreatedEvent extends AbstractEvent {
-  public readonly project: ProjectModel;
-  public readonly owner: UserModel;
+  public readonly project: Project;
+  public readonly owner: User;
 
-  public constructor(project: ProjectModel, owner: UserModel) {
+  public constructor(project: Project, owner: User) {
     super();
     this.project = project;
     this.owner = owner;

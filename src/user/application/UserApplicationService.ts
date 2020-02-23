@@ -3,34 +3,47 @@ import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
-import { UserDomainService } from 'user/domain/UserDomainService';
-import { UserModel } from 'user/domain/UserModel';
+import { User } from 'user/domain/User';
+import { EventPublisherService, InjectEventPublisher } from 'event';
+import { Id } from 'common/domain/value-objects/Id';
+import { Email } from 'user/domain/value-objects/Email';
+import { TokenService, TOKEN_SERVICE } from 'token';
+import { ConfigService, InjectConfig } from 'config';
+import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
+import { Name } from 'user/domain/value-objects/Name';
+import { TokenAlreadyUsedException } from 'common';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly userDomainService: UserDomainService;
+  private readonly eventPublisher: EventPublisherService;
+  private readonly tokenService: TokenService;
+  private readonly config: ConfigService;
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    userDomainService: UserDomainService,
+    @InjectEventPublisher() eventPublisher: EventPublisherService,
+    @Inject(TOKEN_SERVICE) tokenService: TokenService,
+    @InjectConfig() config: ConfigService,
   ) {
     this.userRepository = userRepository;
-    this.userDomainService = userDomainService;
+    this.eventPublisher = eventPublisher;
+    this.tokenService = tokenService;
+    this.config = config;
   }
 
   /**
    * Get users
    */
   public async getUsers(
-    authUser: UserModel,
+    authUser: User,
     query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    let users: UserModel[] = [];
+    let users: User[] = [];
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
     } else if (query.after) {
-      users = await this.userRepository.findPage(query.after);
+      users = await this.userRepository.findPage(Id.from(query.after));
     } else {
       users = await this.userRepository.findPage();
     }
@@ -45,8 +58,8 @@ export class UserApplicationService {
   /**
    * Get the user with the given id
    */
-  public async getUser(authUser: UserModel, id: string): Promise<UserDto> {
-    const user = await this.userRepository.findById(id);
+  public async getUser(authUser: User, id: string): Promise<UserDto> {
+    const user = await this.userRepository.findById(Id.from(id));
     return UserDto.builder()
       .user(user)
       .authUser(authUser)
@@ -56,7 +69,7 @@ export class UserApplicationService {
   /**
    * Get the authenticated user
    */
-  public async getAuthUser(authUser: UserModel): Promise<UserDto> {
+  public async getAuthUser(authUser: User): Promise<UserDto> {
     return UserDto.builder()
       .user(authUser)
       .authUser(authUser)
@@ -70,10 +83,37 @@ export class UserApplicationService {
    * to verify the new email address.
    */
   public async updateAuthUser(
-    authUser: UserModel,
+    authUser: User,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
-    await this.userDomainService.updateUser(authUser, updateUserDto);
+    const { email: newEmail } = updateUserDto;
+    if (newEmail) {
+      const token = this.tokenService.newEmailChangeToken(
+        authUser.id.value,
+        authUser.email.value,
+        newEmail,
+      );
+      const emailChangeMagicLink = `${this.config.get(
+        'FRONTEND_URL',
+      )}/email_change/callback?token=${token}`;
+      await this.eventPublisher.publish(
+        new EmailChangeRequestedEvent(
+          authUser,
+          Email.from(newEmail),
+          emailChangeMagicLink,
+        ),
+      );
+    }
+    const { firstName: newFirstName, lastName: newLastName } = updateUserDto;
+    if (newFirstName || newLastName) {
+      const newName = Name.from(
+        newFirstName || authUser.name.first,
+        newLastName || authUser.name.last,
+      );
+      authUser.updateName(newName);
+      await this.eventPublisher.publish(...authUser.getDomainEvents());
+      await this.userRepository.persist(authUser);
+    }
     return UserDto.builder()
       .user(authUser)
       .authUser(authUser)
@@ -84,13 +124,23 @@ export class UserApplicationService {
    * Submit the email change token to verify a new email address
    */
   public async submitEmailChange(token: string): Promise<void> {
-    await this.userDomainService.submitEmailChange(token);
+    const payload = this.tokenService.validateEmailChangeToken(token);
+    const user = await this.userRepository.findById(Id.from(payload.sub));
+    if (!user.email.equals(Email.from(payload.curEmail))) {
+      throw new TokenAlreadyUsedException();
+    }
+    const newEmail = Email.from(payload.newEmail);
+    user.changeEmail(newEmail);
+    await this.userRepository.persist(user);
+    await this.eventPublisher.publish(...user.getDomainEvents());
   }
 
   /**
    * Delete the authenticated user
    */
-  public async deleteAuthUser(authUser: UserModel): Promise<void> {
-    await this.userDomainService.deleteUser(authUser);
+  public async deleteAuthUser(authUser: User): Promise<void> {
+    authUser.delete();
+    this.eventPublisher.publish(...authUser.getDomainEvents());
+    await this.userRepository.delete(authUser);
   }
 }

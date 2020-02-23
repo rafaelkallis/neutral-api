@@ -10,6 +10,8 @@ import {
   SessionToken,
   EmailChangeToken,
 } from 'token/token.service';
+import { Id } from 'common/domain/value-objects/Id';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
 /**
  * Mock Token Service
@@ -19,14 +21,14 @@ export class MockTokenService implements TokenService {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  public newLoginToken(userId: string, lastLoginAt: number): string {
+  public newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string {
     const payload: LoginToken = {
       jti: '',
       aud: TokenAud.LOGIN,
-      sub: userId,
+      sub: userId.value,
       iat: 0,
       exp: 0,
-      lastLoginAt,
+      lastLoginAt: lastLoginAt.value,
     };
     return JSON.stringify(payload);
   }

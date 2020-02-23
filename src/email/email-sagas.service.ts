@@ -4,6 +4,7 @@ import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequest
 import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
 import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
 import { EmailService, EMAIL_SERVICE } from 'email/email.service';
+import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
 
 /**
  * Email Sagas Service
@@ -24,7 +25,7 @@ export class EmailSagasService {
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
     await this.emailService.sendEmailChangeEmail(
-      event.email,
+      event.email.value,
       event.magicEmailChangeLink,
     );
   }
@@ -35,7 +36,7 @@ export class EmailSagasService {
   @Saga(SigninRequestedEvent)
   public async signinRequested(event: SigninRequestedEvent): Promise<void> {
     await this.emailService.sendLoginEmail(
-      event.user.email,
+      event.user.email.value,
       event.magicSigninLink,
     );
   }
@@ -45,6 +46,21 @@ export class EmailSagasService {
    */
   @Saga(SignupRequestedEvent)
   public async signupRequested(event: SignupRequestedEvent): Promise<void> {
-    await this.emailService.sendSignupEmail(event.email, event.magicSignupLink);
+    await this.emailService.sendSignupEmail(
+      event.email.value,
+      event.magicSignupLink,
+    );
+  }
+
+  /**
+   *
+   */
+  @Saga(NewUserAssignedEvent)
+  public async handleNewUserAssignedEvent(
+    event: NewUserAssignedEvent,
+  ): Promise<void> {
+    await this.emailService.sendUnregisteredUserNewAssignmentEmail(
+      event.assigneeEmail.value,
+    );
   }
 }

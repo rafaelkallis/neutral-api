@@ -1,20 +1,20 @@
-import { FakeRepository } from 'common';
+import { MemoryRepository } from 'common/infrastructure/MemoryRepository';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { NotificationModel } from 'notification/domain/NotificationModel';
+import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Fake Notification Repository
  */
-export class NotificationFakeRepository
-  extends FakeRepository<NotificationModel>
+export class NotificationFakeRepository extends MemoryRepository<Notification>
   implements NotificationRepository {
   /**
    *
    */
-  public async findByOwnerId(ownerId: string): Promise<NotificationModel[]> {
-    return Array.from(this.entities.values()).filter(
-      entity => entity.ownerId === ownerId,
+  public async findByOwnerId(ownerId: Id): Promise<Notification[]> {
+    return Array.from(this.models.values()).filter(entity =>
+      entity.ownerId.equals(ownerId),
     );
   }
 

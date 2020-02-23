@@ -1,20 +1,38 @@
-import { FakeRepository } from 'common';
-import { ProjectModel } from 'project/domain/ProjectModel';
+import { Project } from 'project/domain/Project';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
+import { MemoryRepository } from 'common/infrastructure/MemoryRepository';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Project Fake Repository
  */
-export class ProjectFakeRepository extends FakeRepository<ProjectModel>
+export class ProjectFakeRepository extends MemoryRepository<Project>
   implements ProjectRepository {
   /**
    *
    */
-  public async findByCreatorId(creatorId: string): Promise<ProjectModel[]> {
-    return Array.from(this.entities.values()).filter(
-      entity => entity.creatorId === creatorId,
+  public async findByCreatorId(creatorId: Id): Promise<Project[]> {
+    return Array.from(this.models.values()).filter(entity =>
+      entity.creatorId.equals(creatorId),
     );
+  }
+
+  public async findByRoleId(roleId: Id): Promise<Project> {
+    const project = Array.from(this.models.values()).find(project =>
+      project.roles.exists(roleId),
+    );
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    return project;
+  }
+
+  public async findByRoleAssigneeId(assigneeId: Id): Promise<Project[]> {
+    const projects = Array.from(this.models.values()).filter(project =>
+      project.roles.anyAssignedToUser(assigneeId),
+    );
+    return projects;
   }
 
   /**

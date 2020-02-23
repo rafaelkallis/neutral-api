@@ -1,33 +1,29 @@
-import { AbstractModel } from 'common/domain/AbstractModel';
+import { Model } from 'common/domain/Model';
+import { Id } from 'common/domain/value-objects/Id';
 
 /**
  * Repository
  */
-export interface Repository<TModel extends AbstractModel> {
+export interface Repository<TModel extends Model> {
   /**
    *
    */
-  createId(): string;
+  findPage(afterId?: Id): Promise<TModel[]>;
 
   /**
    *
    */
-  findPage(afterId?: string): Promise<TModel[]>;
+  findById(id: Id): Promise<TModel>;
 
   /**
    *
    */
-  findById(id: string): Promise<TModel>;
+  findByIds(ids: Id[]): Promise<TModel[]>;
 
   /**
    *
    */
-  findByIds(ids: string[]): Promise<TModel[]>;
-
-  /**
-   *
-   */
-  exists(id: string): Promise<boolean>;
+  exists(id: Id): Promise<boolean>;
 
   /**
    *

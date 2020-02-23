@@ -1,8 +1,8 @@
-import { AbstractModel } from 'common/domain/AbstractModel';
+import { Model } from 'common/domain/Model';
 import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
 
 export interface TypeOrmEntityMapperService<
-  TModel extends AbstractModel,
+  TModel extends Model,
   TEntity extends TypeOrmEntity
 > {
   /**
