@@ -19,9 +19,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'common/application/pipes/ValidationPipe';
+import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { User } from 'user/domain/User';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
-import { AuthGuard, AuthUser } from 'auth';
 import { GetProjectsQueryDto } from 'project/application/dto/GetProjectsQueryDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';

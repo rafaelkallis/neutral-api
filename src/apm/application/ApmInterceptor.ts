@@ -9,7 +9,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { Apm, InjectApm } from 'apm/application/Apm';
+import { ApmTransaction, InjectApm, Apm } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
 
 @Injectable()
@@ -19,28 +19,27 @@ export class ApmInterceptor implements NestInterceptor {
   public constructor(@InjectApm() apm: Apm) {
     this.apm = apm;
   }
-
   /**
-   *
+   * Interceptor handle
    */
   public intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<any> {
+  ): Observable<unknown> {
     const contextType = context.getType();
     if (contextType !== 'http') {
       throw new InternalServerErrorException();
     }
-    const request = context
-      .switchToHttp()
-      .getRequest<Request & { user: User }>();
-    const response = context.switchToHttp().getResponse<Response>();
-    const apmTransaction = this.apm.createTransaction(
-      request,
-      response,
-      request.user,
-    );
+    const httpContext = context.switchToHttp();
+    const request = httpContext.getRequest<
+      Request & { apmTransaction?: ApmTransaction; user: User }
+    >();
+    const response = httpContext.getResponse<Response>();
 
+    const apmTransaction =
+      request.apmTransaction ||
+      this.apm.createTransaction(request, response, request.user);
+    request.apmTransaction = apmTransaction;
     return next.handle().pipe(
       tap(() => {
         apmTransaction.success();

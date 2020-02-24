@@ -20,13 +20,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'common/application/pipes/ValidationPipe';
+import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { User } from 'user/domain/User';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { CreateRoleDto } from 'project/application/dto/CreateRoleDto';
 import { UpdateRoleDto } from 'project/application/dto/UpdateRoleDto';
 import { AssignmentDto } from 'project/application/dto/AssignmentDto';
-import { AuthUser, AuthGuard } from 'auth';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 
 /**

@@ -4,7 +4,7 @@ import {
   EventHandler,
   EventSubscription,
 } from 'event/subscriber/event-subscriber.service';
-import { AbstractEvent } from 'event/abstract.event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 
 /**
  * Mock Event Subscriber
@@ -14,7 +14,7 @@ export class MockEventSubscriberService implements EventSubscriberService {
   /**
    *
    */
-  public async subscribe<TEvent extends AbstractEvent>(
+  public async subscribe<TEvent extends DomainEvent>(
     event: unknown,
     eventHandler: EventHandler<TEvent>,
   ): Promise<EventSubscription> {

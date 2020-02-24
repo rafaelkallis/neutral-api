@@ -1,12 +1,11 @@
 import {
   Injectable,
   OnModuleInit,
-  InternalServerErrorException,
   Logger,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import apm from 'elastic-apm-node';
-import { ConfigService, InjectConfig } from 'config';
+import apm from 'elastic-apm-node/start';
+import { Config, InjectConfig } from 'config/application/Config';
 import { Request, Response } from 'express';
 import { Apm, ApmTransaction, ApmActivity } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
@@ -18,16 +17,13 @@ import { User } from 'user/domain/User';
 export class ElasticApmService extends Apm
   implements OnModuleInit, OnApplicationShutdown {
   private readonly logger: Logger;
-  private readonly config: ConfigService;
 
-  public constructor(@InjectConfig() config: ConfigService) {
+  public constructor(@InjectConfig() _config: Config) {
     super();
     this.logger = new Logger(ElasticApmService.name, true);
-    this.config = config;
   }
 
-  public async onModuleInit(): Promise<void> {
-    await this.startApm();
+  public onModuleInit(): void {
     this.logger.log('Elastic apm connected');
   }
 
@@ -40,25 +36,11 @@ export class ElasticApmService extends Apm
    *
    */
   public createTransaction(
-    request: Request,
-    response: Response,
+    _request: Request,
+    _response: Response,
     authUser?: User,
   ): ApmTransaction {
-    return new ElasticApmTransaction(apm, request, response, authUser);
-  }
-
-  /**
-   *
-   */
-  private async startApm(): Promise<void> {
-    if (apm.isStarted()) {
-      return;
-    }
-    apm.start({
-      serviceName: this.config.get('SERVER_NAME'),
-      secretToken: this.config.get('ELASTIC_APM_SECRET_TOKEN'),
-      serverUrl: this.config.get('ELASTIC_APM_SERVER_URL'),
-    });
+    return new ElasticApmTransaction(authUser);
   }
 
   /**
@@ -80,21 +62,8 @@ export class ElasticApmService extends Apm
 class ElasticApmTransaction implements ApmTransaction {
   private readonly transaction: any;
 
-  public constructor(
-    apm: any,
-    request: Request,
-    response: Response,
-    authUser?: User,
-  ) {
-    const name = this.getPath(request);
-    const type = 'request';
-    const transaction = apm.startTransaction(name, type);
-    if (!transaction) {
-      throw new InternalServerErrorException();
-    }
-    this.transaction = transaction;
-    this.transaction.req = request;
-    this.transaction.res = response;
+  public constructor(authUser?: User) {
+    this.transaction = apm.currentTransaction;
     if (authUser) {
       apm.setUserContext({ id: authUser.id.value });
     }
@@ -111,10 +80,6 @@ class ElasticApmTransaction implements ApmTransaction {
   public failure(error: Error): void {
     apm.captureError(error);
     this.transaction.end('failure');
-  }
-
-  private getPath(request: Request): string {
-    return request.route.path;
   }
 }
 

@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Saga } from 'event';
+import { HandleDomainEvent } from 'event/domain/HandleDomainEvent';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
-import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
-import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
-import { EmailService, EMAIL_SERVICE } from 'email/email.service';
+import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
+import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
+import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
 
 /**
@@ -11,16 +11,16 @@ import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent
  */
 @Injectable()
 export class EmailSagasService {
-  private readonly emailService: EmailService;
+  private readonly emailService: EmailManager;
 
-  public constructor(@Inject(EMAIL_SERVICE) emailService: EmailService) {
+  public constructor(@Inject(EMAIL_MANAGER) emailService: EmailManager) {
     this.emailService = emailService;
   }
 
   /**
    *
    */
-  @Saga(EmailChangeRequestedEvent)
+  @HandleDomainEvent(EmailChangeRequestedEvent)
   public async emailChangeRequested(
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
@@ -33,8 +33,8 @@ export class EmailSagasService {
   /**
    *
    */
-  @Saga(SigninRequestedEvent)
-  public async signinRequested(event: SigninRequestedEvent): Promise<void> {
+  @HandleDomainEvent(LoginRequestedEvent)
+  public async signinRequested(event: LoginRequestedEvent): Promise<void> {
     await this.emailService.sendLoginEmail(
       event.user.email.value,
       event.magicSigninLink,
@@ -44,7 +44,7 @@ export class EmailSagasService {
   /**
    *
    */
-  @Saga(SignupRequestedEvent)
+  @HandleDomainEvent(SignupRequestedEvent)
   public async signupRequested(event: SignupRequestedEvent): Promise<void> {
     await this.emailService.sendSignupEmail(
       event.email.value,
@@ -55,7 +55,7 @@ export class EmailSagasService {
   /**
    *
    */
-  @Saga(NewUserAssignedEvent)
+  @HandleDomainEvent(NewUserAssignedEvent)
   public async handleNewUserAssignedEvent(
     event: NewUserAssignedEvent,
   ): Promise<void> {

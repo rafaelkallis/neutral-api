@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
-import { DatabaseClientService } from 'database';
+import { DatabaseClientService } from 'database/DatabaseClientService';
 import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';

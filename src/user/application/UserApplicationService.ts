@@ -4,27 +4,30 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
-import { EventPublisherService, InjectEventPublisher } from 'event';
 import { Id } from 'common/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
-import { TokenService, TOKEN_SERVICE } from 'token';
-import { ConfigService, InjectConfig } from 'config';
+import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { TokenAlreadyUsedException } from 'common';
+import { InjectConfig, Config } from 'config/application/Config';
+import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
+import {
+  EventPublisherService,
+  InjectEventPublisher,
+} from 'event/publisher/event-publisher.service';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
   private readonly eventPublisher: EventPublisherService;
-  private readonly tokenService: TokenService;
-  private readonly config: ConfigService;
+  private readonly tokenService: TokenManager;
+  private readonly config: Config;
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisherService,
-    @Inject(TOKEN_SERVICE) tokenService: TokenService,
-    @InjectConfig() config: ConfigService,
+    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
+    @InjectConfig() config: Config,
   ) {
     this.userRepository = userRepository;
     this.eventPublisher = eventPublisher;
@@ -140,7 +143,7 @@ export class UserApplicationService {
    */
   public async deleteAuthUser(authUser: User): Promise<void> {
     authUser.delete();
-    this.eventPublisher.publish(...authUser.getDomainEvents());
+    await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.delete(authUser);
   }
 }

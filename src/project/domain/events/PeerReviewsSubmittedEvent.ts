@@ -1,9 +1,9 @@
 import { Role } from 'project/domain/Role';
 import { Project } from 'project/domain/Project';
-import { AbstractEvent } from 'event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 import { PeerReview } from 'project/domain/PeerReview';
 
-export class PeerReviewsSubmittedEvent extends AbstractEvent {
+export class PeerReviewsSubmittedEvent extends DomainEvent {
   public readonly project: Project;
   public readonly senderRole: Role;
   public readonly peerReviews: PeerReview[];

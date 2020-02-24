@@ -1,7 +1,7 @@
 import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Injectable } from '@nestjs/common';
-import { DatabaseClientService } from 'database';
+import { DatabaseClientService } from 'database/DatabaseClientService';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { Project } from 'project/domain/Project';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';

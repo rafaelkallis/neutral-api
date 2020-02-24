@@ -1,25 +1,17 @@
-import {
-  Injectable,
-  HttpService,
-  NotImplementedException,
-} from '@nestjs/common';
-import { ConfigService, InjectConfig } from 'config';
-import { EmailService } from 'email/email.service';
+import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Config, InjectConfig } from 'config/application/Config';
+import { EmailManager } from 'email/EmailManager';
+import axios from 'axios';
 
 /**
  * Sendgrid Email Service
  */
 @Injectable()
-export class SendgridEmailService implements EmailService {
-  private readonly httpService: HttpService;
+export class SendgridEmailService implements EmailManager {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
 
-  public constructor(
-    @InjectConfig() config: ConfigService,
-    httpService: HttpService,
-  ) {
-    this.httpService = httpService;
+  public constructor(@InjectConfig() _config: Config) {
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';
@@ -119,6 +111,6 @@ export class SendgridEmailService implements EmailService {
         Authorization: `Bearer ${this.sendgridApiKey}`,
       },
     };
-    await this.httpService.post(url, body, config).toPromise();
+    await axios.post(url, body, config);
   }
 }

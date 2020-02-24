@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EmailSenderService, InjectEmailSender } from 'email/email-sender';
-import { EmailService } from 'email/email.service';
+import { EmailManager } from 'email/EmailManager';
 import {
   InjectEmailHtmlRenderer,
   EmailHtmlRendererService,
@@ -14,7 +14,7 @@ import {
  * Self Managed Email Service
  */
 @Injectable()
-export class SelfManagedEmailService implements EmailService {
+export class SelfManagedEmailService implements EmailManager {
   private readonly emailHtmlRenderer: EmailHtmlRendererService;
   private readonly emailPlaintextRenderer: EmailPlaintextRendererService;
   private readonly emailSender: EmailSenderService;

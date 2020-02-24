@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { EnvalidConfigService } from 'config/EnvalidConfigService';
-import { CONFIG } from 'config/constants';
+import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
+import { CONFIG } from 'config/application/Config';
 
 /**
  * Config Module

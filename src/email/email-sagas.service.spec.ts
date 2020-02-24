@@ -2,8 +2,8 @@ import { ModelFaker, PrimitiveFaker } from 'test';
 import { MockEmailService } from 'email/mock-email.service';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
-import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
-import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
+import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
+import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { Email } from 'user/domain/value-objects/Email';
 
 describe('email sagas', () => {
@@ -46,7 +46,7 @@ describe('email sagas', () => {
     jest.spyOn(emailService, 'sendLoginEmail');
     const user = modelFaker.user();
     const signinMagicLink = '';
-    const event = new SigninRequestedEvent(user, signinMagicLink);
+    const event = new LoginRequestedEvent(user, signinMagicLink);
 
     await emailSagas.signinRequested(event);
 

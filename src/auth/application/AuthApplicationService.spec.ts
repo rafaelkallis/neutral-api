@@ -6,17 +6,17 @@ import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
-import { MockConfigService } from 'config';
-import { MockTokenService } from 'token';
-import { MockEventPublisherService } from 'event';
-import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
-import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
-import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
-import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
+import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
+import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
+import { LoginEvent } from 'auth/application/events/LoginEvent';
+import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
+import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { User } from 'user/domain/User';
+import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
@@ -25,7 +25,7 @@ describe('auth application service', () => {
   let config: MockConfigService;
   let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
-  let tokenService: MockTokenService;
+  let tokenService: FakeTokenManagerService;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -33,7 +33,7 @@ describe('auth application service', () => {
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
-    tokenService = new MockTokenService();
+    tokenService = new FakeTokenManagerService();
 
     authService = new AuthService(
       config,
@@ -61,7 +61,7 @@ describe('auth application service', () => {
       const requestLoginDto = new RequestLoginDto(email.value);
       await authService.requestLogin(requestLoginDto);
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(SigninRequestedEvent),
+        expect.any(LoginRequestedEvent),
       );
     });
   });
@@ -90,7 +90,7 @@ describe('auth application service', () => {
       });
       expect(session.set).toHaveBeenCalled();
       expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(SigninEvent),
+        expect.any(LoginEvent),
       );
     });
   });

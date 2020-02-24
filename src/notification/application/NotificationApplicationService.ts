@@ -5,10 +5,12 @@ import {
   NotificationRepository,
 } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
-import { InsufficientPermissionsException } from 'common';
 import { Id } from 'common/domain/value-objects/Id';
-import { EventPublisherService } from 'event';
-import { EVENT_PUBLISHER } from 'event/constants';
+import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
+import {
+  InjectEventPublisher,
+  EventPublisherService,
+} from 'event/publisher/event-publisher.service';
 
 @Injectable()
 export class NotificationApplicationService {
@@ -18,7 +20,7 @@ export class NotificationApplicationService {
   public constructor(
     @Inject(NOTIFICATION_REPOSITORY)
     notificationRepository: NotificationRepository,
-    @Inject(EVENT_PUBLISHER)
+    @InjectEventPublisher()
     eventPublisher: EventPublisherService,
   ) {
     this.notificationRepository = notificationRepository;

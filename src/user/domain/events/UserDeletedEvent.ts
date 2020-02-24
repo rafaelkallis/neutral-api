@@ -1,10 +1,10 @@
-import { AbstractEvent } from 'event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 import { User } from 'user/domain/User';
 
 /**
  * User Deleted Event
  */
-export class UserDeletedEvent extends AbstractEvent {
+export class UserDeletedEvent extends DomainEvent {
   public readonly user: User;
 
   constructor(user: User) {

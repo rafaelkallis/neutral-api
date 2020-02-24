@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from 'config';
+import { ConfigModule } from 'config/ConfigModule';
 import { DatabaseClientService } from 'database/DatabaseClientService';
 import { DatabaseConnectionProvider } from 'database/DatabaseConnectionProdiver';
 

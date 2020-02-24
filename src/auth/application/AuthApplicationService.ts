@@ -1,38 +1,41 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { TokenAlreadyUsedException } from 'common';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { ConfigService, InjectConfig } from 'config';
+import { Config, InjectConfig } from 'config/application/Config';
 import { SessionState } from 'session/session-state';
-import { TOKEN_SERVICE, TokenService } from 'token';
-import { EventPublisherService, InjectEventPublisher } from 'event';
-import { SignupRequestedEvent } from 'auth/application/exceptions/SignupRequestedEvent';
-import { SigninRequestedEvent } from 'auth/application/exceptions/SigninRequestedEvent';
-import { SignupEvent } from 'auth/application/exceptions/SignupEvent';
-import { SigninEvent } from 'auth/application/exceptions/SigninEvent';
+import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
+import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
+import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
+import { SignupEvent } from 'auth/application/events/SignupEvent';
+import { LoginEvent } from 'auth/application/events/LoginEvent';
 import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
+import {
+  EventPublisherService,
+  InjectEventPublisher,
+} from 'event/publisher/event-publisher.service';
 
 @Injectable()
 export class AuthService {
-  private readonly config: ConfigService;
+  private readonly config: Config;
   private readonly eventPublisher: EventPublisherService;
   private readonly userRepository: UserRepository;
-  private readonly tokenService: TokenService;
+  private readonly tokenService: TokenManager;
 
   public constructor(
-    @InjectConfig() config: ConfigService,
+    @InjectConfig() config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisherService,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    @Inject(TOKEN_SERVICE) tokenService: TokenService,
+    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;
@@ -56,7 +59,7 @@ export class AuthService {
       'FRONTEND_URL',
     )}/login/callback?token=${encodeURIComponent(loginToken)}`;
     await this.eventPublisher.publish(
-      new SigninRequestedEvent(user, magicLoginLink),
+      new LoginRequestedEvent(user, magicLoginLink),
     );
   }
 
@@ -79,7 +82,7 @@ export class AuthService {
     }
 
     user.lastLoginAt = LastLoginAt.now();
-    await this.eventPublisher.publish(new SigninEvent(user));
+    await this.eventPublisher.publish(new LoginEvent(user));
     await this.userRepository.persist(user);
 
     const sessionToken = this.tokenService.newSessionToken(user.id.value);

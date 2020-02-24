@@ -1,5 +1,5 @@
 {
-  "name": "covee-saas",
+  "name": "covee-saas-api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -26,6 +26,7 @@
     "@nestjs/platform-express": "6.10.14",
     "@nestjs/swagger": "4.1.2",
     "@panva/jose": "1.9.3",
+    "axios": "0.19.2",
     "base64url": "3.0.1",
     "bson-objectid": "1.3.0",
     "class-transformer": "0.2.3",

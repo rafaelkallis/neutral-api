@@ -1,8 +1,8 @@
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
-import { AbstractEvent } from 'event/abstract.event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 
-export class ProjectCreatedEvent extends AbstractEvent {
+export class ProjectCreatedEvent extends DomainEvent {
   public readonly project: Project;
   public readonly owner: User;
 

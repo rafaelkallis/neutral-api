@@ -2,11 +2,11 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from 'app.module';
+import { AppModule } from 'app/AppModule';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
-import { TokenService, TOKEN_SERVICE } from 'token';
-import { EmailService, EMAIL_SERVICE } from 'email';
+import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
+import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import {
   ProjectRepository,
@@ -20,10 +20,10 @@ describe('assign user to role', () => {
   let app: INestApplication;
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
-  let tokenService: TokenService;
+  let tokenService: TokenManager;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
-  let emailService: EmailService;
+  let emailService: EmailManager;
   let user: User;
   let project: Project;
   let role: Role;
@@ -37,8 +37,8 @@ describe('assign user to role', () => {
     }).compile();
     userRepository = module.get(USER_REPOSITORY);
     projectRepository = module.get(PROJECT_REPOSITORY);
-    tokenService = module.get(TOKEN_SERVICE);
-    emailService = module.get(EMAIL_SERVICE);
+    tokenService = module.get(TOKEN_MANAGER);
+    emailService = module.get(EMAIL_MANAGER);
 
     app = module.createNestApplication();
     await app.init();

@@ -1,11 +1,11 @@
-import { AbstractEvent } from 'event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * Email Change Requested Event
  */
-export class EmailChangeRequestedEvent extends AbstractEvent {
+export class EmailChangeRequestedEvent extends DomainEvent {
   public readonly user: User;
   public readonly email: Email;
   public readonly magicEmailChangeLink: string;

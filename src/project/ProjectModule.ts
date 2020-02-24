@@ -7,9 +7,9 @@ import { ProjectApplicationService } from 'project/application/ProjectApplicatio
 import { PROJECT_REPOSITORY } from 'project/domain/ProjectRepository';
 
 import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
-import { EventModule } from 'event';
-import { DatabaseModule } from 'database';
-import { TokenModule } from 'token';
+import { EventModule } from 'event/EventModule';
+import { DatabaseModule } from 'database/DatabaseModule';
+import { TokenModule } from 'token/TokenModule';
 import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 import { RoleController } from 'project/presentation/RoleController';
 import { CONSENSUALITY_COMPUTER } from 'project/domain/ConsensualityComputer';

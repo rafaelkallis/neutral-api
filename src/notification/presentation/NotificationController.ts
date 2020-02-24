@@ -13,7 +13,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard, AuthUser } from 'auth';
+import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { User } from 'user/domain/User';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';

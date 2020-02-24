@@ -24,7 +24,6 @@ import { ProjectDescription } from 'project/domain/value-objects/ProjectDescript
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
-import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
@@ -41,6 +40,7 @@ import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNotProjectCreatorException';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -213,9 +213,7 @@ export class Project extends AggregateRoot {
    */
   public finishFormation(): void {
     this.state.assertFormation();
-    if (!this.roles.allAreAssigned()) {
-      throw new RoleNoUserAssignedException();
-    }
+    this.roles.assertAllAreAssigned();
     this.state = ProjectState.PEER_REVIEW;
     this.apply(new ProjectFormationFinishedEvent(this));
     this.apply(new ProjectPeerReviewStartedEvent(this));
@@ -269,9 +267,7 @@ export class Project extends AggregateRoot {
   ): void {
     this.state.assertPeerReview();
     const contributions = contributionsComputer.compute(this.peerReviews);
-    for (const role of this.roles) {
-      role.contribution = contributions[role.id.value];
-    }
+    this.roles.applyContributions(contributions);
     this.consensuality = consensualityComputer.compute(this.peerReviews);
 
     if (this.skipManagerReview.shouldSkipManagerReview(this)) {
@@ -298,5 +294,11 @@ export class Project extends AggregateRoot {
 
   public isCreator(user: User): boolean {
     return this.creatorId.equals(user.id);
+  }
+
+  public assertCreator(user: User): void {
+    if (!this.isCreator(user)) {
+      throw new UserNotProjectCreatorException();
+    }
   }
 }

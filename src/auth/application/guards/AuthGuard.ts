@@ -8,7 +8,7 @@ import {
 
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'session';
-import { TOKEN_SERVICE, TokenService } from 'token';
+import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
 import { Id } from 'common/domain/value-objects/Id';
 import {
   UserRepository,
@@ -23,12 +23,12 @@ import { User } from 'user/domain/User';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly tokenService: TokenService;
+  private readonly tokenService: TokenManager;
   private readonly userRepository: UserRepository;
 
   public constructor(
     @InjectUserRepository() userRepository: UserRepository,
-    @Inject(TOKEN_SERVICE) tokenService: TokenService,
+    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
   ) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;

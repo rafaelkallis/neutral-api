@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ElasticApmService } from 'apm/infrastructure/ElasticApmService';
-import { ConfigModule } from 'config';
+import { ConfigModule } from 'config/ConfigModule';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ApmInterceptor } from 'apm/application/ApmInterceptor';
 import { APM } from 'apm/application/Apm';
@@ -14,5 +14,6 @@ import { APM } from 'apm/application/Apm';
     { provide: APM, useClass: ElasticApmService },
     { provide: APP_INTERCEPTOR, useClass: ApmInterceptor },
   ],
+  exports: [APM],
 })
 export class ApmModule {}

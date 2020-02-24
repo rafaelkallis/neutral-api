@@ -1,12 +1,12 @@
 import { Role } from 'project/domain/Role';
 import { Id } from 'common/domain/value-objects/Id';
-import { AbstractEvent } from 'event/abstract.event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 import { Project } from 'project/domain/Project';
 
 /**
  *
  */
-export class UserUnassignedEvent extends AbstractEvent {
+export class UserUnassignedEvent extends DomainEvent {
   public readonly project: Project;
   public readonly role: Role;
   public readonly unassignedUserId: Id;

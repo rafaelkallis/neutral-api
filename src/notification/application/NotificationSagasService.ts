@@ -9,11 +9,11 @@ import {
 } from 'notification/domain/NotificationRepository';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
-import { Saga } from 'event';
 import { Notification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
+import { HandleDomainEvent } from 'event/domain/HandleDomainEvent';
 
 @Injectable()
 export class NotificationSagasService {
@@ -32,7 +32,7 @@ export class NotificationSagasService {
   /**
    *
    */
-  @Saga(ExistingUserAssignedEvent)
+  @HandleDomainEvent(ExistingUserAssignedEvent)
   public async existingUserAssigned(
     event: ExistingUserAssignedEvent,
   ): Promise<void> {
@@ -46,7 +46,7 @@ export class NotificationSagasService {
   /**
    *
    */
-  @Saga(ProjectPeerReviewStartedEvent)
+  @HandleDomainEvent(ProjectPeerReviewStartedEvent)
   public async peerReviewStarted(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
@@ -64,7 +64,7 @@ export class NotificationSagasService {
   /**
    *
    */
-  @Saga(ProjectManagerReviewStartedEvent)
+  @HandleDomainEvent(ProjectManagerReviewStartedEvent)
   public async managerReviewStarted(
     event: ProjectManagerReviewStartedEvent,
   ): Promise<void> {
@@ -77,7 +77,7 @@ export class NotificationSagasService {
   /**
    *
    */
-  @Saga(ProjectFinishedEvent)
+  @HandleDomainEvent(ProjectFinishedEvent)
   public async handleProjectFinished(
     event: ProjectFinishedEvent,
   ): Promise<void> {

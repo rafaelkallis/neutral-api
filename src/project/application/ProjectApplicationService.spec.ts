@@ -10,7 +10,6 @@ import {
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
-import { MockEventPublisherService } from 'event';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
@@ -28,6 +27,7 @@ import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmitt
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { RoleCollection } from 'project/domain/RoleCollection';
+import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;

@@ -1,7 +1,7 @@
 import { Project } from 'project/domain/Project';
-import { AbstractEvent } from 'event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 
-export class ProjectManagerReviewFinishedEvent extends AbstractEvent {
+export class ProjectManagerReviewFinishedEvent extends DomainEvent {
   public readonly project: Project;
 
   constructor(project: Project) {

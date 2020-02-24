@@ -1,4 +1,3 @@
-import { MockEventPublisherService } from 'event';
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { Notification } from 'notification/domain/Notification';
 import { ModelFaker } from 'test';
@@ -6,6 +5,7 @@ import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
+import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { EmailService } from 'email/email.service';
+import { EmailManager } from 'email/EmailManager';
 
 /**
  * Mock Email Service
  */
 @Injectable()
-export class MockEmailService implements EmailService {
+export class MockEmailService implements EmailManager {
   /**
    * Sends an email with the login template.
    */

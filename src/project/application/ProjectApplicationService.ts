@@ -1,5 +1,4 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InsufficientPermissionsException } from 'common';
 import {
   UserRepository,
   InjectUserRepository,
@@ -9,8 +8,6 @@ import {
   InjectProjectRepository,
 } from 'project/domain/ProjectRepository';
 
-import { UserNotProjectOwnerException } from 'project/application/exceptions/UserNotProjectOwnerException';
-import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import {
   GetProjectsQueryDto,
   GetProjectsType,
@@ -25,7 +22,6 @@ import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
-import { EventPublisherService, InjectEventPublisher } from 'event';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
@@ -44,6 +40,12 @@ import {
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
+import {
+  EventPublisherService,
+  InjectEventPublisher,
+} from 'event/publisher/event-publisher.service';
+import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -188,9 +190,7 @@ export class ProjectApplicationService {
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     const title = updateProjectDto.title
       ? ProjectTitle.from(updateProjectDto.title)
       : undefined;
@@ -215,9 +215,7 @@ export class ProjectApplicationService {
   ): Promise<void> {
     const projectId = Id.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     project.delete();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.delete(project);
@@ -233,9 +231,7 @@ export class ProjectApplicationService {
     rawDescription: string,
   ): Promise<RoleDto> {
     const project = await this.projectRepository.findById(Id.from(projectId));
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     const title = RoleTitle.from(rawTitle);
     const description = RoleDescription.from(rawDescription);
     const role = project.addRole(title, description);
@@ -260,9 +256,7 @@ export class ProjectApplicationService {
   ): Promise<RoleDto> {
     const roleId = Id.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     const roleToUpdate = project.roles.find(roleId);
     const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
     const description = rawDescription
@@ -285,9 +279,7 @@ export class ProjectApplicationService {
   public async removeRole(authUser: User, rawRoleId: string): Promise<void> {
     const roleId = Id.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     project.removeRole(roleId);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
@@ -304,9 +296,7 @@ export class ProjectApplicationService {
   ): Promise<RoleDto> {
     const roleId = Id.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     const roleToAssign = project.roles.find(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
@@ -359,9 +349,7 @@ export class ProjectApplicationService {
   ): Promise<ProjectDto> {
     const projectId = Id.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
@@ -413,9 +401,7 @@ export class ProjectApplicationService {
     projectId: string,
   ): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(projectId));
-    if (!project.isCreator(authUser)) {
-      throw new UserNotProjectOwnerException();
-    }
+    project.assertCreator(authUser);
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);

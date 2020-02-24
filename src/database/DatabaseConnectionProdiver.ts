@@ -1,8 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { FactoryProvider } from '@nestjs/common/interfaces';
 import { Connection, ConnectionManager } from 'typeorm';
-import { ConfigService } from 'config';
-import { CONFIG } from 'config/constants';
+import { Config, CONFIG } from 'config/application/Config';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
@@ -42,7 +41,7 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
   Connection
 >> = {
   provide: DATABASE_CONNECTION,
-  useFactory: async (config: ConfigService) => {
+  useFactory: async (config: Config) => {
     const connectionManager = new ConnectionManager();
     const connection = connectionManager.create({
       name: 'default',

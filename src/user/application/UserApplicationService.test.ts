@@ -4,20 +4,22 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
-import { MockConfigService, ConfigService } from 'config';
-import { MockTokenService, TokenService } from 'token';
 import { UserApplicationService } from 'user/application/UserApplicationService';
-import { MockEventPublisherService } from 'event';
 import { User } from 'user/domain/User';
 import { Name } from 'user/domain/value-objects/Name';
+import { Config } from 'config/application/Config';
+import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { TokenManager } from 'token/application/TokenManager';
+import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
+import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
-  let config: ConfigService;
+  let config: Config;
   let eventPublisher: MockEventPublisherService;
   let userRepository: UserRepository;
-  let tokenService: TokenService;
+  let tokenService: TokenManager;
   let userApplicationService: UserApplicationService;
   let user: User;
 
@@ -27,7 +29,7 @@ describe('user service', () => {
     config = new MockConfigService();
     eventPublisher = new MockEventPublisherService();
     userRepository = new UserFakeRepository();
-    tokenService = new MockTokenService();
+    tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(
       userRepository,
       eventPublisher,

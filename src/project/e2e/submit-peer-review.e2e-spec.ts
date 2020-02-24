@@ -2,14 +2,14 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from 'app.module';
+import { AppModule } from 'app/AppModule';
 import { Project } from 'project/domain/Project';
 import {
   ProjectRepository,
   PROJECT_REPOSITORY,
 } from 'project/domain/ProjectRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
-import { TOKEN_SERVICE, TokenService } from 'token';
+import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Role } from 'project/domain/Role';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
@@ -49,7 +49,7 @@ describe('submit peer review (e2e)', () => {
     const user = modelFaker.user();
     await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
-    const tokenService = module.get<TokenService>(TOKEN_SERVICE);
+    const tokenService = module.get<TokenManager>(TOKEN_MANAGER);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
 

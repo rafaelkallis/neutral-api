@@ -1,6 +1,6 @@
 import { ObjectType, EntityManager } from 'typeorm';
 import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
-import { DatabaseClientService } from 'database';
+import { DatabaseClientService } from 'database/DatabaseClientService';
 import { Model } from 'common/domain/Model';
 import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
 import { Id } from 'common/domain/value-objects/Id';

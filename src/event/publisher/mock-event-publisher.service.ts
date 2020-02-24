@@ -1,11 +1,11 @@
-import { AbstractEvent } from 'event/abstract.event';
+import { DomainEvent } from 'event/domain/DomainEvent';
 import { EventPublisherService } from 'event/publisher/event-publisher.service';
 
 /**
  * Mock Event Publisher
  */
 export class MockEventPublisherService implements EventPublisherService {
-  private readonly publishedEvents: AbstractEvent[];
+  private readonly publishedEvents: DomainEvent[];
 
   public constructor() {
     this.publishedEvents = [];
@@ -14,7 +14,7 @@ export class MockEventPublisherService implements EventPublisherService {
   /**
    *
    */
-  public async publish(...events: AbstractEvent[]): Promise<void> {
+  public async publish(...events: DomainEvent[]): Promise<void> {
     for (const event of events) {
       this.publishedEvents.push(event);
     }
@@ -23,7 +23,7 @@ export class MockEventPublisherService implements EventPublisherService {
   /**
    *
    */
-  public getPublishedEvents(): AbstractEvent[] {
+  public getPublishedEvents(): DomainEvent[] {
     return [...this.publishedEvents];
   }
 }

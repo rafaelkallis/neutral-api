@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { InvariantViolationException } from '../../common';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ContributionsComputer,
+  Contributions,
+} from 'project/domain/ContributionsComputer';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
+import { Id } from 'common/domain/value-objects/Id';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -15,9 +19,7 @@ export class CoveeContributionsComputerService
   /**
    * Computes the relative contributions.
    */
-  public compute(
-    peerReviewCollection: PeerReviewCollection,
-  ): Record<string, Contribution> {
+  public compute(peerReviewCollection: PeerReviewCollection): Contributions {
     const peerReviews = peerReviewCollection.toMap();
     const ids: string[] = Object.keys(peerReviews).sort();
     const S: number[][] = [];
@@ -45,7 +47,15 @@ export class CoveeContributionsComputerService
     for (const [i, iId] of ids.entries()) {
       relContMap[iId] = Contribution.from(relContVec[i]);
     }
-    return relContMap;
+    return {
+      of(roleId: Id): Contribution {
+        const contribution = relContMap[roleId.value];
+        if (!contribution) {
+          throw new InternalServerErrorException();
+        }
+        return contribution;
+      },
+    };
   }
 
   private computeContributionsFromMatrix(S: number[][]): number[] {

@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from 'app.module';
-import { ConfigService } from 'config';
-import { CONFIG } from 'config/constants';
+import { AppModule } from 'app/AppModule';
+import { Config, CONFIG } from 'config/application/Config';
 
 async function main(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  const config = app.get<ConfigService>(CONFIG);
+  const config = app.get<Config>(CONFIG);
 
   app.enableCors({
     origin: config.get('FRONTEND_URL'),

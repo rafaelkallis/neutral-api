@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from 'app.module';
+import { AppModule } from 'app/AppModule';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { Project } from 'project/domain/Project';
 import {
@@ -9,7 +9,7 @@ import {
   PROJECT_REPOSITORY,
 } from 'project/domain/ProjectRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
-import { TokenService, TOKEN_SERVICE } from 'token';
+import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
 import { INestApplication } from '@nestjs/common';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
@@ -21,7 +21,7 @@ describe('project (e2e)', () => {
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
-  let tokenService: TokenService;
+  let tokenService: TokenManager;
   let user: User;
   let session: request.SuperTest<request.Test>;
 
@@ -38,7 +38,7 @@ describe('project (e2e)', () => {
     user = modelFaker.user();
     await userRepository.persist(user);
     session = request.agent(app.getHttpServer());
-    tokenService = module.get(TOKEN_SERVICE);
+    tokenService = module.get(TOKEN_MANAGER);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });

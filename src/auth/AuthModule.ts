@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { AuthController } from 'auth/presentation/AuthController';
 import { AuthService } from 'auth/application/AuthApplicationService';
-import { ConfigModule } from 'config';
-import { TokenModule } from 'token';
-import { EventModule } from 'event';
+import { ConfigModule } from 'config/ConfigModule';
+import { TokenModule } from 'token/TokenModule';
+import { EventModule } from 'event/EventModule';
 
 /**
  * Auth Module

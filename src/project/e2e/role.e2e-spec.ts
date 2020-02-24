@@ -2,10 +2,10 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AppModule } from 'app.module';
+import { AppModule } from 'app/AppModule';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { ModelFaker, PrimitiveFaker } from 'test';
-import { TokenService, TOKEN_SERVICE } from 'token';
+import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import {
   ProjectRepository,
@@ -21,7 +21,7 @@ describe('roles (e2e)', () => {
   let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
-  let tokenService: TokenService;
+  let tokenService: TokenManager;
   let user: User;
   let project: Project;
   let role: Role;
@@ -46,7 +46,7 @@ describe('roles (e2e)', () => {
     project.roles.add(role);
     await projectRepository.persist(project);
     session = request.agent(app.getHttpServer());
-    tokenService = module.get(TOKEN_SERVICE);
+    tokenService = module.get(TOKEN_MANAGER);
     const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
     await session.post(`/auth/login/${loginToken}`);
   });

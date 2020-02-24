@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
-import { DatabaseClientService } from 'database';
+import { DatabaseClientService } from 'database/DatabaseClientService';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Notification } from 'notification/domain/Notification';
