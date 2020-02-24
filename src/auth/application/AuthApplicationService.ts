@@ -20,20 +20,20 @@ import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
 import {
-  EventPublisherService,
+  EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/event-publisher.service';
+} from 'event/publisher/EventPublisher';
 
 @Injectable()
 export class AuthService {
   private readonly config: Config;
-  private readonly eventPublisher: EventPublisherService;
+  private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenManager;
 
   public constructor(
     @InjectConfig() config: Config,
-    @InjectEventPublisher() eventPublisher: EventPublisherService,
+    @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @Inject(TOKEN_MANAGER) tokenService: TokenManager,
   ) {

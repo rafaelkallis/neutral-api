@@ -6,22 +6,21 @@ import {
 } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { Id } from 'common/domain/value-objects/Id';
-import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
 import {
   InjectEventPublisher,
-  EventPublisherService,
-} from 'event/publisher/event-publisher.service';
+  EventPublisher,
+} from 'event/publisher/EventPublisher';
 
 @Injectable()
 export class NotificationApplicationService {
   private readonly notificationRepository: NotificationRepository;
-  private readonly eventPublisher: EventPublisherService;
+  private readonly eventPublisher: EventPublisher;
 
   public constructor(
     @Inject(NOTIFICATION_REPOSITORY)
     notificationRepository: NotificationRepository,
     @InjectEventPublisher()
-    eventPublisher: EventPublisherService,
+    eventPublisher: EventPublisher,
   ) {
     this.notificationRepository = notificationRepository;
     this.eventPublisher = eventPublisher;
@@ -48,9 +47,7 @@ export class NotificationApplicationService {
     const notification = await this.notificationRepository.findById(
       Id.from(id),
     );
-    if (!notification.isOwner(authUser)) {
-      throw new InsufficientPermissionsException();
-    }
+    notification.assertOwner(authUser);
     notification.markRead();
     await this.notificationRepository.persist(notification);
     await this.eventPublisher.publish(...notification.getDomainEvents());

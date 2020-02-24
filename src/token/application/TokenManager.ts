@@ -1,5 +1,12 @@
 import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { Inject } from '@nestjs/common';
+
+export const TOKEN_MANAGER = Symbol('TOKEN_MANAGER');
+
+export function InjectTokenManager(): ParameterDecorator {
+  return Inject(TOKEN_MANAGER);
+}
 
 /**
  * Token types used throughout the app.
@@ -66,8 +73,6 @@ export interface EmailChangeToken extends BaseToken {
   curEmail: string;
   newEmail: string;
 }
-
-export const TOKEN_MANAGER = Symbol('TOKEN_MANAGER');
 
 /**
  * Token Manager

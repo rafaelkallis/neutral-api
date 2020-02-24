@@ -11,13 +11,13 @@ import { Config } from 'config/application/Config';
 import { MockConfigService } from 'config/infrastructure/MockConfigService';
 import { TokenManager } from 'token/application/TokenManager';
 import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
-import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
+import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
-  let eventPublisher: MockEventPublisherService;
+  let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: TokenManager;
   let userApplicationService: UserApplicationService;
@@ -27,7 +27,7 @@ describe('user service', () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     config = new MockConfigService();
-    eventPublisher = new MockEventPublisherService();
+    eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(

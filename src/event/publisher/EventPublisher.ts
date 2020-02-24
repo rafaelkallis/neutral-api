@@ -10,7 +10,7 @@ export function InjectEventPublisher(): ParameterDecorator {
 /**
  * Event Publisher
  */
-export interface EventPublisherService {
+export interface EventPublisher {
   /**
    *
    */

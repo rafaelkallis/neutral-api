@@ -27,13 +27,13 @@ import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmitt
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { RoleCollection } from 'project/domain/RoleCollection';
-import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
+import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
-  let eventPublisher: MockEventPublisherService;
+  let eventPublisher: FakeEventPublisherService;
   let userRepository: UserFakeRepository;
   let projectRepository: ProjectRepository;
   let contributionsComputer: ContributionsComputer;
@@ -48,7 +48,7 @@ describe('project application service', () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
 
-    eventPublisher = new MockEventPublisherService();
+    eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     projectRepository = new ProjectFakeRepository();
     contributionsComputer = new FakeContributionsComputerService();

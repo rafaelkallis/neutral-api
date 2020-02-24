@@ -1,10 +1,12 @@
 import { DomainEvent } from 'event/domain/DomainEvent';
-import { EventPublisherService } from 'event/publisher/event-publisher.service';
+import { EventPublisher } from 'event/publisher/EventPublisher';
+import { Injectable } from '@nestjs/common';
 
 /**
- * Mock Event Publisher
+ * Fake Event Publisher
  */
-export class MockEventPublisherService implements EventPublisherService {
+@Injectable()
+export class FakeEventPublisherService implements EventPublisher {
   private readonly publishedEvents: DomainEvent[];
 
   public constructor() {

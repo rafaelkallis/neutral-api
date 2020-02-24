@@ -6,32 +6,35 @@ import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
 import { Id } from 'common/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
-import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
+import {
+  TokenManager,
+  InjectTokenManager,
+} from 'token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
 import { InjectConfig, Config } from 'config/application/Config';
 import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
 import {
-  EventPublisherService,
+  EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/event-publisher.service';
+} from 'event/publisher/EventPublisher';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly eventPublisher: EventPublisherService;
+  private readonly eventPublisher: EventPublisher;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
-    @InjectEventPublisher() eventPublisher: EventPublisherService,
-    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
+    @InjectEventPublisher() eventPublisher: EventPublisher,
+    @InjectTokenManager() tokenManager: TokenManager,
     @InjectConfig() config: Config,
   ) {
     this.userRepository = userRepository;
     this.eventPublisher = eventPublisher;
-    this.tokenService = tokenService;
+    this.tokenService = tokenManager;
     this.config = config;
   }
 

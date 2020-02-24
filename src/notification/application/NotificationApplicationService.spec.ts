@@ -5,18 +5,18 @@ import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
-import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
+import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
-  let eventPublisher: MockEventPublisherService;
+  let eventPublisher: FakeEventPublisherService;
   let notificationRepository: NotificationFakeRepository;
   let notificationApplicationService: NotificationApplicationService;
   let user: User;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
-    eventPublisher = new MockEventPublisherService();
+    eventPublisher = new FakeEventPublisherService();
     notificationRepository = new NotificationFakeRepository();
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,

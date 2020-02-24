@@ -8,6 +8,7 @@ import { NotificationIsRead } from 'notification/domain/value-objects/Notificati
 import { NotificationAlreadyReadException } from 'notification/domain/exceptions/NotificationAlreadyReadException';
 import { AggregateRoot } from 'common/domain/AggregateRoot';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
+import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
 
 /**
  * Notification Model
@@ -40,9 +41,7 @@ export class Notification extends AggregateRoot {
    *
    */
   public markRead(): void {
-    if (this.isRead.value) {
-      throw new NotificationAlreadyReadException();
-    }
+    this.assertNotRead();
     this.isRead = NotificationIsRead.from(true);
     this.apply(new NotificationReadEvent(this));
   }
@@ -50,7 +49,15 @@ export class Notification extends AggregateRoot {
   /**
    *
    */
-  public isOwner(user: User): boolean {
-    return this.ownerId.equals(user.id);
+  public assertOwner(user: User): void {
+    if (!this.ownerId.equals(user.id)) {
+      throw new InsufficientPermissionsException();
+    }
+  }
+
+  public assertNotRead(): void {
+    if (this.isRead.value) {
+      throw new NotificationAlreadyReadException();
+    }
   }
 }

@@ -16,14 +16,14 @@ import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { User } from 'user/domain/User';
-import { MockEventPublisherService } from 'event/publisher/mock-event-publisher.service';
+import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
   let config: MockConfigService;
-  let eventPublisher: MockEventPublisherService;
+  let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: FakeTokenManagerService;
 
@@ -31,7 +31,7 @@ describe('auth application service', () => {
     modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfigService();
-    eventPublisher = new MockEventPublisherService();
+    eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     tokenService = new FakeTokenManagerService();
 

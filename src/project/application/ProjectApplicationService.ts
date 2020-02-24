@@ -42,23 +42,23 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
 import {
-  EventPublisherService,
+  EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/event-publisher.service';
+} from 'event/publisher/EventPublisher';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
-  private readonly eventPublisher: EventPublisherService;
+  private readonly eventPublisher: EventPublisher;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
 
   public constructor(
     @InjectProjectRepository() projectRepository: ProjectRepository,
     @InjectUserRepository() userRepository: UserRepository,
-    @InjectEventPublisher() eventPublisher: EventPublisherService,
+    @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectContributionsComputer() contributionsComputer: ContributionsComputer,
     @InjectConsensualityComputer() consensualityComputer: ConsensualityComputer,
   ) {
@@ -226,11 +226,12 @@ export class ProjectApplicationService {
    */
   public async addRole(
     authUser: User,
-    projectId: string,
+    rawProjectId: string,
     rawTitle: string,
     rawDescription: string,
   ): Promise<RoleDto> {
-    const project = await this.projectRepository.findById(Id.from(projectId));
+    const projectId = Id.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const title = RoleTitle.from(rawTitle);
     const description = RoleDescription.from(rawDescription);
