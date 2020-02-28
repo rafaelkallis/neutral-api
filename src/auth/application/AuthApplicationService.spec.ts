@@ -1,4 +1,3 @@
-import { ModelFaker, PrimitiveFaker } from 'test';
 import { AuthService } from 'auth/application/AuthApplicationService';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
@@ -17,6 +16,8 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { User } from 'user/domain/User';
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
+import { ModelFaker } from 'test/ModelFaker';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;

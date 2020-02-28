@@ -1,31 +1,17 @@
-import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
-
-import { AppModule } from 'app/AppModule';
 import { Project } from 'project/domain/Project';
-import {
-  ProjectRepository,
-  PROJECT_REPOSITORY,
-} from 'project/domain/ProjectRepository';
-import { ModelFaker, PrimitiveFaker } from 'test';
-import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Role } from 'project/domain/Role';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { TestScenario } from 'test/TestScenario';
+import { User } from 'user/domain/User';
 
 describe('submit peer review (e2e)', () => {
-  let app: INestApplication;
-  let modelFaker: ModelFaker;
-  let primitiveFaker: PrimitiveFaker;
-  let userRepository: UserRepository;
-  let projectRepository: ProjectRepository;
-  let session: request.SuperTest<request.Test>;
+  let scenario: TestScenario;
 
+  let user: User;
   let project: Project;
   let role1: Role;
   let role2: Role;
@@ -34,34 +20,20 @@ describe('submit peer review (e2e)', () => {
   let peerReviews: Record<string, Record<string, number>>;
 
   beforeEach(async () => {
-    primitiveFaker = new PrimitiveFaker();
-    modelFaker = new ModelFaker();
+    scenario = await TestScenario.create();
 
-    const module = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    userRepository = module.get(USER_REPOSITORY);
-    projectRepository = module.get(PROJECT_REPOSITORY);
-
-    app = module.createNestApplication();
-    await app.init();
-
-    const user = modelFaker.user();
-    await userRepository.persist(user);
-    session = request.agent(app.getHttpServer());
-    const tokenService = module.get<TokenManager>(TOKEN_MANAGER);
-    const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
-    await session.post(`/auth/login/${loginToken}`);
+    user = await scenario.createUser();
+    await scenario.authenticateUser(user);
 
     /* prepare project */
-    project = modelFaker.project(user.id);
+    project = scenario.modelFaker.project(user.id);
     project.state = ProjectState.PEER_REVIEW;
 
     /* prepare roles */
-    role1 = modelFaker.role(project.id, user.id);
-    role2 = modelFaker.role(project.id);
-    role3 = modelFaker.role(project.id);
-    role4 = modelFaker.role(project.id);
+    role1 = scenario.modelFaker.role(project.id, user.id);
+    role2 = scenario.modelFaker.role(project.id);
+    role3 = scenario.modelFaker.role(project.id);
+    role4 = scenario.modelFaker.role(project.id);
 
     role1.hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
     role2.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -69,7 +41,7 @@ describe('submit peer review (e2e)', () => {
     role4.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
     project.roles.add(role1, role2, role3, role4);
-    await projectRepository.persist(project);
+    await scenario.projectRepository.persist(project);
 
     peerReviews = {
       [role1.id.value]: {
@@ -100,7 +72,7 @@ describe('submit peer review (e2e)', () => {
         if (senderRole.equals(receiverRole)) {
           continue;
         }
-        const peerReview = modelFaker.peerReview(
+        const peerReview = scenario.modelFaker.peerReview(
           senderRole.id,
           receiverRole.id,
         );
@@ -111,19 +83,21 @@ describe('submit peer review (e2e)', () => {
       }
     }
 
-    await projectRepository.persist(project);
+    await scenario.projectRepository.persist(project);
   });
 
   afterEach(async () => {
-    await app.close();
+    await scenario.teardown();
   });
 
   test('happy path, final peer review', async () => {
-    const response = await session
+    const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
-    const updatedProject = await projectRepository.findById(project.id);
+    const updatedProject = await scenario.projectRepository.findById(
+      project.id,
+    );
     const sentPeerReviews = updatedProject.peerReviews.findBySenderRole(
       role1.id,
     );
@@ -148,12 +122,14 @@ describe('submit peer review (e2e)', () => {
 
   test('happy path, not final peer review', async () => {
     role4.hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
-    await projectRepository.persist(project);
-    const response = await session
+    await scenario.projectRepository.persist(project);
+    const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
-    const updatedProject = await projectRepository.findById(project.id);
+    const updatedProject = await scenario.projectRepository.findById(
+      project.id,
+    );
     const sentPeerReviews = updatedProject.peerReviews.findBySenderRole(
       role1.id,
     );
@@ -171,9 +147,9 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if project is not in peer-review state', async () => {
     project.state = ProjectState.FORMATION;
-    await projectRepository.persist(project);
+    await scenario.projectRepository.persist(project);
 
-    const response = await session
+    const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);
@@ -181,20 +157,20 @@ describe('submit peer review (e2e)', () => {
 
   test('should fail if peer-review already submitted', async () => {
     role1.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-    await projectRepository.persist(project);
+    await scenario.projectRepository.persist(project);
 
-    const response = await session
+    const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);
   });
 
   test('should fail if a peer review is for non-existing peer', async () => {
-    peerReviews[role1.id.value][primitiveFaker.id()] =
+    peerReviews[role1.id.value][scenario.primitiveFaker.id()] =
       peerReviews[role1.id.value][role2.id.value];
     delete peerReviews[role1.id.value][role2.id.value];
 
-    const response = await session
+    const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(400);

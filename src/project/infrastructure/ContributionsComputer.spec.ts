@@ -1,8 +1,8 @@
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { PrimitiveFaker } from 'test';
 import { Id } from 'common/domain/value-objects/Id';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('ContributionsModelService', () => {
   let primitiveFaker: PrimitiveFaker;

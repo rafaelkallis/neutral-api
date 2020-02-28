@@ -1,9 +1,9 @@
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { PrimitiveFaker } from 'test';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('consensuality computer', () => {
   let consensualityComputer: ConsensualityComputer;

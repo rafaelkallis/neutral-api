@@ -1,61 +1,32 @@
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
-
-import { AppModule } from 'app/AppModule';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { Project } from 'project/domain/Project';
-import {
-  ProjectRepository,
-  PROJECT_REPOSITORY,
-} from 'project/domain/ProjectRepository';
-import { ModelFaker, PrimitiveFaker } from 'test';
-import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
-import { INestApplication } from '@nestjs/common';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { TestScenario } from 'test/TestScenario';
 import { User } from 'user/domain/User';
 
 describe('project (e2e)', () => {
-  let app: INestApplication;
-  let modelFaker: ModelFaker;
-  let primitiveFaker: PrimitiveFaker;
-  let userRepository: UserRepository;
-  let projectRepository: ProjectRepository;
-  let tokenService: TokenManager;
+  let scenario: TestScenario;
   let user: User;
-  let session: request.SuperTest<request.Test>;
 
   beforeEach(async () => {
-    modelFaker = new ModelFaker();
-    primitiveFaker = new PrimitiveFaker();
-    const module = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    userRepository = module.get(USER_REPOSITORY);
-    projectRepository = module.get(PROJECT_REPOSITORY);
-    app = module.createNestApplication();
-    await app.init();
-    user = modelFaker.user();
-    await userRepository.persist(user);
-    session = request.agent(app.getHttpServer());
-    tokenService = module.get(TOKEN_MANAGER);
-    const loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
-    await session.post(`/auth/login/${loginToken}`);
+    scenario = await TestScenario.create();
+    user = await scenario.createUser();
+    await scenario.authenticateUser(user);
   });
 
   afterEach(async () => {
-    await app.close();
+    await scenario.teardown();
   });
 
   describe('/projects (GET)', () => {
     test('happy path', async () => {
       const projects = [
-        modelFaker.project(user.id),
-        modelFaker.project(user.id),
-        modelFaker.project(user.id),
+        scenario.modelFaker.project(user.id),
+        scenario.modelFaker.project(user.id),
+        scenario.modelFaker.project(user.id),
       ];
-      await projectRepository.persist(...projects);
-      const response = await session
+      await scenario.projectRepository.persist(...projects);
+      const response = await scenario.session
         .get('/projects')
         .query({ type: 'created' });
       expect(response.status).toBe(200);
@@ -74,9 +45,9 @@ describe('project (e2e)', () => {
     let project: Project;
 
     beforeEach(async () => {
-      project = modelFaker.project(user.id);
+      project = scenario.modelFaker.project(user.id);
       project.consensuality = Consensuality.from(0.8);
-      await projectRepository.persist(project);
+      await scenario.projectRepository.persist(project);
     });
 
     test('happy path', async () => {
@@ -90,12 +61,12 @@ describe('project (e2e)', () => {
     let description: string;
 
     beforeEach(() => {
-      title = primitiveFaker.words();
-      description = primitiveFaker.paragraph();
+      title = scenario.primitiveFaker.words();
+      description = scenario.primitiveFaker.paragraph();
     });
 
     test('happy path', async () => {
-      const response = await session.post('/projects').send({
+      const response = await scenario.session.post('/projects').send({
         title,
         description,
       });
@@ -107,7 +78,7 @@ describe('project (e2e)', () => {
           description,
         }),
       );
-      await projectRepository.findById(response.body.id);
+      await scenario.projectRepository.findById(response.body.id);
     });
   });
 
@@ -116,27 +87,29 @@ describe('project (e2e)', () => {
     let title: string;
 
     beforeEach(async () => {
-      project = modelFaker.project(user.id);
-      await projectRepository.persist(project);
-      title = primitiveFaker.words();
+      project = scenario.modelFaker.project(user.id);
+      await scenario.projectRepository.persist(project);
+      title = scenario.primitiveFaker.words();
     });
 
     test('happy path', async () => {
-      const response = await session
+      const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ title }));
-      const updatedProject = await projectRepository.findById(project.id);
+      const updatedProject = await scenario.projectRepository.findById(
+        project.id,
+      );
       expect(updatedProject.title.value).toEqual(title);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = modelFaker.user();
-      await userRepository.persist(otherUser);
+      const otherUser = scenario.modelFaker.user();
+      await scenario.userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
-      await projectRepository.persist(project);
-      const response = await session
+      await scenario.projectRepository.persist(project);
+      const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
       expect(response.status).toBe(403);
@@ -144,8 +117,8 @@ describe('project (e2e)', () => {
 
     test('should fail if not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
-      const response = await session
+      await scenario.projectRepository.persist(project);
+      const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
       expect(response.status).toBe(400);
@@ -156,33 +129,35 @@ describe('project (e2e)', () => {
     let project: Project;
 
     beforeEach(async () => {
-      project = modelFaker.project(user.id);
+      project = scenario.modelFaker.project(user.id);
       project.state = ProjectState.FORMATION;
       project.roles.add(
-        modelFaker.role(project.id, user.id),
-        modelFaker.role(project.id, user.id),
-        modelFaker.role(project.id, user.id),
-        modelFaker.role(project.id, user.id),
+        scenario.modelFaker.role(project.id, user.id),
+        scenario.modelFaker.role(project.id, user.id),
+        scenario.modelFaker.role(project.id, user.id),
+        scenario.modelFaker.role(project.id, user.id),
       );
-      await projectRepository.persist(project);
+      await scenario.projectRepository.persist(project);
     });
 
     test('happy path', async () => {
-      const response = await session.post(
+      const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const updatedProject = await projectRepository.findById(project.id);
+      const updatedProject = await scenario.projectRepository.findById(
+        project.id,
+      );
       expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = modelFaker.user();
-      await userRepository.persist(otherUser);
+      const otherUser = scenario.modelFaker.user();
+      await scenario.userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
-      await projectRepository.persist(project);
-      const response = await session.post(
+      await scenario.projectRepository.persist(project);
+      const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );
       expect(response.status).toBe(403);
@@ -190,8 +165,8 @@ describe('project (e2e)', () => {
 
     test('should fail if project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
-      const response = await session.post(
+      await scenario.projectRepository.persist(project);
+      const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
       );
       expect(response.status).toBe(400);
@@ -199,8 +174,8 @@ describe('project (e2e)', () => {
 
     test('should fail if a role has no user assigned', async () => {
       project.roles.toArray()[1].assigneeId = null;
-      await projectRepository.persist(project);
-      const response = await session.post(
+      await scenario.projectRepository.persist(project);
+      const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
       );
       expect(response.status).toBe(400);
@@ -211,15 +186,19 @@ describe('project (e2e)', () => {
     let project: Project;
 
     beforeEach(async () => {
-      project = modelFaker.project(user.id);
-      await projectRepository.persist(project);
+      project = scenario.modelFaker.project(user.id);
+      await scenario.projectRepository.persist(project);
     });
 
     test('happy path', async () => {
-      const response = await session.delete(`/projects/${project.id.value}`);
+      const response = await scenario.session.delete(
+        `/projects/${project.id.value}`,
+      );
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(projectRepository.exists(project.id)).resolves.toBeFalsy();
+      await expect(
+        scenario.projectRepository.exists(project.id),
+      ).resolves.toBeFalsy();
     });
   });
 });

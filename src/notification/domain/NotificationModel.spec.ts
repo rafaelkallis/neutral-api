@@ -1,9 +1,9 @@
 import { Notification } from 'notification/domain/Notification';
-import { ModelFaker } from 'test';
 import { User } from 'user/domain/User';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('notification model', () => {
   let modelFaker: ModelFaker;

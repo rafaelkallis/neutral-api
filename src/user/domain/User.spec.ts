@@ -1,11 +1,12 @@
 import { User } from 'user/domain/User';
-import { PrimitiveFaker, ModelFaker } from 'test';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
+import { ModelFaker } from 'test/ModelFaker';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('user model', () => {
   let modelFaker: ModelFaker;

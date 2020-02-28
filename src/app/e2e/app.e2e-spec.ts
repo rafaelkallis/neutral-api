@@ -1,31 +1,22 @@
-import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
-
-import { AppModule } from '../AppModule';
+import { TestScenario } from 'test/TestScenario';
 
 describe('app (e2e)', () => {
-  let app: INestApplication;
+  let scenario: TestScenario;
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = module.createNestApplication();
-    await app.init();
+    scenario = await TestScenario.create();
   });
 
   afterEach(async () => {
-    await app.close();
+    await scenario.teardown();
   });
 
   test('should be defined', async () => {
-    expect(app).toBeDefined();
+    expect(scenario.app).toBeDefined();
   });
 
   test('/status (GET)', async () => {
-    const response = await request(app.getHttpServer()).get('/status');
+    const response = await scenario.session.get('/status');
     expect(response.status).toBe(200);
   });
 });

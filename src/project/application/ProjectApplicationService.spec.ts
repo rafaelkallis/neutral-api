@@ -1,6 +1,5 @@
 import { Project } from 'project/domain/Project';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ModelFaker, PrimitiveFaker } from 'test';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import {
@@ -28,6 +27,8 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { RoleCollection } from 'project/domain/RoleCollection';
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
+import { ModelFaker } from 'test/ModelFaker';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;

@@ -1,6 +1,5 @@
 import { User } from 'user/domain/User';
 import { Project, CreateProjectOptions } from 'project/domain/Project';
-import { ModelFaker, PrimitiveFaker } from 'test';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -29,6 +28,8 @@ import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { RoleCollection } from 'project/domain/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { ModelFaker } from 'test/ModelFaker';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('project', () => {
   let modelFaker: ModelFaker;

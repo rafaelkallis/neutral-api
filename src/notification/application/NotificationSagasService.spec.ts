@@ -1,5 +1,4 @@
 import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
-import { ModelFaker } from 'test';
 import { NotificationSagasService } from 'notification/application/NotificationSagasService';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
@@ -7,6 +6,7 @@ import { NotificationType } from 'notification/domain/value-objects/Notification
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('notification sagas', () => {
   let modelFaker: ModelFaker;

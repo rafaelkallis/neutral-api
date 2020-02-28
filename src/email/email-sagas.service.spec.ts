@@ -1,10 +1,11 @@
-import { ModelFaker, PrimitiveFaker } from 'test';
 import { MockEmailService } from 'email/mock-email.service';
 import { EmailSagasService } from 'email/email-sagas.service';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { Email } from 'user/domain/value-objects/Email';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('email sagas', () => {
   let primitiveFaker: PrimitiveFaker;

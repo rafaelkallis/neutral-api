@@ -1,6 +1,6 @@
-import { ModelFaker } from 'test';
 import { UserDto } from 'user/application/dto/UserDto';
 import { User } from 'user/domain/User';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('user dto', () => {
   let entityFaker: ModelFaker;

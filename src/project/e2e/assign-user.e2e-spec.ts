@@ -12,15 +12,12 @@ describe('assign user to role', () => {
 
   beforeEach(async () => {
     scenario = await TestScenario.create();
-    await scenario.setup();
-
-    user = TestScenario.modelFaker.user();
-    await scenario.userRepository.persist(user);
-    project = TestScenario.modelFaker.project(user.id);
-    role = TestScenario.modelFaker.role(project.id);
+    user = await scenario.createUser();
+    await scenario.authenticateUser(user);
+    project = scenario.modelFaker.project(user.id);
+    role = scenario.modelFaker.role(project.id);
     project.roles.add(role);
     await scenario.projectRepository.persist(project);
-    await scenario.authenticateWithUser(user);
   });
 
   afterEach(async () => {
@@ -33,7 +30,7 @@ describe('assign user to role', () => {
     let assigneeEmail: string;
 
     beforeEach(async () => {
-      assignee = TestScenario.modelFaker.user();
+      assignee = scenario.modelFaker.user();
       await scenario.userRepository.persist(assignee);
       assigneeId = assignee.id.value;
       assigneeEmail = assignee.email.value;
@@ -60,7 +57,7 @@ describe('assign user to role', () => {
         scenario.emailManager,
         'sendUnregisteredUserNewAssignmentEmail',
       );
-      assigneeEmail = TestScenario.primitiveFaker.email();
+      assigneeEmail = scenario.primitiveFaker.email();
       const response = await scenario.session
         .post(`/roles/${role.id.value}/assign`)
         .send({ assigneeEmail });
@@ -90,7 +87,7 @@ describe('assign user to role', () => {
     });
 
     test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = TestScenario.modelFaker.user();
+      const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await scenario.projectRepository.persist(project);
@@ -101,7 +98,7 @@ describe('assign user to role', () => {
     });
 
     test('should fail is user is already assigned to another role of the same project', async () => {
-      const anotherRole = TestScenario.modelFaker.role(project.id, assignee.id);
+      const anotherRole = scenario.modelFaker.role(project.id, assignee.id);
       project.roles.add(anotherRole);
       await scenario.projectRepository.persist(project);
       const response = await scenario.session

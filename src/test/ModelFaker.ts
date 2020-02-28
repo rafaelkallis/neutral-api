@@ -1,4 +1,4 @@
-import { PrimitiveFaker } from 'test';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { Id } from 'common/domain/value-objects/Id';

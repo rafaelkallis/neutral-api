@@ -1,12 +1,12 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import { ModelFaker } from 'test';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('role dto', () => {
   let modelFaker: ModelFaker;

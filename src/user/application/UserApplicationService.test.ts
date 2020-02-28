@@ -1,4 +1,3 @@
-import { ModelFaker, PrimitiveFaker } from 'test';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
@@ -12,6 +11,8 @@ import { MockConfigService } from 'config/infrastructure/MockConfigService';
 import { TokenManager } from 'token/application/TokenManager';
 import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
+import { ModelFaker } from 'test/ModelFaker';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;

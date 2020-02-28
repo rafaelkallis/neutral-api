@@ -1,8 +1,8 @@
 import { User } from 'user/domain/User';
 import { Project } from 'project/domain/Project';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
-import { ModelFaker } from 'test';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { ModelFaker } from 'test/ModelFaker';
 
 describe('project dto', () => {
   let modelFaker: ModelFaker;
