@@ -13,6 +13,7 @@ import { EmailModule } from 'email/EmailModule';
 import { SessionMiddleware } from 'session';
 import { NotificationModule } from 'notification/NotificationModule';
 import { ApmModule } from 'apm/ApmModule';
+import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
 
 /**
  * App Module
@@ -27,6 +28,7 @@ import { ApmModule } from 'apm/ApmModule';
     UserModule,
     ProjectModule,
     NotificationModule,
+    ObjectStorageModule,
   ],
   controllers: [AppController],
 })

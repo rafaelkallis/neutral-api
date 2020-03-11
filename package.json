@@ -21,6 +21,7 @@
     "test:e2e:cov": "jest --config jest.e2e-config.json --coverage"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.1.0",
     "@nestjs/common": "6.10.14",
     "@nestjs/core": "6.10.14",
     "@nestjs/platform-express": "6.10.14",

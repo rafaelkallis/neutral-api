@@ -42,6 +42,13 @@ export class EnvalidConfigService extends Config {
       ELASTIC_APM_SERVER_URL: envalid.url({
         devDefault: 'http://127.0.0.1:8200',
       }),
+      AZURE_BLOB_STORAGE_CONNECTION_STRING: envalid.str({
+        devDefault:
+          'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;',
+      }),
+      AZURE_BLOB_STORAGE_CONTAINER_NAME: envalid.str({
+        devDefault: 'covee-saas-api',
+      }),
     });
   }
 
