@@ -9,7 +9,7 @@ import { ObjectNotFoundException } from 'object-storage/application/exceptions/O
  */
 @Injectable()
 export class FakeObjectStorage extends ObjectStorage {
-  private readonly storage: Map<string, Map<string, buffer>>;
+  private readonly storage: Map<string, Map<string, Buffer>>;
 
   public constructor() {
     super();
