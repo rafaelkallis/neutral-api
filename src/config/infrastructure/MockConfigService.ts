@@ -48,6 +48,8 @@ export class MockConfigService extends Config {
       ELASTIC_APM_SERVICE_NAME: '',
       ELASTIC_APM_SECRET_TOKEN: '',
       ELASTIC_APM_SERVER_URL: '',
+      AZURE_BLOB_STORAGE_CONNECTION_STRING: '',
+      AZURE_BLOB_STORAGE_CONTAINER_NAME: '',
     };
   }
 }
