@@ -9,10 +9,12 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
+import { Avatar } from 'user/domain/value-objects/Avatar';
 
 export class User extends AggregateRoot {
   public email: Email;
   public name: Name;
+  public avatar: Avatar | null;
   public lastLoginAt: LastLoginAt;
 
   public constructor(
@@ -21,11 +23,13 @@ export class User extends AggregateRoot {
     updatedAt: UpdatedAt,
     email: Email,
     name: Name,
+    avatar: Avatar | null,
     lastLoginAt: LastLoginAt,
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
     this.name = name;
+    this.avatar = avatar;
     this.lastLoginAt = lastLoginAt;
   }
 
@@ -36,6 +40,7 @@ export class User extends AggregateRoot {
     const userId = Id.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
+    const avatar = null;
     const lastLoginAt = LastLoginAt.now();
     const user = new User(
       userId,
@@ -43,6 +48,7 @@ export class User extends AggregateRoot {
       updatedAt,
       email,
       name,
+      avatar,
       lastLoginAt,
     );
     user.apply(new UserCreatedEvent(user));

@@ -7,7 +7,7 @@ import { BigIntTransformer } from 'common/infrastructure/BigIntTransformer';
  */
 @Entity('users')
 export class UserTypeOrmEntity extends TypeOrmEntity {
-  @Column()
+  @Column({ name: 'email' })
   public email: string;
 
   @Column({ name: 'first_name' })
@@ -15,6 +15,9 @@ export class UserTypeOrmEntity extends TypeOrmEntity {
 
   @Column({ name: 'last_name' })
   public lastName: string;
+
+  @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
+  public avatar: string | null;
 
   @Column({ name: 'last_login_at', transformer: new BigIntTransformer() })
   public lastLoginAt: number;
@@ -26,12 +29,14 @@ export class UserTypeOrmEntity extends TypeOrmEntity {
     email: string,
     firstName: string,
     lastName: string,
+    avatar: string | null,
     lastLoginAt: number,
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.avatar = avatar;
     this.lastLoginAt = lastLoginAt;
   }
 }

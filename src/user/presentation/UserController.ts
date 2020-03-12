@@ -9,7 +9,10 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiParam,
@@ -98,6 +101,19 @@ export class UserController {
   ): Promise<UserDto> {
     return this.userApplication.updateAuthUser(authUser, dto);
   }
+
+  /**
+   * Set the authenticated user's avatar
+   */
+  @Post('me/avatar')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('avatar'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Set the authenticated user's avatar" })
+  @ApiResponse({ status: 200, description: 'User avatar succesfully updated' })
+  public async setAvatar(
+    @UploadedFile('avatar') avatar: Express.Multer.File,
+  ): Promise<void> {}
 
   /**
    * Submit the email change token to verify a new email address
