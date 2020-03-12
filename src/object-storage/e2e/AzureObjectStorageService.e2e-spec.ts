@@ -5,19 +5,26 @@ import path from 'path';
 import fs from 'fs';
 import { Readable } from 'stream';
 import { Test } from '@nestjs/testing';
-import { AppModule } from 'app/AppModule';
+import { CONFIG } from 'config/application/Config';
+import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
 
-describe.skip('azure object storage', () => {
+describe('azure object storage', () => {
   let azureObjectStorage: AzureObjectStorageService;
   let key: string;
+  const containerName = '.tests';
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
-      providers: [AzureObjectStorageService],
+      providers: [
+        {
+          provide: CONFIG,
+          useClass: EnvalidConfigService,
+        },
+
+        AzureObjectStorageService,
+      ],
     }).compile();
     azureObjectStorage = module.get(AzureObjectStorageService);
-    await azureObjectStorage.createContainerIfNotExists();
     await module.init();
     key = new ObjectID().toHexString();
   });
@@ -25,34 +32,46 @@ describe.skip('azure object storage', () => {
   test('put file', async () => {
     const localContent = key;
     const localFile = createFakeFile(localContent);
-    await azureObjectStorage.putFile(key, localFile);
-    const stream = await azureObjectStorage.getStream(key);
-    const remoteContent = streamToString(stream);
+    await azureObjectStorage.putFile(key, localFile, containerName);
+    const stream = await azureObjectStorage.getStream(key, containerName);
+    const remoteContent = await streamToString(stream);
     expect(remoteContent).toEqual(localContent);
   });
 
   test('put stream', async () => {
     const localContent = key;
-    await azureObjectStorage.putStream(key, stringToStream(localContent));
-    const stream = await azureObjectStorage.getStream(key);
-    const remoteContent = streamToString(stream);
+    await azureObjectStorage.putStream(
+      key,
+      stringToStream(localContent),
+      containerName,
+    );
+    const stream = await azureObjectStorage.getStream(key, containerName);
+    const remoteContent = await streamToString(stream);
     expect(remoteContent).toEqual(localContent);
   });
 
   test('get file', async () => {
     const localContent = key;
-    await azureObjectStorage.putStream(key, stringToStream(localContent));
-    const remoteFile = await azureObjectStorage.getFile(key);
+    await azureObjectStorage.putStream(
+      key,
+      stringToStream(localContent),
+      containerName,
+    );
+    const remoteFile = await azureObjectStorage.getFile(key, containerName);
     const remoteStream = fs.createReadStream(remoteFile);
-    const remoteContent = streamToString(remoteStream);
+    const remoteContent = await streamToString(remoteStream);
     expect(remoteContent).toEqual(localContent);
   });
 
   test('get stream', async () => {
     const localContent = key;
-    await azureObjectStorage.putStream(key, stringToStream(localContent));
-    const stream = await azureObjectStorage.getStream(key);
-    const remoteContent = streamToString(stream);
+    await azureObjectStorage.putStream(
+      key,
+      stringToStream(localContent),
+      containerName,
+    );
+    const stream = await azureObjectStorage.getStream(key, containerName);
+    const remoteContent = await streamToString(stream);
     expect(remoteContent).toEqual(localContent);
   });
 });
@@ -77,5 +96,6 @@ async function streamToString(stream: Readable): Promise<string> {
 function stringToStream(content: string): Readable {
   const stream = new Readable();
   stream.push(content);
+  stream.push(null);
   return stream;
 }

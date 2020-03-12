@@ -33,7 +33,6 @@ export interface ConfigProps {
   ELASTIC_APM_SECRET_TOKEN: string;
   ELASTIC_APM_SERVER_URL: string;
   AZURE_BLOB_STORAGE_CONNECTION_STRING: string;
-  AZURE_BLOB_STORAGE_CONTAINER_NAME: string;
 }
 
 /**

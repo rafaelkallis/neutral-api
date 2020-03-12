@@ -23,12 +23,12 @@ import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
     ConfigModule,
     ApmModule,
     DatabaseModule,
+    ObjectStorageModule,
     EmailModule,
     AuthModule,
     UserModule,
     ProjectModule,
     NotificationModule,
-    ObjectStorageModule,
   ],
   controllers: [AppController],
 })

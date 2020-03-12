@@ -17,24 +17,47 @@ export function InjectObjectStorage(): ParameterDecorator {
  *
  */
 export abstract class ObjectStorage {
-  /**
-   *
-   */
-  public abstract async putFile(key: string, filepath: string): Promise<void>;
-  /**
-   *
-   */
-  public abstract async putStream(key: string, stream: Readable): Promise<void>;
+  private static readonly DEFAULT_CONTAINER_NAME = 'default';
 
   /**
    *
    */
-  public abstract async getFile(key: string): Promise<string>;
+  public abstract async putFile(
+    key: string,
+    filepath: string,
+    containerName?: string,
+  ): Promise<void>;
+  /**
+   *
+   */
+  public abstract async putStream(
+    key: string,
+    stream: Readable,
+    containerName?: string,
+  ): Promise<void>;
 
   /**
    *
    */
-  public abstract async getStream(key: string): Promise<Readable>;
+  public abstract async getFile(
+    key: string,
+    containerName?: string,
+  ): Promise<string>;
+
+  /**
+   *
+   */
+  public abstract async getStream(
+    key: string,
+    containerName?: string,
+  ): Promise<Readable>;
+
+  /**
+   *
+   */
+  protected defaultContainerName(): string {
+    return ObjectStorage.DEFAULT_CONTAINER_NAME;
+  }
 
   /**
    *

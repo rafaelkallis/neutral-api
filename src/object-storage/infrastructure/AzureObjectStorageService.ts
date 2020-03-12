@@ -1,62 +1,57 @@
-import {
-  Injectable,
-  OnModuleInit,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 import { Readable } from 'stream';
 import { Config, InjectConfig } from 'config/application/Config';
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
 /**
  * Azure Object Storage Service
  */
 @Injectable()
-export class AzureObjectStorageService extends ObjectStorage
-  implements OnModuleInit {
-  private readonly container: ContainerClient;
+export class AzureObjectStorageService extends ObjectStorage {
+  private readonly client: BlobServiceClient;
 
   public constructor(@InjectConfig() config: Config) {
     super();
     const connectionString = config.get('AZURE_BLOB_STORAGE_CONNECTION_STRING');
-    const containerName = config.get('AZURE_BLOB_STORAGE_CONTAINER_NAME');
-    const client = BlobServiceClient.fromConnectionString(connectionString);
-    this.container = client.getContainerClient(containerName);
+    this.client = BlobServiceClient.fromConnectionString(connectionString);
   }
 
-  public async onModuleInit(): Promise<void> {
-    // if (!(await this.container.exists())) {
-    //   // throw new Error(
-    //   //   `given azure blob storage container {${this.container.containerName}} does not exist`,
-    //   // );
-    //   await this.container.create();
-    // }
+  public async putFile(
+    key: string,
+    filepath: string,
+    containerName?: string,
+  ): Promise<void> {
+    const blob = await this.getBlob(key, containerName);
+    await blob.uploadFile(filepath);
   }
 
-  public async putFile(key: string, filepath: string): Promise<void> {
-    const blockBlob = this.container.getBlockBlobClient(key);
-    await blockBlob.uploadFile(filepath);
+  public async putStream(
+    key: string,
+    stream: Readable,
+    containerName?: string,
+  ): Promise<void> {
+    const blob = await this.getBlob(key, containerName);
+    await blob.uploadStream(stream);
   }
 
-  public async putStream(key: string, stream: Readable): Promise<void> {
-    const blockBlob = this.container.getBlockBlobClient(key);
-    await blockBlob.uploadStream(stream);
-  }
-
-  public async getFile(key: string): Promise<string> {
-    const blockBlob = this.container.getBlockBlobClient(key);
+  public async getFile(key: string, containerName?: string): Promise<string> {
+    const blob = await this.getBlob(key, containerName);
     const tempFilepath = super.createTempFile();
-    const response = await blockBlob.downloadToFile(tempFilepath);
+    const response = await blob.downloadToFile(tempFilepath);
     if (response.errorCode) {
       throw new ObjectNotFoundException();
     }
     return tempFilepath;
   }
 
-  public async getStream(key: string): Promise<Readable> {
-    const blockBlob = this.container.getBlockBlobClient(key);
-    const response = await blockBlob.download();
+  public async getStream(
+    key: string,
+    containerName?: string,
+  ): Promise<Readable> {
+    const blob = await this.getBlob(key, containerName);
+    const response = await blob.download();
     if (response.errorCode) {
       throw new ObjectNotFoundException();
     }
@@ -67,5 +62,17 @@ export class AzureObjectStorageService extends ObjectStorage
     }
     // TODO: make sure this type cast doesn't cause any runtime issues
     return response.readableStreamBody as Readable;
+  }
+
+  private async getBlob(
+    key: string,
+    containerName: string = this.defaultContainerName(),
+  ): Promise<BlockBlobClient> {
+    const container = this.client.getContainerClient(containerName);
+    if (!(await container.exists())) {
+      await container.create();
+    }
+    const blob = container.getBlockBlobClient(key);
+    return blob;
   }
 }
