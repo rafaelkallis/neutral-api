@@ -6,6 +6,8 @@ import { Project } from 'project/domain/Project';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
+import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
+import { PeerReview } from 'project/domain/PeerReview';
 
 /**
  * Project DTO
@@ -40,7 +42,10 @@ export class ProjectDto extends BaseDto {
   public skipManagerReview: string;
 
   @ApiProperty({ required: false })
-  public roles?: RoleDto[];
+  public roles: RoleDto[] | null;
+
+  @ApiProperty({ required: false })
+  public peerReviews: PeerReviewDto[] | null;
 
   public static builder(): ProjectStep {
     return new ProjectStep();
@@ -55,6 +60,8 @@ export class ProjectDto extends BaseDto {
     consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: string,
+    roles: RoleDto[] | null,
+    peerReviews: PeerReviewDto[] | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -66,11 +73,13 @@ export class ProjectDto extends BaseDto {
     this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
+    this.roles = roles;
+    this.peerReviews = peerReviews;
   }
 }
 
 class ProjectStep {
-  project(project: Project): AuthUserStep {
+  public project(project: Project): AuthUserStep {
     return new AuthUserStep(project);
   }
 }
@@ -80,7 +89,7 @@ class AuthUserStep {
   public constructor(projectEntity: Project) {
     this.projectEntity = projectEntity;
   }
-  authUser(authUser: User): BuildStep {
+  public authUser(authUser: User): BuildStep {
     return new BuildStep(this.projectEntity, authUser);
   }
 }
@@ -88,44 +97,72 @@ class AuthUserStep {
 class BuildStep {
   private readonly project: Project;
   private readonly authUser: User;
-  private roles?: RoleDto[];
 
   public constructor(project: Project, authUser: User) {
     this.project = project;
     this.authUser = authUser;
   }
 
-  public addRoles(roles: RoleDto[]): this {
-    this.roles = roles;
-    return this;
-  }
-
   public build(): ProjectDto {
-    const { project, roles } = this;
-    const projectDto = new ProjectDto(
-      project.id.value,
-      project.title.value,
-      project.description.value,
-      project.creatorId.value,
-      project.state.value,
+    return new ProjectDto(
+      this.project.id.value,
+      this.project.title.value,
+      this.project.description.value,
+      this.project.creatorId.value,
+      this.project.state.value,
       this.shouldExposeConsensuality()
-        ? project.consensuality
-          ? project.consensuality.value
+        ? this.project.consensuality
+          ? this.project.consensuality.value
           : null
         : null,
-      project.contributionVisibility.value,
-      project.skipManagerReview.value,
-      project.createdAt.value,
-      project.updatedAt.value,
+      this.project.contributionVisibility.value,
+      this.project.skipManagerReview.value,
+      this.createRoleDtos(),
+      this.createPeerReviewDtos(),
+      this.project.createdAt.value,
+      this.project.updatedAt.value,
     );
-    if (roles) {
-      projectDto.roles = roles;
-    }
-    return projectDto;
   }
 
   private shouldExposeConsensuality(): boolean {
     const { project, authUser } = this;
     return project.isCreator(authUser);
+  }
+
+  private createRoleDtos(): RoleDto[] | null {
+    return this.project.roles.toArray().map(role =>
+      RoleDto.builder()
+        .role(role)
+        .project(this.project)
+        .authUser(this.authUser)
+        .build(),
+    );
+  }
+
+  private createPeerReviewDtos(): PeerReviewDto[] | null {
+    return this.project.peerReviews
+      .toArray()
+      .filter(peerReview => this.shouldExposePeerReview(peerReview))
+      .map(peerReview =>
+        PeerReviewDto.builder()
+          .peerReview(peerReview)
+          .project(this.project)
+          .authUser(this.authUser)
+          .build(),
+      );
+  }
+
+  private shouldExposePeerReview(peerReview: PeerReview): boolean {
+    const { project, authUser } = this;
+    if (project.isCreator(authUser)) {
+      return true;
+    }
+    if (project.roles.anyAssignedToUser(authUser)) {
+      const authUserRole = project.roles.findByAssignee(authUser);
+      if (peerReview.isSenderRole(authUserRole)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
