@@ -6,6 +6,7 @@ import fs from 'fs';
 import { Test } from '@nestjs/testing';
 import { CONFIG } from 'config/application/Config';
 import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
+import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
 describe('azure object storage', () => {
   let azureObjectStorage: AzureObjectStorageService;
@@ -70,6 +71,27 @@ describe('azure object storage', () => {
     const remoteContent = fs.readFileSync(remoteFile).toString();
     expect(remoteContent).toEqual(localContent);
     expect(remoteContentType).toEqual(localContentType);
+  });
+
+  test('delete', async () => {
+    const localContentType = 'application/text';
+    const localFile = createFakeFile('');
+    await azureObjectStorage.put({
+      containerName,
+      key,
+      file: localFile,
+      contentType: localContentType,
+    });
+    await azureObjectStorage.delete({
+      containerName,
+      key,
+    });
+    await expect(
+      azureObjectStorage.get({
+        key,
+        containerName,
+      }),
+    ).rejects.toThrow(expect.any(ObjectNotFoundException));
   });
 });
 

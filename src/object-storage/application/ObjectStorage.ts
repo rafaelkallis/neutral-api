@@ -33,6 +33,11 @@ export interface GetReturn {
   contentType: string;
 }
 
+export interface DeleteContext {
+  containerName: string;
+  key: string;
+}
+
 /**
  *
  */
@@ -46,6 +51,11 @@ export abstract class ObjectStorage {
    *
    */
   public abstract async get(context: GetContext): Promise<GetReturn>;
+
+  /**
+   *
+   */
+  public abstract async delete(context: DeleteContext): Promise<void>;
 
   /**
    *

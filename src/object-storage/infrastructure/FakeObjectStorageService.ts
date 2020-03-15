@@ -5,6 +5,7 @@ import {
   GetReturn,
   PutContext,
   GetContext,
+  DeleteContext,
 } from 'object-storage/application/ObjectStorage';
 import fs from 'fs';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
@@ -54,5 +55,16 @@ export class FakeObjectStorage extends ObjectStorage {
     const file = super.createTempFile();
     fs.writeFileSync(file, data);
     return { file, contentType };
+  }
+
+  public async delete({ containerName, key }: DeleteContext): Promise<void> {
+    const container = this.storage.get(containerName);
+    if (!container) {
+      throw new ObjectNotFoundException();
+    }
+    if (!container.has(key)) {
+      throw new ObjectNotFoundException();
+    }
+    container.delete(key);
   }
 }
