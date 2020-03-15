@@ -11,6 +11,7 @@ import { ConfigModule } from 'config/ConfigModule';
 import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from 'common/application/MulterConfigService';
+import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
 
 /**
  * User Module
@@ -27,9 +28,10 @@ import { MulterConfigService } from 'common/application/MulterConfigService';
   controllers: [UserController],
   providers: [
     UserApplicationService,
+    UserDtoMapperService,
     UserTypeOrmEntityMapperService,
     { provide: USER_REPOSITORY, useClass: UserTypeOrmRepository },
   ],
-  exports: [USER_REPOSITORY],
+  exports: [USER_REPOSITORY, UserDtoMapperService],
 })
 export class UserModule {}

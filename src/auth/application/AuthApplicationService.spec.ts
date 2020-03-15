@@ -18,6 +18,7 @@ import { User } from 'user/domain/User';
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
@@ -26,6 +27,7 @@ describe('auth application service', () => {
   let config: MockConfigService;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
+  let userDtoMapper: UserDtoMapperService;
   let tokenService: FakeTokenManagerService;
 
   beforeEach(() => {
@@ -34,12 +36,14 @@ describe('auth application service', () => {
     config = new MockConfigService();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
+    userDtoMapper = new UserDtoMapperService(config);
     tokenService = new FakeTokenManagerService();
 
     authService = new AuthService(
       config,
       eventPublisher,
       userRepository,
+      userDtoMapper,
       tokenService,
     );
   });

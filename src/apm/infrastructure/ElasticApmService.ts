@@ -3,6 +3,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Apm, ApmTransaction, ApmActivity } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
+import { InjectConfig, Config } from 'config/application/Config';
 
 /**
  * Elastic Apm Service
@@ -10,15 +11,20 @@ import { User } from 'user/domain/User';
 @Injectable()
 export class ElasticApmService extends Apm implements OnModuleInit {
   private readonly logger: Logger;
+  private readonly config: Config;
 
-  public constructor() {
+  public constructor(@InjectConfig() config: Config) {
     super();
     this.logger = new Logger(ElasticApmService.name, true);
+    this.config = config;
   }
 
   public onModuleInit(): void {
     if (!apm.isStarted()) {
       this.logger.warn('Elastic apm not started');
+      if (!this.config.isTest()) {
+        throw new Error('Elastic apm not started');
+      }
     }
   }
 

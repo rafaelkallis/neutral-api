@@ -24,10 +24,12 @@ import {
 } from 'object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
+import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
+  private readonly userDtoMapper: UserDtoMapperService;
   private readonly eventPublisher: EventPublisher;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
@@ -35,12 +37,14 @@ export class UserApplicationService {
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
+    userDtoMapper: UserDtoMapperService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectTokenManager() tokenManager: TokenManager,
     @InjectConfig() config: Config,
     @InjectObjectStorage() objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
+    this.userDtoMapper = userDtoMapper;
     this.eventPublisher = eventPublisher;
     this.tokenService = tokenManager;
     this.config = config;
@@ -62,12 +66,7 @@ export class UserApplicationService {
     } else {
       users = await this.userRepository.findPage();
     }
-    return users.map(user =>
-      UserDto.builder()
-        .user(user)
-        .authUser(authUser)
-        .build(),
-    );
+    return users.map(user => this.userDtoMapper.toDto(user, authUser));
   }
 
   /**
@@ -75,20 +74,14 @@ export class UserApplicationService {
    */
   public async getUser(authUser: User, id: string): Promise<UserDto> {
     const user = await this.userRepository.findById(Id.from(id));
-    return UserDto.builder()
-      .user(user)
-      .authUser(authUser)
-      .build();
+    return this.userDtoMapper.toDto(user, authUser);
   }
 
   /**
    * Get the authenticated user
    */
   public async getAuthUser(authUser: User): Promise<UserDto> {
-    return UserDto.builder()
-      .user(authUser)
-      .authUser(authUser)
-      .build();
+    return this.userDtoMapper.toDto(authUser, authUser);
   }
 
   /**
@@ -129,10 +122,7 @@ export class UserApplicationService {
       await this.eventPublisher.publish(...authUser.getDomainEvents());
       await this.userRepository.persist(authUser);
     }
-    return UserDto.builder()
-      .user(authUser)
-      .authUser(authUser)
-      .build();
+    return this.userDtoMapper.toDto(authUser, authUser);
   }
 
   public async getUserAvatar(
@@ -168,10 +158,7 @@ export class UserApplicationService {
     authUser.updateAvatar(newAvatar);
     await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
-    return UserDto.builder()
-      .user(authUser)
-      .authUser(authUser)
-      .build();
+    return this.userDtoMapper.toDto(authUser, authUser);
   }
 
   /**

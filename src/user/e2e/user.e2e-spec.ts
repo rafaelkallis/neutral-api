@@ -1,6 +1,5 @@
 import { TestScenario } from 'test/TestScenario';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserDto } from 'user/application/dto/UserDto';
 import { User } from 'user/domain/User';
 
 describe('user (e2e)', () => {
@@ -24,13 +23,11 @@ describe('user (e2e)', () => {
         .query({ after: user.id.value });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const userDto = UserDto.builder()
-        .user(user)
-        .authUser(user)
-        .build();
-      expect(response.body).not.toContainEqual(userDto);
+      expect(response.body).not.toContainEqual(
+        expect.objectContaining({ id: user.id.value }),
+      );
       for (const responseUser of response.body) {
-        expect(responseUser.id > user.id).toBeTruthy();
+        expect(responseUser.id > user.id.value).toBeTruthy();
       }
     });
 
@@ -51,6 +48,7 @@ describe('user (e2e)', () => {
           email: null,
           firstName: queryUser.name.first,
           lastName: queryUser.name.last,
+          avatarUrl: null,
           createdAt: expect.any(Number),
           updatedAt: expect.any(Number),
         });
