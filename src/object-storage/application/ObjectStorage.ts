@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { Readable } from 'stream';
 import os from 'os';
 import path from 'path';
 import ObjectID from 'bson-objectid';
@@ -13,50 +12,46 @@ export function InjectObjectStorage(): ParameterDecorator {
   return Inject(OBJECT_STORAGE);
 }
 
+export interface PutContext {
+  containerName: string;
+  file: string;
+  contentType: string;
+  key?: string;
+}
+
+export interface PutReturn {
+  key: string;
+}
+
+export interface GetContext {
+  containerName: string;
+  key: string;
+}
+
+export interface GetReturn {
+  file: string;
+  contentType: string;
+}
+
 /**
  *
  */
 export abstract class ObjectStorage {
-  private static readonly DEFAULT_CONTAINER_NAME = 'default';
+  /**
+   *
+   */
+  public abstract async put(context: PutContext): Promise<PutReturn>;
 
   /**
    *
    */
-  public abstract async putFile(
-    key: string,
-    filepath: string,
-    containerName?: string,
-  ): Promise<void>;
-  /**
-   *
-   */
-  public abstract async putStream(
-    key: string,
-    stream: Readable,
-    containerName?: string,
-  ): Promise<void>;
+  public abstract async get(context: GetContext): Promise<GetReturn>;
 
   /**
    *
    */
-  public abstract async getFile(
-    key: string,
-    containerName?: string,
-  ): Promise<string>;
-
-  /**
-   *
-   */
-  public abstract async getStream(
-    key: string,
-    containerName?: string,
-  ): Promise<Readable>;
-
-  /**
-   *
-   */
-  protected defaultContainerName(): string {
-    return ObjectStorage.DEFAULT_CONTAINER_NAME;
+  protected createKey(): string {
+    return new ObjectID().toHexString();
   }
 
   /**

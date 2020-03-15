@@ -8,12 +8,22 @@ import { UserApplicationService } from 'user/application/UserApplicationService'
 import { EventModule } from 'event/EventModule';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
 import { ConfigModule } from 'config/ConfigModule';
+import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
+import { MulterModule } from '@nestjs/platform-express';
+import { MulterConfigService } from 'common/application/MulterConfigService';
 
 /**
  * User Module
  */
 @Module({
-  imports: [ConfigModule, TokenModule, DatabaseModule, EventModule],
+  imports: [
+    ConfigModule,
+    MulterModule.registerAsync({ useClass: MulterConfigService }),
+    TokenModule,
+    DatabaseModule,
+    EventModule,
+    ObjectStorageModule,
+  ],
   controllers: [UserController],
   providers: [
     UserApplicationService,

@@ -1,19 +1,18 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import compression from 'compression';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
-
+import { ApmModule } from 'apm/ApmModule';
 import { AppController } from 'app/presentation/AppController';
 import { AuthModule } from 'auth/AuthModule';
-import { ProjectModule } from 'project/ProjectModule';
-import { UserModule } from 'user/UserModule';
+import compression from 'compression';
 import { ConfigModule } from 'config/ConfigModule';
+import cookieParser from 'cookie-parser';
 import { DatabaseModule } from 'database/DatabaseModule';
 import { EmailModule } from 'email/EmailModule';
-import { SessionMiddleware } from 'session';
+import helmet from 'helmet';
 import { NotificationModule } from 'notification/NotificationModule';
-import { ApmModule } from 'apm/ApmModule';
 import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
+import { ProjectModule } from 'project/ProjectModule';
+import { SessionMiddleware } from 'session';
+import { UserModule } from 'user/UserModule';
 
 /**
  * App Module

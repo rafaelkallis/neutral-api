@@ -10,6 +10,7 @@ import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { Avatar } from 'user/domain/value-objects/Avatar';
+import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEvent';
 
 export class User extends AggregateRoot {
   public email: Email;
@@ -79,6 +80,18 @@ export class User extends AggregateRoot {
   public updateName(name: Name): void {
     this.name = name;
     this.apply(new UserNameUpdatedEvent(this));
+  }
+
+  /**
+   *
+   */
+  public updateAvatar(newAvatar: Avatar): void {
+    const oldAvatar = this.avatar;
+    if (oldAvatar?.equals(newAvatar)) {
+      return;
+    }
+    this.avatar = newAvatar;
+    this.apply(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
   }
 
   public delete(): void {

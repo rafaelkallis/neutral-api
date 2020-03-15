@@ -13,6 +13,7 @@ import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerSe
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { FakeObjectStorage } from 'object-storage/infrastructure/FakeObjectStorageService';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
@@ -21,6 +22,7 @@ describe('user service', () => {
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: TokenManager;
+  let fakeObjectStorage: FakeObjectStorage;
   let userApplicationService: UserApplicationService;
   let user: User;
 
@@ -30,12 +32,14 @@ describe('user service', () => {
     config = new MockConfigService();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
+    fakeObjectStorage = new FakeObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(
       userRepository,
       eventPublisher,
       tokenService,
       config,
+      fakeObjectStorage,
     );
 
     user = modelFaker.user();

@@ -67,6 +67,23 @@ describe('user (e2e)', () => {
     });
   });
 
+  describe('/users/me/avatar (PUT)', () => {
+    test('happy path', async () => {
+      const response = await scenario.session
+        .put('/users/me/avatar')
+        .attach('avatar', __dirname + '/avatar.jpeg');
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+    });
+
+    test('should fail if upload is not a jpeg or png', async () => {
+      const response = await scenario.session
+        .put('/users/me/avatar')
+        .attach('avatar', __dirname + '/text.txt');
+      expect(response.status).toBe(400);
+    });
+  });
+
   describe('/users/:id (GET)', () => {
     test('happy path', async () => {
       const response = await scenario.session.get(`/users/${user.id}`);

@@ -1,26 +1,25 @@
 import { InvalidAvatarException } from 'user/domain/exceptions/InvalidAvatarException';
-import { Validator } from 'class-validator';
 import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
+import ObjectID from 'bson-objectid';
 
 /**
  *
  */
 export class Avatar extends StringValueObject<Avatar> {
-  private constructor(url: string) {
-    Avatar.assertUrl(url);
-    super(url);
+  private constructor(key: string) {
+    super(key);
+    Avatar.assertKey(key);
   }
 
   /**
    *
    */
-  public static from(url: string): Avatar {
-    return new Avatar(url);
+  public static from(key: string): Avatar {
+    return new Avatar(key);
   }
 
-  private static assertUrl(value: string): void {
-    const validator = new Validator();
-    if (!validator.isURL(value)) {
+  private static assertKey(value: string): void {
+    if (!ObjectID.isValid(value)) {
       throw new InvalidAvatarException();
     }
   }

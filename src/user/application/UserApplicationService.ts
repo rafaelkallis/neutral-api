@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
@@ -18,6 +18,12 @@ import {
   EventPublisher,
   InjectEventPublisher,
 } from 'event/publisher/EventPublisher';
+import {
+  InjectObjectStorage,
+  ObjectStorage,
+} from 'object-storage/application/ObjectStorage';
+import { Avatar } from 'user/domain/value-objects/Avatar';
+import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 
 @Injectable()
 export class UserApplicationService {
@@ -25,17 +31,20 @@ export class UserApplicationService {
   private readonly eventPublisher: EventPublisher;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
+  private readonly objectStorage: ObjectStorage;
 
   public constructor(
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectTokenManager() tokenManager: TokenManager,
     @InjectConfig() config: Config,
+    @InjectObjectStorage() objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
     this.eventPublisher = eventPublisher;
     this.tokenService = tokenManager;
     this.config = config;
+    this.objectStorage = objectStorage;
   }
 
   /**
@@ -120,6 +129,45 @@ export class UserApplicationService {
       await this.eventPublisher.publish(...authUser.getDomainEvents());
       await this.userRepository.persist(authUser);
     }
+    return UserDto.builder()
+      .user(authUser)
+      .authUser(authUser)
+      .build();
+  }
+
+  public async getUserAvatar(
+    _authUser: User,
+    rawUserId: string,
+  ): Promise<{ file: string; contentType: string }> {
+    const userId = Id.from(rawUserId);
+    const user = await this.userRepository.findById(userId);
+    if (!user.avatar) {
+      throw new NotFoundException();
+    }
+    const userAvatar = await this.objectStorage.get({
+      containerName: 'avatars',
+      key: user.avatar.value,
+    });
+    return userAvatar;
+  }
+
+  public async updateAuthUserAvatar(
+    authUser: User,
+    avatarFile: string,
+    contentType: string,
+  ): Promise<UserDto> {
+    if (!['image/jpeg', 'image/png'].includes(contentType)) {
+      throw new AvatarUnsupportedContentTypeException();
+    }
+    const { key } = await this.objectStorage.put({
+      containerName: 'avatars',
+      file: avatarFile,
+      contentType,
+    });
+    const newAvatar = Avatar.from(key);
+    authUser.updateAvatar(newAvatar);
+    await this.eventPublisher.publish(...authUser.getDomainEvents());
+    await this.userRepository.persist(authUser);
     return UserDto.builder()
       .user(authUser)
       .authUser(authUser)

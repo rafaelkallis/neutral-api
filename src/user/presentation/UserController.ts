@@ -1,6 +1,5 @@
 import {
   Body,
-  Query,
   Controller,
   Delete,
   Get,
@@ -8,23 +7,27 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
+  Res,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import {
   ApiBearerAuth,
-  ApiParam,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
-import { UserDto } from 'user/application/dto/UserDto';
-import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { ValidationPipe } from 'common/application/pipes/ValidationPipe';
+import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
+import { UserDto } from 'user/application/dto/UserDto';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
 
@@ -85,6 +88,30 @@ export class UserController {
   }
 
   /**
+   * Get the avatar of the user with the given id
+   */
+  @Get(':id/avatar')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get a user's avatar" })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'The requested user avatar' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 404, description: 'User has no avatar' })
+  public async getUserAvatar(
+    @AuthUser() authUser: User,
+    @Param('id') userId: string,
+    @Res() response: Response,
+  ): Promise<void> {
+    const { file, contentType } = await this.userApplication.getUserAvatar(
+      authUser,
+      userId,
+    );
+    response.set('Content-Type', contentType);
+    response.sendFile(file);
+  }
+
+  /**
    * Update the authenticated user
    *
    * If the email address is changed, a email change magic link is sent
@@ -105,15 +132,22 @@ export class UserController {
   /**
    * Set the authenticated user's avatar
    */
-  @Post('me/avatar')
+  @Put('me/avatar')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   @ApiBearerAuth()
   @ApiOperation({ summary: "Set the authenticated user's avatar" })
   @ApiResponse({ status: 200, description: 'User avatar succesfully updated' })
-  public async setAvatar(
-    @UploadedFile('avatar') avatar: Express.Multer.File,
-  ): Promise<void> {}
+  public async updateAuthUserAvatar(
+    @AuthUser() authUser: User,
+    @UploadedFile() avatarFile: Express.Multer.File,
+  ): Promise<UserDto> {
+    return this.userApplication.updateAuthUserAvatar(
+      authUser,
+      avatarFile.path,
+      avatarFile.mimetype,
+    );
+  }
 
   /**
    * Submit the email change token to verify a new email address
