@@ -15,6 +15,9 @@ export class UserDto extends BaseDto {
   @ApiProperty()
   public lastName: string;
 
+  @ApiProperty()
+  public avatarUrl: string | null;
+
   public constructor(
     id: string,
     email: string | null,
@@ -22,11 +25,13 @@ export class UserDto extends BaseDto {
     lastName: string,
     createdAt: number,
     updatedAt: number,
+    avatarUrl: string | null,
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.avatarUrl = avatarUrl;
   }
 
   public static builder(): UserStep {
@@ -70,6 +75,7 @@ class BuildStep {
       user.name.last,
       user.createdAt.value,
       user.updatedAt.value,
+      user.avatar ? `http://` : null,
     );
   }
 

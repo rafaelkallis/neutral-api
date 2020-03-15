@@ -32,6 +32,7 @@ export class MockConfigService extends Config {
       NODE_ENV: process.env.NODE_ENV || 'development',
       PORT: -1,
       FRONTEND_URL: '',
+      SERVER_URL: '',
       SECRET_HEX: '',
       DATABASE_URL: '',
       SMTP_URL: '',
