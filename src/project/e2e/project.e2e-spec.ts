@@ -51,8 +51,11 @@ describe('project (e2e)', () => {
     });
 
     test('happy path', async () => {
-      // const response = await session.get(`/projects/${project.id.value}`);
-      // expect(response.status).toBe(200);
+      const response = await scenario.session.get(
+        `/projects/${project.id.value}`,
+      );
+      expect(response.status).toBe(200);
+      // TODO more assertions?
     });
   });
 

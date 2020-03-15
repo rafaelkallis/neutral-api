@@ -31,6 +31,8 @@ describe('project dto', () => {
       consensuality: null,
       contributionVisibility: project.contributionVisibility.value,
       skipManagerReview: project.skipManagerReview.value,
+      roles: [],
+      peerReviews: [],
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });
@@ -51,6 +53,6 @@ describe('project dto', () => {
       .project(project)
       .authUser(user)
       .build();
-    expect(projectDto.consensuality).toBeFalsy();
+    expect(projectDto.consensuality).toBeNull();
   });
 });

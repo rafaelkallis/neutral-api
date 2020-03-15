@@ -2,11 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'common/application/dto/BaseDto';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
-import {
-  PeerReviewDto,
-  PeerReviewDtoBuilder,
-} from 'project/application/dto/PeerReviewDto';
-import { PeerReview } from 'project/domain/PeerReview';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
@@ -34,13 +29,6 @@ export class RoleDto extends BaseDto {
   @ApiProperty({
     required: false,
     description:
-      'The submitted peer reviews of the role assignee. Only visible to the project manager and the role assignee.',
-  })
-  public submittedPeerReviews: PeerReviewDto[] | null;
-
-  @ApiProperty({
-    required: false,
-    description:
       'Specifies whether or not the assigned user has submitted peer reviews. Only visible to the project manager and the assignee.',
   })
   public hasSubmittedPeerReviews: boolean | null;
@@ -52,7 +40,6 @@ export class RoleDto extends BaseDto {
     title: string,
     description: string,
     contribution: number | null,
-    submittedPeerReviews: PeerReviewDto[] | null,
     hasSubmittedPeerReviews: boolean | null,
     createdAt: number,
     updatedAt: number,
@@ -63,7 +50,6 @@ export class RoleDto extends BaseDto {
     this.title = title;
     this.description = description;
     this.contribution = contribution;
-    this.submittedPeerReviews = submittedPeerReviews;
     this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
   }
 
@@ -77,11 +63,7 @@ interface RoleStep {
 }
 
 interface ProjectStep {
-  project(project: Project): ProjectRolesStep;
-}
-
-interface ProjectRolesStep {
-  projectRoles(projectRoles: Role[]): AuthUserStep;
+  project(project: Project): AuthUserStep;
 }
 
 interface AuthUserStep {
@@ -89,35 +71,24 @@ interface AuthUserStep {
 }
 
 interface BuildStep {
-  build(): Promise<RoleDto>;
-  addSubmittedPeerReviews(
-    getSubmittedPeerReviews: () => Promise<PeerReview[]>,
-  ): BuildStep;
+  build(): RoleDto;
 }
 
 /**
  * Role DTO Builder
  */
-class RoleDtoBuilder
-  implements RoleStep, ProjectStep, ProjectRolesStep, AuthUserStep, BuildStep {
+class RoleDtoBuilder implements RoleStep, ProjectStep, AuthUserStep, BuildStep {
   private _role!: Role;
   private _project!: Project;
-  private _projectRoles!: Role[];
   private _authUser!: User;
-  private _getSubmittedPeerReviews?: () => Promise<PeerReview[]>;
 
   public role(role: Role): ProjectStep {
     this._role = role;
     return this;
   }
 
-  public project(project: Project): ProjectRolesStep {
+  public project(project: Project): AuthUserStep {
     this._project = project;
-    return this;
-  }
-
-  public projectRoles(projectRoles: Role[]): AuthUserStep {
-    this._projectRoles = projectRoles;
     return this;
   }
 
@@ -126,14 +97,7 @@ class RoleDtoBuilder
     return this;
   }
 
-  public addSubmittedPeerReviews(
-    getSentPeerReviews: () => Promise<PeerReview[]>,
-  ): BuildStep {
-    this._getSubmittedPeerReviews = getSentPeerReviews;
-    return this;
-  }
-
-  public async build(): Promise<RoleDto> {
+  public build(): RoleDto {
     const { _role: role } = this;
     const roleDto = new RoleDto(
       role.id.value,
@@ -144,32 +108,17 @@ class RoleDtoBuilder
       this.shouldExposeContribution() && !!role.contribution
         ? role.contribution.value
         : null,
-      null,
       this.shouldExposeHasSubmittedPeerReviews()
         ? role.hasSubmittedPeerReviews.value
         : null,
       role.createdAt.value,
       role.updatedAt.value,
     );
-    if (
-      this._getSubmittedPeerReviews &&
-      this.shouldExposeSubmittedPeerReviews()
-    ) {
-      const submittedPeerReviews = await this._getSubmittedPeerReviews();
-      roleDto.submittedPeerReviews = submittedPeerReviews.map(pr =>
-        PeerReviewDtoBuilder.of(pr).build(),
-      );
-    }
     return roleDto;
   }
 
   private shouldExposeContribution(): boolean {
-    const {
-      _role: role,
-      _project: project,
-      _projectRoles: projectRoles,
-      _authUser: authUser,
-    } = this;
+    const { _role: role, _project: project, _authUser: authUser } = this;
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
         return project.state.equals(ProjectState.FINISHED);
@@ -182,7 +131,7 @@ class RoleDtoBuilder
         if (!project.state.equals(ProjectState.FINISHED)) {
           return false;
         }
-        return projectRoles.some(r => r.isAssignedToUser(authUser));
+        return project.roles.anyAssignedToUser(authUser);
       }
 
       case ContributionVisibility.SELF: {
@@ -206,17 +155,6 @@ class RoleDtoBuilder
   }
 
   private shouldExposeHasSubmittedPeerReviews(): boolean {
-    const { _role: role, _project: project, _authUser: authUser } = this;
-    if (project.isCreator(authUser)) {
-      return true;
-    }
-    if (role.isAssignedToUser(authUser)) {
-      return true;
-    }
-    return false;
-  }
-
-  private shouldExposeSubmittedPeerReviews(): boolean {
     const { _role: role, _project: project, _authUser: authUser } = this;
     if (project.isCreator(authUser)) {
       return true;

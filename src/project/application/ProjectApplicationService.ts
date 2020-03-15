@@ -125,7 +125,6 @@ export class ProjectApplicationService {
         RoleDto.builder()
           .role(role)
           .project(project)
-          .projectRoles([...project.roles.toArray()])
           .authUser(authUser)
           .build(),
       ),
@@ -142,11 +141,7 @@ export class ProjectApplicationService {
     return RoleDto.builder()
       .role(role)
       .project(project)
-      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
-      .addSubmittedPeerReviews(async () => [
-        ...project.peerReviews.findBySenderRole(role.id),
-      ])
       .build();
   }
 
@@ -241,7 +236,6 @@ export class ProjectApplicationService {
     return RoleDto.builder()
       .role(role)
       .project(project)
-      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }
@@ -269,7 +263,6 @@ export class ProjectApplicationService {
     return RoleDto.builder()
       .role(roleToUpdate)
       .project(project)
-      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }
@@ -336,7 +329,6 @@ export class ProjectApplicationService {
     return RoleDto.builder()
       .role(roleToAssign)
       .project(project)
-      .projectRoles([...project.roles.toArray()])
       .authUser(authUser)
       .build();
   }

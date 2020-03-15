@@ -168,16 +168,14 @@ describe('project application service', () => {
         getRolesQueryDto,
       );
       const expectedRoleDtos = [
-        await RoleDto.builder()
+        RoleDto.builder()
           .role(roles[0])
           .project(project)
-          .projectRoles(roles)
           .authUser(ownerUser)
           .build(),
-        await RoleDto.builder()
+        RoleDto.builder()
           .role(roles[1])
           .project(project)
-          .projectRoles(roles)
           .authUser(ownerUser)
           .build(),
       ];
@@ -198,12 +196,10 @@ describe('project application service', () => {
         ownerUser,
         roles[0].id.value,
       );
-      const expectedRoleDto = await RoleDto.builder()
+      const expectedRoleDto = RoleDto.builder()
         .role(roles[0])
         .project(project)
-        .projectRoles(roles)
         .authUser(ownerUser)
-        .addSubmittedPeerReviews(async () => [sentPeerReview])
         .build();
       expect(actualRoleDto).toEqual(expectedRoleDto);
     });
