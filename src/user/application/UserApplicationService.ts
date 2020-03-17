@@ -154,8 +154,29 @@ export class UserApplicationService {
       file: avatarFile,
       contentType,
     });
+    const oldAvatar = authUser.avatar;
+    if (oldAvatar) {
+      await this.objectStorage.delete({
+        containerName: 'avatars',
+        key: oldAvatar.value,
+      });
+    }
     const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
+    await this.eventPublisher.publish(...authUser.getDomainEvents());
+    await this.userRepository.persist(authUser);
+    return this.userDtoMapper.toDto(authUser, authUser);
+  }
+
+  public async removeAuthUserAvatar(authUser: User): Promise<UserDto> {
+    if (!authUser.avatar) {
+      throw new NotFoundException();
+    }
+    await this.objectStorage.delete({
+      containerName: 'avatars',
+      key: authUser.avatar.value,
+    });
+    authUser.removeAvatar();
     await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
     return this.userDtoMapper.toDto(authUser, authUser);

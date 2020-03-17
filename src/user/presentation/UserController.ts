@@ -130,13 +130,13 @@ export class UserController {
   }
 
   /**
-   * Set the authenticated user's avatar
+   * Update the authenticated user's avatar
    */
   @Put('me/avatar')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Set the authenticated user's avatar" })
+  @ApiOperation({ summary: "Update the authenticated user's avatar" })
   @ApiResponse({ status: 200, description: 'User avatar succesfully updated' })
   public async updateAuthUserAvatar(
     @AuthUser() authUser: User,
@@ -147,6 +147,20 @@ export class UserController {
       avatarFile.path,
       avatarFile.mimetype,
     );
+  }
+
+  /**
+   * Remove the authenticated user's avatar
+   */
+  @Delete('me/avatar')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Remove the authenticated user's avatar" })
+  @ApiResponse({ status: 200, description: 'User avatar succesfully removed' })
+  public async removeAuthUserAvatar(
+    @AuthUser() authUser: User,
+  ): Promise<UserDto> {
+    return this.userApplication.removeAuthUserAvatar(authUser);
   }
 
   /**

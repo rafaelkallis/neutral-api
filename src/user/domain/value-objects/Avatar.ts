@@ -18,7 +18,14 @@ export class Avatar extends StringValueObject<Avatar> {
     return new Avatar(key);
   }
 
+  public static redacted(): Avatar {
+    return new Avatar('[REDACTED]');
+  }
+
   private static assertKey(value: string): void {
+    if (value === '[REDACTED]') {
+      return;
+    }
     if (!ObjectID.isValid(value)) {
       throw new InvalidAvatarException();
     }

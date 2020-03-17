@@ -12,19 +12,19 @@ export class Name extends ValueObject<Name> {
     super();
     this.first = first;
     this.last = last;
+    this.assertFirst(first);
+    this.assertLast(last);
   }
 
   /**
    *
    */
   public static from(first: string, last: string): Name {
-    if (typeof first !== 'string' || first.length > 100) {
-      throw new InvalidNameException();
-    }
-    if (typeof last !== 'string' || last.length > 100) {
-      throw new InvalidNameException();
-    }
     return new Name(first, last);
+  }
+
+  public static redacted(): Name {
+    return new Name('[REDACTED]', '[REDACTED]');
   }
 
   /**
@@ -39,5 +39,17 @@ export class Name extends ValueObject<Name> {
    */
   public toString(): string {
     return `${this.first} ${this.last}`;
+  }
+
+  private assertFirst(value: string): void {
+    if (typeof value !== 'string' || value.length > 100) {
+      throw new InvalidNameException();
+    }
+  }
+
+  private assertLast(value: string): void {
+    if (typeof value !== 'string' || value.length > 100) {
+      throw new InvalidNameException();
+    }
   }
 }

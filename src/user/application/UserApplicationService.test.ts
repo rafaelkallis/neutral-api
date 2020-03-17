@@ -13,8 +13,11 @@ import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerSe
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { FakeObjectStorage } from 'object-storage/infrastructure/FakeObjectStorageService';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { MockObjectStorage } from 'object-storage/infrastructure/MockObjectStorageService';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
+import { Avatar } from 'user/domain/value-objects/Avatar';
+import ObjectID from 'bson-objectid';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
@@ -24,7 +27,7 @@ describe('user service', () => {
   let userRepository: UserRepository;
   let userDtoMapper: UserDtoMapperService;
   let tokenService: TokenManager;
-  let fakeObjectStorage: FakeObjectStorage;
+  let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
   let user: User;
 
@@ -35,7 +38,7 @@ describe('user service', () => {
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     userDtoMapper = new UserDtoMapperService(config);
-    fakeObjectStorage = new FakeObjectStorage();
+    objectStorage = new MockObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(
       userRepository,
@@ -43,7 +46,7 @@ describe('user service', () => {
       eventPublisher,
       tokenService,
       config,
-      fakeObjectStorage,
+      objectStorage,
     );
 
     user = modelFaker.user();
@@ -135,6 +138,31 @@ describe('user service', () => {
       await userApplicationService.updateAuthUser(user, updateUserDto);
       expect(user.email.value).not.toEqual(email);
       expect(user.name.first).toEqual(firstName);
+    });
+  });
+
+  describe('update auth user avatar', () => {
+    beforeEach(() => {
+      jest.spyOn(objectStorage, 'put');
+      jest.spyOn(objectStorage, 'delete');
+    });
+
+    test('happy path', async () => {
+      await userApplicationService.updateAuthUserAvatar(user, '', 'image/jpeg');
+      expect(user.avatar).toBeTruthy();
+      expect(objectStorage.put).toHaveBeenCalled();
+    });
+
+    test('should delete old avatar', async () => {
+      const oldAvatar = Avatar.from(new ObjectID().toHexString());
+      user.avatar = oldAvatar;
+      await userApplicationService.updateAuthUserAvatar(user, '', 'image/jpeg');
+      expect(objectStorage.delete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key: oldAvatar.value,
+        }),
+      );
+      expect(objectStorage.put).toHaveBeenCalled();
     });
   });
 
