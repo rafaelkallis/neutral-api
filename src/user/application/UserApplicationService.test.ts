@@ -163,6 +163,32 @@ describe('user service', () => {
         }),
       );
       expect(objectStorage.put).toHaveBeenCalled();
+      expect(user.avatar?.value).not.toEqual(oldAvatar.value);
+    });
+
+    test('should fail of content type not supported', async () => {
+      await expect(
+        userApplicationService.updateAuthUserAvatar(user, '', 'text/plain'),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('delete auth user avatar', () => {
+    let avatarToDelete: Avatar;
+    beforeEach(() => {
+      avatarToDelete = Avatar.from(new ObjectID().toHexString());
+      user.avatar = avatarToDelete;
+      jest.spyOn(objectStorage, 'delete');
+    });
+
+    test('happy path', async () => {
+      await userApplicationService.removeAuthUserAvatar(user);
+      expect(user.avatar).toBeNull();
+      expect(objectStorage.delete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key: avatarToDelete.value,
+        }),
+      );
     });
   });
 

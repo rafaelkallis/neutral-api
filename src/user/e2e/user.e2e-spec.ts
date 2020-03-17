@@ -85,7 +85,7 @@ describe('user (e2e)', () => {
   });
 
   describe('/users/me/avatar (DELETE)', () => {
-    let objectStorageKey: string;
+    let avatarKey: string;
 
     beforeEach(async () => {
       const putResult = await scenario.objectStorage.put({
@@ -93,8 +93,8 @@ describe('user (e2e)', () => {
         file: __dirname + '/avatar.jpeg',
         contentType: 'image/jpeg',
       });
-      objectStorageKey = putResult.key;
-      user.updateAvatar(Avatar.from(objectStorageKey));
+      avatarKey = putResult.key;
+      user.updateAvatar(Avatar.from(avatarKey));
       await scenario.userRepository.persist(user);
       jest.spyOn(scenario.objectStorage, 'delete');
     });
@@ -109,7 +109,7 @@ describe('user (e2e)', () => {
       expect(updatedUser.avatar).toBeNull();
       expect(scenario.objectStorage.delete).toHaveBeenCalledWith(
         expect.objectContaining({
-          key: objectStorageKey,
+          key: avatarKey,
         }),
       );
     });
