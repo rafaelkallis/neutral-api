@@ -1,6 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ObjectStorage } from 'object-storage/application/ObjectStorage';
-import { Readable } from 'stream';
+import {
+  ObjectStorage,
+  PutReturn,
+  GetReturn,
+  PutContext,
+  GetContext,
+  DeleteContext,
+} from 'object-storage/application/ObjectStorage';
 import { Config, InjectConfig } from 'config/application/Config';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
@@ -18,55 +24,54 @@ export class AzureObjectStorageService extends ObjectStorage {
     this.client = BlobServiceClient.fromConnectionString(connectionString);
   }
 
-  public async putFile(
-    key: string,
-    filepath: string,
-    containerName?: string,
-  ): Promise<void> {
-    const blob = await this.getBlob(key, containerName);
-    await blob.uploadFile(filepath);
+  public async put({
+    containerName,
+    file,
+    contentType,
+    key,
+  }: PutContext): Promise<PutReturn> {
+    key = key || this.createKey();
+    const blob = await this.getBlob(containerName, key);
+    await blob.uploadFile(file, {
+      blobHTTPHeaders: { blobContentType: contentType },
+    });
+    return { key };
   }
 
-  public async putStream(
-    key: string,
-    stream: Readable,
-    containerName?: string,
-  ): Promise<void> {
-    const blob = await this.getBlob(key, containerName);
-    await blob.uploadStream(stream);
-  }
-
-  public async getFile(key: string, containerName?: string): Promise<string> {
-    const blob = await this.getBlob(key, containerName);
-    const tempFilepath = super.createTempFile();
-    const response = await blob.downloadToFile(tempFilepath);
-    if (response.errorCode) {
-      throw new ObjectNotFoundException();
+  public async get({ containerName, key }: GetContext): Promise<GetReturn> {
+    const blob = await this.getBlob(containerName, key);
+    const file = super.createTempFile();
+    let response;
+    try {
+      response = await blob.downloadToFile(file);
+    } catch (error) {
+      if (error?.details?.errorCode === 'BlobNotFound') {
+        throw new ObjectNotFoundException();
+      }
+      throw error;
     }
-    return tempFilepath;
-  }
-
-  public async getStream(
-    key: string,
-    containerName?: string,
-  ): Promise<Readable> {
-    const blob = await this.getBlob(key, containerName);
-    const response = await blob.download();
-    if (response.errorCode) {
-      throw new ObjectNotFoundException();
-    }
-    // only works with nodejs, and not in browser
-    // @see https://docs.microsoft.com/en-us/javascript/api/@azure/storage-blob/blockblobclient?view=azure-node-latest#download-undefined---number--undefined---number--blobdownloadoptions-
-    if (!response.readableStreamBody) {
+    const { contentType } = response;
+    if (!contentType) {
       throw new InternalServerErrorException();
     }
-    // TODO: make sure this type cast doesn't cause any runtime issues
-    return response.readableStreamBody as Readable;
+    return { file, contentType };
+  }
+
+  public async delete({ containerName, key }: DeleteContext): Promise<void> {
+    const blob = await this.getBlob(containerName, key);
+    try {
+      await blob.delete();
+    } catch (error) {
+      if (error?.details?.errorCode === 'BlobNotFound') {
+        throw new ObjectNotFoundException();
+      }
+      throw error;
+    }
   }
 
   private async getBlob(
+    containerName: string,
     key: string,
-    containerName: string = this.defaultContainerName(),
   ): Promise<BlockBlobClient> {
     const container = this.client.getContainerClient(containerName);
     if (!(await container.exists())) {

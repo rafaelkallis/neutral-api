@@ -16,6 +16,7 @@ export interface ConfigProps {
   NODE_ENV: string;
   PORT: number;
   FRONTEND_URL: string;
+  SERVER_URL: string;
   SECRET_HEX: string;
   DATABASE_URL: string;
   SMTP_URL: string;

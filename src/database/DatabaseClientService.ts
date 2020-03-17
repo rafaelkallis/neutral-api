@@ -24,7 +24,9 @@ export class DatabaseClientService implements OnApplicationShutdown {
    *
    */
   public async onApplicationShutdown(): Promise<void> {
-    await this.connection.close();
-    this.logger.log('Database disconnected');
+    if (this.connection.isConnected) {
+      await this.connection.close();
+      this.logger.log('Database disconnected');
+    }
   }
 }

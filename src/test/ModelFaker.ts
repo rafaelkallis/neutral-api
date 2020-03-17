@@ -43,10 +43,11 @@ export class ModelFaker {
       this.primitiveFaker.word(),
       this.primitiveFaker.word(),
     );
+    const avatar = null;
     const lastLoginAt = LastLoginAt.from(
       this.primitiveFaker.timestampUnixMillis(),
     );
-    return new User(id, createdAt, updatedAt, email, name, lastLoginAt);
+    return new User(id, createdAt, updatedAt, email, name, avatar, lastLoginAt);
   }
 
   /**

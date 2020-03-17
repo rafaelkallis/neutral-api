@@ -3,10 +3,10 @@ import ObjectID from 'bson-objectid';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
-import { Readable } from 'stream';
 import { Test } from '@nestjs/testing';
 import { CONFIG } from 'config/application/Config';
 import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
+import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
 describe('azure object storage', () => {
   let azureObjectStorage: AzureObjectStorageService;
@@ -29,50 +29,69 @@ describe('azure object storage', () => {
     key = new ObjectID().toHexString();
   });
 
-  test('put file', async () => {
+  test('put', async () => {
     const localContent = key;
+    const localContentType = 'application/text';
     const localFile = createFakeFile(localContent);
-    await azureObjectStorage.putFile(key, localFile, containerName);
-    const stream = await azureObjectStorage.getStream(key, containerName);
-    const remoteContent = await streamToString(stream);
+    await azureObjectStorage.put({
+      containerName,
+      key,
+      file: localFile,
+      contentType: localContentType,
+    });
+    const {
+      file: remoteFile,
+      contentType: remoteContentType,
+    } = await azureObjectStorage.get({
+      key,
+      containerName,
+    });
+    const remoteContent = fs.readFileSync(remoteFile).toString();
     expect(remoteContent).toEqual(localContent);
+    expect(remoteContentType).toEqual(localContentType);
   });
 
-  test('put stream', async () => {
+  test('get', async () => {
     const localContent = key;
-    await azureObjectStorage.putStream(
-      key,
-      stringToStream(localContent),
+    const localContentType = 'application/text';
+    const localFile = createFakeFile(localContent);
+    await azureObjectStorage.put({
       containerName,
-    );
-    const stream = await azureObjectStorage.getStream(key, containerName);
-    const remoteContent = await streamToString(stream);
+      key,
+      file: localFile,
+      contentType: localContentType,
+    });
+    const {
+      file: remoteFile,
+      contentType: remoteContentType,
+    } = await azureObjectStorage.get({
+      key,
+      containerName,
+    });
+    const remoteContent = fs.readFileSync(remoteFile).toString();
     expect(remoteContent).toEqual(localContent);
+    expect(remoteContentType).toEqual(localContentType);
   });
 
-  test('get file', async () => {
-    const localContent = key;
-    await azureObjectStorage.putStream(
-      key,
-      stringToStream(localContent),
+  test('delete', async () => {
+    const localContentType = 'application/text';
+    const localFile = createFakeFile('');
+    await azureObjectStorage.put({
       containerName,
-    );
-    const remoteFile = await azureObjectStorage.getFile(key, containerName);
-    const remoteStream = fs.createReadStream(remoteFile);
-    const remoteContent = await streamToString(remoteStream);
-    expect(remoteContent).toEqual(localContent);
-  });
-
-  test('get stream', async () => {
-    const localContent = key;
-    await azureObjectStorage.putStream(
       key,
-      stringToStream(localContent),
+      file: localFile,
+      contentType: localContentType,
+    });
+    await azureObjectStorage.delete({
       containerName,
-    );
-    const stream = await azureObjectStorage.getStream(key, containerName);
-    const remoteContent = await streamToString(stream);
-    expect(remoteContent).toEqual(localContent);
+      key,
+    });
+    await expect(
+      azureObjectStorage.get({
+        key,
+        containerName,
+      }),
+    ).rejects.toThrow(expect.any(ObjectNotFoundException));
   });
 });
 
@@ -81,21 +100,4 @@ function createFakeFile(content: string): string {
   const filepath = path.join(os.tmpdir(), filename);
   fs.writeFileSync(filepath, content);
   return filepath;
-}
-
-async function streamToString(stream: Readable): Promise<string> {
-  const chunks: Buffer[] = [];
-  await new Promise((resolve, reject) => {
-    stream.on('data', chunk => chunks.push(chunk));
-    stream.on('end', () => resolve());
-    stream.on('error', error => reject(error));
-  });
-  return Buffer.concat(chunks).toString();
-}
-
-function stringToStream(content: string): Readable {
-  const stream = new Readable();
-  stream.push(content);
-  stream.push(null);
-  return stream;
 }

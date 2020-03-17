@@ -1,7 +1,7 @@
 import { TestScenario } from 'test/TestScenario';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserDto } from 'user/application/dto/UserDto';
 import { User } from 'user/domain/User';
+import { Avatar } from 'user/domain/value-objects/Avatar';
 
 describe('user (e2e)', () => {
   let scenario: TestScenario;
@@ -24,13 +24,11 @@ describe('user (e2e)', () => {
         .query({ after: user.id.value });
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const userDto = UserDto.builder()
-        .user(user)
-        .authUser(user)
-        .build();
-      expect(response.body).not.toContainEqual(userDto);
+      expect(response.body).not.toContainEqual(
+        expect.objectContaining({ id: user.id.value }),
+      );
       for (const responseUser of response.body) {
-        expect(responseUser.id > user.id).toBeTruthy();
+        expect(responseUser.id > user.id.value).toBeTruthy();
       }
     });
 
@@ -51,6 +49,7 @@ describe('user (e2e)', () => {
           email: null,
           firstName: queryUser.name.first,
           lastName: queryUser.name.last,
+          avatarUrl: null,
           createdAt: expect.any(Number),
           updatedAt: expect.any(Number),
         });
@@ -64,6 +63,55 @@ describe('user (e2e)', () => {
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       expect(response.body.lastLoginAt).toBeFalsy();
+    });
+  });
+
+  describe('/users/me/avatar (PUT)', () => {
+    test('happy path', async () => {
+      const response = await scenario.session
+        .put('/users/me/avatar')
+        .attach('avatar', __dirname + '/avatar.jpeg');
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body.avatarUrl).toEqual(expect.any(String));
+    });
+
+    test('should fail if upload is not a jpeg or png', async () => {
+      const response = await scenario.session
+        .put('/users/me/avatar')
+        .attach('avatar', __dirname + '/text.txt');
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('/users/me/avatar (DELETE)', () => {
+    let avatarKey: string;
+
+    beforeEach(async () => {
+      const putResult = await scenario.objectStorage.put({
+        containerName: 'avatars',
+        file: __dirname + '/avatar.jpeg',
+        contentType: 'image/jpeg',
+      });
+      avatarKey = putResult.key;
+      user.updateAvatar(Avatar.from(avatarKey));
+      await scenario.userRepository.persist(user);
+      jest.spyOn(scenario.objectStorage, 'delete');
+    });
+
+    test('happy path', async () => {
+      const response = await scenario.session.delete('/users/me/avatar');
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body.avatarUrl).toBeNull();
+
+      const updatedUser = await scenario.userRepository.findById(user.id);
+      expect(updatedUser.avatar).toBeNull();
+      expect(scenario.objectStorage.delete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key: avatarKey,
+        }),
+      );
     });
   });
 

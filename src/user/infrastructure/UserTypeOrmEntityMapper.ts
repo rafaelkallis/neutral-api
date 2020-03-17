@@ -8,6 +8,7 @@ import { Name } from 'user/domain/value-objects/Name';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Avatar } from 'user/domain/value-objects/Avatar';
 
 /**
  * User TypeOrm Repository
@@ -25,6 +26,7 @@ export class UserTypeOrmEntityMapperService
       UpdatedAt.from(userEntity.updatedAt),
       Email.from(userEntity.email),
       Name.from(userEntity.firstName, userEntity.lastName),
+      userEntity.avatar ? Avatar.from(userEntity.avatar) : null,
       LastLoginAt.from(userEntity.lastLoginAt),
     );
   }
@@ -40,6 +42,7 @@ export class UserTypeOrmEntityMapperService
       userModel.email.value,
       userModel.name.first,
       userModel.name.last,
+      userModel.avatar ? userModel.avatar.value : null,
       userModel.lastLoginAt.value,
     );
   }

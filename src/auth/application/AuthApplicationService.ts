@@ -23,23 +23,27 @@ import {
   EventPublisher,
   InjectEventPublisher,
 } from 'event/publisher/EventPublisher';
+import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
 
 @Injectable()
 export class AuthService {
   private readonly config: Config;
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
+  private readonly userDtoMapper: UserDtoMapperService;
   private readonly tokenService: TokenManager;
 
   public constructor(
     @InjectConfig() config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
+    userDtoMapper: UserDtoMapperService,
     @Inject(TOKEN_MANAGER) tokenService: TokenManager,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
+    this.userDtoMapper = userDtoMapper;
     this.tokenService = tokenService;
   }
 
@@ -89,10 +93,7 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto = UserDto.builder()
-      .user(user)
-      .authUser(user)
-      .build();
+    const userDto = this.userDtoMapper.toDto(user, user);
     return { accessToken, refreshToken, user: userDto };
   }
 
@@ -146,10 +147,7 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto = UserDto.builder()
-      .user(user)
-      .authUser(user)
-      .build();
+    const userDto = this.userDtoMapper.toDto(user, user);
     return { accessToken, refreshToken, user: userDto };
   }
 

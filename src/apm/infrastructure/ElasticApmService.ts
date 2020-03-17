@@ -1,35 +1,31 @@
-import {
-  Injectable,
-  OnModuleInit,
-  Logger,
-  OnApplicationShutdown,
-} from '@nestjs/common';
-import apm from 'elastic-apm-node/start';
-import { Config, InjectConfig } from 'config/application/Config';
+import apm from 'elastic-apm-node';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Apm, ApmTransaction, ApmActivity } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
+import { InjectConfig, Config } from 'config/application/Config';
 
 /**
  * Elastic Apm Service
  */
 @Injectable()
-export class ElasticApmService extends Apm
-  implements OnModuleInit, OnApplicationShutdown {
+export class ElasticApmService extends Apm implements OnModuleInit {
   private readonly logger: Logger;
+  private readonly config: Config;
 
-  public constructor(@InjectConfig() _config: Config) {
+  public constructor(@InjectConfig() config: Config) {
     super();
     this.logger = new Logger(ElasticApmService.name, true);
+    this.config = config;
   }
 
   public onModuleInit(): void {
-    this.logger.log('Elastic apm connected');
-  }
-
-  public async onApplicationShutdown(): Promise<void> {
-    await this.flushApm();
-    this.logger.log('Elastic apm flushed');
+    if (!apm.isStarted()) {
+      this.logger.warn('Elastic apm not started');
+      if (!this.config.isTest()) {
+        throw new Error('Elastic apm not started');
+      }
+    }
   }
 
   /**
@@ -40,37 +36,25 @@ export class ElasticApmService extends Apm
     _response: Response,
     authUser?: User,
   ): ApmTransaction {
-    return new ElasticApmTransaction(authUser);
-  }
-
-  /**
-   *
-   */
-  private async flushApm(): Promise<void> {
-    await new Promise((resolve, reject) => {
-      apm.flush((err: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const transaction = apm.startTransaction();
+    return new ElasticApmTransaction(transaction, authUser);
   }
 }
 
 class ElasticApmTransaction implements ApmTransaction {
   private readonly transaction: any;
 
-  public constructor(authUser?: User) {
-    this.transaction = apm.currentTransaction;
+  public constructor(transaction: any, authUser?: User) {
+    this.transaction = transaction;
     if (authUser) {
-      apm.setUserContext({ id: authUser.id.value });
+      this.transaction.setUserContext({ id: authUser.id.value });
     }
   }
 
   public createActivity(name: string): ApmActivity {
-    return new ElasticApmActivity(this.transaction, name);
+    // @see https://www.elastic.co/guide/en/apm/agent/nodejs/3.x/transaction-api.html#transaction-start-span
+    const span = this.transaction.startSpan(name);
+    return new ElasticApmActivity(span);
   }
 
   public success(): void {
@@ -86,9 +70,8 @@ class ElasticApmTransaction implements ApmTransaction {
 class ElasticApmActivity implements ApmActivity {
   private readonly span: any;
 
-  public constructor(transaction: any, name: string) {
-    // @see https://www.elastic.co/guide/en/apm/agent/nodejs/3.x/transaction-api.html#transaction-start-span
-    this.span = transaction.startSpan(name);
+  public constructor(span: any) {
+    this.span = span;
   }
 
   end(): void {

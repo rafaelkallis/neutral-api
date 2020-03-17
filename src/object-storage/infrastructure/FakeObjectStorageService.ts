@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ObjectStorage } from 'object-storage/application/ObjectStorage';
-import { Readable } from 'stream';
+import {
+  ObjectStorage,
+  PutReturn,
+  GetReturn,
+  PutContext,
+  GetContext,
+  DeleteContext,
+} from 'object-storage/application/ObjectStorage';
 import fs from 'fs';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
@@ -9,59 +15,34 @@ import { ObjectNotFoundException } from 'object-storage/application/exceptions/O
  */
 @Injectable()
 export class FakeObjectStorage extends ObjectStorage {
-  private readonly storage: Map<string, Map<string, Buffer>>;
+  private readonly storage: Map<
+    string,
+    Map<string, { data: Buffer; contentType: string }>
+  >;
 
   public constructor() {
     super();
     this.storage = new Map();
   }
 
-  public async putFile(
-    key: string,
-    filepath: string,
-    containerName?: string,
-  ): Promise<void> {
-    const readable = fs.createReadStream(filepath);
-    this.putStream(key, readable, containerName);
+  public async put({
+    containerName,
+    file,
+    contentType,
+    key,
+  }: PutContext): Promise<PutReturn> {
+    key = key || this.createKey();
+    const data = fs.readFileSync(file);
+    let container = this.storage.get(containerName);
+    if (!container) {
+      container = new Map();
+      this.storage.set(containerName, container);
+    }
+    container.set(key, { data, contentType });
+    return { key };
   }
 
-  public async putStream(
-    key: string,
-    stream: Readable,
-    containerName?: string,
-  ): Promise<void> {
-    const chunks: Buffer[] = [];
-    await new Promise((resolve, reject) => {
-      stream.on('data', chunk => chunks.push(chunk));
-      stream.on('end', () => resolve());
-      stream.on('error', error => reject(error));
-    });
-    const buf = Buffer.concat(chunks);
-    this.setBuffer(key, buf, containerName);
-  }
-
-  public async getFile(key: string, containerName?: string): Promise<string> {
-    const buf = this.getBuffer(key, containerName);
-    const tempFilepath = super.createTempFile();
-    fs.writeFileSync(tempFilepath, buf);
-    return tempFilepath;
-  }
-
-  public async getStream(
-    key: string,
-    containerName?: string,
-  ): Promise<Readable> {
-    const buf = this.getBuffer(key, containerName);
-    const stream = new Readable();
-    stream.push(buf);
-    stream.push(null);
-    return stream;
-  }
-
-  private getBuffer(
-    key: string,
-    containerName = this.defaultContainerName(),
-  ): Buffer {
+  public async get({ containerName, key }: GetContext): Promise<GetReturn> {
     const container = this.storage.get(containerName);
     if (!container) {
       throw new ObjectNotFoundException();
@@ -70,19 +51,20 @@ export class FakeObjectStorage extends ObjectStorage {
     if (!blob) {
       throw new ObjectNotFoundException();
     }
-    return blob;
+    const { data, contentType } = blob;
+    const file = super.createTempFile();
+    fs.writeFileSync(file, data);
+    return { file, contentType };
   }
 
-  private setBuffer(
-    key: string,
-    value: Buffer,
-    containerName = this.defaultContainerName(),
-  ): void {
-    let container = this.storage.get(containerName);
+  public async delete({ containerName, key }: DeleteContext): Promise<void> {
+    const container = this.storage.get(containerName);
     if (!container) {
-      container = new Map();
-      this.storage.set(containerName, container);
+      throw new ObjectNotFoundException();
     }
-    container.set(key, value);
+    if (!container.has(key)) {
+      throw new ObjectNotFoundException();
+    }
+    container.delete(key);
   }
 }

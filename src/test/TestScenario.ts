@@ -17,6 +17,10 @@ import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
+import {
+  ObjectStorage,
+  OBJECT_STORAGE,
+} from 'object-storage/application/ObjectStorage';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -32,6 +36,7 @@ export class TestScenario {
 
   public readonly tokenManager: TokenManager;
   public readonly emailManager: EmailManager;
+  public readonly objectStorage: ObjectStorage;
 
   public readonly session: Session;
 
@@ -45,6 +50,7 @@ export class TestScenario {
     notificationRepository: NotificationRepository,
     tokenManager: TokenManager,
     emailManager: EmailManager,
+    objectStorage: ObjectStorage,
     session: Session,
   ) {
     this.primitiveFaker = primitiveFaker;
@@ -56,6 +62,7 @@ export class TestScenario {
     this.notificationRepository = notificationRepository;
     this.tokenManager = tokenManager;
     this.emailManager = emailManager;
+    this.objectStorage = objectStorage;
     this.session = session;
   }
 
@@ -78,6 +85,7 @@ export class TestScenario {
       module.get(NOTIFICATION_REPOSITORY),
       module.get(TOKEN_MANAGER),
       module.get(EMAIL_MANAGER),
+      module.get(OBJECT_STORAGE),
       session,
     );
   }

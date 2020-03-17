@@ -30,6 +30,7 @@ import { RemovePeerReviewVisibilityMigration1576415094000 } from 'database/migra
 import { AddNotificationsMigration1578833839000 } from 'database/migration/1578833839000-add-notifications.migration';
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'database/migration/1579969356000-rename-project-owner-to-creator-migration';
 import { AddProjectIdToPeerReviewMigration1581946721000 } from 'database/migration/1581946721000AddProjectIdToPeerReviewMigration';
+import { AddAvatarToUsersMigration1584023287000 } from 'database/migration/1584023287000AddAvatarToUsers';
 
 export const DATABASE_CONNECTION = Symbol('DATABASE_CONNECTION');
 
@@ -76,6 +77,7 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
         AddNotificationsMigration1578833839000,
         RenameProjectOwnerToCreatorMigration1579969356000,
         AddProjectIdToPeerReviewMigration1581946721000,
+        AddAvatarToUsersMigration1584023287000,
       ],
     });
     await connection.connect();
