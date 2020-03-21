@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { OBJECT_STORAGE } from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 import { AzureObjectStorageService } from 'object-storage/infrastructure/AzureObjectStorageService';
 import { ConfigModule } from 'config/ConfigModule';
 
@@ -10,10 +10,10 @@ import { ConfigModule } from 'config/ConfigModule';
   imports: [ConfigModule],
   providers: [
     {
-      provide: OBJECT_STORAGE,
+      provide: ObjectStorage,
       useClass: AzureObjectStorageService,
     },
   ],
-  exports: [OBJECT_STORAGE],
+  exports: [ObjectStorage],
 })
 export class ObjectStorageModule {}

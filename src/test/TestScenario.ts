@@ -17,10 +17,7 @@ import { EmailManager } from 'email/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
-import {
-  ObjectStorage,
-  OBJECT_STORAGE,
-} from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -85,7 +82,7 @@ export class TestScenario {
       module.get(NOTIFICATION_REPOSITORY),
       module.get(TOKEN_MANAGER),
       module.get(EmailManager),
-      module.get(OBJECT_STORAGE),
+      module.get(ObjectStorage),
       session,
     );
   }

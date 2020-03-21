@@ -1,16 +1,6 @@
-import { Inject } from '@nestjs/common';
 import os from 'os';
 import path from 'path';
 import ObjectID from 'bson-objectid';
-
-export const OBJECT_STORAGE = Symbol('OBJECT_STORAGE');
-
-/**
- *
- */
-export function InjectObjectStorage(): ParameterDecorator {
-  return Inject(OBJECT_STORAGE);
-}
 
 export interface PutContext {
   containerName: string;

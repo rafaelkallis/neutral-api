@@ -18,10 +18,7 @@ import {
   EventPublisher,
   InjectEventPublisher,
 } from 'event/publisher/EventPublisher';
-import {
-  InjectObjectStorage,
-  ObjectStorage,
-} from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
@@ -41,7 +38,7 @@ export class UserApplicationService {
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectTokenManager() tokenManager: TokenManager,
     config: Config,
-    @InjectObjectStorage() objectStorage: ObjectStorage,
+    objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
     this.userDtoMapper = userDtoMapper;
