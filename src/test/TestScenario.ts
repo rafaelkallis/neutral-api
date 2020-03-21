@@ -13,7 +13,7 @@ import {
 } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
 import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
-import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
+import { EmailManager } from 'email/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
@@ -84,7 +84,7 @@ export class TestScenario {
       module.get(PROJECT_REPOSITORY),
       module.get(NOTIFICATION_REPOSITORY),
       module.get(TOKEN_MANAGER),
-      module.get(EMAIL_MANAGER),
+      module.get(EmailManager),
       module.get(OBJECT_STORAGE),
       session,
     );

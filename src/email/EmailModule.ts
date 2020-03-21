@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from 'config/ConfigModule';
 import { EmailSagasService } from 'email/email-sagas.service';
-import { EMAIL_MANAGER } from 'email/EmailManager';
+import { EmailManager } from 'email/EmailManager';
 import { EMAIL_SENDER, SmtpEmailSenderService } from 'email/email-sender';
 import {
   EMAIL_HTML_RENDERER,
@@ -20,7 +20,7 @@ import { SelfManagedEmailService } from 'email/self-managed-email.service';
   imports: [ConfigModule],
   providers: [
     {
-      provide: EMAIL_MANAGER,
+      provide: EmailManager,
       useClass: SelfManagedEmailService,
     },
     {
@@ -37,6 +37,6 @@ import { SelfManagedEmailService } from 'email/self-managed-email.service';
     },
     EmailSagasService,
   ],
-  exports: [EMAIL_MANAGER],
+  exports: [EmailManager],
 })
 export class EmailModule {}

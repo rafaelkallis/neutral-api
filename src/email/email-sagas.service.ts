@@ -1,9 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HandleDomainEvent } from 'event/domain/HandleDomainEvent';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
-import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
+import { EmailManager } from 'email/EmailManager';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
 
 /**
@@ -13,7 +13,7 @@ import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent
 export class EmailSagasService {
   private readonly emailService: EmailManager;
 
-  public constructor(@Inject(EMAIL_MANAGER) emailService: EmailManager) {
+  public constructor(emailService: EmailManager) {
     this.emailService = emailService;
   }
 
