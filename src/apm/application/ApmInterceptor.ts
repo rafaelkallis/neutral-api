@@ -9,14 +9,14 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { ApmTransaction, InjectApm, Apm } from 'apm/application/Apm';
+import { ApmTransaction, Apm } from 'apm/application/Apm';
 import { User } from 'user/domain/User';
 
 @Injectable()
 export class ApmInterceptor implements NestInterceptor {
   private readonly apm: Apm;
 
-  public constructor(@InjectApm() apm: Apm) {
+  public constructor(apm: Apm) {
     this.apm = apm;
   }
   /**

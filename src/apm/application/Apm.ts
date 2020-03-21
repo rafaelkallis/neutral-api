@@ -1,12 +1,5 @@
-import { Inject } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { User } from 'user/domain/User';
-
-export const APM = Symbol('APM');
-
-export function InjectApm(): ParameterDecorator {
-  return Inject(APM);
-}
 
 export interface ApmActivity {
   /**
