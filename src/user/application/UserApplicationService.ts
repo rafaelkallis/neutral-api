@@ -12,7 +12,7 @@ import {
 } from 'token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { InjectConfig, Config } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
 import {
   EventPublisher,
@@ -40,7 +40,7 @@ export class UserApplicationService {
     userDtoMapper: UserDtoMapperService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectTokenManager() tokenManager: TokenManager,
-    @InjectConfig() config: Config,
+    config: Config,
     @InjectObjectStorage() objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;

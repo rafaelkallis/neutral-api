@@ -7,7 +7,7 @@ import {
   GetContext,
   DeleteContext,
 } from 'object-storage/application/ObjectStorage';
-import { Config, InjectConfig } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
@@ -18,7 +18,7 @@ import { ObjectNotFoundException } from 'object-storage/application/exceptions/O
 export class AzureObjectStorageService extends ObjectStorage {
   private readonly client: BlobServiceClient;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(config: Config) {
     super();
     const connectionString = config.get('AZURE_BLOB_STORAGE_CONNECTION_STRING');
     this.client = BlobServiceClient.fromConnectionString(connectionString);

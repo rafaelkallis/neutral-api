@@ -5,7 +5,7 @@ import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { Config, InjectConfig } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { SessionState } from 'session/session-state';
 import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
@@ -34,7 +34,7 @@ export class AuthService {
   private readonly tokenService: TokenManager;
 
   public constructor(
-    @InjectConfig() config: Config,
+    config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     userDtoMapper: UserDtoMapperService,

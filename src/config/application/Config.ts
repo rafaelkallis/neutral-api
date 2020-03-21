@@ -1,14 +1,3 @@
-import { Inject } from '@nestjs/common';
-
-export const CONFIG = Symbol('CONFIG');
-
-/**
- *
- */
-export function InjectConfig(): ParameterDecorator {
-  return Inject(CONFIG);
-}
-
 /**
  *
  */

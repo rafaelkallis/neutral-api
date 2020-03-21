@@ -4,7 +4,7 @@ import {
   OnModuleInit,
   Logger,
 } from '@nestjs/common';
-import { Config, InjectConfig } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import {
   EmailSenderService,
   SendEmailOptions,
@@ -20,7 +20,7 @@ export class SmtpEmailSenderService
   private readonly logger: Logger;
   private readonly transporter: Transporter;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(config: Config) {
     this.logger = new Logger(SmtpEmailSenderService.name, true);
     const smtpUrl = config.get('SMTP_URL');
     this.transporter = createTransport(smtpUrl);
