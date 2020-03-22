@@ -1,12 +1,5 @@
 import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { Inject } from '@nestjs/common';
-
-export const TOKEN_MANAGER = Symbol('TOKEN_MANAGER');
-
-export function InjectTokenManager(): ParameterDecorator {
-  return Inject(TOKEN_MANAGER);
-}
 
 /**
  * Token types used throughout the app.
@@ -77,64 +70,68 @@ export interface EmailChangeToken extends BaseToken {
 /**
  * Token Manager
  */
-export interface TokenManager {
+export abstract class TokenManager {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string;
+  public abstract newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string;
 
   /**
    * Validate and decrypt a login token.
    */
-  validateLoginToken(token: string): LoginToken;
+  public abstract validateLoginToken(token: string): LoginToken;
 
   /**
    * Create a new signup token to be used in a signup magic link.
    */
-  newSignupToken(sub: string): string;
+  public abstract newSignupToken(sub: string): string;
 
   /**
    * Validate and decrypt a signup token.
    */
-  validateSignupToken(token: string): SignupToken;
+  public abstract validateSignupToken(token: string): SignupToken;
 
   /**
    * Create a new access token for identifying user sessions.
    */
-  newAccessToken(sub: string): string;
+  public abstract newAccessToken(sub: string): string;
 
   /**
    * Validate and verify the signature of an access token.
    */
-  validateAccessToken(token: string): AccessToken;
+  public abstract validateAccessToken(token: string): AccessToken;
 
   /**
    * Create a new refresh token for refreshing user sessions.
    */
-  newRefreshToken(sub: string): string;
+  public abstract newRefreshToken(sub: string): string;
   /**
    * Validate and the verify the signature of a refresh token.
    */
-  validateRefreshToken(token: string): RefreshToken;
+  public abstract validateRefreshToken(token: string): RefreshToken;
 
   /**
    * Create a new session token for identifying user sessions.
    */
-  newSessionToken(sub: string, maxAge?: number): string;
+  public abstract newSessionToken(sub: string, maxAge?: number): string;
 
   /**
    * Validate and verify the signature of a session token.
    */
-  validateSessionToken(token: string): SessionToken;
+  public abstract validateSessionToken(token: string): SessionToken;
 
   /**
    * Create a new email-change token to be used for verifying
    * a new email address.
    */
-  newEmailChangeToken(sub: string, curEmail: string, newEmail: string): string;
+  public abstract newEmailChangeToken(
+    sub: string,
+    curEmail: string,
+    newEmail: string,
+  ): string;
 
   /**
    * Validate and decrypt an email-change token.
    */
-  validateEmailChangeToken(token: string): EmailChangeToken;
+  public abstract validateEmailChangeToken(token: string): EmailChangeToken;
 }

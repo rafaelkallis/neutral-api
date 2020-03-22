@@ -17,7 +17,7 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
  * Fake Token Manager Service
  */
 @Injectable()
-export class FakeTokenManagerService implements TokenManager {
+export class FakeTokenManagerService extends TokenManager {
   /**
    * Create a new login token to be used in a login magic link.
    */

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JoseJwtTokenManagerService } from 'token/infrastructure/JoseJwtTokenManagerService';
-import { TOKEN_MANAGER } from 'token/application/TokenManager';
+import { TokenManager } from 'token/application/TokenManager';
 import { ConfigModule } from 'config/ConfigModule';
 
 /**
@@ -10,10 +10,10 @@ import { ConfigModule } from 'config/ConfigModule';
   imports: [ConfigModule],
   providers: [
     {
-      provide: TOKEN_MANAGER,
+      provide: TokenManager,
       useClass: JoseJwtTokenManagerService,
     },
   ],
-  exports: [TOKEN_MANAGER],
+  exports: [TokenManager],
 })
 export class TokenModule {}

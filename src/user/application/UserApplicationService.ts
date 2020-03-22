@@ -6,10 +6,7 @@ import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
 import { Id } from 'common/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
-import {
-  TokenManager,
-  InjectTokenManager,
-} from 'token/application/TokenManager';
+import { TokenManager } from 'token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
 import { Config } from 'config/application/Config';
@@ -36,7 +33,7 @@ export class UserApplicationService {
     @Inject(USER_REPOSITORY) userRepository: UserRepository,
     userDtoMapper: UserDtoMapperService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    @InjectTokenManager() tokenManager: TokenManager,
+    tokenManager: TokenManager,
     config: Config,
     objectStorage: ObjectStorage,
   ) {

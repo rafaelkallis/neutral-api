@@ -1,5 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
+import { Injectable } from '@nestjs/common';
+import {
+  UserRepository,
+  InjectUserRepository,
+} from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
@@ -7,7 +10,7 @@ import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { Config } from 'config/application/Config';
 import { SessionState } from 'session/session-state';
-import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
+import { TokenManager } from 'token/application/TokenManager';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
@@ -36,9 +39,9 @@ export class AuthService {
   public constructor(
     config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    @Inject(USER_REPOSITORY) userRepository: UserRepository,
+    @InjectUserRepository() userRepository: UserRepository,
     userDtoMapper: UserDtoMapperService,
-    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
+    tokenService: TokenManager,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;

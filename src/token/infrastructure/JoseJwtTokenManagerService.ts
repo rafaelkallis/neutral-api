@@ -28,11 +28,12 @@ import { Config } from 'config/application/Config';
  * Jwt Token Service
  */
 @Injectable()
-export class JoseJwtTokenManagerService implements TokenManager {
+export class JoseJwtTokenManagerService extends TokenManager {
   private readonly config: Config;
   private readonly jwk: JWK.Key;
 
   public constructor(config: Config) {
+    super();
     this.config = config;
     this.jwk = JWK.asKey(this.config.get('SECRET_HEX'));
   }
