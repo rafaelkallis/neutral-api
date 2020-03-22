@@ -1,5 +1,8 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  UserRepository,
+  InjectUserRepository,
+} from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
@@ -30,7 +33,7 @@ export class UserApplicationService {
   private readonly objectStorage: ObjectStorage;
 
   public constructor(
-    @Inject(USER_REPOSITORY) userRepository: UserRepository,
+    @InjectUserRepository() userRepository: UserRepository,
     userDtoMapper: UserDtoMapperService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     tokenManager: TokenManager,
