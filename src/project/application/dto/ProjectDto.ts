@@ -129,8 +129,9 @@ class BuildStep {
     return project.isCreator(authUser);
   }
 
-  private createRoleDtos(): RoleDto[] | null {
-    return this.project.roles.toArray().map(role =>
+  private createRoleDtos(): RoleDto[] {
+    const roles = Array.from(this.project.roles);
+    return roles.map(role =>
       RoleDto.builder()
         .role(role)
         .project(this.project)
@@ -139,9 +140,9 @@ class BuildStep {
     );
   }
 
-  private createPeerReviewDtos(): PeerReviewDto[] | null {
-    return this.project.peerReviews
-      .toArray()
+  private createPeerReviewDtos(): PeerReviewDto[] {
+    const peerReviews = Array.from(this.project.peerReviews);
+    return peerReviews
       .filter(peerReview => this.shouldExposePeerReview(peerReview))
       .map(peerReview =>
         PeerReviewDto.builder()

@@ -40,7 +40,7 @@ describe('submit peer review (e2e)', () => {
     role3.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
     role4.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
-    project.roles.add(role1, role2, role3, role4);
+    project.roles.addAll([role1, role2, role3, role4]);
     await scenario.projectRepository.persist(project);
 
     peerReviews = {
@@ -98,13 +98,13 @@ describe('submit peer review (e2e)', () => {
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );
-    const sentPeerReviews = updatedProject.peerReviews.findBySenderRole(
-      role1.id,
+    const submittedPeerReviews = Array.from(
+      updatedProject.peerReviews.findBySenderRole(role1.id),
     );
-    expect(sentPeerReviews).toHaveLength(3);
-    for (const sentPeerReview of sentPeerReviews) {
-      expect(sentPeerReview.score.value).toBe(
-        peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
+    expect(submittedPeerReviews).toHaveLength(3);
+    for (const submittedPeerReview of submittedPeerReviews) {
+      expect(submittedPeerReview.score.value).toBe(
+        peerReviews[role1.id.value][submittedPeerReview.receiverRoleId.value],
       );
     }
     expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);

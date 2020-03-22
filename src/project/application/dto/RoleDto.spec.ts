@@ -24,10 +24,10 @@ describe('role dto', () => {
     };
     project = modelFaker.project(users.owner.id);
     project.state = ProjectState.FINISHED;
-    project.roles.add(
+    project.roles.addAll([
       modelFaker.role(project.id, users.assignee.id),
       modelFaker.role(project.id, users.projectUser.id),
-    );
+    ]);
     role = project.roles.findByAssignee(users.assignee);
     role.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
   });

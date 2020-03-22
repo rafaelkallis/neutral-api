@@ -1,10 +1,8 @@
 import { User } from 'user/domain/User';
 import { AggregateRoot } from 'common/domain/AggregateRoot';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
-import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
-import { MultipleAssignmentsWithinProjectException } from 'project/domain/exceptions/MultipleAssignmentsWithinProjectException';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
@@ -31,7 +29,6 @@ import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/Project
 import { RoleUpdatedEvent } from 'project/domain/events/RoleUpdatedEvent';
 import { RoleDeletedEvent } from 'project/domain/events/RoleDeletedEvent';
 import { Role } from 'project/domain/Role';
-import { PeerReview } from 'project/domain/PeerReview';
 import { RoleCollection } from 'project/domain/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -133,7 +130,7 @@ export class Project extends AggregateRoot {
    *
    */
   public update(title?: ProjectTitle, description?: ProjectDescription): void {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     if (title) {
       this.title = title;
     }
@@ -147,7 +144,7 @@ export class Project extends AggregateRoot {
    *
    */
   public delete(): void {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     this.apply(new ProjectDeletedEvent(this));
   }
 
@@ -155,7 +152,7 @@ export class Project extends AggregateRoot {
    *
    */
   public addRole(title: RoleTitle, description: RoleDescription): Role {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     const role = Role.from(this.id, title, description);
     this.roles.add(role);
     this.apply(new RoleCreatedEvent(this, role));
@@ -170,7 +167,7 @@ export class Project extends AggregateRoot {
     title?: RoleTitle,
     description?: RoleDescription,
   ): void {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     const roleToUpdate = this.roles.find(roleId);
     if (title) {
       roleToUpdate.title = title;
@@ -187,7 +184,7 @@ export class Project extends AggregateRoot {
    * Remove a role
    */
   public removeRole(roleId: Id): void {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     const roleToRemove = this.roles.find(roleId);
     this.roles.remove(roleToRemove);
     this.apply(new RoleDeletedEvent(roleToRemove));
@@ -197,14 +194,13 @@ export class Project extends AggregateRoot {
    * Assigns a user to a role
    */
   public assignUserToRole(assignee: User, role: Role): void {
-    this.state.assertFormation();
-    if (this.roles.anyAssignedToUser(assignee)) {
-      throw new MultipleAssignmentsWithinProjectException();
-    }
-    if (role.assigneeId) {
-      this.apply(new UserUnassignedEvent(this, role, role.assigneeId));
-    }
+    this.state.assertEquals(ProjectState.FORMATION);
+    const previousAssigneeId = role.assigneeId;
     role.assigneeId = assignee.id;
+    this.roles.assertSingleAssignmentPerUser();
+    if (previousAssigneeId) {
+      this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
+    }
     this.apply(new UserAssignedEvent(this, role, assignee));
   }
 
@@ -212,7 +208,7 @@ export class Project extends AggregateRoot {
    * Finish project formation
    */
   public finishFormation(): void {
-    this.state.assertFormation();
+    this.state.assertEquals(ProjectState.FORMATION);
     this.roles.assertAllAreAssigned();
     this.state = ProjectState.PEER_REVIEW;
     this.apply(new ProjectFormationFinishedEvent(this));
@@ -228,33 +224,53 @@ export class Project extends AggregateRoot {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    this.state.assertPeerReview();
-    if (senderRole.hasSubmittedPeerReviews.value) {
-      throw new PeerReviewsAlreadySubmittedException();
-    }
-    for (const otherRole of this.roles.excluding(senderRole)) {
-      let isOtherRoleIncluded = false;
-      for (const [receiverRoleId] of submittedPeerReviews) {
-        if (receiverRoleId.equals(otherRole.id)) {
-          isOtherRoleIncluded = true;
-          break;
-        }
-      }
-      if (!isOtherRoleIncluded) {
-        throw new PeerReviewRoleMismatchException();
-      }
-    }
+    this.state.assertEquals(ProjectState.PEER_REVIEW);
+    senderRole.assertHasNotSubmittedPeerReviews();
+    this.assertSubmittedPeerReviewsMatchRoles(senderRole, submittedPeerReviews);
+    const addedPeerReviews = this.peerReviews.addForSender(
+      senderRole.id,
+      submittedPeerReviews,
+    );
     senderRole.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-    const peerReviews: PeerReview[] = [];
-    for (const [receiverRoleId, score] of submittedPeerReviews) {
-      const peerReview = PeerReview.from(senderRole.id, receiverRoleId, score);
-      peerReviews.push(peerReview);
-      this.peerReviews.add(peerReview);
-    }
-    this.apply(new PeerReviewsSubmittedEvent(this, senderRole, peerReviews));
+    this.apply(
+      new PeerReviewsSubmittedEvent(this, senderRole, addedPeerReviews),
+    );
     if (this.roles.allHaveSubmittedPeerReviews()) {
       this.apply(new FinalPeerReviewSubmittedEvent(this));
       this.finishPeerReview(contributionsComputer, consensualityComputer);
+    }
+  }
+
+  /**
+   * Asserts that the submitted peer reviews match the project's roles.
+   * @param senderRole Role of peer review sender.
+   * @param submittedPeerReviews Submitted peer reviews
+   */
+  private assertSubmittedPeerReviewsMatchRoles(
+    senderRole: Role,
+    submittedPeerReviews: [Id, PeerReviewScore][],
+  ) {
+    const expectedIds: Id[] = Array.from(this.roles.excluding(senderRole)).map(
+      role => role.id,
+    );
+    const actualIds: Id[] = submittedPeerReviews.map(
+      ([receiverRoleId]) => receiverRoleId,
+    );
+    for (const expectedId of expectedIds) {
+      const matchCount = actualIds.filter(actualId =>
+        actualId.equals(expectedId),
+      ).length;
+      if (matchCount !== 1) {
+        throw new PeerReviewRoleMismatchException();
+      }
+    }
+    for (const actualId of actualIds) {
+      const matchCount = expectedIds.filter(expectedId =>
+        expectedId.equals(actualId),
+      ).length;
+      if (matchCount !== 1) {
+        throw new PeerReviewRoleMismatchException();
+      }
     }
   }
 
@@ -265,7 +281,7 @@ export class Project extends AggregateRoot {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    this.state.assertPeerReview();
+    this.state.assertEquals(ProjectState.PEER_REVIEW);
     const contributions = contributionsComputer.compute(this.peerReviews);
     this.roles.applyContributions(contributions);
     this.consensuality = consensualityComputer.compute(this.peerReviews);
@@ -286,7 +302,7 @@ export class Project extends AggregateRoot {
    * Submit the manager review.
    */
   public submitManagerReview(): void {
-    this.state.assertManagerReview();
+    this.state.assertEquals(ProjectState.MANAGER_REVIEW);
     this.state = ProjectState.FINISHED;
     this.apply(new ProjectManagerReviewFinishedEvent(this));
     this.apply(new ProjectFinishedEvent(this));

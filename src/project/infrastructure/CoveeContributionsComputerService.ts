@@ -14,8 +14,7 @@ import { Id } from 'common/domain/value-objects/Id';
  * Covee Contributions Computer
  */
 @Injectable()
-export class CoveeContributionsComputerService
-  implements ContributionsComputer {
+export class CoveeContributionsComputerService extends ContributionsComputer {
   /**
    * Computes the relative contributions.
    */

@@ -3,6 +3,7 @@ import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { TestScenario } from 'test/TestScenario';
 import { User } from 'user/domain/User';
+import { Role } from 'project/domain/Role';
 
 describe('project (e2e)', () => {
   let scenario: TestScenario;
@@ -129,17 +130,27 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id/finish-formation (POST)', () => {
+    let assignees: User[];
     let project: Project;
+    let roles: Role[];
 
     beforeEach(async () => {
+      assignees = [
+        scenario.modelFaker.user(),
+        scenario.modelFaker.user(),
+        scenario.modelFaker.user(),
+        scenario.modelFaker.user(),
+      ];
+      await scenario.userRepository.persist(...assignees);
       project = scenario.modelFaker.project(user.id);
       project.state = ProjectState.FORMATION;
-      project.roles.add(
-        scenario.modelFaker.role(project.id, user.id),
-        scenario.modelFaker.role(project.id, user.id),
-        scenario.modelFaker.role(project.id, user.id),
-        scenario.modelFaker.role(project.id, user.id),
-      );
+      roles = [
+        scenario.modelFaker.role(project.id, assignees[0].id),
+        scenario.modelFaker.role(project.id, assignees[1].id),
+        scenario.modelFaker.role(project.id, assignees[2].id),
+        scenario.modelFaker.role(project.id, assignees[3].id),
+      ];
+      project.roles.addAll(roles);
       await scenario.projectRepository.persist(project);
     });
 
@@ -176,7 +187,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if a role has no user assigned', async () => {
-      project.roles.toArray()[1].assigneeId = null;
+      roles[1].assigneeId = null;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,

@@ -26,10 +26,21 @@ export class PeerReviewCollection extends ModelCollection<PeerReview> {
     return new PeerReviewCollection(peerReviews);
   }
 
-  public findBySenderRole(senderRoleId: Id): ReadonlyArray<PeerReview> {
-    return this.toArray().filter(peerReview =>
-      peerReview.isSenderRole(senderRoleId),
-    );
+  public findBySenderRole(senderRoleId: Id): Iterable<PeerReview> {
+    return this.filter(peerReview => peerReview.isSenderRole(senderRoleId));
+  }
+
+  public addForSender(
+    senderRoleId: Id,
+    submittedPeerReviews: [Id, PeerReviewScore][],
+  ): PeerReview[] {
+    const addedPeerReviews: PeerReview[] = [];
+    for (const [receiverRoleId, score] of submittedPeerReviews) {
+      const peerReview = PeerReview.from(senderRoleId, receiverRoleId, score);
+      addedPeerReviews.push(peerReview);
+      this.add(peerReview);
+    }
+    return addedPeerReviews;
   }
 
   public toMap(): Record<string, Record<string, number>> {

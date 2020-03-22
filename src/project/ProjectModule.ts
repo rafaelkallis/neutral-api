@@ -1,21 +1,18 @@
 import { Module } from '@nestjs/common';
-
 import { UserModule } from 'user/UserModule';
-
 import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { PROJECT_REPOSITORY } from 'project/domain/ProjectRepository';
-
 import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
 import { EventModule } from 'event/EventModule';
 import { DatabaseModule } from 'database/DatabaseModule';
 import { TokenModule } from 'token/TokenModule';
 import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 import { RoleController } from 'project/presentation/RoleController';
-import { CONSENSUALITY_COMPUTER } from 'project/domain/ConsensualityComputer';
-import { CONTRIBUTIONS_COMPUTER } from 'project/domain/ContributionsComputer';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
+import { ContributionsComputer } from './domain/ContributionsComputer';
+import { ConsensualityComputer } from './domain/ConsensualityComputer';
 
 /**
  * Project Module
@@ -29,11 +26,11 @@ import { MeanDeviationConsensualityComputerService } from 'project/infrastructur
       useClass: ProjectTypeOrmRepository,
     },
     {
-      provide: CONSENSUALITY_COMPUTER,
+      provide: ConsensualityComputer,
       useClass: MeanDeviationConsensualityComputerService,
     },
     {
-      provide: CONTRIBUTIONS_COMPUTER,
+      provide: ContributionsComputer,
       useClass: CoveeContributionsComputerService,
     },
     ProjectApplicationService,
