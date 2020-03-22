@@ -130,8 +130,8 @@ describe('submit peer review (e2e)', () => {
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );
-    const sentPeerReviews = updatedProject.peerReviews.findBySenderRole(
-      role1.id,
+    const sentPeerReviews = Array.from(
+      updatedProject.peerReviews.findBySenderRole(role1.id),
     );
     expect(sentPeerReviews).toHaveLength(3);
     for (const sentPeerReview of sentPeerReviews) {

@@ -50,9 +50,7 @@ export class ProjectTypeOrmRepository
   public async findByCreatorId(creatorId: Id): Promise<Project[]> {
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
-      .find({
-        creatorId: creatorId.value,
-      });
+      .find({ creatorId: creatorId.value });
     const projectModels = projectEntities.map(p =>
       this.entityMapper.toModel(p),
     );
@@ -65,7 +63,17 @@ export class ProjectTypeOrmRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.roles', 'role')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .where('role.id = :roleId', { roleId: roleId.value })
+      .where(builder => {
+        const subQuery = builder
+          .subQuery()
+          .select('project.id')
+          .from(ProjectTypeOrmEntity, 'project')
+          .leftJoin('project.roles', 'role')
+          .where('role.id = :roleId')
+          .getQuery();
+        return `project.id IN ${subQuery}`;
+      })
+      .setParameter('roleId', roleId.value)
       .getOne();
     if (!projectEntity) {
       this.throwEntityNotFoundException();
@@ -78,13 +86,19 @@ export class ProjectTypeOrmRepository
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
-      .leftJoinAndSelect(
-        RoleTypeOrmEntity,
-        'role',
-        'role.project_id = project.id',
-      )
+      .leftJoinAndSelect('role', 'role.project_id = project.id')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .where('role.assigneeId = :assigneeId', { assigneeId: assigneeId.value })
+      .where(builder => {
+        const subQuery = builder
+          .subQuery()
+          .select('project.id')
+          .from(ProjectTypeOrmEntity, 'project')
+          .leftJoin('project.roles', 'role')
+          .where('role.assigneeId = :assigneeId')
+          .getQuery();
+        return `project.id IN ${subQuery}`;
+      })
+      .setParameter('assigneeId', assigneeId.value)
       .getMany();
     const projectModels = projectEntities.map(p =>
       this.entityMapper.toModel(p),
