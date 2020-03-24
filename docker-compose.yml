@@ -13,26 +13,26 @@ services:
     ports:
       - "127.0.0.1:25:25"
     restart: "on-failure"
-  elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:7.5.0"
-    ports: 
-      - "127.0.0.1:9200:9200"
-      - "127.0.0.1:9300:9300"
-    environment:
-      - discovery.type=single-node
-    restart: "on-failure"
-  kibana:
-    image: "docker.elastic.co/kibana/kibana:7.5.0"
-    ports: 
-      - "127.0.0.1:5601:5601"
-    links:
-      - elasticsearch
-    restart: "on-failure"
-  apm:
-    image: "docker.elastic.co/apm/apm-server:7.5.0"
-    ports: 
-      - "127.0.0.1:8200:8200"
-    restart: "on-failure"
+  # elasticsearch:
+  #   image: "docker.elastic.co/elasticsearch/elasticsearch:7.5.0"
+  #   ports: 
+  #     - "127.0.0.1:9200:9200"
+  #     - "127.0.0.1:9300:9300"
+  #   environment:
+  #     - discovery.type=single-node
+  #   restart: "on-failure"
+  # kibana:
+  #   image: "docker.elastic.co/kibana/kibana:7.5.0"
+  #   ports: 
+  #     - "127.0.0.1:5601:5601"
+  #   links:
+  #     - elasticsearch
+  #   restart: "on-failure"
+  # apm:
+  #   image: "docker.elastic.co/apm/apm-server:7.5.0"
+  #   ports: 
+  #     - "127.0.0.1:8200:8200"
+  #   restart: "on-failure"
   azure-blob-storage:
     image: "mcr.microsoft.com/azure-storage/azurite"
     ports:

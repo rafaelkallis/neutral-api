@@ -7,17 +7,17 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { ApmTransaction, Apm } from 'apm/application/Apm';
+import { TelemetryClient } from 'telemetry/application/TelemetryClient';
 import { User } from 'user/domain/User';
 
 @Injectable()
-export class ApmInterceptor implements NestInterceptor {
-  private readonly apm: Apm;
+export class TelemetryInterceptor implements NestInterceptor {
+  private readonly telemetryClient: TelemetryClient;
 
-  public constructor(apm: Apm) {
-    this.apm = apm;
+  public constructor(telemetryClient: TelemetryClient) {
+    this.telemetryClient = telemetryClient;
   }
   /**
    * Interceptor handle
@@ -31,24 +31,16 @@ export class ApmInterceptor implements NestInterceptor {
       throw new InternalServerErrorException();
     }
     const httpContext = context.switchToHttp();
-    const request = httpContext.getRequest<
-      Request & { apmTransaction?: ApmTransaction; user: User }
-    >();
+    const request = httpContext.getRequest<Request & { user?: User }>();
     const response = httpContext.getResponse<Response>();
 
-    const apmTransaction =
-      request.apmTransaction ||
-      this.apm.createTransaction(request, response, request.user);
-    request.apmTransaction = apmTransaction;
+    this.telemetryClient.setTransaction(request, response, request.user);
     return next.handle().pipe(
-      tap(() => {
-        apmTransaction.success();
-      }),
-      catchError(error => {
+      catchError((error) => {
         if (!(error instanceof HttpException)) {
-          apmTransaction.failure(error);
+          this.telemetryClient.error(error);
         } else if (this.isServerError(error)) {
-          apmTransaction.failure(error);
+          this.telemetryClient.error(error);
         }
         return throwError(error);
       }),

@@ -38,10 +38,13 @@ export class EnvalidConfigService extends Config {
       EMAIL_CHANGE_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 20 }),
       SESSION_NAME: envalid.str({ devDefault: 'id' }),
       SESSION_MAX_AGE_MIN: envalid.num({ devDefault: 60 * 24 * 365 }),
-      ELASTIC_APM_SERVICE_NAME: envalid.str({ devDefault: 'covee-saas-api' }),
-      ELASTIC_APM_SECRET_TOKEN: envalid.str({ devDefault: '' }),
-      ELASTIC_APM_SERVER_URL: envalid.url({
-        devDefault: 'http://127.0.0.1:8200',
+      // ELASTIC_APM_SERVICE_NAME: envalid.str({ devDefault: 'covee-saas-api' }),
+      // ELASTIC_APM_SECRET_TOKEN: envalid.str({ devDefault: '' }),
+      // ELASTIC_APM_SERVER_URL: envalid.url({
+      //   devDefault: 'http://127.0.0.1:8200',
+      // }),
+      AZURE_MONITOR_INSTRUMENTATION_KEY: envalid.str({
+        devDefault: '6c9d2cba-671d-4020-a139-d5cd80632b4f',
       }),
       AZURE_BLOB_STORAGE_CONNECTION_STRING: envalid.str({
         devDefault:
@@ -57,7 +60,7 @@ export class EnvalidConfigService extends Config {
     return this.config[key];
   }
 
-  private readonly strHex64 = envalid.makeValidator<string>(x => {
+  private readonly strHex64 = envalid.makeValidator<string>((x) => {
     if (/^[0-9a-f]{64}$/.test(x)) {
       return x;
     }

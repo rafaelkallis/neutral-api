@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ApmModule } from 'apm/ApmModule';
+import { TelemetryModule } from 'telemetry/TelemetryModule';
 import { AppController } from 'app/presentation/AppController';
 import { AuthModule } from 'auth/AuthModule';
 import compression from 'compression';
@@ -20,7 +20,7 @@ import { UserModule } from 'user/UserModule';
 @Module({
   imports: [
     ConfigModule,
-    ApmModule,
+    TelemetryModule,
     DatabaseModule,
     ObjectStorageModule,
     EmailModule,

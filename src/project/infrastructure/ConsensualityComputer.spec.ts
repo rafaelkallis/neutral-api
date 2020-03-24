@@ -142,17 +142,17 @@ describe('consensuality computer', () => {
     });
   });
 
-  describe.skip('pairwise relative judgements method', () => {
+  describe('pairwise relative judgements method', () => {
     beforeEach(() => {
       consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputerService();
     });
 
-    test('cycle', () => {
+    test.skip('cycle', () => {
       const c = consensualityComputer.compute(cyclePeerReviews);
       expect(c.value).toBeCloseTo(0);
     });
 
-    test('clusters', () => {
+    test.skip('clusters', () => {
       const c = consensualityComputer.compute(clusterPeerReviews);
       expect(c.value).toBeCloseTo(0);
     });
