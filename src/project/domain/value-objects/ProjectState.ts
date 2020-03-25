@@ -1,9 +1,7 @@
 import { Validator } from 'class-validator';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
-import { ProjectNotFormationStateException } from 'project/domain/exceptions/ProjectNotFormationStateException';
-import { ProjectNotPeerReviewStateException } from 'project/domain/exceptions/ProjectNotPeerReviewStateException';
-import { ProjectNotManagerReviewStateException } from 'project/domain/exceptions/ProjectNotManagerReviewStateException';
+import { ProjectStateAssertionFailureException } from '../exceptions/ProjectStateViolationException';
 
 export enum ProjectStateValue {
   FORMATION = 'formation',
@@ -59,21 +57,9 @@ export class ProjectState extends EnumValueObject<
     }
   }
 
-  public assertFormation(): void {
-    if (!this.equals(ProjectState.FORMATION)) {
-      throw new ProjectNotFormationStateException();
-    }
-  }
-
-  public assertPeerReview(): void {
-    if (!this.equals(ProjectState.PEER_REVIEW)) {
-      throw new ProjectNotPeerReviewStateException();
-    }
-  }
-
-  public assertManagerReview(): void {
-    if (!this.equals(ProjectState.MANAGER_REVIEW)) {
-      throw new ProjectNotManagerReviewStateException();
+  public assertEquals(expectedState: ProjectState): void {
+    if (!this.equals(expectedState)) {
+      throw ProjectStateAssertionFailureException.from(this, expectedState);
     }
   }
 

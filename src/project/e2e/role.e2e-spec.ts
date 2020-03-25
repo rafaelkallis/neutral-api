@@ -153,11 +153,7 @@ describe('roles (e2e)', () => {
       const updatedProject = await scenario.projectRepository.findById(
         project.id,
       );
-      expect(
-        updatedProject.roles
-          .toArray()
-          .some(existingRole => existingRole.equals(role)),
-      ).toBeFalsy();
+      expect(updatedProject.roles.exists(role.id)).toBeFalsy();
     });
   });
 });

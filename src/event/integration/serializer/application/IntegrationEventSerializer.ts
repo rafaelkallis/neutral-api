@@ -65,7 +65,7 @@ export abstract class IntegrationEventSerializer implements OnModuleInit {
     for (const module of this.modulesContainer.values()) {
       for (const instanceWrapper of module.providers.values()) {
         const { instance } = instanceWrapper;
-        if (!instance) {
+        if (typeof instance !== 'object' || !instance) {
           continue;
         }
         const metadataItems = getHandleIntegrationEventMetadataItems(instance);

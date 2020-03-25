@@ -49,11 +49,11 @@ describe('notification sagas', () => {
     const owner = modelFaker.user();
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
-    project.roles.add(
+    project.roles.addAll([
       modelFaker.role(project.id, assignees[0].id),
       modelFaker.role(project.id, assignees[1].id),
       modelFaker.role(project.id, assignees[2].id),
-    );
+    ]);
     const event = new ProjectPeerReviewStartedEvent(project);
 
     await notificationSagas.peerReviewStarted(event);
@@ -80,11 +80,11 @@ describe('notification sagas', () => {
     const owner = modelFaker.user();
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
-    project.roles.add(
+    project.roles.addAll([
       modelFaker.role(project.id, assignees[0].id),
       modelFaker.role(project.id, assignees[1].id),
       modelFaker.role(project.id, assignees[2].id),
-    );
+    ]);
     const event = new ProjectFinishedEvent(project);
 
     await notificationSagas.handleProjectFinished(event);

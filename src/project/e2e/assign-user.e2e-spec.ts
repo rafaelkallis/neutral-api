@@ -6,18 +6,26 @@ import { TestScenario } from 'test/TestScenario';
 
 describe('assign user to role', () => {
   let scenario: TestScenario;
-  let user: User;
+  let creator: User;
   let project: Project;
-  let role: Role;
+  let roleToAssign: Role;
+  let assignee: User;
+  let assigneeId: string;
+  let assigneeEmail: string;
 
   beforeEach(async () => {
     scenario = await TestScenario.create();
-    user = await scenario.createUser();
-    await scenario.authenticateUser(user);
-    project = scenario.modelFaker.project(user.id);
-    role = scenario.modelFaker.role(project.id);
-    project.roles.add(role);
+    creator = await scenario.createUser();
+    await scenario.authenticateUser(creator);
+    project = scenario.modelFaker.project(creator.id);
+    roleToAssign = scenario.modelFaker.role(project.id);
+    project.roles.add(roleToAssign);
     await scenario.projectRepository.persist(project);
+
+    assignee = scenario.modelFaker.user();
+    await scenario.userRepository.persist(assignee);
+    assigneeId = assignee.id.value;
+    assigneeEmail = assignee.email.value;
   });
 
   afterEach(async () => {
@@ -25,20 +33,9 @@ describe('assign user to role', () => {
   });
 
   describe('/roles/:id/assign (POST)', () => {
-    let assignee: User;
-    let assigneeId: string;
-    let assigneeEmail: string;
-
-    beforeEach(async () => {
-      assignee = scenario.modelFaker.user();
-      await scenario.userRepository.persist(assignee);
-      assigneeId = assignee.id.value;
-      assigneeEmail = assignee.email.value;
-    });
-
     test('happy path', async () => {
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeId });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ assigneeId }));
@@ -46,7 +43,7 @@ describe('assign user to role', () => {
 
     test('happy path, email of user that exists', async () => {
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeEmail });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ assigneeId }));
@@ -59,7 +56,7 @@ describe('assign user to role', () => {
       );
       assigneeEmail = scenario.primitiveFaker.email();
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeEmail });
       expect(response.status).toBe(200);
       expect(
@@ -69,11 +66,11 @@ describe('assign user to role', () => {
 
     test('project owner assignment is allowed', async () => {
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
-        .send({ assigneeId: user.id.value });
+        .post(`/roles/${roleToAssign.id.value}/assign`)
+        .send({ assigneeId: creator.id.value });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(
-        expect.objectContaining({ assigneeId: user.id.value }),
+        expect.objectContaining({ assigneeId: creator.id.value }),
       );
     });
 
@@ -81,7 +78,7 @@ describe('assign user to role', () => {
       project.state = ProjectState.PEER_REVIEW;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeId });
       expect(response.status).toBe(400);
     });
@@ -92,7 +89,7 @@ describe('assign user to role', () => {
       project.creatorId = otherUser.id;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
-        .post(`/roles/${role.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeId });
       expect(response.status).toBe(403);
     });
@@ -102,7 +99,7 @@ describe('assign user to role', () => {
       project.roles.add(anotherRole);
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
-        .post(`/roles/${anotherRole.id.value}/assign`)
+        .post(`/roles/${roleToAssign.id.value}/assign`)
         .send({ assigneeId });
       expect(response.status).toBe(400);
     });

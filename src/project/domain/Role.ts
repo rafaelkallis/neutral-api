@@ -8,6 +8,8 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
+import { RoleNoUserAssignedException } from './exceptions/RoleNoUserAssignedException';
 
 /**
  * Role
@@ -71,6 +73,12 @@ export class Role extends Model {
     return Boolean(this.assigneeId);
   }
 
+  public assertAssigned(): void {
+    if (!this.isAssigned()) {
+      throw new RoleNoUserAssignedException();
+    }
+  }
+
   public isAssignedToUser(userOrUserId: User | Id): boolean {
     const userId =
       userOrUserId instanceof User ? userOrUserId.id : userOrUserId;
@@ -79,5 +87,11 @@ export class Role extends Model {
 
   public belongsToProject(project: Project): boolean {
     return this.projectId === project.id;
+  }
+
+  public assertHasNotSubmittedPeerReviews(): void {
+    if (this.hasSubmittedPeerReviews.value) {
+      throw new PeerReviewsAlreadySubmittedException();
+    }
   }
 }

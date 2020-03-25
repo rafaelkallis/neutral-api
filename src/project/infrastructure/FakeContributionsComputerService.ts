@@ -8,7 +8,7 @@ import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { Id } from 'common/domain/value-objects/Id';
 
 @Injectable()
-export class FakeContributionsComputerService implements ContributionsComputer {
+export class FakeContributionsComputerService extends ContributionsComputer {
   public compute(peerReviews: PeerReviewCollection): Contributions {
     const peers = Object.keys(peerReviews.toMap());
     const n = peers.length;

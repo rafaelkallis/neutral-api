@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ApmModule } from 'apm/ApmModule';
+import { TelemetryModule } from 'telemetry/TelemetryModule';
 import { AppController } from 'app/presentation/AppController';
 import { AuthModule } from 'auth/AuthModule';
 import compression from 'compression';
@@ -13,14 +13,16 @@ import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
 import { ProjectModule } from 'project/ProjectModule';
 import { SessionMiddleware } from 'session';
 import { UserModule } from 'user/UserModule';
+import { CommonModule } from 'common/CommonModule';
 
 /**
  * App Module
  */
 @Module({
   imports: [
+    CommonModule,
     ConfigModule,
-    ApmModule,
+    TelemetryModule,
     DatabaseModule,
     ObjectStorageModule,
     EmailModule,

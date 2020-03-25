@@ -1,5 +1,5 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import { Config, InjectConfig } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import {
   EmailSenderService,
   SendEmailOptions,
@@ -14,7 +14,7 @@ export class SendgridEmailSenderService implements EmailSenderService {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
 
-  public constructor(@InjectConfig() _config: Config) {
+  public constructor(_config: Config) {
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';

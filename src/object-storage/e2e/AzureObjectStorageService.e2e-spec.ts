@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { Test } from '@nestjs/testing';
-import { CONFIG } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
@@ -17,10 +17,9 @@ describe('azure object storage', () => {
     const module = await Test.createTestingModule({
       providers: [
         {
-          provide: CONFIG,
+          provide: Config,
           useClass: EnvalidConfigService,
         },
-
         AzureObjectStorageService,
       ],
     }).compile();

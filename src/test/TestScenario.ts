@@ -12,15 +12,12 @@ import {
   NotificationRepository,
 } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
-import { TokenManager, TOKEN_MANAGER } from 'token/application/TokenManager';
-import { EmailManager, EMAIL_MANAGER } from 'email/EmailManager';
+import { TokenManager } from 'token/application/TokenManager';
+import { EmailManager } from 'email/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
-import {
-  ObjectStorage,
-  OBJECT_STORAGE,
-} from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -83,9 +80,9 @@ export class TestScenario {
       module.get(USER_REPOSITORY),
       module.get(PROJECT_REPOSITORY),
       module.get(NOTIFICATION_REPOSITORY),
-      module.get(TOKEN_MANAGER),
-      module.get(EMAIL_MANAGER),
-      module.get(OBJECT_STORAGE),
+      module.get(TokenManager),
+      module.get(EmailManager),
+      module.get(ObjectStorage),
       session,
     );
   }

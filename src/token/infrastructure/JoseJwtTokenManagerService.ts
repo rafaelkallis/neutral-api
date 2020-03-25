@@ -22,17 +22,18 @@ import ObjectID from 'bson-objectid';
 import { TokenMalformedException } from 'common/exceptions/token-malformed.exception';
 import { Id } from 'common/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { Config, InjectConfig } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 
 /**
  * Jwt Token Service
  */
 @Injectable()
-export class JoseJwtTokenManagerService implements TokenManager {
+export class JoseJwtTokenManagerService extends TokenManager {
   private readonly config: Config;
   private readonly jwk: JWK.Key;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(config: Config) {
+    super();
     this.config = config;
     this.jwk = JWK.asKey(this.config.get('SECRET_HEX'));
   }

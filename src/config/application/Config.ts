@@ -1,14 +1,3 @@
-import { Inject } from '@nestjs/common';
-
-export const CONFIG = Symbol('CONFIG');
-
-/**
- *
- */
-export function InjectConfig(): ParameterDecorator {
-  return Inject(CONFIG);
-}
-
 /**
  *
  */
@@ -30,9 +19,7 @@ export interface ConfigProps {
   EMAIL_CHANGE_TOKEN_LIFETIME_MIN: number;
   SESSION_NAME: string;
   SESSION_MAX_AGE_MIN: number;
-  ELASTIC_APM_SERVICE_NAME: string;
-  ELASTIC_APM_SECRET_TOKEN: string;
-  ELASTIC_APM_SERVER_URL: string;
+  AZURE_MONITOR_INSTRUMENTATION_KEY: string;
   AZURE_BLOB_STORAGE_CONNECTION_STRING: string;
 }
 

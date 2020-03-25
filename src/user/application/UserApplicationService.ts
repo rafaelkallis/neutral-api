@@ -1,27 +1,24 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  UserRepository,
+  InjectUserRepository,
+} from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
 import { Id } from 'common/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
-import {
-  TokenManager,
-  InjectTokenManager,
-} from 'token/application/TokenManager';
+import { TokenManager } from 'token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { InjectConfig, Config } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
 import {
   EventPublisher,
   InjectEventPublisher,
 } from 'event/publisher/EventPublisher';
-import {
-  InjectObjectStorage,
-  ObjectStorage,
-} from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
@@ -36,12 +33,12 @@ export class UserApplicationService {
   private readonly objectStorage: ObjectStorage;
 
   public constructor(
-    @Inject(USER_REPOSITORY) userRepository: UserRepository,
+    @InjectUserRepository() userRepository: UserRepository,
     userDtoMapper: UserDtoMapperService,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    @InjectTokenManager() tokenManager: TokenManager,
-    @InjectConfig() config: Config,
-    @InjectObjectStorage() objectStorage: ObjectStorage,
+    tokenManager: TokenManager,
+    config: Config,
+    objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
     this.userDtoMapper = userDtoMapper;

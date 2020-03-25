@@ -26,10 +26,11 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { Contribution } from 'project/domain/value-objects/Contribution';
-import { RoleCollection } from 'project/domain/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
+import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 
 describe('project', () => {
   let modelFaker: ModelFaker;
@@ -55,7 +56,7 @@ describe('project', () => {
       modelFaker.role(project.id),
       modelFaker.role(project.id),
     ];
-    project.roles = new RoleCollection(roles);
+    project.roles.addAll(roles);
   });
 
   describe('create project', () => {
@@ -142,7 +143,7 @@ describe('project', () => {
 
     beforeEach(() => {
       title = RoleTitle.from(primitiveFaker.words());
-      roleToUpdate = project.roles.toArray()[0];
+      roleToUpdate = roles[0];
     });
 
     test('happy path', () => {
@@ -160,7 +161,7 @@ describe('project', () => {
     let roleToRemove: Role;
 
     beforeEach(() => {
-      roleToRemove = project.roles.toArray()[0];
+      roleToRemove = roles[0];
     });
 
     test('happy path', () => {
@@ -180,7 +181,7 @@ describe('project', () => {
 
     beforeEach(() => {
       userToAssign = modelFaker.user();
-      roleToAssign = project.roles.toArray()[0];
+      roleToAssign = roles[0];
     });
 
     test('happy path', () => {
@@ -196,7 +197,7 @@ describe('project', () => {
     });
 
     test('should fail if user already assigned to another role in same project', () => {
-      project.assignUserToRole(userToAssign, project.roles.toArray()[1]);
+      project.assignUserToRole(userToAssign, roles[1]);
       expect(() =>
         project.assignUserToRole(userToAssign, roleToAssign),
       ).toThrow();
@@ -225,7 +226,7 @@ describe('project', () => {
     });
 
     test('should fail if a role has no user assigned', () => {
-      project.roles.toArray()[0].assigneeId = null;
+      roles[0].assigneeId = null;
       expect(() => project.finishFormation()).toThrow();
     });
   });
@@ -376,7 +377,22 @@ describe('project', () => {
           contributionsComputer,
           consensualityComputer,
         ),
-      ).toThrow();
+      ).toThrow(expect.any(PeerReviewsAlreadySubmittedException));
+    });
+
+    test('should fail if a peer review miss a peer', () => {
+      submittedPeerReviews = [
+        [roles[1].id, PeerReviewScore.from(1 / 2)],
+        [roles[3].id, PeerReviewScore.from(1 / 2)],
+      ];
+      expect(() =>
+        project.submitPeerReviews(
+          roles[0],
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        ),
+      ).toThrow(expect.any(PeerReviewRoleMismatchException));
     });
 
     test('should fail if a peer review is for non-existing peer', () => {
@@ -392,7 +408,7 @@ describe('project', () => {
           contributionsComputer,
           consensualityComputer,
         ),
-      ).toThrow();
+      ).toThrow(expect.any(PeerReviewRoleMismatchException));
     });
   });
 

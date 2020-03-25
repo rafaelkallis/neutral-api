@@ -29,14 +29,8 @@ import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { User } from 'user/domain/User';
-import {
-  ContributionsComputer,
-  InjectContributionsComputer,
-} from 'project/domain/ContributionsComputer';
-import {
-  ConsensualityComputer,
-  InjectConsensualityComputer,
-} from 'project/domain/ConsensualityComputer';
+import { ContributionsComputer } from 'project/domain/ContributionsComputer';
+import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
@@ -59,8 +53,8 @@ export class ProjectApplicationService {
     @InjectProjectRepository() projectRepository: ProjectRepository,
     @InjectUserRepository() userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    @InjectContributionsComputer() contributionsComputer: ContributionsComputer,
-    @InjectConsensualityComputer() consensualityComputer: ConsensualityComputer,
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
@@ -120,14 +114,13 @@ export class ProjectApplicationService {
   ): Promise<RoleDto[]> {
     const projectId = Id.from(query.projectId);
     const project = await this.projectRepository.findById(projectId);
-    return Promise.all(
-      project.roles.toArray().map(async role =>
-        RoleDto.builder()
-          .role(role)
-          .project(project)
-          .authUser(authUser)
-          .build(),
-      ),
+    const roles = Array.from(project.roles);
+    return roles.map(role =>
+      RoleDto.builder()
+        .role(role)
+        .project(project)
+        .authUser(authUser)
+        .build(),
     );
   }
 

@@ -3,12 +3,11 @@ import {
   createParamDecorator,
   ExecutionContext,
   Injectable,
-  Inject,
 } from '@nestjs/common';
 
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'session';
-import { TOKEN_MANAGER, TokenManager } from 'token/application/TokenManager';
+import { TokenManager } from 'token/application/TokenManager';
 import { Id } from 'common/domain/value-objects/Id';
 import {
   UserRepository,
@@ -28,7 +27,7 @@ export class AuthGuard implements CanActivate {
 
   public constructor(
     @InjectUserRepository() userRepository: UserRepository,
-    @Inject(TOKEN_MANAGER) tokenService: TokenManager,
+    tokenService: TokenManager,
   ) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
@@ -87,4 +86,9 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const AuthUser = createParamDecorator((_, req): User => req.user);
+export const AuthUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): User => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user;
+  },
+);

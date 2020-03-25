@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectConfig, Config } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
 
@@ -7,7 +7,7 @@ import { UserDto } from 'user/application/dto/UserDto';
 export class UserDtoMapperService {
   private readonly config: Config;
 
-  public constructor(@InjectConfig() config: Config) {
+  public constructor(config: Config) {
     this.config = config;
   }
 

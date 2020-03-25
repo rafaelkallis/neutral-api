@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { FactoryProvider } from '@nestjs/common/interfaces';
 import { Connection, ConnectionManager } from 'typeorm';
-import { Config, CONFIG } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
@@ -84,5 +84,5 @@ export const DatabaseConnectionProvider: FactoryProvider<Promise<
     await connection.runMigrations();
     return connection;
   },
-  inject: [CONFIG],
+  inject: [Config],
 };

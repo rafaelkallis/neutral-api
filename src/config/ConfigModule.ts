@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
-import { CONFIG } from 'config/application/Config';
+import { Config } from 'config/application/Config';
 
 /**
  * Config Module
@@ -8,10 +8,10 @@ import { CONFIG } from 'config/application/Config';
 @Module({
   providers: [
     {
-      provide: CONFIG,
+      provide: Config,
       useClass: EnvalidConfigService,
     },
   ],
-  exports: [CONFIG],
+  exports: [Config],
 })
 export class ConfigModule {}

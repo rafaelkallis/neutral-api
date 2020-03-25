@@ -1,5 +1,6 @@
 import { Model } from 'common/domain/Model';
 import { Id } from 'common/domain/value-objects/Id';
+import { FilterIterable } from './FilterIterable';
 
 export class ModelCollection<TModel extends Model> {
   private readonly models: TModel[];
@@ -10,47 +11,56 @@ export class ModelCollection<TModel extends Model> {
     this.removedModels = [];
   }
 
-  public add(...modelsToAdd: TModel[]): void {
+  public add(modelToAdd: TModel): void {
+    if (this.exists(modelToAdd.id)) {
+      throw new Error('model already exists');
+    }
+    this.models.push(modelToAdd);
+  }
+
+  public addAll(modelsToAdd: TModel[]): void {
     for (const modelToAdd of modelsToAdd) {
-      if (this.exists(modelToAdd.id)) {
-        throw new Error('model already exists');
-      }
-      this.models.push(modelToAdd);
+      this.add(modelToAdd);
     }
   }
 
-  public remove(...modelsToRemove: TModel[]): void {
+  public remove(modelToRemove: TModel): void {
+    if (!this.exists(modelToRemove.id)) {
+      throw new Error('model does not exist');
+    }
+    this.removedModels.push(modelToRemove);
+    const modelToRemoveIndex = this.indexOf(modelToRemove.id);
+    this.models.splice(modelToRemoveIndex, 1);
+  }
+
+  public removeAll(modelsToRemove: TModel[]): void {
     for (const modelToRemove of modelsToRemove) {
-      if (!this.exists(modelToRemove.id)) {
-        throw new Error('model does not exist');
-      }
-      this.removedModels.push(modelToRemove);
-      const modelToRemoveIndex = this.indexOf(modelToRemove.id);
-      this.models.splice(modelToRemoveIndex, 1);
+      this.remove(modelToRemove);
     }
   }
 
   public find(id: Id): TModel {
-    if (!this.exists(id)) {
-      throw new Error('model does not exist');
+    for (const model of this) {
+      if (model.id.equals(id)) {
+        return model;
+      }
     }
-    const modelIndex = this.indexOf(id);
-    return this.models[modelIndex];
+    throw new Error('model does not exist');
   }
 
   public [Symbol.iterator](): Iterator<TModel> {
-    return this.toArray()[Symbol.iterator]();
+    return this.models[Symbol.iterator]();
   }
 
-  public toArray(): ReadonlyArray<TModel> {
-    return this.models;
+  public filter(predicate: (model: TModel) => boolean): Iterable<TModel> {
+    return new FilterIterable(this, predicate);
   }
 
   /**
    *
    */
   public exists(id: Id): boolean {
-    return this.indexOf(id) !== -1;
+    return this.any(model => model.id.equals(id));
   }
 
   /**
@@ -60,10 +70,28 @@ export class ModelCollection<TModel extends Model> {
     return this.removedModels;
   }
 
+  protected any(predicate: (model: TModel) => boolean): boolean {
+    for (const model of this) {
+      if (predicate(model)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  protected all(predicate: (model: TModel) => boolean): boolean {
+    for (const model of this) {
+      if (!predicate(model)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    *
    */
-  protected indexOf(id: Id): number {
+  private indexOf(id: Id): number {
     for (let i = 0; i < this.models.length; i++) {
       if (this.models[i].id.equals(id)) {
         return i;
