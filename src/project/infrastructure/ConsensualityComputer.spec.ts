@@ -4,6 +4,7 @@ import { MeanDeviationConsensualityComputerService } from 'project/infrastructur
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 
 describe('consensuality computer', () => {
   let consensualityComputer: ConsensualityComputer;
@@ -19,8 +20,8 @@ describe('consensuality computer', () => {
   let clusterPeerReviews: PeerReviewCollection;
   let oneDidItAllPeerReviews: PeerReviewCollection;
 
-  const o = 0.00001;
-  const l = 1 - 3 * o;
+  const o = PeerReviewScore.EPSILON;
+  const l = 1 - 3 * PeerReviewScore.EPSILON;
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
@@ -142,7 +143,7 @@ describe('consensuality computer', () => {
     });
   });
 
-  describe.skip('pairwise relative judgements method', () => {
+  describe('pairwise relative judgements method', () => {
     beforeEach(() => {
       consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputerService();
     });

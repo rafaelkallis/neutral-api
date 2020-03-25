@@ -42,4 +42,8 @@ export class PeerReviewCollection extends ModelCollection<PeerReview> {
     }
     return map;
   }
+
+  public getNumberOfPeers(): number {
+    return Object.keys(this.toMap()).length;
+  }
 }

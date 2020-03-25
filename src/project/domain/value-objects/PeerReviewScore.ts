@@ -1,10 +1,17 @@
 import { UnitDecimalValueObject } from 'common/domain/value-objects/UnitDecimalValueObject';
-import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
+import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/InvalidPeerReviewScoreException';
 
 /**
  *
  */
 export class PeerReviewScore extends UnitDecimalValueObject<PeerReviewScore> {
+  public static readonly EPSILON = 0.0001;
+
+  public constructor(value: number) {
+    super(value);
+    this.assertGreaterEqualThanEpsilon(value);
+  }
+
   /**
    *
    */
@@ -12,10 +19,16 @@ export class PeerReviewScore extends UnitDecimalValueObject<PeerReviewScore> {
     return new PeerReviewScore(value);
   }
 
+  private assertGreaterEqualThanEpsilon(value: number): void {
+    if (value < PeerReviewScore.EPSILON) {
+      throw new InvalidPeerReviewScoreException();
+    }
+  }
+
   /**
    *
    */
   protected throwInvalidValueObjectException(): never {
-    throw new InvalidConsensualityException();
+    throw new InvalidPeerReviewScoreException();
   }
 }
