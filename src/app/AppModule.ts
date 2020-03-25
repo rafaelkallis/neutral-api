@@ -13,12 +13,14 @@ import { ObjectStorageModule } from 'object-storage/ObjectStorageModule';
 import { ProjectModule } from 'project/ProjectModule';
 import { SessionMiddleware } from 'session';
 import { UserModule } from 'user/UserModule';
+import { CommonModule } from 'common/CommonModule';
 
 /**
  * App Module
  */
 @Module({
   imports: [
+    CommonModule,
     ConfigModule,
     TelemetryModule,
     DatabaseModule,
