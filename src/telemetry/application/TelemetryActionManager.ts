@@ -32,29 +32,35 @@ export class TelemetryActionManager implements OnModuleInit {
       }
       this.logger.log(service.constructor.name);
       for (const { actionName, propertyKey } of telemetryActionMetadataItems) {
-        const originalFunction: Function = (service as any)[propertyKey].bind(
-          service,
-        );
-        (service as any)[propertyKey] = (...args: unknown[]) => {
-          const telemetryAction = this.telemetryClient.createAction(actionName);
-          try {
-            const result = originalFunction(...args);
-            const isPromise = typeof result.then === 'function';
-            if (isPromise) {
-              return result.finally(() => telemetryAction.end());
-            } else {
-              telemetryAction.end();
-              return result;
-            }
-          } catch (error) {
-            telemetryAction.end();
-            throw error;
-          }
-        };
+        this.registerInterceptor(service, propertyKey, actionName);
         this.logger.log(
           `Registered {${actionName}, ${propertyKey.toString()}()} telemetry action`,
         );
       }
     }
+  }
+
+  private registerInterceptor(
+    target: any,
+    propertyKey: string | symbol,
+    actionName: string,
+  ): void {
+    const originalFunction: Function = target[propertyKey].bind(target);
+    target[propertyKey] = (...args: unknown[]) => {
+      const telemetryAction = this.telemetryClient.createAction(actionName);
+      try {
+        const result = originalFunction(...args);
+        const isPromise = typeof result.then === 'function';
+        if (isPromise) {
+          return result.finally(() => telemetryAction.end());
+        } else {
+          telemetryAction.end();
+          return result;
+        }
+      } catch (error) {
+        telemetryAction.end();
+        throw error;
+      }
+    };
   }
 }
