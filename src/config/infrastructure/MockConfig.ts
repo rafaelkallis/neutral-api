@@ -5,7 +5,7 @@ import { Config, ConfigProps } from 'config/application/Config';
  * Mock Config
  */
 @Injectable()
-export class MockConfigService extends Config {
+export class MockConfig extends Config {
   private readonly configProps: ConfigProps;
 
   public constructor() {

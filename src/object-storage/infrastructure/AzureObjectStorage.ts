@@ -10,12 +10,13 @@ import {
 import { Config } from 'config/application/Config';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
+import { TelemetryAction } from 'telemetry/application/TelemetryAction';
 
 /**
  * Azure Object Storage Service
  */
 @Injectable()
-export class AzureObjectStorageService extends ObjectStorage {
+export class AzureObjectStorage extends ObjectStorage {
   private readonly client: BlobServiceClient;
 
   public constructor(config: Config) {
@@ -24,6 +25,7 @@ export class AzureObjectStorageService extends ObjectStorage {
     this.client = BlobServiceClient.fromConnectionString(connectionString);
   }
 
+  @TelemetryAction()
   public async put({
     containerName,
     file,
@@ -38,6 +40,7 @@ export class AzureObjectStorageService extends ObjectStorage {
     return { key };
   }
 
+  @TelemetryAction()
   public async get({ containerName, key }: GetContext): Promise<GetReturn> {
     const blob = await this.getBlob(containerName, key);
     const file = super.createTempFile();

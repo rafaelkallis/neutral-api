@@ -5,7 +5,8 @@ import { TelemetryInterceptor } from 'telemetry/application/TelemetryInterceptor
 import { TelemetryClient } from 'telemetry/application/TelemetryClient';
 import { AzureMonitorTelemetryClient } from 'telemetry/infrastructure/AzureMonitorTelemetryClient';
 import { Config } from 'config/application/Config';
-import { LoggingTelemetryClient } from './infrastructure/LoggingTelemetryClient';
+import { LoggingTelemetryClient } from 'telemetry/infrastructure/LoggingTelemetryClient';
+import { TelemetryActionManager } from 'telemetry/application/TelemetryActionManager';
 
 /**
  * Telemetry Module
@@ -25,6 +26,7 @@ import { LoggingTelemetryClient } from './infrastructure/LoggingTelemetryClient'
       inject: [Config],
     },
     { provide: APP_INTERCEPTOR, useClass: TelemetryInterceptor },
+    TelemetryActionManager,
   ],
   exports: [TelemetryClient],
 })

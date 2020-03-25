@@ -1,7 +1,7 @@
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
-import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { MockConfig } from 'config/infrastructure/MockConfig';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
@@ -12,7 +12,7 @@ describe('user dto mapper', () => {
   let user: User;
 
   beforeEach(async () => {
-    const config = new MockConfigService();
+    const config = new MockConfig();
     config.set('SERVER_URL', 'http://example.com');
     userDtoMapper = new UserDtoMapperService(config);
     primitiveFaker = new PrimitiveFaker();

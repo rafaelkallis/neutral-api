@@ -1,12 +1,12 @@
 import { SendgridEmailService } from 'email/sendgrid-email.service';
-import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { MockConfig } from 'config/infrastructure/MockConfig';
 
 describe.skip('SendgridEmailService', () => {
-  let config: MockConfigService;
+  let config: MockConfig;
   let sendgridEmail: SendgridEmailService;
 
   beforeEach(async () => {
-    config = new MockConfigService();
+    config = new MockConfig();
     sendgridEmail = new SendgridEmailService(config);
   });
 

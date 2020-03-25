@@ -1,15 +1,15 @@
-import { AzureObjectStorageService } from 'object-storage/infrastructure/AzureObjectStorageService';
+import { AzureObjectStorage } from 'object-storage/infrastructure/AzureObjectStorage';
 import ObjectID from 'bson-objectid';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { Test } from '@nestjs/testing';
 import { Config } from 'config/application/Config';
-import { EnvalidConfigService } from 'config/infrastructure/EnvalidConfigService';
+import { EnvalidConfig } from 'config/infrastructure/EnvalidConfig';
 import { ObjectNotFoundException } from 'object-storage/application/exceptions/ObjectNotFoundException';
 
 describe('azure object storage', () => {
-  let azureObjectStorage: AzureObjectStorageService;
+  let azureObjectStorage: AzureObjectStorage;
   let key: string;
   const containerName = '.tests';
 
@@ -18,12 +18,12 @@ describe('azure object storage', () => {
       providers: [
         {
           provide: Config,
-          useClass: EnvalidConfigService,
+          useClass: EnvalidConfig,
         },
-        AzureObjectStorageService,
+        AzureObjectStorage,
       ],
     }).compile();
-    azureObjectStorage = module.get(AzureObjectStorageService);
+    azureObjectStorage = module.get(AzureObjectStorage);
     await module.init();
     key = new ObjectID().toHexString();
   });

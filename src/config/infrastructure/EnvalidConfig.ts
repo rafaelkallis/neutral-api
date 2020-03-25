@@ -6,7 +6,7 @@ import { Config, ConfigProps } from 'config/application/Config';
  * Envalid Config Service
  */
 @Injectable()
-export class EnvalidConfigService extends Config {
+export class EnvalidConfig extends Config {
   private readonly config: ConfigProps;
 
   public constructor() {

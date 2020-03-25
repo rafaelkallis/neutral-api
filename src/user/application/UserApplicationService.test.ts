@@ -7,14 +7,14 @@ import { UserApplicationService } from 'user/application/UserApplicationService'
 import { User } from 'user/domain/User';
 import { Name } from 'user/domain/value-objects/Name';
 import { Config } from 'config/application/Config';
-import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { MockConfig } from 'config/infrastructure/MockConfig';
 import { TokenManager } from 'token/application/TokenManager';
 import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
 import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
-import { MockObjectStorage } from 'object-storage/infrastructure/MockObjectStorageService';
+import { MockObjectStorage } from 'object-storage/infrastructure/MockObjectStorage';
 import { ObjectStorage } from 'object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
@@ -34,7 +34,7 @@ describe('user service', () => {
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
-    config = new MockConfigService();
+    config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     userDtoMapper = new UserDtoMapperService(config);
@@ -69,7 +69,7 @@ describe('user service', () => {
         user.name = Name.from(user.name.first + 'ann', user.name.last);
       }
       await userRepository.persist(...users);
-      expectedUserDtos = users.map(u => userDtoMapper.toDto(u, user));
+      expectedUserDtos = users.map((u) => userDtoMapper.toDto(u, user));
       jest.spyOn(userRepository, 'findPage');
       jest.spyOn(userRepository, 'findByName');
     });

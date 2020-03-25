@@ -36,7 +36,8 @@ export function getTelemetryActionMetadataItems(
  */
 export function TelemetryAction(actionName?: string): PropertyDecorator {
   return (target: object, propertyKey: string | symbol): void => {
-    actionName = actionName || propertyKey.toString();
+    actionName =
+      actionName || `${target.constructor.name}.${propertyKey.toString()}()`;
     const existingMetadataItems = getTelemetryActionMetadataItems(target);
     const newMetadataItem = new TelemetryActionMetadataItem(
       actionName,

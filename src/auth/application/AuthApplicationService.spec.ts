@@ -5,7 +5,7 @@ import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'session/session-state';
 import { MockSessionState } from 'session';
-import { MockConfigService } from 'config/infrastructure/MockConfigService';
+import { MockConfig } from 'config/infrastructure/MockConfig';
 import { FakeTokenManagerService } from 'token/infrastructure/FakeTokenManagerService';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginEvent } from 'auth/application/events/LoginEvent';
@@ -24,7 +24,7 @@ describe('auth application service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
-  let config: MockConfigService;
+  let config: MockConfig;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let userDtoMapper: UserDtoMapperService;
@@ -33,7 +33,7 @@ describe('auth application service', () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
-    config = new MockConfigService();
+    config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     userDtoMapper = new UserDtoMapperService(config);
