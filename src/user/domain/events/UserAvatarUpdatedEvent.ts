@@ -1,4 +1,4 @@
-import { DomainEvent } from 'event/domain/DomainEvent';
+import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { User } from 'user/domain/User';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 

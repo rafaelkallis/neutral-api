@@ -4,7 +4,7 @@ import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
-import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
+import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 
 describe('notification application service', () => {

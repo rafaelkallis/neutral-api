@@ -5,7 +5,7 @@ import {
 } from 'project/domain/ContributionsComputer';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 
 @Injectable()
 export class FakeContributionsComputerService extends ContributionsComputer {

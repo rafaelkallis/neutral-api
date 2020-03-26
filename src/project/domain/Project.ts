@@ -1,5 +1,5 @@
 import { User } from 'user/domain/User';
-import { AggregateRoot } from 'common/domain/AggregateRoot';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
@@ -10,9 +10,9 @@ import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPee
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
@@ -251,13 +251,13 @@ export class Project extends AggregateRoot {
     submittedPeerReviews: [Id, PeerReviewScore][],
   ) {
     const expectedIds: Id[] = Array.from(this.roles.excluding(senderRole)).map(
-      role => role.id,
+      (role) => role.id,
     );
     const actualIds: Id[] = submittedPeerReviews.map(
       ([receiverRoleId]) => receiverRoleId,
     );
     for (const expectedId of expectedIds) {
-      const matchCount = actualIds.filter(actualId =>
+      const matchCount = actualIds.filter((actualId) =>
         actualId.equals(expectedId),
       ).length;
       if (matchCount !== 1) {
@@ -265,7 +265,7 @@ export class Project extends AggregateRoot {
       }
     }
     for (const actualId of actualIds) {
-      const matchCount = expectedIds.filter(expectedId =>
+      const matchCount = expectedIds.filter((expectedId) =>
         expectedId.equals(actualId),
       ).length;
       if (matchCount !== 1) {

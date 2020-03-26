@@ -7,18 +7,18 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
-import { TokenManager } from 'token/application/TokenManager';
+import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { Config } from 'config/application/Config';
-import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
+import { Config } from 'shared/config/application/Config';
+import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import {
   EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/EventPublisher';
-import { ObjectStorage } from 'object-storage/application/ObjectStorage';
+} from 'shared/event/publisher/EventPublisher';
+import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
@@ -63,7 +63,7 @@ export class UserApplicationService {
     } else {
       users = await this.userRepository.findPage();
     }
-    return users.map(user => this.userDtoMapper.toDto(user, authUser));
+    return users.map((user) => this.userDtoMapper.toDto(user, authUser));
   }
 
   /**

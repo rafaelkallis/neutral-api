@@ -4,7 +4,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -40,18 +40,20 @@ export class PairwiseRelativeJudgementsConsensualityComputerService
     }
     function mean_ij(i: string, j: string): number {
       return mean(
-        peers.filter(k => k !== i && k !== j).map(k => R_kij(k, i, j)),
+        peers.filter((k) => k !== i && k !== j).map((k) => R_kij(k, i, j)),
       );
     }
     function var_ij(i: string, j: string): number {
       return mean(
         peers
-          .filter(k => k !== i && k !== j)
-          .map(k => Math.pow(R_kij(k, i, j) - mean_ij(i, j), 2)),
+          .filter((k) => k !== i && k !== j)
+          .map((k) => Math.pow(R_kij(k, i, j) - mean_ij(i, j), 2)),
       );
     }
     return sum(
-      peers.flatMap(i => peers.filter(j => j !== i).map(j => var_ij(i, j))),
+      peers.flatMap((i) =>
+        peers.filter((j) => j !== i).map((j) => var_ij(i, j)),
+      ),
     );
   }
 

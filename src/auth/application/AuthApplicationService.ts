@@ -8,9 +8,9 @@ import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { Config } from 'config/application/Config';
-import { SessionState } from 'session/session-state';
-import { TokenManager } from 'token/application/TokenManager';
+import { Config } from 'shared/config/application/Config';
+import { SessionState } from 'shared/session/session-state';
+import { TokenManager } from 'shared/token/application/TokenManager';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
@@ -19,13 +19,13 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { TokenAlreadyUsedException } from 'common/exceptions/token-already-used.exception';
+import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import {
   EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/EventPublisher';
+} from 'shared/event/publisher/EventPublisher';
 import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
 
 @Injectable()

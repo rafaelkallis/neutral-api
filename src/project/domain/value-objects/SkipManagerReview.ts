@@ -1,7 +1,7 @@
 import { Project } from 'project/domain/Project';
-import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
+import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { InvalidSkipManagerReviewException } from 'project/domain/exceptions/InvalidSkipManagerReviewException';
-import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
+import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
 
 export enum SkipManagerReviewValue {
   YES = 'yes',

@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
-import { Repository } from 'common/domain/Repository';
+import { Repository } from 'shared/domain/Repository';
 import { Project } from 'project/domain/Project';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 
 export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
 

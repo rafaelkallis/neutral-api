@@ -1,4 +1,4 @@
-import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
+import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { Validator } from 'class-validator';
 import { InvalidNotificationTypeException } from 'notification/domain/exceptions/InvalidNotificationTypeException';
 

@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
-import { BigIntTransformer } from 'common/infrastructure/BigIntTransformer';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
 
 /**
  * User TypeOrm Entity

@@ -1,20 +1,18 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'database/DatabaseModule';
-import { EventModule } from 'event/EventModule';
 import { NotificationController } from 'notification/presentation/NotificationController';
 import { NOTIFICATION_REPOSITORY } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
-import { TokenModule } from 'token/TokenModule';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
+import { SharedModule } from 'shared/SharedModule';
 
 /**
  * Notification Module
  */
 @Module({
-  imports: [DatabaseModule, EventModule, TokenModule, UserModule],
+  imports: [SharedModule, UserModule],
   controllers: [NotificationController],
   providers: [
     NotificationApplicationService,

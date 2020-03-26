@@ -1,6 +1,6 @@
 import { Role } from 'project/domain/Role';
-import { Id } from 'common/domain/value-objects/Id';
-import { DomainEvent } from 'event/domain/DomainEvent';
+import { Id } from 'shared/domain/value-objects/Id';
+import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { Project } from 'project/domain/Project';
 
 /**

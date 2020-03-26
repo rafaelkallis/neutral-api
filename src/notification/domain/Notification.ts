@@ -1,14 +1,14 @@
 import { IsObject } from 'class-validator';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { User } from 'user/domain/User';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { NotificationAlreadyReadException } from 'notification/domain/exceptions/NotificationAlreadyReadException';
-import { AggregateRoot } from 'common/domain/AggregateRoot';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
-import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
+import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 
 /**
  * Notification Model

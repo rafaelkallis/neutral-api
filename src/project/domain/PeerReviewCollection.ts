@@ -1,5 +1,5 @@
-import { ModelCollection } from 'common/domain/ModelCollection';
-import { Id } from 'common/domain/value-objects/Id';
+import { ModelCollection } from 'shared/domain/ModelCollection';
+import { Id } from 'shared/domain/value-objects/Id';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 
@@ -27,7 +27,7 @@ export class PeerReviewCollection extends ModelCollection<PeerReview> {
   }
 
   public findBySenderRole(senderRoleId: Id): Iterable<PeerReview> {
-    return this.filter(peerReview => peerReview.isSenderRole(senderRoleId));
+    return this.filter((peerReview) => peerReview.isSenderRole(senderRoleId));
   }
 
   public addForSender(

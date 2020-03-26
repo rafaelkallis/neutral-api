@@ -1,5 +1,5 @@
 import { Role } from 'project/domain/Role';
-import { DomainEvent } from 'event/domain/DomainEvent';
+import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { Project } from 'project/domain/Project';
 
 export class ExistingUserAssignedEvent extends DomainEvent {

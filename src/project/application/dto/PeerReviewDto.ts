@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'common/application/dto/BaseDto';
+import { BaseDto } from 'shared/application/dto/BaseDto';
 import { PeerReview } from 'project/domain/PeerReview';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';

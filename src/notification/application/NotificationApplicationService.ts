@@ -5,11 +5,11 @@ import {
   NotificationRepository,
 } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import {
   InjectEventPublisher,
   EventPublisher,
-} from 'event/publisher/EventPublisher';
+} from 'shared/event/publisher/EventPublisher';
 
 @Injectable()
 export class NotificationApplicationService {
@@ -35,7 +35,7 @@ export class NotificationApplicationService {
     const notifications = await this.notificationRepository.findByOwnerId(
       authUser.id,
     );
-    return notifications.map(notification =>
+    return notifications.map((notification) =>
       NotificationDto.fromModel(notification),
     );
   }

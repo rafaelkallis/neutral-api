@@ -5,8 +5,8 @@ import {
 } from 'project/domain/ContributionsComputer';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { InvariantViolationException } from 'common/exceptions/invariant-violation.exception';
-import { Id } from 'common/domain/value-objects/Id';
+import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
+import { Id } from 'shared/domain/value-objects/Id';
 
 /* eslint-disable security/detect-object-injection */
 

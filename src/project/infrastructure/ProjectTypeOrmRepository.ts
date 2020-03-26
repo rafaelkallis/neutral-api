@@ -1,13 +1,13 @@
-import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
+import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Injectable } from '@nestjs/common';
-import { DatabaseClientService } from 'database/DatabaseClientService';
+import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { Project } from 'project/domain/Project';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 import { ObjectType } from 'typeorm';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 
@@ -30,14 +30,14 @@ export class ProjectTypeOrmRepository
 
   public async persist(...projectModels: Project[]): Promise<void> {
     const roleIdsToDelete = projectModels
-      .flatMap(projectModel => projectModel.roles.getRemovedModels())
-      .map(projectModel => projectModel.id.value);
+      .flatMap((projectModel) => projectModel.roles.getRemovedModels())
+      .map((projectModel) => projectModel.id.value);
     if (roleIdsToDelete.length > 0) {
       await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
     }
     const peerReviewIdsToDelete = projectModels
-      .flatMap(projectModel => projectModel.peerReviews.getRemovedModels())
-      .map(peerReviewModel => peerReviewModel.id.value);
+      .flatMap((projectModel) => projectModel.peerReviews.getRemovedModels())
+      .map((peerReviewModel) => peerReviewModel.id.value);
     if (peerReviewIdsToDelete.length > 0) {
       await this.entityManager.delete(
         PeerReviewTypeOrmEntity,
@@ -51,7 +51,7 @@ export class ProjectTypeOrmRepository
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
-    const projectModels = projectEntities.map(p =>
+    const projectModels = projectEntities.map((p) =>
       this.entityMapper.toModel(p),
     );
     return projectModels;
@@ -63,7 +63,7 @@ export class ProjectTypeOrmRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.roles', 'role')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .where(builder => {
+      .where((builder) => {
         const subQuery = builder
           .subQuery()
           .select('project.id')
@@ -88,7 +88,7 @@ export class ProjectTypeOrmRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('role', 'role.project_id = project.id')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .where(builder => {
+      .where((builder) => {
         const subQuery = builder
           .subQuery()
           .select('project.id')
@@ -100,7 +100,7 @@ export class ProjectTypeOrmRepository
       })
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
-    const projectModels = projectEntities.map(p =>
+    const projectModels = projectEntities.map((p) =>
       this.entityMapper.toModel(p),
     );
     return projectModels;

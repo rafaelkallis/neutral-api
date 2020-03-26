@@ -1,9 +1,9 @@
-import { Model } from 'common/domain/Model';
+import { Model } from 'shared/domain/Model';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';

@@ -26,7 +26,7 @@ import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmitt
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { RoleCollection } from 'project/domain/RoleCollection';
-import { FakeEventPublisherService } from 'event/publisher/FakeEventPublisherService';
+import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
@@ -95,11 +95,8 @@ describe('project application service', () => {
     });
 
     test('happy path', async () => {
-      const expectedProjectDtos = projects.map(project =>
-        ProjectDto.builder()
-          .project(project)
-          .authUser(ownerUser)
-          .build(),
+      const expectedProjectDtos = projects.map((project) =>
+        ProjectDto.builder().project(project).authUser(ownerUser).build(),
       );
       const actualProjectDtos = await projectApplication.getProjects(
         ownerUser,
@@ -131,11 +128,8 @@ describe('project application service', () => {
     });
 
     test('happy path', async () => {
-      const expectedProjectDtos = projects.map(project =>
-        ProjectDto.builder()
-          .project(project)
-          .authUser(ownerUser)
-          .build(),
+      const expectedProjectDtos = projects.map((project) =>
+        ProjectDto.builder().project(project).authUser(ownerUser).build(),
       );
       const actualProjectDtos = await projectApplication.getProjects(
         assigneeUser,

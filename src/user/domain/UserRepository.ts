@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { User } from 'user/domain/User';
-import { Repository } from 'common/domain/Repository';
+import { Repository } from 'shared/domain/Repository';
 import { Email } from 'user/domain/value-objects/Email';
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');

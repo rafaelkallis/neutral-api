@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 
 /**

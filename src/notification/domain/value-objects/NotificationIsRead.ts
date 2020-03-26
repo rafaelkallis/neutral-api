@@ -1,5 +1,5 @@
 import { Validator } from 'class-validator';
-import { PrimitiveValueObject } from 'common/domain/value-objects/PrimitiveValueObject';
+import { PrimitiveValueObject } from 'shared/domain/value-objects/PrimitiveValueObject';
 import { InvalidNotificationIsReadException } from 'notification/domain/exceptions/InvalidNotificationIsReadException';
 
 /**

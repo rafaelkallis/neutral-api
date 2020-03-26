@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Project } from 'project/domain/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
@@ -33,7 +33,7 @@ export class ProjectTypeOrmEntityMapperService {
   public toModel(projectEntity: ProjectTypeOrmEntity): Project {
     const roles = new RoleCollection(
       projectEntity.roles.map(
-        roleEntity =>
+        (roleEntity) =>
           new Role(
             Id.from(roleEntity.id),
             CreatedAt.from(roleEntity.createdAt),
@@ -51,7 +51,7 @@ export class ProjectTypeOrmEntityMapperService {
     );
     const peerReviews = new PeerReviewCollection(
       projectEntity.peerReviews.map(
-        peerReviewEntity =>
+        (peerReviewEntity) =>
           new PeerReview(
             Id.from(peerReviewEntity.id),
             CreatedAt.from(peerReviewEntity.createdAt),

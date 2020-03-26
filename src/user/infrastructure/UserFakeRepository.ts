@@ -1,7 +1,7 @@
 import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
-import { MemoryRepository } from 'common/infrastructure/MemoryRepository';
+import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 import { Email } from 'user/domain/value-objects/Email';
 
 /**
@@ -13,7 +13,7 @@ export class UserFakeRepository extends MemoryRepository<User>
    *
    */
   public async findByName(fullName: string): Promise<User[]> {
-    return Array.from(this.models.values()).filter(entity =>
+    return Array.from(this.models.values()).filter((entity) =>
       entity.name.toString().includes(fullName),
     );
   }
@@ -22,7 +22,7 @@ export class UserFakeRepository extends MemoryRepository<User>
    *
    */
   public async findByEmail(email: Email): Promise<User> {
-    const user = Array.from(this.models.values()).find(entity =>
+    const user = Array.from(this.models.values()).find((entity) =>
       entity.email.equals(email),
     );
     if (!user) {
@@ -35,7 +35,7 @@ export class UserFakeRepository extends MemoryRepository<User>
    *
    */
   public async existsByEmail(email: Email): Promise<boolean> {
-    const user = Array.from(this.models.values()).find(entity =>
+    const user = Array.from(this.models.values()).find((entity) =>
       entity.email.equals(email),
     );
     return Boolean(user);

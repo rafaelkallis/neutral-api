@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPeerReviews } from 'common/validation/is-peer-reviews';
+import { IsPeerReviews } from 'shared/validation/is-peer-reviews';
 
 /**
  * Submit peer reviews DTO

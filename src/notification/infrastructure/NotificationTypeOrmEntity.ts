@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { NotificationTypeValue } from 'notification/domain/value-objects/NotificationType';
 
 /**

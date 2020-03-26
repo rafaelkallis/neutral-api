@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { User } from 'user/domain/User';
-import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
+import { TypeOrmEntityMapperService } from 'shared/infrastructure/TypeOrmEntityMapperService';
 import { Email } from 'user/domain/value-objects/Email';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { Name } from 'user/domain/value-objects/Name';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 
 /**

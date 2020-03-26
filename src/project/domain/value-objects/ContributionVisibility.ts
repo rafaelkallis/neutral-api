@@ -1,5 +1,5 @@
 import { InvalidContributionVisibilityException } from 'project/domain/exceptions/InvalidContributionVisibility';
-import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
+import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 
 export enum ContributionVisibilityValue {
   PUBLIC = 'public',

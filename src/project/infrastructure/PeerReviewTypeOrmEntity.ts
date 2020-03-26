@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 
 /**
@@ -7,10 +7,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
  */
 @Entity('peer_reviews')
 export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
-  @ManyToOne(
-    () => ProjectTypeOrmEntity,
-    project => project.peerReviews,
-  )
+  @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.peerReviews)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 

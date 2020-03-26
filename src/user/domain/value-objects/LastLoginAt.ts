@@ -1,4 +1,4 @@
-import { TimestampValueObject } from 'common/domain/value-objects/TimestampValueObject';
+import { TimestampValueObject } from 'shared/domain/value-objects/TimestampValueObject';
 
 /**
  *

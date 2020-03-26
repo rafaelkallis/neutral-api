@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'common/application/dto/BaseDto';
+import { BaseDto } from 'shared/application/dto/BaseDto';
 import { User } from 'user/domain/User';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Project } from 'project/domain/Project';
@@ -131,7 +131,7 @@ class BuildStep {
 
   private createRoleDtos(): RoleDto[] {
     const roles = Array.from(this.project.roles);
-    return roles.map(role =>
+    return roles.map((role) =>
       RoleDto.builder()
         .role(role)
         .project(this.project)
@@ -143,8 +143,8 @@ class BuildStep {
   private createPeerReviewDtos(): PeerReviewDto[] {
     const peerReviews = Array.from(this.project.peerReviews);
     return peerReviews
-      .filter(peerReview => this.shouldExposePeerReview(peerReview))
-      .map(peerReview =>
+      .filter((peerReview) => this.shouldExposePeerReview(peerReview))
+      .map((peerReview) =>
         PeerReviewDto.builder()
           .peerReview(peerReview)
           .project(this.project)

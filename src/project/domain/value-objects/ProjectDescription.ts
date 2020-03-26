@@ -1,4 +1,4 @@
-import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import { InvalidProjectDescriptionException } from 'project/domain/exceptions/InvalidProjectDescriptionException';
 
 /**

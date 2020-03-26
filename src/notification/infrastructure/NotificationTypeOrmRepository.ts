@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
-import { DatabaseClientService } from 'database/DatabaseClientService';
+import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
+import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
 import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
 import { ObjectType } from 'typeorm';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 
 /**
  * TypeOrm Notification Repository
@@ -35,7 +35,7 @@ export class NotificationTypeOrmRepository
       .find({
         ownerId: ownerId.value,
       });
-    const notificationModel = notificationEntities.map(e =>
+    const notificationModel = notificationEntities.map((e) =>
       this.entityMapper.toModel(e),
     );
     return notificationModel;

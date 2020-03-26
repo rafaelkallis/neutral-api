@@ -12,12 +12,12 @@ import {
   NotificationRepository,
 } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
-import { TokenManager } from 'token/application/TokenManager';
-import { EmailManager } from 'email/EmailManager';
+import { TokenManager } from 'shared/token/application/TokenManager';
+import { EmailManager } from 'shared/email/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
-import { ObjectStorage } from 'object-storage/application/ObjectStorage';
+import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -115,6 +115,6 @@ export class TestScenario {
    *
    */
   public async sleep(millis: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, millis));
+    return new Promise((resolve) => setTimeout(resolve, millis));
   }
 }

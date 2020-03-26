@@ -1,4 +1,4 @@
-import { BooleanValueObject } from 'common/domain/value-objects/BooleanValueObject';
+import { BooleanValueObject } from 'shared/domain/value-objects/BooleanValueObject';
 import { InvalidHasSubmittedPeerReviewsException } from 'project/domain/exceptions/InvalidHasSubmittedPeerReviewsException';
 
 /**

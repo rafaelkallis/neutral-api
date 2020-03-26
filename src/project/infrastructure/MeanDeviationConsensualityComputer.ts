@@ -61,19 +61,20 @@ export class MeanDeviationConsensualityComputerService
     const n = peers.length;
     function columnMean(j: string): number {
       return (
-        sum(peers.filter(i => i !== j).map(i => peerReviews[i][j])) / (n - 1)
+        sum(peers.filter((i) => i !== j).map((i) => peerReviews[i][j])) /
+        (n - 1)
       );
     }
     function columnMeanDeviation(j: string): number {
       return sum(
         peers
-          .filter(i => i !== j)
-          .map(i => Math.abs(peerReviews[i][j] - columnMean(j))),
+          .filter((i) => i !== j)
+          .map((i) => Math.abs(peerReviews[i][j] - columnMean(j))),
       );
     }
     const maxColumnMeanDeviation = (2 * (n - 2)) / (n - 1);
     const nonConsenuality = mean(
-      peers.map(j => columnMeanDeviation(j) / maxColumnMeanDeviation),
+      peers.map((j) => columnMeanDeviation(j) / maxColumnMeanDeviation),
     );
     return Consensuality.from(1 - nonConsenuality);
   }

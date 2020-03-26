@@ -1,8 +1,8 @@
-import { Model } from 'common/domain/Model';
+import { Model } from 'shared/domain/Model';
 import { Role } from 'project/domain/Role';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerReviewException';
 

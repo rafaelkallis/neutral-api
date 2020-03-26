@@ -1,6 +1,6 @@
 import { Validator } from 'class-validator';
 import { InvalidEmailException } from 'user/domain/exceptions/InvalidEmailException';
-import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 
 /**
  *

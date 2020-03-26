@@ -1,5 +1,5 @@
 import { InvalidProjectTitleException } from 'project/domain/exceptions/InvalidProjectTitleException';
-import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 
 /**
  *

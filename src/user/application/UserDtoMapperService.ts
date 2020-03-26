@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Config } from 'config/application/Config';
+import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
 

@@ -2,10 +2,10 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Project } from 'project/domain/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { Role } from 'project/domain/Role';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { Notification } from 'notification/domain/Notification';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 
 @Injectable()

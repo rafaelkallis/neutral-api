@@ -17,7 +17,7 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { Project, CreateProjectOptions } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
@@ -34,11 +34,11 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
-import { InsufficientPermissionsException } from 'common/exceptions/insufficient-permissions.exception';
+import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import {
   EventPublisher,
   InjectEventPublisher,
-} from 'event/publisher/EventPublisher';
+} from 'shared/event/publisher/EventPublisher';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 
 @Injectable()
@@ -86,11 +86,8 @@ export class ProjectApplicationService {
         throw new InvalidProjectTypeQueryException();
       }
     }
-    return projects.map(project =>
-      ProjectDto.builder()
-        .project(project)
-        .authUser(authUser)
-        .build(),
+    return projects.map((project) =>
+      ProjectDto.builder().project(project).authUser(authUser).build(),
     );
   }
 
@@ -99,10 +96,7 @@ export class ProjectApplicationService {
    */
   public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 
   /**
@@ -115,12 +109,8 @@ export class ProjectApplicationService {
     const projectId = Id.from(query.projectId);
     const project = await this.projectRepository.findById(projectId);
     const roles = Array.from(project.roles);
-    return roles.map(role =>
-      RoleDto.builder()
-        .role(role)
-        .project(project)
-        .authUser(authUser)
-        .build(),
+    return roles.map((role) =>
+      RoleDto.builder().role(role).project(project).authUser(authUser).build(),
     );
   }
 
@@ -163,10 +153,7 @@ export class ProjectApplicationService {
     const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 
   /**
@@ -188,10 +175,7 @@ export class ProjectApplicationService {
     project.update(title, description);
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 
   /**
@@ -339,10 +323,7 @@ export class ProjectApplicationService {
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 
   /**
@@ -373,10 +354,7 @@ export class ProjectApplicationService {
     );
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 
   /**
@@ -391,9 +369,6 @@ export class ProjectApplicationService {
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder()
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return ProjectDto.builder().project(project).authUser(authUser).build();
   }
 }

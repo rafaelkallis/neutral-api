@@ -1,5 +1,5 @@
 import { InvalidAvatarException } from 'user/domain/exceptions/InvalidAvatarException';
-import { StringValueObject } from 'common/domain/value-objects/StringValueObject';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import ObjectID from 'bson-objectid';
 
 /**

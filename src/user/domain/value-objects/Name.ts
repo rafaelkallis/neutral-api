@@ -1,4 +1,4 @@
-import { ValueObject } from 'common/domain/value-objects/ValueObject';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { InvalidNameException } from 'user/domain/exceptions/InvalidNameException';
 
 /**

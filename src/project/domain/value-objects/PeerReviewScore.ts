@@ -1,4 +1,4 @@
-import { UnitDecimalValueObject } from 'common/domain/value-objects/UnitDecimalValueObject';
+import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/InvalidPeerReviewScoreException';
 
 /**

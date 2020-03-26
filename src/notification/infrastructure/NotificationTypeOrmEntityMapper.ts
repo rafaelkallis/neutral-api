@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { TypeOrmEntityMapperService } from 'common/infrastructure/TypeOrmEntityMapperService';
+import { TypeOrmEntityMapperService } from 'shared/infrastructure/TypeOrmEntityMapperService';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
-import { Id } from 'common/domain/value-objects/Id';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { Id } from 'shared/domain/value-objects/Id';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
-import { DatabaseClientService } from 'database/DatabaseClientService';
+import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
-import { TypeOrmRepository } from 'common/infrastructure/TypeOrmRepository';
+import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
 import { ObjectType } from 'typeorm';
 import { Email } from 'user/domain/value-objects/Email';
 
@@ -37,7 +37,7 @@ export class UserTypeOrmRepository
       .orderBy('id', 'DESC')
       .take(10)
       .getMany();
-    const userModels = userEntities.map(e => this.entityMapper.toModel(e));
+    const userModels = userEntities.map((e) => this.entityMapper.toModel(e));
     return userModels;
   }
 

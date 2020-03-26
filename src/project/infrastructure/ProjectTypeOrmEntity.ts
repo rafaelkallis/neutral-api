@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { TypeOrmEntity } from 'common/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
@@ -35,19 +35,15 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'skip_manager_review' })
   public skipManagerReview: string;
 
-  @OneToMany(
-    () => RoleTypeOrmEntity,
-    role => role.project,
-    {
-      eager: true,
-      cascade: true,
-    },
-  )
+  @OneToMany(() => RoleTypeOrmEntity, (role) => role.project, {
+    eager: true,
+    cascade: true,
+  })
   public roles: ReadonlyArray<RoleTypeOrmEntity>;
 
   @OneToMany(
     () => PeerReviewTypeOrmEntity,
-    peerReview => peerReview.project,
+    (peerReview) => peerReview.project,
     {
       eager: true,
       cascade: true,

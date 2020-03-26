@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
-import { SessionState } from 'session';
-import { TokenManager } from 'token/application/TokenManager';
-import { Id } from 'common/domain/value-objects/Id';
+import { SessionState } from 'shared/session';
+import { TokenManager } from 'shared/token/application/TokenManager';
+import { Id } from 'shared/domain/value-objects/Id';
 import {
   UserRepository,
   InjectUserRepository,

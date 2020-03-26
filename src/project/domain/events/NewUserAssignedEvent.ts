@@ -1,6 +1,6 @@
 import { Role } from 'project/domain/Role';
 import { Email } from 'user/domain/value-objects/Email';
-import { DomainEvent } from 'event/domain/DomainEvent';
+import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { Project } from 'project/domain/Project';
 
 export class NewUserAssignedEvent extends DomainEvent {

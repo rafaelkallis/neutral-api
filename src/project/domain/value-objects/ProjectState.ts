@@ -1,6 +1,6 @@
 import { Validator } from 'class-validator';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
-import { EnumValueObject } from 'common/domain/value-objects/EnumValueObject';
+import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { ProjectStateAssertionFailureException } from '../exceptions/ProjectStateViolationException';
 
 export enum ProjectStateValue {

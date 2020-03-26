@@ -1,6 +1,6 @@
-import { Repository } from 'common/domain/Repository';
+import { Repository } from 'shared/domain/Repository';
 import { Notification } from 'notification/domain/Notification';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 
 export const NOTIFICATION_REPOSITORY = Symbol('NOTIFICATION_REPOSITORY');
 

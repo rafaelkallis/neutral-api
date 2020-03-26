@@ -52,7 +52,7 @@ export class VarianceConsensualityComputerService
     function variance(arr: number[]): number {
       const n = arr.length;
       const mean = sum(arr) / n;
-      const squaredSum = sum(arr.map(x => Math.pow(x - mean, 2)));
+      const squaredSum = sum(arr.map((x) => Math.pow(x - mean, 2)));
       return squaredSum / n;
     }
     function worstColumn(n: number): number[] {
@@ -62,12 +62,12 @@ export class VarianceConsensualityComputerService
       return arr;
     }
     function column(j: string): number[] {
-      return peers.filter(i => i !== j).map(i => peerReviews[i][j]);
+      return peers.filter((i) => i !== j).map((i) => peerReviews[i][j]);
     }
     return Consensuality.from(
       1 -
         mean(
-          peers.map(j => variance(column(j)) / variance(worstColumn(n - 1))),
+          peers.map((j) => variance(column(j)) / variance(worstColumn(n - 1))),
         ),
     );
   }

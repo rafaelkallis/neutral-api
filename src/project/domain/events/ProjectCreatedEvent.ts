@@ -1,6 +1,6 @@
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
-import { DomainEvent } from 'event/domain/DomainEvent';
+import { DomainEvent } from 'shared/event/domain/DomainEvent';
 
 export class ProjectCreatedEvent extends DomainEvent {
   public readonly project: Project;

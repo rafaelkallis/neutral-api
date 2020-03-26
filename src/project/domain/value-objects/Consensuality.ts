@@ -1,4 +1,4 @@
-import { UnitDecimalValueObject } from 'common/domain/value-objects/UnitDecimalValueObject';
+import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
 
 /**

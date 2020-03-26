@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'app/AppModule';
-import { Config } from 'config/application/Config';
+import { Config } from 'shared/config/application/Config';
 
 async function main(): Promise<void> {
   const app = await NestFactory.create(AppModule);

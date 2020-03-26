@@ -13,7 +13,7 @@ import { Notification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
-import { HandleDomainEvent } from 'event/domain/HandleDomainEvent';
+import { HandleDomainEvent } from 'shared/event/domain/HandleDomainEvent';
 
 @Injectable()
 export class NotificationSagasService {

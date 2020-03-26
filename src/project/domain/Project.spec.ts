@@ -10,7 +10,7 @@ import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';

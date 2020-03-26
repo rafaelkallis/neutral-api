@@ -1,13 +1,13 @@
-import { AggregateRoot } from 'common/domain/AggregateRoot';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
-import { Id } from 'common/domain/value-objects/Id';
+import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { CreatedAt } from 'common/domain/value-objects/CreatedAt';
-import { UpdatedAt } from 'common/domain/value-objects/UpdatedAt';
+import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
+import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEvent';
