@@ -9,9 +9,8 @@ import { EventModule } from 'shared/event/EventModule';
 import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from 'shared/application/MulterConfigService';
-import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { UserModelMap } from 'user/application/UserDtoMapperService';
 import { SharedModule } from 'shared/SharedModule';
-
 /**
  * User Module
  */
@@ -26,10 +25,10 @@ import { SharedModule } from 'shared/SharedModule';
   controllers: [UserController],
   providers: [
     UserApplicationService,
-    UserDtoMapperService,
+    UserModelMap,
     UserTypeOrmEntityMapperService,
     { provide: USER_REPOSITORY, useClass: UserTypeOrmRepository },
   ],
-  exports: [USER_REPOSITORY, UserDtoMapperService],
+  exports: [USER_REPOSITORY],
 })
 export class UserModule {}

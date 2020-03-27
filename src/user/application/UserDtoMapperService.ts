@@ -1,20 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
+import {
+  ModelMapContext,
+  AbstractModelMap,
+  ModelMap,
+} from 'shared/model-mapper/ModelMap';
 
 @Injectable()
-export class UserDtoMapperService {
+@ModelMap(User)
+export class UserModelMap extends AbstractModelMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
+    super();
     this.config = config;
   }
 
   /**
    *
    */
-  public toDto(user: User, authUser: User): UserDto {
+  public toDto(user: User, { authUser }: ModelMapContext): UserDto {
+    if (!authUser) {
+      throw new InternalServerErrorException();
+    }
     return new UserDto(
       user.id.value,
       this.shouldExposeEmail(user, authUser) ? user.email.value : null,

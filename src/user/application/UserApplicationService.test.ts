@@ -13,7 +13,7 @@ import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenMa
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { UserModelMap } from 'user/application/UserDtoMapperService';
 import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObjectStorage';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
@@ -25,7 +25,7 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
-  let userDtoMapper: UserDtoMapperService;
+  let userDtoMapper: UserModelMap;
   let tokenService: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
@@ -37,7 +37,7 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
-    userDtoMapper = new UserDtoMapperService(config);
+    userDtoMapper = new UserModelMap(config);
     objectStorage = new MockObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(
@@ -69,7 +69,9 @@ describe('user service', () => {
         user.name = Name.from(user.name.first + 'ann', user.name.last);
       }
       await userRepository.persist(...users);
-      expectedUserDtos = users.map((u) => userDtoMapper.toDto(u, user));
+      expectedUserDtos = users.map((u) =>
+        userDtoMapper.toDto(u, { authUser: user }),
+      );
       jest.spyOn(userRepository, 'findPage');
       jest.spyOn(userRepository, 'findByName');
     });
@@ -94,7 +96,7 @@ describe('user service', () => {
 
   describe('get user', () => {
     test('happy path', async () => {
-      const expectedUserDto = userDtoMapper.toDto(user, user);
+      const expectedUserDto = userDtoMapper.toDto(user, { authUser: user });
       const actualUserDto = await userApplicationService.getUser(
         user,
         user.id.value,
@@ -105,7 +107,9 @@ describe('user service', () => {
     test('should not expose email of another user', async () => {
       const anotherUser = modelFaker.user();
       await userRepository.persist(anotherUser);
-      const expectedAnotherUserDto = userDtoMapper.toDto(anotherUser, user);
+      const expectedAnotherUserDto = userDtoMapper.toDto(anotherUser, {
+        authUser: user,
+      });
       const actualAnotherUserDto = await userApplicationService.getUser(
         user,
         anotherUser.id.value,
@@ -117,7 +121,7 @@ describe('user service', () => {
 
   describe('get auth user', () => {
     test('happy path', async () => {
-      const expectedUserDto = userDtoMapper.toDto(user, user);
+      const expectedUserDto = userDtoMapper.toDto(user, { authUser: user });
       const actualUserDto = await userApplicationService.getAuthUser(user);
       expect(actualUserDto).toEqual(expectedUserDto);
     });
