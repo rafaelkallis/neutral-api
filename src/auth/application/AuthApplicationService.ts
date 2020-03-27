@@ -96,7 +96,7 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto: UserDto = this.modelMapper.map(user, { authUser: user });
+    const userDto = this.modelMapper.map(user, UserDto, { authUser: user });
     return { accessToken, refreshToken, user: userDto };
   }
 
@@ -150,7 +150,9 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto: UserDto = this.modelMapper.map(user, { authUser: user });
+    const userDto: UserDto = this.modelMapper.map(user, UserDto, {
+      authUser: user,
+    });
     return { accessToken, refreshToken, user: userDto };
   }
 

@@ -9,8 +9,8 @@ import {
 } from 'shared/model-mapper/ModelMap';
 
 @Injectable()
-@ModelMap(User)
-export class UserModelMap extends AbstractModelMap<User, UserDto> {
+@ModelMap(User, UserDto)
+export class UserMap extends AbstractModelMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
@@ -21,7 +21,7 @@ export class UserModelMap extends AbstractModelMap<User, UserDto> {
   /**
    *
    */
-  public toDto(user: User, { authUser }: ModelMapContext): UserDto {
+  public map(user: User, { authUser }: ModelMapContext): UserDto {
     if (!authUser) {
       throw new InternalServerErrorException();
     }

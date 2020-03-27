@@ -3,6 +3,7 @@ import {
   OnModuleInit,
   InternalServerErrorException,
   Logger,
+  Type,
 } from '@nestjs/common';
 import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 import {
@@ -12,36 +13,55 @@ import {
 } from 'shared/model-mapper/ModelMap';
 
 /**
- * Maps models to (primarily) dtos.
+ * Maps models.
  */
 export abstract class ModelMapper {
-  private readonly modelMaps: Map<Function, AbstractModelMap<object, object>>;
+  private readonly mappings: Map<
+    Function,
+    Map<Function, AbstractModelMap<unknown, unknown>>
+  >;
 
   public constructor() {
-    this.modelMaps = new Map();
+    this.mappings = new Map();
   }
 
-  protected registerModelMap(
-    targetModel: Function,
-    modelMap: AbstractModelMap<object, object>,
+  protected addModelMap<T, U>(
+    sourceModel: Type<T>,
+    targetModel: Type<U>,
+    modelMap: AbstractModelMap<T, U>,
   ) {
-    const conflictingModelMap = this.modelMaps.get(targetModel);
+    let targetMap = this.mappings.get(sourceModel);
+    if (!targetMap) {
+      targetMap = new Map();
+      this.mappings.set(sourceModel, targetMap);
+    }
+    const conflictingModelMap = targetMap.get(targetModel);
     if (conflictingModelMap) {
       throw new Error(
-        `Conflicting model maps: ${modelMap.constructor.name} and ${conflictingModelMap.constructor.name} are model maps for ${targetModel.name}, remove one.`,
+        `Conflicting model maps: ${modelMap.constructor.name} and ${conflictingModelMap.constructor.name} are model maps for ${sourceModel.name} -> ${targetModel.name}, remove one.`,
       );
     }
-    this.modelMaps.set(targetModel, modelMap);
+    targetMap.set(targetModel, modelMap);
   }
 
-  public map<TDto = object>(model: object, context?: ModelMapContext): TDto {
-    const modelMap = this.modelMaps.get(model.constructor);
+  public map<TDto>(
+    model: object,
+    targetModel: Type<TDto>,
+    context?: ModelMapContext,
+  ): TDto {
+    const targetMap = this.mappings.get(model.constructor);
+    if (!targetMap) {
+      throw new InternalServerErrorException(
+        `model map for ${model.constructor.name} -> ${targetModel.name} not found`,
+      );
+    }
+    const modelMap = targetMap.get(targetModel);
     if (!modelMap) {
       throw new InternalServerErrorException(
         `model map for ${model.constructor.name} not found`,
       );
     }
-    return (modelMap.toDto(model, context) as unknown) as TDto;
+    return (modelMap.map(model, context) as unknown) as TDto;
   }
 }
 
@@ -68,23 +88,24 @@ export class NestContainerModelMapper extends ModelMapper
 
   private registerModelMaps(): void {
     for (const service of this.serviceExplorer.exploreServices()) {
-      const targetModel = getModelMapMetadata(service);
-      if (!targetModel) {
+      const metadata = getModelMapMetadata(service);
+      if (!metadata) {
         continue;
       }
       if (!(service instanceof AbstractModelMap)) {
         // already checked in decorator @ModelMap(MyModel)
         throw new Error();
       }
-      this.registerModelMap(targetModel, service);
+      this.addModelMap(metadata.sourceModel, metadata.targetModel, service);
     }
   }
 
-  protected registerModelMap(
-    targetModel: Function,
-    modelMap: AbstractModelMap<object, object>,
+  protected addModelMap<T, U>(
+    sourceModel: Type<T>,
+    targetModel: Type<U>,
+    modelMap: AbstractModelMap<T, U>,
   ) {
-    super.registerModelMap(targetModel, modelMap);
+    super.addModelMap(sourceModel, targetModel, modelMap);
     this.logger.log(
       `Registered {${targetModel.name}, ${modelMap.constructor.name}} model map`,
     );

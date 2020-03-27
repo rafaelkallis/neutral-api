@@ -11,22 +11,34 @@ export interface ModelMapContext {
 /**
  *
  */
-export abstract class AbstractModelMap<T, TDto> {
+export abstract class AbstractModelMap<T, U> {
   /**
-   * Maps the given model to a dto.
+   * Maps the given model.
    * @param model The model to be mapped.
    * @param context
    */
-  public abstract toDto(model: T, context?: ModelMapContext): TDto;
+  public abstract map(model: T, context?: ModelMapContext): U;
 }
 
 export const MODEL_MAP_METADATA = Symbol('MODEL_MAP_METADATA');
 
+export class ModelMapMetadata<T, U> {
+  public readonly sourceModel: Type<T>;
+  public readonly targetModel: Type<U>;
+
+  public constructor(sourceModel: Type<T>, targetModel: Type<U>) {
+    this.sourceModel = sourceModel;
+    this.targetModel = targetModel;
+  }
+}
+
 /**
  *
  */
-export function getModelMapMetadata(target: object): Type<object> | null {
-  const metadata: Type<object> | undefined = Reflect.getMetadata(
+export function getModelMapMetadata<T, U>(
+  target: object,
+): ModelMapMetadata<T, U> | null {
+  const metadata: ModelMapMetadata<T, U> | undefined = Reflect.getMetadata(
     MODEL_MAP_METADATA,
     target.constructor,
   );
@@ -39,13 +51,17 @@ export function getModelMapMetadata(target: object): Type<object> | null {
 /**
  * ModelMap
  */
-export function ModelMap(targetModel: Type<object>): ClassDecorator {
+export function ModelMap<T, U>(
+  sourceModel: Type<T>,
+  targetModel: Type<U>,
+): ClassDecorator {
   return (modelMap: Function): void => {
     if (!(modelMap.prototype instanceof AbstractModelMap)) {
       throw new TypeError(
         `${modelMap.name} is not a model map, did you extend @${AbstractModelMap.name}?`,
       );
     }
-    Reflect.defineMetadata(MODEL_MAP_METADATA, targetModel, modelMap);
+    const metadata = new ModelMapMetadata(sourceModel, targetModel);
+    Reflect.defineMetadata(MODEL_MAP_METADATA, metadata, modelMap);
   };
 }
