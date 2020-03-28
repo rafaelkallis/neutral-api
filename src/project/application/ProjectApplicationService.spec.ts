@@ -31,6 +31,7 @@ import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { TestModelMapper } from 'test/TestModelMapper';
 import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 import { Mock } from 'test/Mock';
+import { ProjectDto } from './dto/ProjectDto';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
@@ -100,11 +101,13 @@ describe('project application service', () => {
         ownerUser,
         query,
       );
-      for (const project of projects) {
-        expect(modelMapper.map).toHaveBeenCalledWith(project, {
+      expect(modelMapper.map).toHaveBeenCalledWith(
+        expect.any(Project),
+        ProjectDto,
+        {
           authUser: ownerUser,
-        });
-      }
+        },
+      );
       for (const projectDto of projectDtos) {
         expect(projectDto).toEqual(mockProjectDto);
       }
@@ -137,13 +140,15 @@ describe('project application service', () => {
         assigneeUser,
         query,
       );
-      for (const project of projects) {
-        expect(modelMapper.map).toHaveBeenCalledWith(project, {
+      expect(modelMapper.map).toHaveBeenCalledWith(
+        expect.any(Project),
+        ProjectDto,
+        {
           authUser: assigneeUser,
-        });
-      }
+        },
+      );
       for (const projectDto of projectDtos) {
-        expect(projectDto).toContainEqual(mockProjectDto);
+        expect(projectDto).toEqual(mockProjectDto);
       }
     });
   });

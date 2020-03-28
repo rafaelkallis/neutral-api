@@ -26,7 +26,7 @@ export function getTypeOrmRepositoryMetadata<
   TModel extends Model,
   TEntity extends TypeOrmEntity
 >(target: object): TypeOrmRepositoryMetadata<TModel, TEntity> | undefined {
-  return Reflect.getMetadata(TYPEORM_REPOSITORY_METADATA, target);
+  return Reflect.getMetadata(TYPEORM_REPOSITORY_METADATA, target.constructor);
 }
 
 export function TypeOrmRepository<
@@ -36,7 +36,9 @@ export function TypeOrmRepository<
   const metadata = new TypeOrmRepositoryMetadata(modelType, entityType);
   return (target: Function): void => {
     if (!(target.prototype instanceof AbstractTypeOrmRepository)) {
-      throw new TypeError();
+      throw new TypeError(
+        `${target.name} is not a subclass of ${AbstractTypeOrmRepository.name}, cannot apply @${TypeOrmRepository.name}()`,
+      );
     }
     Reflect.defineMetadata(TYPEORM_REPOSITORY_METADATA, metadata, target);
     Injectable()(target);
@@ -63,7 +65,9 @@ export abstract class AbstractTypeOrmRepository<
     this.modelMapper = modelMapper;
     const metadata = getTypeOrmRepositoryMetadata<TModel, TEntity>(this);
     if (!metadata) {
-      throw new TypeError();
+      throw new TypeError(
+        `no TypeOrmRepository metadata found on ${this.constructor.name}, did you apply @${TypeOrmRepository.name}() ?`,
+      );
     }
     this.modelType = metadata.modelType;
     this.entityType = metadata.entityType;

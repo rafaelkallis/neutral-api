@@ -90,7 +90,9 @@ export class ProjectApplicationService {
         throw new InvalidProjectTypeQueryException();
       }
     }
-    return projects.map((project) => this.modelMapper.map(project, ProjectDto));
+    return projects.map((project) =>
+      this.modelMapper.map(project, ProjectDto, { authUser }),
+    );
   }
 
   /**
@@ -98,7 +100,7 @@ export class ProjectApplicationService {
    */
   public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
-    return this.modelMapper.map(project, ProjectDto);
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -112,7 +114,7 @@ export class ProjectApplicationService {
     const project = await this.projectRepository.findById(projectId);
     const roles = Array.from(project.roles);
     return roles.map((role) =>
-      RoleDto.builder().role(role).project(project).authUser(authUser).build(),
+      this.modelMapper.map(role, RoleDto, { project, authUser }),
     );
   }
 
@@ -123,11 +125,7 @@ export class ProjectApplicationService {
     const roleId = Id.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
     const role = project.roles.find(roleId);
-    return RoleDto.builder()
-      .role(role)
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return this.modelMapper.map(role, RoleDto, { project, authUser });
   }
 
   /**
@@ -155,7 +153,7 @@ export class ProjectApplicationService {
     const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(project, ProjectDto);
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -177,7 +175,7 @@ export class ProjectApplicationService {
     project.update(title, description);
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return this.modelMapper.map(project, ProjectDto);
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -212,11 +210,7 @@ export class ProjectApplicationService {
     const role = project.addRole(title, description);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return RoleDto.builder()
-      .role(role)
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return this.modelMapper.map(role, RoleDto, { project, authUser });
   }
 
   /**
@@ -239,11 +233,7 @@ export class ProjectApplicationService {
     project.updateRole(roleId, title, description);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return RoleDto.builder()
-      .role(roleToUpdate)
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return this.modelMapper.map(roleToUpdate, RoleDto, { project, authUser });
   }
 
   /**
@@ -305,11 +295,7 @@ export class ProjectApplicationService {
     project.assignUserToRole(userToAssign, roleToAssign);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return RoleDto.builder()
-      .role(roleToAssign)
-      .project(project)
-      .authUser(authUser)
-      .build();
+    return this.modelMapper.map(roleToAssign, RoleDto, { project, authUser });
   }
 
   /**
@@ -325,7 +311,7 @@ export class ProjectApplicationService {
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return this.modelMapper.map(project, ProjectDto);
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 
   /**

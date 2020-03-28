@@ -23,7 +23,9 @@ export class UserDtoMap extends AbstractModelMap<User, UserDto> {
    */
   public map(user: User, { authUser }: ModelMapContext): UserDto {
     if (!(authUser instanceof User)) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'no or invalid "authUser" provided in model map context',
+      );
     }
     return new UserDto(
       user.id.value,

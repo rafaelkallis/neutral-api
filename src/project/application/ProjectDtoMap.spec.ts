@@ -10,7 +10,7 @@ describe('project dto map', () => {
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
   let owner: User;
-  let authUser: User;
+  let user: User;
   let project: Project;
 
   beforeEach(async () => {
@@ -18,12 +18,12 @@ describe('project dto map', () => {
     projectDtoMap = new ProjectDtoMap(modelMapper);
     modelFaker = new ModelFaker();
     owner = modelFaker.user();
-    authUser = modelFaker.user();
+    user = modelFaker.user();
     project = modelFaker.project(owner.id);
   });
 
   test('general', () => {
-    const projectDto = projectDtoMap.map(project, { authUser });
+    const projectDto = projectDtoMap.map(project, { authUser: user });
     expect(projectDto).toEqual({
       id: project.id.value,
       title: project.title.value,
@@ -42,13 +42,13 @@ describe('project dto map', () => {
 
   test('should expose consensuality if project owner', () => {
     project.consensuality = Consensuality.from(1);
-    const projectDto = projectDtoMap.map(project, { authUser });
+    const projectDto = projectDtoMap.map(project, { authUser: owner });
     expect(projectDto.consensuality).toBeTruthy();
   });
 
   test('should not expose consensuality if not project owner', () => {
     project.consensuality = Consensuality.from(1);
-    const projectDto = projectDtoMap.map(project, { authUser });
+    const projectDto = projectDtoMap.map(project, { authUser: user });
     expect(projectDto.consensuality).toBeNull();
   });
 });

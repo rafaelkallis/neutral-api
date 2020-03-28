@@ -23,7 +23,9 @@ export class ProjectDtoMap extends AbstractModelMap<Project, ProjectDto> {
 
   public map(project: Project, { authUser }: ModelMapContext): ProjectDto {
     if (!(authUser instanceof User)) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'no or invalid "authUser" provided in model map context',
+      );
     }
     return new ProjectDto(
       project.id.value,
