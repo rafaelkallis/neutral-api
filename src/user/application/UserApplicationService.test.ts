@@ -13,7 +13,7 @@ import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenMa
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserMap } from 'user/application/UserMap';
+import { UserDtoMap } from 'user/application/UserDtoMap';
 import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObjectStorage';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
@@ -25,7 +25,7 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
-  let userDtoMapper: UserMap;
+  let userDtoMapper: UserDtoMap;
   let tokenService: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
@@ -37,7 +37,7 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
-    userDtoMapper = new UserMap(config);
+    userDtoMapper = new UserDtoMap(config);
     objectStorage = new MockObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(

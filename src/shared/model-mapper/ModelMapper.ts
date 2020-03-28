@@ -15,7 +15,7 @@ import {
 /**
  * Maps models.
  */
-export abstract class ModelMapper {
+export class ModelMapper {
   private readonly mappings: Map<
     Function,
     Map<Function, AbstractModelMap<unknown, unknown>>
@@ -25,7 +25,7 @@ export abstract class ModelMapper {
     this.mappings = new Map();
   }
 
-  protected addModelMap<T, U>(
+  public addModelMap<T, U>(
     sourceModel: Type<T>,
     targetModel: Type<U>,
     modelMap: AbstractModelMap<T, U>,
@@ -47,7 +47,7 @@ export abstract class ModelMapper {
   public map<TDto>(
     model: object,
     targetModel: Type<TDto>,
-    context?: ModelMapContext,
+    context: ModelMapContext = {},
   ): TDto {
     const targetMap = this.mappings.get(model.constructor);
     if (!targetMap) {
@@ -100,7 +100,7 @@ export class NestContainerModelMapper extends ModelMapper
     }
   }
 
-  protected addModelMap<T, U>(
+  public addModelMap<T, U>(
     sourceModel: Type<T>,
     targetModel: Type<U>,
     modelMap: AbstractModelMap<T, U>,

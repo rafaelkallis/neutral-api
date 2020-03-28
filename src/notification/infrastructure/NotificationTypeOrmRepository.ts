@@ -1,29 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
+import {
+  AbstractTypeOrmRepository,
+  TypeOrmRepository,
+} from 'shared/infrastructure/TypeOrmRepository';
 import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
-import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
-import { ObjectType } from 'typeorm';
 import { Id } from 'shared/domain/value-objects/Id';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 
 /**
  * TypeOrm Notification Repository
  */
-@Injectable()
+@TypeOrmRepository(Notification, NotificationTypeOrmEntity)
 export class NotificationTypeOrmRepository
-  extends TypeOrmRepository<Notification, NotificationTypeOrmEntity>
+  extends AbstractTypeOrmRepository<Notification, NotificationTypeOrmEntity>
   implements NotificationRepository {
   /**
    *
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    notificationTypeOrmEntityMapper: NotificationTypeOrmEntityMapperService,
+    modelMapper: ModelMapper,
   ) {
-    super(databaseClient, notificationTypeOrmEntityMapper);
+    super(databaseClient, modelMapper);
   }
 
   /**
@@ -36,7 +37,7 @@ export class NotificationTypeOrmRepository
         ownerId: ownerId.value,
       });
     const notificationModel = notificationEntities.map((e) =>
-      this.entityMapper.toModel(e),
+      this.modelMapper.map(e, Notification),
     );
     return notificationModel;
   }
@@ -46,12 +47,5 @@ export class NotificationTypeOrmRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new NotificationNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected getEntityType(): ObjectType<NotificationTypeOrmEntity> {
-    return NotificationTypeOrmEntity;
   }
 }

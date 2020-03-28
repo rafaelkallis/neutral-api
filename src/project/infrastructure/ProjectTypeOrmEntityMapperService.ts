@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { Project } from 'project/domain/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Id } from 'shared/domain/value-objects/Id';
@@ -21,16 +20,68 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { ModelMap, AbstractModelMap } from 'shared/model-mapper/ModelMap';
 
-/**
- * Project TypeOrm Entity Mapper
- */
-@Injectable()
-export class ProjectTypeOrmEntityMapperService {
-  /**
-   *
-   */
-  public toModel(projectEntity: ProjectTypeOrmEntity): Project {
+@ModelMap(Project, ProjectTypeOrmEntity)
+export class ProjectTypeOrmEntityMap extends AbstractModelMap<
+  Project,
+  ProjectTypeOrmEntity
+> {
+  public map(projectModel: Project): ProjectTypeOrmEntity {
+    const roleEntities: RoleTypeOrmEntity[] = [];
+    const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
+    const projectEntity = new ProjectTypeOrmEntity(
+      projectModel.id.value,
+      projectModel.createdAt.value,
+      projectModel.updatedAt.value,
+      projectModel.title.value,
+      projectModel.description.value,
+      projectModel.creatorId.value,
+      projectModel.state.value,
+      projectModel.consensuality ? projectModel.consensuality.value : null,
+      projectModel.contributionVisibility.value,
+      projectModel.skipManagerReview.value,
+      roleEntities,
+      peerReviewEntities,
+    );
+    for (const role of projectModel.roles) {
+      roleEntities.push(
+        new RoleTypeOrmEntity(
+          role.id.value,
+          role.createdAt.value,
+          role.updatedAt.value,
+          projectEntity,
+          role.assigneeId ? role.assigneeId.value : null,
+          role.title.value,
+          role.description.value,
+          role.contribution ? role.contribution.value : null,
+          role.hasSubmittedPeerReviews.value,
+        ),
+      );
+    }
+    for (const peerReview of projectModel.peerReviews) {
+      peerReviewEntities.push(
+        new PeerReviewTypeOrmEntity(
+          peerReview.id.value,
+          peerReview.createdAt.value,
+          peerReview.updatedAt.value,
+          projectEntity,
+          peerReview.senderRoleId.value,
+          peerReview.receiverRoleId.value,
+          peerReview.score.value,
+        ),
+      );
+    }
+    return projectEntity;
+  }
+}
+
+@ModelMap(ProjectTypeOrmEntity, Project)
+export class ReverseProjectTypeOrmEntityMap extends AbstractModelMap<
+  ProjectTypeOrmEntity,
+  Project
+> {
+  public map(projectEntity: ProjectTypeOrmEntity): Project {
     const roles = new RoleCollection(
       projectEntity.roles.map(
         (roleEntity) =>
@@ -78,56 +129,5 @@ export class ProjectTypeOrmEntityMapperService {
       roles,
       peerReviews,
     );
-  }
-
-  /**
-   *
-   */
-  public toEntity(projectModel: Project): ProjectTypeOrmEntity {
-    const roleEntities: RoleTypeOrmEntity[] = [];
-    const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
-    const projectEntity = new ProjectTypeOrmEntity(
-      projectModel.id.value,
-      projectModel.createdAt.value,
-      projectModel.updatedAt.value,
-      projectModel.title.value,
-      projectModel.description.value,
-      projectModel.creatorId.value,
-      projectModel.state.value,
-      projectModel.consensuality ? projectModel.consensuality.value : null,
-      projectModel.contributionVisibility.value,
-      projectModel.skipManagerReview.value,
-      roleEntities,
-      peerReviewEntities,
-    );
-    for (const role of projectModel.roles) {
-      roleEntities.push(
-        new RoleTypeOrmEntity(
-          role.id.value,
-          role.createdAt.value,
-          role.updatedAt.value,
-          projectEntity,
-          role.assigneeId ? role.assigneeId.value : null,
-          role.title.value,
-          role.description.value,
-          role.contribution ? role.contribution.value : null,
-          role.hasSubmittedPeerReviews.value,
-        ),
-      );
-    }
-    for (const peerReview of projectModel.peerReviews) {
-      peerReviewEntities.push(
-        new PeerReviewTypeOrmEntity(
-          peerReview.id.value,
-          peerReview.createdAt.value,
-          peerReview.updatedAt.value,
-          projectEntity,
-          peerReview.senderRoleId.value,
-          peerReview.receiverRoleId.value,
-          peerReview.score.value,
-        ),
-      );
-    }
-    return projectEntity;
   }
 }

@@ -1,31 +1,32 @@
-import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
+import {
+  AbstractTypeOrmRepository,
+  TypeOrmRepository,
+} from 'shared/infrastructure/TypeOrmRepository';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { Injectable } from '@nestjs/common';
 import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { Project } from 'project/domain/Project';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
-import { ObjectType } from 'typeorm';
 import { Id } from 'shared/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 
 /**
  * Project TypeOrm Repository
  */
-@Injectable()
+@TypeOrmRepository(Project, ProjectTypeOrmEntity)
 export class ProjectTypeOrmRepository
-  extends TypeOrmRepository<Project, ProjectTypeOrmEntity>
+  extends AbstractTypeOrmRepository<Project, ProjectTypeOrmEntity>
   implements ProjectRepository {
   /**
    *
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    projectEntityMapper: ProjectTypeOrmEntityMapperService,
+    modelMapper: ModelMapper,
   ) {
-    super(databaseClient, projectEntityMapper);
+    super(databaseClient, modelMapper);
   }
 
   public async persist(...projectModels: Project[]): Promise<void> {
@@ -52,7 +53,7 @@ export class ProjectTypeOrmRepository
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
     const projectModels = projectEntities.map((p) =>
-      this.entityMapper.toModel(p),
+      this.modelMapper.map(p, Project),
     );
     return projectModels;
   }
@@ -78,7 +79,7 @@ export class ProjectTypeOrmRepository
     if (!projectEntity) {
       this.throwEntityNotFoundException();
     }
-    const projectModel = this.entityMapper.toModel(projectEntity);
+    const projectModel = this.modelMapper.map(projectEntity, Project);
     return projectModel;
   }
 
@@ -101,7 +102,7 @@ export class ProjectTypeOrmRepository
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
     const projectModels = projectEntities.map((p) =>
-      this.entityMapper.toModel(p),
+      this.modelMapper.map(p, Project),
     );
     return projectModels;
   }
@@ -111,12 +112,5 @@ export class ProjectTypeOrmRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new ProjectNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected getEntityType(): ObjectType<ProjectTypeOrmEntity> {
-    return ProjectTypeOrmEntity;
   }
 }

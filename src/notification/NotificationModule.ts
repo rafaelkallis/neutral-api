@@ -5,8 +5,12 @@ import { NotificationTypeOrmRepository } from 'notification/infrastructure/Notif
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
-import { NotificationTypeOrmEntityMapperService } from 'notification/infrastructure/NotificationTypeOrmEntityMapper';
 import { SharedModule } from 'shared/SharedModule';
+import { NotificationDtoMap } from 'notification/application/NotificationDtoMap';
+import {
+  NotificationTypeOrmEntityMap,
+  ReverseNotificationTypeOrmEntityMap,
+} from './infrastructure/NotificationTypeOrmEntityMap';
 
 /**
  * Notification Module
@@ -17,7 +21,9 @@ import { SharedModule } from 'shared/SharedModule';
   providers: [
     NotificationApplicationService,
     NotificationFactoryService,
-    NotificationTypeOrmEntityMapperService,
+    NotificationDtoMap,
+    NotificationTypeOrmEntityMap,
+    ReverseNotificationTypeOrmEntityMap,
     {
       provide: NOTIFICATION_REPOSITORY,
       useClass: NotificationTypeOrmRepository,

@@ -4,13 +4,19 @@ import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { PROJECT_REPOSITORY } from 'project/domain/ProjectRepository';
 import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
-import { ProjectTypeOrmEntityMapperService } from 'project/infrastructure/ProjectTypeOrmEntityMapperService';
 import { RoleController } from 'project/presentation/RoleController';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { SharedModule } from 'shared/SharedModule';
+import {
+  ProjectTypeOrmEntityMap,
+  ReverseProjectTypeOrmEntityMap,
+} from './infrastructure/ProjectTypeOrmEntityMapperService';
+import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
+import { RoleDtoMap } from 'project/application/RoleDtoMap';
+import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';
 
 /**
  * Project Module
@@ -32,7 +38,11 @@ import { SharedModule } from 'shared/SharedModule';
       useClass: CoveeContributionsComputerService,
     },
     ProjectApplicationService,
-    ProjectTypeOrmEntityMapperService,
+    ProjectDtoMap,
+    RoleDtoMap,
+    PeerReviewDtoMap,
+    ProjectTypeOrmEntityMap,
+    ReverseProjectTypeOrmEntityMap,
   ],
   exports: [PROJECT_REPOSITORY],
 })

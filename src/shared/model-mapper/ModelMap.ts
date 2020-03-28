@@ -1,11 +1,10 @@
-import { Type } from '@nestjs/common';
-import { User } from 'user/domain/User';
+import { Type, Injectable } from '@nestjs/common';
 
 /**
  * Context for mapping a model.
  */
 export interface ModelMapContext {
-  authUser?: User;
+  [key: string]: unknown | undefined;
 }
 
 /**
@@ -17,7 +16,7 @@ export abstract class AbstractModelMap<T, U> {
    * @param model The model to be mapped.
    * @param context
    */
-  public abstract map(model: T, context?: ModelMapContext): U;
+  public abstract map(model: T, context: ModelMapContext): U;
 }
 
 export const MODEL_MAP_METADATA = Symbol('MODEL_MAP_METADATA');
@@ -37,15 +36,8 @@ export class ModelMapMetadata<T, U> {
  */
 export function getModelMapMetadata<T, U>(
   target: object,
-): ModelMapMetadata<T, U> | null {
-  const metadata: ModelMapMetadata<T, U> | undefined = Reflect.getMetadata(
-    MODEL_MAP_METADATA,
-    target.constructor,
-  );
-  if (!metadata) {
-    return null;
-  }
-  return metadata;
+): ModelMapMetadata<T, U> | undefined {
+  return Reflect.getMetadata(MODEL_MAP_METADATA, target.constructor);
 }
 
 /**
@@ -63,5 +55,6 @@ export function ModelMap<T, U>(
     }
     const metadata = new ModelMapMetadata(sourceModel, targetModel);
     Reflect.defineMetadata(MODEL_MAP_METADATA, metadata, modelMap);
+    Injectable()(modelMap);
   };
 }

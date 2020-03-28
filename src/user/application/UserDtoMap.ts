@@ -10,7 +10,7 @@ import {
 
 @Injectable()
 @ModelMap(User, UserDto)
-export class UserMap extends AbstractModelMap<User, UserDto> {
+export class UserDtoMap extends AbstractModelMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
@@ -22,12 +22,12 @@ export class UserMap extends AbstractModelMap<User, UserDto> {
    *
    */
   public map(user: User, { authUser }: ModelMapContext): UserDto {
-    if (!authUser) {
+    if (!(authUser instanceof User)) {
       throw new InternalServerErrorException();
     }
     return new UserDto(
       user.id.value,
-      this.shouldExposeEmail(user, authUser) ? user.email.value : null,
+      this.mapEmail(user, authUser),
       user.name.first,
       user.name.last,
       user.createdAt.value,
@@ -36,8 +36,8 @@ export class UserMap extends AbstractModelMap<User, UserDto> {
     );
   }
 
-  private shouldExposeEmail(user: User, authUser: User): boolean {
-    return user.id.equals(authUser.id);
+  private mapEmail(user: User, authUser: User): string | null {
+    return user.id.equals(authUser.id) ? user.email.value : null;
   }
 
   private createAvatarUrl(user: User): string {

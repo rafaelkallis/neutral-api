@@ -1,12 +1,12 @@
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
-import { UserMap } from 'user/application/UserMap';
+import { UserDtoMap } from 'user/application/UserDtoMap';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe('user map', () => {
-  let userMap: UserMap;
+  let userMap: UserDtoMap;
   let primitiveFaker: PrimitiveFaker;
   let modelFaker: ModelFaker;
   let user: User;
@@ -14,7 +14,7 @@ describe('user map', () => {
   beforeEach(async () => {
     const config = new MockConfig();
     config.set('SERVER_URL', 'http://example.com');
-    userMap = new UserMap(config);
+    userMap = new UserDtoMap(config);
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     user = modelFaker.user();

@@ -18,7 +18,7 @@ import { User } from 'user/domain/User';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserMap } from 'user/application/UserMap';
+import { UserDtoMap } from 'user/application/UserDtoMap';
 import { TestModelMapper } from 'test/TestModelMapper';
 import { UserDto } from 'user/application/dto/UserDto';
 
@@ -40,7 +40,7 @@ describe('auth application service', () => {
     userRepository = new UserFakeRepository();
     tokenService = new FakeTokenManagerService();
     modelMapper = new TestModelMapper();
-    modelMapper.addModelMap(User, UserDto, new UserMap(config));
+    modelMapper.addModelMap(User, UserDto, new UserDtoMap(config));
 
     authService = new AuthService(
       config,

@@ -40,11 +40,13 @@ import {
   InjectEventPublisher,
 } from 'shared/event/publisher/EventPublisher';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
+  private readonly modelMapper: ModelMapper;
   private readonly eventPublisher: EventPublisher;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -53,11 +55,13 @@ export class ProjectApplicationService {
     @InjectProjectRepository() projectRepository: ProjectRepository,
     @InjectUserRepository() userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisher,
+    modelMapper: ModelMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
+    this.modelMapper = modelMapper;
     this.eventPublisher = eventPublisher;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
@@ -86,9 +90,7 @@ export class ProjectApplicationService {
         throw new InvalidProjectTypeQueryException();
       }
     }
-    return projects.map((project) =>
-      ProjectDto.builder().project(project).authUser(authUser).build(),
-    );
+    return projects.map((project) => this.modelMapper.map(project, ProjectDto));
   }
 
   /**
@@ -96,7 +98,7 @@ export class ProjectApplicationService {
    */
   public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto);
   }
 
   /**
@@ -153,7 +155,7 @@ export class ProjectApplicationService {
     const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto);
   }
 
   /**
@@ -175,7 +177,7 @@ export class ProjectApplicationService {
     project.update(title, description);
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto);
   }
 
   /**
@@ -323,7 +325,7 @@ export class ProjectApplicationService {
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto);
   }
 
   /**
@@ -354,7 +356,7 @@ export class ProjectApplicationService {
     );
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -369,6 +371,6 @@ export class ProjectApplicationService {
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return ProjectDto.builder().project(project).authUser(authUser).build();
+    return this.modelMapper.map(project, ProjectDto, { authUser });
   }
 }

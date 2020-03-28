@@ -6,11 +6,15 @@ import { DatabaseModule } from 'shared/database/DatabaseModule';
 import { TokenModule } from 'shared/token/TokenModule';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { EventModule } from 'shared/event/EventModule';
-import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
+import {
+  UserTypeOrmEntityMap,
+  ReverseUserTypeOrmEntityMap,
+} from 'user/infrastructure/UserTypeOrmEntityMap';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from 'shared/application/MulterConfigService';
-import { UserMap } from 'user/application/UserMap';
+import { UserDtoMap } from 'user/application/UserDtoMap';
 import { SharedModule } from 'shared/SharedModule';
+
 /**
  * User Module
  */
@@ -25,8 +29,9 @@ import { SharedModule } from 'shared/SharedModule';
   controllers: [UserController],
   providers: [
     UserApplicationService,
-    UserMap,
-    UserTypeOrmEntityMapperService,
+    UserDtoMap,
+    UserTypeOrmEntityMap,
+    ReverseUserTypeOrmEntityMap,
     { provide: USER_REPOSITORY, useClass: UserTypeOrmRepository },
   ],
   exports: [USER_REPOSITORY],

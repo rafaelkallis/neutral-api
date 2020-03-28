@@ -1,29 +1,30 @@
-import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
-import { UserTypeOrmEntityMapperService } from 'user/infrastructure/UserTypeOrmEntityMapper';
-import { TypeOrmRepository } from 'shared/infrastructure/TypeOrmRepository';
-import { ObjectType } from 'typeorm';
+import {
+  AbstractTypeOrmRepository,
+  TypeOrmRepository,
+} from 'shared/infrastructure/TypeOrmRepository';
 import { Email } from 'user/domain/value-objects/Email';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 
 /**
  * TypeOrm User Repository
  */
-@Injectable()
+@TypeOrmRepository(User, UserTypeOrmEntity)
 export class UserTypeOrmRepository
-  extends TypeOrmRepository<User, UserTypeOrmEntity>
+  extends AbstractTypeOrmRepository<User, UserTypeOrmEntity>
   implements UserRepository {
   /**
    *
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    userTypeOrmEntityMapper: UserTypeOrmEntityMapperService,
+    modelMapper: ModelMapper,
   ) {
-    super(databaseClient, userTypeOrmEntityMapper);
+    super(databaseClient, modelMapper);
   }
 
   /**
@@ -37,7 +38,7 @@ export class UserTypeOrmRepository
       .orderBy('id', 'DESC')
       .take(10)
       .getMany();
-    const userModels = userEntities.map((e) => this.entityMapper.toModel(e));
+    const userModels = userEntities.map((e) => this.modelMapper.map(e, User));
     return userModels;
   }
 
@@ -51,7 +52,7 @@ export class UserTypeOrmRepository
     if (!userEntity) {
       this.throwEntityNotFoundException();
     }
-    const userModel = this.entityMapper.toModel(userEntity);
+    const userModel = this.modelMapper.map(userEntity, User);
     return userModel;
   }
 
@@ -70,12 +71,5 @@ export class UserTypeOrmRepository
    */
   protected throwEntityNotFoundException(): never {
     throw new UserNotFoundException();
-  }
-
-  /**
-   *
-   */
-  protected getEntityType(): ObjectType<UserTypeOrmEntity> {
-    return UserTypeOrmEntity;
   }
 }

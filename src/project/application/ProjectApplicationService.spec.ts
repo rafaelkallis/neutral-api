@@ -1,7 +1,6 @@
 import { Project } from 'project/domain/Project';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
-import { ProjectDto } from 'project/application/dto/ProjectDto';
 import {
   GetProjectsQueryDto,
   GetProjectsType,
@@ -29,6 +28,9 @@ import { RoleCollection } from 'project/domain/RoleCollection';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { TestModelMapper } from 'test/TestModelMapper';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { Mock } from 'test/Mock';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
@@ -37,13 +39,13 @@ describe('project application service', () => {
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserFakeRepository;
   let projectRepository: ProjectRepository;
+  let modelMapper: TestModelMapper;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
   let projectApplication: ProjectApplicationService;
   let ownerUser: User;
   let project: Project;
   let roles: Role[];
-  let projectDto: ProjectDto;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
@@ -52,12 +54,14 @@ describe('project application service', () => {
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     projectRepository = new ProjectFakeRepository();
+    modelMapper = Mock(ModelMapper);
     contributionsComputer = new FakeContributionsComputerService();
     consensualityComputer = new FakeConsensualityComputerService();
     projectApplication = new ProjectApplicationService(
       projectRepository,
       userRepository,
       eventPublisher,
+      modelMapper,
       contributionsComputer,
       consensualityComputer,
     );
@@ -69,11 +73,6 @@ describe('project application service', () => {
     roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
     project.roles = new RoleCollection(roles);
     await projectRepository.persist(project);
-
-    projectDto = ProjectDto.builder()
-      .project(project)
-      .authUser(ownerUser)
-      .build();
   });
 
   test('should be defined', () => {
@@ -95,15 +94,19 @@ describe('project application service', () => {
     });
 
     test('happy path', async () => {
-      const expectedProjectDtos = projects.map((project) =>
-        ProjectDto.builder().project(project).authUser(ownerUser).build(),
-      );
-      const actualProjectDtos = await projectApplication.getProjects(
+      const mockProjectDto = {};
+      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
+      const projectDtos = await projectApplication.getProjects(
         ownerUser,
         query,
       );
-      for (const expectedProjectDto of expectedProjectDtos) {
-        expect(actualProjectDtos).toContainEqual(expectedProjectDto);
+      for (const project of projects) {
+        expect(modelMapper.map).toHaveBeenCalledWith(project, {
+          authUser: ownerUser,
+        });
+      }
+      for (const projectDto of projectDtos) {
+        expect(projectDto).toEqual(mockProjectDto);
       }
     });
   });
@@ -128,24 +131,30 @@ describe('project application service', () => {
     });
 
     test('happy path', async () => {
-      const expectedProjectDtos = projects.map((project) =>
-        ProjectDto.builder().project(project).authUser(ownerUser).build(),
-      );
-      const actualProjectDtos = await projectApplication.getProjects(
+      const mockProjectDto = {};
+      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
+      const projectDtos = await projectApplication.getProjects(
         assigneeUser,
         query,
       );
-      for (const expectedProjectDto of expectedProjectDtos) {
-        expect(actualProjectDtos).toContainEqual(expectedProjectDto);
+      for (const project of projects) {
+        expect(modelMapper.map).toHaveBeenCalledWith(project, {
+          authUser: assigneeUser,
+        });
+      }
+      for (const projectDto of projectDtos) {
+        expect(projectDto).toContainEqual(mockProjectDto);
       }
     });
   });
 
   describe('get project', () => {
     test('happy path', async () => {
+      const mockProjectDto = {};
+      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
       await expect(
         projectApplication.getProject(ownerUser, project.id.value),
-      ).resolves.toEqual(projectDto);
+      ).resolves.toEqual(mockProjectDto);
     });
   });
 

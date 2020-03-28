@@ -1,5 +1,3 @@
-import { Injectable } from '@nestjs/common';
-import { TypeOrmEntityMapperService } from 'shared/infrastructure/TypeOrmEntityMapperService';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Id } from 'shared/domain/value-objects/Id';
@@ -7,18 +5,32 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
+import { ModelMap, AbstractModelMap } from 'shared/model-mapper/ModelMap';
 
-/**
- * Notification TypeOrm Entity Mapper
- */
-@Injectable()
-export class NotificationTypeOrmEntityMapperService
-  implements
-    TypeOrmEntityMapperService<Notification, NotificationTypeOrmEntity> {
-  /**
-   *
-   */
-  public toModel(notificationEntity: NotificationTypeOrmEntity): Notification {
+@ModelMap(Notification, NotificationTypeOrmEntity)
+export class NotificationTypeOrmEntityMap extends AbstractModelMap<
+  Notification,
+  NotificationTypeOrmEntity
+> {
+  public map(notificationModel: Notification): NotificationTypeOrmEntity {
+    return new NotificationTypeOrmEntity(
+      notificationModel.id.value,
+      notificationModel.createdAt.value,
+      notificationModel.updatedAt.value,
+      notificationModel.ownerId.value,
+      notificationModel.type.value,
+      notificationModel.isRead.value,
+      notificationModel.payload,
+    );
+  }
+}
+
+@ModelMap(NotificationTypeOrmEntity, Notification)
+export class ReverseNotificationTypeOrmEntityMap extends AbstractModelMap<
+  NotificationTypeOrmEntity,
+  Notification
+> {
+  public map(notificationEntity: NotificationTypeOrmEntity): Notification {
     return new Notification(
       Id.from(notificationEntity.id),
       CreatedAt.from(notificationEntity.createdAt),
@@ -27,21 +39,6 @@ export class NotificationTypeOrmEntityMapperService
       NotificationType.from(notificationEntity.type),
       NotificationIsRead.from(notificationEntity.isRead),
       notificationEntity.payload,
-    );
-  }
-
-  /**
-   *
-   */
-  public toEntity(notification: Notification): NotificationTypeOrmEntity {
-    return new NotificationTypeOrmEntity(
-      notification.id.value,
-      notification.createdAt.value,
-      notification.updatedAt.value,
-      notification.ownerId.value,
-      notification.type.value,
-      notification.isRead.value,
-      notification.payload,
     );
   }
 }
