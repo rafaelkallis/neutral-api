@@ -164,52 +164,51 @@ describe('project application service', () => {
   });
 
   describe('get roles', () => {
+    let mockRoleDto: object;
     let getRolesQueryDto: GetRolesQueryDto;
 
     beforeEach(() => {
+      mockRoleDto = {};
+      jest.spyOn(modelMapper, 'map').mockReturnValue(mockRoleDto);
       getRolesQueryDto = new GetRolesQueryDto(project.id.value);
     });
 
     test('happy path', async () => {
-      const actualRoleDtos = await projectApplication.getRoles(
+      const roleDtos = await projectApplication.getRoles(
         ownerUser,
         getRolesQueryDto,
       );
-      const expectedRoleDtos = [
-        RoleDto.builder()
-          .role(roles[0])
-          .project(project)
-          .authUser(ownerUser)
-          .build(),
-        RoleDto.builder()
-          .role(roles[1])
-          .project(project)
-          .authUser(ownerUser)
-          .build(),
-      ];
-      expect(actualRoleDtos).toEqual(expectedRoleDtos);
+      for (const roleDto of roleDtos) {
+        expect(roleDto).toEqual(mockRoleDto);
+      }
+      expect(modelMapper.map).toHaveBeenCalledWith(expect.any(Role), RoleDto, {
+        project,
+        authUser: ownerUser,
+      });
     });
   });
 
   describe('get role', () => {
+    let mockRoleDto: object;
     let sentPeerReview: PeerReview;
 
     beforeEach(() => {
+      mockRoleDto = {};
+      jest.spyOn(modelMapper, 'map').mockReturnValue(mockRoleDto);
       sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
       project.peerReviews.add(sentPeerReview);
     });
 
     test('happy path', async () => {
-      const actualRoleDto = await projectApplication.getRole(
+      const roleDto = await projectApplication.getRole(
         ownerUser,
         roles[0].id.value,
       );
-      const expectedRoleDto = RoleDto.builder()
-        .role(roles[0])
-        .project(project)
-        .authUser(ownerUser)
-        .build();
-      expect(actualRoleDto).toEqual(expectedRoleDto);
+      expect(modelMapper.map).toHaveBeenCalledWith(roles[0], RoleDto, {
+        project,
+        authUser: ownerUser,
+      });
+      expect(roleDto).toEqual(mockRoleDto);
     });
   });
 
