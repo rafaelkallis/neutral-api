@@ -68,11 +68,7 @@ export class ProjectDtoMap extends AbstractModelMap<Project, ProjectDto> {
         this.shouldExposePeerReview(peerReview, project, authUser),
       )
       .map((peerReview) =>
-        PeerReviewDto.builder()
-          .peerReview(peerReview)
-          .project(project)
-          .authUser(authUser)
-          .build(),
+        this.modelMapper.map(peerReview, PeerReviewDto, { project, authUser }),
       );
   }
 
