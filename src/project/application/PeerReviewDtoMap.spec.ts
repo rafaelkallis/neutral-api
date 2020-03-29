@@ -6,9 +6,9 @@ import { ContributionVisibility } from 'project/domain/value-objects/Contributio
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { ModelFaker } from 'test/ModelFaker';
-import { RoleDtoMap } from '../RoleDtoMap';
+import { RoleDtoMap } from 'project/application/RoleDtoMap';
 
-describe('role dto', () => {
+describe('peer review dto map', () => {
   let modelFaker: ModelFaker;
   let roleDtoMap: RoleDtoMap;
   let users: Record<string, User>;

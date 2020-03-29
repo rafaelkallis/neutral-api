@@ -7,7 +7,7 @@ export class NotificationDtoMap extends AbstractModelMap<
   Notification,
   NotificationDto
 > {
-  public map(notification: Notification): NotificationDto {
+  protected innerMap(notification: Notification): NotificationDto {
     return new NotificationDto(
       notification.id.value,
       notification.createdAt.value,

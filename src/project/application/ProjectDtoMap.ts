@@ -6,7 +6,6 @@ import {
 import { Project } from 'project/domain/Project';
 import { ProjectDto } from './dto/ProjectDto';
 import { User } from 'user/domain/User';
-import { InternalServerErrorException } from '@nestjs/common';
 import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { PeerReview } from 'project/domain/PeerReview';
@@ -21,12 +20,8 @@ export class ProjectDtoMap extends AbstractModelMap<Project, ProjectDto> {
     this.modelMapper = modelMapper;
   }
 
-  public map(project: Project, { authUser }: ModelMapContext): ProjectDto {
-    if (!(authUser instanceof User)) {
-      throw new InternalServerErrorException(
-        'no or invalid "authUser" provided in model map context',
-      );
-    }
+  protected innerMap(project: Project, context: ModelMapContext): ProjectDto {
+    const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,
       project.title.value,

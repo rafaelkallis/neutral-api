@@ -21,12 +21,12 @@ import {
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
-import { UserDtoMap } from 'user/application/UserDtoMap';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly userDtoMapper: UserDtoMap;
+  private readonly modelMapper: ModelMapper;
   private readonly eventPublisher: EventPublisher;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
@@ -34,14 +34,14 @@ export class UserApplicationService {
 
   public constructor(
     @InjectUserRepository() userRepository: UserRepository,
-    userDtoMapper: UserDtoMap,
+    modelMapper: ModelMapper,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     tokenManager: TokenManager,
     config: Config,
     objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
-    this.userDtoMapper = userDtoMapper;
+    this.modelMapper = modelMapper;
     this.eventPublisher = eventPublisher;
     this.tokenService = tokenManager;
     this.config = config;
@@ -63,7 +63,9 @@ export class UserApplicationService {
     } else {
       users = await this.userRepository.findPage();
     }
-    return users.map((user) => this.userDtoMapper.map(user, { authUser }));
+    return users.map((user) =>
+      this.modelMapper.map(user, UserDto, { authUser }),
+    );
   }
 
   /**
@@ -71,14 +73,14 @@ export class UserApplicationService {
    */
   public async getUser(authUser: User, id: string): Promise<UserDto> {
     const user = await this.userRepository.findById(Id.from(id));
-    return this.userDtoMapper.map(user, { authUser });
+    return this.modelMapper.map(user, UserDto, { authUser });
   }
 
   /**
    * Get the authenticated user
    */
   public async getAuthUser(authUser: User): Promise<UserDto> {
-    return this.userDtoMapper.map(authUser, { authUser });
+    return this.modelMapper.map(authUser, UserDto, { authUser });
   }
 
   /**
@@ -119,7 +121,7 @@ export class UserApplicationService {
       await this.eventPublisher.publish(...authUser.getDomainEvents());
       await this.userRepository.persist(authUser);
     }
-    return this.userDtoMapper.map(authUser, { authUser });
+    return this.modelMapper.map(authUser, UserDto, { authUser });
   }
 
   public async getUserAvatar(
@@ -162,7 +164,7 @@ export class UserApplicationService {
     authUser.updateAvatar(newAvatar);
     await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
-    return this.userDtoMapper.map(authUser, { authUser });
+    return this.modelMapper.map(authUser, UserDto, { authUser });
   }
 
   public async removeAuthUserAvatar(authUser: User): Promise<UserDto> {
@@ -176,7 +178,7 @@ export class UserApplicationService {
     authUser.removeAvatar();
     await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
-    return this.userDtoMapper.map(authUser, { authUser });
+    return this.modelMapper.map(authUser, UserDto, { authUser });
   }
 
   /**

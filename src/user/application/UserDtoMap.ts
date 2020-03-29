@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -21,12 +21,8 @@ export class UserDtoMap extends AbstractModelMap<User, UserDto> {
   /**
    *
    */
-  public map(user: User, { authUser }: ModelMapContext): UserDto {
-    if (!(authUser instanceof User)) {
-      throw new InternalServerErrorException(
-        'no or invalid "authUser" provided in model map context',
-      );
-    }
+  protected innerMap(user: User, context: ModelMapContext): UserDto {
+    const authUser = context.get('authUser', User);
     return new UserDto(
       user.id.value,
       this.mapEmail(user, authUser),

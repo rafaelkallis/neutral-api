@@ -5,7 +5,6 @@ import {
 } from 'shared/model-mapper/ModelMap';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
-import { InternalServerErrorException } from '@nestjs/common';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 
@@ -14,13 +13,12 @@ export class PeerReviewDtoMap extends AbstractModelMap<
   PeerReview,
   PeerReviewDto
 > {
-  public map(
+  protected innerMap(
     peerReview: PeerReview,
-    { project, authUser }: ModelMapContext,
+    context: ModelMapContext,
   ): PeerReviewDto {
-    if (!(project instanceof Project) || !(authUser instanceof User)) {
-      throw new InternalServerErrorException();
-    }
+    const project = context.get('project', Project);
+    const authUser = context.get('authUser', User);
     return new PeerReviewDto(
       peerReview.id.value,
       peerReview.senderRoleId.value,
@@ -39,8 +37,7 @@ export class PeerReviewDtoMap extends AbstractModelMap<
     let shouldExpose = false;
     if (project.isCreator(authUser)) {
       shouldExpose = true;
-    }
-    if (project.roles.anyAssignedToUser(authUser)) {
+    } else if (project.roles.anyAssignedToUser(authUser)) {
       const authUserRole = project.roles.findByAssignee(authUser);
       if (peerReview.isSenderRole(authUserRole)) {
         shouldExpose = true;

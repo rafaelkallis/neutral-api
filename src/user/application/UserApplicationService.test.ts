@@ -1,5 +1,4 @@
 import { UserRepository } from 'user/domain/UserRepository';
-import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
@@ -13,11 +12,12 @@ import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenMa
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserDtoMap } from 'user/application/UserDtoMap';
 import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObjectStorage';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
+import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { Mock } from 'test/Mock';
 
 describe('user service', () => {
   let modelFaker: ModelFaker;
@@ -25,11 +25,12 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
-  let userDtoMapper: UserDtoMap;
+  let mockModelMapper: ModelMapper;
   let tokenService: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
   let user: User;
+  let mockUserDto: object;
 
   beforeEach(async () => {
     primitiveFaker = new PrimitiveFaker();
@@ -37,12 +38,12 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
-    userDtoMapper = new UserDtoMap(config);
+    mockModelMapper = Mock(ModelMapper);
     objectStorage = new MockObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(
       userRepository,
-      userDtoMapper,
+      mockModelMapper,
       eventPublisher,
       tokenService,
       config,
@@ -51,6 +52,8 @@ describe('user service', () => {
 
     user = modelFaker.user();
     await userRepository.persist(user);
+    mockUserDto = {};
+    jest.spyOn(mockModelMapper, 'map').mockReturnValue(mockUserDto);
   });
 
   it('should be defined', () => {
@@ -60,7 +63,6 @@ describe('user service', () => {
   describe('get users', () => {
     let query: GetUsersQueryDto;
     let users: User[];
-    let expectedUserDtos: UserDto[];
 
     beforeEach(async () => {
       query = new GetUsersQueryDto();
@@ -69,26 +71,24 @@ describe('user service', () => {
         user.name = Name.from(user.name.first + 'ann', user.name.last);
       }
       await userRepository.persist(...users);
-      expectedUserDtos = users.map((u) =>
-        userDtoMapper.map(u, { authUser: user }),
-      );
+
       jest.spyOn(userRepository, 'findPage');
       jest.spyOn(userRepository, 'findByName');
     });
 
     test('happy path', async () => {
-      const actualUserDtos = await userApplicationService.getUsers(user, query);
-      for (const expectedUserDto of expectedUserDtos) {
-        expect(actualUserDtos).toContainEqual(expectedUserDto);
+      const userDtos = await userApplicationService.getUsers(user, query);
+      for (const userDto of userDtos) {
+        expect(userDto).toEqual(mockUserDto);
       }
       expect(userRepository.findPage).toHaveBeenCalled();
     });
 
     test('happy path, text search', async () => {
       query = new GetUsersQueryDto(undefined, 'ann');
-      const actualUserDtos = await userApplicationService.getUsers(user, query);
-      for (const expectedUserDto of expectedUserDtos) {
-        expect(actualUserDtos).toContainEqual(expectedUserDto);
+      const userDtos = await userApplicationService.getUsers(user, query);
+      for (const userDto of userDtos) {
+        expect(userDto).toEqual(mockUserDto);
       }
       expect(userRepository.findByName).toHaveBeenCalled();
     });
@@ -96,34 +96,15 @@ describe('user service', () => {
 
   describe('get user', () => {
     test('happy path', async () => {
-      const expectedUserDto = userDtoMapper.map(user, { authUser: user });
-      const actualUserDto = await userApplicationService.getUser(
-        user,
-        user.id.value,
-      );
-      expect(actualUserDto).toEqual(expectedUserDto);
-    });
-
-    test('should not expose email of another user', async () => {
-      const anotherUser = modelFaker.user();
-      await userRepository.persist(anotherUser);
-      const expectedAnotherUserDto = userDtoMapper.map(anotherUser, {
-        authUser: user,
-      });
-      const actualAnotherUserDto = await userApplicationService.getUser(
-        user,
-        anotherUser.id.value,
-      );
-      expect(actualAnotherUserDto).toEqual(expectedAnotherUserDto);
-      expect(actualAnotherUserDto.email).toBeNull();
+      const userDto = await userApplicationService.getUser(user, user.id.value);
+      expect(userDto).toEqual(mockUserDto);
     });
   });
 
   describe('get auth user', () => {
     test('happy path', async () => {
-      const expectedUserDto = userDtoMapper.map(user, { authUser: user });
-      const actualUserDto = await userApplicationService.getAuthUser(user);
-      expect(actualUserDto).toEqual(expectedUserDto);
+      const userDto = await userApplicationService.getAuthUser(user);
+      expect(userDto).toEqual(mockUserDto);
     });
   });
 

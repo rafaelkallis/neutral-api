@@ -14,7 +14,7 @@ export class UserTypeOrmEntityMap extends AbstractModelMap<
   User,
   UserTypeOrmEntity
 > {
-  public map(model: User): UserTypeOrmEntity {
+  protected innerMap(model: User): UserTypeOrmEntity {
     return new UserTypeOrmEntity(
       model.id.value,
       model.createdAt.value,
@@ -33,7 +33,7 @@ export class ReverseUserTypeOrmEntityMap extends AbstractModelMap<
   UserTypeOrmEntity,
   User
 > {
-  public map(entity: UserTypeOrmEntity): User {
+  protected innerMap(entity: UserTypeOrmEntity): User {
     return new User(
       Id.from(entity.id),
       CreatedAt.from(entity.createdAt),

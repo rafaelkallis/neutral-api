@@ -34,9 +34,9 @@ describe('user map', () => {
     });
   });
 
-  test('should not expose email if authenticated user is not user', () => {
+  test('should not expose email of another user', () => {
     const otherUser = modelFaker.user();
     const userDto = userMap.map(user, { authUser: otherUser });
-    expect(userDto.email).toBeFalsy();
+    expect(userDto.email).toBeNull();
   });
 });

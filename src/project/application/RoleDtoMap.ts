@@ -13,10 +13,9 @@ import { ContributionVisibility } from 'project/domain/value-objects/Contributio
 
 @ModelMap(Role, RoleDto)
 export class RoleDtoMap extends AbstractModelMap<Role, RoleDto> {
-  public map(role: Role, { project, authUser }: ModelMapContext): RoleDto {
-    if (!(project instanceof Project) || !(authUser instanceof User)) {
-      throw new InternalServerErrorException();
-    }
+  protected innerMap(role: Role, context: ModelMapContext): RoleDto {
+    const project = context.get('project', Project);
+    const authUser = context.get('authUser', User);
     return new RoleDto(
       role.id.value,
       role.projectId.value,
@@ -39,6 +38,7 @@ export class RoleDtoMap extends AbstractModelMap<Role, RoleDto> {
       return null;
     }
     let shouldExpose = false;
+    // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
         shouldExpose = project.state.equals(ProjectState.FINISHED);

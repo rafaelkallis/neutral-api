@@ -12,7 +12,9 @@ export class NotificationTypeOrmEntityMap extends AbstractModelMap<
   Notification,
   NotificationTypeOrmEntity
 > {
-  public map(notificationModel: Notification): NotificationTypeOrmEntity {
+  protected innerMap(
+    notificationModel: Notification,
+  ): NotificationTypeOrmEntity {
     return new NotificationTypeOrmEntity(
       notificationModel.id.value,
       notificationModel.createdAt.value,
@@ -30,7 +32,9 @@ export class ReverseNotificationTypeOrmEntityMap extends AbstractModelMap<
   NotificationTypeOrmEntity,
   Notification
 > {
-  public map(notificationEntity: NotificationTypeOrmEntity): Notification {
+  protected innerMap(
+    notificationEntity: NotificationTypeOrmEntity,
+  ): Notification {
     return new Notification(
       Id.from(notificationEntity.id),
       CreatedAt.from(notificationEntity.createdAt),

@@ -9,7 +9,6 @@ import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 import {
   AbstractModelMap,
   getModelMapMetadata,
-  ModelMapContext,
 } from 'shared/model-mapper/ModelMap';
 
 /**
@@ -47,7 +46,7 @@ export class ModelMapper {
   public map<TDto>(
     model: object,
     targetModel: Type<TDto>,
-    context: ModelMapContext = {},
+    context: object = {},
   ): TDto {
     const targetMap = this.mappings.get(model.constructor);
     if (!targetMap) {

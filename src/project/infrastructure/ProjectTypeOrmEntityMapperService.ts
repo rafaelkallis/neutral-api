@@ -27,7 +27,7 @@ export class ProjectTypeOrmEntityMap extends AbstractModelMap<
   Project,
   ProjectTypeOrmEntity
 > {
-  public map(projectModel: Project): ProjectTypeOrmEntity {
+  protected innerMap(projectModel: Project): ProjectTypeOrmEntity {
     const roleEntities: RoleTypeOrmEntity[] = [];
     const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
     const projectEntity = new ProjectTypeOrmEntity(
@@ -81,7 +81,7 @@ export class ReverseProjectTypeOrmEntityMap extends AbstractModelMap<
   ProjectTypeOrmEntity,
   Project
 > {
-  public map(projectEntity: ProjectTypeOrmEntity): Project {
+  protected innerMap(projectEntity: ProjectTypeOrmEntity): Project {
     const roles = new RoleCollection(
       projectEntity.roles.map(
         (roleEntity) =>
