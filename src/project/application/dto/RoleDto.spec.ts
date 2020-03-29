@@ -1,21 +1,23 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
-import { RoleDto } from 'project/application/dto/RoleDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { ModelFaker } from 'test/ModelFaker';
+import { RoleDtoMap } from '../RoleDtoMap';
 
 describe('role dto', () => {
   let modelFaker: ModelFaker;
+  let roleDtoMap: RoleDtoMap;
   let users: Record<string, User>;
   let role: Role;
   let project: Project;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
+    roleDtoMap = new RoleDtoMap();
     users = {
       owner: modelFaker.user(),
       assignee: modelFaker.user(),
@@ -57,11 +59,10 @@ describe('role dto', () => {
     (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
       role.contribution = Contribution.from(1);
-      const roleDto = RoleDto.builder()
-        .role(role)
-        .project(project)
-        .authUser(users[authUser])
-        .build();
+      const roleDto = roleDtoMap.map(role, {
+        project,
+        authUser: users[authUser],
+      });
       expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
     },
   );
@@ -70,11 +71,7 @@ describe('role dto', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectState.PEER_REVIEW;
     role.contribution = Contribution.from(1);
-    const roleDto = RoleDto.builder()
-      .role(role)
-      .project(project)
-      .authUser(users.assignee)
-      .build();
+    const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
     expect(roleDto.contribution).toBeFalsy();
   });
 
@@ -109,11 +106,10 @@ describe('role dto', () => {
   test.each(hasSubmittedPeerReviewsCases)(
     'has submitted peer reviews',
     (authUser, isHasSubmittedPeerReviewsVisible) => {
-      const roleDto = RoleDto.builder()
-        .role(role)
-        .project(project)
-        .authUser(users[authUser])
-        .build();
+      const roleDto = roleDtoMap.map(role, {
+        project,
+        authUser: users[authUser],
+      });
       expect(Boolean(roleDto.hasSubmittedPeerReviews)).toBe(
         isHasSubmittedPeerReviewsVisible,
       );
