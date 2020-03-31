@@ -13,9 +13,11 @@ async function main(): Promise<void> {
     credentials: true,
   });
 
+  const serverUrl = config.get('SERVER_URL');
   const options = new DocumentBuilder()
     .setTitle('Covee SaaS Api')
     .setVersion('1.0')
+    .setBasePath(serverUrl)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
