@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'shared/application/dto/BaseDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import {
-  SkipManagerReview,
-  SkipManagerReviewValue,
-} from 'project/domain/value-objects/SkipManagerReview';
+import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
