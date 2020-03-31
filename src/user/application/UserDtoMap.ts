@@ -3,14 +3,14 @@ import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
 import {
-  ModelMapContext,
-  AbstractModelMap,
-  ModelMap,
-} from 'shared/model-mapper/ModelMap';
+  ObjectMapContext,
+  ObjectMap,
+  AbstractObjectMap,
+} from 'shared/object-mapper/ObjectMap';
 
 @Injectable()
-@ModelMap(User, UserDto)
-export class UserDtoMap extends AbstractModelMap<User, UserDto> {
+@ObjectMap(User, UserDto)
+export class UserDtoMap extends AbstractObjectMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
@@ -21,7 +21,7 @@ export class UserDtoMap extends AbstractModelMap<User, UserDto> {
   /**
    *
    */
-  protected innerMap(user: User, context: ModelMapContext): UserDto {
+  protected innerMap(user: User, context: ObjectMapContext): UserDto {
     const authUser = context.get('authUser', User);
     return new UserDto(
       user.id.value,

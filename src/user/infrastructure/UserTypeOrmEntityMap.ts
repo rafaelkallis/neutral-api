@@ -7,10 +7,10 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
-import { ModelMap, AbstractModelMap } from 'shared/model-mapper/ModelMap';
+import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
 
-@ModelMap(User, UserTypeOrmEntity)
-export class UserTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(User, UserTypeOrmEntity)
+export class UserTypeOrmEntityMap extends AbstractObjectMap<
   User,
   UserTypeOrmEntity
 > {
@@ -28,8 +28,8 @@ export class UserTypeOrmEntityMap extends AbstractModelMap<
   }
 }
 
-@ModelMap(UserTypeOrmEntity, User)
-export class ReverseUserTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(UserTypeOrmEntity, User)
+export class ReverseUserTypeOrmEntityMap extends AbstractObjectMap<
   UserTypeOrmEntity,
   User
 > {

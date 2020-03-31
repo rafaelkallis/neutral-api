@@ -5,10 +5,10 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
-import { ModelMap, AbstractModelMap } from 'shared/model-mapper/ModelMap';
+import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
 
-@ModelMap(Notification, NotificationTypeOrmEntity)
-export class NotificationTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(Notification, NotificationTypeOrmEntity)
+export class NotificationTypeOrmEntityMap extends AbstractObjectMap<
   Notification,
   NotificationTypeOrmEntity
 > {
@@ -27,8 +27,8 @@ export class NotificationTypeOrmEntityMap extends AbstractModelMap<
   }
 }
 
-@ModelMap(NotificationTypeOrmEntity, Notification)
-export class ReverseNotificationTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(NotificationTypeOrmEntity, Notification)
+export class ReverseNotificationTypeOrmEntityMap extends AbstractObjectMap<
   NotificationTypeOrmEntity,
   Notification
 > {

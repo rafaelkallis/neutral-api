@@ -1,26 +1,26 @@
 import {
-  ModelMap,
-  AbstractModelMap,
-  ModelMapContext,
-} from 'shared/model-mapper/ModelMap';
+  ObjectMap,
+  AbstractObjectMap,
+  ObjectMapContext,
+} from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { ProjectDto } from './dto/ProjectDto';
 import { User } from 'user/domain/User';
 import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { PeerReview } from 'project/domain/PeerReview';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
-@ModelMap(Project, ProjectDto)
-export class ProjectDtoMap extends AbstractModelMap<Project, ProjectDto> {
-  private readonly modelMapper: ModelMapper;
+@ObjectMap(Project, ProjectDto)
+export class ProjectDtoMap extends AbstractObjectMap<Project, ProjectDto> {
+  private readonly modelMapper: ObjectMapper;
 
-  public constructor(modelMapper: ModelMapper) {
+  public constructor(modelMapper: ObjectMapper) {
     super();
     this.modelMapper = modelMapper;
   }
 
-  protected innerMap(project: Project, context: ModelMapContext): ProjectDto {
+  protected innerMap(project: Project, context: ObjectMapContext): ProjectDto {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,

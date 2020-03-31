@@ -28,8 +28,7 @@ import { RoleCollection } from 'project/domain/RoleCollection';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { TestModelMapper } from 'test/TestModelMapper';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { ProjectDto } from './dto/ProjectDto';
 
@@ -40,7 +39,7 @@ describe('project application service', () => {
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserFakeRepository;
   let projectRepository: ProjectRepository;
-  let modelMapper: TestModelMapper;
+  let objectMapper: ObjectMapper;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
   let projectApplication: ProjectApplicationService;
@@ -55,14 +54,14 @@ describe('project application service', () => {
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
     projectRepository = new ProjectFakeRepository();
-    modelMapper = Mock(ModelMapper);
+    objectMapper = Mock(ObjectMapper);
     contributionsComputer = new FakeContributionsComputerService();
     consensualityComputer = new FakeConsensualityComputerService();
     projectApplication = new ProjectApplicationService(
       projectRepository,
       userRepository,
       eventPublisher,
-      modelMapper,
+      objectMapper,
       contributionsComputer,
       consensualityComputer,
     );
@@ -96,12 +95,12 @@ describe('project application service', () => {
 
     test('happy path', async () => {
       const mockProjectDto = {};
-      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
+      jest.spyOn(objectMapper, 'map').mockReturnValue(mockProjectDto);
       const projectDtos = await projectApplication.getProjects(
         ownerUser,
         query,
       );
-      expect(modelMapper.map).toHaveBeenCalledWith(
+      expect(objectMapper.map).toHaveBeenCalledWith(
         expect.any(Project),
         ProjectDto,
         {
@@ -135,12 +134,12 @@ describe('project application service', () => {
 
     test('happy path', async () => {
       const mockProjectDto = {};
-      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
+      jest.spyOn(objectMapper, 'map').mockReturnValue(mockProjectDto);
       const projectDtos = await projectApplication.getProjects(
         assigneeUser,
         query,
       );
-      expect(modelMapper.map).toHaveBeenCalledWith(
+      expect(objectMapper.map).toHaveBeenCalledWith(
         expect.any(Project),
         ProjectDto,
         {
@@ -156,7 +155,7 @@ describe('project application service', () => {
   describe('get project', () => {
     test('happy path', async () => {
       const mockProjectDto = {};
-      jest.spyOn(modelMapper, 'map').mockReturnValue(mockProjectDto);
+      jest.spyOn(objectMapper, 'map').mockReturnValue(mockProjectDto);
       await expect(
         projectApplication.getProject(ownerUser, project.id.value),
       ).resolves.toEqual(mockProjectDto);
@@ -169,7 +168,7 @@ describe('project application service', () => {
 
     beforeEach(() => {
       mockRoleDto = {};
-      jest.spyOn(modelMapper, 'map').mockReturnValue(mockRoleDto);
+      jest.spyOn(objectMapper, 'map').mockReturnValue(mockRoleDto);
       getRolesQueryDto = new GetRolesQueryDto(project.id.value);
     });
 
@@ -181,7 +180,7 @@ describe('project application service', () => {
       for (const roleDto of roleDtos) {
         expect(roleDto).toEqual(mockRoleDto);
       }
-      expect(modelMapper.map).toHaveBeenCalledWith(expect.any(Role), RoleDto, {
+      expect(objectMapper.map).toHaveBeenCalledWith(expect.any(Role), RoleDto, {
         project,
         authUser: ownerUser,
       });
@@ -194,7 +193,7 @@ describe('project application service', () => {
 
     beforeEach(() => {
       mockRoleDto = {};
-      jest.spyOn(modelMapper, 'map').mockReturnValue(mockRoleDto);
+      jest.spyOn(objectMapper, 'map').mockReturnValue(mockRoleDto);
       sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
       project.peerReviews.add(sentPeerReview);
     });
@@ -204,7 +203,7 @@ describe('project application service', () => {
         ownerUser,
         roles[0].id.value,
       );
-      expect(modelMapper.map).toHaveBeenCalledWith(roles[0], RoleDto, {
+      expect(objectMapper.map).toHaveBeenCalledWith(roles[0], RoleDto, {
         project,
         authUser: ownerUser,
       });
@@ -222,6 +221,7 @@ describe('project application service', () => {
       description = primitiveFaker.paragraph();
       createProjectDto = new CreateProjectDto(title, description);
       jest.spyOn(projectRepository, 'persist');
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
     });
 
     test('happy path', async () => {
@@ -240,6 +240,7 @@ describe('project application service', () => {
       newTitle = ProjectTitle.from(primitiveFaker.words());
       updateProjectDto = new UpdateProjectDto(newTitle.value);
       jest.spyOn(project, 'update');
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
     });
 
     test('happy path', async () => {
@@ -272,6 +273,7 @@ describe('project application service', () => {
     beforeEach(() => {
       title = primitiveFaker.words();
       description = primitiveFaker.paragraph();
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
       jest.spyOn(project, 'addRole');
     });
 
@@ -311,6 +313,7 @@ describe('project application service', () => {
       newTitle = RoleTitle.from(primitiveFaker.words());
       roleToUpdate = roles[0];
       jest.spyOn(project, 'updateRole');
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
     });
 
     test('happy path', async () => {
@@ -374,6 +377,7 @@ describe('project application service', () => {
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
     });
 
     test('happy path', async () => {
@@ -453,6 +457,7 @@ describe('project application service', () => {
         [roles[3].id.value]: 1 / 3,
       });
       jest.spyOn(project, 'submitPeerReviews');
+      jest.spyOn(objectMapper, 'map').mockReturnValue({});
     });
 
     describe('happy path', () => {
@@ -489,6 +494,7 @@ describe('project application service', () => {
         project.state = ProjectState.MANAGER_REVIEW;
         await projectRepository.persist(project);
         jest.spyOn(project, 'submitManagerReview');
+        jest.spyOn(objectMapper, 'map').mockReturnValue({});
       });
 
       test('happy path', async () => {

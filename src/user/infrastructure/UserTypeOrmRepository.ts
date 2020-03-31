@@ -8,7 +8,7 @@ import {
   TypeOrmRepository,
 } from 'shared/infrastructure/TypeOrmRepository';
 import { Email } from 'user/domain/value-objects/Email';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 /**
  * TypeOrm User Repository
@@ -22,7 +22,7 @@ export class UserTypeOrmRepository
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
   ) {
     super(databaseClient, modelMapper);
   }

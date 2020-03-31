@@ -20,10 +20,10 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
-import { ModelMap, AbstractModelMap } from 'shared/model-mapper/ModelMap';
+import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
 
-@ModelMap(Project, ProjectTypeOrmEntity)
-export class ProjectTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(Project, ProjectTypeOrmEntity)
+export class ProjectTypeOrmEntityMap extends AbstractObjectMap<
   Project,
   ProjectTypeOrmEntity
 > {
@@ -76,8 +76,8 @@ export class ProjectTypeOrmEntityMap extends AbstractModelMap<
   }
 }
 
-@ModelMap(ProjectTypeOrmEntity, Project)
-export class ReverseProjectTypeOrmEntityMap extends AbstractModelMap<
+@ObjectMap(ProjectTypeOrmEntity, Project)
+export class ReverseProjectTypeOrmEntityMap extends AbstractObjectMap<
   ProjectTypeOrmEntity,
   Project
 > {

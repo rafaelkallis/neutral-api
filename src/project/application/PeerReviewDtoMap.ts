@@ -1,21 +1,21 @@
 import {
-  ModelMap,
-  AbstractModelMap,
-  ModelMapContext,
-} from 'shared/model-mapper/ModelMap';
+  ObjectMap,
+  AbstractObjectMap,
+  ObjectMapContext,
+} from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 
-@ModelMap(PeerReview, PeerReviewDto)
-export class PeerReviewDtoMap extends AbstractModelMap<
+@ObjectMap(PeerReview, PeerReviewDto)
+export class PeerReviewDtoMap extends AbstractObjectMap<
   PeerReview,
   PeerReviewDto
 > {
   protected innerMap(
     peerReview: PeerReview,
-    context: ModelMapContext,
+    context: ObjectMapContext,
   ): PeerReviewDto {
     const project = context.get('project', Project);
     const authUser = context.get('authUser', User);

@@ -13,7 +13,7 @@ import { SharedModule } from 'shared/SharedModule';
 import {
   ProjectTypeOrmEntityMap,
   ReverseProjectTypeOrmEntityMap,
-} from './infrastructure/ProjectTypeOrmEntityMapperService';
+} from 'project/infrastructure/ProjectTypeOrmEntityMap';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
 import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';

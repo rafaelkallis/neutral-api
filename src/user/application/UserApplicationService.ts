@@ -21,12 +21,12 @@ import {
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly modelMapper: ModelMapper;
+  private readonly modelMapper: ObjectMapper;
   private readonly eventPublisher: EventPublisher;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
@@ -34,7 +34,7 @@ export class UserApplicationService {
 
   public constructor(
     @InjectUserRepository() userRepository: UserRepository,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     tokenManager: TokenManager,
     config: Config,

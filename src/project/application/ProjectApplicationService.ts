@@ -40,13 +40,13 @@ import {
   InjectEventPublisher,
 } from 'shared/event/publisher/EventPublisher';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
-  private readonly modelMapper: ModelMapper;
+  private readonly modelMapper: ObjectMapper;
   private readonly eventPublisher: EventPublisher;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -55,7 +55,7 @@ export class ProjectApplicationService {
     @InjectProjectRepository() projectRepository: ProjectRepository,
     @InjectUserRepository() userRepository: UserRepository,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ) {

@@ -16,7 +16,7 @@ import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObje
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 
 describe('user service', () => {
@@ -25,7 +25,7 @@ describe('user service', () => {
   let config: Config;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
-  let mockModelMapper: ModelMapper;
+  let mockModelMapper: ObjectMapper;
   let tokenService: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
@@ -38,7 +38,7 @@ describe('user service', () => {
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
-    mockModelMapper = Mock(ModelMapper);
+    mockModelMapper = Mock(ObjectMapper);
     objectStorage = new MockObjectStorage();
     tokenService = new FakeTokenManagerService();
     userApplicationService = new UserApplicationService(

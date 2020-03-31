@@ -26,7 +26,7 @@ import {
   EventPublisher,
   InjectEventPublisher,
 } from 'shared/event/publisher/EventPublisher';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 @Injectable()
 export class AuthService {
@@ -34,14 +34,14 @@ export class AuthService {
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenManager;
-  private readonly modelMapper: ModelMapper;
+  private readonly modelMapper: ObjectMapper;
 
   public constructor(
     config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectUserRepository() userRepository: UserRepository,
     tokenService: TokenManager,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;

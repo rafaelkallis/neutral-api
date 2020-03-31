@@ -5,7 +5,7 @@ import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
 import { Type, Injectable } from '@nestjs/common';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 const TYPEORM_REPOSITORY_METADATA = Symbol('TYPEORM_REPOSITORY_METADATA');
 
@@ -53,13 +53,13 @@ export abstract class AbstractTypeOrmRepository<
   TEntity extends TypeOrmEntity
 > implements Repository<TModel> {
   protected readonly entityManager: EntityManager;
-  protected readonly modelMapper: ModelMapper;
+  protected readonly modelMapper: ObjectMapper;
   protected readonly modelType: Type<TModel>;
   protected readonly entityType: Type<TEntity>;
 
   public constructor(
     databaseClient: DatabaseClientService,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
   ) {
     this.entityManager = databaseClient.getEntityManager();
     this.modelMapper = modelMapper;

@@ -10,7 +10,7 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { Id } from 'shared/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 /**
  * Project TypeOrm Repository
@@ -24,7 +24,7 @@ export class ProjectTypeOrmRepository
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
   ) {
     super(databaseClient, modelMapper);
   }

@@ -8,7 +8,7 @@ import { NotificationTypeOrmEntity } from 'notification/infrastructure/Notificat
 import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
 import { Id } from 'shared/domain/value-objects/Id';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 /**
  * TypeOrm Notification Repository
@@ -22,7 +22,7 @@ export class NotificationTypeOrmRepository
    */
   public constructor(
     databaseClient: DatabaseClientService,
-    modelMapper: ModelMapper,
+    modelMapper: ObjectMapper,
   ) {
     super(databaseClient, modelMapper);
   }

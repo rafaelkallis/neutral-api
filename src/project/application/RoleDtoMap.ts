@@ -1,8 +1,8 @@
 import {
-  ModelMap,
-  AbstractModelMap,
-  ModelMapContext,
-} from 'shared/model-mapper/ModelMap';
+  ObjectMap,
+  AbstractObjectMap,
+  ObjectMapContext,
+} from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -11,9 +11,9 @@ import { Role } from 'project/domain/Role';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 
-@ModelMap(Role, RoleDto)
-export class RoleDtoMap extends AbstractModelMap<Role, RoleDto> {
-  protected innerMap(role: Role, context: ModelMapContext): RoleDto {
+@ObjectMap(Role, RoleDto)
+export class RoleDtoMap extends AbstractObjectMap<Role, RoleDto> {
+  protected innerMap(role: Role, context: ObjectMapContext): RoleDto {
     const project = context.get('project', Project);
     const authUser = context.get('authUser', User);
     return new RoleDto(

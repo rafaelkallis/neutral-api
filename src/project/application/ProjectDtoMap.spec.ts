@@ -4,7 +4,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { Mock } from 'test/Mock';
-import { ModelMapper } from 'shared/model-mapper/ModelMapper';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 describe('project dto map', () => {
   let projectDtoMap: ProjectDtoMap;
@@ -14,7 +14,7 @@ describe('project dto map', () => {
   let project: Project;
 
   beforeEach(async () => {
-    const modelMapper = Mock(ModelMapper);
+    const modelMapper = Mock(ObjectMapper);
     projectDtoMap = new ProjectDtoMap(modelMapper);
     modelFaker = new ModelFaker();
     owner = modelFaker.user();

@@ -14,7 +14,13 @@ export function Mock<T>(type: Type<T>): T {
     if (typeof mock[property] !== 'function') {
       continue;
     }
-    mock[property] = jest.fn();
+    mock[property] = () => {
+      const error = new Error(
+        `no implementation for mock ${type.name}.${property}()`,
+      );
+      error.stack = error.stack?.split('\n').slice(1).join('\n');
+      throw error;
+    };
   }
   return mock;
 }
