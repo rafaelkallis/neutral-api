@@ -61,7 +61,7 @@ export class ProjectDto extends BaseDto {
     state: ProjectStateValue,
     consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
-    skipManagerReview: string,
+    skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[] | null,
     peerReviews: PeerReviewDto[] | null,
     createdAt: number,
