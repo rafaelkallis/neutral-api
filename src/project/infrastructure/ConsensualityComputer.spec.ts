@@ -148,12 +148,12 @@ describe('consensuality computer', () => {
       consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputerService();
     });
 
-    test.skip('cycle', () => {
+    test('cycle', () => {
       const c = consensualityComputer.compute(cyclePeerReviews);
       expect(c.value).toBeCloseTo(0);
     });
 
-    test.skip('clusters', () => {
+    test('clusters', () => {
       const c = consensualityComputer.compute(clusterPeerReviews);
       expect(c.value).toBeCloseTo(0);
     });
