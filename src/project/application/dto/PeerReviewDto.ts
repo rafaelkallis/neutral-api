@@ -5,13 +5,21 @@ import { BaseDto } from 'shared/application/dto/BaseDto';
  * Peer Review DTO
  */
 export class PeerReviewDto extends BaseDto {
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    type: String,
+    required: false,
+    example: '507f1f77bcf86cd799439011',
+  })
   public senderRoleId: string | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    type: String,
+    required: false,
+    example: '507f1f77bcf86cd799439011',
+  })
   public receiverRoleId: string | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Number, required: false, example: 0.4 })
   public score: number | null;
 
   public constructor(

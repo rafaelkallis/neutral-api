@@ -8,7 +8,7 @@ export class RoleDto extends BaseDto {
   @ApiProperty()
   public projectId: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: String, required: false })
   public assigneeId: string | null;
 
   @ApiProperty()
@@ -17,10 +17,11 @@ export class RoleDto extends BaseDto {
   @ApiProperty()
   public description: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: String, required: false })
   public contribution: number | null;
 
   @ApiProperty({
+    type: Boolean,
     required: false,
     description:
       'Specifies whether or not the assigned user has submitted peer reviews. Only visible to the project manager and the assignee.',

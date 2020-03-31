@@ -14,7 +14,7 @@ async function main(): Promise<void> {
   });
 
   const options = new DocumentBuilder()
-    .setTitle('Covee SaaS')
+    .setTitle('Covee SaaS Api')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

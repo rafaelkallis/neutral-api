@@ -15,8 +15,13 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiOperation,
-  ApiResponse,
   ApiTags,
+  ApiOkResponse,
+  ApiNotFoundResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiBadRequestResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
@@ -48,7 +53,7 @@ export class ProjectController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a list of projects' })
-  @ApiResponse({ status: 200, description: 'A list of projects' })
+  @ApiOkResponse({ description: 'A list of projects', type: [ProjectDto] })
   public async getProjects(
     @AuthUser() authUser: User,
     @Query() query: GetProjectsQueryDto,
@@ -63,8 +68,8 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a project' })
   @ApiParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'The requested project' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  @ApiOkResponse({ description: 'The requested project', type: ProjectDto })
+  @ApiNotFoundResponse({ description: 'Project not found' })
   public async getProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
@@ -77,6 +82,8 @@ export class ProjectController {
    */
   @Post()
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a project' })
+  @ApiCreatedResponse({ type: ProjectDto })
   public async createProject(
     @AuthUser() authUser: User,
     @Body() dto: CreateProjectDto,
@@ -91,9 +98,11 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a project' })
   @ApiParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'Project updated succesfully' })
-  @ApiResponse({
-    status: 403,
+  @ApiOkResponse({
+    description: 'Project updated succesfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({
     description: 'Authenticated user is not the project owner',
   })
   public async updateProject(
@@ -110,17 +119,13 @@ export class ProjectController {
   @Post('/:id/finish-formation')
   @HttpCode(200)
   @ApiBearerAuth()
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Formation finished successfully.',
+    type: ProjectDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Project is not in formation state',
-  })
-  @ApiResponse({ status: 400, description: 'Project has an unassigned role' })
-  @ApiResponse({
-    status: 403,
+  @ApiBadRequestResponse({ description: 'Project is not in formation state' })
+  @ApiBadRequestResponse({ description: 'Project has an unassigned role' })
+  @ApiForbiddenResponse({
     description: 'Authenticated user is not the project owner',
   })
   public async finishFormation(
@@ -138,9 +143,8 @@ export class ProjectController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a project' })
   @ApiParam({ name: 'id' })
-  @ApiResponse({ status: 204, description: 'Project deleted succesfully' })
-  @ApiResponse({
-    status: 403,
+  @ApiNoContentResponse({ description: 'Project deleted succesfully' })
+  @ApiForbiddenResponse({
     description: 'Authenticated user is not the project owner',
   })
   public async deleteProject(
@@ -157,12 +161,12 @@ export class ProjectController {
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Submit peer reviews' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Peer reviews submitted successfully',
+    type: ProjectDto,
   })
-  @ApiResponse({ status: 400, description: 'Invalid peer reviews' })
-  @ApiResponse({ status: 400, description: 'Not a project participant' })
+  @ApiBadRequestResponse({ description: 'Invalid peer reviews' })
+  @ApiBadRequestResponse({ description: 'Not a project participant' })
   public async submitPeerReviews(
     @AuthUser() authUser: User,
     @Param('id') id: string,
@@ -178,15 +182,12 @@ export class ProjectController {
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Submit manager reviews' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Manager review submitted successfully',
+    type: ProjectDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Project not in manager-review state',
-  })
-  @ApiResponse({ status: 400, description: 'Not the project owner' })
+  @ApiBadRequestResponse({ description: 'Project not in manager-review state' })
+  @ApiBadRequestResponse({ description: 'Not the project owner' })
   public async submitManagerReview(
     @AuthUser() authUser: User,
     @Param('id') id: string,

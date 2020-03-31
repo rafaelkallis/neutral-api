@@ -5,7 +5,7 @@ import { BaseDto } from 'shared/application/dto/BaseDto';
  * User DTO
  */
 export class UserDto extends BaseDto {
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: String, required: false })
   public email: string | null;
 
   @ApiProperty()
@@ -14,7 +14,7 @@ export class UserDto extends BaseDto {
   @ApiProperty()
   public lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false })
   public avatarUrl: string | null;
 
   public constructor(
