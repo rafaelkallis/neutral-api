@@ -1,25 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'shared/application/dto/BaseDto';
 import { Notification } from 'notification/domain/Notification';
+import { NotificationTypeValue } from 'notification/domain/value-objects/NotificationType';
 
 /**
  * Notification DTO
  */
 export class NotificationDto extends BaseDto {
-  @ApiProperty()
-  public type: string;
+  @ApiProperty({
+    enum: NotificationTypeValue,
+    example: NotificationTypeValue.NEW_ASSIGNMENT,
+  })
+  public type: NotificationTypeValue;
 
   @ApiProperty()
   public isRead: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: Object, example: { foo: 123, bar: 'baz' } })
   public payload: object;
 
   public constructor(
     id: string,
     createdAt: number,
     updatedAt: number,
-    type: string,
+    type: NotificationTypeValue,
     isRead: boolean,
     payload: object,
   ) {

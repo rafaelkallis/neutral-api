@@ -19,8 +19,6 @@ import { Response } from 'express';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiParam,
-  ApiResponse,
   ApiTags,
   ApiOkResponse,
   ApiNotFoundResponse,

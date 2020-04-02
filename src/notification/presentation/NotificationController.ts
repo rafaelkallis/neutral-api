@@ -8,10 +8,11 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiParam,
   ApiOperation,
-  ApiResponse,
   ApiTags,
+  ApiOkResponse,
+  ApiNotFoundResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { User } from 'user/domain/User';
@@ -39,7 +40,10 @@ export class NotificationController {
    */
   @Get()
   @ApiOperation({ summary: 'Get all notifications' })
-  @ApiResponse({ status: 200, description: 'A list of notifications' })
+  @ApiOkResponse({
+    description: 'A list of notifications',
+    type: [NotificationDto],
+  })
   public async getNotificationsByAuthUser(
     @AuthUser() authUser: User,
   ): Promise<NotificationDto[]> {
@@ -54,14 +58,9 @@ export class NotificationController {
   @Post(':id/read')
   @HttpCode(200)
   @ApiOperation({ summary: 'Mark a notification as read' })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Notification is successfully marked as read',
-  })
-  @ApiResponse({ status: 404, description: 'Notification not found' })
-  @ApiResponse({
-    status: 401,
+  @ApiOkResponse({ description: 'Notification is successfully marked as read' })
+  @ApiNotFoundResponse({ description: 'Notification not found' })
+  @ApiForbiddenResponse({
     description: 'Notification does not belong to authenticated user',
   })
   public async readNotification(
