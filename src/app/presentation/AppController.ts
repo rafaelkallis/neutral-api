@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { StatusDto } from 'app/application/dto/StatusDto';
 
 /**
  * App Controller
@@ -12,7 +13,9 @@ export class AppController {
    */
   @Get('status')
   @ApiOperation({ summary: "Get the App's status" })
-  public getStatus(): { message: string } {
-    return { message: 'service lives!' };
+  @ApiOkResponse({ description: "The App's status", type: StatusDto })
+  public getStatus(): StatusDto {
+    const message = 'service lives!';
+    return new StatusDto(message);
   }
 }
