@@ -13,11 +13,14 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiParam,
   ApiQuery,
   ApiOperation,
-  ApiResponse,
   ApiTags,
+  ApiOkResponse,
+  ApiNotFoundResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
@@ -49,11 +52,8 @@ export class RoleController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'projectId' })
   @ApiOperation({ summary: 'Get a list of roles for a project' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'A list of roles' })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Project not found',
-  })
+  @ApiOkResponse({ description: 'A list of roles', type: [RoleDto] })
+  @ApiNotFoundResponse({ description: 'Project not found' })
   public async getRoles(
     @AuthUser() authUser: User,
     @Query(ValidationPipe) query: GetRolesQueryDto,
@@ -64,12 +64,11 @@ export class RoleController {
   /**
    * Get the role with the given id
    */
-  @Get('/:id')
+  @Get(':id')
   @ApiBearerAuth()
-  @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'Get a role' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'A roles' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Role not found' })
+  @ApiOkResponse({ description: 'A role', type: RoleDto })
+  @ApiNotFoundResponse({ description: 'Role not found' })
   public async getRole(
     @AuthUser() authUser: User,
     @Param('id') id: string,
@@ -83,22 +82,13 @@ export class RoleController {
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a role' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
+  @ApiCreatedResponse({
     description: 'Role created successfully',
+    type: RoleDto,
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'User is not the project owner',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Project not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Assignee not found',
-  })
+  @ApiForbiddenResponse({ description: 'User is not the project owner' })
+  @ApiNotFoundResponse({ description: 'Project not found' })
+  @ApiNotFoundResponse({ description: 'Assignee not found' })
   public async createRole(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: CreateRoleDto,
@@ -118,13 +108,8 @@ export class RoleController {
   @Patch(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a role' })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Role updated succesfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiOkResponse({ description: 'Role updated succesfully', type: RoleDto })
+  @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
   })
   public async updateRole(
@@ -148,13 +133,8 @@ export class RoleController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a role' })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
-    description: 'Role deleted succesfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiNoContentResponse({ description: 'Role deleted succesfully' })
+  @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
   })
   public async deleteRole(
@@ -171,13 +151,8 @@ export class RoleController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign a user to a role' })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Role updated succesfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiOkResponse({ description: 'Role updated succesfully', type: RoleDto })
+  @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
   })
   public async assignUser(

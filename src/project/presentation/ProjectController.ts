@@ -10,6 +10,7 @@ import {
   Post,
   UseGuards,
   UsePipes,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -97,7 +98,6 @@ export class ProjectController {
   @Patch(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a project' })
-  @ApiParam({ name: 'id' })
   @ApiOkResponse({
     description: 'Project updated succesfully',
     type: ProjectDto,
@@ -117,7 +117,7 @@ export class ProjectController {
    * Finish project formation.
    */
   @Post('/:id/finish-formation')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Formation finished successfully.',
@@ -139,7 +139,7 @@ export class ProjectController {
    * Delete a project
    */
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a project' })
   @ApiParam({ name: 'id' })
@@ -157,8 +157,8 @@ export class ProjectController {
   /**
    * Call to submit peer reviews.
    */
-  @Post('/:id/submit-peer-reviews')
-  @HttpCode(200)
+  @Post(':id/submit-peer-reviews')
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Submit peer reviews' })
   @ApiOkResponse({
@@ -178,8 +178,8 @@ export class ProjectController {
   /**
    * Call to submit manager review.
    */
-  @Post('/:id/submit-manager-review')
-  @HttpCode(200)
+  @Post(':id/submit-manager-review')
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Submit manager reviews' })
   @ApiOkResponse({

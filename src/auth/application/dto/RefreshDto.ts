@@ -7,7 +7,7 @@ import { IsString } from 'class-validator';
 export class RefreshDto {
   @IsString()
   @ApiProperty({
-    example: '',
+    example: '123',
     description: 'Refresh token to consume',
   })
   public refreshToken: string;

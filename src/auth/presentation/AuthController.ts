@@ -5,17 +5,27 @@ import {
   Param,
   Post,
   Session,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiOkResponse,
+  ApiNotFoundResponse,
+  ApiBadRequestResponse,
+  ApiNoContentResponse,
+} from '@nestjs/swagger';
 
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
-import { AuthService } from '../application/AuthApplicationService';
+import { AuthService } from 'auth/application/AuthApplicationService';
 
-import { RefreshDto } from '../application/dto/RefreshDto';
-import { RequestLoginDto } from '../application/dto/RequestLoginDto';
-import { RequestSignupDto } from '../application/dto/RequestSignupDto';
-import { SubmitSignupDto } from '../application/dto/SubmitSignupDto';
+import { RefreshDto } from 'auth/application/dto/RefreshDto';
+import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
+import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
+import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
+import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
+import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 
 /**
  * Authentication Controller
@@ -35,10 +45,10 @@ export class AuthController {
    * An email with a magic link is sent to the given email address
    */
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Request magic login' })
-  @ApiResponse({ status: 200, description: 'Magic login email sent' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiNoContentResponse({ description: 'Magic login email sent' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   public async requestLogin(
     @Body(ValidationPipe) dto: RequestLoginDto,
   ): Promise<void> {
@@ -53,16 +63,18 @@ export class AuthController {
    * and refresh token are sent back in the response body.
    */
   @Post('login/:token')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit magic login token' })
-  @ApiParam({ name: 'token' })
-  @ApiResponse({ status: 200, description: 'Magic login token accepted' })
-  @ApiResponse({ status: 400, description: 'Invalid token' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOkResponse({
+    description: 'Magic login token accepted',
+    type: AuthenticationResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid token' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   public async submitLogin(
     @Param('token') loginToken: string,
     @Session() session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<AuthenticationResponseDto> {
     return this.authService.submitLogin(loginToken, session);
   }
 
@@ -72,10 +84,10 @@ export class AuthController {
    * A magic link is sent to the given email address
    */
   @Post('signup')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Request magic signup' })
-  @ApiResponse({ status: 200, description: 'Magic signup email sent' })
-  @ApiResponse({ status: 400, description: 'Email already used' })
+  @ApiNoContentResponse({ description: 'Magic signup email sent' })
+  @ApiBadRequestResponse({ description: 'Email already used' })
   public async requestSignup(
     @Body(ValidationPipe) dto: RequestSignupDto,
   ): Promise<void> {
@@ -89,15 +101,18 @@ export class AuthController {
    * along with other information about the user
    */
   @Post('signup/:token')
-  @ApiParam({ name: 'token' })
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit magic signup token' })
-  @ApiResponse({ status: 200, description: 'Magic signup token accepted' })
-  @ApiResponse({ status: 400, description: 'Invalid token' })
+  @ApiOkResponse({
+    description: 'Magic signup token accepted',
+    type: AuthenticationResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid token' })
   public async submitSignup(
     @Param('token') signupToken: string,
     @Body(ValidationPipe) dto: SubmitSignupDto,
     @Session() session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<AuthenticationResponseDto> {
     return this.authService.submitSignup(signupToken, dto, session);
   }
 
@@ -108,13 +123,14 @@ export class AuthController {
    * response body.
    */
   @Post('refresh')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh tokens' })
-  @ApiResponse({ status: 200, description: 'Refresh token accepted' })
-  @ApiResponse({ status: 400, description: 'Invalid refresh token' })
-  public refresh(
-    @Body(ValidationPipe) dto: RefreshDto,
-  ): { accessToken: string } {
+  @ApiOkResponse({
+    description: 'Refresh token accepted',
+    type: RefreshResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid refresh token' })
+  public refresh(@Body(ValidationPipe) dto: RefreshDto): RefreshResponseDto {
     return this.authService.refresh(dto);
   }
 
@@ -122,9 +138,9 @@ export class AuthController {
    * Logout the session
    */
   @Post('logout')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Logout' })
-  @ApiResponse({ status: 200, description: 'Logout successful' })
+  @ApiNoContentResponse({ description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {
     return this.authService.logout(session);
   }

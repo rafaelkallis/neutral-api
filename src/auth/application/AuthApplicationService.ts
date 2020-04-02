@@ -27,6 +27,8 @@ import {
   InjectEventPublisher,
 } from 'shared/event/publisher/EventPublisher';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
+import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 
 @Injectable()
 export class AuthService {
@@ -80,7 +82,7 @@ export class AuthService {
   public async submitLogin(
     loginToken: string,
     session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
+  ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const userId = Id.from(payload.sub);
     const user = await this.userRepository.findById(userId);
@@ -97,7 +99,7 @@ export class AuthService {
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
     const userDto = this.modelMapper.map(user, UserDto, { authUser: user });
-    return { accessToken, refreshToken, user: userDto };
+    return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
   }
 
   /**
@@ -130,7 +132,7 @@ export class AuthService {
     signupToken: string,
     dto: SubmitSignupDto,
     session: SessionState,
-  ): Promise<{ accessToken: string; refreshToken: string; user: UserDto }> {
+  ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenService.validateSignupToken(signupToken);
     const email = Email.from(payload.sub);
     const userExists = await this.userRepository.existsByEmail(email);
@@ -153,7 +155,7 @@ export class AuthService {
     const userDto: UserDto = this.modelMapper.map(user, UserDto, {
       authUser: user,
     });
-    return { accessToken, refreshToken, user: userDto };
+    return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
   }
 
   /**
@@ -162,10 +164,10 @@ export class AuthService {
    * A new access token is assigned to the session and sent back to the
    * response body.
    */
-  public refresh(dto: RefreshDto): { accessToken: string } {
+  public refresh(dto: RefreshDto): RefreshResponseDto {
     const payload = this.tokenService.validateRefreshToken(dto.refreshToken);
     const accessToken = this.tokenService.newAccessToken(payload.sub);
-    return { accessToken };
+    return new RefreshResponseDto(accessToken);
   }
 
   /**
