@@ -22,6 +22,12 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiOkResponse,
+  ApiNotFoundResponse,
+  ApiProduces,
+  ApiConsumes,
+  ApiBody,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
@@ -30,6 +36,7 @@ import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserDto } from 'user/application/dto/UserDto';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
+import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvatarDto';
 
 /**
  * User Controller
@@ -50,7 +57,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a list of users' })
-  @ApiResponse({ status: 200, description: 'A list of users' })
+  @ApiOkResponse({ description: 'A list of users', type: [UserDto] })
   public async getUsers(
     @AuthUser() authUser: User,
     @Query(ValidationPipe) query: GetUsersQueryDto,
@@ -65,7 +72,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get the authenticated user' })
-  @ApiResponse({ status: 200, description: 'The authenticated user' })
+  @ApiOkResponse({ description: 'The authenticated user', type: UserDto })
   public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
     return this.userApplication.getAuthUser(authUser);
   }
@@ -77,9 +84,8 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user' })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'The requested user' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOkResponse({ description: 'The requested user', type: UserDto })
+  @ApiNotFoundResponse({ description: 'User not found' })
   public async getUser(
     @AuthUser() authUser: User,
     @Param('id') id: string,
@@ -94,10 +100,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Get a user's avatar" })
-  @ApiParam({ name: 'id' })
-  @ApiResponse({ status: 200, description: 'The requested user avatar' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 404, description: 'User has no avatar' })
+  @ApiOkResponse({ description: 'The requested user avatar' })
+  @ApiProduces(...UserApplicationService.AVATAR_MIME_TYPES)
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiNotFoundResponse({ description: 'User has no avatar' })
   public async getUserAvatar(
     @AuthUser() authUser: User,
     @Param('id') userId: string,
@@ -121,7 +127,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update the authenticated user' })
-  @ApiResponse({ status: 200, description: 'User succesfully updated' })
+  @ApiOkResponse({ description: 'User succesfully updated', type: UserDto })
   public async updateAuthUser(
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: UpdateUserDto,
@@ -137,7 +143,12 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update the authenticated user's avatar" })
-  @ApiResponse({ status: 200, description: 'User avatar succesfully updated' })
+  @ApiBody({ type: UpdateAuthUserAvatarDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({
+    description: 'User avatar succesfully updated',
+    type: UserDto,
+  })
   public async updateAuthUserAvatar(
     @AuthUser() authUser: User,
     @UploadedFile() avatarFile: Express.Multer.File,
@@ -156,7 +167,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Remove the authenticated user's avatar" })
-  @ApiResponse({ status: 200, description: 'User avatar succesfully removed' })
+  @ApiOkResponse({
+    description: 'User avatar succesfully removed',
+    type: UserDto,
+  })
   public async removeAuthUserAvatar(
     @AuthUser() authUser: User,
   ): Promise<UserDto> {
@@ -168,9 +182,8 @@ export class UserController {
    */
   @Post('me/email-change/:token')
   @ApiOperation({ summary: 'Submit email change token' })
-  @ApiParam({ name: 'token' })
-  @ApiResponse({ status: 200, description: 'The updated user' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOkResponse({ description: 'The updated user', type: UserDto })
+  @ApiNotFoundResponse({ description: 'User not found' })
   public async submitEmailChange(@Param('token') token: string): Promise<void> {
     return this.userApplication.submitEmailChange(token);
   }
@@ -183,8 +196,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete the authenticated user' })
-  @ApiResponse({
-    status: 204,
+  @ApiNoContentResponse({
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {

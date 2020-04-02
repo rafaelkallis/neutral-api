@@ -32,6 +32,8 @@ export class UserApplicationService {
   private readonly config: Config;
   private readonly objectStorage: ObjectStorage;
 
+  public static AVATAR_MIME_TYPES = ['image/png', 'image/jpeg'];
+
   public constructor(
     @InjectUserRepository() userRepository: UserRepository,
     modelMapper: ObjectMapper,
@@ -145,7 +147,7 @@ export class UserApplicationService {
     avatarFile: string,
     contentType: string,
   ): Promise<UserDto> {
-    if (!['image/jpeg', 'image/png'].includes(contentType)) {
+    if (!UserApplicationService.AVATAR_MIME_TYPES.includes(contentType)) {
       throw new AvatarUnsupportedContentTypeException();
     }
     const { key } = await this.objectStorage.put({

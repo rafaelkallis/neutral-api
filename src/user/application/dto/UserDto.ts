@@ -5,16 +5,25 @@ import { BaseDto } from 'shared/application/dto/BaseDto';
  * User DTO
  */
 export class UserDto extends BaseDto {
-  @ApiProperty({ type: String, required: false })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Email of the user, only shown for the authenticated user',
+    example: 'jerry@hungry-for-apples.com',
+  })
   public email: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Jerry' })
   public firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Smith' })
   public lastName: string;
 
-  @ApiProperty({ type: String, required: false })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'http://example.com/images/123.png',
+  })
   public avatarUrl: string | null;
 
   public constructor(
