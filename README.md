@@ -7,16 +7,14 @@
 
 ```bash
 
+# prepare app
 $ npm install
 $ docker-compose up
 
-# development
+# use for development (also watches for changes!)
 $ npm run dev
 
-# development watch mode
-$ npm run dev:watch
-
-# production mode
+# use for production
 $ npm run build
 $ npm run start
 ```
@@ -34,6 +32,6 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Documentation
+## OpenApi Spec
 
-Start the app and visit `/docs`.
+Start the app and visit `/docs` if you are a human , or `/docs-json` if you are a machine.
