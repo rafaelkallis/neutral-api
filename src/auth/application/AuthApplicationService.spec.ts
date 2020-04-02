@@ -18,7 +18,8 @@ import { User } from 'user/domain/User';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { Mock } from 'test/Mock';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
@@ -27,8 +28,9 @@ describe('auth application service', () => {
   let config: MockConfig;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
-  let userDtoMapper: UserDtoMapperService;
   let tokenService: FakeTokenManagerService;
+  let objectMapper: ObjectMapper;
+  let mockUserDto: object;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -36,16 +38,19 @@ describe('auth application service', () => {
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new UserFakeRepository();
-    userDtoMapper = new UserDtoMapperService(config);
     tokenService = new FakeTokenManagerService();
+    objectMapper = Mock(ObjectMapper);
 
     authService = new AuthService(
       config,
       eventPublisher,
       userRepository,
-      userDtoMapper,
       tokenService,
+      objectMapper,
     );
+
+    mockUserDto = {};
+    jest.spyOn(objectMapper, 'map').mockReturnValue(mockUserDto);
   });
 
   it('should be defined', () => {
@@ -140,7 +145,7 @@ describe('auth application service', () => {
       ).resolves.toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
-        user: expect.any(Object),
+        user: mockUserDto,
       });
       expect(session.set).toHaveBeenCalled();
       // TODO better persist() assertion

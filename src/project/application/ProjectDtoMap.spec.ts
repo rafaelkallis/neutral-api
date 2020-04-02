@@ -1,16 +1,21 @@
 import { User } from 'user/domain/User';
 import { Project } from 'project/domain/Project';
-import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ModelFaker } from 'test/ModelFaker';
+import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
+import { Mock } from 'test/Mock';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
-describe('project dto', () => {
+describe('project dto map', () => {
+  let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
   let owner: User;
   let user: User;
   let project: Project;
 
   beforeEach(async () => {
+    const modelMapper = Mock(ObjectMapper);
+    projectDtoMap = new ProjectDtoMap(modelMapper);
     modelFaker = new ModelFaker();
     owner = modelFaker.user();
     user = modelFaker.user();
@@ -18,10 +23,7 @@ describe('project dto', () => {
   });
 
   test('general', () => {
-    const projectDto = ProjectDto.builder()
-      .project(project)
-      .authUser(user)
-      .build();
+    const projectDto = projectDtoMap.map(project, { authUser: user });
     expect(projectDto).toEqual({
       id: project.id.value,
       title: project.title.value,
@@ -40,19 +42,13 @@ describe('project dto', () => {
 
   test('should expose consensuality if project owner', () => {
     project.consensuality = Consensuality.from(1);
-    const projectDto = ProjectDto.builder()
-      .project(project)
-      .authUser(owner)
-      .build();
+    const projectDto = projectDtoMap.map(project, { authUser: owner });
     expect(projectDto.consensuality).toBeTruthy();
   });
 
   test('should not expose consensuality if not project owner', () => {
     project.consensuality = Consensuality.from(1);
-    const projectDto = ProjectDto.builder()
-      .project(project)
-      .authUser(user)
-      .build();
+    const projectDto = projectDtoMap.map(project, { authUser: user });
     expect(projectDto.consensuality).toBeNull();
   });
 });

@@ -26,28 +26,28 @@ import {
   EventPublisher,
   InjectEventPublisher,
 } from 'shared/event/publisher/EventPublisher';
-import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 @Injectable()
 export class AuthService {
   private readonly config: Config;
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
-  private readonly userDtoMapper: UserDtoMapperService;
   private readonly tokenService: TokenManager;
+  private readonly modelMapper: ObjectMapper;
 
   public constructor(
     config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     @InjectUserRepository() userRepository: UserRepository,
-    userDtoMapper: UserDtoMapperService,
     tokenService: TokenManager,
+    modelMapper: ObjectMapper,
   ) {
     this.config = config;
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
-    this.userDtoMapper = userDtoMapper;
     this.tokenService = tokenService;
+    this.modelMapper = modelMapper;
   }
 
   /**
@@ -96,7 +96,7 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto = this.userDtoMapper.toDto(user, user);
+    const userDto = this.modelMapper.map(user, UserDto, { authUser: user });
     return { accessToken, refreshToken, user: userDto };
   }
 
@@ -150,7 +150,9 @@ export class AuthService {
     session.set(sessionToken);
     const accessToken = this.tokenService.newAccessToken(user.id.value);
     const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto = this.userDtoMapper.toDto(user, user);
+    const userDto: UserDto = this.modelMapper.map(user, UserDto, {
+      authUser: user,
+    });
     return { accessToken, refreshToken, user: userDto };
   }
 

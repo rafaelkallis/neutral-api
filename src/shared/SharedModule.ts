@@ -7,6 +7,7 @@ import { TokenModule } from 'shared/token/TokenModule';
 import { DatabaseModule } from 'shared/database/DatabaseModule';
 import { EmailModule } from 'shared/email/EmailModule';
 import { EventModule } from 'shared/event/EventModule';
+import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
 
 /**
  * Shared Module
@@ -21,6 +22,7 @@ import { EventModule } from 'shared/event/EventModule';
     DatabaseModule,
     EmailModule,
     EventModule,
+    ObjectMapperModule,
   ],
   exports: [
     UtilityModule,
@@ -31,6 +33,7 @@ import { EventModule } from 'shared/event/EventModule';
     DatabaseModule,
     EmailModule,
     EventModule,
+    ObjectMapperModule,
   ],
 })
 export class SharedModule {}

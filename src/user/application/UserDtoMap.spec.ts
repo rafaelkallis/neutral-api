@@ -1,12 +1,12 @@
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
-import { UserDtoMapperService } from 'user/application/UserDtoMapperService';
+import { UserDtoMap } from 'user/application/UserDtoMap';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
-describe('user dto mapper', () => {
-  let userDtoMapper: UserDtoMapperService;
+describe('user map', () => {
+  let userMap: UserDtoMap;
   let primitiveFaker: PrimitiveFaker;
   let modelFaker: ModelFaker;
   let user: User;
@@ -14,7 +14,7 @@ describe('user dto mapper', () => {
   beforeEach(async () => {
     const config = new MockConfig();
     config.set('SERVER_URL', 'http://example.com');
-    userDtoMapper = new UserDtoMapperService(config);
+    userMap = new UserDtoMap(config);
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     user = modelFaker.user();
@@ -22,7 +22,7 @@ describe('user dto mapper', () => {
   });
 
   test('general', () => {
-    const userDto = userDtoMapper.toDto(user, user);
+    const userDto = userMap.map(user, { authUser: user });
     expect(userDto).toEqual({
       id: user.id.value,
       email: user.email.value,
@@ -34,9 +34,9 @@ describe('user dto mapper', () => {
     });
   });
 
-  test('should not expose email if authenticated user is not user', () => {
+  test('should not expose email of another user', () => {
     const otherUser = modelFaker.user();
-    const userDto = userDtoMapper.toDto(user, otherUser);
-    expect(userDto.email).toBeFalsy();
+    const userDto = userMap.map(user, { authUser: otherUser });
+    expect(userDto.email).toBeNull();
   });
 });

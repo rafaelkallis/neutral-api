@@ -4,13 +4,13 @@ import { ApiProperty } from '@nestjs/swagger';
  * Base DTO
  */
 export class BaseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '507f1f77bcf86cd799439011' })
   public id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 779587200 })
   public createdAt: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1585674488 })
   public updatedAt: number;
 
   public constructor(id: string, createdAt: number, updatedAt: number) {

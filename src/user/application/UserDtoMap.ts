@@ -2,22 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
+import {
+  ObjectMapContext,
+  ObjectMap,
+  AbstractObjectMap,
+} from 'shared/object-mapper/ObjectMap';
 
 @Injectable()
-export class UserDtoMapperService {
+@ObjectMap(User, UserDto)
+export class UserDtoMap extends AbstractObjectMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
+    super();
     this.config = config;
   }
 
   /**
    *
    */
-  public toDto(user: User, authUser: User): UserDto {
+  protected innerMap(user: User, context: ObjectMapContext): UserDto {
+    const authUser = context.get('authUser', User);
     return new UserDto(
       user.id.value,
-      this.shouldExposeEmail(user, authUser) ? user.email.value : null,
+      this.mapEmail(user, authUser),
       user.name.first,
       user.name.last,
       user.createdAt.value,
@@ -26,8 +34,8 @@ export class UserDtoMapperService {
     );
   }
 
-  private shouldExposeEmail(user: User, authUser: User): boolean {
-    return user.id.equals(authUser.id);
+  private mapEmail(user: User, authUser: User): string | null {
+    return user.id.equals(authUser.id) ? user.email.value : null;
   }
 
   private createAvatarUrl(user: User): string {
