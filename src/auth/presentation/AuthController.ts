@@ -101,7 +101,7 @@ export class AuthController {
    * along with other information about the user
    */
   @Post('signup/:token')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Submit magic signup token' })
   @ApiOkResponse({
     description: 'Magic signup token accepted',

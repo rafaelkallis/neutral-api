@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -56,7 +57,7 @@ export class NotificationController {
    * Read a notification
    */
   @Post(':id/read')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark a notification as read' })
   @ApiOkResponse({ description: 'Notification is successfully marked as read' })
   @ApiNotFoundResponse({ description: 'Notification not found' })
@@ -66,7 +67,7 @@ export class NotificationController {
   public async readNotification(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-  ): Promise<void> {
-    await this.notificationApplicationService.markRead(authUser, id);
+  ): Promise<NotificationDto> {
+    return this.notificationApplicationService.markRead(authUser, id);
   }
 }

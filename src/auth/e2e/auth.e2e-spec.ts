@@ -1,5 +1,6 @@
 import { TestScenario } from 'test/TestScenario';
 import { User } from 'user/domain/User';
+import { HttpStatus } from '@nestjs/common';
 
 describe('auth (e2e)', () => {
   let scenario: TestScenario;
@@ -24,7 +25,7 @@ describe('auth (e2e)', () => {
       const response = await scenario.session
         .post('/auth/login')
         .send({ email: user.email.value });
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(HttpStatus.NO_CONTENT);
       expect(scenario.tokenManager.newLoginToken).toHaveBeenCalledWith(
         user.id,
         user.lastLoginAt,
@@ -82,7 +83,7 @@ describe('auth (e2e)', () => {
       const response = await scenario.session
         .post('/auth/signup')
         .send({ email });
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(HttpStatus.NO_CONTENT);
       expect(scenario.tokenManager.newSignupToken).toHaveBeenCalledWith(email);
       expect(scenario.emailManager.sendSignupEmail).toHaveBeenCalledWith(
         email,
@@ -110,7 +111,7 @@ describe('auth (e2e)', () => {
           firstName: scenario.primitiveFaker.word(),
           lastName: scenario.primitiveFaker.word(),
         });
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -154,9 +155,9 @@ describe('auth (e2e)', () => {
 
     test('happy path', async () => {
       const logoutResponse = await scenario.session.post('/auth/logout');
-      expect(logoutResponse.status).toBe(200);
+      expect(logoutResponse.status).toBe(HttpStatus.NO_CONTENT);
       const meResponse = await scenario.session.get('/users/me');
-      expect(meResponse.status).toBe(401);
+      expect(meResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     });
   });
 });
