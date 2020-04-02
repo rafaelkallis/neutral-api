@@ -51,7 +51,10 @@ export class RoleController {
   @Get()
   @ApiBearerAuth()
   @ApiQuery({ name: 'projectId' })
-  @ApiOperation({ summary: 'Get a list of roles for a project' })
+  @ApiOperation({
+    operationId: 'getRoles',
+    summary: 'Get a list of roles for a project',
+  })
   @ApiOkResponse({ description: 'A list of roles', type: [RoleDto] })
   @ApiNotFoundResponse({ description: 'Project not found' })
   public async getRoles(
@@ -66,7 +69,7 @@ export class RoleController {
    */
   @Get(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a role' })
+  @ApiOperation({ operationId: 'getRole', summary: 'Get a role' })
   @ApiOkResponse({ description: 'A role', type: RoleDto })
   @ApiNotFoundResponse({ description: 'Role not found' })
   public async getRole(
@@ -81,7 +84,7 @@ export class RoleController {
    */
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a role' })
+  @ApiOperation({ operationId: 'createRole', summary: 'Create a role' })
   @ApiCreatedResponse({
     description: 'Role created successfully',
     type: RoleDto,
@@ -107,7 +110,7 @@ export class RoleController {
    */
   @Patch(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a role' })
+  @ApiOperation({ operationId: 'updateRole', summary: 'Update a role' })
   @ApiOkResponse({ description: 'Role updated succesfully', type: RoleDto })
   @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
@@ -132,7 +135,7 @@ export class RoleController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a role' })
+  @ApiOperation({ operationId: 'deleteRole', summary: 'Delete a role' })
   @ApiNoContentResponse({ description: 'Role deleted succesfully' })
   @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
@@ -150,7 +153,10 @@ export class RoleController {
   @Post(':id/assign')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Assign a user to a role' })
+  @ApiOperation({
+    operationId: 'assignUser',
+    summary: 'Assign a user to a role',
+  })
   @ApiOkResponse({ description: 'Role updated succesfully', type: RoleDto })
   @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",

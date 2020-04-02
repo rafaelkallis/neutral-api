@@ -40,12 +40,15 @@ export class NotificationController {
    * Get Notification
    */
   @Get()
-  @ApiOperation({ summary: 'Get all notifications' })
+  @ApiOperation({
+    operationId: 'getAuthUserNotifications',
+    summary: 'Get all notifications of the authenticated user',
+  })
   @ApiOkResponse({
     description: 'A list of notifications',
     type: [NotificationDto],
   })
-  public async getNotificationsByAuthUser(
+  public async getAuthUserNotifications(
     @AuthUser() authUser: User,
   ): Promise<NotificationDto[]> {
     return this.notificationApplicationService.getNotificationsByAuthUser(
@@ -58,7 +61,10 @@ export class NotificationController {
    */
   @Post(':id/read')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Mark a notification as read' })
+  @ApiOperation({
+    operationId: 'readNotification',
+    summary: 'Mark a notification as read',
+  })
   @ApiOkResponse({ description: 'Notification is successfully marked as read' })
   @ApiNotFoundResponse({ description: 'Notification not found' })
   @ApiForbiddenResponse({

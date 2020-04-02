@@ -46,7 +46,7 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Request magic login' })
+  @ApiOperation({ operationId: 'requestLogin', summary: 'Request magic login' })
   @ApiNoContentResponse({ description: 'Magic login email sent' })
   @ApiNotFoundResponse({ description: 'User not found' })
   public async requestLogin(
@@ -64,7 +64,10 @@ export class AuthController {
    */
   @Post('login/:token')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Submit magic login token' })
+  @ApiOperation({
+    operationId: 'submitLogin',
+    summary: 'Submit magic login token',
+  })
   @ApiOkResponse({
     description: 'Magic login token accepted',
     type: AuthenticationResponseDto,
@@ -85,7 +88,10 @@ export class AuthController {
    */
   @Post('signup')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Request magic signup' })
+  @ApiOperation({
+    operationId: 'requestSignup',
+    summary: 'Request magic signup',
+  })
   @ApiNoContentResponse({ description: 'Magic signup email sent' })
   @ApiBadRequestResponse({ description: 'Email already used' })
   public async requestSignup(
@@ -102,7 +108,10 @@ export class AuthController {
    */
   @Post('signup/:token')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Submit magic signup token' })
+  @ApiOperation({
+    operationId: 'submitSignup',
+    summary: 'Submit magic signup token',
+  })
   @ApiOkResponse({
     description: 'Magic signup token accepted',
     type: AuthenticationResponseDto,
@@ -124,7 +133,7 @@ export class AuthController {
    */
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh tokens' })
+  @ApiOperation({ operationId: 'refresh', summary: 'Refresh tokens' })
   @ApiOkResponse({
     description: 'Refresh token accepted',
     type: RefreshResponseDto,
@@ -139,7 +148,7 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Logout' })
+  @ApiOperation({ operationId: 'logout', summary: 'Logout' })
   @ApiNoContentResponse({ description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {
     return this.authService.logout(session);

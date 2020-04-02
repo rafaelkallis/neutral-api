@@ -53,7 +53,10 @@ export class ProjectController {
    */
   @Get()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a list of projects' })
+  @ApiOperation({
+    operationId: 'getProjects',
+    summary: 'Get a list of projects',
+  })
   @ApiOkResponse({ description: 'A list of projects', type: [ProjectDto] })
   public async getProjects(
     @AuthUser() authUser: User,
@@ -67,7 +70,7 @@ export class ProjectController {
    */
   @Get(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a project' })
+  @ApiOperation({ operationId: 'getProject', summary: 'Get a project' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ description: 'The requested project', type: ProjectDto })
   @ApiNotFoundResponse({ description: 'Project not found' })
@@ -83,7 +86,7 @@ export class ProjectController {
    */
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a project' })
+  @ApiOperation({ operationId: 'createProject', summary: 'Create a project' })
   @ApiCreatedResponse({ type: ProjectDto })
   public async createProject(
     @AuthUser() authUser: User,
@@ -97,7 +100,7 @@ export class ProjectController {
    */
   @Patch(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a project' })
+  @ApiOperation({ operationId: 'updateProject', summary: 'Update a project' })
   @ApiOkResponse({
     description: 'Project updated succesfully',
     type: ProjectDto,
@@ -119,6 +122,10 @@ export class ProjectController {
   @Post('/:id/finish-formation')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'finishFormation',
+    summary: 'Finish the project formation',
+  })
   @ApiOkResponse({
     description: 'Formation finished successfully.',
     type: ProjectDto,
@@ -141,8 +148,7 @@ export class ProjectController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a project' })
-  @ApiParam({ name: 'id' })
+  @ApiOperation({ operationId: 'deleteProject', summary: 'Delete a project' })
   @ApiNoContentResponse({ description: 'Project deleted succesfully' })
   @ApiForbiddenResponse({
     description: 'Authenticated user is not the project owner',
@@ -160,7 +166,10 @@ export class ProjectController {
   @Post(':id/submit-peer-reviews')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Submit peer reviews' })
+  @ApiOperation({
+    operationId: 'submitPeerReviews',
+    summary: 'Submit peer reviews',
+  })
   @ApiOkResponse({
     description: 'Peer reviews submitted successfully',
     type: ProjectDto,
@@ -181,7 +190,10 @@ export class ProjectController {
   @Post(':id/submit-manager-review')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Submit manager reviews' })
+  @ApiOperation({
+    operationId: 'submitManagerReview',
+    summary: 'Submit manager reviews',
+  })
   @ApiOkResponse({
     description: 'Manager review submitted successfully',
     type: ProjectDto,

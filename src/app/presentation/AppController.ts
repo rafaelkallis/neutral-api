@@ -12,7 +12,7 @@ export class AppController {
    * Get the status of the app.
    */
   @Get('status')
-  @ApiOperation({ summary: "Get the App's status" })
+  @ApiOperation({ operationId: 'getStatus', summary: "Get the App's status" })
   @ApiOkResponse({ description: "The App's status", type: StatusDto })
   public getStatus(): StatusDto {
     const message = 'service lives!';

@@ -54,7 +54,7 @@ export class UserController {
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a list of users' })
+  @ApiOperation({ operationId: 'getUsers', summary: 'Get a list of users' })
   @ApiOkResponse({ description: 'A list of users', type: [UserDto] })
   public async getUsers(
     @AuthUser() authUser: User,
@@ -69,7 +69,10 @@ export class UserController {
   @Get('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get the authenticated user' })
+  @ApiOperation({
+    operationId: 'getAuthUser',
+    summary: 'Get the authenticated user',
+  })
   @ApiOkResponse({ description: 'The authenticated user', type: UserDto })
   public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
     return this.userApplication.getAuthUser(authUser);
@@ -81,7 +84,7 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a user' })
+  @ApiOperation({ operationId: 'getUser', summary: 'Get a user' })
   @ApiOkResponse({ description: 'The requested user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
   public async getUser(
@@ -97,7 +100,10 @@ export class UserController {
   @Get(':id/avatar')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Get a user's avatar" })
+  @ApiOperation({
+    operationId: 'getUserAvatar',
+    summary: "Get a user's avatar",
+  })
   @ApiOkResponse({ description: 'The requested user avatar' })
   @ApiProduces(...UserApplicationService.AVATAR_MIME_TYPES)
   @ApiNotFoundResponse({ description: 'User not found' })
@@ -124,7 +130,10 @@ export class UserController {
   @Patch('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update the authenticated user' })
+  @ApiOperation({
+    operationId: 'updatedAuthUser',
+    summary: 'Update the authenticated user',
+  })
   @ApiOkResponse({ description: 'User succesfully updated', type: UserDto })
   public async updateAuthUser(
     @AuthUser() authUser: User,
@@ -140,7 +149,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Update the authenticated user's avatar" })
+  @ApiOperation({
+    operationId: 'updateAuthUserAvatar',
+    summary: "Update the authenticated user's avatar",
+  })
   @ApiBody({ type: UpdateAuthUserAvatarDto })
   @ApiConsumes('multipart/form-data')
   @ApiOkResponse({
@@ -164,7 +176,10 @@ export class UserController {
   @Delete('me/avatar')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Remove the authenticated user's avatar" })
+  @ApiOperation({
+    operationId: 'removeAuthUserAvatar',
+    summary: "Remove the authenticated user's avatar",
+  })
   @ApiOkResponse({
     description: 'User avatar succesfully removed',
     type: UserDto,
@@ -179,7 +194,10 @@ export class UserController {
    * Submit the email change token to verify a new email address
    */
   @Post('me/email-change/:token')
-  @ApiOperation({ summary: 'Submit email change token' })
+  @ApiOperation({
+    operationId: 'submitEmailChange',
+    summary: 'Submit email change token',
+  })
   @ApiOkResponse({ description: 'The updated user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
   public async submitEmailChange(@Param('token') token: string): Promise<void> {
@@ -193,7 +211,10 @@ export class UserController {
   @HttpCode(204)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete the authenticated user' })
+  @ApiOperation({
+    operationId: 'deleteAuthUser',
+    summary: 'Delete the authenticated user',
+  })
   @ApiNoContentResponse({
     description: 'Authenticated user deleted succesfully',
   })
