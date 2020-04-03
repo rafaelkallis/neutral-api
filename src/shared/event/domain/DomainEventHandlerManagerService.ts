@@ -5,7 +5,6 @@ import {
   OnModuleDestroy,
   Logger,
 } from '@nestjs/common';
-import { ModulesContainer } from '@nestjs/core';
 import {
   EventSubscriberService,
   EventSubscription,
@@ -17,6 +16,7 @@ import {
   HandleDomainEventMetadataItem,
   HANDLE_DOMAIN_EVENT_METADATA,
 } from 'shared/event/domain/HandleDomainEvent';
+import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 
 /**
  *
@@ -25,71 +25,67 @@ import {
 export class DomainEventHandlerManagerService
   implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
+  private readonly serviceExplorer: ServiceExplorer;
   private readonly eventSubscriber: EventSubscriberService;
-  private readonly modulesContainer: ModulesContainer;
-  private readonly sagaEventSubscriptions: EventSubscription[];
+  private readonly domainEventSubscriptions: EventSubscription[];
 
   public constructor(
+    serviceExplorer: ServiceExplorer,
     @InjectEventSubscriber() eventSubscriber: EventSubscriberService,
-    modulesContainer: ModulesContainer,
   ) {
     this.logger = new Logger(DomainEventHandlerManagerService.name, true);
+    this.serviceExplorer = serviceExplorer;
     this.eventSubscriber = eventSubscriber;
-    this.modulesContainer = modulesContainer;
-    this.sagaEventSubscriptions = [];
+    this.domainEventSubscriptions = [];
   }
 
   public async onModuleInit(): Promise<void> {
-    await this.registerSagas();
+    await this.registerDomainEventHandlers();
   }
 
   public async onModuleDestroy(): Promise<void> {
-    await this.unsubscribeSagaSubscriptions();
+    await this.unregisterDomainEventHandlers();
   }
 
-  private async registerSagas(): Promise<void> {
-    for (const module of this.modulesContainer.values()) {
-      for (const instanceWrapper of module.providers.values()) {
-        const { instance } = instanceWrapper;
-        if (typeof instance !== 'object' || !instance) {
-          continue;
+  private async registerDomainEventHandlers(): Promise<void> {
+    for (const service of this.serviceExplorer.exploreServices()) {
+      const metadataItems:
+        | HandleDomainEventMetadataItem<DomainEvent>[]
+        | undefined = Reflect.getMetadata(
+        HANDLE_DOMAIN_EVENT_METADATA,
+        service.constructor,
+      );
+      if (!metadataItems) {
+        continue;
+      }
+      this.logger.log(`${service.constructor.name}:`);
+      for (const { eventType, propertyKey } of metadataItems) {
+        if (!(propertyKey in service)) {
+          throw new Error();
         }
-        const metadataItems:
-          | HandleDomainEventMetadataItem<DomainEvent>[]
-          | undefined = Reflect.getMetadata(
-          HANDLE_DOMAIN_EVENT_METADATA,
-          instance.constructor,
+        const eventHandler: EventHandler<DomainEvent> = {
+          async handleEvent(event: DomainEvent) {
+            await (service as any)[propertyKey](event);
+          },
+        };
+        const domainEventSubscription = await this.eventSubscriber.subscribe(
+          eventType,
+          eventHandler,
         );
-        if (!metadataItems) {
-          continue;
-        }
-        this.logger.log(`${instanceWrapper.name}:`);
-        for (const { eventType, propertyKey } of metadataItems) {
-          if (!(propertyKey in instance)) {
-            throw new Error();
-          }
-          const eventHandler: EventHandler<DomainEvent> = {
-            async handleEvent(event: DomainEvent) {
-              await (instance as any)[propertyKey](event);
-            },
-          };
-          const sagaEventSubscription = await this.eventSubscriber.subscribe(
-            eventType,
-            eventHandler,
-          );
-          this.logger.log(
-            `Registered {${eventType.name}, ${propertyKey.toString()}()} saga`,
-          );
-          this.sagaEventSubscriptions.push(sagaEventSubscription);
-        }
+        this.logger.log(
+          `Registered {${
+            eventType.name
+          }, ${propertyKey.toString()}()} domain event handler`,
+        );
+        this.domainEventSubscriptions.push(domainEventSubscription);
       }
     }
-    this.logger.log('Sagas successfully registered');
+    this.logger.log('Domain event handlers successfully registered');
   }
 
-  private async unsubscribeSagaSubscriptions(): Promise<void> {
-    for (const sagaSubscription of this.sagaEventSubscriptions) {
-      await sagaSubscription.unsubscribe();
+  private async unregisterDomainEventHandlers(): Promise<void> {
+    for (const domainEventHandler of this.domainEventSubscriptions) {
+      await domainEventHandler.unsubscribe();
     }
   }
 }

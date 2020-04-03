@@ -4,12 +4,14 @@ import { DomainEventHandlerManagerService } from 'shared/event/domain/DomainEven
 import { EVENT_BUS } from 'shared/event/bus/application/EventBus';
 import { EVENT_PUBLISHER } from 'shared/event/publisher/EventPublisher';
 import { EVENT_SUBSCRIBER } from 'shared/event/subscriber/event-subscriber.service';
+import { UtilityModule } from 'shared/utility/UtilityModule';
 // import { JsonEventSerializerService } from 'event/serializer/json-event-serializer.service';
 
 /**
  * Event Module
  */
 @Module({
+  imports: [UtilityModule],
   providers: [
     {
       provide: EVENT_BUS,
