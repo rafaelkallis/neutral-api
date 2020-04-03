@@ -6,12 +6,6 @@ import { IsString, IsOptional } from 'class-validator';
  */
 export class CreateRoleDto {
   @IsString()
-  @ApiProperty({
-    description: 'Id of the project the role belongs to',
-  })
-  public projectId: string;
-
-  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Id of the role assignee',
@@ -36,12 +30,10 @@ export class CreateRoleDto {
   public description: string;
 
   public constructor(
-    projectId: string,
     assigneeId: string | undefined | null,
     title: string,
     description: string,
   ) {
-    this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;

@@ -3,6 +3,7 @@ import { Project } from 'project/domain/Project';
 import { Role } from 'project/domain/Role';
 import { TestScenario } from 'test/TestScenario';
 import { User } from 'user/domain/User';
+import { HttpStatus } from '@nestjs/common';
 
 describe('roles (e2e)', () => {
   let scenario: TestScenario;
@@ -24,7 +25,7 @@ describe('roles (e2e)', () => {
     await scenario.teardown();
   });
 
-  describe('/roles (GET)', () => {
+  describe.skip('/roles (GET)', () => {
     test('happy path', async () => {
       const response = await scenario.session
         .get('/roles')
@@ -44,7 +45,7 @@ describe('roles (e2e)', () => {
     });
   });
 
-  describe('/roles/:id (GET)', () => {
+  describe.skip('/roles/:id (GET)', () => {
     test('happy path', async () => {
       const response = await scenario.session.get(`/roles/${role.id.value}`);
       expect(response.status).toBe(200);
@@ -62,7 +63,7 @@ describe('roles (e2e)', () => {
     });
   });
 
-  describe('/roles (POST)', () => {
+  describe('/projects/:project_id/roles (POST)', () => {
     let title: string;
     let description: string;
 
@@ -72,38 +73,48 @@ describe('roles (e2e)', () => {
     });
 
     test('happy path', async () => {
-      const response = await scenario.session.post('/roles').send({
-        projectId: project.id.value,
-        title,
-        description,
-      });
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual({
-        id: expect.any(String),
-        projectId: project.id.value,
-        assigneeId: null,
-        title,
-        description,
-        contribution: null,
-        hasSubmittedPeerReviews: false,
-        createdAt: expect.any(Number),
-        updatedAt: expect.any(Number),
-      });
+      const response = await scenario.session
+        .post(`/projects/${project.id.value}/roles`)
+        .send({
+          title,
+          description,
+        });
+      expect(response.status).toBe(HttpStatus.CREATED);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: project.id.value,
+          roles: expect.arrayContaining([
+            {
+              id: expect.any(String),
+              projectId: project.id.value,
+              assigneeId: null,
+              title,
+              description,
+              contribution: null,
+              hasSubmittedPeerReviews: false,
+              createdAt: expect.any(Number),
+              updatedAt: expect.any(Number),
+            },
+          ]),
+        }),
+      );
     });
 
+    // TODO: should not be part of e2e tests!
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
       await scenario.projectRepository.persist(project);
-      const response = await scenario.session.post('/roles').send({
-        projectId: project.id.value,
-        title,
-        description,
-      });
-      expect(response.status).toBe(400);
+      const response = await scenario.session
+        .post(`/projects/${project.id.value}/roles`)
+        .send({
+          title,
+          description,
+        });
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
-  describe('/roles/:id (PATCH)', () => {
+  describe('projects/:project_id/roles/:roleId (PATCH)', () => {
     let title: string;
 
     beforeEach(async () => {
@@ -112,44 +123,59 @@ describe('roles (e2e)', () => {
 
     test('happy path', async () => {
       const response = await scenario.session
-        .patch(`/roles/${role.id.value}`)
+        .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(expect.objectContaining({ title }));
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: project.id.value,
+          roles: expect.arrayContaining([
+            expect.objectContaining({
+              id: role.id.value,
+              title,
+            }),
+          ]),
+        }),
+      );
     });
 
+    // TODO: should be tested in e2e tests!
     test('should fail when project is not in formation state', async () => {
       project.state = ProjectState.PEER_REVIEW;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
-        .patch(`/roles/${role.id.value}`)
+        .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
 
+    // TODO: should be tested in e2e tests!
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
       project.creatorId = otherUser.id;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
-        .patch(`/roles/${role.id.value}`)
+        .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(HttpStatus.FORBIDDEN);
     });
 
+    // TODO: should be tested in e2e tests!
     test('should fail is project owner is assigned', async () => {
       const response = await scenario.session
-        .patch(`/roles/${role.id.value}`)
+        .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ assigneeId: project.creatorId });
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
-  describe('/roles/:id (DELETE)', () => {
+  describe('/projects/:project_id/roles/:roleId (DELETE)', () => {
     test('happy path', async () => {
-      const response = await scenario.session.del(`/roles/${role.id.value}`);
-      expect(response.status).toBe(204);
+      const response = await scenario.session.del(
+        `/projects/${project.id.value}/roles/${role.id.value}`,
+      );
+      expect(response.status).toBe(HttpStatus.OK);
       const updatedProject = await scenario.projectRepository.findById(
         project.id,
       );

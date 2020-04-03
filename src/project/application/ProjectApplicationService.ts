@@ -46,7 +46,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
-  private readonly modelMapper: ObjectMapper;
+  private readonly objectMapper: ObjectMapper;
   private readonly eventPublisher: EventPublisher;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -61,7 +61,7 @@ export class ProjectApplicationService {
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
-    this.modelMapper = modelMapper;
+    this.objectMapper = modelMapper;
     this.eventPublisher = eventPublisher;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
@@ -91,7 +91,7 @@ export class ProjectApplicationService {
       }
     }
     return projects.map((project) =>
-      this.modelMapper.map(project, ProjectDto, { authUser }),
+      this.objectMapper.map(project, ProjectDto, { authUser }),
     );
   }
 
@@ -100,7 +100,7 @@ export class ProjectApplicationService {
    */
   public async getProject(authUser: User, id: string): Promise<ProjectDto> {
     const project = await this.projectRepository.findById(Id.from(id));
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -114,7 +114,7 @@ export class ProjectApplicationService {
     const project = await this.projectRepository.findById(projectId);
     const roles = Array.from(project.roles);
     return roles.map((role) =>
-      this.modelMapper.map(role, RoleDto, { project, authUser }),
+      this.objectMapper.map(role, RoleDto, { project, authUser }),
     );
   }
 
@@ -125,7 +125,7 @@ export class ProjectApplicationService {
     const roleId = Id.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
     const role = project.roles.find(roleId);
-    return this.modelMapper.map(role, RoleDto, { project, authUser });
+    return this.objectMapper.map(role, RoleDto, { project, authUser });
   }
 
   /**
@@ -153,7 +153,7 @@ export class ProjectApplicationService {
     const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -175,7 +175,7 @@ export class ProjectApplicationService {
     project.update(title, description);
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -201,16 +201,16 @@ export class ProjectApplicationService {
     rawProjectId: string,
     rawTitle: string,
     rawDescription: string,
-  ): Promise<RoleDto> {
+  ): Promise<ProjectDto> {
     const projectId = Id.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const title = RoleTitle.from(rawTitle);
     const description = RoleDescription.from(rawDescription);
-    const role = project.addRole(title, description);
+    project.addRole(title, description);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(role, RoleDto, { project, authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -218,14 +218,15 @@ export class ProjectApplicationService {
    */
   public async updateRole(
     authUser: User,
+    rawProjectId: string,
     rawRoleId: string,
     rawTitle?: string,
     rawDescription?: string,
-  ): Promise<RoleDto> {
+  ): Promise<ProjectDto> {
+    const projectId = Id.from(rawProjectId);
     const roleId = Id.from(rawRoleId);
-    const project = await this.projectRepository.findByRoleId(roleId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
-    const roleToUpdate = project.roles.find(roleId);
     const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
     const description = rawDescription
       ? RoleDescription.from(rawDescription)
@@ -233,19 +234,25 @@ export class ProjectApplicationService {
     project.updateRole(roleId, title, description);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(roleToUpdate, RoleDto, { project, authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
    * Remove a role
    */
-  public async removeRole(authUser: User, rawRoleId: string): Promise<void> {
+  public async removeRole(
+    authUser: User,
+    rawProjectId: string,
+    rawRoleId: string,
+  ): Promise<ProjectDto> {
+    const projectId = Id.from(rawProjectId);
     const roleId = Id.from(rawRoleId);
-    const project = await this.projectRepository.findByRoleId(roleId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     project.removeRole(roleId);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -253,12 +260,14 @@ export class ProjectApplicationService {
    */
   public async assignUserToRole(
     authUser: User,
+    rawProjectId: string,
     rawRoleId: string,
     rawAssigneeId?: string | null,
     rawAssigneeEmail?: string | null,
-  ): Promise<RoleDto> {
+  ): Promise<ProjectDto> {
+    const projectId = Id.from(rawProjectId);
     const roleId = Id.from(rawRoleId);
-    const project = await this.projectRepository.findByRoleId(roleId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const roleToAssign = project.roles.find(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
@@ -295,7 +304,7 @@ export class ProjectApplicationService {
     project.assignUserToRole(userToAssign, roleToAssign);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(roleToAssign, RoleDto, { project, authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -311,7 +320,7 @@ export class ProjectApplicationService {
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -342,7 +351,7 @@ export class ProjectApplicationService {
     );
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -357,6 +366,6 @@ export class ProjectApplicationService {
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
-    return this.modelMapper.map(project, ProjectDto, { authUser });
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 }

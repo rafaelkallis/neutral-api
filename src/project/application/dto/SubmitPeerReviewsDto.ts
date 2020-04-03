@@ -7,13 +7,8 @@ import { IsPeerReviews } from 'shared/validation/is-peer-reviews';
 export class SubmitPeerReviewsDto {
   @IsPeerReviews()
   @ApiProperty({
-    example: `
-    {
-      "role1-id": 0.5,
-      "role3-id": 0.2,
-      "role4-id": 0.3
-    }
-    `,
+    type: Object,
+    example: { 'role1-id': 0.5, 'role3-id': 0.2, 'role4-id': 0.3 },
     description: 'Peer reviews',
   })
   public peerReviews: Record<string, number>;
