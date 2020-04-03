@@ -17,7 +17,7 @@ export class AuthenticationResponseDto {
   })
   public readonly refreshToken: string;
 
-  @ApiProperty({ description: 'The authenticated user', type: UserDto })
+  @ApiProperty({ type: UserDto })
   public readonly user: UserDto;
 
   public constructor(accessToken: string, refreshToken: string, user: UserDto) {

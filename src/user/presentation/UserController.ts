@@ -131,7 +131,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    operationId: 'updatedAuthUser',
+    operationId: 'updateAuthUser',
     summary: 'Update the authenticated user',
   })
   @ApiOkResponse({ description: 'User succesfully updated', type: UserDto })
