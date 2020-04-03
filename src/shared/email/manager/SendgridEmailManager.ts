@@ -1,6 +1,6 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
-import { EmailManager } from 'shared/email/EmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 import axios from 'axios';
 
 /**

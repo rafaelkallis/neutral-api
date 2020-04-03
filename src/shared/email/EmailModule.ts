@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from 'shared/config/ConfigModule';
 import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers';
-import { EmailManager } from 'shared/email/EmailManager';
-import { SelfManagedEmailManager } from 'shared/email/SelfManagedEmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
+import { SelfManagedEmailManager } from 'shared/email/manager/SelfManagedEmailManager';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/NunjucksEmailHtmlRenderer';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';

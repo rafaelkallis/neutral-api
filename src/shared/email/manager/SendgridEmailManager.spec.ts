@@ -1,4 +1,4 @@
-import { SendgridEmailManager } from 'shared/email/SendgridEmailManager';
+import { SendgridEmailManager } from 'shared/email/manager/SendgridEmailManager';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 
 describe.skip('SendgridEmailManager', () => {

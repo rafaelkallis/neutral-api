@@ -13,7 +13,7 @@ import {
 } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { EmailManager } from 'shared/email/EmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';

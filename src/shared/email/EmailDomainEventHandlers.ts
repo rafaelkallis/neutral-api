@@ -3,7 +3,7 @@ import { HandleDomainEvent } from 'shared/event/domain/HandleDomainEvent';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
-import { EmailManager } from 'shared/email/EmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
 
 /**

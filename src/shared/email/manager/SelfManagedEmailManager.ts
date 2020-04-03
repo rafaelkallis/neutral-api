@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
-import { EmailManager } from 'shared/email/EmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 

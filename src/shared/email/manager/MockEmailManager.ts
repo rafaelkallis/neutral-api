@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EmailManager } from 'shared/email/EmailManager';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 
 /**
  * Mock Email Manager
