@@ -1,20 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from 'shared/config/ConfigModule';
-import { EmailSagasService } from 'shared/email/email-sagas.service';
+import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers';
 import { EmailManager } from 'shared/email/EmailManager';
-import {
-  EMAIL_SENDER,
-  SmtpEmailSenderService,
-} from 'shared/email/email-sender';
-import {
-  EMAIL_HTML_RENDERER,
-  NunjucksEmailHtmlRendererService,
-} from 'shared/email/email-html-renderer';
-import {
-  EMAIL_PLAINTEXT_RENDERER,
-  DefaultEmailPlaintextRendererService,
-} from 'shared/email/email-plaintext-renderer';
-import { SelfManagedEmailService } from 'shared/email/self-managed-email.service';
+import { SelfManagedEmailManager } from 'shared/email/SelfManagedEmailManager';
+import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
+import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/NunjucksEmailHtmlRenderer';
+import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
+import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
+import { EmailSender } from 'shared/email/sender/EmailSender';
+import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
 
 /**
  * Email Module
@@ -24,21 +18,21 @@ import { SelfManagedEmailService } from 'shared/email/self-managed-email.service
   providers: [
     {
       provide: EmailManager,
-      useClass: SelfManagedEmailService,
+      useClass: SelfManagedEmailManager,
     },
     {
-      provide: EMAIL_HTML_RENDERER,
-      useClass: NunjucksEmailHtmlRendererService,
+      provide: EmailHtmlRenderer,
+      useClass: NunjucksEmailHtmlRenderer,
     },
     {
-      provide: EMAIL_PLAINTEXT_RENDERER,
-      useClass: DefaultEmailPlaintextRendererService,
+      provide: EmailPlaintextRenderer,
+      useClass: LiteralEmailPlaintextRenderer,
     },
     {
-      provide: EMAIL_SENDER,
-      useClass: SmtpEmailSenderService,
+      provide: EmailSender,
+      useClass: SmtpEmailSender,
     },
-    EmailSagasService,
+    EmailDomainEventHandlers,
   ],
   exports: [EmailManager],
 })

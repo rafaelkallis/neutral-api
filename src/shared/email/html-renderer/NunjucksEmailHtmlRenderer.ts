@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Environment, FileSystemLoader } from 'nunjucks';
 import path from 'path';
-import { EmailHtmlRendererService } from 'shared/email/email-html-renderer/email-html-renderer.service';
+import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 
 /**
  * Nunjucks Email Html Renderer
  */
 @Injectable()
-export class NunjucksEmailHtmlRendererService
-  implements EmailHtmlRendererService {
+export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
   private readonly environment: Environment;
 
   public constructor() {
+    super();
     const templatesPath = path.resolve(__dirname, 'nunjucks-templates');
     const fileSystemLoader = new FileSystemLoader(templatesPath);
     this.environment = new Environment(fileSystemLoader);

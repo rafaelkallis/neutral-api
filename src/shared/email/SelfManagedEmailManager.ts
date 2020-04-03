@@ -1,34 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import {
-  EmailSenderService,
-  InjectEmailSender,
-} from 'shared/email/email-sender';
+import { EmailSender } from 'shared/email/sender/EmailSender';
 import { EmailManager } from 'shared/email/EmailManager';
-import {
-  InjectEmailHtmlRenderer,
-  EmailHtmlRendererService,
-} from 'shared/email/email-html-renderer/email-html-renderer.service';
-import {
-  EmailPlaintextRendererService,
-  InjectEmailPlaintextRenderer,
-} from 'shared/email/email-plaintext-renderer/email-plaintext-renderer.service';
+import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
+import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 
 /**
- * Self Managed Email Service
+ * Self Managed Email Manager
  */
 @Injectable()
-export class SelfManagedEmailService implements EmailManager {
-  private readonly emailHtmlRenderer: EmailHtmlRendererService;
-  private readonly emailPlaintextRenderer: EmailPlaintextRendererService;
-  private readonly emailSender: EmailSenderService;
+export class SelfManagedEmailManager extends EmailManager {
+  private readonly emailHtmlRenderer: EmailHtmlRenderer;
+  private readonly emailPlaintextRenderer: EmailPlaintextRenderer;
+  private readonly emailSender: EmailSender;
 
   public constructor(
-    @InjectEmailHtmlRenderer()
-    emailHtmlRenderer: EmailHtmlRendererService,
-    @InjectEmailPlaintextRenderer()
-    emailPlaintextRenderer: EmailPlaintextRendererService,
-    @InjectEmailSender() emailSender: EmailSenderService,
+    emailHtmlRenderer: EmailHtmlRenderer,
+    emailPlaintextRenderer: EmailPlaintextRenderer,
+    emailSender: EmailSender,
   ) {
+    super();
     this.emailHtmlRenderer = emailHtmlRenderer;
     this.emailPlaintextRenderer = emailPlaintextRenderer;
     this.emailSender = emailSender;

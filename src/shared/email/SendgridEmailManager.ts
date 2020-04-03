@@ -4,14 +4,15 @@ import { EmailManager } from 'shared/email/EmailManager';
 import axios from 'axios';
 
 /**
- * Sendgrid Email Service
+ * Sendgrid Email Manager
  */
 @Injectable()
-export class SendgridEmailService implements EmailManager {
+export class SendgridEmailManager extends EmailManager {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
 
   public constructor(_config: Config) {
+    super();
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';

@@ -1,10 +1,10 @@
-import { DefaultEmailPlaintextRendererService } from 'shared/email/email-plaintext-renderer/default-email-plaintext-renderer.service';
+import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
 
-describe('DefaultEmailPlaintextRenderer', () => {
-  let defaultEmailPlaintextRenderer: DefaultEmailPlaintextRendererService;
+describe('LiteralEmailPlaintextRenderer', () => {
+  let defaultEmailPlaintextRenderer: LiteralEmailPlaintextRenderer;
 
   beforeEach(() => {
-    defaultEmailPlaintextRenderer = new DefaultEmailPlaintextRendererService();
+    defaultEmailPlaintextRenderer = new LiteralEmailPlaintextRenderer();
   });
 
   it('should be defined', () => {

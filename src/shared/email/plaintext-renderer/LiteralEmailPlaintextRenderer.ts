@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { EmailPlaintextRendererService } from 'shared/email/email-plaintext-renderer/email-plaintext-renderer.service';
+import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 
 /**
- * Default Email Plaintext Renderer
+ * Literal Email Plaintext Renderer
  */
 @Injectable()
-export class DefaultEmailPlaintextRendererService
-  implements EmailPlaintextRendererService {
+export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderLoginEmailPlaintext(loginMagicLink: string): string {
     return `
       Hi there,

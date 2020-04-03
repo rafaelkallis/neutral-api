@@ -1,10 +1,10 @@
-import { NunjucksEmailHtmlRendererService } from 'shared/email/email-html-renderer/nunjucks-email-html-render.service';
+import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/NunjucksEmailHtmlRenderer';
 
 describe('NunjucksEmailHtmlRenderer', () => {
-  let nunjucksEmailHtmlRenderer: NunjucksEmailHtmlRendererService;
+  let nunjucksEmailHtmlRenderer: NunjucksEmailHtmlRenderer;
 
   beforeEach(() => {
-    nunjucksEmailHtmlRenderer = new NunjucksEmailHtmlRendererService();
+    nunjucksEmailHtmlRenderer = new NunjucksEmailHtmlRenderer();
   });
 
   it('should be defined', () => {

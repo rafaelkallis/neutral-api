@@ -7,14 +7,14 @@ import { EmailManager } from 'shared/email/EmailManager';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
 
 /**
- * Email Sagas Service
+ * Email Domain Event Handlers
  */
 @Injectable()
-export class EmailSagasService {
-  private readonly emailService: EmailManager;
+export class EmailDomainEventHandlers {
+  private readonly emailManager: EmailManager;
 
-  public constructor(emailService: EmailManager) {
-    this.emailService = emailService;
+  public constructor(emailManager: EmailManager) {
+    this.emailManager = emailManager;
   }
 
   /**
@@ -24,7 +24,7 @@ export class EmailSagasService {
   public async emailChangeRequested(
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
-    await this.emailService.sendEmailChangeEmail(
+    await this.emailManager.sendEmailChangeEmail(
       event.email.value,
       event.magicEmailChangeLink,
     );
@@ -35,7 +35,7 @@ export class EmailSagasService {
    */
   @HandleDomainEvent(LoginRequestedEvent)
   public async signinRequested(event: LoginRequestedEvent): Promise<void> {
-    await this.emailService.sendLoginEmail(
+    await this.emailManager.sendLoginEmail(
       event.user.email.value,
       event.magicSigninLink,
     );
@@ -46,7 +46,7 @@ export class EmailSagasService {
    */
   @HandleDomainEvent(SignupRequestedEvent)
   public async signupRequested(event: SignupRequestedEvent): Promise<void> {
-    await this.emailService.sendSignupEmail(
+    await this.emailManager.sendSignupEmail(
       event.email.value,
       event.magicSignupLink,
     );
@@ -59,7 +59,7 @@ export class EmailSagasService {
   public async handleNewUserAssignedEvent(
     event: NewUserAssignedEvent,
   ): Promise<void> {
-    await this.emailService.sendUnregisteredUserNewAssignmentEmail(
+    await this.emailManager.sendUnregisteredUserNewAssignmentEmail(
       event.assigneeEmail.value,
     );
   }

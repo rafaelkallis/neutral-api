@@ -1,20 +1,18 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
-import {
-  EmailSenderService,
-  SendEmailOptions,
-} from 'shared/email/email-sender/email-sender.service';
+import { EmailSender, SendEmailOptions } from 'shared/email/sender/EmailSender';
 import axios from 'axios';
 
 /**
  * Sendgrid Email Sender
  */
 @Injectable()
-export class SendgridEmailSenderService implements EmailSenderService {
+export class SendgridEmailSender extends EmailSender {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
 
   public constructor(_config: Config) {
+    super();
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';

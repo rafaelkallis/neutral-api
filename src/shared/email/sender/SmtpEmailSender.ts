@@ -5,23 +5,21 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
-import {
-  EmailSenderService,
-  SendEmailOptions,
-} from 'shared/email/email-sender/email-sender.service';
+import { EmailSender, SendEmailOptions } from 'shared/email/sender/EmailSender';
 import { Transporter, createTransport } from 'nodemailer';
 
 /**
  * Smtp Email Sender
  */
 @Injectable()
-export class SmtpEmailSenderService
-  implements EmailSenderService, OnModuleInit, OnModuleDestroy {
+export class SmtpEmailSender extends EmailSender
+  implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
   private readonly transporter: Transporter;
 
   public constructor(config: Config) {
-    this.logger = new Logger(SmtpEmailSenderService.name, true);
+    super();
+    this.logger = new Logger(SmtpEmailSender.name, true);
     const smtpUrl = config.get('SMTP_URL');
     this.transporter = createTransport(smtpUrl);
   }
