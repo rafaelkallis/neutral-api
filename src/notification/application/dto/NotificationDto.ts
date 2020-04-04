@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'shared/application/dto/BaseDto';
+import { ModelDto } from 'shared/application/dto/ModelDto';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationTypeValue } from 'notification/domain/value-objects/NotificationType';
 
 /**
  * Notification DTO
  */
-export class NotificationDto extends BaseDto {
+export class NotificationDto extends ModelDto {
   @ApiProperty({
     enum: NotificationTypeValue,
     example: NotificationTypeValue.NEW_ASSIGNMENT,

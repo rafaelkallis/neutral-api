@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
- * Base DTO
+ * Model DTO
  */
-export class BaseDto {
+export class ModelDto {
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
   public id: string;
 

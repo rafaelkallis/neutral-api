@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseDto } from 'shared/application/dto/BaseDto';
+import { ModelDto } from 'shared/application/dto/ModelDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
@@ -9,7 +9,7 @@ import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 /**
  * Project DTO
  */
-export class ProjectDto extends BaseDto {
+export class ProjectDto extends ModelDto {
   @ApiProperty({
     example: 'Mars Shuttle',
     description: 'Title of the project',
