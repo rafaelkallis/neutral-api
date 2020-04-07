@@ -7,7 +7,7 @@ import { InvalidProjectDescriptionException } from 'project/domain/exceptions/In
 export class ProjectDescription extends StringValueObject<ProjectDescription> {
   private constructor(value: string) {
     super(value);
-    this.assertMaxLength(1024);
+    this.assertMaxLength(value, 1024);
   }
 
   /**

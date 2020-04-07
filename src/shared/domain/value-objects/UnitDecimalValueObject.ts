@@ -1,19 +1,15 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject';
+import { InvalidUnitDecimalException } from 'shared/domain/exceptions/InvalidUnitDecimalException';
 
 /**
  *
  */
 export abstract class UnitDecimalValueObject<
   T extends UnitDecimalValueObject<T>
-> extends ValueObject<T> {
-  public readonly value: number;
-
+> extends NumberValueObject<T> {
   protected constructor(value: number) {
-    super();
-    if (typeof value !== 'number' || value < 0 || value > 1) {
-      this.throwInvalidValueObjectException();
-    }
-    this.value = value;
+    super(value);
+    this.assertUnitDecimal(value);
   }
 
   /**
@@ -30,8 +26,16 @@ export abstract class UnitDecimalValueObject<
     return this.value.toFixed(1000);
   }
 
+  private assertUnitDecimal(value: number): void {
+    if (value < 0 || value > 1) {
+      this.throwInvalidValueObjectException();
+    }
+  }
+
   /**
    *
    */
-  protected abstract throwInvalidValueObjectException(): never;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidUnitDecimalException();
+  }
 }

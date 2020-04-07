@@ -8,7 +8,7 @@ import ObjectID from 'bson-objectid';
 export class Avatar extends StringValueObject<Avatar> {
   private constructor(key: string) {
     super(key);
-    Avatar.assertKey(key);
+    this.assertKey(key);
   }
 
   /**
@@ -22,12 +22,12 @@ export class Avatar extends StringValueObject<Avatar> {
     return new Avatar('[REDACTED]');
   }
 
-  private static assertKey(value: string): void {
+  private assertKey(value: string): void {
     if (value === '[REDACTED]') {
       return;
     }
     if (!ObjectID.isValid(value)) {
-      throw new InvalidAvatarException();
+      this.throwInvalidValueObjectException();
     }
   }
 

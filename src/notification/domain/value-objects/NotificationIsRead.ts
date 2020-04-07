@@ -1,29 +1,15 @@
-import { Validator } from 'class-validator';
-import { PrimitiveValueObject } from 'shared/domain/value-objects/PrimitiveValueObject';
 import { InvalidNotificationIsReadException } from 'notification/domain/exceptions/InvalidNotificationIsReadException';
+import { BooleanValueObject } from 'shared/domain/value-objects/BooleanValueObject';
 
 /**
  *
  */
-export class NotificationIsRead extends PrimitiveValueObject<
-  boolean,
-  NotificationIsRead
-> {
-  /**
-   *
-   */
+export class NotificationIsRead extends BooleanValueObject<NotificationIsRead> {
   public static from(value: boolean): NotificationIsRead {
-    const validator = new Validator();
-    if (!validator.isBoolean(value)) {
-      throw new InvalidNotificationIsReadException();
-    }
     return new NotificationIsRead(value);
   }
 
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value.toString();
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidNotificationIsReadException();
   }
 }

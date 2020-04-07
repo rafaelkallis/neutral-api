@@ -1,41 +1,28 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
+import { InvalidBooleanException } from '../exceptions/InvalidBooleanException';
 
 /**
  *
  */
 export abstract class BooleanValueObject<
   T extends BooleanValueObject<T>
-> extends ValueObject<T> {
-  public readonly value: boolean;
-
+> extends SingleValueObject<boolean, T> {
   protected constructor(value: boolean) {
-    super();
-    this.value = value;
-    this.assertBoolean();
+    super(value);
+    this.assertBoolean(value);
   }
 
-  /**
-   *
-   */
-  public equals(other: T): boolean {
-    return this.value === other.value;
-  }
-
-  /**
-   *
-   */
   public toString(): string {
     return this.value.toString();
   }
 
-  /**
-   *
-   */
-  protected abstract throwInvalidValueObjectException(): never;
-
-  protected assertBoolean(): void {
-    if (typeof this.value !== 'boolean') {
+  protected assertBoolean(value: boolean): void {
+    if (typeof value !== 'boolean') {
       this.throwInvalidValueObjectException();
     }
+  }
+
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidBooleanException();
   }
 }

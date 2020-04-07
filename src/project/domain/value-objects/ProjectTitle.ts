@@ -7,7 +7,7 @@ import { StringValueObject } from 'shared/domain/value-objects/StringValueObject
 export class ProjectTitle extends StringValueObject<ProjectTitle> {
   protected constructor(value: string) {
     super(value);
-    this.assertMaxLength(100);
+    this.assertMaxLength(value, 100);
   }
 
   /**

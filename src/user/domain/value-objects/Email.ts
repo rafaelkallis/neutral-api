@@ -9,6 +9,7 @@ export class Email extends StringValueObject<Email> {
   private constructor(value: string) {
     super(value);
     this.assertEmail(value);
+    this.assertMaxLength(value, 100);
   }
 
   /**
@@ -26,12 +27,9 @@ export class Email extends StringValueObject<Email> {
   }
 
   private assertEmail(value: string): void {
-    if (value === '[REDACTED]') {
-      return;
-    }
     const validator = new Validator();
-    if (!validator.isEmail(value) || !validator.maxLength(value, 100)) {
-      throw new InvalidEmailException();
+    if (value !== '[REDACTED]' && !validator.isEmail(value)) {
+      this.throwInvalidValueObjectException();
     }
   }
 

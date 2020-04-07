@@ -1,35 +1,24 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
-import { Validator } from 'class-validator';
-import { InvalidLastLoginAtException } from 'user/domain/exceptions/InvalidLastLoginAtException';
+import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject';
+import { InvalidTimestampException } from 'shared/domain/exceptions/InvalidTimestampException';
 
 /**
  *
  */
 export abstract class TimestampValueObject<
   T extends TimestampValueObject<T>
-> extends ValueObject<T> {
-  public readonly value: number;
-
+> extends NumberValueObject<TimestampValueObject<T>> {
   protected constructor(value: number) {
-    super();
-    const validator = new Validator();
-    if (!validator.isNumber(value)) {
-      throw new InvalidLastLoginAtException();
+    super(value);
+    this.assertTimestamp(value);
+  }
+
+  private assertTimestamp(value: number) {
+    if (value < 0) {
+      this.throwInvalidValueObjectException();
     }
-    this.value = value;
   }
 
-  /**
-   *
-   */
-  public equals(otherTimestampValueObject: T): boolean {
-    return this.value === otherTimestampValueObject.value;
-  }
-
-  /**
-   *
-   */
-  public toString(): string {
-    return String(this.value);
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidTimestampException();
   }
 }

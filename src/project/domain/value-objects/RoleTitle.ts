@@ -7,7 +7,7 @@ import { InvalidRoleTitleException } from 'project/domain/exceptions/InvalidRole
 export class RoleTitle extends StringValueObject<RoleTitle> {
   protected constructor(value: string) {
     super(value);
-    this.assertMaxLength(100);
+    this.assertMaxLength(value, 100);
   }
 
   /**

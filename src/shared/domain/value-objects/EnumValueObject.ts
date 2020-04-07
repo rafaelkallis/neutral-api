@@ -1,25 +1,16 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
+import { InvalidEnumException } from '../exceptions/InvalidEnumException';
 
 /**
  *
  */
 export abstract class EnumValueObject<
-  V extends string,
-  T extends EnumValueObject<V, T>
-> extends ValueObject<T> {
-  public readonly value: V;
-
-  protected constructor(value: V) {
-    super();
-    this.value = value;
-    this.assertEnum();
-  }
-
-  /**
-   *
-   */
-  public equals(other: T): boolean {
-    return this.value === other.value;
+  TValue extends string,
+  TEnumValueObject extends EnumValueObject<TValue, TEnumValueObject>
+> extends SingleValueObject<TValue, TEnumValueObject> {
+  protected constructor(value: TValue) {
+    super(value);
+    this.assertEnum(value);
   }
 
   /**
@@ -32,8 +23,8 @@ export abstract class EnumValueObject<
   /**
    *
    */
-  protected assertEnum(): void {
-    if (!Object.values(this.getEnumType()).includes(this.value)) {
+  protected assertEnum(value: TValue): void {
+    if (!Object.values(this.getEnumType()).includes(value)) {
       this.throwInvalidValueObjectException();
     }
   }
@@ -41,7 +32,9 @@ export abstract class EnumValueObject<
   /**
    *
    */
-  protected abstract throwInvalidValueObjectException(): never;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidEnumException();
+  }
 
   /**
    *

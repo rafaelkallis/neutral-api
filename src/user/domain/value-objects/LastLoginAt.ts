@@ -4,7 +4,7 @@ import { TimestampValueObject } from 'shared/domain/value-objects/TimestampValue
  *
  */
 export class LastLoginAt extends TimestampValueObject<LastLoginAt> {
-  protected constructor(value: number) {
+  private constructor(value: number) {
     super(value);
   }
 

@@ -1,24 +1,15 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
+import { InvalidStringException } from '../exceptions/InvalidStringException';
 
 /**
  *
  */
 export abstract class StringValueObject<
   T extends StringValueObject<T>
-> extends ValueObject<T> {
-  public readonly value: string;
-
+> extends SingleValueObject<string, StringValueObject<T>> {
   protected constructor(value: string) {
-    super();
-    this.value = value;
-    this.assertString();
-  }
-
-  /**
-   *
-   */
-  public equals(other: T): boolean {
-    return this.value === other.value;
+    super(value);
+    this.assertString(value);
   }
 
   /**
@@ -28,26 +19,25 @@ export abstract class StringValueObject<
     return this.value;
   }
 
-  /**
-   *
-   */
-  protected abstract throwInvalidValueObjectException(): never;
-
-  protected assertString(): void {
-    if (typeof this.value !== 'string') {
+  private assertString(value: string): void {
+    if (typeof value !== 'string') {
       this.throwInvalidValueObjectException();
     }
   }
 
-  protected assertMaxLength(maxLength: number): void {
-    if (this.value.length > maxLength) {
+  protected assertMaxLength(value: string, maxLength: number): void {
+    if (value.length > maxLength) {
       this.throwInvalidValueObjectException();
     }
   }
 
-  protected assertMinLength(minLength: number): void {
-    if (this.value.length < minLength) {
+  protected assertMinLength(value: string, minLength: number): void {
+    if (value.length < minLength) {
       this.throwInvalidValueObjectException();
     }
+  }
+
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidStringException();
   }
 }

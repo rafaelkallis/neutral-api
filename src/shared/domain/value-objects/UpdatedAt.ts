@@ -4,7 +4,7 @@ import { TimestampValueObject } from 'shared/domain/value-objects/TimestampValue
  *
  */
 export class UpdatedAt extends TimestampValueObject<UpdatedAt> {
-  protected constructor(value: number) {
+  private constructor(value: number) {
     super(value);
   }
 

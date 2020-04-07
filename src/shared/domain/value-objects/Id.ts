@@ -1,17 +1,14 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { InvalidIdException } from 'shared/domain/exceptions/InvalidIdException';
 import ObjectID from 'bson-objectid';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 
 /**
  *
  */
-export class Id extends ValueObject<Id> {
-  public readonly value: string;
-
+export class Id extends StringValueObject<Id> {
   protected constructor(value: string) {
-    super();
-    this.value = value;
-    this.assertId();
+    super(value);
+    this.assertId(value);
   }
 
   /**
@@ -31,13 +28,6 @@ export class Id extends ValueObject<Id> {
   /**
    *
    */
-  public equals(otherId: Id): boolean {
-    return this.value === otherId.value;
-  }
-
-  /**
-   *
-   */
   public lessThan(otherId: Id): boolean {
     return this.value < otherId.value;
   }
@@ -49,16 +39,13 @@ export class Id extends ValueObject<Id> {
     return new ObjectID(this.value).getTimestamp();
   }
 
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value;
+  protected assertId(value: string): void {
+    if (!ObjectID.isValid(value)) {
+      this.throwInvalidValueObjectException();
+    }
   }
 
-  protected assertId(): void {
-    if (!ObjectID.isValid(this.value)) {
-      throw new InvalidIdException();
-    }
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidIdException();
   }
 }
