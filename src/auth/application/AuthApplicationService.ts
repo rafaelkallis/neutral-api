@@ -19,7 +19,6 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
-import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import {
@@ -29,6 +28,7 @@ import {
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 @Injectable()
 export class AuthService {
@@ -84,7 +84,7 @@ export class AuthService {
     session: SessionState,
   ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenService.validateLoginToken(loginToken);
-    const userId = Id.from(payload.sub);
+    const userId = UserId.from(payload.sub);
     const user = await this.userRepository.findById(userId);
     if (!user.lastLoginAt.equals(LastLoginAt.from(payload.lastLoginAt))) {
       throw new TokenAlreadyUsedException();

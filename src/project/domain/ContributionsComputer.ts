@@ -1,12 +1,12 @@
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { Id } from 'shared/domain/value-objects/Id';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 /**
  *
  */
 export interface Contributions {
-  of(roleId: Id): Contribution;
+  of(roleId: RoleId): Contribution;
 }
 
 /**

@@ -1,28 +1,29 @@
 import { InvalidIdException } from 'shared/domain/exceptions/InvalidIdException';
 import ObjectID from 'bson-objectid';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
+import { ValueObject } from './ValueObject';
 
 /**
  *
  */
-export class Id extends StringValueObject<Id> {
+export abstract class Id extends StringValueObject {
   protected constructor(value: string) {
     super(value);
-    this.assertId(value);
+    this.assertObjectId(value);
   }
 
   /**
    *
    */
-  public static create(): Id {
-    return new Id(new ObjectID().toHexString());
+  protected static createObjectId(): string {
+    return new ObjectID().toHexString();
   }
 
-  /**
-   *
-   */
-  public static from(id: string): Id {
-    return new Id(id);
+  public equals(otherValueObject: ValueObject): boolean {
+    if (!(otherValueObject instanceof Id)) {
+      return false;
+    }
+    return super.equals(otherValueObject);
   }
 
   /**
@@ -39,7 +40,7 @@ export class Id extends StringValueObject<Id> {
     return new ObjectID(this.value).getTimestamp();
   }
 
-  protected assertId(value: string): void {
+  private assertObjectId(value: string): void {
     if (!ObjectID.isValid(value)) {
       this.throwInvalidValueObjectException();
     }

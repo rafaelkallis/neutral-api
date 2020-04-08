@@ -1,11 +1,12 @@
 import { Validator } from 'class-validator';
 import { InvalidEmailException } from 'user/domain/exceptions/InvalidEmailException';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export class Email extends StringValueObject<Email> {
+export class Email extends StringValueObject {
   private constructor(value: string) {
     super(value);
     this.assertEmail(value);
@@ -24,6 +25,13 @@ export class Email extends StringValueObject<Email> {
    */
   public static redacted(): Email {
     return new Email('[REDACTED]');
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof Email)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   private assertEmail(value: string): void {

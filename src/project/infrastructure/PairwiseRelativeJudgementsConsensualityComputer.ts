@@ -4,7 +4,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
-import { Id } from 'shared/domain/value-objects/Id';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -61,7 +61,7 @@ export class PairwiseRelativeJudgementsConsensualityComputerService
     const peerReviews = PeerReviewCollection.empty();
     const peers = [];
     for (let i = 0; i < n; i++) {
-      peers.push(Id.create());
+      peers.push(RoleId.create());
     }
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {

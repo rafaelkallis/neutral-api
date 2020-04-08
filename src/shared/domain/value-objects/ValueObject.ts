@@ -1,11 +1,11 @@
 /**
  *
  */
-export abstract class ValueObject<T extends ValueObject<T>> {
+export abstract class ValueObject {
   /**
    *
    */
-  public abstract equals(otherValueObject: ValueObject<T>): boolean;
+  public abstract equals(otherValueObject: ValueObject): boolean;
 
   /**
    *

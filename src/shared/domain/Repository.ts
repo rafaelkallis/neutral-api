@@ -4,26 +4,26 @@ import { Id } from 'shared/domain/value-objects/Id';
 /**
  * Repository
  */
-export interface Repository<TModel extends Model> {
+export interface Repository<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  findPage(afterId?: Id): Promise<TModel[]>;
+  findPage(afterId?: TId): Promise<TModel[]>;
 
   /**
    *
    */
-  findById(id: Id): Promise<TModel>;
+  findById(id: TId): Promise<TModel>;
 
   /**
    *
    */
-  findByIds(ids: Id[]): Promise<TModel[]>;
+  findByIds(ids: TId[]): Promise<TModel[]>;
 
   /**
    *
    */
-  exists(id: Id): Promise<boolean>;
+  exists(id: TId): Promise<boolean>;
 
   /**
    *

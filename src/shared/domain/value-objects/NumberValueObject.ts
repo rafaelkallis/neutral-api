@@ -1,12 +1,11 @@
 import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
 import { InvalidNumberException } from 'shared/domain/exceptions/InvalidNumberException';
+import { ValueObject } from './ValueObject';
 
 /**
  *
  */
-export abstract class NumberValueObject<
-  T extends NumberValueObject<T>
-> extends SingleValueObject<number, NumberValueObject<T>> {
+export abstract class NumberValueObject extends SingleValueObject<number> {
   protected constructor(value: number) {
     super(value);
     this.assertNumber(value);
@@ -17,6 +16,13 @@ export abstract class NumberValueObject<
    */
   public toString(): string {
     return this.value.toString();
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof NumberValueObject)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   private assertNumber(value: number): void {

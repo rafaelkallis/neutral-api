@@ -11,13 +11,14 @@ import { Id } from 'shared/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
 
 /**
  * Project TypeOrm Repository
  */
 @TypeOrmRepository(Project, ProjectTypeOrmEntity)
 export class ProjectTypeOrmRepository
-  extends AbstractTypeOrmRepository<Project, ProjectTypeOrmEntity>
+  extends AbstractTypeOrmRepository<ProjectId, Project, ProjectTypeOrmEntity>
   implements ProjectRepository {
   /**
    *

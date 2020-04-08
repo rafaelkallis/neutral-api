@@ -1,12 +1,11 @@
 import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject';
 import { InvalidUnitDecimalException } from 'shared/domain/exceptions/InvalidUnitDecimalException';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export abstract class UnitDecimalValueObject<
-  T extends UnitDecimalValueObject<T>
-> extends NumberValueObject<T> {
+export abstract class UnitDecimalValueObject extends NumberValueObject {
   protected constructor(value: number) {
     super(value);
     this.assertUnitDecimal(value);
@@ -15,8 +14,15 @@ export abstract class UnitDecimalValueObject<
   /**
    *
    */
-  public equals(other: T): boolean {
-    return this.value.toFixed(1000) === other.value.toFixed(1000);
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof UnitDecimalValueObject)) {
+      return false;
+    }
+    // TODO: not sure if chain of command makes sense here
+    if (this.value.toFixed(1000) === other.value.toFixed(1000)) {
+      return true;
+    }
+    return super.equals(other);
   }
 
   /**

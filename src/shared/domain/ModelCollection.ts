@@ -1,8 +1,8 @@
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { FilterIterable } from './FilterIterable';
+import { FilterIterable } from 'shared/domain/FilterIterable';
 
-export class ModelCollection<TModel extends Model> {
+export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
   private readonly models: TModel[];
   private readonly removedModels: TModel[];
 
@@ -39,7 +39,7 @@ export class ModelCollection<TModel extends Model> {
     }
   }
 
-  public find(id: Id): TModel {
+  public find(id: TId): TModel {
     for (const model of this) {
       if (model.id.equals(id)) {
         return model;
@@ -59,7 +59,7 @@ export class ModelCollection<TModel extends Model> {
   /**
    *
    */
-  public exists(id: Id): boolean {
+  public exists(id: TId): boolean {
     return this.any((model) => model.id.equals(id));
   }
 
@@ -91,7 +91,7 @@ export class ModelCollection<TModel extends Model> {
   /**
    *
    */
-  private indexOf(id: Id): number {
+  private indexOf(id: TId): number {
     for (let i = 0; i < this.models.length; i++) {
       if (this.models[i].id.equals(id)) {
         return i;

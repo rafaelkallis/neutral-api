@@ -1,13 +1,13 @@
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
-import { Id } from 'shared/domain/value-objects/Id';
 import { Name } from 'user/domain/value-objects/Name';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 @ObjectMap(User, UserTypeOrmEntity)
 export class UserTypeOrmEntityMap extends AbstractObjectMap<
@@ -35,7 +35,7 @@ export class ReverseUserTypeOrmEntityMap extends AbstractObjectMap<
 > {
   protected innerMap(entity: UserTypeOrmEntity): User {
     return new User(
-      Id.from(entity.id),
+      UserId.from(entity.id),
       CreatedAt.from(entity.createdAt),
       UpdatedAt.from(entity.updatedAt),
       Email.from(entity.email),

@@ -1,12 +1,11 @@
 import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
 import { InvalidStringException } from '../exceptions/InvalidStringException';
+import { ValueObject } from './ValueObject';
 
 /**
  *
  */
-export abstract class StringValueObject<
-  T extends StringValueObject<T>
-> extends SingleValueObject<string, StringValueObject<T>> {
+export abstract class StringValueObject extends SingleValueObject<string> {
   protected constructor(value: string) {
     super(value);
     this.assertString(value);
@@ -17,6 +16,13 @@ export abstract class StringValueObject<
    */
   public toString(): string {
     return this.value;
+  }
+
+  public equals(otherValueObject: ValueObject): boolean {
+    if (!(otherValueObject instanceof StringValueObject)) {
+      return false;
+    }
+    return super.equals(otherValueObject);
   }
 
   private assertString(value: string): void {

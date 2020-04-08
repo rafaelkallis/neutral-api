@@ -1,13 +1,13 @@
 import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
-import { InvalidEnumException } from '../exceptions/InvalidEnumException';
+import { InvalidEnumException } from 'shared/domain/exceptions/InvalidEnumException';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
 export abstract class EnumValueObject<
-  TValue extends string,
-  TEnumValueObject extends EnumValueObject<TValue, TEnumValueObject>
-> extends SingleValueObject<TValue, TEnumValueObject> {
+  TValue extends string
+> extends SingleValueObject<TValue> {
   protected constructor(value: TValue) {
     super(value);
     this.assertEnum(value);
@@ -18,6 +18,13 @@ export abstract class EnumValueObject<
    */
   public toString(): string {
     return this.value;
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof EnumValueObject)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   /**

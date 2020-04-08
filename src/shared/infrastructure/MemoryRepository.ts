@@ -5,8 +5,10 @@ import { Id } from 'shared/domain/value-objects/Id';
 /**
  * Memory Repository
  */
-export abstract class MemoryRepository<TModel extends Model>
-  implements Repository<TModel> {
+export abstract class MemoryRepository<
+  TId extends Id,
+  TModel extends Model<TId>
+> implements Repository<TId, TModel> {
   protected readonly models: Map<string, TModel>;
 
   public constructor() {
@@ -52,7 +54,6 @@ export abstract class MemoryRepository<TModel extends Model>
    */
   public async persist(...models: TModel[]): Promise<void> {
     for (const model of models) {
-      model.validate();
       this.models.set(model.id.value, model);
     }
   }

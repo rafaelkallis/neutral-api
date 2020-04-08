@@ -2,11 +2,12 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Project } from 'project/domain/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { Role } from 'project/domain/Role';
-import { Id } from 'shared/domain/value-objects/Id';
 import { Notification } from 'notification/domain/Notification';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 
 @Injectable()
 export class NotificationFactoryService {
@@ -82,7 +83,7 @@ export class NotificationFactoryService {
    */
   public createProjectFinishedNotification(
     project: Project,
-    projectMemberId: Id,
+    projectMemberId: UserId,
   ): Notification {
     const ownerId = projectMemberId;
     const type = NotificationType.PROJECT_FINISHED;
@@ -96,11 +97,11 @@ export class NotificationFactoryService {
   }
 
   private createNotification(
-    ownerId: Id,
+    ownerId: UserId,
     type: NotificationType,
     payload: object,
   ): Notification {
-    const id = Id.create();
+    const id = NotificationId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const isRead = NotificationIsRead.from(false);

@@ -9,25 +9,28 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
-import { RoleNoUserAssignedException } from './exceptions/RoleNoUserAssignedException';
+import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * Role
  */
-export class Role extends Model {
-  public projectId: Id;
-  public assigneeId: Id | null;
+export class Role extends Model<RoleId> {
+  public projectId: ProjectId;
+  public assigneeId: UserId | null;
   public title: RoleTitle;
   public description: RoleDescription;
   public contribution: Contribution | null;
   public hasSubmittedPeerReviews: HasSubmittedPeerReviews;
 
   public constructor(
-    id: Id,
+    id: RoleId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
-    projectId: Id,
-    assigneeId: Id | null,
+    projectId: ProjectId,
+    assigneeId: UserId | null,
     title: RoleTitle,
     description: RoleDescription,
     contribution: Contribution | null,
@@ -46,11 +49,11 @@ export class Role extends Model {
    *
    */
   public static from(
-    projectId: Id,
+    projectId: ProjectId,
     title: RoleTitle,
     description: RoleDescription,
   ): Role {
-    const id = Id.create();
+    const id = RoleId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const assigneeId = null;

@@ -1,9 +1,13 @@
 import { ModelCollection } from 'shared/domain/ModelCollection';
-import { Id } from 'shared/domain/value-objects/Id';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
-export class PeerReviewCollection extends ModelCollection<PeerReview> {
+export class PeerReviewCollection extends ModelCollection<
+  PeerReviewId,
+  PeerReview
+> {
   public static empty(): PeerReviewCollection {
     return new PeerReviewCollection([]);
   }
@@ -16,8 +20,8 @@ export class PeerReviewCollection extends ModelCollection<PeerReview> {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {
         peerReviews.push(
           PeerReview.from(
-            Id.from(sender),
-            Id.from(receiver),
+            RoleId.from(sender),
+            RoleId.from(receiver),
             PeerReviewScore.from(score),
           ),
         );
@@ -26,13 +30,13 @@ export class PeerReviewCollection extends ModelCollection<PeerReview> {
     return new PeerReviewCollection(peerReviews);
   }
 
-  public findBySenderRole(senderRoleId: Id): Iterable<PeerReview> {
+  public findBySenderRole(senderRoleId: RoleId): Iterable<PeerReview> {
     return this.filter((peerReview) => peerReview.isSenderRole(senderRoleId));
   }
 
   public addForSender(
-    senderRoleId: Id,
-    submittedPeerReviews: [Id, PeerReviewScore][],
+    senderRoleId: RoleId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
   ): PeerReview[] {
     const addedPeerReviews: PeerReview[] = [];
     for (const [receiverRoleId, score] of submittedPeerReviews) {

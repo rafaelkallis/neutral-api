@@ -10,7 +10,8 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 const TYPEORM_REPOSITORY_METADATA = Symbol('TYPEORM_REPOSITORY_METADATA');
 
 export class TypeOrmRepositoryMetadata<
-  TModel extends Model,
+  TId extends Id,
+  TModel extends Model<TId>,
   TEntity extends TypeOrmEntity
 > {
   public readonly modelType: Type<TModel>;
@@ -23,14 +24,16 @@ export class TypeOrmRepositoryMetadata<
 }
 
 export function getTypeOrmRepositoryMetadata<
-  TModel extends Model,
+  TId extends Id,
+  TModel extends Model<TId>,
   TEntity extends TypeOrmEntity
->(target: object): TypeOrmRepositoryMetadata<TModel, TEntity> | undefined {
+>(target: object): TypeOrmRepositoryMetadata<TId, TModel, TEntity> | undefined {
   return Reflect.getMetadata(TYPEORM_REPOSITORY_METADATA, target.constructor);
 }
 
 export function TypeOrmRepository<
-  TModel extends Model,
+  TId extends Id,
+  TModel extends Model<TId>,
   TEntity extends TypeOrmEntity
 >(modelType: Type<TModel>, entityType: Type<TEntity>): ClassDecorator {
   const metadata = new TypeOrmRepositoryMetadata(modelType, entityType);
@@ -49,9 +52,10 @@ export function TypeOrmRepository<
  * TypeOrm Repository
  */
 export abstract class AbstractTypeOrmRepository<
-  TModel extends Model,
+  TId extends Id,
+  TModel extends Model<TId>,
   TEntity extends TypeOrmEntity
-> implements Repository<TModel> {
+> implements Repository<TId, TModel> {
   protected readonly entityManager: EntityManager;
   protected readonly modelMapper: ObjectMapper;
   protected readonly modelType: Type<TModel>;
@@ -63,7 +67,7 @@ export abstract class AbstractTypeOrmRepository<
   ) {
     this.entityManager = databaseClient.getEntityManager();
     this.modelMapper = modelMapper;
-    const metadata = getTypeOrmRepositoryMetadata<TModel, TEntity>(this);
+    const metadata = getTypeOrmRepositoryMetadata<TId, TModel, TEntity>(this);
     if (!metadata) {
       throw new TypeError(
         `no TypeOrmRepository metadata found on ${this.constructor.name}, did you apply @${TypeOrmRepository.name}() ?`,
@@ -77,9 +81,6 @@ export abstract class AbstractTypeOrmRepository<
    *
    */
   public async persist(...models: TModel[]): Promise<void> {
-    for (const model of models) {
-      model.validate();
-    }
     const entities = models.map((m) =>
       this.modelMapper.map(m, this.entityType),
     );

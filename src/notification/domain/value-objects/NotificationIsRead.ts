@@ -4,7 +4,7 @@ import { BooleanValueObject } from 'shared/domain/value-objects/BooleanValueObje
 /**
  *
  */
-export class NotificationIsRead extends BooleanValueObject<NotificationIsRead> {
+export class NotificationIsRead extends BooleanValueObject {
   public static from(value: boolean): NotificationIsRead {
     return new NotificationIsRead(value);
   }

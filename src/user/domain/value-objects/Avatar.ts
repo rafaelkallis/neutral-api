@@ -1,11 +1,12 @@
 import { InvalidAvatarException } from 'user/domain/exceptions/InvalidAvatarException';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import ObjectID from 'bson-objectid';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export class Avatar extends StringValueObject<Avatar> {
+export class Avatar extends StringValueObject {
   private constructor(key: string) {
     super(key);
     this.assertKey(key);
@@ -20,6 +21,13 @@ export class Avatar extends StringValueObject<Avatar> {
 
   public static redacted(): Avatar {
     return new Avatar('[REDACTED]');
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof Avatar)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   private assertKey(value: string): void {

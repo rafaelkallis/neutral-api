@@ -4,7 +4,7 @@ import { InvalidNameException } from 'user/domain/exceptions/InvalidNameExceptio
 /**
  *
  */
-export class Name extends ValueObject<Name> {
+export class Name extends ValueObject {
   public readonly first: string;
   public readonly last: string;
 
@@ -30,8 +30,11 @@ export class Name extends ValueObject<Name> {
   /**
    *
    */
-  public equals(otherName: Name): boolean {
-    return this.first === otherName.first && this.last === otherName.last;
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof Name)) {
+      return false;
+    }
+    return this.first === other.first && this.last === other.last;
   }
 
   /**

@@ -7,15 +7,20 @@ import { NotificationRepository } from 'notification/domain/NotificationReposito
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationNotFoundException } from 'notification/application/exceptions/NotificationNotFoundException';
-import { Id } from 'shared/domain/value-objects/Id';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * TypeOrm Notification Repository
  */
 @TypeOrmRepository(Notification, NotificationTypeOrmEntity)
 export class NotificationTypeOrmRepository
-  extends AbstractTypeOrmRepository<Notification, NotificationTypeOrmEntity>
+  extends AbstractTypeOrmRepository<
+    NotificationId,
+    Notification,
+    NotificationTypeOrmEntity
+  >
   implements NotificationRepository {
   /**
    *
@@ -30,7 +35,7 @@ export class NotificationTypeOrmRepository
   /**
    *
    */
-  public async findByOwnerId(ownerId: Id): Promise<Notification[]> {
+  public async findByOwnerId(ownerId: UserId): Promise<Notification[]> {
     const notificationEntities = await this.entityManager
       .getRepository(NotificationTypeOrmEntity)
       .find({
