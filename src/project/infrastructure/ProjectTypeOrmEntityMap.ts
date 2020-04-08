@@ -1,6 +1,5 @@
 import { Project } from 'project/domain/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
@@ -21,6 +20,10 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 
 @ObjectMap(Project, ProjectTypeOrmEntity)
 export class ProjectTypeOrmEntityMap extends AbstractObjectMap<
@@ -86,11 +89,11 @@ export class ReverseProjectTypeOrmEntityMap extends AbstractObjectMap<
       projectEntity.roles.map(
         (roleEntity) =>
           new Role(
-            Id.from(roleEntity.id),
+            RoleId.from(roleEntity.id),
             CreatedAt.from(roleEntity.createdAt),
             UpdatedAt.from(roleEntity.updatedAt),
-            Id.from(projectEntity.id),
-            roleEntity.assigneeId ? Id.from(roleEntity.assigneeId) : null,
+            ProjectId.from(projectEntity.id),
+            roleEntity.assigneeId ? UserId.from(roleEntity.assigneeId) : null,
             RoleTitle.from(roleEntity.title),
             RoleDescription.from(roleEntity.description),
             roleEntity.contribution
@@ -104,22 +107,22 @@ export class ReverseProjectTypeOrmEntityMap extends AbstractObjectMap<
       projectEntity.peerReviews.map(
         (peerReviewEntity) =>
           new PeerReview(
-            Id.from(peerReviewEntity.id),
+            PeerReviewId.from(peerReviewEntity.id),
             CreatedAt.from(peerReviewEntity.createdAt),
             UpdatedAt.from(peerReviewEntity.updatedAt),
-            Id.from(peerReviewEntity.senderRoleId),
-            Id.from(peerReviewEntity.receiverRoleId),
+            RoleId.from(peerReviewEntity.senderRoleId),
+            RoleId.from(peerReviewEntity.receiverRoleId),
             PeerReviewScore.from(peerReviewEntity.score),
           ),
       ),
     );
     return new Project(
-      Id.from(projectEntity.id),
+      ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),
       ProjectTitle.from(projectEntity.title),
       ProjectDescription.from(projectEntity.description),
-      Id.from(projectEntity.creatorId),
+      UserId.from(projectEntity.creatorId),
       ProjectState.from(projectEntity.state),
       projectEntity.consensuality
         ? Consensuality.from(projectEntity.consensuality)

@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { User } from 'user/domain/User';
 import { Repository } from 'shared/domain/Repository';
 import { Email } from 'user/domain/value-objects/Email';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
@@ -12,7 +13,7 @@ export function InjectUserRepository(): ParameterDecorator {
 /**
  * User Repository
  */
-export interface UserRepository extends Repository<User> {
+export interface UserRepository extends Repository<UserId, User> {
   /**
    * Full text search on user's first name and last name.
    */

@@ -4,7 +4,7 @@ import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/Inval
 /**
  *
  */
-export class PeerReviewScore extends UnitDecimalValueObject<PeerReviewScore> {
+export class PeerReviewScore extends UnitDecimalValueObject {
   public static readonly EPSILON = 0.0001;
 
   public constructor(value: number) {

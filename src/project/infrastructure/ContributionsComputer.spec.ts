@@ -1,8 +1,8 @@
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { Id } from 'shared/domain/value-objects/Id';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 describe('ContributionsModelService', () => {
   let primitiveFaker: PrimitiveFaker;
@@ -57,10 +57,10 @@ describe('ContributionsModelService', () => {
       const contributions = contributionsComputer.compute(
         specificationsDocumentExamplePeerReviews,
       );
-      expect(contributions.of(Id.from(a)).value).toBeCloseTo(0.1);
-      expect(contributions.of(Id.from(b)).value).toBeCloseTo(0.2);
-      expect(contributions.of(Id.from(c)).value).toBeCloseTo(0.3);
-      expect(contributions.of(Id.from(d)).value).toBeCloseTo(0.4);
+      expect(contributions.of(RoleId.from(a)).value).toBeCloseTo(0.1);
+      expect(contributions.of(RoleId.from(b)).value).toBeCloseTo(0.2);
+      expect(contributions.of(RoleId.from(c)).value).toBeCloseTo(0.3);
+      expect(contributions.of(RoleId.from(d)).value).toBeCloseTo(0.4);
     });
   });
 });

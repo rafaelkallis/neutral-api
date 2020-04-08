@@ -3,11 +3,12 @@ import { User } from 'user/domain/User';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 import { Email } from 'user/domain/value-objects/Email';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * User Memory Repository
  */
-export class UserFakeRepository extends MemoryRepository<User>
+export class UserFakeRepository extends MemoryRepository<UserId, User>
   implements UserRepository {
   /**
    *

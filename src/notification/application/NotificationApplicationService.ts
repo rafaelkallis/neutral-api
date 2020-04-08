@@ -5,12 +5,12 @@ import {
   NotificationRepository,
 } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
-import { Id } from 'shared/domain/value-objects/Id';
 import {
   InjectEventPublisher,
   EventPublisher,
 } from 'shared/event/publisher/EventPublisher';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 
 @Injectable()
 export class NotificationApplicationService {
@@ -47,9 +47,13 @@ export class NotificationApplicationService {
   /**
    * Mark notification as read.
    */
-  public async markRead(authUser: User, id: string): Promise<NotificationDto> {
+  public async markRead(
+    authUser: User,
+    rawNotificationId: string,
+  ): Promise<NotificationDto> {
+    const notificationId = NotificationId.from(rawNotificationId);
     const notification = await this.notificationRepository.findById(
-      Id.from(id),
+      notificationId,
     );
     notification.assertOwner(authUser);
     notification.markRead();

@@ -9,13 +9,14 @@ import {
 } from 'shared/infrastructure/TypeOrmRepository';
 import { Email } from 'user/domain/value-objects/Email';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * TypeOrm User Repository
  */
 @TypeOrmRepository(User, UserTypeOrmEntity)
 export class UserTypeOrmRepository
-  extends AbstractTypeOrmRepository<User, UserTypeOrmEntity>
+  extends AbstractTypeOrmRepository<UserId, User, UserTypeOrmEntity>
   implements UserRepository {
   /**
    *

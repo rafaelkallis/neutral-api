@@ -17,7 +17,6 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { Project, CreateProjectOptions } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
-import { Id } from 'shared/domain/value-objects/Id';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
@@ -41,6 +40,9 @@ import {
 } from 'shared/event/publisher/EventPublisher';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -98,8 +100,12 @@ export class ProjectApplicationService {
   /**
    * Get a project
    */
-  public async getProject(authUser: User, id: string): Promise<ProjectDto> {
-    const project = await this.projectRepository.findById(Id.from(id));
+  public async getProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -110,7 +116,7 @@ export class ProjectApplicationService {
     authUser: User,
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
-    const projectId = Id.from(query.projectId);
+    const projectId = ProjectId.from(query.projectId);
     const project = await this.projectRepository.findById(projectId);
     const roles = Array.from(project.roles);
     return roles.map((role) =>
@@ -122,7 +128,7 @@ export class ProjectApplicationService {
    * Get the role with the given id
    */
   public async getRole(authUser: User, rawRoleId: string): Promise<RoleDto> {
-    const roleId = Id.from(rawRoleId);
+    const roleId = RoleId.from(rawRoleId);
     const project = await this.projectRepository.findByRoleId(roleId);
     const role = project.roles.find(roleId);
     return this.objectMapper.map(role, RoleDto, { project, authUser });
@@ -161,10 +167,11 @@ export class ProjectApplicationService {
    */
   public async updateProject(
     authUser: User,
-    id: string,
+    rawProjectId: string,
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findById(Id.from(id));
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const title = updateProjectDto.title
       ? ProjectTitle.from(updateProjectDto.title)
@@ -185,7 +192,7 @@ export class ProjectApplicationService {
     authUser: User,
     rawProjectId: string,
   ): Promise<void> {
-    const projectId = Id.from(rawProjectId);
+    const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     project.delete();
@@ -202,7 +209,7 @@ export class ProjectApplicationService {
     rawTitle: string,
     rawDescription: string,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
+    const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const title = RoleTitle.from(rawTitle);
@@ -223,8 +230,8 @@ export class ProjectApplicationService {
     rawTitle?: string,
     rawDescription?: string,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
-    const roleId = Id.from(rawRoleId);
+    const projectId = ProjectId.from(rawProjectId);
+    const roleId = RoleId.from(rawRoleId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
@@ -245,8 +252,8 @@ export class ProjectApplicationService {
     rawProjectId: string,
     rawRoleId: string,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
-    const roleId = Id.from(rawRoleId);
+    const projectId = ProjectId.from(rawProjectId);
+    const roleId = RoleId.from(rawRoleId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     project.removeRole(roleId);
@@ -265,8 +272,8 @@ export class ProjectApplicationService {
     rawAssigneeId?: string | null,
     rawAssigneeEmail?: string | null,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
-    const roleId = Id.from(rawRoleId);
+    const projectId = ProjectId.from(rawProjectId);
+    const roleId = RoleId.from(rawRoleId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     const roleToAssign = project.roles.find(roleId);
@@ -275,7 +282,7 @@ export class ProjectApplicationService {
     }
     let userToAssign: User | undefined = undefined;
     if (rawAssigneeId) {
-      const assigneeId = Id.from(rawAssigneeId);
+      const assigneeId = UserId.from(rawAssigneeId);
       userToAssign = await this.userRepository.findById(assigneeId);
       await this.eventPublisher.publish(
         new ExistingUserAssignedEvent(project, roleToAssign),
@@ -314,7 +321,7 @@ export class ProjectApplicationService {
     authUser: User,
     rawProjectId: string,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
+    const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     project.finishFormation();
@@ -331,16 +338,16 @@ export class ProjectApplicationService {
     rawProjectId: string,
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
-    const projectId = Id.from(rawProjectId);
+    const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project.roles.anyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
     const authRole = project.roles.findByAssignee(authUser);
-    const peerReviews: [Id, PeerReviewScore][] = Object.entries(
+    const peerReviews: [RoleId, PeerReviewScore][] = Object.entries(
       dto.peerReviews,
     ).map(([receiverRoleId, score]) => [
-      Id.from(receiverRoleId),
+      RoleId.from(receiverRoleId),
       PeerReviewScore.from(score),
     ]);
     project.submitPeerReviews(
@@ -359,9 +366,10 @@ export class ProjectApplicationService {
    */
   public async submitManagerReview(
     authUser: User,
-    projectId: string,
+    rawProjectId: string,
   ): Promise<ProjectDto> {
-    const project = await this.projectRepository.findById(Id.from(projectId));
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
     project.assertCreator(authUser);
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());

@@ -1,5 +1,6 @@
 import { InvalidContributionVisibilityException } from 'project/domain/exceptions/InvalidContributionVisibility';
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export enum ContributionVisibilityValue {
   PUBLIC = 'public',
@@ -12,8 +13,7 @@ export enum ContributionVisibilityValue {
  *
  */
 export class ContributionVisibility extends EnumValueObject<
-  ContributionVisibilityValue,
-  ContributionVisibility
+  ContributionVisibilityValue
 > {
   public static readonly PUBLIC = new ContributionVisibility(
     ContributionVisibilityValue.PUBLIC,
@@ -51,6 +51,13 @@ export class ContributionVisibility extends EnumValueObject<
         throw new InvalidContributionVisibilityException();
       }
     }
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof ContributionVisibility)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   protected getEnumType(): Record<string, string> {

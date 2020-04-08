@@ -1,14 +1,16 @@
 import { Validator } from 'class-validator';
 import { InvalidEmailException } from 'user/domain/exceptions/InvalidEmailException';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export class Email extends StringValueObject<Email> {
+export class Email extends StringValueObject {
   private constructor(value: string) {
     super(value);
     this.assertEmail(value);
+    this.assertMaxLength(value, 100);
   }
 
   /**
@@ -25,13 +27,17 @@ export class Email extends StringValueObject<Email> {
     return new Email('[REDACTED]');
   }
 
-  private assertEmail(value: string): void {
-    if (value === '[REDACTED]') {
-      return;
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof Email)) {
+      return false;
     }
+    return super.equals(other);
+  }
+
+  private assertEmail(value: string): void {
     const validator = new Validator();
-    if (!validator.isEmail(value) || !validator.maxLength(value, 100)) {
-      throw new InvalidEmailException();
+    if (value !== '[REDACTED]' && !validator.isEmail(value)) {
+      this.throwInvalidValueObjectException();
     }
   }
 

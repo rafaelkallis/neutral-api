@@ -4,7 +4,6 @@ import { Name } from 'user/domain/value-objects/Name';
 import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
-import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -12,15 +11,16 @@ import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEvent';
 import { UserAvatarRemovedEvent } from 'user/domain/events/UserAvatarRemovedEvent';
+import { UserId } from 'user/domain/value-objects/UserId';
 
-export class User extends AggregateRoot {
+export class User extends AggregateRoot<UserId> {
   public email: Email;
   public name: Name;
   public avatar: Avatar | null;
   public lastLoginAt: LastLoginAt;
 
   public constructor(
-    id: Id,
+    id: UserId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
     email: Email,
@@ -39,7 +39,7 @@ export class User extends AggregateRoot {
    *
    */
   public static create(email: Email, name: Name): User {
-    const userId = Id.create();
+    const userId = UserId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const avatar = null;

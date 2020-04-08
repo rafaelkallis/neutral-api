@@ -2,6 +2,7 @@ import { Validator } from 'class-validator';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { ProjectStateAssertionFailureException } from '../exceptions/ProjectStateViolationException';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export enum ProjectStateValue {
   FORMATION = 'formation',
@@ -13,10 +14,7 @@ export enum ProjectStateValue {
 /**
  *
  */
-export class ProjectState extends EnumValueObject<
-  ProjectStateValue,
-  ProjectState
-> {
+export class ProjectState extends EnumValueObject<ProjectStateValue> {
   public static readonly FORMATION = new ProjectState(
     ProjectStateValue.FORMATION,
   );
@@ -55,6 +53,13 @@ export class ProjectState extends EnumValueObject<
         throw new InvalidProjectStateException();
       }
     }
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof ProjectState)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   public assertEquals(expectedState: ProjectState): void {

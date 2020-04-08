@@ -4,11 +4,13 @@ import { InvalidHasSubmittedPeerReviewsException } from 'project/domain/exceptio
 /**
  *
  */
-export class HasSubmittedPeerReviews extends BooleanValueObject<
-  HasSubmittedPeerReviews
-> {
+export class HasSubmittedPeerReviews extends BooleanValueObject {
   public static TRUE = HasSubmittedPeerReviews.from(true);
   public static FALSE = HasSubmittedPeerReviews.from(false);
+
+  private constructor(value: boolean) {
+    super(value);
+  }
 
   public static from(value: boolean): HasSubmittedPeerReviews {
     return new HasSubmittedPeerReviews(value);

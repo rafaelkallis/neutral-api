@@ -1,10 +1,11 @@
 import { TimestampValueObject } from 'shared/domain/value-objects/TimestampValueObject';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export class LastLoginAt extends TimestampValueObject<LastLoginAt> {
-  protected constructor(value: number) {
+export class LastLoginAt extends TimestampValueObject {
+  private constructor(value: number) {
     super(value);
   }
 
@@ -20,5 +21,12 @@ export class LastLoginAt extends TimestampValueObject<LastLoginAt> {
    */
   public static now(): LastLoginAt {
     return new LastLoginAt(Date.now());
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof LastLoginAt)) {
+      return false;
+    }
+    return super.equals(other);
   }
 }

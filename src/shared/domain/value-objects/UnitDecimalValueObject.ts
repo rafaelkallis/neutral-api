@@ -1,26 +1,28 @@
+import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject';
+import { InvalidUnitDecimalException } from 'shared/domain/exceptions/InvalidUnitDecimalException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export abstract class UnitDecimalValueObject<
-  T extends UnitDecimalValueObject<T>
-> extends ValueObject<T> {
-  public readonly value: number;
-
+export abstract class UnitDecimalValueObject extends NumberValueObject {
   protected constructor(value: number) {
-    super();
-    if (typeof value !== 'number' || value < 0 || value > 1) {
-      this.throwInvalidValueObjectException();
-    }
-    this.value = value;
+    super(value);
+    this.assertUnitDecimal(value);
   }
 
   /**
    *
    */
-  public equals(other: T): boolean {
-    return this.value.toFixed(1000) === other.value.toFixed(1000);
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof UnitDecimalValueObject)) {
+      return false;
+    }
+    // TODO: not sure if chain of command makes sense here
+    if (this.value.toFixed(1000) === other.value.toFixed(1000)) {
+      return true;
+    }
+    return super.equals(other);
   }
 
   /**
@@ -30,8 +32,16 @@ export abstract class UnitDecimalValueObject<
     return this.value.toFixed(1000);
   }
 
+  private assertUnitDecimal(value: number): void {
+    if (value < 0 || value > 1) {
+      this.throwInvalidValueObjectException();
+    }
+  }
+
   /**
    *
    */
-  protected abstract throwInvalidValueObjectException(): never;
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidUnitDecimalException();
+  }
 }

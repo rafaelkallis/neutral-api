@@ -3,10 +3,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 /**
  *
  */
-export abstract class PrimitiveValueObject<
-  T,
-  VO extends PrimitiveValueObject<T, VO>
-> extends ValueObject<VO> {
+export abstract class SingleValueObject<T> extends ValueObject {
   public readonly value: T;
 
   protected constructor(value: T) {
@@ -17,7 +14,15 @@ export abstract class PrimitiveValueObject<
   /**
    *
    */
-  public equals(other: PrimitiveValueObject<T, VO>): boolean {
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof SingleValueObject)) {
+      return false;
+    }
     return this.value === other.value;
   }
+
+  /**
+   *
+   */
+  public abstract toString(): string;
 }

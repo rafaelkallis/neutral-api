@@ -7,10 +7,10 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 /**
  *
  */
-export class AggregateRoot extends Model {
+export class AggregateRoot<TId extends Id> extends Model<TId> {
   private readonly domainEvents: DomainEvent[];
 
-  public constructor(id: Id, createdAt: CreatedAt, updatedAt: UpdatedAt) {
+  public constructor(id: TId, createdAt: CreatedAt, updatedAt: UpdatedAt) {
     super(id, createdAt, updatedAt);
     this.domainEvents = [];
   }

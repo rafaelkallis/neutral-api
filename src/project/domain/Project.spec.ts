@@ -10,7 +10,6 @@ import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
-import { Id } from 'shared/domain/value-objects/Id';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
@@ -31,6 +30,8 @@ import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 describe('project', () => {
   let modelFaker: ModelFaker;
@@ -208,7 +209,7 @@ describe('project', () => {
     beforeEach(() => {
       project.state = ProjectState.FORMATION;
       for (const role of project.roles) {
-        role.assigneeId = Id.create();
+        role.assigneeId = UserId.create();
       }
     });
 
@@ -232,7 +233,7 @@ describe('project', () => {
   });
 
   describe('submit peer reviews', () => {
-    let submittedPeerReviews: [Id, PeerReviewScore][];
+    let submittedPeerReviews: [RoleId, PeerReviewScore][];
     let consensuality: Consensuality;
 
     beforeEach(() => {
@@ -397,7 +398,7 @@ describe('project', () => {
 
     test('should fail if a peer review is for non-existing peer', () => {
       submittedPeerReviews = [
-        [Id.from(primitiveFaker.id()), PeerReviewScore.from(1 / 3)],
+        [RoleId.from(primitiveFaker.id()), PeerReviewScore.from(1 / 3)],
         [roles[2].id, PeerReviewScore.from(1 / 3)],
         [roles[3].id, PeerReviewScore.from(1 / 3)],
       ];

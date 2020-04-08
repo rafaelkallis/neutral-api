@@ -1,7 +1,6 @@
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
-import { Id } from 'shared/domain/value-objects/Id';
 import { Name } from 'user/domain/value-objects/Name';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
@@ -23,6 +22,11 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { Notification } from 'notification/domain/Notification';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
+import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -35,7 +39,7 @@ export class ModelFaker {
    * Create fake user
    */
   public user(): User {
-    const id = Id.from(this.primitiveFaker.id());
+    const id = UserId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const email = Email.from(this.primitiveFaker.email());
@@ -53,8 +57,8 @@ export class ModelFaker {
   /**
    * Create fake project
    */
-  public project(creatorId: Id): Project {
-    const id = Id.from(this.primitiveFaker.id());
+  public project(creatorId: UserId): Project {
+    const id = ProjectId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const title = ProjectTitle.from(this.primitiveFaker.words());
@@ -84,8 +88,8 @@ export class ModelFaker {
   /**
    * Create a fake role
    */
-  public role(projectId: Id, assigneeId: Id | null = null): Role {
-    const id = Id.from(this.primitiveFaker.id());
+  public role(projectId: ProjectId, assigneeId: UserId | null = null): Role {
+    const id = RoleId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const title = RoleTitle.from(this.primitiveFaker.words());
@@ -108,8 +112,8 @@ export class ModelFaker {
   /**
    * Create a fake peer review
    */
-  public peerReview(senderRoleId: Id, receiverRoleId: Id): PeerReview {
-    const id = Id.from(this.primitiveFaker.id());
+  public peerReview(senderRoleId: RoleId, receiverRoleId: RoleId): PeerReview {
+    const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const score = PeerReviewScore.from(PeerReviewScore.EPSILON);
@@ -126,8 +130,8 @@ export class ModelFaker {
   /**
    * Create a fake notification
    */
-  public notification(ownerId: Id): Notification {
-    const id = Id.from(this.primitiveFaker.id());
+  public notification(ownerId: UserId): Notification {
+    const id = NotificationId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const type = NotificationType.NEW_ASSIGNMENT;

@@ -1,25 +1,26 @@
 import { Model } from 'shared/domain/Model';
 import { Role } from 'project/domain/Role';
-import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerReviewException';
+import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 /**
  * Peer Review
  */
-export class PeerReview extends Model {
-  public senderRoleId: Id;
-  public receiverRoleId: Id;
+export class PeerReview extends Model<PeerReviewId> {
+  public senderRoleId: RoleId;
+  public receiverRoleId: RoleId;
   public score: PeerReviewScore;
 
   public constructor(
-    id: Id,
+    id: PeerReviewId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
-    senderRoleId: Id,
-    receiverRoleId: Id,
+    senderRoleId: RoleId,
+    receiverRoleId: RoleId,
     score: PeerReviewScore,
   ) {
     super(id, createdAt, updatedAt);
@@ -30,11 +31,11 @@ export class PeerReview extends Model {
   }
 
   public static from(
-    senderRoleId: Id,
-    receiverRoleId: Id,
+    senderRoleId: RoleId,
+    receiverRoleId: RoleId,
     score: PeerReviewScore,
   ): PeerReview {
-    const peerReviewId = Id.create();
+    const peerReviewId = PeerReviewId.create();
     const peerReviewCreatedAt = CreatedAt.now();
     const peerReviewUpdatedAt = UpdatedAt.now();
     return new PeerReview(
@@ -47,13 +48,13 @@ export class PeerReview extends Model {
     );
   }
 
-  public isSenderRole(roleOrRoleId: Role | Id): boolean {
+  public isSenderRole(roleOrRoleId: Role | RoleId): boolean {
     const roleId =
       roleOrRoleId instanceof Role ? roleOrRoleId.id : roleOrRoleId;
     return this.senderRoleId.equals(roleId);
   }
 
-  public isReceiverRole(roleOrRoleId: Role | Id): boolean {
+  public isReceiverRole(roleOrRoleId: Role | RoleId): boolean {
     const roleId =
       roleOrRoleId instanceof Role ? roleOrRoleId.id : roleOrRoleId;
     return this.receiverRoleId.equals(roleId);

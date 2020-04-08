@@ -1,7 +1,6 @@
 import { IsObject } from 'class-validator';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { User } from 'user/domain/User';
-import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
@@ -9,12 +8,14 @@ import { NotificationAlreadyReadException } from 'notification/domain/exceptions
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
+import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * Notification Model
  */
-export class Notification extends AggregateRoot {
-  public ownerId: Id;
+export class Notification extends AggregateRoot<NotificationId> {
+  public ownerId: UserId;
   public type: NotificationType;
   public isRead: NotificationIsRead;
 
@@ -22,10 +23,10 @@ export class Notification extends AggregateRoot {
   public payload: object;
 
   public constructor(
-    id: Id,
+    id: NotificationId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
-    ownerId: Id,
+    ownerId: UserId,
     type: NotificationType,
     isRead: NotificationIsRead,
     payload: object,

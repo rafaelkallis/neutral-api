@@ -1,38 +1,29 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { InvalidIdException } from 'shared/domain/exceptions/InvalidIdException';
 import ObjectID from 'bson-objectid';
+import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
+import { ValueObject } from './ValueObject';
 
 /**
  *
  */
-export class Id extends ValueObject<Id> {
-  public readonly value: string;
-
+export abstract class Id extends StringValueObject {
   protected constructor(value: string) {
-    super();
-    this.value = value;
-    this.assertId();
+    super(value);
+    this.assertObjectId(value);
   }
 
   /**
    *
    */
-  public static create(): Id {
-    return new Id(new ObjectID().toHexString());
+  protected static createObjectId(): string {
+    return new ObjectID().toHexString();
   }
 
-  /**
-   *
-   */
-  public static from(id: string): Id {
-    return new Id(id);
-  }
-
-  /**
-   *
-   */
-  public equals(otherId: Id): boolean {
-    return this.value === otherId.value;
+  public equals(otherValueObject: ValueObject): boolean {
+    if (!(otherValueObject instanceof Id)) {
+      return false;
+    }
+    return super.equals(otherValueObject);
   }
 
   /**
@@ -49,16 +40,13 @@ export class Id extends ValueObject<Id> {
     return new ObjectID(this.value).getTimestamp();
   }
 
-  /**
-   *
-   */
-  public toString(): string {
-    return this.value;
+  private assertObjectId(value: string): void {
+    if (!ObjectID.isValid(value)) {
+      this.throwInvalidValueObjectException();
+    }
   }
 
-  protected assertId(): void {
-    if (!ObjectID.isValid(this.value)) {
-      throw new InvalidIdException();
-    }
+  protected throwInvalidValueObjectException(): never {
+    throw new InvalidIdException();
   }
 }

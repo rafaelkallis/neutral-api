@@ -10,7 +10,6 @@ import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPee
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
-import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
@@ -38,6 +37,9 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNotProjectCreatorException';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -50,10 +52,10 @@ export interface CreateProjectOptions {
 /**
  * Project Model
  */
-export class Project extends AggregateRoot {
+export class Project extends AggregateRoot<ProjectId> {
   public title: ProjectTitle;
   public description: ProjectDescription;
-  public creatorId: Id;
+  public creatorId: UserId;
   public state: ProjectState;
   public consensuality: Consensuality | null;
   public contributionVisibility: ContributionVisibility;
@@ -62,12 +64,12 @@ export class Project extends AggregateRoot {
   public peerReviews: PeerReviewCollection;
 
   public constructor(
-    id: Id,
+    id: ProjectId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
     title: ProjectTitle,
     description: ProjectDescription,
-    creatorId: Id,
+    creatorId: UserId,
     state: ProjectState,
     consensuality: Consensuality | null,
     contributionVisibility: ContributionVisibility,
@@ -91,7 +93,7 @@ export class Project extends AggregateRoot {
    *
    */
   public static create(createProjectOptions: CreateProjectOptions): Project {
-    const projectId = Id.create();
+    const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const {
@@ -163,7 +165,7 @@ export class Project extends AggregateRoot {
    * Update a role
    */
   public updateRole(
-    roleId: Id,
+    roleId: RoleId,
     title?: RoleTitle,
     description?: RoleDescription,
   ): void {
@@ -183,7 +185,7 @@ export class Project extends AggregateRoot {
   /**
    * Remove a role
    */
-  public removeRole(roleId: Id): void {
+  public removeRole(roleId: RoleId): void {
     this.state.assertEquals(ProjectState.FORMATION);
     const roleToRemove = this.roles.find(roleId);
     this.roles.remove(roleToRemove);
@@ -220,7 +222,7 @@ export class Project extends AggregateRoot {
    */
   public submitPeerReviews(
     senderRole: Role,
-    submittedPeerReviews: [Id, PeerReviewScore][],
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
@@ -248,12 +250,12 @@ export class Project extends AggregateRoot {
    */
   private assertSubmittedPeerReviewsMatchRoles(
     senderRole: Role,
-    submittedPeerReviews: [Id, PeerReviewScore][],
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
   ) {
-    const expectedIds: Id[] = Array.from(this.roles.excluding(senderRole)).map(
-      (role) => role.id,
-    );
-    const actualIds: Id[] = submittedPeerReviews.map(
+    const expectedIds: RoleId[] = Array.from(
+      this.roles.excluding(senderRole),
+    ).map((role) => role.id);
+    const actualIds: RoleId[] = submittedPeerReviews.map(
       ([receiverRoleId]) => receiverRoleId,
     );
     for (const expectedId of expectedIds) {

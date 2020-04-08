@@ -2,6 +2,7 @@ import { Project } from 'project/domain/Project';
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { InvalidSkipManagerReviewException } from 'project/domain/exceptions/InvalidSkipManagerReviewException';
 import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export enum SkipManagerReviewValue {
   YES = 'yes',
@@ -19,10 +20,7 @@ function shouldSkipManagerReviewIfConsensual(project: Project): boolean {
 /**
  *
  */
-export class SkipManagerReview extends EnumValueObject<
-  SkipManagerReviewValue,
-  SkipManagerReview
-> {
+export class SkipManagerReview extends EnumValueObject<SkipManagerReviewValue> {
   public static readonly YES = new SkipManagerReview(
     SkipManagerReviewValue.YES,
     () => true,
@@ -64,6 +62,13 @@ export class SkipManagerReview extends EnumValueObject<
         throw new InvalidSkipManagerReviewException();
       }
     }
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof SkipManagerReview)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   protected getEnumType(): Record<string, string> {

@@ -1,6 +1,7 @@
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { Validator } from 'class-validator';
 import { InvalidNotificationTypeException } from 'notification/domain/exceptions/InvalidNotificationTypeException';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
@@ -12,10 +13,7 @@ export enum NotificationTypeValue {
   PROJECT_FINISHED = 'project_finished',
 }
 
-export class NotificationType extends EnumValueObject<
-  NotificationTypeValue,
-  NotificationType
-> {
+export class NotificationType extends EnumValueObject<NotificationTypeValue> {
   public static readonly NEW_ASSIGNMENT = new NotificationType(
     NotificationTypeValue.NEW_ASSIGNMENT,
   );
@@ -54,6 +52,13 @@ export class NotificationType extends EnumValueObject<
         throw new InvalidNotificationTypeException();
       }
     }
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof NotificationType)) {
+      return false;
+    }
+    return super.equals(other);
   }
 
   protected getEnumType(): Record<string, string> {

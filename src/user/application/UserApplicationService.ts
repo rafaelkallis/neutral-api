@@ -7,7 +7,6 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
-import { Id } from 'shared/domain/value-objects/Id';
 import { Email } from 'user/domain/value-objects/Email';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
@@ -22,6 +21,7 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 @Injectable()
 export class UserApplicationService {
@@ -61,7 +61,8 @@ export class UserApplicationService {
     if (query.q) {
       users = await this.userRepository.findByName(query.q);
     } else if (query.after) {
-      users = await this.userRepository.findPage(Id.from(query.after));
+      const afterId = UserId.from(query.after);
+      users = await this.userRepository.findPage(afterId);
     } else {
       users = await this.userRepository.findPage();
     }
@@ -73,8 +74,9 @@ export class UserApplicationService {
   /**
    * Get the user with the given id
    */
-  public async getUser(authUser: User, id: string): Promise<UserDto> {
-    const user = await this.userRepository.findById(Id.from(id));
+  public async getUser(authUser: User, rawId: string): Promise<UserDto> {
+    const id = UserId.from(rawId);
+    const user = await this.userRepository.findById(id);
     return this.modelMapper.map(user, UserDto, { authUser });
   }
 
@@ -130,7 +132,7 @@ export class UserApplicationService {
     _authUser: User,
     rawUserId: string,
   ): Promise<{ file: string; contentType: string }> {
-    const userId = Id.from(rawUserId);
+    const userId = UserId.from(rawUserId);
     const user = await this.userRepository.findById(userId);
     if (!user.avatar) {
       throw new NotFoundException();
@@ -188,7 +190,8 @@ export class UserApplicationService {
    */
   public async submitEmailChange(token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const user = await this.userRepository.findById(Id.from(payload.sub));
+    const userId = UserId.from(payload.sub);
+    const user = await this.userRepository.findById(userId);
     if (!user.email.equals(Email.from(payload.curEmail))) {
       throw new TokenAlreadyUsedException();
     }

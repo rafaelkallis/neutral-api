@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { Repository } from 'shared/domain/Repository';
 import { Project } from 'project/domain/Project';
 import { Id } from 'shared/domain/value-objects/Id';
+import { ProjectId } from 'project/domain/value-objects/ProjectId';
 
 export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
 
@@ -12,7 +13,7 @@ export function InjectProjectRepository(): ParameterDecorator {
 /**
  * Project Repository
  */
-export interface ProjectRepository extends Repository<Project> {
+export interface ProjectRepository extends Repository<ProjectId, Project> {
   /**
    *
    */
