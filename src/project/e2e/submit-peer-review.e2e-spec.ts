@@ -95,9 +95,10 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
-    const updatedProject = await scenario.projectRepository.findById(
+    const updatedProjectOptional = await scenario.projectRepository.findById(
       project.id,
     );
+    const updatedProject = updatedProjectOptional.orElseThrow(Error);
     const submittedPeerReviews = Array.from(
       updatedProject.peerReviews.findBySenderRole(role1.id),
     );
@@ -127,9 +128,10 @@ describe('submit peer review (e2e)', () => {
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews: peerReviews[role1.id.value] });
     expect(response.status).toBe(200);
-    const updatedProject = await scenario.projectRepository.findById(
+    const updatedProjectOptional = await scenario.projectRepository.findById(
       project.id,
     );
+    const updatedProject = updatedProjectOptional.orElseThrow(Error);
     const sentPeerReviews = Array.from(
       updatedProject.peerReviews.findBySenderRole(role1.id),
     );

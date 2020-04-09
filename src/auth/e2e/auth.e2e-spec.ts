@@ -63,7 +63,10 @@ describe('auth (e2e)', () => {
       expect(scenario.tokenManager.newRefreshToken).toHaveBeenCalledWith(
         user.id.value,
       );
-      const updatedUser = await scenario.userRepository.findById(user.id);
+      const optionalUpdatedUser = await scenario.userRepository.findById(
+        user.id,
+      );
+      const updatedUser = optionalUpdatedUser.orElseThrow(Error);
       expect(user.lastLoginAt.value).toBeLessThan(
         updatedUser.lastLoginAt.value,
       );

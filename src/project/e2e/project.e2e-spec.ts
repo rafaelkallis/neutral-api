@@ -102,9 +102,10 @@ describe('project (e2e)', () => {
         .send({ title });
       expect(response.status).toBe(200);
       expect(response.body).toEqual(expect.objectContaining({ title }));
-      const updatedProject = await scenario.projectRepository.findById(
+      const updatedProjectOptional = await scenario.projectRepository.findById(
         project.id,
       );
+      const updatedProject = updatedProjectOptional.orElseThrow(Error);
       expect(updatedProject.title.value).toEqual(title);
     });
 
@@ -160,9 +161,10 @@ describe('project (e2e)', () => {
       );
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      const updatedProject = await scenario.projectRepository.findById(
+      const updatedProjectOptional = await scenario.projectRepository.findById(
         project.id,
       );
+      const updatedProject = updatedProjectOptional.orElseThrow(Error);
       expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
     });
 

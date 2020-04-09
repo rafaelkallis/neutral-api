@@ -7,7 +7,6 @@ import {
 } from 'project/application/dto/GetProjectsQueryDto';
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { ProjectFakeRepository } from 'project/infrastructure/ProjectFakeRepository';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
@@ -15,7 +14,6 @@ import { RoleDto } from 'project/application/dto/RoleDto';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { Role } from 'project/domain/Role';
 import { PeerReview } from 'project/domain/PeerReview';
-import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -30,14 +28,17 @@ import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
-import { ProjectDto } from './dto/ProjectDto';
+import { ProjectDto } from 'project/application/dto/ProjectDto';
+import { UserRepository } from 'user/domain/UserRepository';
+import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
+import { FakeProjectRepository } from 'project/infrastructure/FakeProjectRepository';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
   let eventPublisher: FakeEventPublisherService;
-  let userRepository: UserFakeRepository;
+  let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
   let contributionsComputer: ContributionsComputer;
@@ -53,8 +54,8 @@ describe('project application service', () => {
     modelFaker = new ModelFaker();
 
     eventPublisher = new FakeEventPublisherService();
-    userRepository = new UserFakeRepository();
-    projectRepository = new ProjectFakeRepository();
+    userRepository = new FakeUserRepository();
+    projectRepository = new FakeProjectRepository();
     objectMapper = Mock(ObjectMapper);
     contributionsComputer = new FakeContributionsComputerService();
     consensualityComputer = new FakeConsensualityComputerService();

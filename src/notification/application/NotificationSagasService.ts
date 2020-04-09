@@ -1,12 +1,5 @@
-import {
-  Injectable,
-  Inject,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import {
-  NotificationRepository,
-  NOTIFICATION_REPOSITORY,
-} from 'notification/domain/NotificationRepository';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Notification } from 'notification/domain/Notification';
@@ -21,7 +14,6 @@ export class NotificationSagasService {
   private readonly notificationFactory: NotificationFactoryService;
 
   public constructor(
-    @Inject(NOTIFICATION_REPOSITORY)
     notificationRepository: NotificationRepository,
     notificationFactory: NotificationFactoryService,
   ) {

@@ -4,7 +4,7 @@ import { TelemetryModule } from 'shared/telemetry/TelemetryModule';
 import { ConfigModule } from 'shared/config/ConfigModule';
 import { ObjectStorageModule } from 'shared/object-storage/ObjectStorageModule';
 import { TokenModule } from 'shared/token/TokenModule';
-import { DatabaseModule } from 'shared/database/DatabaseModule';
+import { TypeOrmModule } from 'shared/typeorm/TypeOrmModule';
 import { EmailModule } from 'shared/email/EmailModule';
 import { EventModule } from 'shared/event/EventModule';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
@@ -20,7 +20,7 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
     TelemetryModule,
     ObjectStorageModule,
     TokenModule,
-    DatabaseModule,
+    TypeOrmModule,
     EmailModule,
     EventModule,
     ObjectMapperModule,
@@ -32,7 +32,7 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
     TelemetryModule,
     ObjectStorageModule,
     TokenModule,
-    DatabaseModule,
+    TypeOrmModule,
     EmailModule,
     EventModule,
     ObjectMapperModule,

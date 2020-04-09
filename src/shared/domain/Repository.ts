@@ -1,37 +1,38 @@
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
+import { Optional } from 'shared/domain/Optional';
 
 /**
  * Repository
  */
-export interface Repository<TId extends Id, TModel extends Model<TId>> {
+export abstract class Repository<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  findPage(afterId?: TId): Promise<TModel[]>;
+  public abstract findPage(afterId?: TId): Promise<TModel[]>;
 
   /**
    *
    */
-  findById(id: TId): Promise<TModel>;
+  public abstract findById(id: TId): Promise<Optional<TModel>>;
 
   /**
    *
    */
-  findByIds(ids: TId[]): Promise<TModel[]>;
+  public abstract findByIds(ids: TId[]): Promise<Optional<TModel>[]>;
 
   /**
    *
    */
-  exists(id: TId): Promise<boolean>;
+  public abstract exists(id: TId): Promise<boolean>;
 
   /**
    *
    */
-  persist(...models: TModel[]): Promise<void>;
+  public abstract persist(...models: TModel[]): Promise<void>;
 
   /**
    *
    */
-  delete(...models: TModel[]): Promise<void>;
+  public abstract delete(...models: TModel[]): Promise<void>;
 }

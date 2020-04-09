@@ -61,8 +61,11 @@ describe('notifications (e2e)', () => {
         `/notifications/${notification.id}/read`,
       );
       expect(response.status).toBe(200);
-      const updatedNotification = await scenario.notificationRepository.findById(
+      const optionalUpdatedNotification = await scenario.notificationRepository.findById(
         notification.id,
+      );
+      const updatedNotification = optionalUpdatedNotification.orElseThrow(
+        Error,
       );
       expect(updatedNotification.isRead).toBeTruthy();
     });

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { NotificationController } from 'notification/presentation/NotificationController';
-import { NOTIFICATION_REPOSITORY } from 'notification/domain/NotificationRepository';
-import { NotificationTypeOrmRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
+import { TypeOrmNotificationRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
@@ -10,7 +9,8 @@ import { NotificationDtoMap } from 'notification/application/NotificationDtoMap'
 import {
   NotificationTypeOrmEntityMap,
   ReverseNotificationTypeOrmEntityMap,
-} from './infrastructure/NotificationTypeOrmEntityMap';
+} from 'notification/infrastructure/NotificationTypeOrmEntityMap';
+import { NotificationRepository } from './domain/NotificationRepository';
 
 /**
  * Notification Module
@@ -25,10 +25,10 @@ import {
     NotificationTypeOrmEntityMap,
     ReverseNotificationTypeOrmEntityMap,
     {
-      provide: NOTIFICATION_REPOSITORY,
-      useClass: NotificationTypeOrmRepository,
+      provide: NotificationRepository,
+      useClass: TypeOrmNotificationRepository,
     },
   ],
-  exports: [NOTIFICATION_REPOSITORY],
+  exports: [NotificationRepository],
 })
 export class NotificationModule {}

@@ -2,15 +2,9 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app/AppModule';
-import { UserRepository, USER_REPOSITORY } from 'user/domain/UserRepository';
-import {
-  PROJECT_REPOSITORY,
-  ProjectRepository,
-} from 'project/domain/ProjectRepository';
-import {
-  NOTIFICATION_REPOSITORY,
-  NotificationRepository,
-} from 'notification/domain/NotificationRepository';
+import { UserRepository } from 'user/domain/UserRepository';
+import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailManager } from 'shared/email/manager/EmailManager';
@@ -77,9 +71,9 @@ export class TestScenario {
       modelFaker,
       app,
       module,
-      module.get(USER_REPOSITORY),
-      module.get(PROJECT_REPOSITORY),
-      module.get(NOTIFICATION_REPOSITORY),
+      module.get(UserRepository),
+      module.get(ProjectRepository),
+      module.get(NotificationRepository),
       module.get(TokenManager),
       module.get(EmailManager),
       module.get(ObjectStorage),

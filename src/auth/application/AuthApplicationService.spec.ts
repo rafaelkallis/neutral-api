@@ -13,13 +13,13 @@ import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
-import { UserFakeRepository } from 'user/infrastructure/UserFakeRepository';
 import { User } from 'user/domain/User';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { Mock } from 'test/Mock';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
@@ -37,7 +37,7 @@ describe('auth application service', () => {
     primitiveFaker = new PrimitiveFaker();
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
-    userRepository = new UserFakeRepository();
+    userRepository = new FakeUserRepository();
     tokenService = new FakeTokenManagerService();
     objectMapper = Mock(ObjectMapper);
 

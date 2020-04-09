@@ -1,9 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { User } from 'user/domain/User';
-import {
-  NOTIFICATION_REPOSITORY,
-  NotificationRepository,
-} from 'notification/domain/NotificationRepository';
+import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import {
   InjectEventPublisher,
@@ -11,6 +8,7 @@ import {
 } from 'shared/event/publisher/EventPublisher';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { NotificationNotFoundException } from './exceptions/NotificationNotFoundException';
 
 @Injectable()
 export class NotificationApplicationService {
@@ -19,7 +17,6 @@ export class NotificationApplicationService {
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
-    @Inject(NOTIFICATION_REPOSITORY)
     notificationRepository: NotificationRepository,
     @InjectEventPublisher()
     eventPublisher: EventPublisher,
@@ -52,8 +49,11 @@ export class NotificationApplicationService {
     rawNotificationId: string,
   ): Promise<NotificationDto> {
     const notificationId = NotificationId.from(rawNotificationId);
-    const notification = await this.notificationRepository.findById(
+    const optionalNotification = await this.notificationRepository.findById(
       notificationId,
+    );
+    const notification = optionalNotification.orElseThrow(
+      NotificationNotFoundException,
     );
     notification.assertOwner(authUser);
     notification.markRead();

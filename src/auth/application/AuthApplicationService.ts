@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  UserRepository,
-  InjectUserRepository,
-} from 'user/domain/UserRepository';
+import { UserRepository } from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
@@ -29,6 +26,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +39,7 @@ export class AuthService {
   public constructor(
     config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
-    @InjectUserRepository() userRepository: UserRepository,
+    userRepository: UserRepository,
     tokenService: TokenManager,
     modelMapper: ObjectMapper,
   ) {
@@ -59,7 +57,8 @@ export class AuthService {
    */
   public async requestLogin(dto: RequestLoginDto): Promise<void> {
     const email = Email.from(dto.email);
-    const user = await this.userRepository.findByEmail(email);
+    const optionalUser = await this.userRepository.findByEmail(email);
+    const user = optionalUser.orElseThrow(UserNotFoundException);
     const loginToken = this.tokenService.newLoginToken(
       user.id,
       user.lastLoginAt,
@@ -85,7 +84,8 @@ export class AuthService {
   ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenService.validateLoginToken(loginToken);
     const userId = UserId.from(payload.sub);
-    const user = await this.userRepository.findById(userId);
+    const optionalUser = await this.userRepository.findById(userId);
+    const user = optionalUser.orElseThrow(UserNotFoundException);
     if (!user.lastLoginAt.equals(LastLoginAt.from(payload.lastLoginAt))) {
       throw new TokenAlreadyUsedException();
     }

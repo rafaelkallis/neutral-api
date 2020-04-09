@@ -64,6 +64,14 @@ export class ObjectMapper {
     }
     return (objectMap.map(o, context) as unknown) as T;
   }
+
+  public mapArray<T>(
+    arr: object[],
+    targetObjectType: Type<T>,
+    context: object = {},
+  ): T[] {
+    return arr.map((o) => this.map(o, targetObjectType, context));
+  }
 }
 
 @Injectable()
