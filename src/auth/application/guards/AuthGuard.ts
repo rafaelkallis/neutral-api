@@ -8,13 +8,9 @@ import {
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'shared/session';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import {
-  UserRepository,
-  InjectUserRepository,
-} from 'user/domain/UserRepository';
+import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 /**
  * Auth Guard.
@@ -27,7 +23,7 @@ export class AuthGuard implements CanActivate {
   private readonly userRepository: UserRepository;
 
   public constructor(
-    @InjectUserRepository() userRepository: UserRepository,
+    userRepository: UserRepository,
     tokenService: TokenManager,
   ) {
     this.userRepository = userRepository;
@@ -62,10 +58,8 @@ export class AuthGuard implements CanActivate {
   private async handleSessionAuth(session: SessionState): Promise<User> {
     const payload = this.tokenService.validateSessionToken(session.get());
     const userId = UserId.from(payload.sub);
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new UnauthorizedUserException();
-    }
+    const optionalUser = await this.userRepository.findById(userId);
+    const user = optionalUser.orElseThrow(UnauthorizedUserException);
     const newSessionToken = this.tokenService.newSessionToken(
       user.id.value,
       payload.maxAge,
@@ -81,16 +75,8 @@ export class AuthGuard implements CanActivate {
     }
     const payload = this.tokenService.validateAccessToken(content);
     const userId = UserId.from(payload.sub);
-    let user: User;
-    try {
-      user = await this.userRepository.findById(userId);
-    } catch (error) {
-      if (!(error instanceof UserNotFoundException)) {
-        throw error;
-      }
-      throw new UnauthorizedUserException();
-    }
-    return user;
+    const user = await this.userRepository.findById(userId);
+    return user.orElseThrow(UnauthorizedUserException);
   }
 }
 

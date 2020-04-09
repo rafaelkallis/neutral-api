@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
-import { PROJECT_REPOSITORY } from 'project/domain/ProjectRepository';
-import { ProjectTypeOrmRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
+import { TypeOrmProjectRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
 import { RoleController } from 'project/presentation/RoleController';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
@@ -17,6 +16,7 @@ import {
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
 import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';
+import { ProjectRepository } from 'project/domain/ProjectRepository';
 
 /**
  * Project Module
@@ -26,8 +26,8 @@ import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';
   controllers: [ProjectController, RoleController],
   providers: [
     {
-      provide: PROJECT_REPOSITORY,
-      useClass: ProjectTypeOrmRepository,
+      provide: ProjectRepository,
+      useClass: TypeOrmProjectRepository,
     },
     {
       provide: ConsensualityComputer,
@@ -44,6 +44,6 @@ import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
   ],
-  exports: [PROJECT_REPOSITORY],
+  exports: [ProjectRepository],
 })
 export class ProjectModule {}

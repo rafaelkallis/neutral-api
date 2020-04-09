@@ -1,33 +1,55 @@
-import {
-  AbstractTypeOrmRepository,
-  TypeOrmRepository,
-} from 'shared/infrastructure/TypeOrmRepository';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { DatabaseClientService } from 'shared/database/DatabaseClientService';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { Project } from 'project/domain/Project';
-import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { Id } from 'shared/domain/value-objects/Id';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
+import { Repository } from 'shared/domain/Repository';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { Optional } from 'shared/domain/Optional';
+import { Injectable } from '@nestjs/common';
 
 /**
- * Project TypeOrm Repository
+ * TypeOrm Project Repository
  */
-@TypeOrmRepository(Project, ProjectTypeOrmEntity)
-export class ProjectTypeOrmRepository
-  extends AbstractTypeOrmRepository<ProjectId, Project, ProjectTypeOrmEntity>
-  implements ProjectRepository {
+@Injectable()
+export class TypeOrmProjectRepository extends ProjectRepository {
+  private readonly typeOrmClient: TypeOrmClient;
+  private readonly typeOrmRepository: Repository<ProjectId, Project>;
+  private readonly objectMapper: ObjectMapper;
   /**
    *
    */
-  public constructor(
-    databaseClient: DatabaseClientService,
-    modelMapper: ObjectMapper,
-  ) {
-    super(databaseClient, modelMapper);
+  public constructor(typeOrmClient: TypeOrmClient, objectMapper: ObjectMapper) {
+    super();
+    this.typeOrmClient = typeOrmClient;
+    this.typeOrmRepository = this.typeOrmClient.createRepository(
+      Project,
+      ProjectTypeOrmEntity,
+    );
+    this.objectMapper = objectMapper;
+  }
+  public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
+    return this.typeOrmRepository.findPage(afterId);
+  }
+
+  public async findById(id: ProjectId): Promise<Optional<Project>> {
+    return this.typeOrmRepository.findById(id);
+  }
+
+  public async findByIds(ids: ProjectId[]): Promise<Optional<Project>[]> {
+    return this.typeOrmRepository.findByIds(ids);
+  }
+
+  public async exists(id: ProjectId): Promise<boolean> {
+    return this.typeOrmRepository.exists(id);
+  }
+
+  public async delete(...models: Project[]): Promise<void> {
+    return this.typeOrmRepository.delete(...models);
   }
 
   public async persist(...projectModels: Project[]): Promise<void> {
@@ -35,32 +57,33 @@ export class ProjectTypeOrmRepository
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
       .map((projectModel) => projectModel.id.value);
     if (roleIdsToDelete.length > 0) {
-      await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
+      await this.typeOrmClient.entityManager.delete(
+        RoleTypeOrmEntity,
+        roleIdsToDelete,
+      );
     }
     const peerReviewIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.peerReviews.getRemovedModels())
       .map((peerReviewModel) => peerReviewModel.id.value);
     if (peerReviewIdsToDelete.length > 0) {
-      await this.entityManager.delete(
+      await this.typeOrmClient.entityManager.delete(
         PeerReviewTypeOrmEntity,
         peerReviewIdsToDelete,
       );
     }
-    await super.persist(...projectModels);
+    await this.typeOrmRepository.persist(...projectModels);
   }
 
-  public async findByCreatorId(creatorId: Id): Promise<Project[]> {
-    const projectEntities = await this.entityManager
+  public async findByCreatorId(creatorId: UserId): Promise<Project[]> {
+    const projectEntities = await this.typeOrmClient.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
-    const projectModels = projectEntities.map((p) =>
-      this.modelMapper.map(p, Project),
-    );
+    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
     return projectModels;
   }
 
-  public async findByRoleId(roleId: Id): Promise<Project> {
-    const projectEntity = await this.entityManager
+  public async findByRoleId(roleId: RoleId): Promise<Optional<Project>> {
+    const projectEntityOrUndefined = await this.typeOrmClient.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.roles', 'role')
@@ -77,15 +100,13 @@ export class ProjectTypeOrmRepository
       })
       .setParameter('roleId', roleId.value)
       .getOne();
-    if (!projectEntity) {
-      this.throwEntityNotFoundException();
-    }
-    const projectModel = this.modelMapper.map(projectEntity, Project);
-    return projectModel;
+    return Optional.of(projectEntityOrUndefined).map((projectEntity) =>
+      this.objectMapper.map(projectEntity, Project),
+    );
   }
 
-  public async findByRoleAssigneeId(assigneeId: Id): Promise<Project[]> {
-    const projectEntities = await this.entityManager
+  public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
+    const projectEntities = await this.typeOrmClient.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
       .leftJoinAndSelect('role', 'role.project_id = project.id')
@@ -102,16 +123,7 @@ export class ProjectTypeOrmRepository
       })
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
-    const projectModels = projectEntities.map((p) =>
-      this.modelMapper.map(p, Project),
-    );
+    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
     return projectModels;
-  }
-
-  /**
-   *
-   */
-  protected throwEntityNotFoundException(): never {
-    throw new ProjectNotFoundException();
   }
 }

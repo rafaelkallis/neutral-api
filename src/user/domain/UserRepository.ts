@@ -1,31 +1,25 @@
-import { Inject } from '@nestjs/common';
 import { User } from 'user/domain/User';
 import { Repository } from 'shared/domain/Repository';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserId } from 'user/domain/value-objects/UserId';
-
-export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
-
-export function InjectUserRepository(): ParameterDecorator {
-  return Inject(USER_REPOSITORY);
-}
+import { Optional } from 'shared/domain/Optional';
 
 /**
  * User Repository
  */
-export interface UserRepository extends Repository<UserId, User> {
+export abstract class UserRepository extends Repository<UserId, User> {
   /**
    * Full text search on user's first name and last name.
    */
-  findByName(fullName: string): Promise<User[]>;
+  public abstract findByName(fullName: string): Promise<User[]>;
 
   /**
    * Find user by email address.
    */
-  findByEmail(email: Email): Promise<User>;
+  public abstract findByEmail(email: Email): Promise<Optional<User>>;
 
   /**
    * Check if a user with the given email exists.
    */
-  existsByEmail(email: Email): Promise<boolean>;
+  public abstract existsByEmail(email: Email): Promise<boolean>;
 }

@@ -1,4 +1,3 @@
-import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { NotificationSagasService } from 'notification/application/NotificationSagasService';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
@@ -7,16 +6,18 @@ import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeer
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ModelFaker } from 'test/ModelFaker';
+import { NotificationRepository } from 'notification/domain/NotificationRepository';
+import { FakeNotificationRepository } from 'notification/infrastructure/FakeNotificationRepository';
 
 describe('notification sagas', () => {
   let modelFaker: ModelFaker;
-  let notificationRepository: NotificationFakeRepository;
+  let notificationRepository: NotificationRepository;
   let notificationFactory: NotificationFactoryService;
   let notificationSagas: NotificationSagasService;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
-    notificationRepository = new NotificationFakeRepository();
+    notificationRepository = new FakeNotificationRepository();
     notificationFactory = new NotificationFactoryService();
     notificationSagas = new NotificationSagasService(
       notificationRepository,

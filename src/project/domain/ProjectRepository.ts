@@ -1,31 +1,26 @@
-import { Inject } from '@nestjs/common';
 import { Repository } from 'shared/domain/Repository';
 import { Project } from 'project/domain/Project';
-import { Id } from 'shared/domain/value-objects/Id';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
-
-export const PROJECT_REPOSITORY = Symbol('PROJECT_REPOSITORY');
-
-export function InjectProjectRepository(): ParameterDecorator {
-  return Inject(PROJECT_REPOSITORY);
-}
+import { Optional } from 'shared/domain/Optional';
+import { RoleId } from 'project/domain/value-objects/RoleId';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
  * Project Repository
  */
-export interface ProjectRepository extends Repository<ProjectId, Project> {
+export abstract class ProjectRepository extends Repository<ProjectId, Project> {
   /**
    *
    */
-  findByCreatorId(creatorId: Id): Promise<Project[]>;
+  public abstract findByCreatorId(creatorId: UserId): Promise<Project[]>;
 
   /**
    *
    */
-  findByRoleId(roleId: Id): Promise<Project>;
+  public abstract findByRoleId(roleId: RoleId): Promise<Optional<Project>>;
 
   /**
    *
    */
-  findByRoleAssigneeId(assigneeId: Id): Promise<Project[]>;
+  public abstract findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]>;
 }

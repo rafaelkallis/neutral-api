@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  UserRepository,
-  InjectUserRepository,
-} from 'user/domain/UserRepository';
+import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
@@ -22,6 +19,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 @Injectable()
 export class UserApplicationService {
@@ -35,7 +33,7 @@ export class UserApplicationService {
   public static AVATAR_MIME_TYPES = ['image/png', 'image/jpeg'];
 
   public constructor(
-    @InjectUserRepository() userRepository: UserRepository,
+    userRepository: UserRepository,
     modelMapper: ObjectMapper,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     tokenManager: TokenManager,
@@ -77,7 +75,9 @@ export class UserApplicationService {
   public async getUser(authUser: User, rawId: string): Promise<UserDto> {
     const id = UserId.from(rawId);
     const user = await this.userRepository.findById(id);
-    return this.modelMapper.map(user, UserDto, { authUser });
+    return user
+      .map((u) => this.modelMapper.map(u, UserDto, { authUser }))
+      .orElseThrow(UserNotFoundException);
   }
 
   /**
@@ -133,7 +133,8 @@ export class UserApplicationService {
     rawUserId: string,
   ): Promise<{ file: string; contentType: string }> {
     const userId = UserId.from(rawUserId);
-    const user = await this.userRepository.findById(userId);
+    const userOptional = await this.userRepository.findById(userId);
+    const user = userOptional.orElseThrow(UserNotFoundException);
     if (!user.avatar) {
       throw new NotFoundException();
     }
@@ -190,9 +191,11 @@ export class UserApplicationService {
    */
   public async submitEmailChange(token: string): Promise<void> {
     const payload = this.tokenService.validateEmailChangeToken(token);
-    const userId = UserId.from(payload.sub);
-    const user = await this.userRepository.findById(userId);
-    if (!user.email.equals(Email.from(payload.curEmail))) {
+    const emailFromPayload = Email.from(payload.curEmail);
+    const userIdFromPayload = UserId.from(payload.sub);
+    const userOptional = await this.userRepository.findById(userIdFromPayload);
+    const user = userOptional.orElseThrow(UserNotFoundException);
+    if (!user.email.equals(emailFromPayload)) {
       throw new TokenAlreadyUsedException();
     }
     const newEmail = Email.from(payload.newEmail);

@@ -1,4 +1,3 @@
-import { NotificationFakeRepository } from 'notification/infrastructure/NotificationFakeRepository';
 import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
@@ -7,11 +6,13 @@ import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPubli
 import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
+import { NotificationRepository } from 'notification/domain/NotificationRepository';
+import { FakeNotificationRepository } from 'notification/infrastructure/FakeNotificationRepository';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
   let eventPublisher: FakeEventPublisherService;
-  let notificationRepository: NotificationFakeRepository;
+  let notificationRepository: NotificationRepository;
   let objectMapper: ObjectMapper;
   let notificationApplicationService: NotificationApplicationService;
   let user: User;
@@ -20,7 +21,7 @@ describe('notification application service', () => {
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     eventPublisher = new FakeEventPublisherService();
-    notificationRepository = new NotificationFakeRepository();
+    notificationRepository = new FakeNotificationRepository();
     objectMapper = Mock(ObjectMapper);
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,
