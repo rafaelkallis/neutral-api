@@ -4,7 +4,11 @@ import {
   CachePolicy,
   CacheItemExpiredHandler,
 } from 'shared/cache/application/CachePolicy';
-import { InvocationProxy } from 'shared/utility/application/InvocationProxy';
+import {
+  InvocationProxy,
+  Method,
+  InvocationHandler,
+} from 'shared/utility/application/InvocationProxy';
 import { CacheInvocationHandler } from './CacheInvocationHandler';
 import { CacheKeyComputer } from './CacheKeyComputer';
 
@@ -47,14 +51,23 @@ export class CacheClient implements OnModuleInit, CacheItemExpiredHandler {
       context.bucket ||
       `method ${context.target.constructor.name} ${context.method.toString()}`;
     const ttl = context.ttl || 1000;
-    const invocationHandler = new CacheInvocationHandler(
-      this.cachePolicy,
-      this.cacheStore,
-      this.cacheKeyComputer,
-      context.getKeyArgs,
-      bucket,
-      ttl,
-    );
+    const invocationHandler: InvocationHandler = {
+      handleInvocation: (method: Method, args: unknown[]): unknown => {
+        const keyArgs = context.getKeyArgs(...args);
+        const key = this.cacheKeyComputer.computeKey([bucket, ...keyArgs]);
+        if (this.cachePolicy.isAlive(key)) {
+          const optionalCachedResult = this.cacheStore.get(key);
+          if (optionalCachedResult.isPresent()) {
+            return optionalCachedResult.orElseThrow(Error);
+          }
+        }
+        const result = method.invoke(args);
+        this.cacheStore.put(key, result);
+        this.cachePolicy.access(key, ttl);
+        return result;
+      },
+    };
+
     this.invocationProxy.proxyInvocation(
       context.target,
       context.method,
