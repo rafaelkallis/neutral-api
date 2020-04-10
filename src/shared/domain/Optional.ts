@@ -36,4 +36,11 @@ export class Optional<T> {
     }
     return Optional.of(mapping(this.value));
   }
+
+  public tap(tapping: (value: T) => void): this {
+    if (this.value) {
+      tapping(this.value);
+    }
+    return this;
+  }
 }
