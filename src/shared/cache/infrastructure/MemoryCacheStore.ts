@@ -1,6 +1,8 @@
 import { CacheStore } from 'shared/cache/application/CacheStore';
 import { Optional } from 'shared/domain/Optional';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class MemoryCacheStore extends CacheStore {
   private readonly store: Map<string, unknown>;
 

@@ -1,21 +1,30 @@
 export const CACHE_METADATA = Symbol('CACHE_METADATA');
 
 export interface CacheContext {
-  store: string;
-  ttl: number;
-  computeKey(...args: unknown[]): string;
+  getKeyArgs<TArgs extends any[]>(...args: TArgs): string[];
+  bucket?: string;
+  ttl?: number;
 }
 
 /**
  * Cache Metadata
  */
-export class CacheMetadataItem {
+export class CacheMetadataItem implements CacheContext {
   public readonly propertyKey: string | symbol;
-  public readonly context: CacheContext;
+  public readonly getKeyArgs: <TArgs extends any[]>(...args: TArgs) => string[];
+  public readonly bucket?: string;
+  public readonly ttl?: number;
 
-  public constructor(propertyKey: string | symbol, context: CacheContext) {
+  public constructor(
+    propertyKey: string | symbol,
+    getKeyArgs: <TArgs extends any[]>(...args: TArgs) => string[],
+    bucket?: string,
+    ttl?: number,
+  ) {
     this.propertyKey = propertyKey;
-    this.context = context;
+    this.getKeyArgs = getKeyArgs;
+    this.bucket = bucket;
+    this.ttl = ttl;
   }
 }
 
@@ -38,19 +47,15 @@ export function getCacheMetadataItems(
 /**
  *
  */
-export function Cache(context: Partial<CacheContext> = {}): PropertyDecorator {
+export function Cache(context: CacheContext): PropertyDecorator {
   return (target: object, propertyKey: string | symbol): void => {
-    const store =
-      context.store || `${target.constructor.name}.${propertyKey.toString()}()`;
-    const ttl = context.ttl || 1000;
-    const computeKey = context.computeKey || JSON.stringify;
-
     const existingMetadataItems = getCacheMetadataItems(target);
-    const newMetadataItem = new CacheMetadataItem(store, {
-      store,
-      ttl,
-      computeKey,
-    });
+    const newMetadataItem = new CacheMetadataItem(
+      propertyKey,
+      context.getKeyArgs,
+      context.bucket,
+      context.ttl,
+    );
     Reflect.defineMetadata(
       CACHE_METADATA,
       [...existingMetadataItems, newMetadataItem],

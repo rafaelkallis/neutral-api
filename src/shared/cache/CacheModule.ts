@@ -6,9 +6,11 @@ import { LruCachePolicy } from 'shared/cache/infrastructure/LruCachePolicy';
 import { CacheClient } from 'shared/cache/application/CacheClient';
 import { CacheStore } from 'shared/cache/application/CacheStore';
 import { MemoryCacheStore } from 'shared/cache/infrastructure/MemoryCacheStore';
+import { CacheKeyComputer } from 'shared/cache/application/CacheKeyComputer';
+import { Sha1CacheKeyComputer } from 'shared/cache/infrastructure/Sha1CacheKeyComputer';
 
 /**
- * Telemetry Module
+ * Cache Module
  */
 @Module({
   imports: [ConfigModule, UtilityModule],
@@ -20,6 +22,10 @@ import { MemoryCacheStore } from 'shared/cache/infrastructure/MemoryCacheStore';
     {
       provide: CacheStore,
       useClass: MemoryCacheStore,
+    },
+    {
+      provide: CacheKeyComputer,
+      useClass: Sha1CacheKeyComputer,
     },
     CacheClient,
   ],

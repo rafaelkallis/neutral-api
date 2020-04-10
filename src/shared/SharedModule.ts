@@ -9,6 +9,7 @@ import { EmailModule } from 'shared/email/EmailModule';
 import { EventModule } from 'shared/event/EventModule';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
 import { SerializationModule } from 'shared/serialization/SerializationModule';
+import { CacheModule } from 'shared/cache/CacheModule';
 
 /**
  * Shared Module
@@ -25,6 +26,7 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
     EventModule,
     ObjectMapperModule,
     SerializationModule,
+    CacheModule,
   ],
   exports: [
     UtilityModule,
@@ -37,6 +39,7 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
     EventModule,
     ObjectMapperModule,
     SerializationModule,
+    CacheModule,
   ],
 })
 export class SharedModule {}

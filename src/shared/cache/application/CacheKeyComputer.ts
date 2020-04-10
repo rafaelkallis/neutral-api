@@ -1,3 +1,3 @@
 export abstract class CacheKeyComputer {
-  public abstract computeKey(storeKey: string, entryKey: string): string;
+  public abstract computeKey(keyArgs: string[]): string;
 }

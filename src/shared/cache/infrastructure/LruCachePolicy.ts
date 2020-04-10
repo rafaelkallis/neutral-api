@@ -1,6 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import { CachePolicy } from 'shared/cache/application/CachePolicy';
 import LRU from 'lru-cache';
 
+@Injectable()
 export class LruCachePolicy extends CachePolicy {
   private readonly lru: LRU<string, true>;
 
@@ -9,8 +11,8 @@ export class LruCachePolicy extends CachePolicy {
     this.lru = new LRU({ dispose: (key) => this.onCacheItemExpired(key) });
   }
 
-  public access(key: string): void {
-    this.lru.set(key, true);
+  public access(key: string, ttl: number): void {
+    this.lru.set(key, true, ttl);
   }
 
   public isAlive(key: string): boolean {

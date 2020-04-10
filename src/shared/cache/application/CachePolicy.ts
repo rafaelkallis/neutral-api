@@ -16,7 +16,7 @@ export abstract class CachePolicy implements OnApplicationShutdown {
     this.cacheItemExpired$.complete();
   }
 
-  public abstract access(key: string): void;
+  public abstract access(key: string, ttl: number): void;
   public abstract isAlive(key: string): boolean;
   public abstract pruneExpired(): void;
 
