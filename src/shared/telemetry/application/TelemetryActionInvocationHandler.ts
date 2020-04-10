@@ -23,8 +23,10 @@ export class TelemetryActionInvocationHandler implements InvocationHandler {
         telemetryAction.end();
         return result;
       }
-    } finally {
+      // "finally" would be wrong here, problematic when result is a promise
+    } catch (error) {
       telemetryAction.end();
+      throw error;
     }
   }
 }
