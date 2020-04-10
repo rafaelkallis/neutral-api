@@ -28,7 +28,7 @@ export abstract class CachePolicy implements OnApplicationShutdown {
     );
   }
 
-  protected onCacheItemExpired(key: string): void {
+  protected handleCacheItemExpired(key: string): void {
     this.cacheItemExpired$.next(key);
   }
 }
