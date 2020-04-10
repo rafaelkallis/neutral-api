@@ -23,9 +23,8 @@ export class TelemetryActionInvocationHandler implements InvocationHandler {
         telemetryAction.end();
         return result;
       }
-    } catch (error) {
+    } finally {
       telemetryAction.end();
-      throw error;
     }
   }
 }
