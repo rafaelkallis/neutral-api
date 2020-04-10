@@ -9,8 +9,7 @@ import {
   Method,
   InvocationHandler,
 } from 'shared/utility/application/InvocationProxy';
-import { CacheInvocationHandler } from './CacheInvocationHandler';
-import { CacheKeyComputer } from './CacheKeyComputer';
+import { CacheKeyComputer } from 'shared/cache/application/CacheKeyComputer';
 
 export interface CacheMethodContext {
   target: any;
