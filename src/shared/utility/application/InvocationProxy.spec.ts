@@ -1,4 +1,7 @@
-import { InvocationProxy, InvocationHandler } from './InvocationProxy';
+import {
+  InvocationProxy,
+  InvocationHandler,
+} from 'shared/utility/application/InvocationProxy';
 
 describe(InvocationProxy.name, () => {
   let invocationProxy: InvocationProxy;
