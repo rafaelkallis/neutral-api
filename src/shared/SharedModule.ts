@@ -10,6 +10,7 @@ import { EventModule } from 'shared/event/EventModule';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
 import { SerializationModule } from 'shared/serialization/SerializationModule';
 import { CacheModule } from 'shared/cache/CacheModule';
+import { MediatorModule } from 'shared/mediator/MediatorModule';
 
 /**
  * Shared Module
@@ -27,6 +28,7 @@ import { CacheModule } from 'shared/cache/CacheModule';
     ObjectMapperModule,
     SerializationModule,
     CacheModule,
+    MediatorModule,
   ],
   exports: [
     UtilityModule,
@@ -40,6 +42,7 @@ import { CacheModule } from 'shared/cache/CacheModule';
     ObjectMapperModule,
     SerializationModule,
     CacheModule,
+    MediatorModule,
   ],
 })
 export class SharedModule {}
