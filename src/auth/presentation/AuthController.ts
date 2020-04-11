@@ -26,6 +26,8 @@ import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
+import { Mediator } from 'shared/mediator/Mediator';
+import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 
 /**
  * Authentication Controller
@@ -34,9 +36,11 @@ import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 @ApiTags('Auth')
 export class AuthController {
   private readonly authService: AuthService;
+  private readonly mediator: Mediator;
 
-  public constructor(authService: AuthService) {
+  public constructor(authService: AuthService, mediator: Mediator) {
     this.authService = authService;
+    this.mediator = mediator;
   }
 
   /**
@@ -50,9 +54,9 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'Magic login email sent' })
   @ApiNotFoundResponse({ description: 'User not found' })
   public async requestLogin(
-    @Body(ValidationPipe) dto: RequestLoginDto,
+    @Body(ValidationPipe) requestLoginDto: RequestLoginDto,
   ): Promise<void> {
-    return this.authService.requestLogin(dto);
+    return this.mediator.send(new RequestLoginCommand(requestLoginDto.email));
   }
 
   /**

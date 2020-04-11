@@ -1,6 +1,5 @@
 import { AuthService } from 'auth/application/AuthApplicationService';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
-import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
@@ -9,7 +8,6 @@ import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginEvent } from 'auth/application/events/LoginEvent';
-import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
@@ -55,25 +53,6 @@ describe('auth application service', () => {
 
   it('should be defined', () => {
     expect(authService).toBeDefined();
-  });
-
-  describe('request magic login', () => {
-    let user: User;
-
-    beforeEach(async () => {
-      user = modelFaker.user();
-      await userRepository.persist(user);
-      config.set('FRONTEND_URL', 'https://example.com');
-    });
-
-    test('happy path', async () => {
-      const email = user.email;
-      const requestLoginDto = new RequestLoginDto(email.value);
-      await authService.requestLogin(requestLoginDto);
-      expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(LoginRequestedEvent),
-      );
-    });
   });
 
   describe('submit magic login', () => {

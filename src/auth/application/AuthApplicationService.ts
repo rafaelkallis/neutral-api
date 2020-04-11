@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
-import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
-import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { Config } from 'shared/config/application/Config';
 import { SessionState } from 'shared/session/session-state';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
-import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { LoginEvent } from 'auth/application/events/LoginEvent';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -27,6 +24,7 @@ import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationRe
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
+import { RequestSignupDto } from './dto/RequestSignupDto';
 
 @Injectable()
 export class AuthService {
@@ -48,27 +46,6 @@ export class AuthService {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.modelMapper = modelMapper;
-  }
-
-  /**
-   * Passwordless login
-   *
-   * An email with a magic link is sent to the given email address
-   */
-  public async requestLogin(dto: RequestLoginDto): Promise<void> {
-    const email = Email.from(dto.email);
-    const optionalUser = await this.userRepository.findByEmail(email);
-    const user = optionalUser.orElseThrow(UserNotFoundException);
-    const loginToken = this.tokenService.newLoginToken(
-      user.id,
-      user.lastLoginAt,
-    );
-    const magicLoginLink = `${this.config.get(
-      'FRONTEND_URL',
-    )}/login/callback?token=${encodeURIComponent(loginToken)}`;
-    await this.eventPublisher.publish(
-      new LoginRequestedEvent(user, magicLoginLink),
-    );
   }
 
   /**
