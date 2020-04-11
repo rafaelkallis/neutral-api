@@ -4,7 +4,6 @@ import {
   Type,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 import { Request } from 'shared/mediator/Request';
 import { AbstractRequestHandler } from 'shared/mediator/RequestHandler';
 
@@ -19,7 +18,7 @@ export class Mediator {
     AbstractRequestHandler<unknown, Request<unknown>>
   >;
 
-  public constructor(serviceExplorer: ServiceExplorer) {
+  public constructor() {
     this.logger = new Logger(Mediator.name);
     this.requestHandlers = new Map();
   }
