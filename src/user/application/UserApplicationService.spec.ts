@@ -1,3 +1,4 @@
+import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
@@ -7,7 +8,6 @@ import { Name } from 'user/domain/value-objects/Name';
 import { Config } from 'shared/config/application/Config';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
 import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
@@ -19,14 +19,14 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 
-describe('user service', () => {
+describe(UserApplicationService.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let mockModelMapper: ObjectMapper;
-  let tokenService: TokenManager;
+  let tokenManager: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
   let user: User;
@@ -40,12 +40,12 @@ describe('user service', () => {
     userRepository = new FakeUserRepository();
     mockModelMapper = Mock(ObjectMapper);
     objectStorage = new MockObjectStorage();
-    tokenService = new FakeTokenManagerService();
+    tokenManager = td.object();
     userApplicationService = new UserApplicationService(
       userRepository,
       mockModelMapper,
       eventPublisher,
-      tokenService,
+      tokenManager,
       config,
       objectStorage,
     );
@@ -112,17 +112,27 @@ describe('user service', () => {
     let email: string;
     let firstName: string;
     let updateUserDto: UpdateUserDto;
+    let emailChangeToken: string;
 
     beforeEach(() => {
       email = primitiveFaker.email();
       firstName = primitiveFaker.word();
       updateUserDto = new UpdateUserDto(email, firstName);
+      emailChangeToken = primitiveFaker.id();
+      td.when(
+        tokenManager.newEmailChangeToken(
+          user.id.value,
+          user.email.value,
+          email,
+        ),
+      ).thenReturn(emailChangeToken);
     });
 
     test('happy path', async () => {
       await userApplicationService.updateAuthUser(user, updateUserDto);
       expect(user.email.value).not.toEqual(email);
       expect(user.name.first).toEqual(firstName);
+      // TODO: td.verify(eventPublisher.publish(td.matchers.containing({ emailChangeMagicLink: td.matchers.containing(emailChangeToken) })))
     });
   });
 
@@ -182,12 +192,15 @@ describe('user service', () => {
     let emailChangeToken: string;
 
     beforeEach(() => {
-      newEmail = primitiveFaker.word();
-      emailChangeToken = tokenService.newEmailChangeToken(
-        user.id.value,
-        user.email.value,
+      newEmail = primitiveFaker.email();
+      emailChangeToken = primitiveFaker.id();
+      td.when(
+        tokenManager.validateEmailChangeToken(emailChangeToken),
+      ).thenReturn({
+        sub: user.id.value,
+        curEmail: user.email.value,
         newEmail,
-      );
+      });
     });
 
     test('happy path', async () => {

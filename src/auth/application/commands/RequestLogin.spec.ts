@@ -1,31 +1,33 @@
+import td from 'testdouble';
 import {
   RequestLoginCommand,
   RequestLoginCommandHandler,
 } from 'auth/application/commands/RequestLogin';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
-import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
-import { MockConfig } from 'shared/config/infrastructure/MockConfig';
-import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
+import { EventPublisher } from 'shared/event/publisher/EventPublisher';
+import { Config } from 'shared/config/application/Config';
+import { Optional } from 'shared/domain/Optional';
+import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe(RequestLoginCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
-  let config: MockConfig;
-  let eventPublisher: FakeEventPublisherService;
+  let config: Config;
+  let eventPublisher: EventPublisher;
   let commandHandler: RequestLoginCommandHandler;
   let user: User;
   let command: RequestLoginCommand;
+  let loginToken: string;
 
   beforeEach(async () => {
-    userRepository = new FakeUserRepository();
-    tokenManager = new FakeTokenManagerService();
-    config = new MockConfig();
-    eventPublisher = new FakeEventPublisherService();
+    userRepository = td.object();
+    tokenManager = td.object();
+    config = td.object();
+    eventPublisher = td.object();
     commandHandler = new RequestLoginCommandHandler(
       userRepository,
       tokenManager,
@@ -34,9 +36,16 @@ describe(RequestLoginCommand.name, () => {
     );
     const modelFaker = new ModelFaker();
     user = modelFaker.user();
-    await userRepository.persist(user);
-    config.set('FRONTEND_URL', 'https://example.com');
     command = new RequestLoginCommand(user.email.value);
+    const primitiveFaker = new PrimitiveFaker();
+    loginToken = primitiveFaker.id();
+    td.when(userRepository.findByEmail(user.email)).thenResolve(
+      Optional.of(user),
+    );
+    td.when(config.get('FRONTEND_URL')).thenReturn('https://example.com');
+    td.when(tokenManager.newLoginToken(user.id, user.lastLoginAt)).thenReturn(
+      loginToken,
+    );
   });
 
   test('should be defined', () => {
@@ -45,8 +54,6 @@ describe(RequestLoginCommand.name, () => {
 
   test('happy path', async () => {
     await commandHandler.handle(command);
-    expect(eventPublisher.getPublishedEvents()).toContainEqual(
-      expect.any(LoginRequestedEvent),
-    );
+    td.verify(eventPublisher.publish(td.matchers.isA(LoginRequestedEvent)));
   });
 });
