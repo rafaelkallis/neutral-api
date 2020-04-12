@@ -2,16 +2,16 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { FakeRepository } from 'shared/infrastructure/FakeRepository';
+import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 
 /**
  * Memory User Repository
  */
 export class MemoryUserRepository implements UserRepository {
-  private readonly memoryRepository: FakeRepository<UserId, User>;
+  private readonly memoryRepository: MemoryRepository<UserId, User>;
 
   public constructor() {
-    this.memoryRepository = new FakeRepository();
+    this.memoryRepository = new MemoryRepository();
   }
 
   public async findPage(afterId?: UserId | undefined): Promise<User[]> {

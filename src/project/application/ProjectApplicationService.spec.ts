@@ -31,7 +31,7 @@ import { Mock } from 'test/Mock';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
-import { FakeProjectRepository } from 'project/infrastructure/FakeProjectRepository';
+import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 
 describe('project application service', () => {
   let modelFaker: ModelFaker;
@@ -55,7 +55,7 @@ describe('project application service', () => {
 
     eventPublisher = new FakeEventPublisherService();
     userRepository = new MemoryUserRepository();
-    projectRepository = new FakeProjectRepository();
+    projectRepository = new MemoryProjectRepository();
     objectMapper = Mock(ObjectMapper);
     contributionsComputer = new FakeContributionsComputerService();
     consensualityComputer = new FakeConsensualityComputerService();

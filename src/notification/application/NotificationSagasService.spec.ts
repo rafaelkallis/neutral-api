@@ -7,7 +7,7 @@ import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ModelFaker } from 'test/ModelFaker';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { FakeNotificationRepository } from 'notification/infrastructure/FakeNotificationRepository';
+import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
 
 describe('notification sagas', () => {
   let modelFaker: ModelFaker;
@@ -17,7 +17,7 @@ describe('notification sagas', () => {
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
-    notificationRepository = new FakeNotificationRepository();
+    notificationRepository = new MemoryNotificationRepository();
     notificationFactory = new NotificationFactoryService();
     notificationSagas = new NotificationSagasService(
       notificationRepository,

@@ -7,7 +7,7 @@ import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { FakeNotificationRepository } from 'notification/infrastructure/FakeNotificationRepository';
+import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
@@ -21,7 +21,7 @@ describe('notification application service', () => {
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     eventPublisher = new FakeEventPublisherService();
-    notificationRepository = new FakeNotificationRepository();
+    notificationRepository = new MemoryNotificationRepository();
     objectMapper = Mock(ObjectMapper);
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,

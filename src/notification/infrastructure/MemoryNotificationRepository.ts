@@ -1,52 +1,55 @@
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { Notification } from 'notification/domain/Notification';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { FakeRepository } from 'shared/infrastructure/FakeRepository';
+import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 
 /**
- * Fake Notification Repository
+ * Memory Notification Repository
  */
-export class FakeNotificationRepository implements NotificationRepository {
-  private readonly fakeRepository: FakeRepository<NotificationId, Notification>;
+export class MemoryNotificationRepository implements NotificationRepository {
+  private readonly memoryRepository: MemoryRepository<
+    NotificationId,
+    Notification
+  >;
 
   public constructor() {
-    this.fakeRepository = new FakeRepository();
+    this.memoryRepository = new MemoryRepository();
   }
 
   public async findPage(
     afterId?: NotificationId | undefined,
   ): Promise<Notification[]> {
-    return this.fakeRepository.findPage(afterId);
+    return this.memoryRepository.findPage(afterId);
   }
 
   public async findById(id: NotificationId): Promise<Notification | undefined> {
-    return this.fakeRepository.findById(id);
+    return this.memoryRepository.findById(id);
   }
 
   public async findByIds(
     ids: NotificationId[],
   ): Promise<(Notification | undefined)[]> {
-    return this.fakeRepository.findByIds(ids);
+    return this.memoryRepository.findByIds(ids);
   }
 
   public async exists(id: NotificationId): Promise<boolean> {
-    return this.fakeRepository.exists(id);
+    return this.memoryRepository.exists(id);
   }
 
   public async persist(...models: Notification[]): Promise<void> {
-    return this.fakeRepository.persist(...models);
+    return this.memoryRepository.persist(...models);
   }
 
   public async delete(...models: Notification[]): Promise<void> {
-    return this.fakeRepository.delete(...models);
+    return this.memoryRepository.delete(...models);
   }
 
   /**
    *
    */
   public async findByOwnerId(ownerId: UserId): Promise<Notification[]> {
-    return this.fakeRepository
+    return this.memoryRepository
       .getModels()
       .filter((notification) => notification.ownerId.equals(ownerId));
   }

@@ -2,7 +2,7 @@ import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
 
-export class FakeRepository<TId extends Id, TModel extends Model<TId>>
+export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
   implements Repository<TId, TModel> {
   private readonly models: Map<string, TModel>;
 
