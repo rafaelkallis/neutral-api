@@ -48,13 +48,6 @@ export class UserApplicationService {
   }
 
   /**
-   * Get the authenticated user
-   */
-  public async getAuthUser(authUser: User): Promise<UserDto> {
-    return this.modelMapper.map(authUser, UserDto, { authUser });
-  }
-
-  /**
    * Update the authenticated user
    *
    * If the email address is changed, a email change magic link is sent

@@ -38,6 +38,7 @@ import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvat
 import { Mediator } from 'shared/mediator/Mediator';
 import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
 import { GetUserQuery } from 'user/application/queries/GetUserQuery';
+import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
 
 /**
  * User Controller
@@ -85,7 +86,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'The authenticated user', type: UserDto })
   public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
-    return this.userApplication.getAuthUser(authUser);
+    return this.mediator.send(new GetAuthUserQuery(authUser));
   }
 
   /**
