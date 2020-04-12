@@ -17,7 +17,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
+import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 
 describe(UserApplicationService.name, () => {
   let modelFaker: ModelFaker;
@@ -37,7 +37,7 @@ describe(UserApplicationService.name, () => {
     modelFaker = new ModelFaker();
     config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new MemoryUserRepository();
     mockModelMapper = Mock(ObjectMapper);
     objectStorage = new MockObjectStorage();
     tokenManager = td.object();

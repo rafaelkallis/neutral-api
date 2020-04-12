@@ -30,7 +30,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
+import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { FakeProjectRepository } from 'project/infrastructure/FakeProjectRepository';
 
 describe('project application service', () => {
@@ -54,7 +54,7 @@ describe('project application service', () => {
     modelFaker = new ModelFaker();
 
     eventPublisher = new FakeEventPublisherService();
-    userRepository = new FakeUserRepository();
+    userRepository = new MemoryUserRepository();
     projectRepository = new FakeProjectRepository();
     objectMapper = Mock(ObjectMapper);
     contributionsComputer = new FakeContributionsComputerService();
