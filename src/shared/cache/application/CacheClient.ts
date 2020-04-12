@@ -1,4 +1,8 @@
-import { OnModuleInit, Injectable } from '@nestjs/common';
+import {
+  OnModuleInit,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CacheStore } from 'shared/cache/application/CacheStore';
 import {
   CachePolicy,
@@ -55,10 +59,11 @@ export class CacheClient implements OnModuleInit, CacheItemExpiredHandler {
         const keyArgs = context.getKeyArgs(...args);
         const key = this.cacheKeyComputer.computeKey([bucket, ...keyArgs]);
         if (this.cachePolicy.isAlive(key)) {
-          const optionalCachedResult = this.cacheStore.get(key);
-          if (optionalCachedResult.isPresent()) {
-            return optionalCachedResult.orElseThrow(Error);
+          const cachedResult = this.cacheStore.get(key);
+          if (!cachedResult) {
+            throw new InternalServerErrorException();
           }
+          return cachedResult;
         }
         const result = method.invoke(args);
         this.cacheStore.put(key, result);

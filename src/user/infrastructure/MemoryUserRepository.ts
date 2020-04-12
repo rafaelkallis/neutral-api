@@ -3,7 +3,6 @@ import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { FakeRepository } from 'shared/infrastructure/FakeRepository';
-import { Optional } from 'shared/domain/Optional';
 
 /**
  * Memory User Repository
@@ -45,11 +44,10 @@ export class MemoryUserRepository implements UserRepository {
       .filter((entity) => entity.name.toString().includes(fullName));
   }
 
-  public async findByEmail(email: Email): Promise<Optional<User>> {
-    const user = this.memoryRepository
+  public async findByEmail(email: Email): Promise<User | undefined> {
+    return this.memoryRepository
       .getModels()
       .find((user) => user.email.equals(email));
-    return Optional.of(user);
   }
 
   public async existsByEmail(email: Email): Promise<boolean> {

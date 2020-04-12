@@ -105,10 +105,10 @@ describe('auth (e2e)', () => {
         refreshToken: expect.any(String),
         user: expect.objectContaining({ email, firstName, lastName }),
       });
-      const optionalCreatedUser = await scenario.userRepository.findByEmail(
+      const createdUser = await scenario.userRepository.findByEmail(
         Email.from(email),
       );
-      expect(optionalCreatedUser.isPresent()).toBeTruthy();
+      expect(createdUser).toBeDefined();
     });
   });
 

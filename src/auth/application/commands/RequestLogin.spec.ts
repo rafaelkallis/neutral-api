@@ -10,7 +10,6 @@ import { ModelFaker } from 'test/ModelFaker';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { Config } from 'shared/config/application/Config';
-import { Optional } from 'shared/domain/Optional';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
 describe(RequestLoginCommand.name, () => {
@@ -39,9 +38,7 @@ describe(RequestLoginCommand.name, () => {
     command = new RequestLoginCommand(user.email.value);
     const primitiveFaker = new PrimitiveFaker();
     loginToken = primitiveFaker.id();
-    td.when(userRepository.findByEmail(user.email)).thenResolve(
-      Optional.of(user),
-    );
+    td.when(userRepository.findByEmail(user.email)).thenResolve(user);
     td.when(config.get('FRONTEND_URL')).thenReturn('https://example.com');
     td.when(tokenManager.newLoginToken(user.id, user.lastLoginAt)).thenReturn(
       loginToken,

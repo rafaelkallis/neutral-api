@@ -1,6 +1,5 @@
 import { Type, Injectable, ScopeOptions } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
-import { Optional } from 'shared/domain/Optional';
 
 export abstract class AbstractRequestHandler<T, TRequest extends Request<T>> {
   public abstract handle(request: TRequest): Promise<T>;
@@ -24,10 +23,8 @@ export class RequestHandlerMetadata<T, TRequest extends Request<T>> {
  */
 export function getRequestHandlerMetadata<T, TRequest extends Request<T>>(
   target: object,
-): Optional<RequestHandlerMetadata<T, TRequest>> {
-  return Optional.of(
-    Reflect.getMetadata(REQUEST_HANDLER_METADATA, target.constructor),
-  );
+): RequestHandlerMetadata<T, TRequest> | undefined {
+  return Reflect.getMetadata(REQUEST_HANDLER_METADATA, target.constructor);
 }
 
 /**

@@ -4,7 +4,6 @@ import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { FakeRepository } from 'shared/infrastructure/FakeRepository';
-import { Optional } from 'shared/domain/Optional';
 
 export class FakeProjectRepository implements ProjectRepository {
   private readonly fakeRepository: FakeRepository<ProjectId, Project>;
@@ -46,11 +45,10 @@ export class FakeProjectRepository implements ProjectRepository {
       .filter((project) => project.creatorId.equals(creatorId));
   }
 
-  public async findByRoleId(roleId: RoleId): Promise<Optional<Project>> {
-    const project = this.fakeRepository
+  public async findByRoleId(roleId: RoleId): Promise<Project | undefined> {
+    return this.fakeRepository
       .getModels()
       .find((project) => project.roles.exists(roleId));
-    return Optional.of(project);
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {

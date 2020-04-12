@@ -28,13 +28,12 @@ export class RequestHandlerRegistrar implements OnModuleInit {
       if (!(service instanceof AbstractRequestHandler)) {
         continue;
       }
-      const optionalMetadata = getRequestHandlerMetadata(service);
-      if (!optionalMetadata.isPresent()) {
+      const metadata = getRequestHandlerMetadata(service);
+      if (!metadata) {
         throw new TypeError(
           `No request handler metadata found on ${service.constructor.name}, did you add @${RequestHandler.name}() ?`,
         );
       }
-      const metadata = optionalMetadata.orElseThrow(Error);
       this.mediator.registerRequestHandler(metadata.requestType, service);
     }
     this.logger.log('Request handlers successfully registered');

@@ -53,8 +53,10 @@ export class RequestLoginCommandHandler extends AbstractCommandHandler<
 
   public async handle(command: RequestLoginCommand): Promise<void> {
     const email = Email.from(command.email);
-    const optionalUser = await this.userRepository.findByEmail(email);
-    const user = optionalUser.orElseThrow(UserNotFoundException);
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
     const loginToken = this.tokenManager.newLoginToken(
       user.id,
       user.lastLoginAt,

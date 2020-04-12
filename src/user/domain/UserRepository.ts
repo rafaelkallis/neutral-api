@@ -2,7 +2,6 @@ import { User } from 'user/domain/User';
 import { Repository } from 'shared/domain/Repository';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Optional } from 'shared/domain/Optional';
 
 /**
  * User Repository
@@ -16,7 +15,7 @@ export abstract class UserRepository extends Repository<UserId, User> {
   /**
    * Find user by email address.
    */
-  public abstract findByEmail(email: Email): Promise<Optional<User>>;
+  public abstract findByEmail(email: Email): Promise<User | undefined>;
 
   /**
    * Check if a user with the given email exists.

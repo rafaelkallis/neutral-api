@@ -130,8 +130,10 @@ export class ProjectApplicationService {
    */
   public async getRole(authUser: User, rawRoleId: string): Promise<RoleDto> {
     const roleId = RoleId.from(rawRoleId);
-    const projectOptional = await this.projectRepository.findByRoleId(roleId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findByRoleId(roleId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     const role = project.roles.find(roleId);
     return this.objectMapper.map(role, RoleDto, { project, authUser });
   }
@@ -315,10 +317,10 @@ export class ProjectApplicationService {
       const assigneeEmail = Email.from(rawAssigneeEmail);
       const userExists = await this.userRepository.existsByEmail(assigneeEmail);
       if (userExists) {
-        const optionalUser = await this.userRepository.findByEmail(
-          assigneeEmail,
-        );
-        userToAssign = optionalUser.orElseThrow(UserNotFoundException);
+        userToAssign = await this.userRepository.findByEmail(assigneeEmail);
+        if (!userToAssign) {
+          throw new UserNotFoundException();
+        }
         await this.eventPublisher.publish(
           new ExistingUserAssignedEvent(project, roleToAssign),
         );

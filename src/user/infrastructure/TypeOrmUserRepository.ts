@@ -6,7 +6,6 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Repository } from 'shared/domain/Repository';
-import { Optional } from 'shared/domain/Optional';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -68,15 +67,14 @@ export class TypeOrmUserRepository implements UserRepository {
   /**
    *
    */
-  public async findByEmail(email: Email): Promise<Optional<User>> {
-    const userEntityOrUndefined:
-      | UserTypeOrmEntity
-      | undefined = await this.typeOrmClient.entityManager
+  public async findByEmail(email: Email): Promise<User | undefined> {
+    const userEntity = await this.typeOrmClient.entityManager
       .getRepository(UserTypeOrmEntity)
       .findOne({ email: email.value });
-    return Optional.of(userEntityOrUndefined).map((userEntity) =>
-      this.objectMapper.map(userEntity, User),
-    );
+    if (!userEntity) {
+      return undefined;
+    }
+    return this.objectMapper.map(userEntity, User);
   }
 
   /**
