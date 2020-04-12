@@ -11,7 +11,6 @@ import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserDto } from 'user/application/dto/UserDto';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
-import { Optional } from 'shared/domain/Optional';
 
 describe(SubmitLoginCommand.name, () => {
   let userRepository: UserRepository;
@@ -41,7 +40,6 @@ describe(SubmitLoginCommand.name, () => {
     );
     const modelFaker = new ModelFaker();
     user = modelFaker.user();
-    await userRepository.persist(user);
     const primitiveFaker = new PrimitiveFaker();
     loginToken = primitiveFaker.id();
     session = td.object();
@@ -50,7 +48,7 @@ describe(SubmitLoginCommand.name, () => {
       sub: user.id.value,
       lastLoginAt: user.lastLoginAt.value,
     });
-    td.when(userRepository.findById(user.id)).thenResolve(Optional.of(user));
+    td.when(userRepository.findById(user.id)).thenResolve(user);
     sessionToken = primitiveFaker.id();
     td.when(tokenManager.newSessionToken(user.id.value)).thenReturn(
       sessionToken,

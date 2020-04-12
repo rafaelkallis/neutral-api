@@ -38,10 +38,9 @@ export class GetUserQueryHandler extends AbstractQueryHandler<
   public async handle(query: GetUserQuery): Promise<UserDto> {
     const id = UserId.from(query.userId);
     const user = await this.userRepository.findById(id);
-    return user
-      .map((u) =>
-        this.objectMapper.map(u, UserDto, { authUser: query.authUser }),
-      )
-      .orElseThrow(UserNotFoundException);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+    return this.objectMapper.map(user, UserDto, { authUser: query.authUser });
   }
 }

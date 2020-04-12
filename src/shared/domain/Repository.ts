@@ -14,7 +14,7 @@ export abstract class Repository<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  public abstract findById(id: TId): Promise<Optional<TModel>>;
+  public abstract findById(id: TId): Promise<TModel | undefined>;
 
   /**
    *

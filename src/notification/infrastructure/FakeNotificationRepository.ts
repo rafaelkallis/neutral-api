@@ -21,7 +21,7 @@ export class FakeNotificationRepository implements NotificationRepository {
     return this.fakeRepository.findPage(afterId);
   }
 
-  public async findById(id: NotificationId): Promise<Optional<Notification>> {
+  public async findById(id: NotificationId): Promise<Notification | undefined> {
     return this.fakeRepository.findById(id);
   }
 

@@ -176,10 +176,12 @@ describe('roles (e2e)', () => {
         `/projects/${project.id.value}/roles/${role.id.value}`,
       );
       expect(response.status).toBe(HttpStatus.OK);
-      const updatedProjectOptional = await scenario.projectRepository.findById(
+      const updatedProject = await scenario.projectRepository.findById(
         project.id,
       );
-      const updatedProject = updatedProjectOptional.orElseThrow(Error);
+      if (!updatedProject) {
+        throw new Error();
+      }
       expect(updatedProject.roles.exists(role.id)).toBeFalsy();
     });
   });

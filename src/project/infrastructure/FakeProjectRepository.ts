@@ -17,7 +17,7 @@ export class FakeProjectRepository implements ProjectRepository {
     return this.fakeRepository.findPage(afterId);
   }
 
-  public async findById(id: ProjectId): Promise<Optional<Project>> {
+  public async findById(id: ProjectId): Promise<Project | undefined> {
     return this.fakeRepository.findById(id);
   }
 

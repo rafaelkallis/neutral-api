@@ -66,8 +66,10 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
     const payload = this.tokenManager.validateLoginToken(command.loginToken);
     const userId = UserId.from(payload.sub);
     const lastLoginAt = LastLoginAt.from(payload.lastLoginAt);
-    const optionalUser = await this.userRepository.findById(userId);
-    const user = optionalUser.orElseThrow(UserNotFoundException);
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
     if (!user.lastLoginAt.equals(lastLoginAt)) {
       throw new TokenAlreadyUsedException();
     }

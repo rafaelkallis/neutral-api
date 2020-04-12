@@ -27,19 +27,17 @@ export class FakeRepository<TId extends Id, TModel extends Model<TId>>
   /**
    *
    */
-  public async findById(id: Id): Promise<Optional<TModel>> {
-    const model = this.models.get(id.value);
-    if (!model) {
-      return Optional.empty();
-    }
-    return Optional.of(model);
+  public async findById(id: Id): Promise<TModel | undefined> {
+    return this.models.get(id.value);
   }
 
   /**
    *
    */
   public async findByIds(ids: Id[]): Promise<Optional<TModel>[]> {
-    return Promise.all(ids.map(async (id) => this.findById(id)));
+    return Promise.all(
+      ids.map(async (id) => Optional.of(await this.findById(id))),
+    );
   }
 
   /**

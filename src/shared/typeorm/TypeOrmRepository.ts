@@ -58,17 +58,14 @@ export class TypeOrmRepository<
   /**
    *
    */
-  public async findById(id: TId): Promise<Optional<TModel>> {
-    const entityOrUndefined:
-      | TEntity
-      | undefined = await this.entityManager
+  public async findById(id: TId): Promise<TModel | undefined> {
+    const entity = await this.entityManager
       .getRepository(this.entityType)
       .findOne(id.value);
-    const entityOptional = Optional.of<TEntity>(entityOrUndefined);
-    const modelOptional = entityOptional.map((entity) =>
-      this.objectMapper.map(entity, this.modelType),
-    );
-    return modelOptional;
+    if (entity === undefined) {
+      return undefined;
+    }
+    return this.objectMapper.map(entity, this.modelType);
   }
 
   /**

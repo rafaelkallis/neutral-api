@@ -100,8 +100,10 @@ export class UserApplicationService {
     rawUserId: string,
   ): Promise<{ file: string; contentType: string }> {
     const userId = UserId.from(rawUserId);
-    const userOptional = await this.userRepository.findById(userId);
-    const user = userOptional.orElseThrow(UserNotFoundException);
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
     if (!user.avatar) {
       throw new NotFoundException();
     }
@@ -160,8 +162,10 @@ export class UserApplicationService {
     const payload = this.tokenService.validateEmailChangeToken(token);
     const emailFromPayload = Email.from(payload.curEmail);
     const userIdFromPayload = UserId.from(payload.sub);
-    const userOptional = await this.userRepository.findById(userIdFromPayload);
-    const user = userOptional.orElseThrow(UserNotFoundException);
+    const user = await this.userRepository.findById(userIdFromPayload);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
     if (!user.email.equals(emailFromPayload)) {
       throw new TokenAlreadyUsedException();
     }

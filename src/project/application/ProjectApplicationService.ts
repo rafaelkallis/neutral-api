@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import {
@@ -37,7 +37,6 @@ import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { Optional } from 'shared/domain/Optional';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 
 @Injectable()
@@ -102,9 +101,10 @@ export class ProjectApplicationService {
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
-    return project
-      .map((p) => this.objectMapper.map(p, ProjectDto, { authUser }))
-      .orElseThrow(ProjectNotFoundException);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
@@ -115,8 +115,10 @@ export class ProjectApplicationService {
     query: GetRolesQueryDto,
   ): Promise<RoleDto[]> {
     const projectId = ProjectId.from(query.projectId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     const roles = Array.from(project.roles);
     return roles.map((role) =>
       this.objectMapper.map(role, RoleDto, { project, authUser }),
@@ -171,8 +173,10 @@ export class ProjectApplicationService {
     updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     const title = updateProjectDto.title
       ? ProjectTitle.from(updateProjectDto.title)
@@ -194,8 +198,10 @@ export class ProjectApplicationService {
     rawProjectId: string,
   ): Promise<void> {
     const projectId = ProjectId.from(rawProjectId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     project.delete();
     await this.eventPublisher.publish(...project.getDomainEvents());
@@ -212,8 +218,10 @@ export class ProjectApplicationService {
     rawDescription: string,
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     const title = RoleTitle.from(rawTitle);
     const description = RoleDescription.from(rawDescription);
@@ -235,8 +243,10 @@ export class ProjectApplicationService {
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
     const roleId = RoleId.from(rawRoleId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
     const description = rawDescription
@@ -258,8 +268,10 @@ export class ProjectApplicationService {
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
     const roleId = RoleId.from(rawRoleId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     project.removeRole(roleId);
     await this.projectRepository.persist(project);
@@ -279,17 +291,23 @@ export class ProjectApplicationService {
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
     const roleId = RoleId.from(rawRoleId);
-    const projectOptional = await this.projectRepository.findById(projectId);
-    const project = projectOptional.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     const roleToAssign = project.roles.find(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }
-    let optionalUserToAssign = Optional.empty<User>();
+    let userToAssign: User | undefined = undefined;
     if (rawAssigneeId) {
       const assigneeId = UserId.from(rawAssigneeId);
-      optionalUserToAssign = await this.userRepository.findById(assigneeId);
+      const user = await this.userRepository.findById(assigneeId);
+      if (!user) {
+        throw new UserNotFoundException();
+      }
+      userToAssign = user;
       await this.eventPublisher.publish(
         new ExistingUserAssignedEvent(project, roleToAssign),
       );
@@ -297,25 +315,26 @@ export class ProjectApplicationService {
       const assigneeEmail = Email.from(rawAssigneeEmail);
       const userExists = await this.userRepository.existsByEmail(assigneeEmail);
       if (userExists) {
-        optionalUserToAssign = await this.userRepository.findByEmail(
+        const optionalUser = await this.userRepository.findByEmail(
           assigneeEmail,
         );
+        userToAssign = optionalUser.orElseThrow(UserNotFoundException);
         await this.eventPublisher.publish(
           new ExistingUserAssignedEvent(project, roleToAssign),
         );
       } else {
-        const user = User.createEmpty(assigneeEmail);
-        await this.userRepository.persist(user);
+        userToAssign = User.createEmpty(assigneeEmail);
+        await this.userRepository.persist(userToAssign);
         await this.eventPublisher.publish(
-          ...user.getDomainEvents(),
+          ...userToAssign.getDomainEvents(),
           new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),
         );
-        optionalUserToAssign = Optional.of(user);
       }
     }
-    const userToAssign = optionalUserToAssign.orElseThrow(
-      UserNotFoundException,
-    );
+    if (!userToAssign) {
+      // shouldn't be possible to get here
+      throw new InternalServerErrorException();
+    }
     project.assignUserToRole(userToAssign, roleToAssign);
     await this.projectRepository.persist(project);
     await this.eventPublisher.publish(...project.getDomainEvents());
@@ -330,8 +349,10 @@ export class ProjectApplicationService {
     rawProjectId: string,
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
-    const optionalProject = await this.projectRepository.findById(projectId);
-    const project = optionalProject.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     project.finishFormation();
     await this.eventPublisher.publish(...project.getDomainEvents());
@@ -348,8 +369,10 @@ export class ProjectApplicationService {
     dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
-    const optionalProject = await this.projectRepository.findById(projectId);
-    const project = optionalProject.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     if (!project.roles.anyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
@@ -379,8 +402,10 @@ export class ProjectApplicationService {
     rawProjectId: string,
   ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
-    const optionalProject = await this.projectRepository.findById(projectId);
-    const project = optionalProject.orElseThrow(ProjectNotFoundException);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
     project.assertCreator(authUser);
     project.submitManagerReview();
     await this.eventPublisher.publish(...project.getDomainEvents());

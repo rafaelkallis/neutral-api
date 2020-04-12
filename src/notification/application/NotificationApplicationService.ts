@@ -49,12 +49,12 @@ export class NotificationApplicationService {
     rawNotificationId: string,
   ): Promise<NotificationDto> {
     const notificationId = NotificationId.from(rawNotificationId);
-    const optionalNotification = await this.notificationRepository.findById(
+    const notification = await this.notificationRepository.findById(
       notificationId,
     );
-    const notification = optionalNotification.orElseThrow(
-      NotificationNotFoundException,
-    );
+    if (!notification) {
+      throw new NotificationNotFoundException();
+    }
     notification.assertOwner(authUser);
     notification.markRead();
     await this.notificationRepository.persist(notification);

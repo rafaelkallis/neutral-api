@@ -105,10 +105,10 @@ describe('user (e2e)', () => {
       expect(response.body).toBeDefined();
       expect(response.body.avatarUrl).toBeNull();
 
-      const updatedUserOptional = await scenario.userRepository.findById(
-        user.id,
-      );
-      const updatedUser = updatedUserOptional.orElseThrow(TypeError);
+      const updatedUser = await scenario.userRepository.findById(user.id);
+      if (!updatedUser) {
+        throw new Error();
+      }
       expect(updatedUser.avatar).toBeNull();
       expect(scenario.objectStorage.delete).toHaveBeenCalledWith(
         expect.objectContaining({

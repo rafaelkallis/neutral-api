@@ -52,10 +52,10 @@ describe('auth (e2e)', () => {
         refreshToken: expect.any(String),
         user: expect.objectContaining({ id: user.id.value }),
       });
-      const optionalUpdatedUser = await scenario.userRepository.findById(
-        user.id,
-      );
-      const updatedUser = optionalUpdatedUser.orElseThrow(Error);
+      const updatedUser = await scenario.userRepository.findById(user.id);
+      if (!updatedUser) {
+        fail();
+      }
       expect(user.lastLoginAt.value).toBeLessThan(
         updatedUser.lastLoginAt.value,
       );

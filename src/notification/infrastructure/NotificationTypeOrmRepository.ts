@@ -34,7 +34,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     return this.typeOrmRepository.findPage(afterId);
   }
 
-  public findById(id: NotificationId): Promise<Optional<Notification>> {
+  public findById(id: NotificationId): Promise<Notification | undefined> {
     return this.typeOrmRepository.findById(id);
   }
 

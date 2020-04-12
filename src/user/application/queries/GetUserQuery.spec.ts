@@ -6,7 +6,6 @@ import { User } from 'user/domain/User';
 import { UserDto } from '../dto/UserDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { GetUserQueryHandler, GetUserQuery } from './GetUserQuery';
-import { Optional } from 'shared/domain/Optional';
 
 describe(GetUsersQuery.name, () => {
   let query: GetUserQuery;
@@ -27,7 +26,7 @@ describe(GetUsersQuery.name, () => {
     userDto = td.object();
     query = new GetUserQuery(authUser, userId.value);
     queryHandler = new GetUserQueryHandler(userRepository, objectMapper);
-    td.when(userRepository.findById(userId)).thenResolve(Optional.of(user));
+    td.when(userRepository.findById(userId)).thenResolve(user);
     td.when(objectMapper.map(user, UserDto, { authUser })).thenReturn(userDto);
   });
 
