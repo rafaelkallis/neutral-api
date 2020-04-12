@@ -17,15 +17,21 @@ import {
 } from '@nestjs/swagger';
 
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
-import { AuthService } from 'auth/application/AuthApplicationService';
 
-import { RefreshDto } from 'auth/application/dto/RefreshDto';
+import { RefreshRequestDto } from 'auth/application/dto/RefreshRequestDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
+import { Mediator } from 'shared/mediator/Mediator';
+import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
+import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
+import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
+import { SubmitSignupCommand } from 'auth/application/commands/SubmitSignup';
+import { RefreshCommand } from 'auth/application/commands/Refresh';
+import { LogoutCommand } from 'auth/application/commands/Logout';
 
 /**
  * Authentication Controller
@@ -33,10 +39,10 @@ import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  private readonly authService: AuthService;
+  private readonly mediator: Mediator;
 
-  public constructor(authService: AuthService) {
-    this.authService = authService;
+  public constructor(mediator: Mediator) {
+    this.mediator = mediator;
   }
 
   /**
@@ -50,9 +56,9 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'Magic login email sent' })
   @ApiNotFoundResponse({ description: 'User not found' })
   public async requestLogin(
-    @Body(ValidationPipe) dto: RequestLoginDto,
+    @Body(ValidationPipe) requestLoginDto: RequestLoginDto,
   ): Promise<void> {
-    return this.authService.requestLogin(dto);
+    return this.mediator.send(new RequestLoginCommand(requestLoginDto.email));
   }
 
   /**
@@ -78,7 +84,7 @@ export class AuthController {
     @Param('token') loginToken: string,
     @Session() session: SessionState,
   ): Promise<AuthenticationResponseDto> {
-    return this.authService.submitLogin(loginToken, session);
+    return this.mediator.send(new SubmitLoginCommand(loginToken, session));
   }
 
   /**
@@ -95,9 +101,9 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'Magic signup email sent' })
   @ApiBadRequestResponse({ description: 'Email already used' })
   public async requestSignup(
-    @Body(ValidationPipe) dto: RequestSignupDto,
+    @Body(ValidationPipe) requestSignupDto: RequestSignupDto,
   ): Promise<void> {
-    return this.authService.requestSignup(dto);
+    return this.mediator.send(new RequestSignupCommand(requestSignupDto.email));
   }
 
   /**
@@ -119,10 +125,17 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Invalid token' })
   public async submitSignup(
     @Param('token') signupToken: string,
-    @Body(ValidationPipe) dto: SubmitSignupDto,
+    @Body(ValidationPipe) submitSignupDto: SubmitSignupDto,
     @Session() session: SessionState,
   ): Promise<AuthenticationResponseDto> {
-    return this.authService.submitSignup(signupToken, dto, session);
+    return this.mediator.send(
+      new SubmitSignupCommand(
+        signupToken,
+        session,
+        submitSignupDto.firstName,
+        submitSignupDto.lastName,
+      ),
+    );
   }
 
   /**
@@ -139,8 +152,12 @@ export class AuthController {
     type: RefreshResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Invalid refresh token' })
-  public refresh(@Body(ValidationPipe) dto: RefreshDto): RefreshResponseDto {
-    return this.authService.refresh(dto);
+  public refresh(
+    @Body(ValidationPipe) refreshRequestDto: RefreshRequestDto,
+  ): Promise<RefreshResponseDto> {
+    return this.mediator.send(
+      new RefreshCommand(refreshRequestDto.refreshToken),
+    );
   }
 
   /**
@@ -151,6 +168,6 @@ export class AuthController {
   @ApiOperation({ operationId: 'logout', summary: 'Logout' })
   @ApiNoContentResponse({ description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {
-    return this.authService.logout(session);
+    return this.mediator.send(new LogoutCommand(session));
   }
 }

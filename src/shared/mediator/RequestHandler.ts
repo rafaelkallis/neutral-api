@@ -52,7 +52,7 @@ export function RequestHandler<T, TRequest extends Request<T>>(
     Reflect.defineMetadata(
       REQUEST_HANDLER_METADATA,
       metadata,
-      requestHandlerType.constructor,
+      requestHandlerType,
     );
     Injectable(scopeOptions)(requestHandlerType);
   };
