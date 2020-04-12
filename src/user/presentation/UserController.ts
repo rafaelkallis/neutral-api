@@ -35,6 +35,8 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
 import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvatarDto';
+import { Mediator } from 'shared/mediator/Mediator';
+import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
 
 /**
  * User Controller
@@ -43,9 +45,14 @@ import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvat
 @ApiTags('Users')
 export class UserController {
   private readonly userApplication: UserApplicationService;
+  private readonly mediator: Mediator;
 
-  public constructor(userApplication: UserApplicationService) {
+  public constructor(
+    userApplication: UserApplicationService,
+    mediator: Mediator,
+  ) {
     this.userApplication = userApplication;
+    this.mediator = mediator;
   }
 
   /**
@@ -60,7 +67,9 @@ export class UserController {
     @AuthUser() authUser: User,
     @Query(ValidationPipe) query: GetUsersQueryDto,
   ): Promise<UserDto[]> {
-    return this.userApplication.getUsers(authUser, query);
+    return this.mediator.send(
+      new GetUsersQuery(authUser, query.after, query.q),
+    );
   }
 
   /**

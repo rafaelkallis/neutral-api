@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
-import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
@@ -46,27 +45,6 @@ export class UserApplicationService {
     this.tokenService = tokenManager;
     this.config = config;
     this.objectStorage = objectStorage;
-  }
-
-  /**
-   * Get users
-   */
-  public async getUsers(
-    authUser: User,
-    query: GetUsersQueryDto,
-  ): Promise<UserDto[]> {
-    let users: User[] = [];
-    if (query.q) {
-      users = await this.userRepository.findByName(query.q);
-    } else if (query.after) {
-      const afterId = UserId.from(query.after);
-      users = await this.userRepository.findPage(afterId);
-    } else {
-      users = await this.userRepository.findPage();
-    }
-    return users.map((user) =>
-      this.modelMapper.map(user, UserDto, { authUser }),
-    );
   }
 
   /**

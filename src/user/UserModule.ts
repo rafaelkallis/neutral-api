@@ -11,6 +11,7 @@ import { MulterConfigService } from 'shared/application/MulterConfigService';
 import { UserDtoMap } from 'user/application/UserDtoMap';
 import { SharedModule } from 'shared/SharedModule';
 import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository';
+import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
 
 /**
  * User Module
@@ -27,6 +28,7 @@ import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository
     UserTypeOrmEntityMap,
     ReverseUserTypeOrmEntityMap,
     { provide: UserRepository, useClass: TypeOrmUserRepository },
+    GetUsersQueryHandler,
   ],
   exports: [UserRepository],
 })

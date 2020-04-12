@@ -1,10 +1,8 @@
 import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
-import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
-import { Name } from 'user/domain/value-objects/Name';
 import { Config } from 'shared/config/application/Config';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { TokenManager } from 'shared/token/application/TokenManager';
@@ -58,40 +56,6 @@ describe(UserApplicationService.name, () => {
 
   it('should be defined', () => {
     expect(userApplicationService).toBeDefined();
-  });
-
-  describe('get users', () => {
-    let query: GetUsersQueryDto;
-    let users: User[];
-
-    beforeEach(async () => {
-      query = new GetUsersQueryDto();
-      users = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
-      for (const user of users) {
-        user.name = Name.from(user.name.first + 'ann', user.name.last);
-      }
-      await userRepository.persist(...users);
-
-      jest.spyOn(userRepository, 'findPage');
-      jest.spyOn(userRepository, 'findByName');
-    });
-
-    test('happy path', async () => {
-      const userDtos = await userApplicationService.getUsers(user, query);
-      for (const userDto of userDtos) {
-        expect(userDto).toEqual(mockUserDto);
-      }
-      expect(userRepository.findPage).toHaveBeenCalled();
-    });
-
-    test('happy path, text search', async () => {
-      query = new GetUsersQueryDto(undefined, 'ann');
-      const userDtos = await userApplicationService.getUsers(user, query);
-      for (const userDto of userDtos) {
-        expect(userDto).toEqual(mockUserDto);
-      }
-      expect(userRepository.findByName).toHaveBeenCalled();
-    });
   });
 
   describe('get user', () => {
