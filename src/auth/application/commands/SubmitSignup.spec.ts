@@ -35,10 +35,10 @@ describe(SubmitSignupCommand.name, () => {
   let command: SubmitSignupCommand;
 
   beforeEach(async () => {
-    userRepository = td.object<UserRepository>();
-    tokenManager = td.object<TokenManager>();
-    objectMapper = td.object<ObjectMapper>();
-    eventPublisher = td.object<EventPublisher>();
+    userRepository = td.object();
+    tokenManager = td.object();
+    objectMapper = td.object();
+    eventPublisher = td.object();
     commandHandler = new SubmitSignupCommandHandler(
       userRepository,
       tokenManager,
@@ -47,7 +47,7 @@ describe(SubmitSignupCommand.name, () => {
     );
     const primitiveFaker = new PrimitiveFaker();
     signupToken = primitiveFaker.id();
-    session = td.object<SessionState>();
+    session = td.object();
     email = primitiveFaker.email();
     firstName = primitiveFaker.word();
     lastName = primitiveFaker.word();

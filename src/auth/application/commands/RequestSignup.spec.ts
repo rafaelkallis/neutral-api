@@ -1,7 +1,6 @@
 import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 import {
   RequestSignupCommand,
   RequestSignupCommandHandler,
@@ -10,6 +9,7 @@ import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { Config } from 'shared/config/application/Config';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe(RequestSignupCommand.name, () => {
   let userRepository: UserRepository;
@@ -22,10 +22,10 @@ describe(RequestSignupCommand.name, () => {
   let command: RequestSignupCommand;
 
   beforeEach(async () => {
-    userRepository = new FakeUserRepository();
-    tokenManager = td.object<TokenManager>();
-    config = td.object<Config>();
-    eventPublisher = td.object<EventPublisher>();
+    userRepository = td.object();
+    tokenManager = td.object();
+    config = td.object();
+    eventPublisher = td.object();
     commandHandler = new RequestSignupCommandHandler(
       userRepository,
       tokenManager,
@@ -34,6 +34,7 @@ describe(RequestSignupCommand.name, () => {
     );
     const primitiveFaker = new PrimitiveFaker();
     email = primitiveFaker.email();
+    td.when(userRepository.existsByEmail(Email.from(email))).thenResolve(false);
     td.when(tokenManager.newSignupToken(email)).thenReturn(signupToken);
     td.when(config.get('FRONTEND_URL')).thenReturn('https://example.com');
     command = new RequestSignupCommand(email);

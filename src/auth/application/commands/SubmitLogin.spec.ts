@@ -1,7 +1,6 @@
 import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
 import { SubmitLoginCommand, SubmitLoginCommandHandler } from './SubmitLogin';
@@ -12,6 +11,7 @@ import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserDto } from 'user/application/dto/UserDto';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
+import { Optional } from 'shared/domain/Optional';
 
 describe(SubmitLoginCommand.name, () => {
   let userRepository: UserRepository;
@@ -29,10 +29,10 @@ describe(SubmitLoginCommand.name, () => {
   let command: SubmitLoginCommand;
 
   beforeEach(async () => {
-    userRepository = new FakeUserRepository();
-    tokenManager = td.object<TokenManager>();
-    objectMapper = td.object<ObjectMapper>();
-    eventPublisher = td.object<EventPublisher>();
+    userRepository = td.object();
+    tokenManager = td.object();
+    objectMapper = td.object();
+    eventPublisher = td.object();
     commandHandler = new SubmitLoginCommandHandler(
       userRepository,
       tokenManager,
@@ -44,12 +44,13 @@ describe(SubmitLoginCommand.name, () => {
     await userRepository.persist(user);
     const primitiveFaker = new PrimitiveFaker();
     loginToken = primitiveFaker.id();
-    session = td.object<SessionState>();
+    session = td.object();
     command = new SubmitLoginCommand(loginToken, session);
     td.when(tokenManager.validateLoginToken(loginToken)).thenReturn({
       sub: user.id.value,
       lastLoginAt: user.lastLoginAt.value,
     });
+    td.when(userRepository.findById(user.id)).thenResolve(Optional.of(user));
     sessionToken = primitiveFaker.id();
     td.when(tokenManager.newSessionToken(user.id.value)).thenReturn(
       sessionToken,
@@ -76,6 +77,7 @@ describe(SubmitLoginCommand.name, () => {
     expect(result.accessToken).toBe(accessToken);
     expect(result.refreshToken).toBe(refreshToken);
     expect(result.user).toBe(userDto);
+    td.verify(userRepository.persist(user));
     td.verify(session.set(sessionToken));
     td.verify(eventPublisher.publish(td.matchers.isA(LoginEvent)));
   });
