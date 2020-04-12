@@ -6,6 +6,7 @@ import {
   Post,
   Session,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -32,6 +33,7 @@ import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
 import { SubmitSignupCommand } from 'auth/application/commands/SubmitSignup';
 import { RefreshCommand } from 'auth/application/commands/Refresh';
 import { LogoutCommand } from 'auth/application/commands/Logout';
+import { AuthGuard } from 'auth/application/guards/AuthGuard';
 
 /**
  * Authentication Controller
@@ -165,6 +167,7 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard)
   @ApiOperation({ operationId: 'logout', summary: 'Logout' })
   @ApiNoContentResponse({ description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {

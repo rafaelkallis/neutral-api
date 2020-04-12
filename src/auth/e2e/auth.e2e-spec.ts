@@ -1,6 +1,7 @@
 import { TestScenario } from 'test/TestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe('auth (e2e)', () => {
   let scenario: TestScenario;
@@ -18,7 +19,7 @@ describe('auth (e2e)', () => {
   describe('/auth/login (POST)', () => {
     beforeEach(() => {
       jest.spyOn(scenario.tokenManager, 'newLoginToken');
-      jest.spyOn(scenario.emailManager, 'sendLoginEmail').mockResolvedValue();
+      jest.spyOn(scenario.emailManager, 'sendLoginEmail');
     });
 
     test('happy path', async () => {
@@ -26,10 +27,6 @@ describe('auth (e2e)', () => {
         .post('/auth/login')
         .send({ email: user.email.value });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
-      expect(scenario.tokenManager.newLoginToken).toHaveBeenCalledWith(
-        user.id,
-        user.lastLoginAt,
-      );
       expect(scenario.emailManager.sendLoginEmail).toHaveBeenCalledWith(
         user.email.value,
         expect.any(String),
@@ -45,8 +42,6 @@ describe('auth (e2e)', () => {
         user.id,
         user.lastLoginAt,
       );
-      jest.spyOn(scenario.tokenManager, 'newAccessToken');
-      jest.spyOn(scenario.tokenManager, 'newRefreshToken');
     });
 
     test('happy path', async () => {
@@ -55,14 +50,8 @@ describe('auth (e2e)', () => {
       expect(response.body).toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
-        user: expect.any(Object),
+        user: expect.objectContaining({ id: user.id.value }),
       });
-      expect(scenario.tokenManager.newAccessToken).toHaveBeenCalledWith(
-        user.id.value,
-      );
-      expect(scenario.tokenManager.newRefreshToken).toHaveBeenCalledWith(
-        user.id.value,
-      );
       const optionalUpdatedUser = await scenario.userRepository.findById(
         user.id,
       );
@@ -78,7 +67,6 @@ describe('auth (e2e)', () => {
 
     beforeEach(() => {
       email = scenario.primitiveFaker.email();
-      jest.spyOn(scenario.tokenManager, 'newSignupToken');
       jest.spyOn(scenario.emailManager, 'sendSignupEmail');
     });
 
@@ -87,7 +75,6 @@ describe('auth (e2e)', () => {
         .post('/auth/signup')
         .send({ email });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
-      expect(scenario.tokenManager.newSignupToken).toHaveBeenCalledWith(email);
       expect(scenario.emailManager.sendSignupEmail).toHaveBeenCalledWith(
         email,
         expect.any(String),
@@ -98,31 +85,30 @@ describe('auth (e2e)', () => {
   describe('/auth/signup/:token (POST)', () => {
     let email: string;
     let signupToken: string;
+    let firstName: string;
+    let lastName: string;
 
     beforeEach(() => {
       email = scenario.primitiveFaker.email();
       signupToken = scenario.tokenManager.newSignupToken(email);
-      jest.spyOn(scenario.tokenManager, 'newAccessToken');
-      jest.spyOn(scenario.tokenManager, 'newRefreshToken');
-      jest.spyOn(scenario.userRepository, 'persist');
+      firstName = scenario.primitiveFaker.word();
+      lastName = scenario.primitiveFaker.word();
     });
 
     test('happy path', async () => {
       const response = await scenario.session
         .post(`/auth/signup/${signupToken}`)
-        .send({
-          firstName: scenario.primitiveFaker.word(),
-          lastName: scenario.primitiveFaker.word(),
-        });
+        .send({ firstName, lastName });
       expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toEqual({
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
-        user: expect.any(Object),
+        user: expect.objectContaining({ email, firstName, lastName }),
       });
-      expect(scenario.tokenManager.newAccessToken).toHaveBeenCalled();
-      expect(scenario.tokenManager.newRefreshToken).toHaveBeenCalled();
-      expect(scenario.userRepository.persist).toHaveBeenCalled();
+      const optionalCreatedUser = await scenario.userRepository.findByEmail(
+        Email.from(email),
+      );
+      expect(optionalCreatedUser.isPresent()).toBeTruthy();
     });
   });
 
@@ -131,8 +117,6 @@ describe('auth (e2e)', () => {
 
     beforeEach(() => {
       refreshToken = scenario.tokenManager.newRefreshToken(user.id.value);
-      jest.spyOn(scenario.tokenManager, 'newAccessToken');
-      jest.spyOn(scenario.tokenManager, 'newRefreshToken');
     });
 
     test('happy path', async () => {
@@ -141,19 +125,12 @@ describe('auth (e2e)', () => {
         .send({ refreshToken });
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ accessToken: expect.any(String) });
-      expect(scenario.tokenManager.newAccessToken).toHaveBeenCalledWith(
-        user.id.value,
-      );
     });
   });
 
   describe('/auth/logout (POST)', () => {
     beforeEach(async () => {
-      const loginToken = scenario.tokenManager.newLoginToken(
-        user.id,
-        user.lastLoginAt,
-      );
-      await scenario.session.post(`/auth/login/${loginToken}`);
+      await scenario.authenticateUser(user);
     });
 
     test('happy path', async () => {
