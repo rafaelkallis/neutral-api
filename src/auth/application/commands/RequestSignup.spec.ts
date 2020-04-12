@@ -1,18 +1,17 @@
 import td from 'testdouble';
-import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 import {
   RequestSignupCommand,
   RequestSignupCommandHandler,
-} from './RequestSignup';
+} from 'auth/application/commands/RequestSignup';
 import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { Config } from 'shared/config/application/Config';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 
-describe(RequestLoginCommand.name, () => {
+describe(RequestSignupCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
   let config: Config;

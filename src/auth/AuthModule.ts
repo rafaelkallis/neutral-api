@@ -6,6 +6,7 @@ import { SharedModule } from 'shared/SharedModule';
 import { RequestLoginCommandHandler } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommandHandler } from 'auth/application/commands/SubmitLogin';
 import { RequestSignupCommandHandler } from 'auth/application/commands/RequestSignup';
+import { SubmitSignupCommandHandler } from 'auth/application/commands/SubmitSignup';
 
 /**
  * Auth Module
@@ -18,6 +19,7 @@ import { RequestSignupCommandHandler } from 'auth/application/commands/RequestSi
     RequestLoginCommandHandler,
     SubmitLoginCommandHandler,
     RequestSignupCommandHandler,
+    SubmitSignupCommandHandler,
   ],
 })
 export class AuthModule {}

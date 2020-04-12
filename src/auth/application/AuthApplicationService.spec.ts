@@ -1,96 +1,25 @@
 import { AuthService } from 'auth/application/AuthApplicationService';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
-import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
 import { MockSessionState } from 'shared/session';
 import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
-import { SignupEvent } from 'auth/application/events/SignupEvent';
-import { Email } from 'user/domain/value-objects/Email';
-import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
-import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { Mock } from 'test/Mock';
-import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { FakeUserRepository } from 'user/infrastructure/FakeUserRepository';
 
 describe('auth application service', () => {
   let modelFaker: ModelFaker;
-  let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
-  let eventPublisher: FakeEventPublisherService;
-  let userRepository: UserRepository;
   let tokenService: FakeTokenManagerService;
-  let objectMapper: ObjectMapper;
-  let mockUserDto: object;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
-    primitiveFaker = new PrimitiveFaker();
-    eventPublisher = new FakeEventPublisherService();
-    userRepository = new FakeUserRepository();
     tokenService = new FakeTokenManagerService();
-    objectMapper = Mock(ObjectMapper);
 
-    authService = new AuthService(
-      eventPublisher,
-      userRepository,
-      tokenService,
-      objectMapper,
-    );
-
-    mockUserDto = {};
-    jest.spyOn(objectMapper, 'map').mockReturnValue(mockUserDto);
+    authService = new AuthService(tokenService);
   });
 
   it('should be defined', () => {
     expect(authService).toBeDefined();
-  });
-
-  describe('submit magic signup', () => {
-    let email: string;
-    let firstName: string;
-    let lastName: string;
-    let signupToken: string;
-    let submitSignupDto: SubmitSignupDto;
-    let session: SessionState;
-
-    beforeEach(async () => {
-      email = primitiveFaker.email();
-      firstName = primitiveFaker.word();
-      lastName = primitiveFaker.word();
-      signupToken = tokenService.newSignupToken(email);
-      submitSignupDto = new SubmitSignupDto(firstName, lastName);
-      session = new MockSessionState();
-      jest.spyOn(session, 'set');
-      jest.spyOn(userRepository, 'persist');
-    });
-
-    test('happy path', async () => {
-      await expect(
-        authService.submitSignup(signupToken, submitSignupDto, session),
-      ).resolves.toEqual({
-        accessToken: expect.any(String),
-        refreshToken: expect.any(String),
-        user: mockUserDto,
-      });
-      expect(session.set).toHaveBeenCalled();
-      // TODO better persist() assertion
-      expect(userRepository.persist).toHaveBeenCalled();
-      expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(SignupEvent),
-      );
-    });
-
-    test('email already used', async () => {
-      const user = modelFaker.user();
-      user.email = Email.from(email);
-      await userRepository.persist(user);
-      await expect(
-        authService.submitSignup(signupToken, submitSignupDto, session),
-      ).rejects.toThrow();
-    });
   });
 
   describe('refresh', () => {

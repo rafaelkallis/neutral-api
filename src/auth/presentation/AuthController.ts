@@ -30,6 +30,7 @@ import { Mediator } from 'shared/mediator/Mediator';
 import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
 import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
+import { SubmitSignupCommand } from 'auth/application/commands/SubmitSignup';
 
 /**
  * Authentication Controller
@@ -125,10 +126,17 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Invalid token' })
   public async submitSignup(
     @Param('token') signupToken: string,
-    @Body(ValidationPipe) dto: SubmitSignupDto,
+    @Body(ValidationPipe) submitSignupDto: SubmitSignupDto,
     @Session() session: SessionState,
   ): Promise<AuthenticationResponseDto> {
-    return this.authService.submitSignup(signupToken, dto, session);
+    return this.mediator.send(
+      new SubmitSignupCommand(
+        signupToken,
+        session,
+        submitSignupDto.firstName,
+        submitSignupDto.lastName,
+      ),
+    );
   }
 
   /**
