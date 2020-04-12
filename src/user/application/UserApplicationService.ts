@@ -48,17 +48,6 @@ export class UserApplicationService {
   }
 
   /**
-   * Get the user with the given id
-   */
-  public async getUser(authUser: User, rawId: string): Promise<UserDto> {
-    const id = UserId.from(rawId);
-    const user = await this.userRepository.findById(id);
-    return user
-      .map((u) => this.modelMapper.map(u, UserDto, { authUser }))
-      .orElseThrow(UserNotFoundException);
-  }
-
-  /**
    * Get the authenticated user
    */
   public async getAuthUser(authUser: User): Promise<UserDto> {

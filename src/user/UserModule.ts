@@ -12,6 +12,7 @@ import { UserDtoMap } from 'user/application/UserDtoMap';
 import { SharedModule } from 'shared/SharedModule';
 import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository';
 import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
+import { GetUserQueryHandler } from 'user/application/queries/GetUserQuery';
 
 /**
  * User Module
@@ -29,6 +30,7 @@ import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
     ReverseUserTypeOrmEntityMap,
     { provide: UserRepository, useClass: TypeOrmUserRepository },
     GetUsersQueryHandler,
+    GetUserQueryHandler,
   ],
   exports: [UserRepository],
 })

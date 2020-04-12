@@ -58,13 +58,6 @@ describe(UserApplicationService.name, () => {
     expect(userApplicationService).toBeDefined();
   });
 
-  describe('get user', () => {
-    test('happy path', async () => {
-      const userDto = await userApplicationService.getUser(user, user.id.value);
-      expect(userDto).toEqual(mockUserDto);
-    });
-  });
-
   describe('get auth user', () => {
     test('happy path', async () => {
       const userDto = await userApplicationService.getAuthUser(user);

@@ -37,6 +37,7 @@ import { User } from 'user/domain/User';
 import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvatarDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
+import { GetUserQuery } from 'user/application/queries/GetUserQuery';
 
 /**
  * User Controller
@@ -100,7 +101,7 @@ export class UserController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<UserDto> {
-    return this.userApplication.getUser(authUser, id);
+    return this.mediator.send(new GetUserQuery(authUser, id));
   }
 
   /**
