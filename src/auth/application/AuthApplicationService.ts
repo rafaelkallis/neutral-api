@@ -8,13 +8,10 @@ import { SessionState } from 'shared/session/session-state';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
-import { LoginEvent } from 'auth/application/events/LoginEvent';
 import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
-import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
-import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import {
   EventPublisher,
   InjectEventPublisher,
@@ -22,8 +19,6 @@ import {
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
-import { UserId } from 'user/domain/value-objects/UserId';
-import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { RequestSignupDto } from './dto/RequestSignupDto';
 
 @Injectable()
@@ -46,37 +41,6 @@ export class AuthService {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.modelMapper = modelMapper;
-  }
-
-  /**
-   * Passwordless login token submit
-   *
-   * The token sent in the magic link is submitted here.
-   * An access token is assigned to the session, and both the access
-   * and refresh token are sent back in the response body.
-   */
-  public async submitLogin(
-    loginToken: string,
-    session: SessionState,
-  ): Promise<AuthenticationResponseDto> {
-    const payload = this.tokenService.validateLoginToken(loginToken);
-    const userId = UserId.from(payload.sub);
-    const optionalUser = await this.userRepository.findById(userId);
-    const user = optionalUser.orElseThrow(UserNotFoundException);
-    if (!user.lastLoginAt.equals(LastLoginAt.from(payload.lastLoginAt))) {
-      throw new TokenAlreadyUsedException();
-    }
-
-    user.lastLoginAt = LastLoginAt.now();
-    await this.eventPublisher.publish(new LoginEvent(user));
-    await this.userRepository.persist(user);
-
-    const sessionToken = this.tokenService.newSessionToken(user.id.value);
-    session.set(sessionToken);
-    const accessToken = this.tokenService.newAccessToken(user.id.value);
-    const refreshToken = this.tokenService.newRefreshToken(user.id.value);
-    const userDto = this.modelMapper.map(user, UserDto, { authUser: user });
-    return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
   }
 
   /**

@@ -28,6 +28,7 @@ import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationRe
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
+import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
 
 /**
  * Authentication Controller
@@ -82,7 +83,7 @@ export class AuthController {
     @Param('token') loginToken: string,
     @Session() session: SessionState,
   ): Promise<AuthenticationResponseDto> {
-    return this.authService.submitLogin(loginToken, session);
+    return this.mediator.send(new SubmitLoginCommand(loginToken, session));
   }
 
   /**

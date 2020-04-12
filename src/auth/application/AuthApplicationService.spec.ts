@@ -7,7 +7,6 @@ import { MockSessionState } from 'shared/session';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
-import { LoginEvent } from 'auth/application/events/LoginEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
@@ -53,35 +52,6 @@ describe('auth application service', () => {
 
   it('should be defined', () => {
     expect(authService).toBeDefined();
-  });
-
-  describe('submit magic login', () => {
-    let user: User;
-    let loginToken: string;
-    let session: SessionState;
-
-    beforeEach(async () => {
-      user = modelFaker.user();
-      await userRepository.persist(user);
-      loginToken = tokenService.newLoginToken(user.id, user.lastLoginAt);
-      session = new MockSessionState();
-      jest.spyOn(session, 'set');
-      jest.spyOn(userRepository, 'persist');
-    });
-
-    test('happy path', async () => {
-      await expect(
-        authService.submitLogin(loginToken, session),
-      ).resolves.toEqual({
-        accessToken: expect.any(String),
-        refreshToken: expect.any(String),
-        user: expect.any(Object),
-      });
-      expect(session.set).toHaveBeenCalled();
-      expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(LoginEvent),
-      );
-    });
   });
 
   describe('request magic signup', () => {
