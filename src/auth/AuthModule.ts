@@ -7,6 +7,7 @@ import { RequestLoginCommandHandler } from 'auth/application/commands/RequestLog
 import { SubmitLoginCommandHandler } from 'auth/application/commands/SubmitLogin';
 import { RequestSignupCommandHandler } from 'auth/application/commands/RequestSignup';
 import { SubmitSignupCommandHandler } from 'auth/application/commands/SubmitSignup';
+import { RefreshCommandHandler } from 'auth/application/commands/Refresh';
 
 /**
  * Auth Module
@@ -20,6 +21,7 @@ import { SubmitSignupCommandHandler } from 'auth/application/commands/SubmitSign
     SubmitLoginCommandHandler,
     RequestSignupCommandHandler,
     SubmitSignupCommandHandler,
+    RefreshCommandHandler,
   ],
 })
 export class AuthModule {}

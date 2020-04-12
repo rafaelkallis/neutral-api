@@ -19,7 +19,7 @@ import {
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthService } from 'auth/application/AuthApplicationService';
 
-import { RefreshDto } from 'auth/application/dto/RefreshDto';
+import { RefreshRequestDto } from 'auth/application/dto/RefreshRequestDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
@@ -31,6 +31,7 @@ import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
 import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
 import { SubmitSignupCommand } from 'auth/application/commands/SubmitSignup';
+import { RefreshCommand } from 'auth/application/commands/Refresh';
 
 /**
  * Authentication Controller
@@ -153,8 +154,12 @@ export class AuthController {
     type: RefreshResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Invalid refresh token' })
-  public refresh(@Body(ValidationPipe) dto: RefreshDto): RefreshResponseDto {
-    return this.authService.refresh(dto);
+  public refresh(
+    @Body(ValidationPipe) refreshRequestDto: RefreshRequestDto,
+  ): Promise<RefreshResponseDto> {
+    return this.mediator.send(
+      new RefreshCommand(refreshRequestDto.refreshToken),
+    );
   }
 
   /**
