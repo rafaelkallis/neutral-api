@@ -3,10 +3,8 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { Config } from 'shared/config/application/Config';
 import { SessionState } from 'shared/session/session-state';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { UserDto } from 'user/application/dto/UserDto';
 import { Email } from 'user/domain/value-objects/Email';
@@ -19,48 +17,24 @@ import {
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
-import { RequestSignupDto } from './dto/RequestSignupDto';
 
 @Injectable()
 export class AuthService {
-  private readonly config: Config;
   private readonly eventPublisher: EventPublisher;
   private readonly userRepository: UserRepository;
   private readonly tokenService: TokenManager;
   private readonly modelMapper: ObjectMapper;
 
   public constructor(
-    config: Config,
     @InjectEventPublisher() eventPublisher: EventPublisher,
     userRepository: UserRepository,
     tokenService: TokenManager,
     modelMapper: ObjectMapper,
   ) {
-    this.config = config;
     this.eventPublisher = eventPublisher;
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.modelMapper = modelMapper;
-  }
-
-  /**
-   * Passwordless signup
-   *
-   * A magic link is sent to the given email address
-   */
-  public async requestSignup(dto: RequestSignupDto): Promise<void> {
-    const email = Email.from(dto.email);
-    const userExists = await this.userRepository.existsByEmail(email);
-    if (userExists) {
-      throw new EmailAlreadyUsedException();
-    }
-    const signupToken = this.tokenService.newSignupToken(email.value);
-    const magicSignupLink = `${this.config.get(
-      'FRONTEND_URL',
-    )}/signup/callback?token=${encodeURIComponent(signupToken)}`;
-    await this.eventPublisher.publish(
-      new SignupRequestedEvent(email, magicSignupLink),
-    );
   }
 
   /**

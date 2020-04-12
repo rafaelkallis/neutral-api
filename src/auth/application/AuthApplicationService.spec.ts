@@ -1,12 +1,9 @@
 import { AuthService } from 'auth/application/AuthApplicationService';
 import { RefreshDto } from 'auth/application/dto/RefreshDto';
-import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
 import { SubmitSignupDto } from 'auth/application/dto/SubmitSignupDto';
 import { SessionState } from 'shared/session/session-state';
 import { MockSessionState } from 'shared/session';
-import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { FakeTokenManagerService } from 'shared/token/infrastructure/FakeTokenManagerService';
-import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { SignupEvent } from 'auth/application/events/SignupEvent';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
@@ -22,7 +19,6 @@ describe('auth application service', () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let authService: AuthService;
-  let config: MockConfig;
   let eventPublisher: FakeEventPublisherService;
   let userRepository: UserRepository;
   let tokenService: FakeTokenManagerService;
@@ -32,14 +28,12 @@ describe('auth application service', () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
     primitiveFaker = new PrimitiveFaker();
-    config = new MockConfig();
     eventPublisher = new FakeEventPublisherService();
     userRepository = new FakeUserRepository();
     tokenService = new FakeTokenManagerService();
     objectMapper = Mock(ObjectMapper);
 
     authService = new AuthService(
-      config,
       eventPublisher,
       userRepository,
       tokenService,
@@ -52,21 +46,6 @@ describe('auth application service', () => {
 
   it('should be defined', () => {
     expect(authService).toBeDefined();
-  });
-
-  describe('request magic signup', () => {
-    beforeEach(() => {
-      jest.spyOn(userRepository, 'exists');
-    });
-
-    test('happy path', async () => {
-      const email = primitiveFaker.email();
-      const dto = new RequestSignupDto(email);
-      await authService.requestSignup(dto);
-      expect(eventPublisher.getPublishedEvents()).toContainEqual(
-        expect.any(SignupRequestedEvent),
-      );
-    });
   });
 
   describe('submit magic signup', () => {

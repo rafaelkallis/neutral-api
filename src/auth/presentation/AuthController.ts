@@ -29,6 +29,7 @@ import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
+import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
 
 /**
  * Authentication Controller
@@ -100,9 +101,9 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'Magic signup email sent' })
   @ApiBadRequestResponse({ description: 'Email already used' })
   public async requestSignup(
-    @Body(ValidationPipe) dto: RequestSignupDto,
+    @Body(ValidationPipe) requestSignupDto: RequestSignupDto,
   ): Promise<void> {
-    return this.authService.requestSignup(dto);
+    return this.mediator.send(new RequestSignupCommand(requestSignupDto.email));
   }
 
   /**
