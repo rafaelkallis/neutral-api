@@ -35,7 +35,7 @@ export class TypeOrmUserRepository implements UserRepository {
     return this.typeOrmRepository.findById(id);
   }
 
-  public async findByIds(ids: UserId[]): Promise<Optional<User>[]> {
+  public async findByIds(ids: UserId[]): Promise<(User | undefined)[]> {
     return this.typeOrmRepository.findByIds(ids);
   }
 

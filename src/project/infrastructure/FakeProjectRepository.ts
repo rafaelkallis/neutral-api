@@ -21,7 +21,7 @@ export class FakeProjectRepository implements ProjectRepository {
     return this.fakeRepository.findById(id);
   }
 
-  public async findByIds(ids: ProjectId[]): Promise<Optional<Project>[]> {
+  public async findByIds(ids: ProjectId[]): Promise<(Project | undefined)[]> {
     return this.fakeRepository.findByIds(ids);
   }
 

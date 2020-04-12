@@ -23,7 +23,7 @@ export class MemoryUserRepository implements UserRepository {
     return this.memoryRepository.findById(id);
   }
 
-  public async findByIds(ids: UserId[]): Promise<Optional<User>[]> {
+  public async findByIds(ids: UserId[]): Promise<(User | undefined)[]> {
     return this.memoryRepository.findByIds(ids);
   }
 

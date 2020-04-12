@@ -5,7 +5,6 @@ import { Repository } from 'shared/domain/Repository';
 import { Type } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { Optional } from 'shared/domain/Optional';
 
 export class TypeOrmRepository<
   TId extends Id,
@@ -71,18 +70,12 @@ export class TypeOrmRepository<
   /**
    *
    */
-  public async findByIds(ids: TId[]): Promise<Optional<TModel>[]> {
+  public async findByIds(ids: TId[]): Promise<(TModel | undefined)[]> {
     const entities = await this.entityManager
       .getRepository(this.entityType)
       .findByIds(ids);
     const models = this.objectMapper.mapArray(entities, this.modelType);
-    if (ids.length === models.length) {
-      return models.map((model) => Optional.of(model));
-    }
-    const modelOptionals = ids
-      .map((id) => models.find((model) => model.id.equals(id)))
-      .map((modelOrUndefined) => Optional.of<TModel>(modelOrUndefined));
-    return modelOptionals;
+    return ids.map((id) => models.find((model) => model.id.equals(id)));
   }
 
   /**

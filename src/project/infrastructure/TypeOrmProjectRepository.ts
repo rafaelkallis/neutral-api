@@ -40,7 +40,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     return this.typeOrmRepository.findById(id);
   }
 
-  public async findByIds(ids: ProjectId[]): Promise<Optional<Project>[]> {
+  public async findByIds(ids: ProjectId[]): Promise<(Project | undefined)[]> {
     return this.typeOrmRepository.findByIds(ids);
   }
 

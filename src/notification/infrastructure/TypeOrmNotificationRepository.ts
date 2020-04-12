@@ -6,7 +6,6 @@ import { NotificationId } from 'notification/domain/value-objects/NotificationId
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Repository } from 'shared/domain/Repository';
-import { Optional } from 'shared/domain/Optional';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -38,7 +37,9 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     return this.typeOrmRepository.findById(id);
   }
 
-  public findByIds(ids: NotificationId[]): Promise<Optional<Notification>[]> {
+  public findByIds(
+    ids: NotificationId[],
+  ): Promise<(Notification | undefined)[]> {
     return this.typeOrmRepository.findByIds(ids);
   }
 

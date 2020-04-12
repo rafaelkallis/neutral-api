@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { NotificationController } from 'notification/presentation/NotificationController';
-import { TypeOrmNotificationRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
+import { TypeOrmNotificationRepository } from 'notification/infrastructure/TypeOrmNotificationRepository';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';

@@ -1,7 +1,6 @@
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
-import { Optional } from 'shared/domain/Optional';
 
 export class FakeRepository<TId extends Id, TModel extends Model<TId>>
   implements Repository<TId, TModel> {
@@ -34,10 +33,8 @@ export class FakeRepository<TId extends Id, TModel extends Model<TId>>
   /**
    *
    */
-  public async findByIds(ids: Id[]): Promise<Optional<TModel>[]> {
-    return Promise.all(
-      ids.map(async (id) => Optional.of(await this.findById(id))),
-    );
+  public async findByIds(ids: Id[]): Promise<(TModel | undefined)[]> {
+    return Promise.all(ids.map((id) => this.findById(id)));
   }
 
   /**

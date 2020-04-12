@@ -1,6 +1,5 @@
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { Optional } from 'shared/domain/Optional';
 
 /**
  * Repository
@@ -19,7 +18,7 @@ export abstract class Repository<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  public abstract findByIds(ids: TId[]): Promise<Optional<TModel>[]>;
+  public abstract findByIds(ids: TId[]): Promise<(TModel | undefined)[]>;
 
   /**
    *

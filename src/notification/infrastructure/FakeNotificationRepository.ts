@@ -3,7 +3,6 @@ import { Notification } from 'notification/domain/Notification';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { FakeRepository } from 'shared/infrastructure/FakeRepository';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { Optional } from 'shared/domain/Optional';
 
 /**
  * Fake Notification Repository
@@ -27,7 +26,7 @@ export class FakeNotificationRepository implements NotificationRepository {
 
   public async findByIds(
     ids: NotificationId[],
-  ): Promise<Optional<Notification>[]> {
+  ): Promise<(Notification | undefined)[]> {
     return this.fakeRepository.findByIds(ids);
   }
 

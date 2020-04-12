@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
-import { TypeOrmProjectRepository } from 'project/infrastructure/ProjectTypeOrmRepository';
+import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
 import { RoleController } from 'project/presentation/RoleController';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
