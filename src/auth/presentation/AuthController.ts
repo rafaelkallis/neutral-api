@@ -17,7 +17,6 @@ import {
 } from '@nestjs/swagger';
 
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
-import { AuthService } from 'auth/application/AuthApplicationService';
 
 import { RefreshRequestDto } from 'auth/application/dto/RefreshRequestDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
@@ -32,6 +31,7 @@ import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
 import { RequestSignupCommand } from 'auth/application/commands/RequestSignup';
 import { SubmitSignupCommand } from 'auth/application/commands/SubmitSignup';
 import { RefreshCommand } from 'auth/application/commands/Refresh';
+import { LogoutCommand } from 'auth/application/commands/Logout';
 
 /**
  * Authentication Controller
@@ -39,11 +39,9 @@ import { RefreshCommand } from 'auth/application/commands/Refresh';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  private readonly authService: AuthService;
   private readonly mediator: Mediator;
 
-  public constructor(authService: AuthService, mediator: Mediator) {
-    this.authService = authService;
+  public constructor(mediator: Mediator) {
     this.mediator = mediator;
   }
 
@@ -170,6 +168,6 @@ export class AuthController {
   @ApiOperation({ operationId: 'logout', summary: 'Logout' })
   @ApiNoContentResponse({ description: 'Logout successful' })
   public async logout(@Session() session: SessionState): Promise<void> {
-    return this.authService.logout(session);
+    return this.mediator.send(new LogoutCommand(session));
   }
 }
