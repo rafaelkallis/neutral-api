@@ -1,13 +1,29 @@
-import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { Observable } from 'rxjs';
+import { InternalServerErrorException } from '@nestjs/common';
 
-export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
-  implements Repository<TId, TModel> {
+export class MemoryRepository<
+  TId extends Id,
+  TModel extends AggregateRoot<TId>
+> extends Repository<TId, TModel> {
   private readonly models: Map<string, TModel>;
 
-  public constructor() {
+  private constructor() {
+    super();
     this.models = new Map();
+  }
+
+  public static create<
+    TId extends Id,
+    TModel extends AggregateRoot<TId>
+  >(): MemoryRepository<TId, TModel> {
+    return new MemoryRepository();
+  }
+
+  public get persisted$(): Observable<TModel> {
+    throw new InternalServerErrorException();
   }
 
   public getModels(): TModel[] {
@@ -47,7 +63,7 @@ export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
   /**
    *
    */
-  public async persist(...models: TModel[]): Promise<void> {
+  protected async doPersist(...models: TModel[]): Promise<void> {
     for (const model of models) {
       this.models.set(model.id.value, model);
     }

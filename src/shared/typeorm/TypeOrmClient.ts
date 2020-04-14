@@ -8,7 +8,6 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
-import { Model } from 'shared/domain/Model';
 import { Repository } from 'shared/domain/Repository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
@@ -42,6 +41,7 @@ import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'shared/typeor
 import { AddProjectIdToPeerReviewMigration1581946721000 } from 'shared/typeorm/migration/1581946721000AddProjectIdToPeerReviewMigration';
 import { AddAvatarToUsersMigration1584023287000 } from 'shared/typeorm/migration/1584023287000AddAvatarToUsers';
 import { TypeOrmRepository } from './TypeOrmRepository';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -97,13 +97,13 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
 
   public createRepository<
     TId extends Id,
-    TModel extends Model<TId>,
+    TModel extends AggregateRoot<TId>,
     TEntity extends TypeOrmEntity
   >(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
   ): Repository<TId, TModel> {
-    return new TypeOrmRepository(
+    return TypeOrmRepository.create(
       modelType,
       entityType,
       this.entityManager,

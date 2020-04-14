@@ -47,7 +47,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     return this.typeOrmRepository.exists(id);
   }
 
-  public persist(...models: Notification[]): Promise<void> {
+  protected doPersist(...models: Notification[]): Promise<void> {
     return this.typeOrmRepository.persist(...models);
   }
 
