@@ -5,10 +5,6 @@ import {
 } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import {
-  EventPublisher,
-  InjectEventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserDto } from 'user/application/dto/UserDto';
 import { SessionState } from 'shared/session';
@@ -18,6 +14,7 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { LoginEvent } from '../events/LoginEvent';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * Passwordless login token submit
@@ -45,19 +42,19 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
-  private readonly eventPublisher: EventPublisher;
+  private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
-    this.eventPublisher = eventPublisher;
+    this.domainEventBroker = domainEventBroker;
   }
 
   public async handle(
@@ -74,7 +71,7 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
       throw new TokenAlreadyUsedException();
     }
     user.lastLoginAt = LastLoginAt.now(); // TODO: use user.login()
-    await this.eventPublisher.publish(new LoginEvent(user));
+    await this.domainEventBroker.publish(new LoginEvent(user));
     await this.userRepository.persist(user);
     const sessionToken = this.tokenManager.newSessionToken(user.id.value);
     command.session.set(sessionToken);

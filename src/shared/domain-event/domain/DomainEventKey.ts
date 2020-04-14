@@ -7,9 +7,7 @@ export function getDomainEventKey(target: Function): string | undefined {
   return Reflect.getMetadata(DOMAIN_EVENT_KEY, target);
 }
 
-export function DomainEventKey<T extends DomainEvent>(
-  key: string,
-): ClassDecorator {
+export function DomainEventKey(key: string): ClassDecorator {
   return (target: Function): void => {
     if (!(target.prototype instanceof DomainEvent)) {
       throw new Error(

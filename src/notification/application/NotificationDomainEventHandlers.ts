@@ -1,15 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Notification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
-import { HandleDomainEvent } from 'shared/event/domain/HandleDomainEvent';
+import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
+import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 
 @Injectable()
-export class NotificationSagasService {
+export class NotificationDomainEventHandlers {
   private readonly notificationRepository: NotificationRepository;
   private readonly notificationFactory: NotificationFactoryService;
 
@@ -21,12 +21,12 @@ export class NotificationSagasService {
     this.notificationFactory = notificationFactory;
   }
 
-  /**
-   *
-   */
-  @HandleDomainEvent(ExistingUserAssignedEvent)
-  public async existingUserAssigned(
-    event: ExistingUserAssignedEvent,
+  @HandleDomainEvent(
+    UserAssignedEvent,
+    'notification.create_new_assignment_notification',
+  )
+  public async onUserAssignedCreateNewAssignmentNotification(
+    event: UserAssignedEvent,
   ): Promise<void> {
     const notification = this.notificationFactory.createNewAssignmentNotification(
       event.project,
@@ -35,11 +35,11 @@ export class NotificationSagasService {
     await this.notificationRepository.persist(notification);
   }
 
-  /**
-   *
-   */
-  @HandleDomainEvent(ProjectPeerReviewStartedEvent)
-  public async peerReviewStarted(
+  @HandleDomainEvent(
+    ProjectPeerReviewStartedEvent,
+    'notification.create_peer_review_requested_notification',
+  )
+  public async onPeerReviewStartedCreatePeerReviewRequestedNotifications(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
     const notifications: Notification[] = [];
@@ -53,11 +53,11 @@ export class NotificationSagasService {
     await this.notificationRepository.persist(...notifications);
   }
 
-  /**
-   *
-   */
-  @HandleDomainEvent(ProjectManagerReviewStartedEvent)
-  public async managerReviewStarted(
+  @HandleDomainEvent(
+    ProjectManagerReviewStartedEvent,
+    'notification.create_manager_review_requested_notification',
+  )
+  public async onManagerReviewStartedCreateManagerReviewRequestedNotification(
     event: ProjectManagerReviewStartedEvent,
   ): Promise<void> {
     const notification = this.notificationFactory.createManagerReviewRequestedNotification(
@@ -66,11 +66,11 @@ export class NotificationSagasService {
     await this.notificationRepository.persist(notification);
   }
 
-  /**
-   *
-   */
-  @HandleDomainEvent(ProjectFinishedEvent)
-  public async handleProjectFinished(
+  @HandleDomainEvent(
+    ProjectFinishedEvent,
+    'notification.create_project_finished_notification',
+  )
+  public async onProjectFinishedCreateProjectFinishedNotification(
     event: ProjectFinishedEvent,
   ): Promise<void> {
     const notifications: Notification[] = [

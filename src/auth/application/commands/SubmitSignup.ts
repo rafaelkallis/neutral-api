@@ -5,10 +5,6 @@ import {
 } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import {
-  EventPublisher,
-  InjectEventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { UserDto } from 'user/application/dto/UserDto';
 import { SessionState } from 'shared/session';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
@@ -18,6 +14,7 @@ import { EmailAlreadyUsedException } from '../exceptions/EmailAlreadyUsedExcepti
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { SignupEvent } from '../events/SignupEvent';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * Passwordless signup token submit
@@ -53,19 +50,19 @@ export class SubmitSignupCommandHandler extends AbstractCommandHandler<
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
-  private readonly eventPublisher: EventPublisher;
+  private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
-    this.eventPublisher = eventPublisher;
+    this.domainEventBroker = domainEventBroker;
   }
 
   public async handle(
@@ -81,7 +78,7 @@ export class SubmitSignupCommandHandler extends AbstractCommandHandler<
     const name = Name.from(command.firstName, command.lastName);
     const user = User.create(email, name);
     await this.userRepository.persist(user);
-    await this.eventPublisher.publish(
+    await this.domainEventBroker.publish(
       new SignupEvent(user),
       ...user.getDomainEvents(),
     );

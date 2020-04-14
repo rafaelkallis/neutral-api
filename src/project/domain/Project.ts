@@ -157,7 +157,7 @@ export class Project extends AggregateRoot<ProjectId> {
     this.state.assertEquals(ProjectState.FORMATION);
     const role = Role.from(this.id, title, description);
     this.roles.add(role);
-    this.apply(new RoleCreatedEvent(this, role));
+    this.apply(new RoleCreatedEvent(this.id, role.id));
     return role;
   }
 
@@ -290,12 +290,12 @@ export class Project extends AggregateRoot<ProjectId> {
 
     if (this.skipManagerReview.shouldSkipManagerReview(this)) {
       this.state = ProjectState.FINISHED;
-      this.apply(new ProjectPeerReviewFinishedEvent(this));
-      this.apply(new ProjectManagerReviewSkippedEvent(this));
+      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
+      this.apply(new ProjectManagerReviewSkippedEvent(this.id));
       this.apply(new ProjectFinishedEvent(this));
     } else {
       this.state = ProjectState.MANAGER_REVIEW;
-      this.apply(new ProjectPeerReviewFinishedEvent(this));
+      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
       this.apply(new ProjectManagerReviewStartedEvent(this));
     }
   }
@@ -306,7 +306,7 @@ export class Project extends AggregateRoot<ProjectId> {
   public submitManagerReview(): void {
     this.state.assertEquals(ProjectState.MANAGER_REVIEW);
     this.state = ProjectState.FINISHED;
-    this.apply(new ProjectManagerReviewFinishedEvent(this));
+    this.apply(new ProjectManagerReviewFinishedEvent(this.id));
     this.apply(new ProjectFinishedEvent(this));
   }
 

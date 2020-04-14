@@ -1,8 +1,8 @@
 import {
   Injectable,
-  OnModuleDestroy,
   OnModuleInit,
   Logger,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { EmailSender, SendEmailOptions } from 'shared/email/sender/EmailSender';
@@ -13,7 +13,7 @@ import { Transporter, createTransport } from 'nodemailer';
  */
 @Injectable()
 export class SmtpEmailSender extends EmailSender
-  implements OnModuleInit, OnModuleDestroy {
+  implements OnModuleInit, OnApplicationShutdown {
   private readonly logger: Logger;
   private readonly transporter: Transporter;
 
@@ -29,7 +29,7 @@ export class SmtpEmailSender extends EmailSender
     this.logger.log('Smtp connected');
   }
 
-  public async onModuleDestroy(): Promise<void> {
+  public async onApplicationShutdown(): Promise<void> {
     this.transporter.close();
     this.logger.log('Smtp disconnected');
   }

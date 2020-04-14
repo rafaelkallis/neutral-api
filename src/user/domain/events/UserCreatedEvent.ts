@@ -1,14 +1,16 @@
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
-import { User } from 'user/domain/User';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
+import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
+import { Id } from 'shared/domain/value-objects/Id';
 
 /**
  * User Created Event
  */
+@DomainEventKey('user.created')
 export class UserCreatedEvent extends DomainEvent {
-  public readonly user: User;
+  public readonly userId: Id;
 
-  constructor(user: User) {
+  constructor(userId: Id) {
     super();
-    this.user = user;
+    this.userId = userId;
   }
 }

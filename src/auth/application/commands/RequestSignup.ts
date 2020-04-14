@@ -7,12 +7,9 @@ import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { Config } from 'shared/config/application/Config';
-import {
-  EventPublisher,
-  InjectEventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * Passwordless signup
@@ -36,19 +33,19 @@ export class RequestSignupCommandHandler extends AbstractCommandHandler<
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly config: Config;
-  private readonly eventPublisher: EventPublisher;
+  private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
     config: Config,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.config = config;
-    this.eventPublisher = eventPublisher;
+    this.domainEventBroker = domainEventBroker;
   }
 
   public async handle(command: RequestSignupCommand): Promise<void> {
@@ -58,7 +55,7 @@ export class RequestSignupCommandHandler extends AbstractCommandHandler<
       throw new EmailAlreadyUsedException();
     }
     const magicSignupLink = this.createMagicSignupLink(email);
-    await this.eventPublisher.publish(
+    await this.domainEventBroker.publish(
       new SignupRequestedEvent(email, magicSignupLink),
     );
   }

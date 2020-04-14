@@ -1,17 +1,18 @@
+import td from 'testdouble';
 import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
-import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
-  let eventPublisher: FakeEventPublisherService;
+  let domainEventBroker: DomainEventBroker;
   let notificationRepository: NotificationRepository;
   let objectMapper: ObjectMapper;
   let notificationApplicationService: NotificationApplicationService;
@@ -20,12 +21,12 @@ describe('notification application service', () => {
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
-    eventPublisher = new FakeEventPublisherService();
+    domainEventBroker = td.object();
     notificationRepository = new MemoryNotificationRepository();
     objectMapper = Mock(ObjectMapper);
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,
-      eventPublisher,
+      domainEventBroker,
       objectMapper,
     );
     user = modelFaker.user();
