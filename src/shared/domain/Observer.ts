@@ -3,11 +3,11 @@ export interface Observer<T> {
 }
 
 export interface Subscription {
-  unsubscribe(): void;
+  unsubscribe(): Promise<void>;
 }
 
 export interface Observable<T> {
-  subscribe(observer: Observer<T>): Subscription;
+  subscribe(observer: Observer<T>): Promise<Subscription>;
 }
 
 export class Subject<T> implements Observable<T>, Observer<T> {
@@ -17,9 +17,13 @@ export class Subject<T> implements Observable<T>, Observer<T> {
     this.observers = new Set();
   }
 
-  public subscribe(observer: Observer<T>): Subscription {
+  public async subscribe(observer: Observer<T>): Promise<Subscription> {
     this.observers.add(observer);
-    return { unsubscribe: () => this.observers.delete(observer) };
+    return {
+      unsubscribe: async () => {
+        this.observers.delete(observer);
+      },
+    };
   }
 
   public async handle(event: T): Promise<void> {

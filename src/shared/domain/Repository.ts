@@ -24,7 +24,7 @@ export abstract class Repository<
 
   public subscribePersisted(
     persistedListener: PersistedListener<TId, TModel>,
-  ): Subscription {
+  ): Promise<Subscription> {
     return this.persistedSubject.subscribe({
       handle: (model) => persistedListener.handlePersisted(model),
     });
