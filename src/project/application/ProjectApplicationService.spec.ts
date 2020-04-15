@@ -34,7 +34,7 @@ import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
-describe('project application service', () => {
+describe(ProjectApplicationService.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
@@ -367,6 +367,86 @@ describe('project application service', () => {
         ),
       ).rejects.toThrow();
       expect(project.removeRole).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('assign user to role', () => {
+    let assignee: User;
+
+    beforeEach(async () => {
+      assignee = modelFaker.user();
+      await userRepository.persist(assignee);
+    });
+
+    test('happy path', async () => {
+      await projectApplication.assignUserToRole(
+        ownerUser,
+        project.id.value,
+        roles[0].id.value,
+        assignee.id.value,
+      );
+      expect(roles[0].assigneeId?.equals(assignee.id)).toBeTruthy();
+    });
+
+    test('happy path, email of user that exists', async () => {
+      await projectApplication.assignUserToRole(
+        ownerUser,
+        project.id.value,
+        roles[0].id.value,
+        undefined,
+        assignee.email.value,
+      );
+      expect(roles[0].assigneeId?.equals(assignee.id)).toBeTruthy();
+    });
+
+    test("happy path, email of user that doesn't exist", async () => {
+      const assigneeEmail = primitiveFaker.email();
+      await projectApplication.assignUserToRole(
+        ownerUser,
+        project.id.value,
+        roles[0].id.value,
+        undefined,
+        assigneeEmail,
+      );
+      // TODO check if events emitted
+    });
+
+    test('should fail if project is not in formation state', async () => {
+      project.state = ProjectState.PEER_REVIEW;
+      await projectRepository.persist(project);
+      await expect(
+        projectApplication.assignUserToRole(
+          ownerUser,
+          project.id.value,
+          roles[0].id.value,
+          assignee.id.value,
+        ),
+      ).rejects.toThrowError();
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const notCreatorUser = modelFaker.user();
+      await userRepository.persist(notCreatorUser);
+      await expect(
+        projectApplication.assignUserToRole(
+          notCreatorUser,
+          project.id.value,
+          roles[0].id.value,
+          assignee.id.value,
+        ),
+      ).rejects.toThrowError();
+    });
+
+    test('should fail if user is already assigned to another role', async () => {
+      roles[1].assigneeId = assignee.id;
+      await expect(
+        projectApplication.assignUserToRole(
+          ownerUser,
+          project.id.value,
+          roles[0].id.value,
+          assignee.id.value,
+        ),
+      ).rejects.toThrowError();
     });
   });
 

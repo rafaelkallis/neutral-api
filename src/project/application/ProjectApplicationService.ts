@@ -354,8 +354,8 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     project.finishFormation();
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
+    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
