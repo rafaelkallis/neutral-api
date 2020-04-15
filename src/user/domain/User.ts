@@ -53,7 +53,7 @@ export class User extends AggregateRoot<UserId> {
       avatar,
       lastLoginAt,
     );
-    user.apply(new UserCreatedEvent(user));
+    user.apply(new UserCreatedEvent(user.id));
     return user;
   }
 

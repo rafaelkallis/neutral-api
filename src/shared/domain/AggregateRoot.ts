@@ -1,8 +1,8 @@
 import { Model } from 'shared/domain/Model';
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 
 /**
  *

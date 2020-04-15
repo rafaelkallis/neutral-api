@@ -5,17 +5,17 @@ import {
   RequestSignupCommand,
   RequestSignupCommandHandler,
 } from 'auth/application/commands/RequestSignup';
-import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { Config } from 'shared/config/application/Config';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { Email } from 'user/domain/value-objects/Email';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe(RequestSignupCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
   let config: Config;
-  let eventPublisher: EventPublisher;
+  let domainEventBroker: DomainEventBroker;
   let commandHandler: RequestSignupCommandHandler;
   let email: string;
   let signupToken: string;
@@ -25,12 +25,12 @@ describe(RequestSignupCommand.name, () => {
     userRepository = td.object();
     tokenManager = td.object();
     config = td.object();
-    eventPublisher = td.object();
+    domainEventBroker = td.object();
     commandHandler = new RequestSignupCommandHandler(
       userRepository,
       tokenManager,
       config,
-      eventPublisher,
+      domainEventBroker,
     );
     const primitiveFaker = new PrimitiveFaker();
     email = primitiveFaker.email();
@@ -46,6 +46,6 @@ describe(RequestSignupCommand.name, () => {
 
   test('happy path', async () => {
     await commandHandler.handle(command);
-    td.verify(eventPublisher.publish(td.matchers.isA(SignupRequestedEvent)));
+    td.verify(domainEventBroker.publish(td.matchers.isA(SignupRequestedEvent)));
   });
 });

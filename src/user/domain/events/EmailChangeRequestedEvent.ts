@@ -1,10 +1,12 @@
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
+import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 /**
  * Email Change Requested Event
  */
+@DomainEventKey('user.email_change_requested')
 export class EmailChangeRequestedEvent extends DomainEvent {
   public readonly user: User;
   public readonly email: Email;

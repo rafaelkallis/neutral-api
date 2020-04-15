@@ -2,28 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { User } from 'user/domain/User';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
-import {
-  InjectEventPublisher,
-  EventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { NotificationNotFoundException } from './exceptions/NotificationNotFoundException';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 @Injectable()
 export class NotificationApplicationService {
   private readonly notificationRepository: NotificationRepository;
-  private readonly eventPublisher: EventPublisher;
+  private readonly domainEventBroker: DomainEventBroker;
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
     notificationRepository: NotificationRepository,
-    @InjectEventPublisher()
-    eventPublisher: EventPublisher,
+    domainEventBroker: DomainEventBroker,
     objectMapper: ObjectMapper,
   ) {
     this.notificationRepository = notificationRepository;
-    this.eventPublisher = eventPublisher;
+    this.domainEventBroker = domainEventBroker;
     this.objectMapper = objectMapper;
   }
 
@@ -58,7 +54,7 @@ export class NotificationApplicationService {
     notification.assertOwner(authUser);
     notification.markRead();
     await this.notificationRepository.persist(notification);
-    await this.eventPublisher.publish(...notification.getDomainEvents());
+    await this.domainEventBroker.publish(...notification.getDomainEvents());
     return this.objectMapper.map(notification, NotificationDto);
   }
 }

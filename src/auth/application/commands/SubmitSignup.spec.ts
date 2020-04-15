@@ -4,7 +4,6 @@ import { TokenManager } from 'shared/token/application/TokenManager';
 import { User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { SessionState } from 'shared/session/session-state';
-import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserDto } from 'user/application/dto/UserDto';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
@@ -16,12 +15,13 @@ import { Email } from 'user/domain/value-objects/Email';
 import { SignupEvent } from '../events/SignupEvent';
 import { Name } from 'user/domain/value-objects/Name';
 import { EmailAlreadyUsedException } from '../exceptions/EmailAlreadyUsedException';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe(SubmitSignupCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
   let objectMapper: ObjectMapper;
-  let eventPublisher: EventPublisher;
+  let domainEventBroker: DomainEventBroker;
   let commandHandler: SubmitSignupCommandHandler;
   let email: string;
   let firstName: string;
@@ -38,12 +38,12 @@ describe(SubmitSignupCommand.name, () => {
     userRepository = td.object();
     tokenManager = td.object();
     objectMapper = td.object();
-    eventPublisher = td.object();
+    domainEventBroker = td.object();
     commandHandler = new SubmitSignupCommandHandler(
       userRepository,
       tokenManager,
       objectMapper,
-      eventPublisher,
+      domainEventBroker,
     );
     const primitiveFaker = new PrimitiveFaker();
     signupToken = primitiveFaker.id();
@@ -99,7 +99,7 @@ describe(SubmitSignupCommand.name, () => {
       ),
     );
     td.verify(session.set(sessionToken));
-    td.verify(eventPublisher.publish(td.matchers.isA(SignupEvent)), {
+    td.verify(domainEventBroker.publish(td.matchers.isA(SignupEvent)), {
       ignoreExtraArgs: true,
     });
   });

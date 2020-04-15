@@ -6,11 +6,11 @@ import { ObjectStorageModule } from 'shared/object-storage/ObjectStorageModule';
 import { TokenModule } from 'shared/token/TokenModule';
 import { TypeOrmModule } from 'shared/typeorm/TypeOrmModule';
 import { EmailModule } from 'shared/email/EmailModule';
-import { EventModule } from 'shared/event/EventModule';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
 import { SerializationModule } from 'shared/serialization/SerializationModule';
 import { CacheModule } from 'shared/cache/CacheModule';
 import { MediatorModule } from 'shared/mediator/MediatorModule';
+import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 
 /**
  * Shared Module
@@ -24,11 +24,11 @@ import { MediatorModule } from 'shared/mediator/MediatorModule';
     TokenModule,
     TypeOrmModule,
     EmailModule,
-    EventModule,
     ObjectMapperModule,
     SerializationModule,
     CacheModule,
     MediatorModule,
+    DomainEventModule,
   ],
   exports: [
     UtilityModule,
@@ -38,11 +38,11 @@ import { MediatorModule } from 'shared/mediator/MediatorModule';
     TokenModule,
     TypeOrmModule,
     EmailModule,
-    EventModule,
     ObjectMapperModule,
     SerializationModule,
     CacheModule,
     MediatorModule,
+    DomainEventModule,
   ],
 })
 export class SharedModule {}

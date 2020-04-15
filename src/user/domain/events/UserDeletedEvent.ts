@@ -1,9 +1,11 @@
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { User } from 'user/domain/User';
+import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 /**
  * User Deleted Event
  */
+@DomainEventKey('user.deleted')
 export class UserDeletedEvent extends DomainEvent {
   public readonly user: User;
 

@@ -1,5 +1,5 @@
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { Email } from 'user/domain/value-objects/Email';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 
 /**
  * Signup Requested Event

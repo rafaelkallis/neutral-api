@@ -1,5 +1,5 @@
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
 import { User } from 'user/domain/User';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 
 /**
  * Login Requested Event

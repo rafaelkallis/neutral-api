@@ -8,15 +8,15 @@ import { TokenManager } from 'shared/token/application/TokenManager';
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
-import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { Config } from 'shared/config/application/Config';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe(RequestLoginCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
   let config: Config;
-  let eventPublisher: EventPublisher;
+  let domainEventBroker: DomainEventBroker;
   let commandHandler: RequestLoginCommandHandler;
   let user: User;
   let command: RequestLoginCommand;
@@ -26,12 +26,12 @@ describe(RequestLoginCommand.name, () => {
     userRepository = td.object();
     tokenManager = td.object();
     config = td.object();
-    eventPublisher = td.object();
+    domainEventBroker = td.object();
     commandHandler = new RequestLoginCommandHandler(
       userRepository,
       tokenManager,
       config,
-      eventPublisher,
+      domainEventBroker,
     );
     const modelFaker = new ModelFaker();
     user = modelFaker.user();
@@ -51,6 +51,6 @@ describe(RequestLoginCommand.name, () => {
 
   test('happy path', async () => {
     await commandHandler.handle(command);
-    td.verify(eventPublisher.publish(td.matchers.isA(LoginRequestedEvent)));
+    td.verify(domainEventBroker.publish(td.matchers.isA(LoginRequestedEvent)));
   });
 });

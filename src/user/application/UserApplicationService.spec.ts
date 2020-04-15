@@ -6,7 +6,6 @@ import { User } from 'user/domain/User';
 import { Config } from 'shared/config/application/Config';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObjectStorage';
@@ -16,12 +15,13 @@ import ObjectID from 'bson-objectid';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe(UserApplicationService.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
-  let eventPublisher: FakeEventPublisherService;
+  let domainEventBroker: DomainEventBroker;
   let userRepository: UserRepository;
   let mockModelMapper: ObjectMapper;
   let tokenManager: TokenManager;
@@ -34,7 +34,7 @@ describe(UserApplicationService.name, () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     config = new MockConfig();
-    eventPublisher = new FakeEventPublisherService();
+    domainEventBroker = td.object();
     userRepository = new MemoryUserRepository();
     mockModelMapper = Mock(ObjectMapper);
     objectStorage = new MockObjectStorage();
@@ -42,7 +42,7 @@ describe(UserApplicationService.name, () => {
     userApplicationService = new UserApplicationService(
       userRepository,
       mockModelMapper,
-      eventPublisher,
+      domainEventBroker,
       tokenManager,
       config,
       objectStorage,

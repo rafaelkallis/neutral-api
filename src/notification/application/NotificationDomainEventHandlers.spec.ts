@@ -1,6 +1,5 @@
-import { NotificationSagasService } from 'notification/application/NotificationSagasService';
+import { NotificationDomainEventHandlers } from 'notification/application/NotificationDomainEventHandlers';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
-import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
@@ -8,18 +7,19 @@ import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent
 import { ModelFaker } from 'test/ModelFaker';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
+import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 
 describe('notification sagas', () => {
   let modelFaker: ModelFaker;
   let notificationRepository: NotificationRepository;
   let notificationFactory: NotificationFactoryService;
-  let notificationSagas: NotificationSagasService;
+  let notificationDomainEventHandler: NotificationDomainEventHandlers;
 
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     notificationRepository = new MemoryNotificationRepository();
     notificationFactory = new NotificationFactoryService();
-    notificationSagas = new NotificationSagasService(
+    notificationDomainEventHandler = new NotificationDomainEventHandlers(
       notificationRepository,
       notificationFactory,
     );
@@ -27,7 +27,7 @@ describe('notification sagas', () => {
   });
 
   test('should be defined', () => {
-    expect(notificationSagas).toBeDefined();
+    expect(notificationDomainEventHandler).toBeDefined();
   });
 
   test('existing user assigned', async () => {
@@ -35,9 +35,11 @@ describe('notification sagas', () => {
     const project = modelFaker.project(owner.id);
     const assignee = modelFaker.user();
     const role = modelFaker.role(project.id, assignee.id);
-    const event = new ExistingUserAssignedEvent(project, role);
+    const event = new UserAssignedEvent(project, role, assignee);
 
-    await notificationSagas.existingUserAssigned(event);
+    await notificationDomainEventHandler.onUserAssignedCreateNewAssignmentNotification(
+      event,
+    );
 
     expect(notificationRepository.persist).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -57,7 +59,9 @@ describe('notification sagas', () => {
     ]);
     const event = new ProjectPeerReviewStartedEvent(project);
 
-    await notificationSagas.peerReviewStarted(event);
+    await notificationDomainEventHandler.onPeerReviewStartedCreatePeerReviewRequestedNotifications(
+      event,
+    );
 
     expect(notificationRepository.persist).toHaveBeenCalled();
     // TODO: more assertions
@@ -68,7 +72,9 @@ describe('notification sagas', () => {
     const project = modelFaker.project(owner.id);
     const event = new ProjectManagerReviewStartedEvent(project);
 
-    await notificationSagas.managerReviewStarted(event);
+    await notificationDomainEventHandler.onManagerReviewStartedCreateManagerReviewRequestedNotification(
+      event,
+    );
 
     expect(notificationRepository.persist).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -88,7 +94,9 @@ describe('notification sagas', () => {
     ]);
     const event = new ProjectFinishedEvent(project);
 
-    await notificationSagas.handleProjectFinished(event);
+    await notificationDomainEventHandler.onProjectFinishedCreateProjectFinishedNotification(
+      event,
+    );
 
     expect(notificationRepository.persist).toHaveBeenCalled();
     // TODO: more assertions

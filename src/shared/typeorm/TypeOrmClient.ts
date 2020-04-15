@@ -3,9 +3,9 @@ import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
   Type,
   Injectable,
-  OnApplicationShutdown,
   Logger,
   OnModuleInit,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
