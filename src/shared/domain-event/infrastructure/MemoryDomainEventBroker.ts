@@ -49,7 +49,7 @@ export class MemoryDomainEventBroker extends DomainEventBroker {
     }
     return domainEventSubject.subscribe({
       handle: async (domainEvent) => {
-        domainEventHandler.handleDomainEvent(domainEvent);
+        await domainEventHandler.handleDomainEvent(domainEvent);
       },
     });
   }

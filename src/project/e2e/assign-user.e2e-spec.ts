@@ -59,6 +59,7 @@ describe('assign user to role', () => {
         'sendUnregisteredUserNewAssignmentEmail',
       );
       assigneeEmail = scenario.primitiveFaker.email();
+
       const response = await scenario.session
         .post(
           `/projects/${project.id.value}/roles/${roleToAssign.id.value}/assign`,

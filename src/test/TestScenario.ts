@@ -63,10 +63,7 @@ export class TestScenario {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    const app = await module
-      .createNestApplication()
-      .enableShutdownHooks()
-      .init();
+    const app = await module.createNestApplication().init();
     const session = request.agent(app.getHttpServer());
     return new TestScenario(
       primitiveFaker,

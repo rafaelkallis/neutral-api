@@ -1,6 +1,12 @@
 import { EntityManager, Connection, ConnectionManager } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
-import { Type, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Type,
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
@@ -38,7 +44,7 @@ import { TypeOrmRepository } from './TypeOrmRepository';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
 @Injectable()
-export class TypeOrmClient implements OnModuleInit {
+export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   public readonly entityManager: EntityManager;
   private readonly logger: Logger;
   private readonly connection: Connection;
@@ -110,5 +116,10 @@ export class TypeOrmClient implements OnModuleInit {
     this.logger.log('Database connected');
     await this.connection.runMigrations();
     this.logger.log('Migrations up-to-date');
+  }
+
+  public async onApplicationShutdown(): Promise<void> {
+    await this.connection.close();
+    this.logger.log('Database disconnected');
   }
 }
