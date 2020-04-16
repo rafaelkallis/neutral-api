@@ -225,4 +225,33 @@ describe('project (e2e)', () => {
       expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
     });
   });
+
+  describe('/projects/:id/archive (POST)', () => {
+    let project: Project;
+
+    beforeEach(async () => {
+      project = scenario.modelFaker.project(user.id);
+      await scenario.projectRepository.persist(project);
+    });
+
+    test('happy path', async () => {
+      const response = await scenario.session.post(
+        `/projects/${project.id.value}/archive`,
+      );
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: project.id.value,
+          state: 'archived',
+        }),
+      );
+      const updatedProject = await scenario.projectRepository.findById(
+        project.id,
+      );
+      if (!updatedProject) {
+        throw new Error();
+      }
+      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
+    });
+  });
 });

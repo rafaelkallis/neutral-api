@@ -148,8 +148,12 @@ export class ProjectController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
-  @ApiOperation({ operationId: 'deleteProject', summary: 'Delete a project' })
-  @ApiNoContentResponse({ description: 'Project deleted succesfully' })
+  @ApiOperation({
+    operationId: 'deleteProject',
+    summary: 'Archive a project. Use "/:id/archive" instead!',
+    deprecated: true,
+  })
+  @ApiNoContentResponse({ description: 'Project archived succesfully' })
   @ApiForbiddenResponse({
     description: 'Authenticated user is not the project owner',
   })
@@ -157,6 +161,27 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
+    await this.projectApplicationService.archiveProject(authUser, id);
+  }
+
+  /**
+   * Archive a project
+   */
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ operationId: 'archiveProject', summary: 'Archive a project' })
+  @ApiOkResponse({
+    description: 'Project archived succesfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Authenticated user is not the project owner',
+  })
+  public async archiveProject(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<ProjectDto> {
     return this.projectApplicationService.archiveProject(authUser, id);
   }
 

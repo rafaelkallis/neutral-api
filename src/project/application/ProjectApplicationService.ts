@@ -193,7 +193,7 @@ export class ProjectApplicationService {
   public async archiveProject(
     authUser: User,
     rawProjectId: string,
-  ): Promise<void> {
+  ): Promise<ProjectDto> {
     const projectId = ProjectId.from(rawProjectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {
@@ -202,6 +202,7 @@ export class ProjectApplicationService {
     project.assertCreator(authUser);
     project.archive();
     await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**
