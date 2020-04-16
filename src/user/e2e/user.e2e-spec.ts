@@ -2,6 +2,8 @@ import { TestScenario } from 'test/TestScenario';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { Avatar } from 'user/domain/value-objects/Avatar';
+import { Email } from 'user/domain/value-objects/Email';
+import { UserState } from 'user/domain/value-objects/UserState';
 
 describe('user (e2e)', () => {
   let scenario: TestScenario;
@@ -131,9 +133,27 @@ describe('user (e2e)', () => {
       const response = await scenario.session.delete('/users/me');
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(
-        scenario.userRepository.exists(user.id),
-      ).resolves.toBeFalsy();
+      const updatedUser = await scenario.userRepository.findById(user.id);
+      if (!updatedUser) {
+        throw new Error();
+      }
+      expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
+      expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
+      expect(updatedUser.state.equals(UserState.FORGOTTEN)).toBeTruthy();
+    });
+  });
+
+  describe('/users/me/forget (POST)', () => {
+    test('happy path', async () => {
+      const response = await scenario.session.post('/users/me/forget');
+      expect(response.status).toBe(200);
+      const updatedUser = await scenario.userRepository.findById(user.id);
+      if (!updatedUser) {
+        throw new Error();
+      }
+      expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
+      expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
+      expect(updatedUser.state.equals(UserState.FORGOTTEN)).toBeTruthy();
     });
   });
 });

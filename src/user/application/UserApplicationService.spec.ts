@@ -173,7 +173,7 @@ describe(UserApplicationService.name, () => {
 
   describe('delete authenticated user', () => {
     test('happy path', async () => {
-      await userApplicationService.deleteAuthUser(user);
+      await userApplicationService.forgetAuthUser(user);
     });
   });
 });
