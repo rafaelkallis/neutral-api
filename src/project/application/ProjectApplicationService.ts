@@ -317,7 +317,7 @@ export class ProjectApplicationService {
           new ExistingUserAssignedEvent(project, roleToAssign),
         );
       } else {
-        userToAssign = User.createEmpty(assigneeEmail);
+        userToAssign = User.createInvited(assigneeEmail);
         await this.userRepository.persist(userToAssign);
         await this.domainEventBroker.publish(
           new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),

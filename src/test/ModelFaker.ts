@@ -27,6 +27,7 @@ import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { UserState } from 'user/domain/value-objects/UserState';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -48,10 +49,20 @@ export class ModelFaker {
       this.primitiveFaker.word(),
     );
     const avatar = null;
+    const state = UserState.ACTIVE;
     const lastLoginAt = LastLoginAt.from(
       this.primitiveFaker.timestampUnixMillis(),
     );
-    return new User(id, createdAt, updatedAt, email, name, avatar, lastLoginAt);
+    return new User(
+      id,
+      createdAt,
+      updatedAt,
+      email,
+      name,
+      avatar,
+      state,
+      lastLoginAt,
+    );
   }
 
   /**

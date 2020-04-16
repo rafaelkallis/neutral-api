@@ -31,7 +31,7 @@ describe('user model', () => {
     });
 
     test('happy path', () => {
-      const user = User.create(email, name);
+      const user = User.createActive(email, name);
       expect(user.getDomainEvents()).toEqual([expect.any(UserCreatedEvent)]);
     });
   });
