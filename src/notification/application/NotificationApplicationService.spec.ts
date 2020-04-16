@@ -1,12 +1,13 @@
+import td from 'testdouble';
 import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { Mock } from 'test/Mock';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
+import { NotificationDto } from 'notification/application/dto/NotificationDto';
 
 describe('notification application service', () => {
   let modelFaker: ModelFaker;
@@ -19,14 +20,16 @@ describe('notification application service', () => {
   beforeEach(async () => {
     modelFaker = new ModelFaker();
     notificationRepository = new MemoryNotificationRepository();
-    objectMapper = Mock(ObjectMapper);
+    objectMapper = td.object();
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,
       objectMapper,
     );
     user = modelFaker.user();
     mockNotificationDto = {};
-    jest.spyOn(objectMapper, 'map').mockReturnValue(mockNotificationDto);
+    td.when(
+      objectMapper.map(td.matchers.isA(Notification), NotificationDto),
+    ).thenResolve(mockNotificationDto);
   });
 
   it('should be defined', () => {
@@ -35,6 +38,7 @@ describe('notification application service', () => {
 
   describe('get auth user notifications', () => {
     let notifications: Notification[];
+    let mockNotificationDtos: NotificationDto[];
 
     beforeEach(async () => {
       notifications = [
@@ -43,15 +47,17 @@ describe('notification application service', () => {
         modelFaker.notification(user.id),
       ];
       await notificationRepository.persist(...notifications);
+      mockNotificationDtos = td.object();
+      td.when(
+        objectMapper.mapArray(td.matchers.anything(), NotificationDto),
+      ).thenResolve(mockNotificationDtos);
     });
 
     test('happy path', async () => {
       const notificationDtos = await notificationApplicationService.getNotificationsByAuthUser(
         user,
       );
-      for (const notificationDto of notificationDtos) {
-        expect(notificationDto).toEqual(mockNotificationDto);
-      }
+      expect(notificationDtos).toBe(mockNotificationDtos);
     });
   });
 
@@ -71,7 +77,7 @@ describe('notification application service', () => {
         notification.id.value,
       );
       expect(notification.markRead).toHaveBeenCalled();
-      expect(notificationDto).toEqual(mockNotificationDto);
+      expect(notificationDto).toBe(mockNotificationDto);
     });
 
     test('should fail if authenticated user tries to mark a notification owner by another user as read', async () => {
