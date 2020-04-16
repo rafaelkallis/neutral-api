@@ -47,7 +47,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     return this.typeOrmRepository.exists(id);
   }
 
-  public async delete(...models: Project[]): Promise<void> {
+  protected async doDelete(...models: Project[]): Promise<void> {
     return this.typeOrmRepository.delete(...models);
   }
 

@@ -1,8 +1,8 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Observable } from 'rxjs';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Observable } from 'shared/domain/Observer';
 
 export class MemoryRepository<
   TId extends Id,
@@ -22,7 +22,11 @@ export class MemoryRepository<
     return new MemoryRepository();
   }
 
-  public get persisted$(): Observable<TModel> {
+  public get persistedModels(): Observable<TModel> {
+    throw new InternalServerErrorException();
+  }
+
+  public get deletedModels(): Observable<TModel> {
     throw new InternalServerErrorException();
   }
 
@@ -69,7 +73,7 @@ export class MemoryRepository<
     }
   }
 
-  public async delete(...entities: TModel[]): Promise<void> {
+  protected async doDelete(...entities: TModel[]): Promise<void> {
     for (const model of entities) {
       this.models.delete(model.id.value);
     }

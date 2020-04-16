@@ -103,7 +103,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
   ): Repository<TId, TModel> {
-    return TypeOrmRepository.create(
+    return new TypeOrmRepository(
       modelType,
       entityType,
       this.entityManager,

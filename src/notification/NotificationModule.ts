@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { NotificationController } from 'notification/presentation/NotificationController';
-import { TypeOrmNotificationRepository } from 'notification/infrastructure/NotificationTypeOrmRepository';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
@@ -12,6 +11,7 @@ import {
 } from 'notification/infrastructure/NotificationTypeOrmEntityMap';
 import { NotificationDomainEventHandlers } from 'notification/application/NotificationDomainEventHandlers';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
+import { TypeOrmNotificationRepository } from 'notification/infrastructure/TypeOrmNotificationRepository';
 
 /**
  * Notification Module
