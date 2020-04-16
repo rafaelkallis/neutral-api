@@ -1,6 +1,6 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Subject, Subscription } from './Observer';
+import { Subject, Observable } from './Observer';
 
 export interface PersistedListener<
   TId extends Id,
@@ -16,18 +16,17 @@ export abstract class Repository<
   TId extends Id,
   TModel extends AggregateRoot<TId>
 > {
-  private readonly persistedSubject: Subject<TModel>;
+  private readonly persistedModelsSubject: Subject<TModel>;
 
   public constructor() {
-    this.persistedSubject = new Subject();
+    this.persistedModelsSubject = new Subject();
   }
 
-  public subscribePersisted(
-    persistedListener: PersistedListener<TId, TModel>,
-  ): Promise<Subscription> {
-    return this.persistedSubject.subscribe({
-      handle: (model) => persistedListener.handlePersisted(model),
-    });
+  /**
+   * Observable over models that were persisted.
+   */
+  public get persistedModels(): Observable<TModel> {
+    return this.persistedModelsSubject;
   }
 
   /**
@@ -61,7 +60,7 @@ export abstract class Repository<
   public async persist(...models: TModel[]): Promise<void> {
     await this.doPersist(...models);
     for (const model of models) {
-      this.persistedSubject.handle(model);
+      await this.persistedModelsSubject.handle(model);
     }
   }
 

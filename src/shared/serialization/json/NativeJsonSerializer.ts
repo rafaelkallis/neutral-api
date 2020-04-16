@@ -5,7 +5,7 @@ import { validate } from 'class-validator';
 
 export class NativeJsonSerializer extends JsonSerializer {
   public async serialize<T>(obj: T): Promise<Buffer> {
-    validate(obj);
+    await validate(obj);
     let jsonStr: string;
     try {
       jsonStr = serialize(obj);
@@ -24,7 +24,7 @@ export class NativeJsonSerializer extends JsonSerializer {
   public async deserialize<T>(type: Type<T>, jsonBuf: Buffer): Promise<T> {
     const jsonStr = jsonBuf.toString();
     const obj = deserialize(type, jsonStr);
-    validate(obj);
+    await validate(obj);
     return obj;
   }
 }

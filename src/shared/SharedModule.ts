@@ -11,6 +11,7 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
 import { CacheModule } from 'shared/cache/CacheModule';
 import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
+import { AmqpModule } from 'shared/amqp/AmqpModule';
 
 /**
  * Shared Module
@@ -29,6 +30,7 @@ import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
     CacheModule,
     MediatorModule,
     DomainEventModule,
+    AmqpModule,
   ],
   exports: [
     UtilityModule,
@@ -43,6 +45,7 @@ import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
     CacheModule,
     MediatorModule,
     DomainEventModule,
+    AmqpModule,
   ],
 })
 export class SharedModule {}
