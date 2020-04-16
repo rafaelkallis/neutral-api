@@ -6,7 +6,7 @@ import { parse, j2xParser } from 'fast-xml-parser';
 
 export class FxpXmlSerializer extends XmlSerializer {
   public async serialize<T>(obj: T): Promise<Buffer> {
-    validate(obj);
+    await validate(obj);
     const plain = classToPlain(obj);
     const xmlStr = new j2xParser({}).parse(plain);
     const xmlBuf = Buffer.from(xmlStr);
@@ -17,7 +17,7 @@ export class FxpXmlSerializer extends XmlSerializer {
     const xmlStr = xmlBuf.toString();
     const plain = parse(xmlStr);
     const obj = plainToClass(type, plain);
-    validate(obj);
+    await validate(obj);
     return obj;
   }
 }

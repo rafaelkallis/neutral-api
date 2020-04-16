@@ -18,7 +18,7 @@ export abstract class TimestampValueObject extends NumberValueObject {
     return super.equals(other);
   }
 
-  private assertTimestamp(value: number) {
+  private assertTimestamp(value: number): void {
     if (value < 0) {
       this.throwInvalidValueObjectException();
     }

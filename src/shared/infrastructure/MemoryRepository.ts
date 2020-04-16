@@ -54,7 +54,7 @@ export class MemoryRepository<
    *
    */
   public async findByIds(ids: Id[]): Promise<(TModel | undefined)[]> {
-    return Promise.all(ids.map((id) => this.findById(id)));
+    return Promise.all(ids.map(async (id) => this.findById(id)));
   }
 
   /**

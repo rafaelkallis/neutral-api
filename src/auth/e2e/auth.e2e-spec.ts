@@ -54,7 +54,7 @@ describe('auth (e2e)', () => {
       });
       const updatedUser = await scenario.userRepository.findById(user.id);
       if (!updatedUser) {
-        fail();
+        throw new Error();
       }
       expect(user.lastLoginAt.value).toBeLessThan(
         updatedUser.lastLoginAt.value,

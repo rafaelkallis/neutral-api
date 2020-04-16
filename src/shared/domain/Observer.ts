@@ -20,7 +20,7 @@ export class Subject<T> implements Observable<T>, Observer<T> {
   public async subscribe(observer: Observer<T>): Promise<Subscription> {
     this.observers.add(observer);
     return {
-      unsubscribe: async () => {
+      unsubscribe: async (): Promise<void> => {
         this.observers.delete(observer);
       },
     };

@@ -60,7 +60,7 @@ describe('amqplib amqp client', () => {
       key: 'test_key',
       queue: 'test_queue',
       messageType: Dto,
-      async handleMessage(message: Dto): Promise<void> {
+      async handleMessage(_message: Dto): Promise<void> {
         messages++;
         throw new Error('test error, nothing to worry about!');
       },

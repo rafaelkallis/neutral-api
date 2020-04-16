@@ -5,7 +5,10 @@ import { ProjectState } from 'project/domain/value-objects/ProjectState';
  * Exception thrown if an action cannot be performed on the project's current state.
  */
 export class ProjectStateAssertionFailureException extends BadRequestException {
-  public static from(currentState: ProjectState, expectedState: ProjectState) {
+  public static from(
+    currentState: ProjectState,
+    expectedState: ProjectState,
+  ): ProjectStateAssertionFailureException {
     return new ProjectStateAssertionFailureException(
       currentState.toString(),
       expectedState.toString(),

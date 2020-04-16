@@ -22,7 +22,7 @@ export class CacheRegistrar implements OnModuleInit {
     this.registerCaches();
   }
 
-  private registerCaches() {
+  private registerCaches(): void {
     for (const service of this.serviceExplorer.exploreServices()) {
       const metadataItems = getCacheMetadataItems(service);
       if (metadataItems.length === 0) {
