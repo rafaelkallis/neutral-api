@@ -40,6 +40,8 @@ import { AddNotificationsMigration1578833839000 } from 'shared/typeorm/migration
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'shared/typeorm/migration/1579969356000-rename-project-owner-to-creator-migration';
 import { AddProjectIdToPeerReviewMigration1581946721000 } from 'shared/typeorm/migration/1581946721000AddProjectIdToPeerReviewMigration';
 import { AddAvatarToUsersMigration1584023287000 } from 'shared/typeorm/migration/1584023287000AddAvatarToUsers';
+import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/1587059776000AddStateToUsers';
+import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
 import { TypeOrmRepository } from './TypeOrmRepository';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
@@ -88,6 +90,8 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RenameProjectOwnerToCreatorMigration1579969356000,
         AddProjectIdToPeerReviewMigration1581946721000,
         AddAvatarToUsersMigration1584023287000,
+        AddStateToUsersMigration1587059776000,
+        DropUniqueUserEmailConstraintMigration1587070723000,
       ],
     });
     this.connection = connection;

@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   Res,
   Put,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -219,17 +220,36 @@ export class UserController {
    * Delete the authenticated user
    */
   @Delete('me')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     operationId: 'deleteAuthUser',
-    summary: 'Delete the authenticated user',
+    summary: 'Forget the authenticated user. Use "/:id/forget" instead',
+    deprecated: true,
   })
   @ApiNoContentResponse({
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
-    return this.userApplication.deleteAuthUser(authUser);
+    await this.userApplication.forgetAuthUser(authUser);
+  }
+
+  /**
+   * Forget the authenticated user
+   */
+  @Post('me/forget')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'forgetAuthUser',
+    summary: 'Forget the authenticated user',
+  })
+  @ApiNoContentResponse({
+    description: 'Authenticated user forgotten succesfully',
+  })
+  public async forgetAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
+    return this.userApplication.forgetAuthUser(authUser);
   }
 }

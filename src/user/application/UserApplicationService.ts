@@ -20,7 +20,7 @@ import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBr
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly modelMapper: ObjectMapper;
+  private readonly objectMapper: ObjectMapper;
   private readonly domainEventBroker: DomainEventBroker;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
@@ -37,7 +37,7 @@ export class UserApplicationService {
     objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
-    this.modelMapper = modelMapper;
+    this.objectMapper = modelMapper;
     this.domainEventBroker = domainEventBroker;
     this.tokenService = tokenManager;
     this.config = config;
@@ -81,7 +81,7 @@ export class UserApplicationService {
       authUser.updateName(newName);
       await this.userRepository.persist(authUser);
     }
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async getUserAvatar(
@@ -126,7 +126,7 @@ export class UserApplicationService {
     const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
     await this.userRepository.persist(authUser);
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async removeAuthUserAvatar(authUser: User): Promise<UserDto> {
@@ -139,7 +139,7 @@ export class UserApplicationService {
     });
     authUser.removeAvatar();
     await this.userRepository.persist(authUser);
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   /**
@@ -162,10 +162,11 @@ export class UserApplicationService {
   }
 
   /**
-   * Delete the authenticated user
+   * Forget the authenticated user
    */
-  public async deleteAuthUser(authUser: User): Promise<void> {
-    authUser.delete();
-    await this.userRepository.delete(authUser);
+  public async forgetAuthUser(authUser: User): Promise<UserDto> {
+    authUser.forget();
+    await this.userRepository.persist(authUser);
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 }

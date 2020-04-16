@@ -1,7 +1,7 @@
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
+import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
@@ -12,11 +12,13 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEvent';
 import { UserAvatarRemovedEvent } from 'user/domain/events/UserAvatarRemovedEvent';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { UserState } from 'user/domain/value-objects/UserState';
 
 export class User extends AggregateRoot<UserId> {
   public email: Email;
   public name: Name;
   public avatar: Avatar | null;
+  public state: UserState;
   public lastLoginAt: LastLoginAt;
 
   public constructor(
@@ -26,23 +28,26 @@ export class User extends AggregateRoot<UserId> {
     email: Email,
     name: Name,
     avatar: Avatar | null,
+    state: UserState,
     lastLoginAt: LastLoginAt,
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
     this.name = name;
     this.avatar = avatar;
+    this.state = state;
     this.lastLoginAt = lastLoginAt;
   }
 
   /**
    *
    */
-  public static create(email: Email, name: Name): User {
+  public static createActive(email: Email, name: Name): User {
     const userId = UserId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const avatar = null;
+    const state = UserState.ACTIVE;
     const lastLoginAt = LastLoginAt.now();
     const user = new User(
       userId,
@@ -51,6 +56,7 @@ export class User extends AggregateRoot<UserId> {
       email,
       name,
       avatar,
+      state,
       lastLoginAt,
     );
     user.apply(new UserCreatedEvent(user.id));
@@ -60,17 +66,35 @@ export class User extends AggregateRoot<UserId> {
   /**
    *
    */
-  public static createEmpty(email: Email): User {
+  public static createInvited(email: Email): User {
     const first = '';
     const last = '';
     const name = Name.from(first, last);
-    return User.create(email, name);
+    const userId = UserId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const avatar = null;
+    const state = UserState.INVITED;
+    const lastLoginAt = LastLoginAt.never();
+    const user = new User(
+      userId,
+      createdAt,
+      updatedAt,
+      email,
+      name,
+      avatar,
+      state,
+      lastLoginAt,
+    );
+    user.apply(new UserCreatedEvent(user.id));
+    return user;
   }
 
   /**
    *
    */
   public changeEmail(email: Email): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.email = email;
     this.apply(new EmailChangedEvent(this));
   }
@@ -79,6 +103,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public updateName(name: Name): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.name = name;
     this.apply(new UserNameUpdatedEvent(this));
   }
@@ -87,6 +112,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public updateAvatar(newAvatar: Avatar): void {
+    this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar?.equals(newAvatar)) {
       return;
@@ -99,6 +125,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public removeAvatar(): void {
+    this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar) {
       this.avatar = null;
@@ -106,12 +133,14 @@ export class User extends AggregateRoot<UserId> {
     }
   }
 
-  public delete(): void {
+  public forget(): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.email = Email.redacted();
     this.name = Name.redacted();
     if (this.avatar) {
       this.avatar = Avatar.redacted();
     }
-    this.apply(new UserDeletedEvent(this));
+    this.state = UserState.FORGOTTEN;
+    this.apply(new UserForgottenEvent(this.id));
   }
 }
