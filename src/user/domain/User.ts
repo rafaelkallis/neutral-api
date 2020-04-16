@@ -1,7 +1,7 @@
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
+import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
@@ -94,6 +94,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public changeEmail(email: Email): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.email = email;
     this.apply(new EmailChangedEvent(this));
   }
@@ -102,6 +103,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public updateName(name: Name): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.name = name;
     this.apply(new UserNameUpdatedEvent(this));
   }
@@ -110,6 +112,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public updateAvatar(newAvatar: Avatar): void {
+    this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar?.equals(newAvatar)) {
       return;
@@ -122,6 +125,7 @@ export class User extends AggregateRoot<UserId> {
    *
    */
   public removeAvatar(): void {
+    this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar) {
       this.avatar = null;
@@ -129,12 +133,14 @@ export class User extends AggregateRoot<UserId> {
     }
   }
 
-  public delete(): void {
+  public forget(): void {
+    this.state.assertEquals(UserState.ACTIVE);
     this.email = Email.redacted();
     this.name = Name.redacted();
     if (this.avatar) {
       this.avatar = Avatar.redacted();
     }
-    this.apply(new UserDeletedEvent(this));
+    this.state = UserState.FORGOTTEN;
+    this.apply(new UserForgottenEvent(this.id));
   }
 }

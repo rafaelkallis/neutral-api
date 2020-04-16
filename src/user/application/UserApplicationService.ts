@@ -165,7 +165,7 @@ export class UserApplicationService {
    * Delete the authenticated user
    */
   public async deleteAuthUser(authUser: User): Promise<void> {
-    authUser.delete();
+    authUser.forget();
     await this.userRepository.delete(authUser);
   }
 }
