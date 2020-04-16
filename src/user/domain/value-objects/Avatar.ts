@@ -19,6 +19,10 @@ export class Avatar extends StringValueObject {
     return new Avatar(key);
   }
 
+  public static create(): Avatar {
+    return new Avatar(new ObjectID().toHexString());
+  }
+
   public static redacted(): Avatar {
     return new Avatar('[REDACTED]');
   }
