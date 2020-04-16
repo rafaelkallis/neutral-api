@@ -159,7 +159,6 @@ export class ProjectApplicationService {
     }
     const project = Project.create(createProjectOptions);
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -184,7 +183,6 @@ export class ProjectApplicationService {
       ? ProjectDescription.from(updateProjectDto.description)
       : undefined;
     project.update(title, description);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
@@ -203,7 +201,6 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     project.delete();
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     await this.projectRepository.delete(project);
   }
 
@@ -226,7 +223,6 @@ export class ProjectApplicationService {
     const description = RoleDescription.from(rawDescription);
     project.addRole(title, description);
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -253,7 +249,6 @@ export class ProjectApplicationService {
       : undefined;
     project.updateRole(roleId, title, description);
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -274,7 +269,6 @@ export class ProjectApplicationService {
     project.assertCreator(authUser);
     project.removeRole(roleId);
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -325,7 +319,6 @@ export class ProjectApplicationService {
         userToAssign = User.createEmpty(assigneeEmail);
         await this.userRepository.persist(userToAssign);
         await this.domainEventBroker.publish(
-          ...userToAssign.getDomainEvents(),
           new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),
         );
       }
@@ -336,7 +329,6 @@ export class ProjectApplicationService {
     }
     project.assignUserToRole(userToAssign, roleToAssign);
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -355,7 +347,6 @@ export class ProjectApplicationService {
     project.assertCreator(authUser);
     project.finishFormation();
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -389,7 +380,6 @@ export class ProjectApplicationService {
       this.consensualityComputer,
     );
     await this.projectRepository.persist(project);
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -407,7 +397,6 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     project.submitManagerReview();
-    await this.domainEventBroker.publish(...project.getDomainEvents());
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

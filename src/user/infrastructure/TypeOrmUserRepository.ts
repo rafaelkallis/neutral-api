@@ -40,10 +40,10 @@ export class TypeOrmUserRepository extends UserRepository {
   }
 
   public async exists(id: UserId): Promise<boolean> {
-    return await this.typeOrmRepository.exists(id);
+    return this.typeOrmRepository.exists(id);
   }
 
-  public async delete(...users: User[]): Promise<void> {
+  protected async doDelete(...users: User[]): Promise<void> {
     await this.typeOrmRepository.delete(...users);
   }
 

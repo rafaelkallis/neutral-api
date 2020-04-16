@@ -17,9 +17,11 @@ export abstract class Repository<
   TModel extends AggregateRoot<TId>
 > {
   private readonly persistedModelsSubject: Subject<TModel>;
+  private readonly deletedModelsSubject: Subject<TModel>;
 
   public constructor() {
     this.persistedModelsSubject = new Subject();
+    this.deletedModelsSubject = new Subject();
   }
 
   /**
@@ -27,6 +29,13 @@ export abstract class Repository<
    */
   public get persistedModels(): Observable<TModel> {
     return this.persistedModelsSubject;
+  }
+
+  /**
+   * Observable over models that were deleted.
+   */
+  public get deletedModels(): Observable<TModel> {
+    return this.deletedModelsSubject;
   }
 
   /**
@@ -52,11 +61,6 @@ export abstract class Repository<
   /**
    *
    */
-  public abstract delete(...models: TModel[]): Promise<void>;
-
-  /**
-   *
-   */
   public async persist(...models: TModel[]): Promise<void> {
     await this.doPersist(...models);
     for (const model of models) {
@@ -64,5 +68,20 @@ export abstract class Repository<
     }
   }
 
+  /**
+   *
+   */
+  public async delete(...models: TModel[]): Promise<void> {
+    await this.doDelete(...models);
+    for (const model of models) {
+      await this.deletedModelsSubject.handle(model);
+    }
+  }
+
   protected abstract doPersist(...models: TModel[]): Promise<void>;
+
+  /**
+   *
+   */
+  protected abstract doDelete(...models: TModel[]): Promise<void>;
 }

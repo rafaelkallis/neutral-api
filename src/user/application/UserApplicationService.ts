@@ -79,7 +79,6 @@ export class UserApplicationService {
         newLastName || authUser.name.last,
       );
       authUser.updateName(newName);
-      await this.domainEventBroker.publish(...authUser.getDomainEvents());
       await this.userRepository.persist(authUser);
     }
     return this.modelMapper.map(authUser, UserDto, { authUser });
@@ -126,7 +125,6 @@ export class UserApplicationService {
     }
     const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
-    await this.domainEventBroker.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
     return this.modelMapper.map(authUser, UserDto, { authUser });
   }
@@ -140,7 +138,6 @@ export class UserApplicationService {
       key: authUser.avatar.value,
     });
     authUser.removeAvatar();
-    await this.domainEventBroker.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
     return this.modelMapper.map(authUser, UserDto, { authUser });
   }
@@ -162,7 +159,6 @@ export class UserApplicationService {
     const newEmail = Email.from(payload.newEmail);
     user.changeEmail(newEmail);
     await this.userRepository.persist(user);
-    await this.domainEventBroker.publish(...user.getDomainEvents());
   }
 
   /**

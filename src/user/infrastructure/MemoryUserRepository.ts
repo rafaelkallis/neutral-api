@@ -35,7 +35,7 @@ export class MemoryUserRepository extends UserRepository {
     return this.memoryRepository.persist(...models);
   }
 
-  public async delete(...models: User[]): Promise<void> {
+  protected async doDelete(...models: User[]): Promise<void> {
     return this.memoryRepository.delete(...models);
   }
 

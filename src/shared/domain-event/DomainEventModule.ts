@@ -4,7 +4,8 @@ import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBr
 import { DomainEventHandlerRegistrar } from 'shared/domain-event/application/DomainEventHandlerRegistrar';
 import { MemoryDomainEventBroker } from 'shared/domain-event/infrastructure/MemoryDomainEventBroker';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
-import { AmqpDomainEventBroker } from './infrastructure/AmqpDomainEventBroker';
+import { AmqpDomainEventBroker } from 'shared/domain-event/infrastructure/AmqpDomainEventBroker';
+import { PersistedModelsDomainEventConnector } from 'shared/domain-event/application/PersistedModelsDomainEventConnector';
 
 /**
  * Domain Event Module
@@ -16,6 +17,7 @@ import { AmqpDomainEventBroker } from './infrastructure/AmqpDomainEventBroker';
     AmqpDomainEventBroker,
     { provide: DomainEventBroker, useExisting: MemoryDomainEventBroker },
     DomainEventHandlerRegistrar,
+    PersistedModelsDomainEventConnector,
   ],
   exports: [DomainEventBroker],
 })
