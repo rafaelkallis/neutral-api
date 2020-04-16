@@ -252,7 +252,7 @@ export class Project extends AggregateRoot<ProjectId> {
   private assertSubmittedPeerReviewsMatchRoles(
     senderRole: Role,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ) {
+  ): void {
     const expectedIds: RoleId[] = Array.from(
       this.roles.excluding(senderRole),
     ).map((role) => role.id);

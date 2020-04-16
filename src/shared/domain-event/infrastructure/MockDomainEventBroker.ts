@@ -10,7 +10,7 @@ export class MockDomainEventBroker extends DomainEventBroker {
     throw new Error('mocked method');
   }
 
-  public subscribe(): Promise<DomainEventSubscription> {
+  public async subscribe(): Promise<DomainEventSubscription> {
     throw new Error('mocked method');
   }
 }

@@ -28,7 +28,7 @@ export class ObjectMapper {
     sourceObjectType: Type<T>,
     targetObjectType: Type<U>,
     objectMap: AbstractObjectMap<T, U>,
-  ) {
+  ): void {
     let targetMap = this.mappings.get(sourceObjectType);
     if (!targetMap) {
       targetMap = new Map();
@@ -112,7 +112,7 @@ export class NestContainerObjectMapper extends ObjectMapper
     sourceObjectType: Type<T>,
     targetObjectType: Type<U>,
     objectMap: AbstractObjectMap<T, U>,
-  ) {
+  ): void {
     super.addObjectMap(sourceObjectType, targetObjectType, objectMap);
     this.logger.log(
       `Registered {${targetObjectType.name}, ${objectMap.constructor.name}} object map`,

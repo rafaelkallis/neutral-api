@@ -65,7 +65,7 @@ describe('notifications (e2e)', () => {
         notification.id,
       );
       if (!updatedNotification) {
-        fail();
+        throw new Error();
       }
       expect(updatedNotification.isRead).toBeTruthy();
     });

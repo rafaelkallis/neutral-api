@@ -106,7 +106,7 @@ describe('project (e2e)', () => {
         project.id,
       );
       if (!updatedProject) {
-        fail();
+        throw new Error();
       }
       expect(updatedProject.title.value).toEqual(title);
     });
@@ -167,7 +167,7 @@ describe('project (e2e)', () => {
         project.id,
       );
       if (!updatedProject) {
-        fail();
+        throw new Error();
       }
       expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
     });
