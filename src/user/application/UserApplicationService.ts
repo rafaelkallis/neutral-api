@@ -166,7 +166,6 @@ export class UserApplicationService {
    */
   public async deleteAuthUser(authUser: User): Promise<void> {
     authUser.delete();
-    await this.domainEventBroker.publish(...authUser.getDomainEvents());
     await this.userRepository.delete(authUser);
   }
 }

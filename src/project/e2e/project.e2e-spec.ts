@@ -216,9 +216,13 @@ describe('project (e2e)', () => {
       );
       expect(response.status).toBe(204);
       expect(response.body).toBeDefined();
-      await expect(
-        scenario.projectRepository.exists(project.id),
-      ).resolves.toBeFalsy();
+      const updatedProject = await scenario.projectRepository.findById(
+        project.id,
+      );
+      if (!updatedProject) {
+        throw new Error();
+      }
+      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
     });
   });
 });

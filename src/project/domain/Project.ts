@@ -19,7 +19,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
-import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
+import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
@@ -145,9 +145,10 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    *
    */
-  public delete(): void {
+  public archive(): void {
     this.state.assertEquals(ProjectState.FORMATION);
-    this.apply(new ProjectDeletedEvent(this));
+    this.state = ProjectState.ARCHIVED;
+    this.apply(new ProjectArchivedEvent(this));
   }
 
   /**

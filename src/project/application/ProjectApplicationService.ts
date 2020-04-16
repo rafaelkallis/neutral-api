@@ -188,9 +188,9 @@ export class ProjectApplicationService {
   }
 
   /**
-   * Delete a project
+   * Archive a project
    */
-  public async deleteProject(
+  public async archiveProject(
     authUser: User,
     rawProjectId: string,
   ): Promise<void> {
@@ -200,8 +200,8 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    project.delete();
-    await this.projectRepository.delete(project);
+    project.archive();
+    await this.projectRepository.persist(project);
   }
 
   /**

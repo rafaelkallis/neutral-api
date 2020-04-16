@@ -479,22 +479,22 @@ describe(ProjectApplicationService.name, () => {
 
   describe('delete project', () => {
     beforeEach(() => {
-      jest.spyOn(project, 'delete');
+      jest.spyOn(project, 'archive');
       jest.spyOn(projectRepository, 'delete');
     });
 
     test('happy path', async () => {
-      await projectApplication.deleteProject(ownerUser, project.id.value);
-      expect(project.delete).toHaveBeenCalledWith();
+      await projectApplication.archiveProject(ownerUser, project.id.value);
+      expect(project.archive).toHaveBeenCalledWith();
     });
 
     test('should fail if authenticated user is ot project owner', async () => {
       const notOwnerUser = modelFaker.user();
       await userRepository.persist(notOwnerUser);
       await expect(
-        projectApplication.deleteProject(notOwnerUser, project.id.value),
+        projectApplication.archiveProject(notOwnerUser, project.id.value),
       ).rejects.toThrow();
-      expect(project.delete).not.toHaveBeenCalled();
+      expect(project.archive).not.toHaveBeenCalled();
     });
   });
 

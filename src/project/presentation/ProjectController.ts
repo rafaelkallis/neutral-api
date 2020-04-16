@@ -157,7 +157,7 @@ export class ProjectController {
     @AuthUser() authUser: User,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.projectApplicationService.deleteProject(authUser, id);
+    return this.projectApplicationService.archiveProject(authUser, id);
   }
 
   /**
