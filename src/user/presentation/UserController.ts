@@ -42,12 +42,15 @@ import { GetUserQuery } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
 import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser';
 import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser';
+import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailChange';
 
 /**
  * User Controller
  */
 @Controller('users')
 @ApiTags('Users')
+@UseGuards(AuthGuard)
+@ApiBearerAuth()
 export class UserController {
   private readonly userApplication: UserApplicationService;
   private readonly mediator: Mediator;
@@ -64,8 +67,6 @@ export class UserController {
    * Get users
    */
   @Get()
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ operationId: 'getUsers', summary: 'Get a list of users' })
   @ApiOkResponse({ description: 'A list of users', type: [UserDto] })
   public async getUsers(
@@ -81,8 +82,6 @@ export class UserController {
    * Get the authenticated user
    */
   @Get('me')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'getAuthUser',
     summary: 'Get the authenticated user',
@@ -96,8 +95,6 @@ export class UserController {
    * Get the user with the given id
    */
   @Get(':id')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ operationId: 'getUser', summary: 'Get a user' })
   @ApiOkResponse({ description: 'The requested user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
@@ -112,8 +109,6 @@ export class UserController {
    * Get the avatar of the user with the given id
    */
   @Get(':id/avatar')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'getUserAvatar',
     summary: "Get a user's avatar",
@@ -142,8 +137,6 @@ export class UserController {
    * to verify the new email address.
    */
   @Patch('me')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'updateAuthUser',
     summary: 'Update the authenticated user',
@@ -167,9 +160,7 @@ export class UserController {
    * Update the authenticated user's avatar
    */
   @Put('me/avatar')
-  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'updateAuthUserAvatar',
     summary: "Update the authenticated user's avatar",
@@ -195,8 +186,6 @@ export class UserController {
    * Remove the authenticated user's avatar
    */
   @Delete('me/avatar')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'removeAuthUserAvatar',
     summary: "Remove the authenticated user's avatar",
@@ -221,8 +210,11 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'The updated user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
-  public async submitEmailChange(@Param('token') token: string): Promise<void> {
-    return this.userApplication.submitEmailChange(token);
+  public async submitEmailChange(
+    @AuthUser() authUser: User,
+    @Param('token') token: string,
+  ): Promise<UserDto> {
+    return this.mediator.send(new SubmitEmailChangeCommand(authUser, token));
   }
 
   /**
@@ -230,8 +222,6 @@ export class UserController {
    */
   @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'deleteAuthUser',
     summary: 'Forget the authenticated user. Use "/:id/forget" instead',
@@ -249,8 +239,6 @@ export class UserController {
    */
   @Post('me/forget')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'forgetAuthUser',
     summary: 'Forget the authenticated user',

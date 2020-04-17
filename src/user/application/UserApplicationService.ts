@@ -2,9 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { User } from 'user/domain/User';
-import { Email } from 'user/domain/value-objects/Email';
-import { TokenManager } from 'shared/token/application/TokenManager';
-import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
@@ -16,7 +13,6 @@ import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundE
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
-  private readonly tokenService: TokenManager;
   private readonly objectStorage: ObjectStorage;
 
   public static AVATAR_MIME_TYPES = ['image/png', 'image/jpeg'];
@@ -24,12 +20,10 @@ export class UserApplicationService {
   public constructor(
     userRepository: UserRepository,
     modelMapper: ObjectMapper,
-    tokenManager: TokenManager,
     objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
     this.objectMapper = modelMapper;
-    this.tokenService = tokenManager;
     this.objectStorage = objectStorage;
   }
 
@@ -89,24 +83,5 @@ export class UserApplicationService {
     authUser.removeAvatar();
     await this.userRepository.persist(authUser);
     return this.objectMapper.map(authUser, UserDto, { authUser });
-  }
-
-  /**
-   * Submit the email change token to verify a new email address
-   */
-  public async submitEmailChange(token: string): Promise<void> {
-    const payload = this.tokenService.validateEmailChangeToken(token);
-    const emailFromPayload = Email.from(payload.curEmail);
-    const userIdFromPayload = UserId.from(payload.sub);
-    const user = await this.userRepository.findById(userIdFromPayload);
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-    if (!user.email.equals(emailFromPayload)) {
-      throw new TokenAlreadyUsedException();
-    }
-    const newEmail = Email.from(payload.newEmail);
-    user.changeEmail(newEmail);
-    await this.userRepository.persist(user);
   }
 }

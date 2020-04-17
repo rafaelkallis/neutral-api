@@ -2,9 +2,7 @@ import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
-import { TokenManager } from 'shared/token/application/TokenManager';
 import { ModelFaker } from 'test/ModelFaker';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
@@ -14,26 +12,21 @@ import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 
 describe(UserApplicationService.name, () => {
   let modelFaker: ModelFaker;
-  let primitiveFaker: PrimitiveFaker;
   let userRepository: UserRepository;
   let mockModelMapper: ObjectMapper;
-  let tokenManager: TokenManager;
   let objectStorage: ObjectStorage;
   let userApplicationService: UserApplicationService;
   let user: User;
   let mockUserDto: object;
 
   beforeEach(async () => {
-    primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     userRepository = new MemoryUserRepository();
     mockModelMapper = Mock(ObjectMapper);
     objectStorage = td.object();
-    tokenManager = td.object();
     userApplicationService = new UserApplicationService(
       userRepository,
       mockModelMapper,
-      tokenManager,
       objectStorage,
     );
 
@@ -108,28 +101,6 @@ describe(UserApplicationService.name, () => {
           }),
         ),
       );
-    });
-  });
-
-  describe('submit email change', () => {
-    let newEmail: string;
-    let emailChangeToken: string;
-
-    beforeEach(() => {
-      newEmail = primitiveFaker.email();
-      emailChangeToken = primitiveFaker.id();
-      td.when(
-        tokenManager.validateEmailChangeToken(emailChangeToken),
-      ).thenReturn({
-        sub: user.id.value,
-        curEmail: user.email.value,
-        newEmail,
-      });
-    });
-
-    test('happy path', async () => {
-      await userApplicationService.submitEmailChange(emailChangeToken);
-      expect(user.email.value).toEqual(newEmail);
     });
   });
 });
