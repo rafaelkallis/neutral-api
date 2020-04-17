@@ -40,50 +40,6 @@ describe(UserApplicationService.name, () => {
     expect(userApplicationService).toBeDefined();
   });
 
-  describe('update auth user avatar', () => {
-    let newAvatar: Avatar;
-
-    beforeEach(() => {
-      newAvatar = Avatar.create();
-      td.when(objectStorage.put(td.matchers.anything())).thenResolve({
-        key: newAvatar.value,
-      });
-    });
-
-    test('happy path', async () => {
-      await userApplicationService.updateAuthUserAvatar(
-        user,
-        'file',
-        'image/jpeg',
-      );
-      expect(user.avatar?.equals(newAvatar)).toBeTruthy();
-    });
-
-    test('should delete old avatar', async () => {
-      const oldAvatar = Avatar.create();
-      user.avatar = oldAvatar;
-      await userApplicationService.updateAuthUserAvatar(
-        user,
-        'file',
-        'image/jpeg',
-      );
-      td.verify(
-        objectStorage.delete(
-          td.matchers.contains({
-            key: oldAvatar.value,
-          }),
-        ),
-      );
-      expect(user.avatar?.equals(newAvatar)).toBeTruthy();
-    });
-
-    test('should fail of content type not supported', async () => {
-      await expect(
-        userApplicationService.updateAuthUserAvatar(user, 'file', 'text/plain'),
-      ).rejects.toThrow();
-    });
-  });
-
   describe('delete auth user avatar', () => {
     let avatarToDelete: Avatar;
     beforeEach(() => {
