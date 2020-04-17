@@ -44,6 +44,7 @@ import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser'
 import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser';
 import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailChange';
 import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAuthUserAvatar';
+import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
 
 /**
  * User Controller
@@ -200,7 +201,7 @@ export class UserController {
   public async removeAuthUserAvatar(
     @AuthUser() authUser: User,
   ): Promise<UserDto> {
-    return this.userApplication.removeAuthUserAvatar(authUser);
+    return this.mediator.send(new RemoveAuthUserAvatarCommand(authUser));
   }
 
   /**

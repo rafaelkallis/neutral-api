@@ -15,9 +15,10 @@ import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
 import { GetUserQueryHandler } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQuery';
 import { ForgetAuthUserCommandHandler } from 'user/application/commands/ForgetAuthUser';
-import { UpdateAuthUserCommandHandler } from './application/commands/UpdateAuthUser';
+import { UpdateAuthUserCommandHandler } from 'user/application/commands/UpdateAuthUser';
 import { SubmitEmailChangeCommandHandler } from 'user/application/commands/SubmitEmailChange';
-import { UpdateAuthUserAvatarCommandHandler } from './application/commands/UpdateAuthUserAvatar';
+import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/UpdateAuthUserAvatar';
+import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
 
 /**
  * User Module
@@ -41,6 +42,7 @@ import { UpdateAuthUserAvatarCommandHandler } from './application/commands/Updat
     ForgetAuthUserCommandHandler,
     SubmitEmailChangeCommandHandler,
     UpdateAuthUserAvatarCommandHandler,
+    RemoveAuthUserAvatarCommandHandler,
   ],
   exports: [UserRepository],
 })
