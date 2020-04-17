@@ -8,19 +8,14 @@ import { NotificationRepository } from 'notification/domain/NotificationReposito
 import { User } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailManager } from 'shared/email/manager/EmailManager';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { ModelFaker } from 'test/ModelFaker';
 import { Project } from 'project/domain/Project';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
+import { TestScenario } from 'test/TestScenario';
 
 type Session = request.SuperTest<request.Test>;
 
-export class IntegrationTestScenario {
-  public readonly primitiveFaker: PrimitiveFaker;
-  public readonly modelFaker: ModelFaker;
-
+export class IntegrationTestScenario extends TestScenario {
   public readonly app: INestApplication;
-  public readonly module: TestingModule;
   public readonly userRepository: UserRepository;
   public readonly projectRepository: ProjectRepository;
   public readonly notificationRepository: NotificationRepository;
@@ -32,8 +27,6 @@ export class IntegrationTestScenario {
   public readonly session: Session;
 
   public constructor(
-    primitiveFaker: PrimitiveFaker,
-    modelFaker: ModelFaker,
     app: INestApplication,
     module: TestingModule,
     userRepository: UserRepository,
@@ -44,10 +37,8 @@ export class IntegrationTestScenario {
     objectStorage: ObjectStorage,
     session: Session,
   ) {
-    this.primitiveFaker = primitiveFaker;
-    this.modelFaker = modelFaker;
+    super(module);
     this.app = app;
-    this.module = module;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.notificationRepository = notificationRepository;
@@ -60,8 +51,6 @@ export class IntegrationTestScenario {
   public static async create(
     builderExpression?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
   ): Promise<IntegrationTestScenario> {
-    const primitiveFaker = new PrimitiveFaker();
-    const modelFaker = new ModelFaker(primitiveFaker);
     let builder = await Test.createTestingModule({
       imports: [AppModule],
     });
@@ -72,8 +61,6 @@ export class IntegrationTestScenario {
     const app = await module.createNestApplication().init();
     const session = request.agent(app.getHttpServer());
     return new IntegrationTestScenario(
-      primitiveFaker,
-      modelFaker,
       app,
       module,
       module.get(UserRepository),
