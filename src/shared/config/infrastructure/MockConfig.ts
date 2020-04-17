@@ -51,6 +51,7 @@ export class MockConfig extends Config {
       // ELASTIC_APM_SERVER_URL: '',
       AZURE_MONITOR_INSTRUMENTATION_KEY: '',
       AZURE_BLOB_STORAGE_CONNECTION_STRING: '',
+      AMQP_CONNECTION: '',
     };
   }
 }

@@ -19,7 +19,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
-import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
+import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
@@ -145,9 +145,10 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    *
    */
-  public delete(): void {
+  public archive(): void {
     this.state.assertEquals(ProjectState.FORMATION);
-    this.apply(new ProjectDeletedEvent(this));
+    this.state = ProjectState.ARCHIVED;
+    this.apply(new ProjectArchivedEvent(this));
   }
 
   /**
@@ -157,7 +158,7 @@ export class Project extends AggregateRoot<ProjectId> {
     this.state.assertEquals(ProjectState.FORMATION);
     const role = Role.from(this.id, title, description);
     this.roles.add(role);
-    this.apply(new RoleCreatedEvent(this, role));
+    this.apply(new RoleCreatedEvent(this.id, role.id));
     return role;
   }
 
@@ -251,7 +252,7 @@ export class Project extends AggregateRoot<ProjectId> {
   private assertSubmittedPeerReviewsMatchRoles(
     senderRole: Role,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ) {
+  ): void {
     const expectedIds: RoleId[] = Array.from(
       this.roles.excluding(senderRole),
     ).map((role) => role.id);
@@ -290,12 +291,12 @@ export class Project extends AggregateRoot<ProjectId> {
 
     if (this.skipManagerReview.shouldSkipManagerReview(this)) {
       this.state = ProjectState.FINISHED;
-      this.apply(new ProjectPeerReviewFinishedEvent(this));
-      this.apply(new ProjectManagerReviewSkippedEvent(this));
+      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
+      this.apply(new ProjectManagerReviewSkippedEvent(this.id));
       this.apply(new ProjectFinishedEvent(this));
     } else {
       this.state = ProjectState.MANAGER_REVIEW;
-      this.apply(new ProjectPeerReviewFinishedEvent(this));
+      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
       this.apply(new ProjectManagerReviewStartedEvent(this));
     }
   }
@@ -306,7 +307,7 @@ export class Project extends AggregateRoot<ProjectId> {
   public submitManagerReview(): void {
     this.state.assertEquals(ProjectState.MANAGER_REVIEW);
     this.state = ProjectState.FINISHED;
-    this.apply(new ProjectManagerReviewFinishedEvent(this));
+    this.apply(new ProjectManagerReviewFinishedEvent(this.id));
     this.apply(new ProjectFinishedEvent(this));
   }
 

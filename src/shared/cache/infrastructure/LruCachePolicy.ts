@@ -8,7 +8,9 @@ export class LruCachePolicy extends CachePolicy {
 
   public constructor() {
     super();
-    this.lru = new LRU({ dispose: (key) => this.handleCacheItemExpired(key) });
+    this.lru = new LRU({
+      dispose: (key): void => this.handleCacheItemExpired(key),
+    });
   }
 
   public access(key: string, ttl: number): void {

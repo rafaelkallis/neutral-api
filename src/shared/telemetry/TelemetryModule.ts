@@ -17,7 +17,7 @@ import { UtilityModule } from 'shared/utility/UtilityModule';
   providers: [
     {
       provide: TelemetryClient,
-      useFactory: (config: Config) => {
+      useFactory: (config: Config): TelemetryClient => {
         if (config.isProduction()) {
           return new AzureMonitorTelemetryClient(config);
         } else {

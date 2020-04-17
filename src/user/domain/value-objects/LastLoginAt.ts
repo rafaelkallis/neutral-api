@@ -23,6 +23,13 @@ export class LastLoginAt extends TimestampValueObject {
     return new LastLoginAt(Date.now());
   }
 
+  /**
+   *
+   */
+  public static never(): LastLoginAt {
+    return new LastLoginAt(0);
+  }
+
   public equals(other: ValueObject): boolean {
     if (!(other instanceof LastLoginAt)) {
       return false;

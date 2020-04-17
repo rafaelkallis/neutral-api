@@ -4,11 +4,13 @@ import { Name } from 'user/domain/value-objects/Name';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
-import { UserDeletedEvent } from 'user/domain/events/UserDeletedEvent';
+import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { UserState } from './value-objects/UserState';
+import { LoginEvent } from './events/LoginEvent';
 
-describe('user model', () => {
+describe(User.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let user: User;
@@ -31,7 +33,7 @@ describe('user model', () => {
     });
 
     test('happy path', () => {
-      const user = User.create(email, name);
+      const user = User.createActive(email, name);
       expect(user.getDomainEvents()).toEqual([expect.any(UserCreatedEvent)]);
     });
   });
@@ -47,6 +49,12 @@ describe('user model', () => {
       user.changeEmail(newEmail);
       expect(user.email.value).toEqual(newEmail.value);
       expect(user.getDomainEvents()).toEqual([expect.any(EmailChangedEvent)]);
+    });
+
+    test('when user not active should fail', () => {
+      user.state = UserState.FORGOTTEN;
+      expect(() => user.changeEmail(newEmail)).toThrowError();
+      expect(user.email.equals(newEmail)).toBeFalsy();
     });
   });
 
@@ -66,12 +74,38 @@ describe('user model', () => {
         expect.any(UserNameUpdatedEvent),
       ]);
     });
+
+    test('when user not active should fail', () => {
+      user.state = UserState.FORGOTTEN;
+      expect(() => user.updateName(newName)).toThrowError();
+      expect(user.name.equals(newName)).toBeFalsy();
+    });
   });
 
-  describe('delete user', () => {
+  describe('login user', () => {
     test('happy path', () => {
-      user.delete();
-      expect(user.getDomainEvents()).toEqual([expect.any(UserDeletedEvent)]);
+      const oldLastLoginAt = user.lastLoginAt;
+      user.login();
+      expect(user.lastLoginAt.equals(oldLastLoginAt)).toBeFalsy();
+      expect(user.getDomainEvents()).toEqual([expect.any(LoginEvent)]);
+    });
+
+    test('when user not active should fail', () => {
+      user.state = UserState.FORGOTTEN;
+      expect(() => user.forget()).toThrowError();
+    });
+  });
+
+  describe('forget user', () => {
+    test('happy path', () => {
+      user.forget();
+      expect(user.state.equals(UserState.FORGOTTEN)).toBeTruthy();
+      expect(user.getDomainEvents()).toEqual([expect.any(UserForgottenEvent)]);
+    });
+
+    test('when user not active should fail', () => {
+      user.state = UserState.FORGOTTEN;
+      expect(() => user.forget()).toThrowError();
     });
   });
 });

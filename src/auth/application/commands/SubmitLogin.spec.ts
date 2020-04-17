@@ -6,8 +6,6 @@ import { ModelFaker } from 'test/ModelFaker';
 import { SubmitLoginCommand, SubmitLoginCommandHandler } from './SubmitLogin';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { SessionState } from 'shared/session/session-state';
-import { LoginEvent } from 'auth/application/events/LoginEvent';
-import { EventPublisher } from 'shared/event/publisher/EventPublisher';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserDto } from 'user/application/dto/UserDto';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
@@ -16,7 +14,6 @@ describe(SubmitLoginCommand.name, () => {
   let userRepository: UserRepository;
   let tokenManager: TokenManager;
   let objectMapper: ObjectMapper;
-  let eventPublisher: EventPublisher;
   let commandHandler: SubmitLoginCommandHandler;
   let user: User;
   let loginToken: string;
@@ -31,12 +28,10 @@ describe(SubmitLoginCommand.name, () => {
     userRepository = td.object();
     tokenManager = td.object();
     objectMapper = td.object();
-    eventPublisher = td.object();
     commandHandler = new SubmitLoginCommandHandler(
       userRepository,
       tokenManager,
       objectMapper,
-      eventPublisher,
     );
     const modelFaker = new ModelFaker();
     user = modelFaker.user();
@@ -77,6 +72,5 @@ describe(SubmitLoginCommand.name, () => {
     expect(result.user).toBe(userDto);
     td.verify(userRepository.persist(user));
     td.verify(session.set(sessionToken));
-    td.verify(eventPublisher.publish(td.matchers.isA(LoginEvent)));
   });
 });

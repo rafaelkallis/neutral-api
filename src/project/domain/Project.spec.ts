@@ -9,7 +9,7 @@ import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectForma
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectDeletedEvent } from 'project/domain/events/ProjectDeletedEvent';
+import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
@@ -33,7 +33,7 @@ import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 
-describe('project', () => {
+describe(Project.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let contributionsComputer: ContributionsComputer;
@@ -101,17 +101,18 @@ describe('project', () => {
     });
   });
 
-  describe('delete project', () => {
+  describe('archive project', () => {
     test('happy path', () => {
-      project.delete();
+      project.archive();
+      expect(project.state).toBe(ProjectState.ARCHIVED);
       expect(project.getDomainEvents()).toEqual([
-        expect.any(ProjectDeletedEvent),
+        expect.any(ProjectArchivedEvent),
       ]);
     });
 
     test('should fail if project is not in formation state', () => {
       project.state = ProjectState.PEER_REVIEW;
-      expect(() => project.delete()).toThrow();
+      expect(() => project.archive()).toThrow();
     });
   });
 

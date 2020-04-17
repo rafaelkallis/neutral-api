@@ -6,22 +6,21 @@ import { User } from 'user/domain/User';
 import { Config } from 'shared/config/application/Config';
 import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { FakeEventPublisherService } from 'shared/event/publisher/FakeEventPublisherService';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { MockObjectStorage } from 'shared/object-storage/infrastructure/MockObjectStorage';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import ObjectID from 'bson-objectid';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Mock } from 'test/Mock';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 describe(UserApplicationService.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
   let config: Config;
-  let eventPublisher: FakeEventPublisherService;
+  let domainEventBroker: DomainEventBroker;
   let userRepository: UserRepository;
   let mockModelMapper: ObjectMapper;
   let tokenManager: TokenManager;
@@ -34,15 +33,15 @@ describe(UserApplicationService.name, () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     config = new MockConfig();
-    eventPublisher = new FakeEventPublisherService();
+    domainEventBroker = td.object();
     userRepository = new MemoryUserRepository();
     mockModelMapper = Mock(ObjectMapper);
-    objectStorage = new MockObjectStorage();
+    objectStorage = td.object();
     tokenManager = td.object();
     userApplicationService = new UserApplicationService(
       userRepository,
       mockModelMapper,
-      eventPublisher,
+      domainEventBroker,
       tokenManager,
       config,
       objectStorage,
@@ -87,33 +86,45 @@ describe(UserApplicationService.name, () => {
   });
 
   describe('update auth user avatar', () => {
+    let newAvatar: Avatar;
+
     beforeEach(() => {
-      jest.spyOn(objectStorage, 'put');
-      jest.spyOn(objectStorage, 'delete');
+      newAvatar = Avatar.create();
+      td.when(objectStorage.put(td.matchers.anything())).thenResolve({
+        key: newAvatar.value,
+      });
     });
 
     test('happy path', async () => {
-      await userApplicationService.updateAuthUserAvatar(user, '', 'image/jpeg');
-      expect(user.avatar).toBeTruthy();
-      expect(objectStorage.put).toHaveBeenCalled();
+      await userApplicationService.updateAuthUserAvatar(
+        user,
+        'file',
+        'image/jpeg',
+      );
+      expect(user.avatar?.equals(newAvatar)).toBeTruthy();
     });
 
     test('should delete old avatar', async () => {
-      const oldAvatar = Avatar.from(new ObjectID().toHexString());
+      const oldAvatar = Avatar.create();
       user.avatar = oldAvatar;
-      await userApplicationService.updateAuthUserAvatar(user, '', 'image/jpeg');
-      expect(objectStorage.delete).toHaveBeenCalledWith(
-        expect.objectContaining({
-          key: oldAvatar.value,
-        }),
+      await userApplicationService.updateAuthUserAvatar(
+        user,
+        'file',
+        'image/jpeg',
       );
-      expect(objectStorage.put).toHaveBeenCalled();
-      expect(user.avatar?.value).not.toEqual(oldAvatar.value);
+      td.verify(
+        objectStorage.delete(
+          td.matchers.contains({
+            key: oldAvatar.value,
+          }),
+        ),
+      );
+      expect(user.avatar?.equals(newAvatar)).toBeTruthy();
     });
 
     test('should fail of content type not supported', async () => {
       await expect(
-        userApplicationService.updateAuthUserAvatar(user, '', 'text/plain'),
+        userApplicationService.updateAuthUserAvatar(user, 'file', 'text/plain'),
       ).rejects.toThrow();
     });
   });
@@ -123,16 +134,17 @@ describe(UserApplicationService.name, () => {
     beforeEach(() => {
       avatarToDelete = Avatar.from(new ObjectID().toHexString());
       user.avatar = avatarToDelete;
-      jest.spyOn(objectStorage, 'delete');
     });
 
     test('happy path', async () => {
       await userApplicationService.removeAuthUserAvatar(user);
       expect(user.avatar).toBeNull();
-      expect(objectStorage.delete).toHaveBeenCalledWith(
-        expect.objectContaining({
-          key: avatarToDelete.value,
-        }),
+      td.verify(
+        objectStorage.delete(
+          td.matchers.contains({
+            key: avatarToDelete.value,
+          }),
+        ),
       );
     });
   });
@@ -161,7 +173,7 @@ describe(UserApplicationService.name, () => {
 
   describe('delete authenticated user', () => {
     test('happy path', async () => {
-      await userApplicationService.deleteAuthUser(user);
+      await userApplicationService.forgetAuthUser(user);
     });
   });
 });

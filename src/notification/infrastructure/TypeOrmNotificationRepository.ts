@@ -27,32 +27,24 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     this.objectMapper = objectMapper;
   }
 
-  public findPage(
+  public async findPage(
     afterId?: NotificationId | undefined,
   ): Promise<Notification[]> {
     return this.typeOrmRepository.findPage(afterId);
   }
 
-  public findById(id: NotificationId): Promise<Notification | undefined> {
+  public async findById(id: NotificationId): Promise<Notification | undefined> {
     return this.typeOrmRepository.findById(id);
   }
 
-  public findByIds(
+  public async findByIds(
     ids: NotificationId[],
   ): Promise<(Notification | undefined)[]> {
     return this.typeOrmRepository.findByIds(ids);
   }
 
-  public exists(id: NotificationId): Promise<boolean> {
+  public async exists(id: NotificationId): Promise<boolean> {
     return this.typeOrmRepository.exists(id);
-  }
-
-  public persist(...models: Notification[]): Promise<void> {
-    return this.typeOrmRepository.persist(...models);
-  }
-
-  public delete(...models: Notification[]): Promise<void> {
-    return this.typeOrmRepository.delete(...models);
   }
 
   /**
@@ -67,5 +59,9 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
       Notification,
     );
     return notificationModels;
+  }
+
+  protected async doPersist(...models: Notification[]): Promise<void> {
+    return this.typeOrmRepository.persist(...models);
   }
 }

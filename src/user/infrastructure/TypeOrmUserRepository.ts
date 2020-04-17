@@ -12,12 +12,13 @@ import { Injectable } from '@nestjs/common';
  * TypeOrm User Repository
  */
 @Injectable()
-export class TypeOrmUserRepository implements UserRepository {
+export class TypeOrmUserRepository extends UserRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly typeOrmRepository: Repository<UserId, User>;
   private readonly objectMapper: ObjectMapper;
 
   public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
+    super();
     this.typeOrmClient = typeOrmClient;
     this.typeOrmRepository = typeOrmClient.createRepository(
       User,
@@ -39,15 +40,11 @@ export class TypeOrmUserRepository implements UserRepository {
   }
 
   public async exists(id: UserId): Promise<boolean> {
-    return await this.typeOrmRepository.exists(id);
+    return this.typeOrmRepository.exists(id);
   }
 
-  public async persist(...users: User[]): Promise<void> {
+  protected async doPersist(...users: User[]): Promise<void> {
     await this.typeOrmRepository.persist(...users);
-  }
-
-  public async delete(...users: User[]): Promise<void> {
-    await this.typeOrmRepository.delete(...users);
   }
 
   /**

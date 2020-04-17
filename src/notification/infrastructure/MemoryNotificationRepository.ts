@@ -7,14 +7,15 @@ import { NotificationId } from 'notification/domain/value-objects/NotificationId
 /**
  * Memory Notification Repository
  */
-export class MemoryNotificationRepository implements NotificationRepository {
+export class MemoryNotificationRepository extends NotificationRepository {
   private readonly memoryRepository: MemoryRepository<
     NotificationId,
     Notification
   >;
 
   public constructor() {
-    this.memoryRepository = new MemoryRepository();
+    super();
+    this.memoryRepository = MemoryRepository.create();
   }
 
   public async findPage(
@@ -37,12 +38,8 @@ export class MemoryNotificationRepository implements NotificationRepository {
     return this.memoryRepository.exists(id);
   }
 
-  public async persist(...models: Notification[]): Promise<void> {
+  protected async doPersist(...models: Notification[]): Promise<void> {
     return this.memoryRepository.persist(...models);
-  }
-
-  public async delete(...models: Notification[]): Promise<void> {
-    return this.memoryRepository.delete(...models);
   }
 
   /**

@@ -1,16 +1,17 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { Model } from 'shared/domain/Model';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { Repository } from 'shared/domain/Repository';
-import { Type } from '@nestjs/common';
+import { Type, InternalServerErrorException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { Observable } from 'shared/domain/Observer';
 
 export class TypeOrmRepository<
   TId extends Id,
-  TModel extends Model<TId>,
+  TModel extends AggregateRoot<TId>,
   TEntity extends TypeOrmEntity
-> implements Repository<TId, TModel> {
+> extends Repository<TId, TModel> {
   protected readonly modelType: Type<TModel>;
   protected readonly entityType: Type<TEntity>;
   protected readonly entityManager: EntityManager;
@@ -22,18 +23,19 @@ export class TypeOrmRepository<
     entityManager: EntityManager,
     modelMapper: ObjectMapper,
   ) {
+    super();
     this.modelType = modelType;
     this.entityType = entityType;
     this.entityManager = entityManager;
     this.objectMapper = modelMapper;
   }
 
-  /**
-   *
-   */
-  public async persist(...models: TModel[]): Promise<void> {
-    const entities = this.objectMapper.mapArray(models, this.entityType);
-    await this.entityManager.save(entities);
+  public get persistedModels(): Observable<TModel> {
+    throw new InternalServerErrorException();
+  }
+
+  public get deletedModels(): Observable<TModel> {
+    throw new InternalServerErrorException();
   }
 
   /**
@@ -91,8 +93,16 @@ export class TypeOrmRepository<
   /**
    *
    */
-  public async delete(...models: TModel[]): Promise<void> {
+  protected async doDelete(...models: TModel[]): Promise<void> {
     const ids = models.map((m) => m.id.value);
     await this.entityManager.getRepository(this.entityType).delete(ids);
+  }
+
+  /**
+   *
+   */
+  protected async doPersist(...models: TModel[]): Promise<void> {
+    const entities = this.objectMapper.mapArray(models, this.entityType);
+    await this.entityManager.save(entities);
   }
 }

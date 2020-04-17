@@ -1,11 +1,13 @@
-import { Project } from 'project/domain/Project';
-import { DomainEvent } from 'shared/event/domain/DomainEvent';
+import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
+import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
+import { Id } from 'shared/domain/value-objects/Id';
 
+@DomainEventKey('project.peer_review_finished')
 export class ProjectPeerReviewFinishedEvent extends DomainEvent {
-  public readonly project: Project;
+  public readonly projectId: Id;
 
-  constructor(project: Project) {
+  constructor(projectId: Id) {
     super();
-    this.project = project;
+    this.projectId = projectId;
   }
 }

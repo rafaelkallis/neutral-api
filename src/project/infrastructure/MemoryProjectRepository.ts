@@ -5,11 +5,12 @@ import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 
-export class MemoryProjectRepository implements ProjectRepository {
+export class MemoryProjectRepository extends ProjectRepository {
   private readonly memoryRepository: MemoryRepository<ProjectId, Project>;
 
   public constructor() {
-    this.memoryRepository = new MemoryRepository();
+    super();
+    this.memoryRepository = MemoryRepository.create();
   }
 
   public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
@@ -28,12 +29,8 @@ export class MemoryProjectRepository implements ProjectRepository {
     return this.memoryRepository.exists(id);
   }
 
-  public async persist(...models: Project[]): Promise<void> {
+  protected async doPersist(...models: Project[]): Promise<void> {
     return this.memoryRepository.persist(...models);
-  }
-
-  public async delete(...models: Project[]): Promise<void> {
-    return this.memoryRepository.delete(...models);
   }
 
   /**

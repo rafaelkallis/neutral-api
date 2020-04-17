@@ -14,7 +14,7 @@ export function Mock<T>(type: Type<T>): T {
     if (typeof mock[property] !== 'function') {
       continue;
     }
-    mock[property] = () => {
+    mock[property] = (): never => {
       const error = new Error(
         `no implementation for mock ${type.name}.${property}()`,
       );

@@ -154,7 +154,7 @@ export class AuthController {
     type: RefreshResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Invalid refresh token' })
-  public refresh(
+  public async refresh(
     @Body(ValidationPipe) refreshRequestDto: RefreshRequestDto,
   ): Promise<RefreshResponseDto> {
     return this.mediator.send(

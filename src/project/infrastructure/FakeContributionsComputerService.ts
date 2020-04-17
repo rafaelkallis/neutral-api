@@ -13,7 +13,7 @@ export class FakeContributionsComputerService extends ContributionsComputer {
     const peers = Object.keys(peerReviews.toMap());
     const n = peers.length;
     return {
-      of(_roleId: Id) {
+      of(_roleId: Id): Contribution {
         return Contribution.from(1 / n);
       },
     };

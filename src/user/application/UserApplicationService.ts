@@ -9,22 +9,19 @@ import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequest
 import { Name } from 'user/domain/value-objects/Name';
 import { Config } from 'shared/config/application/Config';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
-import {
-  EventPublisher,
-  InjectEventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
-  private readonly modelMapper: ObjectMapper;
-  private readonly eventPublisher: EventPublisher;
+  private readonly objectMapper: ObjectMapper;
+  private readonly domainEventBroker: DomainEventBroker;
   private readonly tokenService: TokenManager;
   private readonly config: Config;
   private readonly objectStorage: ObjectStorage;
@@ -34,14 +31,14 @@ export class UserApplicationService {
   public constructor(
     userRepository: UserRepository,
     modelMapper: ObjectMapper,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
+    domainEventBroker: DomainEventBroker,
     tokenManager: TokenManager,
     config: Config,
     objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
-    this.modelMapper = modelMapper;
-    this.eventPublisher = eventPublisher;
+    this.objectMapper = modelMapper;
+    this.domainEventBroker = domainEventBroker;
     this.tokenService = tokenManager;
     this.config = config;
     this.objectStorage = objectStorage;
@@ -67,7 +64,7 @@ export class UserApplicationService {
       const emailChangeMagicLink = `${this.config.get(
         'FRONTEND_URL',
       )}/email_change/callback?token=${token}`;
-      await this.eventPublisher.publish(
+      await this.domainEventBroker.publish(
         new EmailChangeRequestedEvent(
           authUser,
           Email.from(newEmail),
@@ -82,10 +79,9 @@ export class UserApplicationService {
         newLastName || authUser.name.last,
       );
       authUser.updateName(newName);
-      await this.eventPublisher.publish(...authUser.getDomainEvents());
       await this.userRepository.persist(authUser);
     }
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async getUserAvatar(
@@ -129,9 +125,8 @@ export class UserApplicationService {
     }
     const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
-    await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async removeAuthUserAvatar(authUser: User): Promise<UserDto> {
@@ -143,9 +138,8 @@ export class UserApplicationService {
       key: authUser.avatar.value,
     });
     authUser.removeAvatar();
-    await this.eventPublisher.publish(...authUser.getDomainEvents());
     await this.userRepository.persist(authUser);
-    return this.modelMapper.map(authUser, UserDto, { authUser });
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   /**
@@ -165,15 +159,14 @@ export class UserApplicationService {
     const newEmail = Email.from(payload.newEmail);
     user.changeEmail(newEmail);
     await this.userRepository.persist(user);
-    await this.eventPublisher.publish(...user.getDomainEvents());
   }
 
   /**
-   * Delete the authenticated user
+   * Forget the authenticated user
    */
-  public async deleteAuthUser(authUser: User): Promise<void> {
-    authUser.delete();
-    await this.eventPublisher.publish(...authUser.getDomainEvents());
-    await this.userRepository.delete(authUser);
+  public async forgetAuthUser(authUser: User): Promise<UserDto> {
+    authUser.forget();
+    await this.userRepository.persist(authUser);
+    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 }

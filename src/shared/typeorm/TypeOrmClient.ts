@@ -3,12 +3,11 @@ import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
   Type,
   Injectable,
-  OnApplicationShutdown,
   Logger,
   OnModuleInit,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
-import { Model } from 'shared/domain/Model';
 import { Repository } from 'shared/domain/Repository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
@@ -41,7 +40,10 @@ import { AddNotificationsMigration1578833839000 } from 'shared/typeorm/migration
 import { RenameProjectOwnerToCreatorMigration1579969356000 } from 'shared/typeorm/migration/1579969356000-rename-project-owner-to-creator-migration';
 import { AddProjectIdToPeerReviewMigration1581946721000 } from 'shared/typeorm/migration/1581946721000AddProjectIdToPeerReviewMigration';
 import { AddAvatarToUsersMigration1584023287000 } from 'shared/typeorm/migration/1584023287000AddAvatarToUsers';
+import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/1587059776000AddStateToUsers';
+import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
 import { TypeOrmRepository } from './TypeOrmRepository';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -88,6 +90,8 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RenameProjectOwnerToCreatorMigration1579969356000,
         AddProjectIdToPeerReviewMigration1581946721000,
         AddAvatarToUsersMigration1584023287000,
+        AddStateToUsersMigration1587059776000,
+        DropUniqueUserEmailConstraintMigration1587070723000,
       ],
     });
     this.connection = connection;
@@ -97,7 +101,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
 
   public createRepository<
     TId extends Id,
-    TModel extends Model<TId>,
+    TModel extends AggregateRoot<TId>,
     TEntity extends TypeOrmEntity
   >(
     modelType: Type<TModel>,

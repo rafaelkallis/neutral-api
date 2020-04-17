@@ -5,10 +5,6 @@ import {
 } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import {
-  EventPublisher,
-  InjectEventPublisher,
-} from 'shared/event/publisher/EventPublisher';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserDto } from 'user/application/dto/UserDto';
 import { SessionState } from 'shared/session';
@@ -16,7 +12,6 @@ import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
-import { LoginEvent } from '../events/LoginEvent';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 
 /**
@@ -45,19 +40,16 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
-  private readonly eventPublisher: EventPublisher;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
-    @InjectEventPublisher() eventPublisher: EventPublisher,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
-    this.eventPublisher = eventPublisher;
   }
 
   public async handle(
@@ -73,8 +65,7 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
     if (!user.lastLoginAt.equals(lastLoginAt)) {
       throw new TokenAlreadyUsedException();
     }
-    user.lastLoginAt = LastLoginAt.now(); // TODO: use user.login()
-    await this.eventPublisher.publish(new LoginEvent(user));
+    user.login();
     await this.userRepository.persist(user);
     const sessionToken = this.tokenManager.newSessionToken(user.id.value);
     command.session.set(sessionToken);

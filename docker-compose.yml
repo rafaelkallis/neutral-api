@@ -8,11 +8,6 @@ services:
     ports:
       - "5432:5432"
     restart: "on-failure"
-  smtp:
-    image: "bytemark/smtp"
-    ports:
-      - "127.0.0.1:25:25"
-    restart: "on-failure"
   # elasticsearch:
   #   image: "docker.elastic.co/elasticsearch/elasticsearch:7.5.0"
   #   ports: 
@@ -37,4 +32,20 @@ services:
     image: "mcr.microsoft.com/azure-storage/azurite"
     ports:
       - "127.0.0.1:10000:10000"   
+    restart: "on-failure"
+  mailslurper:
+    image: "adampresley/mailslurper"
+    ports:
+      - "127.0.0.1:25:2500"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8085:8085"
+    restart: "on-failure"
+  amqp:
+    image: "rabbitmq:3-management-alpine"
+    environment:
+      RABBITMQ_DEFAULT_USER: "covee-saas"
+      RABBITMQ_DEFAULT_PASS: "password"
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     restart: "on-failure"

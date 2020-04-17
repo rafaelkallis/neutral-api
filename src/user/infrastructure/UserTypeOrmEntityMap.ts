@@ -8,6 +8,7 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { UserState } from 'user/domain/value-objects/UserState';
 
 @ObjectMap(User, UserTypeOrmEntity)
 export class UserTypeOrmEntityMap extends AbstractObjectMap<
@@ -23,6 +24,7 @@ export class UserTypeOrmEntityMap extends AbstractObjectMap<
       model.name.first,
       model.name.last,
       model.avatar ? model.avatar.value : null,
+      model.state.value,
       model.lastLoginAt.value,
     );
   }
@@ -41,6 +43,7 @@ export class ReverseUserTypeOrmEntityMap extends AbstractObjectMap<
       Email.from(entity.email),
       Name.from(entity.firstName, entity.lastName),
       entity.avatar ? Avatar.from(entity.avatar) : null,
+      UserState.from(entity.state),
       LastLoginAt.from(entity.lastLoginAt),
     );
   }

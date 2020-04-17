@@ -27,7 +27,7 @@ export class TelemetryActionManager implements OnModuleInit {
     this.registerTelemetryActions();
   }
 
-  private registerTelemetryActions() {
+  private registerTelemetryActions(): void {
     for (const service of this.serviceExplorer.exploreServices()) {
       const telemetryActionMetadataItems = getTelemetryActionMetadataItems(
         service,

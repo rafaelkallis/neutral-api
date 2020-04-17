@@ -7,11 +7,12 @@ import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 /**
  * Memory User Repository
  */
-export class MemoryUserRepository implements UserRepository {
+export class MemoryUserRepository extends UserRepository {
   private readonly memoryRepository: MemoryRepository<UserId, User>;
 
   public constructor() {
-    this.memoryRepository = new MemoryRepository();
+    super();
+    this.memoryRepository = MemoryRepository.create();
   }
 
   public async findPage(afterId?: UserId | undefined): Promise<User[]> {
@@ -30,12 +31,8 @@ export class MemoryUserRepository implements UserRepository {
     return this.memoryRepository.exists(id);
   }
 
-  public async persist(...models: User[]): Promise<void> {
+  protected async doPersist(...models: User[]): Promise<void> {
     return this.memoryRepository.persist(...models);
-  }
-
-  public async delete(...models: User[]): Promise<void> {
-    return this.memoryRepository.delete(...models);
   }
 
   public async findByName(fullName: string): Promise<User[]> {

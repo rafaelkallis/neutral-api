@@ -1,13 +1,33 @@
-import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Repository } from 'shared/domain/Repository';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { InternalServerErrorException } from '@nestjs/common';
+import { Observable } from 'shared/domain/Observer';
 
-export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
-  implements Repository<TId, TModel> {
+export class MemoryRepository<
+  TId extends Id,
+  TModel extends AggregateRoot<TId>
+> extends Repository<TId, TModel> {
   private readonly models: Map<string, TModel>;
 
-  public constructor() {
+  private constructor() {
+    super();
     this.models = new Map();
+  }
+
+  public static create<
+    TId extends Id,
+    TModel extends AggregateRoot<TId>
+  >(): MemoryRepository<TId, TModel> {
+    return new MemoryRepository();
+  }
+
+  public get persistedModels(): Observable<TModel> {
+    throw new InternalServerErrorException();
+  }
+
+  public get deletedModels(): Observable<TModel> {
+    throw new InternalServerErrorException();
   }
 
   public getModels(): TModel[] {
@@ -34,7 +54,7 @@ export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
    *
    */
   public async findByIds(ids: Id[]): Promise<(TModel | undefined)[]> {
-    return Promise.all(ids.map((id) => this.findById(id)));
+    return Promise.all(ids.map(async (id) => this.findById(id)));
   }
 
   /**
@@ -47,15 +67,9 @@ export class MemoryRepository<TId extends Id, TModel extends Model<TId>>
   /**
    *
    */
-  public async persist(...models: TModel[]): Promise<void> {
+  protected async doPersist(...models: TModel[]): Promise<void> {
     for (const model of models) {
       this.models.set(model.id.value, model);
-    }
-  }
-
-  public async delete(...entities: TModel[]): Promise<void> {
-    for (const model of entities) {
-      this.models.delete(model.id.value);
     }
   }
 }

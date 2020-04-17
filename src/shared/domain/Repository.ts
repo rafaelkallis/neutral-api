@@ -1,10 +1,34 @@
-import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { Subject, Observable } from './Observer';
+
+export interface PersistedListener<
+  TId extends Id,
+  TModel extends AggregateRoot<TId>
+> {
+  handlePersisted(model: TModel): Promise<void>;
+}
 
 /**
  * Repository
  */
-export abstract class Repository<TId extends Id, TModel extends Model<TId>> {
+export abstract class Repository<
+  TId extends Id,
+  TModel extends AggregateRoot<TId>
+> {
+  private readonly persistedModelsSubject: Subject<TModel>;
+
+  public constructor() {
+    this.persistedModelsSubject = new Subject();
+  }
+
+  /**
+   * Observable over models that were persisted.
+   */
+  public get persistedModels(): Observable<TModel> {
+    return this.persistedModelsSubject;
+  }
+
   /**
    *
    */
@@ -28,10 +52,12 @@ export abstract class Repository<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  public abstract persist(...models: TModel[]): Promise<void>;
+  public async persist(...models: TModel[]): Promise<void> {
+    await this.doPersist(...models);
+    for (const model of models) {
+      await this.persistedModelsSubject.handle(model);
+    }
+  }
 
-  /**
-   *
-   */
-  public abstract delete(...models: TModel[]): Promise<void>;
+  protected abstract doPersist(...models: TModel[]): Promise<void>;
 }
