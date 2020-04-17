@@ -10,6 +10,7 @@ import {
 } from 'user/application/commands/UserCommand';
 import { Inject } from '@nestjs/common';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 
 /**
  * Update the authenticated user
@@ -46,12 +47,19 @@ export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
   private readonly domainEventBroker!: DomainEventBroker;
 
   protected async doHandle(command: UpdateAuthUserCommand): Promise<User> {
-    const { authUser, email: newEmail } = command;
-    if (newEmail) {
+    const { authUser, email: rawNewEmail } = command;
+    if (rawNewEmail) {
+      const newEmail = Email.from(rawNewEmail);
+      const emailAlreadyUsed = await this.userRepository.existsByEmail(
+        newEmail,
+      );
+      if (emailAlreadyUsed) {
+        throw new EmailAlreadyUsedException();
+      }
       const token = this.tokenManager.newEmailChangeToken(
         authUser.id.value,
         authUser.email.value,
-        newEmail,
+        rawNewEmail,
       );
       const emailChangeMagicLink = `${this.config.get(
         'FRONTEND_URL',
@@ -59,7 +67,7 @@ export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
       await this.domainEventBroker.publish(
         new EmailChangeRequestedEvent(
           authUser,
-          Email.from(newEmail),
+          Email.from(rawNewEmail),
           emailChangeMagicLink,
         ),
       );

@@ -1,13 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
-import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
-import { Name } from 'user/domain/value-objects/Name';
-import { Config } from 'shared/config/application/Config';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
@@ -15,15 +11,12 @@ import { AvatarUnsupportedContentTypeException } from 'user/application/exceptio
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
-import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 @Injectable()
 export class UserApplicationService {
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
-  private readonly domainEventBroker: DomainEventBroker;
   private readonly tokenService: TokenManager;
-  private readonly config: Config;
   private readonly objectStorage: ObjectStorage;
 
   public static AVATAR_MIME_TYPES = ['image/png', 'image/jpeg'];
@@ -31,57 +24,13 @@ export class UserApplicationService {
   public constructor(
     userRepository: UserRepository,
     modelMapper: ObjectMapper,
-    domainEventBroker: DomainEventBroker,
     tokenManager: TokenManager,
-    config: Config,
     objectStorage: ObjectStorage,
   ) {
     this.userRepository = userRepository;
     this.objectMapper = modelMapper;
-    this.domainEventBroker = domainEventBroker;
     this.tokenService = tokenManager;
-    this.config = config;
     this.objectStorage = objectStorage;
-  }
-
-  /**
-   * Update the authenticated user
-   *
-   * If the email address is changed, a email change magic link is sent
-   * to verify the new email address.
-   */
-  public async updateAuthUser(
-    authUser: User,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDto> {
-    const { email: newEmail } = updateUserDto;
-    if (newEmail) {
-      const token = this.tokenService.newEmailChangeToken(
-        authUser.id.value,
-        authUser.email.value,
-        newEmail,
-      );
-      const emailChangeMagicLink = `${this.config.get(
-        'FRONTEND_URL',
-      )}/email_change/callback?token=${token}`;
-      await this.domainEventBroker.publish(
-        new EmailChangeRequestedEvent(
-          authUser,
-          Email.from(newEmail),
-          emailChangeMagicLink,
-        ),
-      );
-    }
-    const { firstName: newFirstName, lastName: newLastName } = updateUserDto;
-    if (newFirstName || newLastName) {
-      const newName = Name.from(
-        newFirstName || authUser.name.first,
-        newLastName || authUser.name.last,
-      );
-      authUser.updateName(newName);
-      await this.userRepository.persist(authUser);
-    }
-    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async getUserAvatar(
