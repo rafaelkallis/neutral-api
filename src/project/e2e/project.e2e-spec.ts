@@ -1,16 +1,16 @@
 import { Project } from 'project/domain/Project';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
 
 describe('project (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     user = await scenario.createUser();
     await scenario.authenticateUser(user);
   });

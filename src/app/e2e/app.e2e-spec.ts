@@ -1,10 +1,10 @@
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 
 describe('app (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
   });
 
   afterEach(async () => {

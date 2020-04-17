@@ -1,13 +1,13 @@
 import { AmqplibAmqpClient } from 'shared/amqp/AmqplibAmqpClient';
 import { AmqpClient } from 'shared/amqp/AmqpClient';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 
 describe('amqplib amqp client', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let amqpClient: AmqplibAmqpClient;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     amqpClient = scenario.module.get(AmqpClient);
   });
 

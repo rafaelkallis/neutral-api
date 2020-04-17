@@ -2,10 +2,10 @@ import { AmqpDomainEventBroker } from 'shared/domain-event/infrastructure/AmqpDo
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 
 describe(AmqpDomainEventBroker.name, () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let amqpDomainEventBroker: AmqpDomainEventBroker;
 
   @DomainEventKey('my_domain_event')
@@ -16,7 +16,7 @@ describe(AmqpDomainEventBroker.name, () => {
   }
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     amqpDomainEventBroker = scenario.module.get(AmqpDomainEventBroker);
   });
 

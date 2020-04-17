@@ -1,14 +1,14 @@
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
 import { Email } from 'user/domain/value-objects/Email';
 
 describe('auth (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     user = await scenario.createUser();
   });
 
