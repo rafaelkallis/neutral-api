@@ -41,6 +41,7 @@ import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
 import { GetUserQuery } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
 import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser';
+import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser';
 
 /**
  * User Controller
@@ -240,7 +241,7 @@ export class UserController {
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
-    await this.userApplication.forgetAuthUser(authUser);
+    await this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 
   /**
@@ -258,6 +259,6 @@ export class UserController {
     description: 'Authenticated user forgotten succesfully',
   })
   public async forgetAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
-    return this.userApplication.forgetAuthUser(authUser);
+    return this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 }

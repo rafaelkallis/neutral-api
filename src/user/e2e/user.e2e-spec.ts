@@ -4,6 +4,7 @@ import { User } from 'user/domain/User';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserState } from 'user/domain/value-objects/UserState';
+import { EmailManager } from 'shared/email/manager/EmailManager';
 
 describe('user (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -65,6 +66,30 @@ describe('user (e2e)', () => {
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
       expect(response.body.lastLoginAt).toBeFalsy();
+    });
+  });
+
+  describe('/users/me (PATCH)', () => {
+    let emailManager: EmailManager;
+    let firstName: string;
+    let email: string;
+
+    beforeEach(() => {
+      emailManager = scenario.module.get(EmailManager);
+      firstName = scenario.primitiveFaker.word();
+      email = scenario.primitiveFaker.email();
+      jest.spyOn(emailManager, 'sendEmailChangeEmail');
+    });
+
+    test('happy path', async () => {
+      const response = await scenario.session
+        .patch('/users/me')
+        .send({ firstName, email });
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body.firstName).toEqual(firstName);
+      expect(response.body.email).not.toEqual(email);
+      expect(emailManager.sendEmailChangeEmail).toHaveBeenCalled();
     });
   });
 

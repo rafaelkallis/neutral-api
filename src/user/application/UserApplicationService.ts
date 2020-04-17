@@ -109,13 +109,4 @@ export class UserApplicationService {
     user.changeEmail(newEmail);
     await this.userRepository.persist(user);
   }
-
-  /**
-   * Forget the authenticated user
-   */
-  public async forgetAuthUser(authUser: User): Promise<UserDto> {
-    authUser.forget();
-    await this.userRepository.persist(authUser);
-    return this.objectMapper.map(authUser, UserDto, { authUser });
-  }
 }

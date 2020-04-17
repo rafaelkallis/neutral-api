@@ -14,6 +14,8 @@ import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository
 import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
 import { GetUserQueryHandler } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQuery';
+import { ForgetAuthUserCommandHandler } from 'user/application/commands/ForgetAuthUser';
+import { UpdateAuthUserCommandHandler } from './application/commands/UpdateAuthUser';
 
 /**
  * User Module
@@ -33,6 +35,8 @@ import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQue
     GetUsersQueryHandler,
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
+    UpdateAuthUserCommandHandler,
+    ForgetAuthUserCommandHandler,
   ],
   exports: [UserRepository],
 })

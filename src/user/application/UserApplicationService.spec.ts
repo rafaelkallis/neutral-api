@@ -132,10 +132,4 @@ describe(UserApplicationService.name, () => {
       expect(user.email.value).toEqual(newEmail);
     });
   });
-
-  describe('delete authenticated user', () => {
-    test('happy path', async () => {
-      await userApplicationService.forgetAuthUser(user);
-    });
-  });
 });
