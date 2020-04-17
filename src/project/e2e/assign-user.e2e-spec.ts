@@ -1,11 +1,11 @@
 import { Project } from 'project/domain/Project';
 import { Role } from 'project/domain/Role';
 import { User } from 'user/domain/User';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { HttpStatus } from '@nestjs/common';
 
 describe('assign user to role', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let creator: User;
   let project: Project;
   let roleToAssign: Role;
@@ -14,7 +14,7 @@ describe('assign user to role', () => {
   let assigneeEmail: string;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     creator = await scenario.createUser();
     await scenario.authenticateUser(creator);
     project = scenario.modelFaker.project(creator.id);

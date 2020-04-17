@@ -1,18 +1,18 @@
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Project } from 'project/domain/Project';
 import { Role } from 'project/domain/Role';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
 
 describe('roles (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
   let project: Project;
   let role: Role;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     user = await scenario.createUser();
     await scenario.authenticateUser(user);
     project = scenario.modelFaker.project(user.id);

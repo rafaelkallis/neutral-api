@@ -15,7 +15,7 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 
 type Session = request.SuperTest<request.Test>;
 
-export class TestScenario {
+export class IntegrationTestScenario {
   public readonly primitiveFaker: PrimitiveFaker;
   public readonly modelFaker: ModelFaker;
 
@@ -59,7 +59,7 @@ export class TestScenario {
 
   public static async create(
     builderExpression?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
-  ): Promise<TestScenario> {
+  ): Promise<IntegrationTestScenario> {
     const primitiveFaker = new PrimitiveFaker();
     const modelFaker = new ModelFaker(primitiveFaker);
     let builder = await Test.createTestingModule({
@@ -71,7 +71,7 @@ export class TestScenario {
     const module = await builder.compile();
     const app = await module.createNestApplication().init();
     const session = request.agent(app.getHttpServer());
-    return new TestScenario(
+    return new IntegrationTestScenario(
       primitiveFaker,
       modelFaker,
       app,

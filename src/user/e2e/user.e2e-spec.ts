@@ -1,4 +1,4 @@
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { Avatar } from 'user/domain/value-objects/Avatar';
@@ -6,11 +6,11 @@ import { Email } from 'user/domain/value-objects/Email';
 import { UserState } from 'user/domain/value-objects/UserState';
 
 describe('user (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     user = await scenario.createUser();
     await scenario.authenticateUser(user);
   });
