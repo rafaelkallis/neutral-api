@@ -43,10 +43,6 @@ export class TypeOrmUserRepository extends UserRepository {
     return this.typeOrmRepository.exists(id);
   }
 
-  protected async doDelete(...users: User[]): Promise<void> {
-    await this.typeOrmRepository.delete(...users);
-  }
-
   protected async doPersist(...users: User[]): Promise<void> {
     await this.typeOrmRepository.persist(...users);
   }

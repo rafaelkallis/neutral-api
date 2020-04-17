@@ -477,10 +477,9 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('delete project', () => {
+  describe('archive project', () => {
     beforeEach(() => {
       jest.spyOn(project, 'archive');
-      jest.spyOn(projectRepository, 'delete');
     });
 
     test('happy path', async () => {

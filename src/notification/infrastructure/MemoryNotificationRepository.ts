@@ -42,10 +42,6 @@ export class MemoryNotificationRepository extends NotificationRepository {
     return this.memoryRepository.persist(...models);
   }
 
-  protected async doDelete(...models: Notification[]): Promise<void> {
-    return this.memoryRepository.delete(...models);
-  }
-
   /**
    *
    */

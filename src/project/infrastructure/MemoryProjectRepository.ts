@@ -33,10 +33,6 @@ export class MemoryProjectRepository extends ProjectRepository {
     return this.memoryRepository.persist(...models);
   }
 
-  protected async doDelete(...models: Project[]): Promise<void> {
-    return this.memoryRepository.delete(...models);
-  }
-
   /**
    *
    */
