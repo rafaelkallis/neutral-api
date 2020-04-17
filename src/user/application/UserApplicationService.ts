@@ -3,8 +3,6 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { UserDto } from 'user/application/dto/UserDto';
 import { User } from 'user/domain/User';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
-import { Avatar } from 'user/domain/value-objects/Avatar';
-import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
@@ -44,32 +42,6 @@ export class UserApplicationService {
       key: user.avatar.value,
     });
     return userAvatar;
-  }
-
-  public async updateAuthUserAvatar(
-    authUser: User,
-    avatarFile: string,
-    contentType: string,
-  ): Promise<UserDto> {
-    if (!UserApplicationService.AVATAR_MIME_TYPES.includes(contentType)) {
-      throw new AvatarUnsupportedContentTypeException();
-    }
-    const { key } = await this.objectStorage.put({
-      containerName: 'avatars',
-      file: avatarFile,
-      contentType,
-    });
-    const oldAvatar = authUser.avatar;
-    if (oldAvatar) {
-      await this.objectStorage.delete({
-        containerName: 'avatars',
-        key: oldAvatar.value,
-      });
-    }
-    const newAvatar = Avatar.from(key);
-    authUser.updateAvatar(newAvatar);
-    await this.userRepository.persist(authUser);
-    return this.objectMapper.map(authUser, UserDto, { authUser });
   }
 
   public async removeAuthUserAvatar(authUser: User): Promise<UserDto> {

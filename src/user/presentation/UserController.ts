@@ -43,6 +43,7 @@ import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
 import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser';
 import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser';
 import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailChange';
+import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAuthUserAvatar';
 
 /**
  * User Controller
@@ -175,10 +176,12 @@ export class UserController {
     @AuthUser() authUser: User,
     @UploadedFile() avatarFile: Express.Multer.File,
   ): Promise<UserDto> {
-    return this.userApplication.updateAuthUserAvatar(
-      authUser,
-      avatarFile.path,
-      avatarFile.mimetype,
+    return this.mediator.send(
+      new UpdateAuthUserAvatarCommand(
+        authUser,
+        avatarFile.path,
+        avatarFile.mimetype,
+      ),
     );
   }
 
