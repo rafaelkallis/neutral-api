@@ -40,6 +40,7 @@ import { Mediator } from 'shared/mediator/Mediator';
 import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
 import { GetUserQuery } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
+import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser';
 
 /**
  * User Controller
@@ -151,7 +152,14 @@ export class UserController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<UserDto> {
-    return this.userApplication.updateAuthUser(authUser, dto);
+    return this.mediator.send(
+      new UpdateAuthUserCommand(
+        authUser,
+        dto.email,
+        dto.firstName,
+        dto.lastName,
+      ),
+    );
   }
 
   /**
