@@ -5,11 +5,11 @@ import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 
 describe('submit peer review (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
 
   let user: User;
   let project: Project;
@@ -20,7 +20,7 @@ describe('submit peer review (e2e)', () => {
   let peerReviews: Record<string, Record<string, number>>;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
 
     user = await scenario.createUser();
     await scenario.authenticateUser(user);

@@ -1,15 +1,15 @@
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
 
 describe('submit manager review (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
   let project: Project;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
 
     user = await scenario.createUser();
     await scenario.authenticateUser(user);

@@ -1,14 +1,14 @@
-import { TestScenario } from 'test/TestScenario';
+import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { User } from 'user/domain/User';
 
 describe('notifications (e2e)', () => {
-  let scenario: TestScenario;
+  let scenario: IntegrationTestScenario;
   let user: User;
 
   beforeEach(async () => {
-    scenario = await TestScenario.create();
+    scenario = await IntegrationTestScenario.create();
     user = await scenario.createUser();
     await scenario.authenticateUser(user);
   });
