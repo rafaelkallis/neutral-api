@@ -47,10 +47,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     return this.typeOrmRepository.exists(id);
   }
 
-  protected async doDelete(...models: Project[]): Promise<void> {
-    return this.typeOrmRepository.delete(...models);
-  }
-
   protected async doPersist(...projectModels: Project[]): Promise<void> {
     const roleIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())

@@ -72,10 +72,4 @@ export class MemoryRepository<
       this.models.set(model.id.value, model);
     }
   }
-
-  protected async doDelete(...entities: TModel[]): Promise<void> {
-    for (const model of entities) {
-      this.models.delete(model.id.value);
-    }
-  }
 }

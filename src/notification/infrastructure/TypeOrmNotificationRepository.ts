@@ -64,8 +64,4 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
   protected async doPersist(...models: Notification[]): Promise<void> {
     return this.typeOrmRepository.persist(...models);
   }
-
-  protected async doDelete(...models: Notification[]): Promise<void> {
-    return this.typeOrmRepository.delete(...models);
-  }
 }
