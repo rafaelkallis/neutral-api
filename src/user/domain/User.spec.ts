@@ -8,6 +8,7 @@ import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserState } from './value-objects/UserState';
+import { LoginEvent } from './events/LoginEvent';
 
 describe(User.name, () => {
   let modelFaker: ModelFaker;
@@ -78,6 +79,20 @@ describe(User.name, () => {
       user.state = UserState.FORGOTTEN;
       expect(() => user.updateName(newName)).toThrowError();
       expect(user.name.equals(newName)).toBeFalsy();
+    });
+  });
+
+  describe('login user', () => {
+    test('happy path', () => {
+      const oldLastLoginAt = user.lastLoginAt;
+      user.login();
+      expect(user.lastLoginAt.equals(oldLastLoginAt)).toBeFalsy();
+      expect(user.getDomainEvents()).toEqual([expect.any(LoginEvent)]);
+    });
+
+    test('when user not active should fail', () => {
+      user.state = UserState.FORGOTTEN;
+      expect(() => user.forget()).toThrowError();
     });
   });
 

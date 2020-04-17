@@ -12,9 +12,7 @@ import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
-import { LoginEvent } from '../events/LoginEvent';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * Passwordless login token submit
@@ -42,19 +40,16 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
-  private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
-    domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
-    this.domainEventBroker = domainEventBroker;
   }
 
   public async handle(
@@ -70,8 +65,7 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
     if (!user.lastLoginAt.equals(lastLoginAt)) {
       throw new TokenAlreadyUsedException();
     }
-    user.lastLoginAt = LastLoginAt.now(); // TODO: use user.login()
-    await this.domainEventBroker.publish(new LoginEvent(user));
+    user.login();
     await this.userRepository.persist(user);
     const sessionToken = this.tokenManager.newSessionToken(user.id.value);
     command.session.set(sessionToken);

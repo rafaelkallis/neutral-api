@@ -13,6 +13,7 @@ import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEven
 import { UserAvatarRemovedEvent } from 'user/domain/events/UserAvatarRemovedEvent';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/UserState';
+import { LoginEvent } from 'user/domain/events/LoginEvent';
 
 export class User extends AggregateRoot<UserId> {
   public email: Email;
@@ -88,6 +89,19 @@ export class User extends AggregateRoot<UserId> {
     );
     user.apply(new UserCreatedEvent(user.id));
     return user;
+  }
+
+  /**
+   *
+   */
+  public login(): void {
+    if (this.state.equals(UserState.INVITED)) {
+      this.state = UserState.ACTIVE;
+      // TODO apply event
+    }
+    this.state.assertEquals(UserState.ACTIVE);
+    this.lastLoginAt = LastLoginAt.now();
+    this.apply(new LoginEvent(this));
   }
 
   /**
