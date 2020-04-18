@@ -1,8 +1,4 @@
-import {
-  ObjectMap,
-  AbstractObjectMap,
-  ObjectMapContext,
-} from 'shared/object-mapper/ObjectMap';
+import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { ProjectDto } from './dto/ProjectDto';
 import { User } from 'user/domain/User';
@@ -10,9 +6,10 @@ import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { PeerReview } from 'project/domain/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { Injectable, Type } from '@nestjs/common';
 
-@ObjectMap(Project, ProjectDto)
-export class ProjectDtoMap extends AbstractObjectMap<Project, ProjectDto> {
+@Injectable()
+export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
   private readonly modelMapper: ObjectMapper;
 
   public constructor(modelMapper: ObjectMapper) {
@@ -82,5 +79,13 @@ export class ProjectDtoMap extends AbstractObjectMap<Project, ProjectDto> {
       }
     }
     return false;
+  }
+
+  public getSourceType(): Type<Project> {
+    return Project;
+  }
+
+  public getTargetType(): Type<ProjectDto> {
+    return ProjectDto;
   }
 }

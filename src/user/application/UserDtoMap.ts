@@ -1,16 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
-import {
-  ObjectMapContext,
-  ObjectMap,
-  AbstractObjectMap,
-} from 'shared/object-mapper/ObjectMap';
+import { ObjectMapContext, ObjectMap } from 'shared/object-mapper/ObjectMap';
 
 @Injectable()
-@ObjectMap(User, UserDto)
-export class UserDtoMap extends AbstractObjectMap<User, UserDto> {
+export class UserDtoMap extends ObjectMap<User, UserDto> {
   private readonly config: Config;
 
   public constructor(config: Config) {
@@ -41,5 +36,13 @@ export class UserDtoMap extends AbstractObjectMap<User, UserDto> {
   private createAvatarUrl(user: User): string {
     const serverUrl = this.config.get('SERVER_URL');
     return serverUrl + '/users/' + user.id.value + '/avatar';
+  }
+
+  public getSourceType(): Type<User> {
+    return User;
+  }
+
+  public getTargetType(): Type<UserDto> {
+    return UserDto;
   }
 }

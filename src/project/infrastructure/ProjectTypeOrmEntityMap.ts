@@ -19,14 +19,15 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Contribution } from 'project/domain/value-objects/Contribution';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
-import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
+import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
+import { Injectable, Type } from '@nestjs/common';
 
-@ObjectMap(Project, ProjectTypeOrmEntity)
-export class ProjectTypeOrmEntityMap extends AbstractObjectMap<
+@Injectable()
+export class ProjectTypeOrmEntityMap extends ObjectMap<
   Project,
   ProjectTypeOrmEntity
 > {
@@ -77,10 +78,18 @@ export class ProjectTypeOrmEntityMap extends AbstractObjectMap<
     }
     return projectEntity;
   }
+
+  public getSourceType(): Type<Project> {
+    return Project;
+  }
+
+  public getTargetType(): Type<ProjectTypeOrmEntity> {
+    return ProjectTypeOrmEntity;
+  }
 }
 
-@ObjectMap(ProjectTypeOrmEntity, Project)
-export class ReverseProjectTypeOrmEntityMap extends AbstractObjectMap<
+@Injectable()
+export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
   ProjectTypeOrmEntity,
   Project
 > {
@@ -132,5 +141,13 @@ export class ReverseProjectTypeOrmEntityMap extends AbstractObjectMap<
       roles,
       peerReviews,
     );
+  }
+
+  public getSourceType(): Type<ProjectTypeOrmEntity> {
+    return ProjectTypeOrmEntity;
+  }
+
+  public getTargetType(): Type<Project> {
+    return Project;
   }
 }

@@ -1,18 +1,14 @@
-import {
-  ObjectMap,
-  AbstractObjectMap,
-  ObjectMapContext,
-} from 'shared/object-mapper/ObjectMap';
+import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, Injectable, Type } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role } from 'project/domain/Role';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 
-@ObjectMap(Role, RoleDto)
-export class RoleDtoMap extends AbstractObjectMap<Role, RoleDto> {
+@Injectable()
+export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
   protected innerMap(role: Role, context: ObjectMapContext): RoleDto {
     const project = context.get('project', Project);
     const authUser = context.get('authUser', User);
@@ -92,5 +88,13 @@ export class RoleDtoMap extends AbstractObjectMap<Role, RoleDto> {
       shouldExpose = true;
     }
     return shouldExpose ? role.hasSubmittedPeerReviews.value : null;
+  }
+
+  public getSourceType(): Type<Role> {
+    return Role;
+  }
+
+  public getTargetType(): Type<RoleDto> {
+    return RoleDto;
   }
 }

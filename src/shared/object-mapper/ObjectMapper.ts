@@ -6,10 +6,7 @@ import {
   Type,
 } from '@nestjs/common';
 import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
-import {
-  getObjectMapMetadata,
-  AbstractObjectMap,
-} from 'shared/object-mapper/ObjectMap';
+import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 
 /**
  * Maps models.
@@ -17,30 +14,28 @@ import {
 export class ObjectMapper {
   private readonly mappings: Map<
     Function,
-    Map<Function, AbstractObjectMap<unknown, unknown>>
+    Map<Function, ObjectMap<unknown, unknown>>
   >;
 
   public constructor() {
     this.mappings = new Map();
   }
 
-  public addObjectMap<T, U>(
-    sourceObjectType: Type<T>,
-    targetObjectType: Type<U>,
-    objectMap: AbstractObjectMap<T, U>,
-  ): void {
-    let targetMap = this.mappings.get(sourceObjectType);
+  public addObjectMap<T, U>(objectMap: ObjectMap<T, U>): void {
+    const sourceType = objectMap.getSourceType();
+    const targetType = objectMap.getTargetType();
+    let targetMap = this.mappings.get(sourceType);
     if (!targetMap) {
       targetMap = new Map();
-      this.mappings.set(sourceObjectType, targetMap);
+      this.mappings.set(sourceType, targetMap);
     }
-    const conflictingObjectMap = targetMap.get(targetObjectType);
+    const conflictingObjectMap = targetMap.get(targetType);
     if (conflictingObjectMap) {
       throw new Error(
-        `Conflicting object maps: ${objectMap.constructor.name} and ${conflictingObjectMap.constructor.name} are model maps for ${sourceObjectType.name} -> ${targetObjectType.name}, remove one.`,
+        `Conflicting object maps: ${objectMap.constructor.name} and ${conflictingObjectMap.constructor.name} are model maps for ${sourceType.name} -> ${targetType.name}, remove one.`,
       );
     }
-    targetMap.set(targetObjectType, objectMap);
+    targetMap.set(targetType, objectMap);
   }
 
   /**
@@ -92,30 +87,19 @@ export class NestContainerObjectMapper extends ObjectMapper
 
   private registerObjectMaps(): void {
     for (const service of this.serviceExplorer.exploreServices()) {
-      const metadata = getObjectMapMetadata(service);
-      if (!metadata) {
+      if (!(service instanceof ObjectMap)) {
         continue;
       }
-      if (!(service instanceof AbstractObjectMap)) {
-        // already checked in decorator @ObjectMap(MyObject, MyOtherObject)
-        throw new Error();
-      }
-      this.addObjectMap(
-        metadata.sourceObjectType,
-        metadata.targetObjectType,
-        service,
-      );
+      this.addObjectMap(service);
     }
   }
 
-  public addObjectMap<T, U>(
-    sourceObjectType: Type<T>,
-    targetObjectType: Type<U>,
-    objectMap: AbstractObjectMap<T, U>,
-  ): void {
-    super.addObjectMap(sourceObjectType, targetObjectType, objectMap);
+  public addObjectMap<T, U>(objectMap: ObjectMap<T, U>): void {
+    super.addObjectMap(objectMap);
     this.logger.log(
-      `Registered {${targetObjectType.name}, ${objectMap.constructor.name}} object map`,
+      `Registered {${objectMap.getSourceType().name} -> ${
+        objectMap.getTargetType().name
+      }, ${objectMap.constructor.name}} object map`,
     );
   }
 }

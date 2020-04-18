@@ -1,18 +1,12 @@
-import {
-  ObjectMap,
-  AbstractObjectMap,
-  ObjectMapContext,
-} from 'shared/object-mapper/ObjectMap';
+import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
+import { Injectable, Type } from '@nestjs/common';
 
-@ObjectMap(PeerReview, PeerReviewDto)
-export class PeerReviewDtoMap extends AbstractObjectMap<
-  PeerReview,
-  PeerReviewDto
-> {
+@Injectable()
+export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
   protected innerMap(
     peerReview: PeerReview,
     context: ObjectMapContext,
@@ -44,5 +38,13 @@ export class PeerReviewDtoMap extends AbstractObjectMap<
       }
     }
     return shouldExpose ? peerReview.score.value : null;
+  }
+
+  public getSourceType(): Type<PeerReview> {
+    return PeerReview;
+  }
+
+  public getTargetType(): Type<PeerReviewDto> {
+    return PeerReviewDto;
   }
 }

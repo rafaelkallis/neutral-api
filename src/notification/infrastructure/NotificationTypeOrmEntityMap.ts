@@ -4,12 +4,13 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
-import { ObjectMap, AbstractObjectMap } from 'shared/object-mapper/ObjectMap';
+import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { Injectable, Type } from '@nestjs/common';
 
-@ObjectMap(Notification, NotificationTypeOrmEntity)
-export class NotificationTypeOrmEntityMap extends AbstractObjectMap<
+@Injectable()
+export class NotificationTypeOrmEntityMap extends ObjectMap<
   Notification,
   NotificationTypeOrmEntity
 > {
@@ -26,10 +27,18 @@ export class NotificationTypeOrmEntityMap extends AbstractObjectMap<
       notificationModel.payload,
     );
   }
+
+  public getSourceType(): Type<Notification> {
+    return Notification;
+  }
+
+  public getTargetType(): Type<NotificationTypeOrmEntity> {
+    return NotificationTypeOrmEntity;
+  }
 }
 
-@ObjectMap(NotificationTypeOrmEntity, Notification)
-export class ReverseNotificationTypeOrmEntityMap extends AbstractObjectMap<
+@Injectable()
+export class ReverseNotificationTypeOrmEntityMap extends ObjectMap<
   NotificationTypeOrmEntity,
   Notification
 > {
@@ -45,5 +54,13 @@ export class ReverseNotificationTypeOrmEntityMap extends AbstractObjectMap<
       NotificationIsRead.from(notificationEntity.isRead),
       notificationEntity.payload,
     );
+  }
+
+  public getSourceType(): Type<NotificationTypeOrmEntity> {
+    return NotificationTypeOrmEntity;
+  }
+
+  public getTargetType(): Type<Notification> {
+    return Notification;
   }
 }
