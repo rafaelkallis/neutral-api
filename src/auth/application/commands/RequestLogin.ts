@@ -1,8 +1,5 @@
 import { Command } from 'shared/command/Command';
-import {
-  AbstractCommandHandler,
-  CommandHandler,
-} from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
@@ -10,6 +7,7 @@ import { Config } from 'shared/config/application/Config';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { Type, Injectable } from '@nestjs/common';
 
 /**
  * Passwordless login
@@ -25,8 +23,8 @@ export class RequestLoginCommand extends Command<void> {
   }
 }
 
-@CommandHandler(RequestLoginCommand)
-export class RequestLoginCommandHandler extends AbstractCommandHandler<
+@Injectable()
+export class RequestLoginCommandHandler extends CommandHandler<
   void,
   RequestLoginCommand
 > {
@@ -64,5 +62,9 @@ export class RequestLoginCommandHandler extends AbstractCommandHandler<
     await this.domainEventBroker.publish(
       new LoginRequestedEvent(user, magicLoginLink),
     );
+  }
+
+  public getCommandType(): Type<RequestLoginCommand> {
+    return RequestLoginCommand;
   }
 }
