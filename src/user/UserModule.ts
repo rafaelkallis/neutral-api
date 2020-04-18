@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from 'user/presentation/UserController';
 import { UserRepository } from 'user/domain/UserRepository';
-import { UserApplicationService } from 'user/application/UserApplicationService';
 import {
   UserTypeOrmEntityMap,
   ReverseUserTypeOrmEntityMap,
@@ -14,6 +13,12 @@ import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository
 import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
 import { GetUserQueryHandler } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQuery';
+import { ForgetAuthUserCommandHandler } from 'user/application/commands/ForgetAuthUser';
+import { UpdateAuthUserCommandHandler } from 'user/application/commands/UpdateAuthUser';
+import { SubmitEmailChangeCommandHandler } from 'user/application/commands/SubmitEmailChange';
+import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/UpdateAuthUserAvatar';
+import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
+import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
 
 /**
  * User Module
@@ -25,7 +30,6 @@ import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQue
   ],
   controllers: [UserController],
   providers: [
-    UserApplicationService,
     UserDtoMap,
     UserTypeOrmEntityMap,
     ReverseUserTypeOrmEntityMap,
@@ -33,6 +37,12 @@ import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQue
     GetUsersQueryHandler,
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
+    GetUserAvatarQueryHandler,
+    UpdateAuthUserCommandHandler,
+    ForgetAuthUserCommandHandler,
+    SubmitEmailChangeCommandHandler,
+    UpdateAuthUserAvatarCommandHandler,
+    RemoveAuthUserAvatarCommandHandler,
   ],
   exports: [UserRepository],
 })

@@ -14,6 +14,7 @@ import {
   Res,
   Put,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -33,37 +34,34 @@ import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserDto } from 'user/application/dto/UserDto';
-import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
 import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvatarDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { GetUsersQuery } from 'user/application/queries/GetUsersQuery';
 import { GetUserQuery } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQuery } from 'user/application/queries/GetAuthUserQuery';
+import { UpdateAuthUserCommand } from 'user/application/commands/UpdateAuthUser';
+import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser';
+import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailChange';
+import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAuthUserAvatar';
+import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
+import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 
 /**
  * User Controller
  */
 @Controller('users')
 @ApiTags('Users')
+@UseGuards(AuthGuard)
+@ApiBearerAuth()
 export class UserController {
-  private readonly userApplication: UserApplicationService;
-  private readonly mediator: Mediator;
-
-  public constructor(
-    userApplication: UserApplicationService,
-    mediator: Mediator,
-  ) {
-    this.userApplication = userApplication;
-    this.mediator = mediator;
-  }
+  @Inject()
+  private readonly mediator!: Mediator;
 
   /**
    * Get users
    */
   @Get()
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ operationId: 'getUsers', summary: 'Get a list of users' })
   @ApiOkResponse({ description: 'A list of users', type: [UserDto] })
   public async getUsers(
@@ -79,8 +77,6 @@ export class UserController {
    * Get the authenticated user
    */
   @Get('me')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'getAuthUser',
     summary: 'Get the authenticated user',
@@ -94,8 +90,6 @@ export class UserController {
    * Get the user with the given id
    */
   @Get(':id')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ operationId: 'getUser', summary: 'Get a user' })
   @ApiOkResponse({ description: 'The requested user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
@@ -110,14 +104,12 @@ export class UserController {
    * Get the avatar of the user with the given id
    */
   @Get(':id/avatar')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'getUserAvatar',
     summary: "Get a user's avatar",
   })
   @ApiOkResponse({ description: 'The requested user avatar' })
-  @ApiProduces(...UserApplicationService.AVATAR_MIME_TYPES)
+  @ApiProduces('image/png', 'image/jpeg')
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiNotFoundResponse({ description: 'User has no avatar' })
   public async getUserAvatar(
@@ -125,9 +117,8 @@ export class UserController {
     @Param('id') userId: string,
     @Res() response: Response,
   ): Promise<void> {
-    const { file, contentType } = await this.userApplication.getUserAvatar(
-      authUser,
-      userId,
+    const { file, contentType } = await this.mediator.send(
+      new GetUserAvatarQuery(authUser, userId),
     );
     response.set('Content-Type', contentType);
     response.sendFile(file);
@@ -140,8 +131,6 @@ export class UserController {
    * to verify the new email address.
    */
   @Patch('me')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'updateAuthUser',
     summary: 'Update the authenticated user',
@@ -151,16 +140,21 @@ export class UserController {
     @AuthUser() authUser: User,
     @Body(ValidationPipe) dto: UpdateUserDto,
   ): Promise<UserDto> {
-    return this.userApplication.updateAuthUser(authUser, dto);
+    return this.mediator.send(
+      new UpdateAuthUserCommand(
+        authUser,
+        dto.email,
+        dto.firstName,
+        dto.lastName,
+      ),
+    );
   }
 
   /**
    * Update the authenticated user's avatar
    */
   @Put('me/avatar')
-  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'updateAuthUserAvatar',
     summary: "Update the authenticated user's avatar",
@@ -175,10 +169,12 @@ export class UserController {
     @AuthUser() authUser: User,
     @UploadedFile() avatarFile: Express.Multer.File,
   ): Promise<UserDto> {
-    return this.userApplication.updateAuthUserAvatar(
-      authUser,
-      avatarFile.path,
-      avatarFile.mimetype,
+    return this.mediator.send(
+      new UpdateAuthUserAvatarCommand(
+        authUser,
+        avatarFile.path,
+        avatarFile.mimetype,
+      ),
     );
   }
 
@@ -186,8 +182,6 @@ export class UserController {
    * Remove the authenticated user's avatar
    */
   @Delete('me/avatar')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'removeAuthUserAvatar',
     summary: "Remove the authenticated user's avatar",
@@ -199,7 +193,7 @@ export class UserController {
   public async removeAuthUserAvatar(
     @AuthUser() authUser: User,
   ): Promise<UserDto> {
-    return this.userApplication.removeAuthUserAvatar(authUser);
+    return this.mediator.send(new RemoveAuthUserAvatarCommand(authUser));
   }
 
   /**
@@ -212,8 +206,11 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'The updated user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
-  public async submitEmailChange(@Param('token') token: string): Promise<void> {
-    return this.userApplication.submitEmailChange(token);
+  public async submitEmailChange(
+    @AuthUser() authUser: User,
+    @Param('token') token: string,
+  ): Promise<UserDto> {
+    return this.mediator.send(new SubmitEmailChangeCommand(authUser, token));
   }
 
   /**
@@ -221,8 +218,6 @@ export class UserController {
    */
   @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'deleteAuthUser',
     summary: 'Forget the authenticated user. Use "/:id/forget" instead',
@@ -232,7 +227,7 @@ export class UserController {
     description: 'Authenticated user deleted succesfully',
   })
   public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
-    await this.userApplication.forgetAuthUser(authUser);
+    await this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 
   /**
@@ -240,8 +235,6 @@ export class UserController {
    */
   @Post('me/forget')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'forgetAuthUser',
     summary: 'Forget the authenticated user',
@@ -250,6 +243,6 @@ export class UserController {
     description: 'Authenticated user forgotten succesfully',
   })
   public async forgetAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
-    return this.userApplication.forgetAuthUser(authUser);
+    return this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 }

@@ -34,7 +34,9 @@ export class Mediator {
       this.logger.error(
         `No request handler for ${requestType.name} registered`,
       );
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        `No request handler for ${requestType.name} registered`,
+      );
     }
     return requestHandler.handle(request);
   }

@@ -1,3 +1,4 @@
+import td from 'testdouble';
 import { Type, Provider, ValueProvider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TestScenario } from 'test/TestScenario';
@@ -31,6 +32,11 @@ export class UnitTestScenarioBuilder<TSubject> {
     provider: TProvider,
   ): this {
     this.providers.push({ provide, useValue: provider });
+    return this;
+  }
+
+  public addProviderMock(provide: ValueProvider['provide']): this {
+    this.providers.push({ provide, useValue: td.object() });
     return this;
   }
 
