@@ -14,6 +14,7 @@ import {
   Res,
   Put,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -33,7 +34,6 @@ import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
 import { UpdateUserDto } from 'user/application/dto/UpdateUserDto';
 import { UserDto } from 'user/application/dto/UserDto';
-import { UserApplicationService } from 'user/application/UserApplicationService';
 import { User } from 'user/domain/User';
 import { UpdateAuthUserAvatarDto } from 'user/application/dto/UpdateAuthUserAvatarDto';
 import { Mediator } from 'shared/mediator/Mediator';
@@ -45,6 +45,7 @@ import { ForgetAuthUserCommand } from 'user/application/commands/ForgetAuthUser'
 import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailChange';
 import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAuthUserAvatar';
 import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
+import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 
 /**
  * User Controller
@@ -54,16 +55,8 @@ import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAut
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
 export class UserController {
-  private readonly userApplication: UserApplicationService;
-  private readonly mediator: Mediator;
-
-  public constructor(
-    userApplication: UserApplicationService,
-    mediator: Mediator,
-  ) {
-    this.userApplication = userApplication;
-    this.mediator = mediator;
-  }
+  @Inject()
+  private readonly mediator!: Mediator;
 
   /**
    * Get users
@@ -116,7 +109,7 @@ export class UserController {
     summary: "Get a user's avatar",
   })
   @ApiOkResponse({ description: 'The requested user avatar' })
-  @ApiProduces(...UserApplicationService.AVATAR_MIME_TYPES)
+  @ApiProduces('image/png', 'image/jpeg')
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiNotFoundResponse({ description: 'User has no avatar' })
   public async getUserAvatar(
@@ -124,9 +117,8 @@ export class UserController {
     @Param('id') userId: string,
     @Res() response: Response,
   ): Promise<void> {
-    const { file, contentType } = await this.userApplication.getUserAvatar(
-      authUser,
-      userId,
+    const { file, contentType } = await this.mediator.send(
+      new GetUserAvatarQuery(authUser, userId),
     );
     response.set('Content-Type', contentType);
     response.sendFile(file);

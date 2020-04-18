@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from 'user/presentation/UserController';
 import { UserRepository } from 'user/domain/UserRepository';
-import { UserApplicationService } from 'user/application/UserApplicationService';
 import {
   UserTypeOrmEntityMap,
   ReverseUserTypeOrmEntityMap,
@@ -19,6 +18,7 @@ import { UpdateAuthUserCommandHandler } from 'user/application/commands/UpdateAu
 import { SubmitEmailChangeCommandHandler } from 'user/application/commands/SubmitEmailChange';
 import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/UpdateAuthUserAvatar';
 import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
+import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
 
 /**
  * User Module
@@ -30,7 +30,6 @@ import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/Re
   ],
   controllers: [UserController],
   providers: [
-    UserApplicationService,
     UserDtoMap,
     UserTypeOrmEntityMap,
     ReverseUserTypeOrmEntityMap,
@@ -38,6 +37,7 @@ import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/Re
     GetUsersQueryHandler,
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
+    GetUserAvatarQueryHandler,
     UpdateAuthUserCommandHandler,
     ForgetAuthUserCommandHandler,
     SubmitEmailChangeCommandHandler,

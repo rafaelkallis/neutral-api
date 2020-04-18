@@ -181,4 +181,6 @@ describe('user (e2e)', () => {
       expect(updatedUser.state.equals(UserState.FORGOTTEN)).toBeTruthy();
     });
   });
+
+  // TODO "/users/:id/avatar (GET)"
 });
