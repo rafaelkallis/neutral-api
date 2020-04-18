@@ -1,6 +1,6 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { AbstractQueryHandler } from 'shared/query/QueryHandler';
+import { QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
@@ -20,10 +20,7 @@ export class GetUserQuery extends Query<UserDto> {
 }
 
 @Injectable()
-export class GetUserQueryHandler extends AbstractQueryHandler<
-  UserDto,
-  GetUserQuery
-> {
+export class GetUserQueryHandler extends QueryHandler<UserDto, GetUserQuery> {
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
 

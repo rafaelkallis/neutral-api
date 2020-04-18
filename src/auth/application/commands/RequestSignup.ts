@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
@@ -24,7 +24,7 @@ export class RequestSignupCommand extends Command<void> {
 }
 
 @Injectable()
-export class RequestSignupCommandHandler extends AbstractCommandHandler<
+export class RequestSignupCommandHandler extends CommandHandler<
   void,
   RequestSignupCommand
 > {

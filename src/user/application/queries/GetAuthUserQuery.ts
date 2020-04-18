@@ -1,6 +1,6 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { AbstractQueryHandler } from 'shared/query/QueryHandler';
+import { QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
 import { Type, Injectable } from '@nestjs/common';
@@ -15,7 +15,7 @@ export class GetAuthUserQuery extends Query<UserDto> {
 }
 
 @Injectable()
-export class GetAuthUserQueryHandler extends AbstractQueryHandler<
+export class GetAuthUserQueryHandler extends QueryHandler<
   UserDto,
   GetAuthUserQuery
 > {

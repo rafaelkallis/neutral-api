@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
@@ -31,7 +31,7 @@ export class SubmitLoginCommand extends Command<AuthenticationResponseDto> {
 }
 
 @Injectable()
-export class SubmitLoginCommandHandler extends AbstractCommandHandler<
+export class SubmitLoginCommandHandler extends CommandHandler<
   AuthenticationResponseDto,
   SubmitLoginCommand
 > {

@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -41,7 +41,7 @@ export class SubmitSignupCommand extends Command<AuthenticationResponseDto> {
 }
 
 @Injectable()
-export class SubmitSignupCommandHandler extends AbstractCommandHandler<
+export class SubmitSignupCommandHandler extends CommandHandler<
   AuthenticationResponseDto,
   SubmitSignupCommand
 > {

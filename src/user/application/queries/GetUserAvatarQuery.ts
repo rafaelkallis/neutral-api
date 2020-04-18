@@ -1,5 +1,5 @@
 import { Query } from 'shared/query/Query';
-import { AbstractQueryHandler } from 'shared/query/QueryHandler';
+import { QueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Inject, NotFoundException, Type, Injectable } from '@nestjs/common';
@@ -22,7 +22,7 @@ export class GetUserAvatarQuery extends Query<{
 }
 
 @Injectable()
-export class GetUserAvatarQueryHandler extends AbstractQueryHandler<
+export class GetUserAvatarQueryHandler extends QueryHandler<
   { file: string; contentType: string },
   GetUserAvatarQuery
 > {

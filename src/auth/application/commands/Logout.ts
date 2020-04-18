@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { SessionState } from 'shared/session';
 import { Type, Injectable } from '@nestjs/common';
 
@@ -16,10 +16,7 @@ export class LogoutCommand extends Command<void> {
 }
 
 @Injectable()
-export class LogoutCommandHandler extends AbstractCommandHandler<
-  void,
-  LogoutCommand
-> {
+export class LogoutCommandHandler extends CommandHandler<void, LogoutCommand> {
   public async handle(command: LogoutCommand): Promise<void> {
     command.session.clear();
   }
