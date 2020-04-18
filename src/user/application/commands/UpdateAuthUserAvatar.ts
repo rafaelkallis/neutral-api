@@ -3,8 +3,7 @@ import {
   UserCommand,
   AbstractUserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject } from '@nestjs/common';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { Inject, Type } from '@nestjs/common';
 import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { Avatar } from 'user/domain/value-objects/Avatar';
@@ -23,7 +22,6 @@ export class UpdateAuthUserAvatarCommand extends UserCommand {
   }
 }
 
-@CommandHandler(UpdateAuthUserAvatarCommand)
 export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandler<
   UpdateAuthUserAvatarCommand
 > {
@@ -57,5 +55,9 @@ export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandl
     const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
     return authUser;
+  }
+
+  public getCommandType(): Type<UpdateAuthUserAvatarCommand> {
+    return UpdateAuthUserAvatarCommand;
   }
 }

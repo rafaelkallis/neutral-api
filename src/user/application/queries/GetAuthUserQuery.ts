@@ -1,8 +1,9 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
+import { Type, Injectable } from '@nestjs/common';
 
 export class GetAuthUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -13,7 +14,7 @@ export class GetAuthUserQuery extends Query<UserDto> {
   }
 }
 
-@QueryHandler(GetAuthUserQuery)
+@Injectable()
 export class GetAuthUserQueryHandler extends AbstractQueryHandler<
   UserDto,
   GetAuthUserQuery
@@ -29,5 +30,9 @@ export class GetAuthUserQueryHandler extends AbstractQueryHandler<
     return this.objectMapper.map(query.authUser, UserDto, {
       authUser: query.authUser,
     });
+  }
+
+  public getQueryType(): Type<GetAuthUserQuery> {
+    return GetAuthUserQuery;
   }
 }

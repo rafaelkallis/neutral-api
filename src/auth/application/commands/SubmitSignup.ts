@@ -1,8 +1,5 @@
 import { Command } from 'shared/command/Command';
-import {
-  AbstractCommandHandler,
-  CommandHandler,
-} from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -15,6 +12,7 @@ import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { Type, Injectable } from '@nestjs/common';
 
 /**
  * Passwordless signup token submit
@@ -42,7 +40,7 @@ export class SubmitSignupCommand extends Command<AuthenticationResponseDto> {
   }
 }
 
-@CommandHandler(SubmitSignupCommand)
+@Injectable()
 export class SubmitSignupCommandHandler extends AbstractCommandHandler<
   AuthenticationResponseDto,
   SubmitSignupCommand
@@ -88,5 +86,9 @@ export class SubmitSignupCommandHandler extends AbstractCommandHandler<
       authUser: user,
     });
     return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
+  }
+
+  public getCommandType(): Type<SubmitSignupCommand> {
+    return SubmitSignupCommand;
   }
 }

@@ -1,8 +1,8 @@
 import { Query } from 'shared/query/Query';
-import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject, NotFoundException, Type, Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
@@ -21,7 +21,7 @@ export class GetUserAvatarQuery extends Query<{
   }
 }
 
-@QueryHandler(GetUserAvatarQuery)
+@Injectable()
 export class GetUserAvatarQueryHandler extends AbstractQueryHandler<
   { file: string; contentType: string },
   GetUserAvatarQuery
@@ -48,5 +48,9 @@ export class GetUserAvatarQueryHandler extends AbstractQueryHandler<
       key: user.avatar.value,
     });
     return userAvatar;
+  }
+
+  public getQueryType(): Type<GetUserAvatarQuery> {
+    return GetUserAvatarQuery;
   }
 }

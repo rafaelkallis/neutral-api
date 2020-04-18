@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
-import { AbstractRequestHandler } from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 
 /**
  *
@@ -15,7 +15,7 @@ export class Mediator {
   private readonly logger: Logger;
   private readonly requestHandlers: Map<
     Function,
-    AbstractRequestHandler<unknown, Request<unknown>>
+    RequestHandler<unknown, Request<unknown>>
   >;
 
   public constructor() {
@@ -28,7 +28,7 @@ export class Mediator {
   ): Promise<T> {
     const requestType = request.constructor as Type<TRequest>;
     const requestHandler = this.requestHandlers.get(requestType) as
-      | AbstractRequestHandler<T, TRequest>
+      | RequestHandler<T, TRequest>
       | undefined;
     if (!requestHandler) {
       this.logger.error(
@@ -42,9 +42,9 @@ export class Mediator {
   }
 
   public registerRequestHandler<T, TRequest extends Request<T>>(
-    requestType: Type<TRequest>,
-    requestHandler: AbstractRequestHandler<T, TRequest>,
+    requestHandler: RequestHandler<T, TRequest>,
   ): void {
+    const requestType = requestHandler.getRequestType();
     if (this.requestHandlers.has(requestType)) {
       throw new TypeError(
         `Request handler for ${requestType.name} already registered, only 1 request handler allowed per request`,

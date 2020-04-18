@@ -8,10 +8,9 @@ import {
   UserCommand,
   AbstractUserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject } from '@nestjs/common';
+import { Inject, Type } from '@nestjs/common';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Update the authenticated user
@@ -37,7 +36,6 @@ export class UpdateAuthUserCommand extends UserCommand {
   }
 }
 
-@CommandHandler(UpdateAuthUserCommand)
 export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
   UpdateAuthUserCommand
 > {
@@ -83,5 +81,9 @@ export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
       authUser.updateName(newName);
     }
     return authUser;
+  }
+
+  public getCommandType(): Type<UpdateAuthUserCommand> {
+    return UpdateAuthUserCommand;
   }
 }

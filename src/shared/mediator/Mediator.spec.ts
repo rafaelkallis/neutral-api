@@ -1,9 +1,7 @@
 import { Mediator } from 'shared/mediator/Mediator';
 import { Request } from 'shared/mediator/Request';
-import {
-  RequestHandler,
-  AbstractRequestHandler,
-} from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
+import { Type } from '@nestjs/common';
 
 describe(Mediator.name, () => {
   let mediator: Mediator;
@@ -14,10 +12,13 @@ describe(Mediator.name, () => {
 
   class TestRequest extends Request<string> {}
 
-  @RequestHandler(TestRequest)
-  class TestRequestHandler extends AbstractRequestHandler<string, TestRequest> {
+  class TestRequestHandler extends RequestHandler<string, TestRequest> {
     public async handle(request: TestRequest): Promise<string> {
       return 'test request handler result';
+    }
+
+    public getRequestType(): Type<TestRequest> {
+      return TestRequest;
     }
   }
 
@@ -25,7 +26,7 @@ describe(Mediator.name, () => {
     const testRequest = new TestRequest();
 
     const testRequestHandler = new TestRequestHandler();
-    mediator.registerRequestHandler(TestRequest, testRequestHandler);
+    mediator.registerRequestHandler(testRequestHandler);
     jest.spyOn(testRequestHandler, 'handle');
 
     const actualResult = await mediator.send(testRequest);

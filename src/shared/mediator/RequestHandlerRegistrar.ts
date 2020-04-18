@@ -1,11 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 import { Mediator } from 'shared/mediator/Mediator';
-import {
-  getRequestHandlerMetadata,
-  AbstractRequestHandler,
-  RequestHandler,
-} from './RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 
 @Injectable()
 export class RequestHandlerRegistrar implements OnModuleInit {
@@ -25,16 +21,10 @@ export class RequestHandlerRegistrar implements OnModuleInit {
 
   private registerRequestHandlers(): void {
     for (const service of this.serviceExplorer.exploreServices()) {
-      if (!(service instanceof AbstractRequestHandler)) {
+      if (!(service instanceof RequestHandler)) {
         continue;
       }
-      const metadata = getRequestHandlerMetadata(service);
-      if (!metadata) {
-        throw new TypeError(
-          `No request handler metadata found on ${service.constructor.name}, did you add @${RequestHandler.name}() ?`,
-        );
-      }
-      this.mediator.registerRequestHandler(metadata.requestType, service);
+      this.mediator.registerRequestHandler(service);
     }
     this.logger.log('Request handlers successfully registered');
   }

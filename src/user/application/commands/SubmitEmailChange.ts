@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Type } from '@nestjs/common';
 import { User } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { Email } from 'user/domain/value-objects/Email';
@@ -6,7 +6,6 @@ import {
   UserCommand,
   AbstractUserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { CommandHandler } from 'shared/command/CommandHandler';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UnauthorizedUserException } from 'shared/exceptions/unauthorized-user.exception';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
@@ -23,7 +22,6 @@ export class SubmitEmailChangeCommand extends UserCommand {
   }
 }
 
-@CommandHandler(SubmitEmailChangeCommand)
 export class SubmitEmailChangeCommandHandler extends AbstractUserCommandHandler<
   SubmitEmailChangeCommand
 > {
@@ -43,5 +41,9 @@ export class SubmitEmailChangeCommandHandler extends AbstractUserCommandHandler<
     const newEmail = Email.from(payload.newEmail);
     command.authUser.changeEmail(newEmail);
     return command.authUser;
+  }
+
+  public getCommandType(): Type<SubmitEmailChangeCommand> {
+    return SubmitEmailChangeCommand;
   }
 }

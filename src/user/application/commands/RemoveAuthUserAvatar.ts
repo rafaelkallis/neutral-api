@@ -3,8 +3,7 @@ import {
   UserCommand,
   AbstractUserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject, NotFoundException } from '@nestjs/common';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { Inject, NotFoundException, Type } from '@nestjs/common';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 
 /**
@@ -12,7 +11,6 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
  */
 export class RemoveAuthUserAvatarCommand extends UserCommand {}
 
-@CommandHandler(RemoveAuthUserAvatarCommand)
 export class RemoveAuthUserAvatarCommandHandler extends AbstractUserCommandHandler<
   RemoveAuthUserAvatarCommand
 > {
@@ -33,5 +31,9 @@ export class RemoveAuthUserAvatarCommandHandler extends AbstractUserCommandHandl
     });
     authUser.removeAvatar();
     return authUser;
+  }
+
+  public getCommandType(): Type<RemoveAuthUserAvatarCommand> {
+    return RemoveAuthUserAvatarCommand;
   }
 }
