@@ -1,101 +1,51 @@
-import {
-  Injectable,
-  OnModuleInit,
-  InternalServerErrorException,
-  Logger,
-  Type,
-} from '@nestjs/common';
-import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
-import { ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { Injectable, InternalServerErrorException, Type } from '@nestjs/common';
+import { ObjectMapperRegistry } from 'shared/object-mapper/ObjectMapperRegistry';
 
 /**
- * Maps models.
+ * Maps objects.
  */
+@Injectable()
 export class ObjectMapper {
-  private readonly mappings: Map<
-    Function,
-    Map<Function, ObjectMap<unknown, unknown>>
-  >;
+  private readonly registry: ObjectMapperRegistry;
 
-  public constructor() {
-    this.mappings = new Map();
-  }
-
-  public addObjectMap<T, U>(objectMap: ObjectMap<T, U>): void {
-    const sourceType = objectMap.getSourceType();
-    const targetType = objectMap.getTargetType();
-    let targetMap = this.mappings.get(sourceType);
-    if (!targetMap) {
-      targetMap = new Map();
-      this.mappings.set(sourceType, targetMap);
-    }
-    const conflictingObjectMap = targetMap.get(targetType);
-    if (conflictingObjectMap) {
-      throw new Error(
-        `Conflicting object maps: ${objectMap.constructor.name} and ${conflictingObjectMap.constructor.name} are model maps for ${sourceType.name} -> ${targetType.name}, remove one.`,
-      );
-    }
-    targetMap.set(targetType, objectMap);
+  public constructor(registry: ObjectMapperRegistry) {
+    this.registry = registry;
   }
 
   /**
    * Maps the given object instance to the specified object type.
    * @param o Object to map.
-   * @param targetObjectType The type to map to.
+   * @param targetType The type to map to.
    * @param context Mapping context.
    */
-  public map<T>(o: object, targetObjectType: Type<T>, context: object = {}): T {
-    const targetMap = this.mappings.get(o.constructor);
-    if (!targetMap) {
-      throw new InternalServerErrorException(
-        `object map for ${o.constructor.name} -> ${targetObjectType.name} not found`,
-      );
-    }
-    const objectMap = targetMap.get(targetObjectType);
+  public map<TTarget>(
+    o: object,
+    targetType: Type<TTarget>,
+    context: object = {},
+  ): TTarget {
+    const objectMap = this.registry.get(
+      o.constructor as Type<object>,
+      targetType,
+    );
     if (!objectMap) {
       throw new InternalServerErrorException(
-        `object map for ${o.constructor.name} not found`,
+        `object map for ${o.constructor.name} -> ${targetType.name} not found`,
       );
     }
-    return (objectMap.map(o, context) as unknown) as T;
+    return objectMap.map(o, context);
   }
 
+  /**
+   * Maps the given object instances to the specified object type.
+   * @param arr Array of objects to map.
+   * @param targetType The type to map to.
+   * @param context Mapping context.
+   */
   public mapArray<T>(
     arr: object[],
-    targetObjectType: Type<T>,
+    targetType: Type<T>,
     context: object = {},
   ): T[] {
-    return arr.map((o) => this.map(o, targetObjectType, context));
-  }
-}
-
-@Injectable()
-export class NestContainerObjectMapper extends ObjectMapper
-  implements OnModuleInit {
-  private readonly logger: Logger;
-  private readonly serviceExplorer: ServiceExplorer;
-
-  public constructor(serviceExplorer: ServiceExplorer) {
-    super();
-    this.logger = new Logger(ObjectMapper.name, true);
-    this.serviceExplorer = serviceExplorer;
-  }
-
-  public onModuleInit(): void {
-    this.registerObjectMaps();
-  }
-
-  private registerObjectMaps(): void {
-    for (const service of this.serviceExplorer.exploreServices()) {
-      if (!(service instanceof ObjectMap)) {
-        continue;
-      }
-      this.addObjectMap(service);
-      this.logger.log(
-        `Registered {${service.getSourceType().name} -> ${
-          service.getTargetType().name
-        }, ${service.constructor.name}} object map`,
-      );
-    }
+    return arr.map((o) => this.map(o, targetType, context));
   }
 }
