@@ -91,15 +91,11 @@ export class NestContainerObjectMapper extends ObjectMapper
         continue;
       }
       this.addObjectMap(service);
+      this.logger.log(
+        `Registered {${service.getSourceType().name} -> ${
+          service.getTargetType().name
+        }, ${service.constructor.name}} object map`,
+      );
     }
-  }
-
-  public addObjectMap<T, U>(objectMap: ObjectMap<T, U>): void {
-    super.addObjectMap(objectMap);
-    this.logger.log(
-      `Registered {${objectMap.getSourceType().name} -> ${
-        objectMap.getTargetType().name
-      }, ${objectMap.constructor.name}} object map`,
-    );
   }
 }
