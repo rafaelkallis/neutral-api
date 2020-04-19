@@ -8,12 +8,10 @@ import {
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { Project, CreateProjectOptions } from 'project/domain/Project';
+import { Project } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
-import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
-import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
@@ -27,7 +25,6 @@ import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
-import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
@@ -133,33 +130,6 @@ export class ProjectApplicationService {
     }
     const role = project.roles.find(roleId);
     return this.objectMapper.map(role, RoleDto, { project, authUser });
-  }
-
-  /**
-   * Create a project
-   */
-  public async createProject(
-    authUser: User,
-    createProjectDto: CreateProjectDto,
-  ): Promise<ProjectDto> {
-    const createProjectOptions: CreateProjectOptions = {
-      title: ProjectTitle.from(createProjectDto.title),
-      description: ProjectDescription.from(createProjectDto.description),
-      creator: authUser,
-    };
-    if (createProjectDto.skipManagerReview) {
-      createProjectOptions.skipManagerReview = SkipManagerReview.from(
-        createProjectDto.skipManagerReview,
-      );
-    }
-    if (createProjectDto.contributionVisibility) {
-      createProjectOptions.contributionVisibility = ContributionVisibility.from(
-        createProjectDto.contributionVisibility,
-      );
-    }
-    const project = Project.create(createProjectOptions);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**

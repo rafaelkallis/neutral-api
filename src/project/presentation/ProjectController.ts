@@ -33,6 +33,8 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
+import { Mediator } from 'shared/mediator/Mediator';
+import { CreateProjectCommand } from 'project/application/commands/CreateProject';
 
 /**
  * Project Controller
@@ -43,9 +45,14 @@ import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsD
 @ApiTags('Projects')
 export class ProjectController {
   private readonly projectApplicationService: ProjectApplicationService;
+  private readonly mediator: Mediator;
 
-  public constructor(projectApplicationService: ProjectApplicationService) {
+  public constructor(
+    projectApplicationService: ProjectApplicationService,
+    mediator: Mediator,
+  ) {
     this.projectApplicationService = projectApplicationService;
+    this.mediator = mediator;
   }
 
   /**
@@ -90,9 +97,17 @@ export class ProjectController {
   @ApiCreatedResponse({ type: ProjectDto })
   public async createProject(
     @AuthUser() authUser: User,
-    @Body() dto: CreateProjectDto,
+    @Body() createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto> {
-    return this.projectApplicationService.createProject(authUser, dto);
+    return this.mediator.send(
+      new CreateProjectCommand(
+        authUser,
+        createProjectDto.title,
+        createProjectDto.description,
+        createProjectDto.contributionVisibility,
+        createProjectDto.skipManagerReview,
+      ),
+    );
   }
 
   /**

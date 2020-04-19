@@ -8,7 +8,6 @@ import {
 } from 'project/application/dto/GetProjectsQueryDto';
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
@@ -204,24 +203,6 @@ describe(ProjectApplicationService.name, () => {
         authUser: ownerUser,
       });
       expect(roleDto).toEqual(mockRoleDto);
-    });
-  });
-
-  describe('create project', () => {
-    let title: string;
-    let description: string;
-    let createProjectDto: CreateProjectDto;
-
-    beforeEach(() => {
-      title = primitiveFaker.words();
-      description = primitiveFaker.paragraph();
-      createProjectDto = new CreateProjectDto(title, description);
-      jest.spyOn(projectRepository, 'persist');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.createProject(ownerUser, createProjectDto);
-      expect(projectRepository.persist).toHaveBeenCalled();
     });
   });
 
