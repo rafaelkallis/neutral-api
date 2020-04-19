@@ -6,12 +6,10 @@ import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
-import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { Role } from 'project/domain/Role';
 import { PeerReview } from 'project/domain/PeerReview';
 import { User } from 'user/domain/User';
@@ -203,41 +201,6 @@ describe(ProjectApplicationService.name, () => {
         authUser: ownerUser,
       });
       expect(roleDto).toEqual(mockRoleDto);
-    });
-  });
-
-  describe('update project', () => {
-    let newTitle: ProjectTitle;
-    let updateProjectDto: UpdateProjectDto;
-
-    beforeEach(async () => {
-      project.state = ProjectState.FORMATION;
-      await projectRepository.persist(project);
-      newTitle = ProjectTitle.from(primitiveFaker.words());
-      updateProjectDto = new UpdateProjectDto(newTitle.value);
-      jest.spyOn(project, 'update');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.updateProject(
-        ownerUser,
-        project.id.value,
-        updateProjectDto,
-      );
-      expect(project.update).toHaveBeenCalledWith(newTitle, undefined);
-    });
-
-    test('should fail if non-owner updates project', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.updateProject(
-          notOwnerUser,
-          project.id.value,
-          updateProjectDto,
-        ),
-      ).rejects.toThrow();
-      expect(project.update).not.toHaveBeenCalled();
     });
   });
 

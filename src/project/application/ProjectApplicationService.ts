@@ -5,13 +5,10 @@ import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
-import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { Project } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
@@ -130,31 +127,6 @@ export class ProjectApplicationService {
     }
     const role = project.roles.find(roleId);
     return this.objectMapper.map(role, RoleDto, { project, authUser });
-  }
-
-  /**
-   * Update a project
-   */
-  public async updateProject(
-    authUser: User,
-    rawProjectId: string,
-    updateProjectDto: UpdateProjectDto,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    const title = updateProjectDto.title
-      ? ProjectTitle.from(updateProjectDto.title)
-      : undefined;
-    const description = updateProjectDto.description
-      ? ProjectDescription.from(updateProjectDto.description)
-      : undefined;
-    project.update(title, description);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
   /**

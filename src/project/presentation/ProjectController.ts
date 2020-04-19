@@ -35,6 +35,7 @@ import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { CreateProjectCommand } from 'project/application/commands/CreateProject';
+import { UpdateProjectCommand } from 'project/application/commands/UpdateProject';
 
 /**
  * Project Controller
@@ -126,9 +127,16 @@ export class ProjectController {
   public async updateProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body() dto: UpdateProjectDto,
+    @Body() updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    return this.projectApplicationService.updateProject(authUser, id, dto);
+    return this.mediator.send(
+      new UpdateProjectCommand(
+        authUser,
+        id,
+        updateProjectDto.title,
+        updateProjectDto.description,
+      ),
+    );
   }
 
   /**
