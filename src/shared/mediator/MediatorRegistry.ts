@@ -6,38 +6,33 @@ import {
 } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
 import { RequestHandler } from 'shared/mediator/RequestHandler';
-import { Registry } from 'shared/application/Registry';
 
 /**
  *
  */
 @Injectable()
-export class MediatorRegistry extends Registry<
-  Type<Request<unknown>>,
-  RequestHandler<unknown, Request<unknown>>
-> {
+export class MediatorRegistry {
   private readonly logger: Logger;
+  private readonly registry: Map<
+    Type<Request<unknown>>,
+    RequestHandler<unknown, Request<unknown>>
+  >;
 
   public constructor() {
-    super();
     this.logger = new Logger(MediatorRegistry.name);
+    this.registry = new Map();
   }
 
-  public set(
-    requestType: Type<Request<unknown>>,
-    requestHandler: RequestHandler<unknown, Request<unknown>>,
+  public register<T, TRequest extends Request<T>>(
+    requestHandler: RequestHandler<T, TRequest>,
   ): void {
-    if (requestType !== requestHandler.getRequestType()) {
-      throw new InternalServerErrorException(
-        `Request handler ${requestHandler.constructor.name} does not handle request of type ${requestType.name}`,
-      );
-    }
+    const requestType = requestHandler.getRequestType();
     if (this.get(requestType) !== undefined) {
       throw new InternalServerErrorException(
         `Request handler for ${requestType.name} already registered, only 1 request handler allowed per request type`,
       );
     }
-    super.set(requestType, requestHandler);
+    this.registry.set(requestType, requestHandler);
     this.logger.log(
       `Registered {${requestType.name} -> ${requestHandler.constructor.name}} request handler`,
     );
@@ -46,6 +41,8 @@ export class MediatorRegistry extends Registry<
   public get<T, TRequest extends Request<T>>(
     requestType: Type<TRequest>,
   ): RequestHandler<T, TRequest> | undefined {
-    return super.get(requestType) as RequestHandler<T, TRequest> | undefined;
+    return this.registry.get(requestType) as
+      | RequestHandler<T, TRequest>
+      | undefined;
   }
 }

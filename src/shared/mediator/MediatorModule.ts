@@ -1,9 +1,9 @@
-import { Module, OnModuleInit, Inject } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { Mediator } from 'shared/mediator/Mediator';
 import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
-import { MediatorRegistry } from './MediatorRegistry';
-import { RequestHandler } from './RequestHandler';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 
 /**
  * Mediator Module
@@ -14,8 +14,16 @@ import { RequestHandler } from './RequestHandler';
   exports: [Mediator],
 })
 export class MediatorModule implements OnModuleInit {
-  @Inject() private readonly serviceExplorer!: ServiceExplorer;
-  @Inject() private readonly requestHandlerRegistry!: MediatorRegistry;
+  private readonly serviceExplorer: ServiceExplorer;
+  private readonly registry: MediatorRegistry;
+
+  public constructor(
+    serviceExplorer: ServiceExplorer,
+    registry: MediatorRegistry,
+  ) {
+    this.serviceExplorer = serviceExplorer;
+    this.registry = registry;
+  }
 
   public onModuleInit(): void {
     this.registerRequestHandlers();
@@ -26,7 +34,7 @@ export class MediatorModule implements OnModuleInit {
       if (!(service instanceof RequestHandler)) {
         continue;
       }
-      this.requestHandlerRegistry.set(service.getRequestType(), service);
+      this.registry.register(service);
     }
   }
 }
