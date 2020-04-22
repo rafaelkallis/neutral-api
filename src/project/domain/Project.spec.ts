@@ -231,6 +231,11 @@ describe(Project.name, () => {
       roles[0].assigneeId = null;
       expect(() => project.finishFormation()).toThrow();
     });
+
+    test('should fail if amount of roles is insufficient', () => {
+      // TODO
+      expect(() => project.finishFormation()).toThrow();
+    });
   });
 
   describe('submit peer reviews', () => {

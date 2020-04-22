@@ -7,6 +7,7 @@ import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUse
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { InsufficientRoleAmountException } from './exceptions/InsufficientRoleAmountException';
 
 export class RoleCollection extends ModelCollection<RoleId, Role> {
   public static empty(): RoleCollection {
@@ -62,6 +63,12 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
       if (!role.isAssigned()) {
         throw new RoleNoUserAssignedException();
       }
+    }
+  }
+
+  public assertSufficientAmount(): void {
+    if (Array.from(this).length < 4) {
+      throw new InsufficientRoleAmountException();
     }
   }
 

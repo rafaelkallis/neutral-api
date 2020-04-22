@@ -212,6 +212,7 @@ export class Project extends AggregateRoot<ProjectId> {
    */
   public finishFormation(): void {
     this.state.assertEquals(ProjectState.FORMATION);
+    this.roles.assertSufficientAmount();
     this.roles.assertAllAreAssigned();
     this.state = ProjectState.PEER_REVIEW;
     this.apply(new ProjectFormationFinishedEvent(this));
