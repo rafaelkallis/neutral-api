@@ -47,8 +47,8 @@ export class ProjectDto extends ModelDto {
   })
   public skipManagerReview: SkipManagerReviewValue;
 
-  @ApiProperty({ type: [RoleDto], required: false })
-  public roles: RoleDto[] | null;
+  @ApiProperty({ type: [RoleDto] })
+  public roles: RoleDto[];
 
   @ApiProperty({ type: [PeerReviewDto], required: false })
   public peerReviews: PeerReviewDto[] | null;
@@ -62,7 +62,7 @@ export class ProjectDto extends ModelDto {
     consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
-    roles: RoleDto[] | null,
+    roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
     createdAt: number,
     updatedAt: number,

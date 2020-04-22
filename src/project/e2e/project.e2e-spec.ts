@@ -89,7 +89,8 @@ describe('project (e2e)', () => {
         `/projects/${project.id.value}`,
       );
       expect(response.status).toBe(200);
-      // TODO more assertions?
+      expect(response.body).toBeDefined();
+      expect(response.body.roles).toEqual([]);
     });
   });
 
