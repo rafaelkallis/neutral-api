@@ -198,7 +198,7 @@ describe(Project.name, () => {
 
     test('when a different user is assigned, should unassign', () => {
       roleToAssign.assigneeId = UserId.create();
-      project.assignUserToRole(userToAssign, roleToAssign);
+      project.assignUserToRole(userToAssign, roleToAssign.id);
       expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
       expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserUnassignedEvent),
@@ -229,7 +229,7 @@ describe(Project.name, () => {
     });
 
     test('happy path', () => {
-      project.unassign(roleToUnassign);
+      project.unassign(roleToUnassign.id);
       expect(roleToUnassign.assigneeId).toBeNull();
       expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserUnassignedEvent),
@@ -238,12 +238,12 @@ describe(Project.name, () => {
 
     test('when project is not in formation state, should fail', () => {
       project.state = ProjectState.PEER_REVIEW;
-      expect(() => project.unassign(roleToUnassign)).toThrow();
+      expect(() => project.unassign(roleToUnassign.id)).toThrow();
     });
 
     test('when no user is assigned, should fail', () => {
       roleToUnassign.assigneeId = null;
-      expect(() => project.unassign(roleToUnassign)).toThrow();
+      expect(() => project.unassign(roleToUnassign.id)).toThrow();
     });
   });
 

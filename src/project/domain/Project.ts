@@ -210,9 +210,10 @@ export class Project extends AggregateRoot<ProjectId> {
 
   /**
    * Unassign a role.
-   * @param role The role to unassign.
+   * @param roleId The roleId to unassign.
    */
-  public unassign(role: Role): void {
+  public unassign(roleId: RoleId): void {
+    const role = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
     role.assertAssigned();
     const previousAssigneeId = role.assigneeId as UserId;
