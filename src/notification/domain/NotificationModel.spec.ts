@@ -38,7 +38,7 @@ describe('notification model', () => {
     test('happy path', () => {
       notification.markRead();
       expect(notification.isRead.value).toBeTruthy();
-      expect(notification.getDomainEvents()).toContainEqual(
+      expect(notification.domainEvents).toContainEqual(
         expect.any(NotificationReadEvent),
       );
     });

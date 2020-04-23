@@ -44,7 +44,7 @@ export class Notification extends AggregateRoot<NotificationId> {
   public markRead(): void {
     this.assertNotRead();
     this.isRead = NotificationIsRead.from(true);
-    this.apply(new NotificationReadEvent(this));
+    this.raise(new NotificationReadEvent(this));
   }
 
   /**

@@ -20,7 +20,7 @@ export abstract class DomainEventBroker {
   public async publishFromAggregateRoot(
     aggregateRoot: AggregateRoot<Id>,
   ): Promise<void> {
-    await this.publish(...aggregateRoot.getDomainEvents());
+    await this.publish(...aggregateRoot.domainEvents);
   }
 }
 

@@ -34,7 +34,7 @@ describe(User.name, () => {
 
     test('happy path', () => {
       const user = User.createActive(email, name);
-      expect(user.getDomainEvents()).toEqual([expect.any(UserCreatedEvent)]);
+      expect(user.domainEvents).toContainEqual(expect.any(UserCreatedEvent));
     });
   });
 
@@ -48,7 +48,7 @@ describe(User.name, () => {
     test('happy path', () => {
       user.changeEmail(newEmail);
       expect(user.email.value).toEqual(newEmail.value);
-      expect(user.getDomainEvents()).toEqual([expect.any(EmailChangedEvent)]);
+      expect(user.domainEvents).toContainEqual(expect.any(EmailChangedEvent));
     });
 
     test('when user not active should fail', () => {
@@ -70,9 +70,9 @@ describe(User.name, () => {
     test('happy path', () => {
       user.updateName(newName);
       expect(user.name.equals(newName)).toBeTruthy();
-      expect(user.getDomainEvents()).toEqual([
+      expect(user.domainEvents).toContainEqual(
         expect.any(UserNameUpdatedEvent),
-      ]);
+      );
     });
 
     test('when user not active should fail', () => {
@@ -87,7 +87,7 @@ describe(User.name, () => {
       const oldLastLoginAt = user.lastLoginAt;
       user.login();
       expect(user.lastLoginAt.equals(oldLastLoginAt)).toBeFalsy();
-      expect(user.getDomainEvents()).toEqual([expect.any(LoginEvent)]);
+      expect(user.domainEvents).toContainEqual(expect.any(LoginEvent));
     });
 
     test('when user not active should fail', () => {
@@ -100,7 +100,7 @@ describe(User.name, () => {
     test('happy path', () => {
       user.forget();
       expect(user.state.equals(UserState.FORGOTTEN)).toBeTruthy();
-      expect(user.getDomainEvents()).toEqual([expect.any(UserForgottenEvent)]);
+      expect(user.domainEvents).toContainEqual(expect.any(UserForgottenEvent));
     });
 
     test('when user not active should fail', () => {

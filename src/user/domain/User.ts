@@ -16,8 +16,16 @@ import { UserState } from 'user/domain/value-objects/UserState';
 import { LoginEvent } from 'user/domain/events/LoginEvent';
 
 export class User extends AggregateRoot<UserId> {
-  public email: Email;
-  public name: Name;
+  private _email: Email;
+  public get email(): Email {
+    return this._email;
+  }
+
+  private _name: Name;
+  public get name(): Name {
+    return this._name;
+  }
+
   public avatar: Avatar | null;
   public state: UserState;
   public lastLoginAt: LastLoginAt;
@@ -33,8 +41,8 @@ export class User extends AggregateRoot<UserId> {
     lastLoginAt: LastLoginAt,
   ) {
     super(id, createdAt, updatedAt);
-    this.email = email;
-    this.name = name;
+    this._email = email;
+    this._name = name;
     this.avatar = avatar;
     this.state = state;
     this.lastLoginAt = lastLoginAt;
@@ -60,7 +68,7 @@ export class User extends AggregateRoot<UserId> {
       state,
       lastLoginAt,
     );
-    user.apply(new UserCreatedEvent(user.id));
+    user.raise(new UserCreatedEvent(user.id));
     return user;
   }
 
@@ -87,7 +95,7 @@ export class User extends AggregateRoot<UserId> {
       state,
       lastLoginAt,
     );
-    user.apply(new UserCreatedEvent(user.id));
+    user.raise(new UserCreatedEvent(user.id));
     return user;
   }
 
@@ -101,7 +109,7 @@ export class User extends AggregateRoot<UserId> {
     }
     this.state.assertEquals(UserState.ACTIVE);
     this.lastLoginAt = LastLoginAt.now();
-    this.apply(new LoginEvent(this));
+    this.raise(new LoginEvent(this));
   }
 
   /**
@@ -109,8 +117,8 @@ export class User extends AggregateRoot<UserId> {
    */
   public changeEmail(email: Email): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this.email = email;
-    this.apply(new EmailChangedEvent(this));
+    this._email = email;
+    this.raise(new EmailChangedEvent(this));
   }
 
   /**
@@ -118,8 +126,8 @@ export class User extends AggregateRoot<UserId> {
    */
   public updateName(name: Name): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this.name = name;
-    this.apply(new UserNameUpdatedEvent(this));
+    this._name = name;
+    this.raise(new UserNameUpdatedEvent(this));
   }
 
   /**
@@ -132,7 +140,7 @@ export class User extends AggregateRoot<UserId> {
       return;
     }
     this.avatar = newAvatar;
-    this.apply(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
+    this.raise(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
   }
 
   /**
@@ -143,18 +151,18 @@ export class User extends AggregateRoot<UserId> {
     const oldAvatar = this.avatar;
     if (oldAvatar) {
       this.avatar = null;
-      this.apply(new UserAvatarRemovedEvent(this, oldAvatar));
+      this.raise(new UserAvatarRemovedEvent(this, oldAvatar));
     }
   }
 
   public forget(): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this.email = Email.redacted();
-    this.name = Name.redacted();
+    this._email = Email.redacted();
+    this._name = Name.redacted();
     if (this.avatar) {
       this.avatar = Avatar.redacted();
     }
     this.state = UserState.FORGOTTEN;
-    this.apply(new UserForgottenEvent(this.id));
+    this.raise(new UserForgottenEvent(this.id));
   }
 }
