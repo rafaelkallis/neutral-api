@@ -182,7 +182,7 @@ describe('roles (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.roles.exists(role.id)).toBeFalsy();
+      expect(updatedProject.roles.contains(role.id)).toBeFalsy();
     });
   });
 });

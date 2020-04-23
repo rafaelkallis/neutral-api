@@ -127,7 +127,7 @@ describe(Project.name, () => {
 
     test('happy path', () => {
       const addedRole = project.addRole(title, description);
-      expect(project.roles.exists(addedRole.id)).toBeTruthy();
+      expect(project.roles.contains(addedRole.id)).toBeTruthy();
       expect(project.getDomainEvents()).toContainEqual(
         expect.any(RoleCreatedEvent),
       );
@@ -168,7 +168,7 @@ describe(Project.name, () => {
 
     test('happy path', () => {
       project.removeRole(roleToRemove.id);
-      expect(project.roles.exists(roleToRemove.id)).toBeFalsy();
+      expect(project.roles.contains(roleToRemove.id)).toBeFalsy();
     });
 
     test('should fail if project is not in formation state', () => {
@@ -187,21 +187,21 @@ describe(Project.name, () => {
     });
 
     test('happy path', () => {
-      project.assignUserToRole(userToAssign, roleToAssign);
+      project.assignUserToRole(userToAssign, roleToAssign.id);
       expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
     });
 
     test('should fail if project is not in formation state', () => {
       project.state = ProjectState.PEER_REVIEW;
       expect(() =>
-        project.assignUserToRole(userToAssign, roleToAssign),
+        project.assignUserToRole(userToAssign, roleToAssign.id),
       ).toThrow();
     });
 
     test('should fail if user already assigned to another role in same project', () => {
-      project.assignUserToRole(userToAssign, roles[1]);
+      project.assignUserToRole(userToAssign, roles[1].id);
       expect(() =>
-        project.assignUserToRole(userToAssign, roleToAssign),
+        project.assignUserToRole(userToAssign, roleToAssign.id),
       ).toThrow();
     });
   });

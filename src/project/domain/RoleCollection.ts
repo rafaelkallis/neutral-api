@@ -27,7 +27,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
   }
 
   public excluding(roleToExclude: Role): Iterable<Role> {
-    if (!this.exists(roleToExclude.id)) {
+    if (!this.contains(roleToExclude.id)) {
       throw new RoleNotFoundException();
     }
     return this.filter((role) => !role.equals(roleToExclude));
