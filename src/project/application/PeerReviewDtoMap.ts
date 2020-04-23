@@ -5,7 +5,7 @@ import { Injectable, Type } from '@nestjs/common';
 
 @Injectable()
 export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
-  protected innerMap(peerReview: PeerReview): PeerReviewDto {
+  protected doMap(peerReview: PeerReview): PeerReviewDto {
     return new PeerReviewDto(
       peerReview.id.value,
       peerReview.senderRoleId.value,

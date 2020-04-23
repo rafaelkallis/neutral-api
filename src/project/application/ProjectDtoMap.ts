@@ -17,7 +17,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     this.objectMapper = objectMapper;
   }
 
-  protected innerMap(project: Project, context: ObjectMapContext): ProjectDto {
+  protected doMap(project: Project, context: ObjectMapContext): ProjectDto {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,

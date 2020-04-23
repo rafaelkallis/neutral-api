@@ -35,10 +35,10 @@ export abstract class ObjectMap<TSource, TTarget> {
    * @param context
    */
   public map(o: TSource, context: object): TTarget {
-    return this.innerMap(o, new ObjectMapContext(context));
+    return this.doMap(o, new ObjectMapContext(context));
   }
 
-  protected abstract innerMap(o: TSource, context: ObjectMapContext): TTarget;
+  protected abstract doMap(o: TSource, context: ObjectMapContext): TTarget;
 
   public abstract getSourceType(): Type<TSource>;
   public abstract getTargetType(): Type<TTarget>;

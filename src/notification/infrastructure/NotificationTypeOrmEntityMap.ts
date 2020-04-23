@@ -14,9 +14,7 @@ export class NotificationTypeOrmEntityMap extends ObjectMap<
   Notification,
   NotificationTypeOrmEntity
 > {
-  protected innerMap(
-    notificationModel: Notification,
-  ): NotificationTypeOrmEntity {
+  protected doMap(notificationModel: Notification): NotificationTypeOrmEntity {
     return new NotificationTypeOrmEntity(
       notificationModel.id.value,
       notificationModel.createdAt.value,
@@ -42,9 +40,7 @@ export class ReverseNotificationTypeOrmEntityMap extends ObjectMap<
   NotificationTypeOrmEntity,
   Notification
 > {
-  protected innerMap(
-    notificationEntity: NotificationTypeOrmEntity,
-  ): Notification {
+  protected doMap(notificationEntity: NotificationTypeOrmEntity): Notification {
     return new Notification(
       NotificationId.from(notificationEntity.id),
       CreatedAt.from(notificationEntity.createdAt),
