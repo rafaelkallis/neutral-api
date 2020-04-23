@@ -1,4 +1,3 @@
-import { IsObject } from 'class-validator';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { User } from 'user/domain/User';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
@@ -23,8 +22,8 @@ export class Notification extends AggregateRoot<NotificationId> {
     return this._isRead;
   }
 
-  @IsObject()
-  public payload: object;
+  // TODO needs some kind of type
+  public readonly payload: object;
 
   public constructor(
     id: NotificationId,
