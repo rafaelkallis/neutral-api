@@ -27,7 +27,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
   }
 
   public excluding(roleToExclude: Role): Iterable<Role> {
-    if (!this.exists(roleToExclude.id)) {
+    if (!this.contains(roleToExclude.id)) {
       throw new RoleNotFoundException();
     }
     return this.filter((role) => !role.equals(roleToExclude));
@@ -40,7 +40,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
   }
 
   public anyAssignedToUser(userOrUserId: User | UserId): boolean {
-    return this.any((role) => role.isAssignedToUser(userOrUserId));
+    return this.isAny((role) => role.isAssignedToUser(userOrUserId));
   }
 
   public assertSingleAssignmentPerUser(): void {
@@ -66,6 +66,6 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
   }
 
   public allHaveSubmittedPeerReviews(): boolean {
-    return this.all((role) => role.hasSubmittedPeerReviews.value);
+    return this.areAll((role) => role.hasSubmittedPeerReviews.value);
   }
 }

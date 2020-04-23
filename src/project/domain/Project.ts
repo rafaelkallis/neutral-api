@@ -196,7 +196,8 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    * Assigns a user to a role
    */
-  public assignUserToRole(assignee: User, role: Role): void {
+  public assignUserToRole(assignee: User, roleId: RoleId): void {
+    const role = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
     const previousAssigneeId = role.assigneeId;
     role.assigneeId = assignee.id;
