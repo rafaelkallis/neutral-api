@@ -15,9 +15,13 @@ import { UserId } from 'user/domain/value-objects/UserId';
  * Notification Model
  */
 export class Notification extends AggregateRoot<NotificationId> {
-  public ownerId: UserId;
-  public type: NotificationType;
-  public isRead: NotificationIsRead;
+  public readonly ownerId: UserId;
+  public readonly type: NotificationType;
+
+  private _isRead: NotificationIsRead;
+  public get isRead(): NotificationIsRead {
+    return this._isRead;
+  }
 
   @IsObject()
   public payload: object;
@@ -34,7 +38,7 @@ export class Notification extends AggregateRoot<NotificationId> {
     super(id, createdAt, updatedAt);
     this.ownerId = ownerId;
     this.type = type;
-    this.isRead = isRead;
+    this._isRead = isRead;
     this.payload = payload;
   }
 
@@ -43,7 +47,7 @@ export class Notification extends AggregateRoot<NotificationId> {
    */
   public markRead(): void {
     this.assertNotRead();
-    this.isRead = NotificationIsRead.from(true);
+    this._isRead = NotificationIsRead.from(true);
     this.raise(new NotificationReadEvent(this));
   }
 
