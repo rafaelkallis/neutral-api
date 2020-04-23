@@ -64,7 +64,7 @@ export abstract class ModelCollection<
    */
   public contains(modelOrId: TModel | TId): boolean {
     const id = this.getId(modelOrId);
-    return this.any((model) => model.id.equals(id));
+    return this.isAny((model) => model.id.equals(id));
   }
 
   /**
@@ -74,7 +74,7 @@ export abstract class ModelCollection<
     return this.removedModels;
   }
 
-  protected any(predicate: (model: TModel) => boolean): boolean {
+  protected isAny(predicate: (model: TModel) => boolean): boolean {
     for (const model of this) {
       if (predicate(model)) {
         return true;
@@ -83,7 +83,7 @@ export abstract class ModelCollection<
     return false;
   }
 
-  protected all(predicate: (model: TModel) => boolean): boolean {
+  protected areAll(predicate: (model: TModel) => boolean): boolean {
     for (const model of this) {
       if (!predicate(model)) {
         return false;
