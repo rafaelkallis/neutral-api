@@ -58,7 +58,11 @@ export class Project extends AggregateRoot<ProjectId> {
     return this._title;
   }
 
-  public description: ProjectDescription;
+  private _description: ProjectDescription;
+  public get description(): ProjectDescription {
+    return this._description;
+  }
+
   public creatorId: UserId;
   public state: ProjectState;
   public consensuality: Consensuality | null;
@@ -83,7 +87,7 @@ export class Project extends AggregateRoot<ProjectId> {
   ) {
     super(id, createdAt, updatedAt);
     this._title = title;
-    this.description = description;
+    this._description = description;
     this.creatorId = creatorId;
     this.state = state;
     this.consensuality = consensuality;
@@ -141,7 +145,7 @@ export class Project extends AggregateRoot<ProjectId> {
       this._title = title;
     }
     if (description) {
-      this.description = description;
+      this._description = description;
     }
     this.raise(new ProjectUpdatedEvent(this));
   }
