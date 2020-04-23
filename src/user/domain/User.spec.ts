@@ -52,7 +52,7 @@ describe(User.name, () => {
     });
 
     test('when user not active should fail', () => {
-      user.state = UserState.FORGOTTEN;
+      user.forget();
       expect(() => user.changeEmail(newEmail)).toThrowError();
       expect(user.email.equals(newEmail)).toBeFalsy();
     });
@@ -76,7 +76,7 @@ describe(User.name, () => {
     });
 
     test('when user not active should fail', () => {
-      user.state = UserState.FORGOTTEN;
+      user.forget();
       expect(() => user.updateName(newName)).toThrowError();
       expect(user.name.equals(newName)).toBeFalsy();
     });
@@ -91,7 +91,7 @@ describe(User.name, () => {
     });
 
     test('when user not active should fail', () => {
-      user.state = UserState.FORGOTTEN;
+      user.forget();
       expect(() => user.forget()).toThrowError();
     });
   });
@@ -104,7 +104,7 @@ describe(User.name, () => {
     });
 
     test('when user not active should fail', () => {
-      user.state = UserState.FORGOTTEN;
+      user.forget();
       expect(() => user.forget()).toThrowError();
     });
   });

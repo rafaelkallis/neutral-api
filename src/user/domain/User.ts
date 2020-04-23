@@ -30,7 +30,12 @@ export class User extends AggregateRoot<UserId> {
   public get avatar(): Avatar | null {
     return this._avatar;
   }
-  public state: UserState;
+
+  private _state: UserState;
+  public get state(): UserState {
+    return this._state;
+  }
+
   public lastLoginAt: LastLoginAt;
 
   public constructor(
@@ -47,7 +52,7 @@ export class User extends AggregateRoot<UserId> {
     this._email = email;
     this._name = name;
     this._avatar = avatar;
-    this.state = state;
+    this._state = state;
     this.lastLoginAt = lastLoginAt;
   }
 
@@ -107,7 +112,7 @@ export class User extends AggregateRoot<UserId> {
    */
   public login(): void {
     if (this.state.equals(UserState.INVITED)) {
-      this.state = UserState.ACTIVE;
+      this._state = UserState.ACTIVE;
       // TODO apply event
     }
     this.state.assertEquals(UserState.ACTIVE);
@@ -165,7 +170,7 @@ export class User extends AggregateRoot<UserId> {
     if (this.avatar) {
       this._avatar = Avatar.redacted();
     }
-    this.state = UserState.FORGOTTEN;
+    this._state = UserState.FORGOTTEN;
     this.raise(new UserForgottenEvent(this.id));
   }
 }
