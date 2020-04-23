@@ -45,7 +45,7 @@ export class MemoryProjectRepository extends ProjectRepository {
   public async findByRoleId(roleId: RoleId): Promise<Project | undefined> {
     return this.memoryRepository
       .getModels()
-      .find((project) => project.roles.exists(roleId));
+      .find((project) => project.roles.contains(roleId));
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {

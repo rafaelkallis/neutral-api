@@ -57,7 +57,7 @@ describe('project (e2e)', () => {
           RoleTitle.from(''),
           RoleDescription.from(''),
         );
-        project.assignUserToRole(user, role);
+        project.assignUserToRole(user, role.id);
       }
       await scenario.projectRepository.persist(...projects);
       const response = await scenario.session
