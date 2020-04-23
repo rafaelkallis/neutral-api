@@ -73,8 +73,13 @@ describe(ProjectApplicationService.name, () => {
     await userRepository.persist(ownerUser);
 
     project = modelFaker.project(ownerUser.id);
-    roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
-    project.roles = new RoleCollection(roles);
+    roles = [
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+    ];
+    project.roles.addAll(roles);
     await projectRepository.persist(project);
 
     mockProjectDto = {};
@@ -453,10 +458,13 @@ describe(ProjectApplicationService.name, () => {
   describe('finish formation', () => {
     let assignees: User[];
     beforeEach(async () => {
-      assignees = [modelFaker.user(), modelFaker.user()];
-      await userRepository.persist(...assignees);
-      roles[0].assigneeId = assignees[0].id;
-      roles[1].assigneeId = assignees[1].id;
+      assignees = [];
+      for (const role of roles) {
+        const assignee = await modelFaker.user();
+        role.assigneeId = assignee.id;
+        assignees.push(assignee);
+        await userRepository.persist(assignee);
+      }
       project.state = ProjectState.FORMATION;
       await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
@@ -464,7 +472,7 @@ describe(ProjectApplicationService.name, () => {
 
     test('happy path', async () => {
       await projectApplication.finishFormation(ownerUser, project.id.value);
-      expect(project.finishFormation).toHaveBeenCalledWith();
+      expect(project.finishFormation).toHaveBeenCalled();
     });
 
     test('should fail if authenticated user is ot project owner', async () => {

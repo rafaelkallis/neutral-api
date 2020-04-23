@@ -274,7 +274,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if amount of roles is insufficient', () => {
-      // TODO
+      project.roles.remove(roles[0]);
       expect(() => project.finishFormation()).toThrow();
     });
   });
