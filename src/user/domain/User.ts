@@ -36,7 +36,10 @@ export class User extends AggregateRoot<UserId> {
     return this._state;
   }
 
-  public lastLoginAt: LastLoginAt;
+  private _lastLoginAt: LastLoginAt;
+  public get lastLoginAt(): LastLoginAt {
+    return this._lastLoginAt;
+  }
 
   public constructor(
     id: UserId,
@@ -53,7 +56,7 @@ export class User extends AggregateRoot<UserId> {
     this._name = name;
     this._avatar = avatar;
     this._state = state;
-    this.lastLoginAt = lastLoginAt;
+    this._lastLoginAt = lastLoginAt;
   }
 
   /**
@@ -116,7 +119,7 @@ export class User extends AggregateRoot<UserId> {
       // TODO apply event
     }
     this.state.assertEquals(UserState.ACTIVE);
-    this.lastLoginAt = LastLoginAt.now();
+    this._lastLoginAt = LastLoginAt.now();
     this.raise(new LoginEvent(this));
   }
 
