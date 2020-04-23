@@ -191,7 +191,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       project.assignUserToRole(userToAssign, roleToAssign);
       expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContain(
+      expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserAssignedEvent),
       );
     });
@@ -200,7 +200,7 @@ describe(Project.name, () => {
       roleToAssign.assigneeId = UserId.create();
       project.assignUserToRole(userToAssign, roleToAssign);
       expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContain(
+      expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
     });
@@ -231,7 +231,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       project.unassign(roleToUnassign);
       expect(roleToUnassign.assigneeId).toBeNull();
-      expect(project.getDomainEvents()).toContain(
+      expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
     });

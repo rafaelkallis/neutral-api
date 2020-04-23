@@ -40,7 +40,6 @@ import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNo
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { InternalServerErrorException } from '@nestjs/common';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -208,8 +207,16 @@ export class Project extends AggregateRoot<ProjectId> {
     this.apply(new UserAssignedEvent(this, role, assignee));
   }
 
+  /**
+   * Unassign a role.
+   * @param role The role to unassign.
+   */
   public unassign(role: Role): void {
-    throw new InternalServerErrorException('not implemented');
+    this.state.assertEquals(ProjectState.FORMATION);
+    role.assertAssigned();
+    const previousAssigneeId = role.assigneeId as UserId;
+    role.assigneeId = null;
+    this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
   }
 
   /**
