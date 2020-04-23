@@ -1,43 +1,19 @@
-import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Project } from 'project/domain/Project';
-import { User } from 'user/domain/User';
+import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { PeerReview } from 'project/domain/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { Injectable, Type } from '@nestjs/common';
 
 @Injectable()
 export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
-  protected innerMap(
-    peerReview: PeerReview,
-    context: ObjectMapContext,
-  ): PeerReviewDto {
-    const project = context.get('project', Project);
-    const authUser = context.get('authUser', User);
+  protected innerMap(peerReview: PeerReview): PeerReviewDto {
     return new PeerReviewDto(
       peerReview.id.value,
       peerReview.senderRoleId.value,
       peerReview.receiverRoleId.value,
-      this.mapScore(peerReview, project, authUser),
+      peerReview.score.value,
       peerReview.createdAt.value,
       peerReview.updatedAt.value,
     );
-  }
-
-  private mapScore(
-    peerReview: PeerReview,
-    project: Project,
-    authUser: User,
-  ): number | null {
-    let shouldExpose = false;
-    if (project.isCreator(authUser)) {
-      shouldExpose = true;
-    } else if (project.roles.isAnyAssignedToUser(authUser)) {
-      const authUserRole = project.roles.findByAssignee(authUser);
-      if (peerReview.isSenderRole(authUserRole)) {
-        shouldExpose = true;
-      }
-    }
-    return shouldExpose ? peerReview.score.value : null;
   }
 
   public getSourceType(): Type<PeerReview> {
