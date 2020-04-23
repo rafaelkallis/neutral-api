@@ -63,7 +63,7 @@ export class Project extends AggregateRoot<ProjectId> {
     return this._description;
   }
 
-  public creatorId: UserId;
+  public readonly creatorId: UserId;
   public state: ProjectState;
   public consensuality: Consensuality | null;
   public contributionVisibility: ContributionVisibility;

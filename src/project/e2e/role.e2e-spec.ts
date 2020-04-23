@@ -153,8 +153,7 @@ describe('roles (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });
