@@ -64,7 +64,7 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
 
   test('should delete old avatar', async () => {
     const oldAvatar = Avatar.create();
-    authUser.avatar = oldAvatar;
+    authUser.updateAvatar(oldAvatar);
     await commandHandler.handle(command);
     td.verify(
       objectStorage.delete(

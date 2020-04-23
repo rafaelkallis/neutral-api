@@ -18,7 +18,7 @@ describe('user map', () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     user = modelFaker.user();
-    user.avatar = Avatar.from(primitiveFaker.id());
+    user.updateAvatar(Avatar.from(primitiveFaker.id()));
   });
 
   test('general', () => {

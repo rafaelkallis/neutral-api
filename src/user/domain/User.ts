@@ -26,7 +26,10 @@ export class User extends AggregateRoot<UserId> {
     return this._name;
   }
 
-  public avatar: Avatar | null;
+  private _avatar: Avatar | null;
+  public get avatar(): Avatar | null {
+    return this._avatar;
+  }
   public state: UserState;
   public lastLoginAt: LastLoginAt;
 
@@ -43,7 +46,7 @@ export class User extends AggregateRoot<UserId> {
     super(id, createdAt, updatedAt);
     this._email = email;
     this._name = name;
-    this.avatar = avatar;
+    this._avatar = avatar;
     this.state = state;
     this.lastLoginAt = lastLoginAt;
   }
@@ -139,7 +142,7 @@ export class User extends AggregateRoot<UserId> {
     if (oldAvatar?.equals(newAvatar)) {
       return;
     }
-    this.avatar = newAvatar;
+    this._avatar = newAvatar;
     this.raise(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
   }
 
@@ -150,7 +153,7 @@ export class User extends AggregateRoot<UserId> {
     this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar) {
-      this.avatar = null;
+      this._avatar = null;
       this.raise(new UserAvatarRemovedEvent(this, oldAvatar));
     }
   }
@@ -160,7 +163,7 @@ export class User extends AggregateRoot<UserId> {
     this._email = Email.redacted();
     this._name = Name.redacted();
     if (this.avatar) {
-      this.avatar = Avatar.redacted();
+      this._avatar = Avatar.redacted();
     }
     this.state = UserState.FORGOTTEN;
     this.raise(new UserForgottenEvent(this.id));
