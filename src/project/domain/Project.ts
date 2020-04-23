@@ -53,7 +53,11 @@ export interface CreateProjectOptions {
  * Project Model
  */
 export class Project extends AggregateRoot<ProjectId> {
-  public title: ProjectTitle;
+  private _title: ProjectTitle;
+  public get title(): ProjectTitle {
+    return this._title;
+  }
+
   public description: ProjectDescription;
   public creatorId: UserId;
   public state: ProjectState;
@@ -78,7 +82,7 @@ export class Project extends AggregateRoot<ProjectId> {
     peerReviews: PeerReviewCollection,
   ) {
     super(id, createdAt, updatedAt);
-    this.title = title;
+    this._title = title;
     this.description = description;
     this.creatorId = creatorId;
     this.state = state;
@@ -134,7 +138,7 @@ export class Project extends AggregateRoot<ProjectId> {
   public update(title?: ProjectTitle, description?: ProjectDescription): void {
     this.state.assertEquals(ProjectState.FORMATION);
     if (title) {
-      this.title = title;
+      this._title = title;
     }
     if (description) {
       this.description = description;
