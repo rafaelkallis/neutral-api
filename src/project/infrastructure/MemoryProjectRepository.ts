@@ -51,7 +51,7 @@ export class MemoryProjectRepository extends ProjectRepository {
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
     const projects = this.memoryRepository
       .getModels()
-      .filter((project) => project.roles.anyAssignedToUser(assigneeId));
+      .filter((project) => project.roles.isAnyAssignedToUser(assigneeId));
     return projects;
   }
 }

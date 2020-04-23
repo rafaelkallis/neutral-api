@@ -40,7 +40,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
     }
   }
 
-  public anyAssignedToUser(userOrUserId: User | UserId): boolean {
+  public isAnyAssignedToUser(userOrUserId: User | UserId): boolean {
     return this.isAny((role) => role.isAssignedToUser(userOrUserId));
   }
 

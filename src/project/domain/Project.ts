@@ -196,16 +196,22 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    * Assigns a user to a role
    */
-  public assignUserToRole(assignee: User, roleId: RoleId): void {
-    const role = this.roles.find(roleId);
+  public assignUserToRole(userToAssign: User, roleId: RoleId): void {
+    const roleToBeAssigned = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
-    const previousAssigneeId = role.assigneeId;
-    role.assigneeId = assignee.id;
-    this.roles.assertSingleAssignmentPerUser();
-    if (previousAssigneeId) {
-      this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
+    if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
+      return;
     }
-    this.apply(new UserAssignedEvent(this, role, assignee));
+    if (roleToBeAssigned.isAssigned()) {
+      this.unassign(roleToBeAssigned.id);
+    }
+    if (this.roles.isAnyAssignedToUser(userToAssign)) {
+      const currentAssignedRole = this.roles.findByAssignee(userToAssign);
+      this.unassign(currentAssignedRole.id);
+    }
+    roleToBeAssigned.assigneeId = userToAssign.id;
+    this.roles.assertSingleAssignmentPerUser();
+    this.apply(new UserAssignedEvent(this, roleToBeAssigned, userToAssign));
   }
 
   /**

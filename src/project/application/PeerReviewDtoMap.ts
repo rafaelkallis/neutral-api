@@ -31,7 +31,7 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
     let shouldExpose = false;
     if (project.isCreator(authUser)) {
       shouldExpose = true;
-    } else if (project.roles.anyAssignedToUser(authUser)) {
+    } else if (project.roles.isAnyAssignedToUser(authUser)) {
       const authUserRole = project.roles.findByAssignee(authUser);
       if (peerReview.isSenderRole(authUserRole)) {
         shouldExpose = true;

@@ -416,37 +416,12 @@ describe(ProjectApplicationService.name, () => {
       // TODO check if events emitted
     });
 
-    test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
-      await expect(
-        projectApplication.assignUserToRole(
-          ownerUser,
-          project.id.value,
-          roles[0].id.value,
-          assignee.id.value,
-        ),
-      ).rejects.toThrowError();
-    });
-
     test('should fail if authenticated user is not project owner', async () => {
       const notCreatorUser = modelFaker.user();
       await userRepository.persist(notCreatorUser);
       await expect(
         projectApplication.assignUserToRole(
           notCreatorUser,
-          project.id.value,
-          roles[0].id.value,
-          assignee.id.value,
-        ),
-      ).rejects.toThrowError();
-    });
-
-    test('should fail if user is already assigned to another role', async () => {
-      roles[1].assigneeId = assignee.id;
-      await expect(
-        projectApplication.assignUserToRole(
-          ownerUser,
           project.id.value,
           roles[0].id.value,
           assignee.id.value,

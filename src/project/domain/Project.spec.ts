@@ -181,25 +181,39 @@ describe(Project.name, () => {
 
   describe('assign user to role', () => {
     let userToAssign: User;
-    let roleToAssign: Role;
+    let roleToBeAssigned: Role;
 
     beforeEach(() => {
       userToAssign = modelFaker.user();
-      roleToAssign = roles[0];
+      roleToBeAssigned = roles[0];
     });
 
     test('happy path', () => {
-      project.assignUserToRole(userToAssign, roleToAssign.id);
-      expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
+      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
+      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
       expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserAssignedEvent),
       );
     });
 
-    test('when a different user is assigned, should unassign', () => {
-      roleToAssign.assigneeId = UserId.create();
-      project.assignUserToRole(userToAssign, roleToAssign.id);
-      expect(roleToAssign.assigneeId?.equals(userToAssign.id)).toBeTruthy();
+    test('when another user is already assigned, should unassign other user', () => {
+      roleToBeAssigned.assigneeId = UserId.create();
+      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
+      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
+      expect(project.getDomainEvents()).toContainEqual(
+        expect.any(UserUnassignedEvent),
+      );
+    });
+
+    test('when user is already assigned to another role, should unassign other role', () => {
+      const currentAssignedRole = roles[1];
+      project.assignUserToRole(userToAssign, currentAssignedRole.id);
+      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
+      expect(currentAssignedRole.assigneeId).toBeNull();
+      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
+      expect(project.getDomainEvents()).toContainEqual(
+        expect.any(UserAssignedEvent),
+      );
       expect(project.getDomainEvents()).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
@@ -208,14 +222,7 @@ describe(Project.name, () => {
     test('should fail if project is not in formation state', () => {
       project.state = ProjectState.PEER_REVIEW;
       expect(() =>
-        project.assignUserToRole(userToAssign, roleToAssign.id),
-      ).toThrow();
-    });
-
-    test('should fail if user already assigned to another role in same project', () => {
-      project.assignUserToRole(userToAssign, roles[1].id);
-      expect(() =>
-        project.assignUserToRole(userToAssign, roleToAssign.id),
+        project.assignUserToRole(userToAssign, roleToBeAssigned.id),
       ).toThrow();
     });
   });

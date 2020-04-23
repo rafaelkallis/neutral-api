@@ -364,7 +364,7 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    if (!project.roles.anyAssignedToUser(authUser)) {
+    if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
     const authRole = project.roles.findByAssignee(authUser);

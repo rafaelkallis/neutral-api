@@ -47,7 +47,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         } else if (!project.state.equals(ProjectState.FINISHED)) {
           shouldExpose = false;
         } else {
-          shouldExpose = project.roles.anyAssignedToUser(authUser);
+          shouldExpose = project.roles.isAnyAssignedToUser(authUser);
         }
         break;
       }
