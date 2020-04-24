@@ -21,6 +21,10 @@ export abstract class TelemetryClient {
   public abstract createAction(name: string): TelemetryAction;
 
   public abstract error(error: Error): void;
+
+  protected getHttpEndpoint(request: Request): string {
+    return `${request.method} ${request.route.path}`;
+  }
 }
 
 export interface TelemetryAction {

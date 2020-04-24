@@ -18,8 +18,8 @@ export class LoggingTelemetryClient extends TelemetryClient {
   }
 
   public setTransaction(request: Request, response: Response): void {
-    const endpoint = request.route.path;
-    const newTransaction = new Logger(`Telemetry ${endpoint}`, true);
+    const httpEndpoint = this.getHttpEndpoint(request);
+    const newTransaction = new Logger(`Telemetry ${httpEndpoint}`, true);
     newTransaction.log('');
     this.currentTransaction = newTransaction;
   }
