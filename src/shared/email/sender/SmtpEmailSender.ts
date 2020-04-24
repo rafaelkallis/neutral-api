@@ -37,7 +37,7 @@ export class SmtpEmailSender extends EmailSender
   public async sendEmail(options: SendEmailOptions): Promise<void> {
     const mailOptions = {
       // TODO change to no-reply@covee.network
-      from: 'no-reply@example.com',
+      from: 'Covee Network <no-reply@rafael.coffee>',
       to: options.to,
       subject: options.subject,
       text: options.text,
