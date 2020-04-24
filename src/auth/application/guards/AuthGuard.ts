@@ -9,7 +9,7 @@ import { UnauthorizedUserException } from 'auth/application/exceptions/Unauthori
 import { SessionState } from 'shared/session';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserRepository } from 'user/domain/UserRepository';
-import { User } from 'user/domain/User';
+import { ReadonlyUser } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
@@ -55,7 +55,9 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private async handleSessionAuth(session: SessionState): Promise<User> {
+  private async handleSessionAuth(
+    session: SessionState,
+  ): Promise<ReadonlyUser> {
     const payload = this.tokenService.validateSessionToken(session.get());
     const userId = UserId.from(payload.sub);
     const user = await this.userRepository.findById(userId);
@@ -70,7 +72,9 @@ export class AuthGuard implements CanActivate {
     return user;
   }
 
-  private async handleAuthHeaderAuth(authHeader: string): Promise<User> {
+  private async handleAuthHeaderAuth(
+    authHeader: string,
+  ): Promise<ReadonlyUser> {
     const [prefix, content] = authHeader.split(' ');
     if (!prefix || prefix.toLowerCase() !== 'bearer') {
       throw new UnauthorizedUserException();
@@ -86,7 +90,7 @@ export class AuthGuard implements CanActivate {
 }
 
 export const AuthUser = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): User => {
+  (_data: unknown, ctx: ExecutionContext): ReadonlyUser => {
     const request = ctx.switchToHttp().getRequest();
     return request.user;
   },

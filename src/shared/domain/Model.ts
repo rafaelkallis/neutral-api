@@ -3,28 +3,27 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 
+export interface ReadonlyModel<TId extends Id> {
+  readonly id: TId;
+  readonly createdAt: CreatedAt;
+  readonly updatedAt: UpdatedAt;
+  readonly domainEvents: ReadonlyArray<DomainEvent>;
+}
+
 /**
  *
  */
-export abstract class Model<TId extends Id> {
+export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
   public readonly id: TId;
   public readonly createdAt: CreatedAt;
-
-  private _updatedAt: UpdatedAt;
-  public get updatedAt(): UpdatedAt {
-    return this._updatedAt;
-  }
-
-  private readonly _domainEvents: Array<DomainEvent>;
-  public get domainEvents(): ReadonlyArray<DomainEvent> {
-    return this._domainEvents;
-  }
+  public updatedAt: UpdatedAt;
+  public readonly domainEvents: Array<DomainEvent>;
 
   public constructor(id: TId, createdAt: CreatedAt, updatedAt: UpdatedAt) {
     this.id = id;
     this.createdAt = createdAt;
-    this._updatedAt = updatedAt;
-    this._domainEvents = [];
+    this.updatedAt = updatedAt;
+    this.domainEvents = [];
   }
 
   /**
@@ -38,7 +37,7 @@ export abstract class Model<TId extends Id> {
    *
    */
   protected raise(domainEvent: DomainEvent): void {
-    this._updatedAt = UpdatedAt.now();
-    this._domainEvents.push(domainEvent);
+    this.updatedAt = UpdatedAt.now();
+    this.domainEvents.push(domainEvent);
   }
 }

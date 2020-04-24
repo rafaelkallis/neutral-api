@@ -1,5 +1,8 @@
-import { User } from 'user/domain/User';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { User, ReadonlyUser } from 'user/domain/User';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
@@ -28,7 +31,10 @@ import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/Project
 import { RoleUpdatedEvent } from 'project/domain/events/RoleUpdatedEvent';
 import { RoleDeletedEvent } from 'project/domain/events/RoleDeletedEvent';
 import { Role } from 'project/domain/Role';
-import { RoleCollection } from 'project/domain/RoleCollection';
+import {
+  RoleCollection,
+  ReadonlyRoleCollection,
+} from 'project/domain/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -49,10 +55,45 @@ export interface CreateProjectOptions {
   skipManagerReview?: SkipManagerReview;
 }
 
+export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
+  readonly title: ProjectTitle;
+  readonly description: ProjectDescription;
+  readonly creatorId: UserId;
+  readonly state: ProjectState;
+  readonly consensuality: Consensuality | null;
+  readonly contributionVisibility: ContributionVisibility;
+  readonly skipManagerReview: SkipManagerReview;
+  readonly roles: ReadonlyRoleCollection;
+  readonly peerReviews: PeerReviewCollection;
+
+  update(title?: ProjectTitle, description?: ProjectDescription): void;
+  archive(): void;
+  addRole(title: RoleTitle, description: RoleDescription): Role;
+  updateRole(
+    roleId: RoleId,
+    title?: RoleTitle,
+    description?: RoleDescription,
+  ): void;
+  removeRole(roleId: RoleId): void;
+  assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
+  unassign(roleId: RoleId): void;
+  finishFormation(): void;
+  submitPeerReviews(
+    senderRoleId: RoleId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+  submitManagerReview(): void;
+  isCreator(user: User): boolean;
+  assertCreator(user: User): void;
+}
+
 /**
  * Project Model
  */
-export class Project extends AggregateRoot<ProjectId> {
+export class Project extends AggregateRoot<ProjectId>
+  implements ReadonlyProject {
   private _title: ProjectTitle;
   public get title(): ProjectTitle {
     return this._title;
@@ -204,7 +245,7 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    * Assigns a user to a role
    */
-  public assignUserToRole(userToAssign: User, roleId: RoleId): void {
+  public assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void {
     const roleToBeAssigned = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
     if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
@@ -251,11 +292,12 @@ export class Project extends AggregateRoot<ProjectId> {
    *
    */
   public submitPeerReviews(
-    senderRole: Role,
+    senderRoleId: RoleId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
+    const senderRole = this.roles.find(senderRoleId);
     this.state.assertEquals(ProjectState.PEER_REVIEW);
     senderRole.assertHasNotSubmittedPeerReviews();
     this.assertSubmittedPeerReviewsMatchRoles(senderRole, submittedPeerReviews);
@@ -340,11 +382,11 @@ export class Project extends AggregateRoot<ProjectId> {
     this.raise(new ProjectFinishedEvent(this));
   }
 
-  public isCreator(user: User): boolean {
+  public isCreator(user: ReadonlyUser): boolean {
     return this.creatorId.equals(user.id);
   }
 
-  public assertCreator(user: User): void {
+  public assertCreator(user: ReadonlyUser): void {
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
     }

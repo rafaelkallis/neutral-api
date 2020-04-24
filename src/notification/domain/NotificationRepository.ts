@@ -1,5 +1,5 @@
 import { Repository } from 'shared/domain/Repository';
-import { Notification } from 'notification/domain/Notification';
+import { ReadonlyNotification } from 'notification/domain/Notification';
 import { Id } from 'shared/domain/value-objects/Id';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 
@@ -8,10 +8,10 @@ import { NotificationId } from 'notification/domain/value-objects/NotificationId
  */
 export abstract class NotificationRepository extends Repository<
   NotificationId,
-  Notification
+  ReadonlyNotification
 > {
   /**
    * Finds notifications by user owner id.
    */
-  public abstract findByOwnerId(ownerId: Id): Promise<Notification[]>;
+  public abstract findByOwnerId(ownerId: Id): Promise<ReadonlyNotification[]>;
 }

@@ -4,16 +4,32 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { NotificationAlreadyReadException } from 'notification/domain/exceptions/NotificationAlreadyReadException';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
 
+export interface ReadonlyNotification
+  extends ReadonlyAggregateRoot<NotificationId> {
+  readonly ownerId: UserId;
+  readonly type: NotificationType;
+  readonly isRead: NotificationIsRead;
+  readonly payload: object;
+
+  markRead(): void;
+  assertOwner(user: User): void;
+  assertNotRead(): void;
+}
+
 /**
  * Notification Model
  */
-export class Notification extends AggregateRoot<NotificationId> {
+export class Notification extends AggregateRoot<NotificationId>
+  implements ReadonlyNotification {
   public readonly ownerId: UserId;
   public readonly type: NotificationType;
 

@@ -1,4 +1,7 @@
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
@@ -15,7 +18,22 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/UserState';
 import { LoginEvent } from 'user/domain/events/LoginEvent';
 
-export class User extends AggregateRoot<UserId> {
+export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
+  readonly email: Email;
+  readonly name: Name;
+  readonly avatar: Avatar | null;
+  readonly state: UserState;
+  readonly lastLoginAt: LastLoginAt;
+
+  login(): void;
+  changeEmail(email: Email): void;
+  updateName(name: Name): void;
+  updateAvatar(newAvatar: Avatar): void;
+  removeAvatar(): void;
+  forget(): void;
+}
+
+export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   private _email: Email;
   public get email(): Email {
     return this._email;

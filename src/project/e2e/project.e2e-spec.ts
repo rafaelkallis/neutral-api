@@ -172,13 +172,12 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       assignees = [
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
       ];
-      await scenario.userRepository.persist(...assignees);
-      project = scenario.modelFaker.project(user.id);
+      project = await scenario.createProject(user);
       project.state = ProjectState.FORMATION;
       roles = [
         scenario.modelFaker.role(project.id, assignees[0].id),

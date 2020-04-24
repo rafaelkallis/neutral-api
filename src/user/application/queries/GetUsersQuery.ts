@@ -3,7 +3,7 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
-import { User } from 'user/domain/User';
+import { User, ReadonlyUser } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Type, Injectable } from '@nestjs/common';
 
@@ -38,7 +38,7 @@ export class GetUsersQueryHandler extends QueryHandler<
   }
 
   public async handle(query: GetUsersQuery): Promise<UserDto[]> {
-    let users: User[] = [];
+    let users: ReadonlyUser[] = [];
     if (query.nameQuery) {
       users = await this.userRepository.findByName(query.nameQuery);
     } else if (query.afterUserId) {

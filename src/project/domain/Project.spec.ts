@@ -326,7 +326,7 @@ describe(Project.name, () => {
     describe('happy path', () => {
       test('final peer review', () => {
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -347,7 +347,7 @@ describe(Project.name, () => {
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {
         project.skipManagerReview = SkipManagerReview.YES;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -359,7 +359,7 @@ describe(Project.name, () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(consensuality, 'isConsensual').mockReturnValue(true);
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -371,7 +371,7 @@ describe(Project.name, () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(consensuality, 'isConsensual').mockReturnValue(false);
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -382,7 +382,7 @@ describe(Project.name, () => {
       test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
         project.skipManagerReview = SkipManagerReview.NO;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -393,7 +393,7 @@ describe(Project.name, () => {
       test('not final peer review, should not compute contributions and consensuality', () => {
         roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -409,7 +409,7 @@ describe(Project.name, () => {
       project.state = ProjectState.FORMATION;
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -421,7 +421,7 @@ describe(Project.name, () => {
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -436,7 +436,7 @@ describe(Project.name, () => {
       ];
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -452,7 +452,7 @@ describe(Project.name, () => {
       ];
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,

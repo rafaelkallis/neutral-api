@@ -1,11 +1,17 @@
-import { Model } from 'shared/domain/Model';
+import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { FilterIterable } from 'shared/domain/FilterIterable';
 
-export abstract class ModelCollection<
+export interface ReadonlyModelCollection<
   TId extends Id,
-  TModel extends Model<TId>
-> {
+  TModel extends ReadonlyModel<TId>
+> extends Iterable<TModel> {
+  contains(modelOrId: TModel | TId): boolean;
+  find(id: TId): TModel;
+}
+
+export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
+  implements ReadonlyModelCollection<TId, TModel> {
   private readonly models: TModel[];
   private readonly removedModels: TModel[];
 
