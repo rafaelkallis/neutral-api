@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
+  TelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
 import { Config } from 'shared/config/application/Config';
 
@@ -41,20 +42,50 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
   }
 }
 
-class AzureMonitorTelemetryAction implements TelemetryAction {
+class AzureMonitorHttpTelemetryTransaction extends TelemetryTransaction {
   private readonly client: appInsights.TelemetryClient;
-  private readonly name: string;
-  private readonly start: number;
+  private readonly request: Request;
+  private readonly response: Response;
 
-  public constructor(client: appInsights.TelemetryClient, name: string) {
+  public constructor(
+    client: appInsights.TelemetryClient,
+    request: Request,
+    response: Response,
+  ) {
+    super(transactionName);
     this.client = client;
-    this.name = name;
-    this.start = Date.now();
   }
 
-  end(): void {
-    const end = Date.now();
-    const duration = end - this.start;
-    this.client.trackEvent({ name: this.name, measurements: { duration } });
+  public createAction(actionName: string): TelemetryAction {
+    return new AzureMonitorTelemetryAction(
+      this.client,
+      this.transactionName,
+      actionName,
+    );
+  }
+
+  protected doEnd(error?: Error): void {
+    this.client.trackRequest({});
+  }
+}
+
+class AzureMonitorTelemetryAction extends TelemetryAction {
+  private readonly client: appInsights.TelemetryClient;
+
+  public constructor(
+    client: appInsights.TelemetryClient,
+    transactionName: string,
+    actionName: string,
+  ) {
+    super(transactionName, actionName);
+    this.client = client;
+  }
+
+  protected doEnd(error?: Error): void {
+    this.client.trackEvent({
+      name: this.actionName,
+      measurements: { duration: this.actionDuration },
+      time: new Date(this.actionEnd),
+    });
   }
 }

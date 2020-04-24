@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
+  TelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
 
 /**
@@ -11,10 +12,12 @@ import {
 @Injectable()
 export class LoggingTelemetryClient extends TelemetryClient {
   private currentTransaction: Logger | null;
+  private readonly logger: LoggerService;
 
   public constructor() {
     super();
     this.currentTransaction = null;
+    this.logger = new Logger();
   }
 
   public setTransaction(request: Request, response: Response): void {
@@ -22,6 +25,14 @@ export class LoggingTelemetryClient extends TelemetryClient {
     const newTransaction = new Logger(`Telemetry ${httpEndpoint}`, true);
     newTransaction.log('');
     this.currentTransaction = newTransaction;
+  }
+
+  public createHttpTransaction(
+    request: Request,
+    response: Response,
+  ): TelemetryTransaction {
+    const httpEndpoint = this.getHttpEndpoint(request);
+    return new LoggingTelemetryTransaction(this.logger, httpEndpoint);
   }
 
   public createAction(name: string): TelemetryAction {
@@ -42,21 +53,53 @@ export class LoggingTelemetryClient extends TelemetryClient {
   }
 }
 
-class LoggingTelemetryAction implements TelemetryAction {
-  private readonly logger: LoggerService;
-  private readonly name: string;
-  private readonly start: number;
+class LoggingTelemetryTransaction extends TelemetryTransaction {
+  readonly logger: LoggerService;
 
-  public constructor(logger: LoggerService, name: string) {
+  public constructor(logger: LoggerService, transactionName: string) {
+    super(transactionName);
     this.logger = logger;
-    this.name = name;
-    this.start = Date.now();
-    this.logger.log(`${name}: {start: ${this.start}}`);
   }
 
-  public end(): void {
-    const end = Date.now();
-    const duration = end - this.start;
-    this.logger.log(`${this.name}: {end: ${end}, duration: ${duration}}`);
+  public createAction(actionName: string): TelemetryAction {
+    return new LoggingTelemetryAction(
+      this.logger,
+      this.transactionName,
+      actionName,
+    );
+  }
+
+  protected doEnd(error?: Error): void {
+    const logMessage = `{start: ${this.transactionStart}, end: ${this.transactionEnd}, duration: ${this.transactionDuration}ms}`;
+    if (error) {
+      this.logger.error(
+        `${logMessage} \n${error.name}: ${error.message}`,
+        this.transactionName,
+      );
+    } else {
+      this.logger.log(logMessage, this.transactionName);
+    }
+  }
+}
+
+class LoggingTelemetryAction extends TelemetryAction {
+  readonly logger: LoggerService;
+
+  public constructor(
+    logger: LoggerService,
+    transactionName: string,
+    actionName: string,
+  ) {
+    super(transactionName, actionName);
+    this.logger = logger;
+  }
+
+  protected doEnd(error?: Error): void {
+    const logMessage = `${this.actionName}: {start: ${this.actionStart}, end: ${this.actionEnd}, duration: ${this.actionDuration}}`;
+    if (error) {
+      this.logger.error(logMessage, undefined, this.transactionName);
+    } else {
+      this.logger.log(logMessage, this.transactionName);
+    }
   }
 }
