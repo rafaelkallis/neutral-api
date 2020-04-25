@@ -108,6 +108,10 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
       name: this.actionName,
       measurements: { duration: this.actionDuration },
       time: new Date(this.actionEnd),
+      tagOverrides: {
+        [AzureMonitorContextTags.OPERATION_ID]: this.transactionId,
+        [AzureMonitorContextTags.OPERATION_NAME]: this.transactionName,
+      },
     });
   }
 }
