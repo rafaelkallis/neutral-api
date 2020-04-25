@@ -29,13 +29,16 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
     );
   }
 
-  protected doCreateHttpTransaction(
+  protected doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
-    user?: User,
+    user: User | undefined,
   ): HttpTelemetryTransaction {
     return new AzureMonitorHttpTelemetryTransaction(
-      this.computeHttpTransactionName(request),
+      transactionName,
+      transactionId,
       request,
       response,
       user,
@@ -49,20 +52,22 @@ class AzureMonitorHttpTelemetryTransaction extends HttpTelemetryTransaction {
 
   public constructor(
     transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user: User | undefined,
     client: appInsights.TelemetryClient,
   ) {
-    super(transactionName, request, response, user);
+    super(transactionName, transactionId, request, response, user);
     this.client = client;
   }
 
-  public createAction(actionName: string): TelemetryAction {
+  public startAction(actionName: string): TelemetryAction {
     return new AzureMonitorTelemetryAction(
-      this.client,
       this.transactionName,
+      this.transactionId,
       actionName,
+      this.client,
     );
   }
 
@@ -74,8 +79,13 @@ class AzureMonitorHttpTelemetryTransaction extends HttpTelemetryTransaction {
       name: this.transactionName,
       url: this.request.route.path,
       duration: this.transactionDuration,
-      success: Boolean(error),
+      success: !error,
       resultCode: this.response.statusCode,
+      time: new Date(this.transactionEnd),
+      tagOverrides: {
+        [AzureMonitorContextTags.OPERATION_ID]: this.transactionId,
+        [AzureMonitorContextTags.OPERATION_NAME]: this.transactionName,
+      },
     });
   }
 }
@@ -84,11 +94,12 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
   private readonly client: appInsights.TelemetryClient;
 
   public constructor(
-    client: appInsights.TelemetryClient,
     transactionName: string,
+    transactionId: string,
     actionName: string,
+    client: appInsights.TelemetryClient,
   ) {
-    super(transactionName, actionName);
+    super(transactionName, transactionId, actionName);
     this.client = client;
   }
 
@@ -99,4 +110,15 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
       time: new Date(this.actionEnd),
     });
   }
+}
+
+// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Schema/PublicSchema/ContextTagKeys.bond
+export enum AzureMonitorContextTags {
+  APPLICATION_VERSION = 'ai.application.ver',
+  DEVICE_ID = 'ai.device.id',
+  LOCATION_IP = 'ai.location.ip',
+  OPERATION_ID = 'ai.operation.id',
+  OPERATION_NAME = 'ai.operation.name',
+  OPERATION_PARENT_ID = 'ai.operation.parentId',
+  USER_ID = 'ai.user.id',
 }

@@ -34,7 +34,7 @@ export class TelemetryInterceptor implements NestInterceptor {
     const request = httpContext.getRequest<Request & { user?: User }>();
     const response = httpContext.getResponse<Response>();
 
-    const telemetryTransaction = this.telemetryClient.createHttpTransaction(
+    const telemetryTransaction = this.telemetryClient.startHttpTransaction(
       request,
       response,
       request.user,

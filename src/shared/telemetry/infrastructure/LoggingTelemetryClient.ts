@@ -8,7 +8,7 @@ import {
 import { User } from 'user/domain/User';
 
 /**
- * Local Telemetry Client
+ * Logging Telemetry Client
  */
 @Injectable()
 export class LoggingTelemetryClient extends TelemetryClient {
@@ -19,16 +19,17 @@ export class LoggingTelemetryClient extends TelemetryClient {
     this.logger = new Logger();
   }
 
-  protected doCreateHttpTransaction(
+  protected doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user?: User,
   ): HttpTelemetryTransaction {
-    const httpTransactionName = `Telemetry ${this.computeHttpTransactionName(
-      request,
-    )}`;
+    transactionName = `Telemetry ${transactionName}`;
     return new LoggingTelemetryTransaction(
-      httpTransactionName,
+      transactionName,
+      transactionId,
       request,
       response,
       user,
@@ -42,20 +43,22 @@ class LoggingTelemetryTransaction extends HttpTelemetryTransaction {
 
   public constructor(
     transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user: User | undefined,
     logger: LoggerService,
   ) {
-    super(transactionName, request, response, user);
+    super(transactionName, transactionId, request, response, user);
     this.logger = logger;
   }
 
-  public createAction(actionName: string): TelemetryAction {
+  public startAction(actionName: string): TelemetryAction {
     return new LoggingTelemetryAction(
-      this.logger,
       this.transactionName,
+      this.transactionId,
       actionName,
+      this.logger,
     );
   }
 
@@ -76,11 +79,12 @@ class LoggingTelemetryAction extends TelemetryAction {
   readonly logger: LoggerService;
 
   public constructor(
-    logger: LoggerService,
     transactionName: string,
+    transactionId: string,
     actionName: string,
+    logger: LoggerService,
   ) {
-    super(transactionName, actionName);
+    super(transactionName, transactionId, actionName);
     this.logger = logger;
   }
 

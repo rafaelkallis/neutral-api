@@ -27,13 +27,16 @@ export class ElasticApmTelemetryClient extends TelemetryClient {
     }
   }
 
-  protected doCreateHttpTransaction(
+  protected doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user?: User,
   ): HttpTelemetryTransaction {
     return new ElasticApmHttpTelemetryTransaction(
-      this.computeHttpTransactionName(request),
+      transactionName,
+      transactionId,
       request,
       response,
       user,
@@ -47,21 +50,23 @@ class ElasticApmHttpTelemetryTransaction extends HttpTelemetryTransaction {
 
   public constructor(
     transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user: User | undefined,
     apm: any,
   ) {
-    super(transactionName, request, response, user);
+    super(transactionName, transactionId, request, response, user);
     this.apmTransaction = apm.startTransaction(transactionName);
     if (user) {
       this.apmTransaction.setUserContext({ id: user.id.value });
     }
   }
 
-  public createAction(actionName: string): TelemetryAction {
+  public startAction(actionName: string): TelemetryAction {
     return new ElasticApmTelemetryAction(
       this.transactionName,
+      this.transactionId,
       actionName,
       this.apmTransaction,
     );
@@ -79,10 +84,11 @@ class ElasticApmTelemetryAction extends TelemetryAction {
 
   public constructor(
     transactionName: string,
+    transactionId: string,
     actionName: string,
     apmTransaction: any,
   ) {
-    super(transactionName, actionName);
+    super(transactionName, transactionId, actionName);
     this.span = apmTransaction.startSpan(actionName);
   }
 

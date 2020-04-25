@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { User } from 'user/domain/User';
 import { InternalServerErrorException } from '@nestjs/common';
+import crypto from 'crypto';
 
 /**
  * Telemetry Client.
@@ -12,12 +13,14 @@ export abstract class TelemetryClient {
     this.currentTransaction = null;
   }
 
-  public createHttpTransaction(
+  public startHttpTransaction(
     request: Request,
     response: Response,
     user?: User,
   ): HttpTelemetryTransaction {
-    const httpTransaction = this.doCreateHttpTransaction(
+    const httpTransaction = this.doStartHttpTransaction(
+      this.computeHttpTransactionName(request),
+      this.computeHttpTransactionId(request),
       request,
       response,
       user,
@@ -33,7 +36,9 @@ export abstract class TelemetryClient {
     return this.currentTransaction;
   }
 
-  protected abstract doCreateHttpTransaction(
+  protected abstract doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user?: User,
@@ -42,26 +47,28 @@ export abstract class TelemetryClient {
   protected computeHttpTransactionName(request: Request): string {
     return `${request.method} ${request.route.path}`;
   }
+
+  protected computeHttpTransactionId(request: Request): string {
+    return crypto.randomBytes(16).toString('hex');
+  }
 }
 
 export abstract class TelemetryTransaction {
   protected readonly transactionName: string;
+  protected readonly transactionId: string;
   protected transactionStart: number;
   protected transactionEnd: number;
   protected transactionDuration: number;
 
-  public constructor(transactionName: string) {
+  public constructor(transactionName: string, transactionId: string) {
     this.transactionName = transactionName;
-    this.transactionStart = -1;
+    this.transactionId = transactionId;
+    this.transactionStart = Date.now();
     this.transactionEnd = -1;
     this.transactionDuration = -1;
   }
 
-  public start(): void {
-    this.transactionStart = Date.now();
-  }
-
-  public abstract createAction(actionName: string): TelemetryAction;
+  public abstract startAction(actionName: string): TelemetryAction;
 
   public end(error?: Error): void {
     this.transactionEnd = Date.now();
@@ -79,11 +86,12 @@ export abstract class HttpTelemetryTransaction extends TelemetryTransaction {
 
   public constructor(
     transactionName: string,
+    transactionId: string,
     request: Request,
     response: Response,
     user?: User,
   ) {
-    super(transactionName);
+    super(transactionName, transactionId);
     this.request = request;
     this.response = response;
     this.user = user;
@@ -92,21 +100,23 @@ export abstract class HttpTelemetryTransaction extends TelemetryTransaction {
 
 export abstract class TelemetryAction {
   protected readonly transactionName: string;
+  protected readonly transactionId: string;
   protected readonly actionName: string;
   protected actionStart: number;
   protected actionEnd: number;
   protected actionDuration: number;
 
-  public constructor(transactionName: string, actionName: string) {
+  public constructor(
+    transactionName: string,
+    transactionId: string,
+    actionName: string,
+  ) {
     this.transactionName = transactionName;
+    this.transactionId = transactionId;
     this.actionName = actionName;
-    this.actionStart = -1;
+    this.actionStart = Date.now();
     this.actionEnd = -1;
     this.actionDuration = -1;
-  }
-
-  public start(): void {
-    this.actionStart = Date.now();
   }
 
   public end(error?: Error): void {
