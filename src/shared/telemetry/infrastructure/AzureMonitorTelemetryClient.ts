@@ -38,6 +38,7 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
       this.computeHttpTransactionName(request),
       request,
       response,
+      user,
       this.client,
     );
   }
@@ -50,9 +51,10 @@ class AzureMonitorHttpTelemetryTransaction extends HttpTelemetryTransaction {
     transactionName: string,
     request: Request,
     response: Response,
+    user: User | undefined,
     client: appInsights.TelemetryClient,
   ) {
-    super(transactionName, request, response);
+    super(transactionName, request, response, user);
     this.client = client;
   }
 
@@ -90,7 +92,7 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
     this.client = client;
   }
 
-  protected doEnd(error?: Error): void {
+  protected doEnd(): void {
     this.client.trackEvent({
       name: this.actionName,
       measurements: { duration: this.actionDuration },
