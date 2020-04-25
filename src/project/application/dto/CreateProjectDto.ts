@@ -25,6 +25,7 @@ export class CreateProjectDto {
   @IsEnum(ContributionVisibilityValue)
   @IsOptional()
   @ApiProperty({
+    enum: ContributionVisibilityValue,
     example: ContributionVisibilityValue.SELF,
     required: false,
     description: 'contributions visibility level',
@@ -34,6 +35,7 @@ export class CreateProjectDto {
   @IsEnum(SkipManagerReviewValue)
   @IsOptional()
   @ApiProperty({
+    enum: SkipManagerReviewValue,
     example: SkipManagerReviewValue.IF_CONSENSUAL,
     required: false,
     description: 'option to skip manager review',

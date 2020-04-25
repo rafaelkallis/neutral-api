@@ -8,6 +8,7 @@ export class AssignmentDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
+    type: String,
     description: 'The assignee id of the role',
     required: false,
   })
@@ -16,6 +17,7 @@ export class AssignmentDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
+    type: String,
     description: 'The assignee email of the role',
     required: false,
   })

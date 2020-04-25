@@ -10,14 +10,14 @@ import { Injectable, Type } from '@nestjs/common';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
-  private readonly modelMapper: ObjectMapper;
+  private readonly objectMapper: ObjectMapper;
 
-  public constructor(modelMapper: ObjectMapper) {
+  public constructor(objectMapper: ObjectMapper) {
     super();
-    this.modelMapper = modelMapper;
+    this.objectMapper = objectMapper;
   }
 
-  protected innerMap(project: Project, context: ObjectMapContext): ProjectDto {
+  protected doMap(project: Project, context: ObjectMapContext): ProjectDto {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,
@@ -48,20 +48,18 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
 
   private mapRoleDtos(project: Project, authUser: User): RoleDto[] {
     const roles = Array.from(project.roles);
-    return roles.map((role) =>
-      this.modelMapper.map(role, RoleDto, { project, authUser }),
-    );
+    return this.objectMapper.mapArray(roles, RoleDto, { project, authUser });
   }
 
   private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {
-    const peerReviews = Array.from(project.peerReviews);
-    return peerReviews
-      .filter((peerReview) =>
-        this.shouldExposePeerReview(peerReview, project, authUser),
-      )
-      .map((peerReview) =>
-        this.modelMapper.map(peerReview, PeerReviewDto, { project, authUser }),
-      );
+    let peerReviews = Array.from(project.peerReviews);
+    peerReviews = peerReviews.filter((peerReview) =>
+      this.shouldExposePeerReview(peerReview, project, authUser),
+    );
+    return this.objectMapper.mapArray(peerReviews, PeerReviewDto, {
+      project,
+      authUser,
+    });
   }
 
   private shouldExposePeerReview(
@@ -72,7 +70,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     if (project.isCreator(authUser)) {
       return true;
     }
-    if (project.roles.anyAssignedToUser(authUser)) {
+    if (project.roles.isAnyAssignedToUser(authUser)) {
       const authUserRole = project.roles.findByAssignee(authUser);
       if (peerReview.isSenderRole(authUserRole)) {
         return true;

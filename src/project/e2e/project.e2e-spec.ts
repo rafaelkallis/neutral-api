@@ -4,6 +4,8 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -19,7 +21,7 @@ describe('project (e2e)', () => {
     await scenario.teardown();
   });
 
-  describe('/projects (GET)', () => {
+  describe('/projects?type=created (GET)', () => {
     test('happy path', async () => {
       const projects = [
         scenario.modelFaker.project(user.id),
@@ -30,6 +32,37 @@ describe('project (e2e)', () => {
       const response = await scenario.session
         .get('/projects')
         .query({ type: 'created' });
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(3);
+      for (const project of projects) {
+        expect(response.body).toContainEqual(
+          expect.objectContaining({
+            id: project.id.value,
+          }),
+        );
+      }
+    });
+  });
+
+  describe('/projects?type=assigned (GET)', () => {
+    test('happy path', async () => {
+      const creator = await scenario.createUser();
+      const projects = [
+        scenario.modelFaker.project(creator.id),
+        scenario.modelFaker.project(creator.id),
+        scenario.modelFaker.project(creator.id),
+      ];
+      for (const project of projects) {
+        const role = project.addRole(
+          RoleTitle.from(''),
+          RoleDescription.from(''),
+        );
+        project.assignUserToRole(user, role.id);
+      }
+      await scenario.projectRepository.persist(...projects);
+      const response = await scenario.session
+        .get('/projects')
+        .query({ type: 'assigned' });
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(3);
       for (const project of projects) {
@@ -56,7 +89,8 @@ describe('project (e2e)', () => {
         `/projects/${project.id.value}`,
       );
       expect(response.status).toBe(200);
-      // TODO more assertions?
+      expect(response.body).toBeDefined();
+      expect(response.body.roles).toEqual([]);
     });
   });
 

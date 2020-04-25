@@ -16,7 +16,7 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
   /**
    *
    */
-  protected innerMap(user: User, context: ObjectMapContext): UserDto {
+  protected doMap(user: User, context: ObjectMapContext): UserDto {
     const authUser = context.get('authUser', User);
     return new UserDto(
       user.id.value,

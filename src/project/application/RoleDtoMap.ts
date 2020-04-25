@@ -9,7 +9,7 @@ import { ContributionVisibility } from 'project/domain/value-objects/Contributio
 
 @Injectable()
 export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
-  protected innerMap(role: Role, context: ObjectMapContext): RoleDto {
+  protected doMap(role: Role, context: ObjectMapContext): RoleDto {
     const project = context.get('project', Project);
     const authUser = context.get('authUser', User);
     return new RoleDto(
@@ -47,7 +47,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         } else if (!project.state.equals(ProjectState.FINISHED)) {
           shouldExpose = false;
         } else {
-          shouldExpose = project.roles.anyAssignedToUser(authUser);
+          shouldExpose = project.roles.isAnyAssignedToUser(authUser);
         }
         break;
       }

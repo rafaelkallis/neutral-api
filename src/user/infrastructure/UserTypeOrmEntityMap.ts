@@ -13,7 +13,7 @@ import { Type, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
-  protected innerMap(model: User): UserTypeOrmEntity {
+  protected doMap(model: User): UserTypeOrmEntity {
     return new UserTypeOrmEntity(
       model.id.value,
       model.createdAt.value,
@@ -41,7 +41,7 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
   UserTypeOrmEntity,
   User
 > {
-  protected innerMap(entity: UserTypeOrmEntity): User {
+  protected doMap(entity: UserTypeOrmEntity): User {
     return new User(
       UserId.from(entity.id),
       CreatedAt.from(entity.createdAt),
