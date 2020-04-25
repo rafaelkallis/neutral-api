@@ -328,7 +328,7 @@ export class ProjectApplicationService {
       // shouldn't be possible to get here
       throw new InternalServerErrorException();
     }
-    project.assignUserToRole(userToAssign, roleToAssign);
+    project.assignUserToRole(userToAssign, roleToAssign.id);
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
@@ -364,7 +364,7 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    if (!project.roles.anyAssignedToUser(authUser)) {
+    if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
     const authRole = project.roles.findByAssignee(authUser);

@@ -5,28 +5,20 @@ import { ModelDto } from 'shared/application/dto/ModelDto';
  * Peer Review DTO
  */
 export class PeerReviewDto extends ModelDto {
-  @ApiProperty({
-    type: String,
-    required: false,
-    example: '507f1f77bcf86cd799439011',
-  })
-  public senderRoleId: string | null;
+  @ApiProperty({ type: String, example: '507f1f77bcf86cd799439011' })
+  public senderRoleId: string;
 
-  @ApiProperty({
-    type: String,
-    required: false,
-    example: '507f1f77bcf86cd799439011',
-  })
-  public receiverRoleId: string | null;
+  @ApiProperty({ type: String, example: '507f1f77bcf86cd799439011' })
+  public receiverRoleId: string;
 
-  @ApiProperty({ type: Number, required: false, example: 0.4 })
-  public score: number | null;
+  @ApiProperty({ type: Number, example: 0.4 })
+  public score: number;
 
   public constructor(
     id: string,
-    senderRoleId: string | null,
-    receiverRoleId: string | null,
-    score: number | null,
+    senderRoleId: string,
+    receiverRoleId: string,
+    score: number,
     createdAt: number,
     updatedAt: number,
   ) {

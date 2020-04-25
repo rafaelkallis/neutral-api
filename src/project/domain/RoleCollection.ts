@@ -7,6 +7,7 @@ import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUse
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { InsufficientRoleAmountException } from './exceptions/InsufficientRoleAmountException';
 
 export class RoleCollection extends ModelCollection<RoleId, Role> {
   public static empty(): RoleCollection {
@@ -27,7 +28,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
   }
 
   public excluding(roleToExclude: Role): Iterable<Role> {
-    if (!this.exists(roleToExclude.id)) {
+    if (!this.contains(roleToExclude.id)) {
       throw new RoleNotFoundException();
     }
     return this.filter((role) => !role.equals(roleToExclude));
@@ -39,8 +40,8 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
     }
   }
 
-  public anyAssignedToUser(userOrUserId: User | UserId): boolean {
-    return this.any((role) => role.isAssignedToUser(userOrUserId));
+  public isAnyAssignedToUser(userOrUserId: User | UserId): boolean {
+    return this.isAny((role) => role.isAssignedToUser(userOrUserId));
   }
 
   public assertSingleAssignmentPerUser(): void {
@@ -65,7 +66,13 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
     }
   }
 
+  public assertSufficientAmount(): void {
+    if (Array.from(this).length < 4) {
+      throw new InsufficientRoleAmountException();
+    }
+  }
+
   public allHaveSubmittedPeerReviews(): boolean {
-    return this.all((role) => role.hasSubmittedPeerReviews.value);
+    return this.areAll((role) => role.hasSubmittedPeerReviews.value);
   }
 }

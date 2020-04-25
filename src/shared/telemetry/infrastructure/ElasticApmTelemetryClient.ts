@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
+  HttpTelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
 import { User } from 'user/domain/User';
 import { Config } from 'shared/config/application/Config';
@@ -26,35 +27,72 @@ export class ElasticApmTelemetryClient extends TelemetryClient {
     }
   }
 
-  public setTransaction(
-    _request: Request,
-    _response: Response,
-    authUser?: User,
-  ): void {
-    apm.startTransaction();
-    if (authUser) {
-      apm.setUserContext({ id: authUser.id.value });
-    }
-  }
-
-  public createAction(name: string): TelemetryAction {
-    const span = apm.startSpan(name);
-    return new ElasticApmTelemetryAction(span);
-  }
-
-  public error(error: Error): void {
-    apm.captureError(error);
+  protected doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
+    request: Request,
+    response: Response,
+    user?: User,
+  ): HttpTelemetryTransaction {
+    return new ElasticApmHttpTelemetryTransaction(
+      transactionName,
+      transactionId,
+      request,
+      response,
+      user,
+      apm,
+    );
   }
 }
 
-class ElasticApmTelemetryAction implements TelemetryAction {
-  private readonly span: any;
+class ElasticApmHttpTelemetryTransaction extends HttpTelemetryTransaction {
+  private readonly apmTransaction: any;
 
-  public constructor(span: any) {
-    this.span = span;
+  public constructor(
+    transactionName: string,
+    transactionId: string,
+    request: Request,
+    response: Response,
+    user: User | undefined,
+    apm: any,
+  ) {
+    super(transactionName, transactionId, request, response, user);
+    this.apmTransaction = apm.startTransaction(transactionName);
+    if (user) {
+      this.apmTransaction.setUserContext({ id: user.id.value });
+    }
   }
 
-  end(): void {
-    this.span.end();
+  public startAction(actionName: string): TelemetryAction {
+    return new ElasticApmTelemetryAction(
+      this.transactionName,
+      this.transactionId,
+      actionName,
+      this.apmTransaction,
+    );
+  }
+
+  protected doEnd(error?: Error): void {
+    if (error) {
+      this.apmTransaction.captureError(error);
+    }
+  }
+}
+
+class ElasticApmTelemetryAction extends TelemetryAction {
+  private readonly span: any;
+
+  public constructor(
+    transactionName: string,
+    transactionId: string,
+    actionName: string,
+    apmTransaction: any,
+  ) {
+    super(transactionName, transactionId, actionName);
+    this.span = apmTransaction.startSpan(actionName);
+  }
+
+  protected doEnd(): void {
+    this.span.end(this.actionEnd);
   }
 }

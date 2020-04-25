@@ -2,7 +2,10 @@ import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { FilterIterable } from 'shared/domain/FilterIterable';
 
-export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
+export abstract class ModelCollection<
+  TId extends Id,
+  TModel extends Model<TId>
+> {
   private readonly models: TModel[];
   private readonly removedModels: TModel[];
 
@@ -12,7 +15,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
   }
 
   public add(modelToAdd: TModel): void {
-    if (this.exists(modelToAdd.id)) {
+    if (this.contains(modelToAdd.id)) {
       throw new Error('model already exists');
     }
     this.models.push(modelToAdd);
@@ -25,7 +28,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
   }
 
   public remove(modelToRemove: TModel): void {
-    if (!this.exists(modelToRemove.id)) {
+    if (!this.contains(modelToRemove.id)) {
       throw new Error('model does not exist');
     }
     this.removedModels.push(modelToRemove);
@@ -59,8 +62,9 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
   /**
    *
    */
-  public exists(id: TId): boolean {
-    return this.any((model) => model.id.equals(id));
+  public contains(modelOrId: TModel | TId): boolean {
+    const id = this.getId(modelOrId);
+    return this.isAny((model) => model.id.equals(id));
   }
 
   /**
@@ -70,7 +74,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
     return this.removedModels;
   }
 
-  protected any(predicate: (model: TModel) => boolean): boolean {
+  protected isAny(predicate: (model: TModel) => boolean): boolean {
     for (const model of this) {
       if (predicate(model)) {
         return true;
@@ -79,13 +83,17 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>> {
     return false;
   }
 
-  protected all(predicate: (model: TModel) => boolean): boolean {
+  protected areAll(predicate: (model: TModel) => boolean): boolean {
     for (const model of this) {
       if (!predicate(model)) {
         return false;
       }
     }
     return true;
+  }
+
+  protected getId(modelOrId: TModel | TId): TId {
+    return modelOrId instanceof Model ? modelOrId.id : modelOrId;
   }
 
   /**

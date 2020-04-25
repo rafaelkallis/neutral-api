@@ -196,15 +196,35 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    * Assigns a user to a role
    */
-  public assignUserToRole(assignee: User, role: Role): void {
+  public assignUserToRole(userToAssign: User, roleId: RoleId): void {
+    const roleToBeAssigned = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
-    const previousAssigneeId = role.assigneeId;
-    role.assigneeId = assignee.id;
-    this.roles.assertSingleAssignmentPerUser();
-    if (previousAssigneeId) {
-      this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
+    if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
+      return;
     }
-    this.apply(new UserAssignedEvent(this, role, assignee));
+    if (roleToBeAssigned.isAssigned()) {
+      this.unassign(roleToBeAssigned.id);
+    }
+    if (this.roles.isAnyAssignedToUser(userToAssign)) {
+      const currentAssignedRole = this.roles.findByAssignee(userToAssign);
+      this.unassign(currentAssignedRole.id);
+    }
+    roleToBeAssigned.assigneeId = userToAssign.id;
+    this.roles.assertSingleAssignmentPerUser();
+    this.apply(new UserAssignedEvent(this, roleToBeAssigned, userToAssign));
+  }
+
+  /**
+   * Unassign a role.
+   * @param roleId The roleId to unassign.
+   */
+  public unassign(roleId: RoleId): void {
+    const role = this.roles.find(roleId);
+    this.state.assertEquals(ProjectState.FORMATION);
+    role.assertAssigned();
+    const previousAssigneeId = role.assigneeId as UserId;
+    role.assigneeId = null;
+    this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
   }
 
   /**
@@ -212,6 +232,7 @@ export class Project extends AggregateRoot<ProjectId> {
    */
   public finishFormation(): void {
     this.state.assertEquals(ProjectState.FORMATION);
+    this.roles.assertSufficientAmount();
     this.roles.assertAllAreAssigned();
     this.state = ProjectState.PEER_REVIEW;
     this.apply(new ProjectFormationFinishedEvent(this));

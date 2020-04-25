@@ -17,7 +17,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     this.objectMapper = objectMapper;
   }
 
-  protected innerMap(project: Project, context: ObjectMapContext): ProjectDto {
+  protected doMap(project: Project, context: ObjectMapContext): ProjectDto {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,
@@ -70,7 +70,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     if (project.isCreator(authUser)) {
       return true;
     }
-    if (project.roles.anyAssignedToUser(authUser)) {
+    if (project.roles.isAnyAssignedToUser(authUser)) {
       const authUserRole = project.roles.findByAssignee(authUser);
       if (peerReview.isSenderRole(authUserRole)) {
         return true;

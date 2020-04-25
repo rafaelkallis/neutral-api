@@ -14,7 +14,9 @@ export class TelemetryActionInvocationHandler implements InvocationHandler {
   }
 
   public handleInvocation(method: Method, args: unknown[]): unknown {
-    const telemetryAction = this.telemetryClient.createAction(this.actionName);
+    const telemetryAction = this.telemetryClient
+      .getCurrentTransaction()
+      .startAction(this.actionName);
     try {
       const result = method.invoke(args);
       if (isPromise(result)) {
