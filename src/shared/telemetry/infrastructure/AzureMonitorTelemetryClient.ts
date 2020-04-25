@@ -1,5 +1,11 @@
 import * as appInsights from 'applicationinsights';
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationShutdown,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import {
   TelemetryClient,
@@ -8,24 +14,51 @@ import {
 } from 'shared/telemetry/application/TelemetryClient';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
+import { PerformanceMeasurer } from 'shared/telemetry/application/PerformanceMeasurer';
 
 /**
  * Azure Monitor Telemetry Client
  */
 @Injectable()
 export class AzureMonitorTelemetryClient extends TelemetryClient
-  implements OnApplicationShutdown {
+  implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
+  private readonly logger: Logger;
   private readonly client: appInsights.TelemetryClient;
+  private readonly performanceMeasurer: PerformanceMeasurer;
+  private trackPerformanceTimeout: NodeJS.Timeout;
 
-  public constructor(config: Config) {
+  public constructor(config: Config, performanceMeasurer: PerformanceMeasurer) {
     super();
+    this.logger = new Logger(AzureMonitorTelemetryClient.name);
     const instrumentationKey = config.get('AZURE_MONITOR_INSTRUMENTATION_KEY');
     this.client = new appInsights.TelemetryClient(instrumentationKey);
+    this.performanceMeasurer = performanceMeasurer;
+    this.trackPerformanceTimeout = setTimeout(() => {}, 0);
+  }
+
+  public onModuleInit(): void {
+    const trackPerformancePeriod = 1000;
+    this.trackPerformanceTimeout = setInterval(
+      () => this.trackPerformance(),
+      trackPerformancePeriod,
+    );
+    this.logger.log('Performance tracking started');
+  }
+
+  public onModuleDestroy(): void {
+    clearInterval(this.trackPerformanceTimeout);
+    this.trackPerformanceTimeout = setTimeout(() => {}, 0);
+    this.logger.log('Performance tracking stopped');
   }
 
   public async onApplicationShutdown(): Promise<void> {
     await new Promise((resolve) =>
-      this.client.flush({ callback: () => resolve() }),
+      this.client.flush({
+        callback: () => {
+          resolve();
+          this.logger.log('Client flushed');
+        },
+      }),
     );
   }
 
@@ -44,6 +77,18 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
       user,
       this.client,
     );
+  }
+
+  private trackPerformance(): void {
+    const memoryMetrics = this.performanceMeasurer.measureMemory();
+    this.client.trackMetric({
+      name: AzureMonitorPerformanceMetrics.PRIVATE_BYTES,
+      value: memoryMetrics.usedMemoryBytes,
+    });
+    this.client.trackMetric({
+      name: AzureMonitorPerformanceMetrics.AVAILABLE_BYTES,
+      value: memoryMetrics.availableMemoryBytes,
+    });
   }
 }
 
@@ -117,7 +162,7 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
 }
 
 // @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Schema/PublicSchema/ContextTagKeys.bond
-export enum AzureMonitorContextTags {
+enum AzureMonitorContextTags {
   APPLICATION_VERSION = 'ai.application.ver',
   DEVICE_ID = 'ai.device.id',
   LOCATION_IP = 'ai.location.ip',
@@ -125,4 +170,15 @@ export enum AzureMonitorContextTags {
   OPERATION_NAME = 'ai.operation.name',
   OPERATION_PARENT_ID = 'ai.operation.parentId',
   USER_ID = 'ai.user.id',
+}
+
+// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Declarations/Constants.ts#L28-L40
+enum AzureMonitorPerformanceMetrics {
+  // Memory
+  PRIVATE_BYTES = '\\Process(??APP_WIN32_PROC??)\\Private Bytes',
+  AVAILABLE_BYTES = '\\Memory\\Available Bytes',
+
+  // CPU
+  PROCESSOR_TIME = '\\Processor(_Total)\\% Processor Time',
+  PROCESS_TIME = '\\Process(??APP_WIN32_PROC??)\\% Processor Time',
 }
