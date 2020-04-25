@@ -4,9 +4,10 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
-  TelemetryTransaction,
+  HttpTelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
 import { Config } from 'shared/config/application/Config';
+import { User } from 'user/domain/User';
 
 /**
  * Azure Monitor Telemetry Client
@@ -18,7 +19,6 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
 
   public constructor(config: Config) {
     super();
-    // this.client = client;
     const instrumentationKey = config.get('AZURE_MONITOR_INSTRUMENTATION_KEY');
     this.client = new appInsights.TelemetryClient(instrumentationKey);
   }
@@ -29,30 +29,30 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
     );
   }
 
-  public setTransaction(request: Request, response: Response): void {
-    this.client.trackNodeHttpRequest({ request, response });
-  }
-
-  public createAction(name: string): TelemetryAction {
-    return new AzureMonitorTelemetryAction(this.client, name);
-  }
-
-  public error(exception: Error): void {
-    this.client.trackException({ exception });
+  protected doCreateHttpTransaction(
+    request: Request,
+    response: Response,
+    user?: User,
+  ): HttpTelemetryTransaction {
+    return new AzureMonitorHttpTelemetryTransaction(
+      this.computeHttpTransactionName(request),
+      request,
+      response,
+      this.client,
+    );
   }
 }
 
-class AzureMonitorHttpTelemetryTransaction extends TelemetryTransaction {
+class AzureMonitorHttpTelemetryTransaction extends HttpTelemetryTransaction {
   private readonly client: appInsights.TelemetryClient;
-  private readonly request: Request;
-  private readonly response: Response;
 
   public constructor(
-    client: appInsights.TelemetryClient,
+    transactionName: string,
     request: Request,
     response: Response,
+    client: appInsights.TelemetryClient,
   ) {
-    super(transactionName);
+    super(transactionName, request, response);
     this.client = client;
   }
 
@@ -65,7 +65,16 @@ class AzureMonitorHttpTelemetryTransaction extends TelemetryTransaction {
   }
 
   protected doEnd(error?: Error): void {
-    this.client.trackRequest({});
+    if (error) {
+      this.client.trackException({ exception: error });
+    }
+    this.client.trackRequest({
+      name: this.transactionName,
+      url: this.request.route.path,
+      duration: this.transactionDuration,
+      success: Boolean(error),
+      resultCode: this.response.statusCode,
+    });
   }
 }
 

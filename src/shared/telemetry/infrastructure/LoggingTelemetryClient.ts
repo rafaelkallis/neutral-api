@@ -3,61 +3,51 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
-  TelemetryTransaction,
+  HttpTelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
+import { User } from 'user/domain/User';
 
 /**
  * Local Telemetry Client
  */
 @Injectable()
 export class LoggingTelemetryClient extends TelemetryClient {
-  private currentTransaction: Logger | null;
   private readonly logger: LoggerService;
 
   public constructor() {
     super();
-    this.currentTransaction = null;
     this.logger = new Logger();
   }
 
-  public setTransaction(request: Request, response: Response): void {
-    const httpEndpoint = this.getHttpEndpoint(request);
-    const newTransaction = new Logger(`Telemetry ${httpEndpoint}`, true);
-    newTransaction.log('');
-    this.currentTransaction = newTransaction;
-  }
-
-  public createHttpTransaction(
+  protected doCreateHttpTransaction(
     request: Request,
     response: Response,
-  ): TelemetryTransaction {
-    const httpEndpoint = this.getHttpEndpoint(request);
-    return new LoggingTelemetryTransaction(this.logger, httpEndpoint);
-  }
-
-  public createAction(name: string): TelemetryAction {
-    if (!this.currentTransaction) {
-      throw new Error('forgot to setTransaction()');
-    }
-    return new LoggingTelemetryAction(this.currentTransaction, name);
-  }
-
-  public error(error: Error): void {
-    if (!this.currentTransaction) {
-      throw new Error('forgot to setTransaction()');
-    }
-    this.currentTransaction.error(
-      `${error.name}: ${error.message}`,
-      error.stack?.toString(),
+    user?: User,
+  ): HttpTelemetryTransaction {
+    const httpTransactionName = `Telemetry ${this.computeHttpTransactionName(
+      request,
+    )}`;
+    return new LoggingTelemetryTransaction(
+      httpTransactionName,
+      request,
+      response,
+      user,
+      this.logger,
     );
   }
 }
 
-class LoggingTelemetryTransaction extends TelemetryTransaction {
+class LoggingTelemetryTransaction extends HttpTelemetryTransaction {
   readonly logger: LoggerService;
 
-  public constructor(logger: LoggerService, transactionName: string) {
-    super(transactionName);
+  public constructor(
+    transactionName: string,
+    request: Request,
+    response: Response,
+    user: User | undefined,
+    logger: LoggerService,
+  ) {
+    super(transactionName, request, response, user);
     this.logger = logger;
   }
 

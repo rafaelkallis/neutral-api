@@ -34,7 +34,6 @@ export class TelemetryInterceptor implements NestInterceptor {
     const request = httpContext.getRequest<Request & { user?: User }>();
     const response = httpContext.getResponse<Response>();
 
-    this.telemetryClient.setTransaction(request, response, request.user);
     const telemetryTransaction = this.telemetryClient.createHttpTransaction(
       request,
       response,
@@ -46,10 +45,8 @@ export class TelemetryInterceptor implements NestInterceptor {
       }),
       catchError((error) => {
         if (!(error instanceof HttpException)) {
-          this.telemetryClient.error(error);
           telemetryTransaction.end(error);
         } else if (this.isServerError(error)) {
-          this.telemetryClient.error(error);
           telemetryTransaction.end(error);
         }
         return throwError(error);

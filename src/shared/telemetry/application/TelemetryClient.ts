@@ -1,33 +1,45 @@
 import { Request, Response } from 'express';
 import { User } from 'user/domain/User';
+import { InternalServerErrorException } from '@nestjs/common';
 
 /**
  * Telemetry Client.
  */
 export abstract class TelemetryClient {
-  /**
-   *
-   */
-  public abstract setTransaction(
+  private currentTransaction: TelemetryTransaction | null;
+
+  public constructor() {
+    this.currentTransaction = null;
+  }
+
+  public createHttpTransaction(
     request: Request,
     response: Response,
     user?: User,
-  ): void;
+  ): HttpTelemetryTransaction {
+    const httpTransaction = this.doCreateHttpTransaction(
+      request,
+      response,
+      user,
+    );
+    this.currentTransaction = httpTransaction;
+    return httpTransaction;
+  }
 
-  /**
-   * Start a new action.
-   * @param name The action's name.
-   */
-  public abstract createAction(name: string): TelemetryAction;
-  public abstract createHttpTransaction(
+  public getCurrentTransaction(): TelemetryTransaction {
+    if (!this.currentTransaction) {
+      throw new InternalServerErrorException('no active telemetry transaction');
+    }
+    return this.currentTransaction;
+  }
+
+  protected abstract doCreateHttpTransaction(
     request: Request,
     response: Response,
     user?: User,
-  ): TelemetryTransaction;
+  ): HttpTelemetryTransaction;
 
-  public abstract error(error: Error): void;
-
-  protected getHttpEndpoint(request: Request): string {
+  protected computeHttpTransactionName(request: Request): string {
     return `${request.method} ${request.route.path}`;
   }
 }
@@ -62,13 +74,19 @@ export abstract class TelemetryTransaction {
 
 export abstract class HttpTelemetryTransaction extends TelemetryTransaction {
   protected readonly request: Request;
+  protected readonly response: Response;
+  protected readonly user?: User;
 
-  public constructor(request: Request) {
-    super(this.computeTransactionName(request));
-  }
-
-  protected computeTransactionName(request: Request): string {
-    return `${request.method} ${request.route.path}`;
+  public constructor(
+    transactionName: string,
+    request: Request,
+    response: Response,
+    user?: User,
+  ) {
+    super(transactionName);
+    this.request = request;
+    this.response = response;
+    this.user = user;
   }
 }
 
