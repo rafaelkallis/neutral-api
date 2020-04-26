@@ -3,7 +3,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -25,6 +25,13 @@ import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { Injectable, Type } from '@nestjs/common';
+import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
+import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
+import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
@@ -132,7 +139,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTitle.from(projectEntity.title),
       ProjectDescription.from(projectEntity.description),
       UserId.from(projectEntity.creatorId),
-      ProjectState.from(projectEntity.state),
+      this.mapProjectState(projectEntity.state),
       projectEntity.consensuality
         ? Consensuality.from(projectEntity.consensuality)
         : null,
@@ -141,6 +148,29 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       roles,
       peerReviews,
     );
+  }
+
+  private mapProjectState(projectStateValue: ProjectStateValue): ProjectState {
+    switch (projectStateValue) {
+      case ProjectStateValue.FORMATION: {
+        return ProjectFormation.getInstance();
+      }
+      case ProjectStateValue.PEER_REVIEW: {
+        return ProjectPeerReview.getInstance();
+      }
+      case ProjectStateValue.MANAGER_REVIEW: {
+        return ProjectManagerReview.getInstance();
+      }
+      case ProjectStateValue.FINISHED: {
+        return ProjectFinished.getInstance();
+      }
+      case ProjectStateValue.ARCHIVED: {
+        return ProjectArchived.getInstance();
+      }
+      default: {
+        throw new InvalidProjectStateException();
+      }
+    }
   }
 
   public getSourceType(): Type<ProjectTypeOrmEntity> {

@@ -1,9 +1,9 @@
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Project } from 'project/domain/Project';
 import { Role } from 'project/domain/Role';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
 
 describe('roles (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -64,7 +64,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should not be part of e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .post(`/projects/${project.id.value}/roles`)
@@ -103,7 +103,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should be tested in e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)

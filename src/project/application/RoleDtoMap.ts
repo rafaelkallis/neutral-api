@@ -4,7 +4,7 @@ import { User } from 'user/domain/User';
 import { InternalServerErrorException, Injectable, Type } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role } from 'project/domain/Role';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 
 @Injectable()
@@ -37,14 +37,14 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
-        shouldExpose = project.state.equals(ProjectState.FINISHED);
+        shouldExpose = project.state.equals(ProjectFinished.getInstance());
         break;
       }
 
       case ContributionVisibility.PROJECT: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectState.FINISHED)) {
+        } else if (!project.state.equals(ProjectFinished.getInstance())) {
           shouldExpose = false;
         } else {
           shouldExpose = project.roles.isAnyAssignedToUser(authUser);
@@ -55,7 +55,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       case ContributionVisibility.SELF: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectState.FINISHED)) {
+        } else if (!project.state.equals(ProjectFinished.getInstance())) {
           shouldExpose = false;
         } else {
           shouldExpose = role.isAssignedToUser(authUser);

@@ -9,7 +9,9 @@ import {
 import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { Role } from 'project/domain/Role';
 import { User } from 'user/domain/User';
@@ -187,7 +189,7 @@ describe(ProjectApplicationService.name, () => {
     let updateProjectDto: UpdateProjectDto;
 
     beforeEach(async () => {
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       await projectRepository.persist(project);
       newTitle = ProjectTitle.from(primitiveFaker.words());
       updateProjectDto = new UpdateProjectDto(newTitle.value);
@@ -392,7 +394,7 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
     });
@@ -436,7 +438,7 @@ describe(ProjectApplicationService.name, () => {
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       roles = [
         modelFaker.role(project.id, ownerUser.id),
         modelFaker.role(project.id),
@@ -506,7 +508,7 @@ describe(ProjectApplicationService.name, () => {
 
     describe('submit manager review', () => {
       beforeEach(async () => {
-        project.state = ProjectState.MANAGER_REVIEW;
+        project.state = ProjectManagerReview.getInstance();
         await projectRepository.persist(project);
         jest.spyOn(project, 'submitManagerReview');
       });

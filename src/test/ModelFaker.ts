@@ -6,7 +6,6 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Project } from 'project/domain/Project';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -28,6 +27,7 @@ import { RoleId } from 'project/domain/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserState } from 'user/domain/value-objects/UserState';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -76,7 +76,7 @@ export class ModelFaker {
     const description = ProjectDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    const state = ProjectState.FORMATION;
+    const state = ProjectFormation.getInstance();
     const consensuality = null;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
-import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 
