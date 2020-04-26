@@ -63,7 +63,7 @@ class LoggingTelemetryTransaction extends HttpTelemetryTransaction {
   }
 
   protected doEnd(error?: Error): void {
-    const logMessage = `{start: ${this.transactionStart}, end: ${this.transactionEnd}, duration: ${this.transactionDuration}ms}`;
+    const logMessage = `{duration: ${this.transactionDuration}ms}`;
     if (error) {
       this.logger.error(
         `${logMessage} \n${error.name}: ${error.message}`,
@@ -89,7 +89,7 @@ class LoggingTelemetryAction extends TelemetryAction {
   }
 
   protected doEnd(error?: Error): void {
-    const logMessage = `${this.actionName}: {start: ${this.actionStart}, end: ${this.actionEnd}, duration: ${this.actionDuration}}`;
+    const logMessage = `${this.actionName}: {duration: ${this.actionDuration}}`;
     if (error) {
       this.logger.error(logMessage, undefined, this.transactionName);
     } else {
