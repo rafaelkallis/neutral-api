@@ -1,7 +1,6 @@
 import { User } from 'user/domain/User';
 import { Project, CreateProjectOptions } from 'project/domain/Project';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
@@ -32,8 +31,13 @@ import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerR
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { UserAssignedEvent } from './events/UserAssignedEvent';
-import { UserUnassignedEvent } from './events/UserUnassignedEvent';
+import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
+import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -86,7 +90,7 @@ describe(Project.name, () => {
     let title: ProjectTitle;
 
     beforeEach(() => {
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       title = ProjectTitle.from(primitiveFaker.words());
     });
 
@@ -96,7 +100,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.update(title)).toThrow();
     });
   });
@@ -104,12 +108,12 @@ describe(Project.name, () => {
   describe('archive project', () => {
     test('happy path', () => {
       project.archive();
-      expect(project.state).toBe(ProjectState.ARCHIVED);
+      expect(project.state).toBe(ProjectArchived.getInstance());
       expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.archive()).toThrow();
     });
   });
@@ -130,7 +134,7 @@ describe(Project.name, () => {
     });
 
     test('should fail when project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.addRole(title, description)).toThrow();
     });
   });
@@ -150,7 +154,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.updateRole(roleToUpdate.id, title)).toThrow();
     });
   });
@@ -168,7 +172,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.removeRole(roleToRemove.id)).toThrow();
     });
   });
@@ -214,7 +218,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() =>
         project.assignUserToRole(userToAssign, roleToBeAssigned.id),
       ).toThrow();
@@ -238,7 +242,7 @@ describe(Project.name, () => {
     });
 
     test('when project is not in formation state, should fail', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.unassign(roleToUnassign.id)).toThrow();
     });
 
@@ -250,7 +254,7 @@ describe(Project.name, () => {
 
   describe('finish formation', () => {
     beforeEach(() => {
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       for (const role of project.roles) {
         role.assigneeId = UserId.create();
       }
@@ -265,7 +269,7 @@ describe(Project.name, () => {
     });
 
     test('should fail if project is not in formation state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.finishFormation()).toThrow();
     });
 
@@ -286,7 +290,7 @@ describe(Project.name, () => {
 
     beforeEach(() => {
       project.skipManagerReview = SkipManagerReview.NO;
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
       roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
       roles[2].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -337,7 +341,9 @@ describe(Project.name, () => {
         expect(project.domainEvents).toContainEqual(
           expect.any(FinalPeerReviewSubmittedEvent),
         );
-        expect(project.state.equals(ProjectState.MANAGER_REVIEW)).toBeTruthy();
+        expect(
+          project.state.equals(ProjectManagerReview.getInstance()),
+        ).toBeTruthy();
         for (const role of roles) {
           expect(role.contribution).toEqual(expect.any(Contribution));
         }
@@ -352,7 +358,7 @@ describe(Project.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectState.FINISHED);
+        expect(project.state).toBe(ProjectFinished.getInstance());
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
@@ -364,7 +370,7 @@ describe(Project.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectState.FINISHED);
+        expect(project.state).toBe(ProjectFinished.getInstance());
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
@@ -376,7 +382,7 @@ describe(Project.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
+        expect(project.state).toBe(ProjectManagerReview.getInstance());
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
@@ -387,7 +393,7 @@ describe(Project.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectState.MANAGER_REVIEW);
+        expect(project.state).toBe(ProjectManagerReview.getInstance());
       });
 
       test('not final peer review, should not compute contributions and consensuality', () => {
@@ -401,12 +407,12 @@ describe(Project.name, () => {
         for (const role of project.roles) {
           expect(role.contribution).toBeNull();
         }
-        expect(project.state).toBe(ProjectState.PEER_REVIEW);
+        expect(project.state).toBe(ProjectPeerReview.getInstance());
       });
     });
 
     test('should fail if project is not in peer-review state', () => {
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       expect(() =>
         project.submitPeerReviews(
           roles[0].id,
@@ -463,16 +469,16 @@ describe(Project.name, () => {
 
   describe('submit manager review', () => {
     beforeEach(() => {
-      project.state = ProjectState.MANAGER_REVIEW;
+      project.state = ProjectManagerReview.getInstance();
     });
 
     test('happy path', () => {
       project.submitManagerReview();
-      expect(project.state).toBe(ProjectState.FINISHED);
+      expect(project.state).toBe(ProjectFinished.getInstance());
     });
 
     test('should fail if project is not in manager-review state', () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       expect(() => project.submitManagerReview()).toThrow();
     });
   });

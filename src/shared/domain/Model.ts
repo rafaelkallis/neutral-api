@@ -8,6 +8,8 @@ export interface ReadonlyModel<TId extends Id> {
   readonly createdAt: CreatedAt;
   readonly updatedAt: UpdatedAt;
   readonly domainEvents: ReadonlyArray<DomainEvent>;
+
+  equals(other: ReadonlyModel<TId>): boolean;
 }
 
 /**
@@ -17,27 +19,31 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
   public readonly id: TId;
   public readonly createdAt: CreatedAt;
   public updatedAt: UpdatedAt;
-  public readonly domainEvents: Array<DomainEvent>;
+  public get domainEvents(): ReadonlyArray<DomainEvent> {
+    return this.#domainEvents;
+  }
+
+  readonly #domainEvents: Array<DomainEvent>;
 
   public constructor(id: TId, createdAt: CreatedAt, updatedAt: UpdatedAt) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.domainEvents = [];
+    this.#domainEvents = [];
   }
 
   /**
    *
    */
-  public equals(other: Model<TId>): boolean {
+  public equals(other: ReadonlyModel<TId>): boolean {
     return this.id.equals(other.id);
   }
 
   /**
    *
    */
-  protected raise(domainEvent: DomainEvent): void {
+  public raise(domainEvent: DomainEvent): void {
     this.updatedAt = UpdatedAt.now();
-    this.domainEvents.push(domainEvent);
+    this.#domainEvents.push(domainEvent);
   }
 }

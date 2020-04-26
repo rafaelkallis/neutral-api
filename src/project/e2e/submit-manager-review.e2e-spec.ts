@@ -1,7 +1,9 @@
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Project } from 'project/domain/Project';
 import { User } from 'user/domain/User';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 
 describe('submit manager review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -16,7 +18,7 @@ describe('submit manager review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectState.MANAGER_REVIEW;
+    project.state = ProjectManagerReview.getInstance();
     await scenario.projectRepository.persist(project);
   });
 
@@ -35,11 +37,11 @@ describe('submit manager review (e2e)', () => {
     if (!updatedProject) {
       throw new Error();
     }
-    expect(updatedProject.state).toBe(ProjectState.FINISHED);
+    expect(updatedProject.state).toBe(ProjectFinished.getInstance());
   });
 
   test('should fail if project is not in manager-review state', async () => {
-    project.state = ProjectState.FORMATION;
+    project.state = ProjectFormation.getInstance();
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session.post(

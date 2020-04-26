@@ -1,11 +1,13 @@
 import { Project } from 'project/domain/Project';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -156,7 +158,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -178,7 +180,7 @@ describe('project (e2e)', () => {
         await scenario.createUser(),
       ];
       project = await scenario.createProject(user);
-      project.state = ProjectState.FORMATION;
+      project.state = ProjectFormation.getInstance();
       roles = [
         scenario.modelFaker.role(project.id, assignees[0].id),
         scenario.modelFaker.role(project.id, assignees[1].id),
@@ -201,7 +203,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
+      expect(updatedProject.state).toEqual(ProjectPeerReview.getInstance());
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -215,7 +217,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.getInstance();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
@@ -253,7 +255,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
+      expect(updatedProject.state).toBe(ProjectArchived.getInstance());
     });
   });
 
@@ -282,7 +284,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
+      expect(updatedProject.state).toBe(ProjectArchived.getInstance());
     });
   });
 });
