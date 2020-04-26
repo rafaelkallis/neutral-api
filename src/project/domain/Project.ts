@@ -136,7 +136,9 @@ export class Project extends AggregateRoot<ProjectId>
   /**
    *
    */
-  public static create(createProjectOptions: CreateProjectOptions): Project {
+  public static create(
+    createProjectOptions: CreateProjectOptions,
+  ): ReadonlyProject {
     const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -149,8 +151,8 @@ export class Project extends AggregateRoot<ProjectId>
     } = createProjectOptions;
     const state = ProjectState.FORMATION;
     const consensuality = null;
-    const roles = RoleCollection.empty();
-    const peerReviews = PeerReviewCollection.empty();
+    const roles = new RoleCollection([]);
+    const peerReviews = new PeerReviewCollection([]);
     const project = new Project(
       projectId,
       createdAt,

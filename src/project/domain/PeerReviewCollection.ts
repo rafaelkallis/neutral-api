@@ -20,10 +20,6 @@ export interface ReadonlyPeerReviewCollection
 export class PeerReviewCollection
   extends ModelCollection<PeerReviewId, PeerReview>
   implements ReadonlyPeerReviewCollection {
-  public static empty(): PeerReviewCollection {
-    return new PeerReviewCollection([]);
-  }
-
   public static fromMap(
     peerReviewMap: Record<string, Record<string, number>>,
   ): ReadonlyPeerReviewCollection {

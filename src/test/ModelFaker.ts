@@ -91,8 +91,8 @@ export class ModelFaker {
       consensuality,
       contributionVisibility,
       skipManagerReview,
-      RoleCollection.empty(),
-      PeerReviewCollection.empty(),
+      new RoleCollection([]),
+      new PeerReviewCollection([]),
     );
   }
 

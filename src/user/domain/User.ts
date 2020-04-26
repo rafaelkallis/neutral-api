@@ -34,30 +34,11 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
 }
 
 export class User extends AggregateRoot<UserId> implements ReadonlyUser {
-  private _email: Email;
-  public get email(): Email {
-    return this._email;
-  }
-
-  private _name: Name;
-  public get name(): Name {
-    return this._name;
-  }
-
-  private _avatar: Avatar | null;
-  public get avatar(): Avatar | null {
-    return this._avatar;
-  }
-
-  private _state: UserState;
-  public get state(): UserState {
-    return this._state;
-  }
-
-  private _lastLoginAt: LastLoginAt;
-  public get lastLoginAt(): LastLoginAt {
-    return this._lastLoginAt;
-  }
+  public email: Email;
+  public name: Name;
+  public avatar: Avatar | null;
+  public state: UserState;
+  public lastLoginAt: LastLoginAt;
 
   public constructor(
     id: UserId,
@@ -70,17 +51,17 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     lastLoginAt: LastLoginAt,
   ) {
     super(id, createdAt, updatedAt);
-    this._email = email;
-    this._name = name;
-    this._avatar = avatar;
-    this._state = state;
-    this._lastLoginAt = lastLoginAt;
+    this.email = email;
+    this.name = name;
+    this.avatar = avatar;
+    this.state = state;
+    this.lastLoginAt = lastLoginAt;
   }
 
   /**
    *
    */
-  public static createActive(email: Email, name: Name): User {
+  public static createActive(email: Email, name: Name): ReadonlyUser {
     const userId = UserId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -104,7 +85,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   /**
    *
    */
-  public static createInvited(email: Email): User {
+  public static createInvited(email: Email): ReadonlyUser {
     const first = '';
     const last = '';
     const name = Name.from(first, last);
@@ -133,11 +114,11 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
    */
   public login(): void {
     if (this.state.equals(UserState.INVITED)) {
-      this._state = UserState.ACTIVE;
+      this.state = UserState.ACTIVE;
       // TODO apply event
     }
     this.state.assertEquals(UserState.ACTIVE);
-    this._lastLoginAt = LastLoginAt.now();
+    this.lastLoginAt = LastLoginAt.now();
     this.raise(new LoginEvent(this));
   }
 
@@ -146,7 +127,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
    */
   public changeEmail(email: Email): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this._email = email;
+    this.email = email;
     this.raise(new EmailChangedEvent(this));
   }
 
@@ -155,7 +136,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
    */
   public updateName(name: Name): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this._name = name;
+    this.name = name;
     this.raise(new UserNameUpdatedEvent(this));
   }
 
@@ -168,7 +149,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     if (oldAvatar?.equals(newAvatar)) {
       return;
     }
-    this._avatar = newAvatar;
+    this.avatar = newAvatar;
     this.raise(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
   }
 
@@ -179,19 +160,19 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     this.state.assertEquals(UserState.ACTIVE);
     const oldAvatar = this.avatar;
     if (oldAvatar) {
-      this._avatar = null;
+      this.avatar = null;
       this.raise(new UserAvatarRemovedEvent(this, oldAvatar));
     }
   }
 
   public forget(): void {
     this.state.assertEquals(UserState.ACTIVE);
-    this._email = Email.redacted();
-    this._name = Name.redacted();
+    this.email = Email.redacted();
+    this.name = Name.redacted();
     if (this.avatar) {
-      this._avatar = Avatar.redacted();
+      this.avatar = Avatar.redacted();
     }
-    this._state = UserState.FORGOTTEN;
+    this.state = UserState.FORGOTTEN;
     this.raise(new UserForgottenEvent(this.id));
   }
 }

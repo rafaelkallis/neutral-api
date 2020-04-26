@@ -20,10 +20,6 @@ export interface ReadonlyRoleCollection
 
 export class RoleCollection extends ModelCollection<RoleId, Role>
   implements ReadonlyRoleCollection {
-  public static empty(): RoleCollection {
-    return new RoleCollection([]);
-  }
-
   /**
    * Find role by assignee.
    * @param assigneeOrAssigneeId

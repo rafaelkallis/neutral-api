@@ -32,11 +32,7 @@ export class Notification extends AggregateRoot<NotificationId>
   implements ReadonlyNotification {
   public readonly ownerId: UserId;
   public readonly type: NotificationType;
-
-  private _isRead: NotificationIsRead;
-  public get isRead(): NotificationIsRead {
-    return this._isRead;
-  }
+  public isRead: NotificationIsRead;
 
   // TODO needs some kind of type
   public readonly payload: object;
@@ -53,7 +49,7 @@ export class Notification extends AggregateRoot<NotificationId>
     super(id, createdAt, updatedAt);
     this.ownerId = ownerId;
     this.type = type;
-    this._isRead = isRead;
+    this.isRead = isRead;
     this.payload = payload;
   }
 
@@ -62,7 +58,7 @@ export class Notification extends AggregateRoot<NotificationId>
    */
   public markRead(): void {
     this.assertNotRead();
-    this._isRead = NotificationIsRead.from(true);
+    this.isRead = NotificationIsRead.from(true);
     this.raise(new NotificationReadEvent(this));
   }
 

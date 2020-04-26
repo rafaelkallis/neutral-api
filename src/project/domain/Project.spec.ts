@@ -74,8 +74,8 @@ describe(Project.name, () => {
     });
 
     test('happy path', () => {
-      project = Project.create(createProjectOptions);
-      expect(project.domainEvents).toEqual([
+      const createdProject = Project.create(createProjectOptions);
+      expect(createdProject.domainEvents).toEqual([
         expect.any(ProjectCreatedEvent),
         expect.any(ProjectFormationStartedEvent),
       ]);
