@@ -1,5 +1,8 @@
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import {
+  PeerReviewCollection,
+  ReadonlyPeerReviewCollection,
+} from 'project/domain/PeerReviewCollection';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
@@ -16,9 +19,9 @@ describe('consensuality computer', () => {
   let c: string;
   let d: string;
 
-  let cyclePeerReviews: PeerReviewCollection;
-  let clusterPeerReviews: PeerReviewCollection;
-  let oneDidItAllPeerReviews: PeerReviewCollection;
+  let cyclePeerReviews: ReadonlyPeerReviewCollection;
+  let clusterPeerReviews: ReadonlyPeerReviewCollection;
+  let oneDidItAllPeerReviews: ReadonlyPeerReviewCollection;
 
   const o = PeerReviewScore.EPSILON;
   const l = 1 - 3 * PeerReviewScore.EPSILON;

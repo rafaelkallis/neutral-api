@@ -1,20 +1,32 @@
-import { ModelCollection } from 'shared/domain/ModelCollection';
-import { PeerReview } from 'project/domain/PeerReview';
+import {
+  ModelCollection,
+  ReadonlyModelCollection,
+} from 'shared/domain/ModelCollection';
+import { PeerReview, ReadonlyPeerReview } from 'project/domain/PeerReview';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 
-export class PeerReviewCollection extends ModelCollection<
-  PeerReviewId,
-  PeerReview
-> {
+export interface ReadonlyPeerReviewCollection
+  extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
+  findBySenderRole(senderRoleId: RoleId): Iterable<PeerReview>;
+  addForSender(
+    senderRoleId: RoleId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+  ): ReadonlyArray<ReadonlyPeerReview>;
+  getNumberOfPeers(): number;
+}
+
+export class PeerReviewCollection
+  extends ModelCollection<PeerReviewId, PeerReview>
+  implements ReadonlyPeerReviewCollection {
   public static empty(): PeerReviewCollection {
     return new PeerReviewCollection([]);
   }
 
   public static fromMap(
     peerReviewMap: Record<string, Record<string, number>>,
-  ): PeerReviewCollection {
+  ): ReadonlyPeerReviewCollection {
     const peerReviews: PeerReview[] = [];
     for (const sender of Object.keys(peerReviewMap)) {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {

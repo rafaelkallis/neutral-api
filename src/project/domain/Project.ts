@@ -35,7 +35,10 @@ import {
   RoleCollection,
   ReadonlyRoleCollection,
 } from 'project/domain/RoleCollection';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import {
+  PeerReviewCollection,
+  ReadonlyPeerReviewCollection,
+} from 'project/domain/PeerReviewCollection';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
@@ -64,7 +67,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly contributionVisibility: ContributionVisibility;
   readonly skipManagerReview: SkipManagerReview;
   readonly roles: ReadonlyRoleCollection;
-  readonly peerReviews: PeerReviewCollection;
+  readonly peerReviews: ReadonlyPeerReviewCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
   archive(): void;
@@ -94,16 +97,8 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
  */
 export class Project extends AggregateRoot<ProjectId>
   implements ReadonlyProject {
-  private _title: ProjectTitle;
-  public get title(): ProjectTitle {
-    return this._title;
-  }
-
-  private _description: ProjectDescription;
-  public get description(): ProjectDescription {
-    return this._description;
-  }
-
+  public title: ProjectTitle;
+  public description: ProjectDescription;
   public readonly creatorId: UserId;
   public state: ProjectState;
   public consensuality: Consensuality | null;
@@ -127,8 +122,8 @@ export class Project extends AggregateRoot<ProjectId>
     peerReviews: PeerReviewCollection,
   ) {
     super(id, createdAt, updatedAt);
-    this._title = title;
-    this._description = description;
+    this.title = title;
+    this.description = description;
     this.creatorId = creatorId;
     this.state = state;
     this.consensuality = consensuality;
@@ -183,10 +178,10 @@ export class Project extends AggregateRoot<ProjectId>
   public update(title?: ProjectTitle, description?: ProjectDescription): void {
     this.state.assertEquals(ProjectState.FORMATION);
     if (title) {
-      this._title = title;
+      this.title = title;
     }
     if (description) {
-      this._description = description;
+      this.description = description;
     }
     this.raise(new ProjectUpdatedEvent(this));
   }
