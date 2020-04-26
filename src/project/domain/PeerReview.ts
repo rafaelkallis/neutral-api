@@ -1,4 +1,4 @@
-import { Model } from 'shared/domain/Model';
+import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Role } from 'project/domain/Role';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -7,10 +7,20 @@ import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerRevie
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 
+export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
+  readonly senderRoleId: RoleId;
+  readonly receiverRoleId: RoleId;
+  readonly score: PeerReviewScore;
+
+  isSenderRole(roleOrRoleId: Role | RoleId): boolean;
+  isReceiverRole(roleOrRoleId: Role | RoleId): boolean;
+}
+
 /**
  * Peer Review
  */
-export class PeerReview extends Model<PeerReviewId> {
+export class PeerReview extends Model<PeerReviewId>
+  implements ReadonlyPeerReview {
   public senderRoleId: RoleId;
   public receiverRoleId: RoleId;
   public score: PeerReviewScore;

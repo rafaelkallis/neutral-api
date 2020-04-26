@@ -74,8 +74,8 @@ describe(Project.name, () => {
     });
 
     test('happy path', () => {
-      project = Project.create(createProjectOptions);
-      expect(project.getDomainEvents()).toEqual([
+      const createdProject = Project.create(createProjectOptions);
+      expect(createdProject.domainEvents).toEqual([
         expect.any(ProjectCreatedEvent),
         expect.any(ProjectFormationStartedEvent),
       ]);
@@ -92,9 +92,7 @@ describe(Project.name, () => {
 
     test('happy path', () => {
       project.update(title);
-      expect(project.getDomainEvents()).toEqual([
-        expect.any(ProjectUpdatedEvent),
-      ]);
+      expect(project.domainEvents).toEqual([expect.any(ProjectUpdatedEvent)]);
     });
 
     test('should fail if project is not in formation state', () => {
@@ -107,9 +105,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       project.archive();
       expect(project.state).toBe(ProjectState.ARCHIVED);
-      expect(project.getDomainEvents()).toEqual([
-        expect.any(ProjectArchivedEvent),
-      ]);
+      expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
     });
 
     test('should fail if project is not in formation state', () => {
@@ -130,9 +126,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       const addedRole = project.addRole(title, description);
       expect(project.roles.contains(addedRole.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContainEqual(
-        expect.any(RoleCreatedEvent),
-      );
+      expect(project.domainEvents).toContainEqual(expect.any(RoleCreatedEvent));
     });
 
     test('should fail when project is not in formation state', () => {
@@ -191,7 +185,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       project.assignUserToRole(userToAssign, roleToBeAssigned.id);
       expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContainEqual(
+      expect(project.domainEvents).toContainEqual(
         expect.any(UserAssignedEvent),
       );
     });
@@ -200,7 +194,7 @@ describe(Project.name, () => {
       roleToBeAssigned.assigneeId = UserId.create();
       project.assignUserToRole(userToAssign, roleToBeAssigned.id);
       expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContainEqual(
+      expect(project.domainEvents).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
     });
@@ -211,10 +205,10 @@ describe(Project.name, () => {
       project.assignUserToRole(userToAssign, roleToBeAssigned.id);
       expect(currentAssignedRole.assigneeId).toBeNull();
       expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.getDomainEvents()).toContainEqual(
+      expect(project.domainEvents).toContainEqual(
         expect.any(UserAssignedEvent),
       );
-      expect(project.getDomainEvents()).toContainEqual(
+      expect(project.domainEvents).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
     });
@@ -238,7 +232,7 @@ describe(Project.name, () => {
     test('happy path', () => {
       project.unassign(roleToUnassign.id);
       expect(roleToUnassign.assigneeId).toBeNull();
-      expect(project.getDomainEvents()).toContainEqual(
+      expect(project.domainEvents).toContainEqual(
         expect.any(UserUnassignedEvent),
       );
     });
@@ -264,7 +258,7 @@ describe(Project.name, () => {
 
     test('happy path', () => {
       project.finishFormation();
-      expect(project.getDomainEvents()).toEqual([
+      expect(project.domainEvents).toEqual([
         expect.any(ProjectFormationFinishedEvent),
         expect.any(ProjectPeerReviewStartedEvent),
       ]);
@@ -332,15 +326,15 @@ describe(Project.name, () => {
     describe('happy path', () => {
       test('final peer review', () => {
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.getDomainEvents()).toContainEqual(
+        expect(project.domainEvents).toContainEqual(
           expect.any(PeerReviewsSubmittedEvent),
         );
-        expect(project.getDomainEvents()).toContainEqual(
+        expect(project.domainEvents).toContainEqual(
           expect.any(FinalPeerReviewSubmittedEvent),
         );
         expect(project.state.equals(ProjectState.MANAGER_REVIEW)).toBeTruthy();
@@ -353,7 +347,7 @@ describe(Project.name, () => {
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {
         project.skipManagerReview = SkipManagerReview.YES;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -365,7 +359,7 @@ describe(Project.name, () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(consensuality, 'isConsensual').mockReturnValue(true);
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -377,7 +371,7 @@ describe(Project.name, () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(consensuality, 'isConsensual').mockReturnValue(false);
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -388,7 +382,7 @@ describe(Project.name, () => {
       test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
         project.skipManagerReview = SkipManagerReview.NO;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -399,7 +393,7 @@ describe(Project.name, () => {
       test('not final peer review, should not compute contributions and consensuality', () => {
         roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -415,7 +409,7 @@ describe(Project.name, () => {
       project.state = ProjectState.FORMATION;
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -427,7 +421,7 @@ describe(Project.name, () => {
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -442,7 +436,7 @@ describe(Project.name, () => {
       ];
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -458,7 +452,7 @@ describe(Project.name, () => {
       ];
       expect(() =>
         project.submitPeerReviews(
-          roles[0],
+          roles[0].id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,

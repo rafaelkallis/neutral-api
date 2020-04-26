@@ -1,5 +1,8 @@
-import { User } from 'user/domain/User';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { User, ReadonlyUser } from 'user/domain/User';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
@@ -28,8 +31,14 @@ import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/Project
 import { RoleUpdatedEvent } from 'project/domain/events/RoleUpdatedEvent';
 import { RoleDeletedEvent } from 'project/domain/events/RoleDeletedEvent';
 import { Role } from 'project/domain/Role';
-import { RoleCollection } from 'project/domain/RoleCollection';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import {
+  RoleCollection,
+  ReadonlyRoleCollection,
+} from 'project/domain/RoleCollection';
+import {
+  PeerReviewCollection,
+  ReadonlyPeerReviewCollection,
+} from 'project/domain/PeerReviewCollection';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
@@ -49,13 +58,48 @@ export interface CreateProjectOptions {
   skipManagerReview?: SkipManagerReview;
 }
 
+export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
+  readonly title: ProjectTitle;
+  readonly description: ProjectDescription;
+  readonly creatorId: UserId;
+  readonly state: ProjectState;
+  readonly consensuality: Consensuality | null;
+  readonly contributionVisibility: ContributionVisibility;
+  readonly skipManagerReview: SkipManagerReview;
+  readonly roles: ReadonlyRoleCollection;
+  readonly peerReviews: ReadonlyPeerReviewCollection;
+
+  update(title?: ProjectTitle, description?: ProjectDescription): void;
+  archive(): void;
+  addRole(title: RoleTitle, description: RoleDescription): Role;
+  updateRole(
+    roleId: RoleId,
+    title?: RoleTitle,
+    description?: RoleDescription,
+  ): void;
+  removeRole(roleId: RoleId): void;
+  assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
+  unassign(roleId: RoleId): void;
+  finishFormation(): void;
+  submitPeerReviews(
+    senderRoleId: RoleId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+  submitManagerReview(): void;
+  isCreator(user: User): boolean;
+  assertCreator(user: User): void;
+}
+
 /**
  * Project Model
  */
-export class Project extends AggregateRoot<ProjectId> {
+export class Project extends AggregateRoot<ProjectId>
+  implements ReadonlyProject {
   public title: ProjectTitle;
   public description: ProjectDescription;
-  public creatorId: UserId;
+  public readonly creatorId: UserId;
   public state: ProjectState;
   public consensuality: Consensuality | null;
   public contributionVisibility: ContributionVisibility;
@@ -92,7 +136,9 @@ export class Project extends AggregateRoot<ProjectId> {
   /**
    *
    */
-  public static create(createProjectOptions: CreateProjectOptions): Project {
+  public static create(
+    createProjectOptions: CreateProjectOptions,
+  ): ReadonlyProject {
     const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -105,8 +151,8 @@ export class Project extends AggregateRoot<ProjectId> {
     } = createProjectOptions;
     const state = ProjectState.FORMATION;
     const consensuality = null;
-    const roles = RoleCollection.empty();
-    const peerReviews = PeerReviewCollection.empty();
+    const roles = new RoleCollection([]);
+    const peerReviews = new PeerReviewCollection([]);
     const project = new Project(
       projectId,
       createdAt,
@@ -123,8 +169,8 @@ export class Project extends AggregateRoot<ProjectId> {
       roles,
       peerReviews,
     );
-    project.apply(new ProjectCreatedEvent(project, creator));
-    project.apply(new ProjectFormationStartedEvent(project));
+    project.raise(new ProjectCreatedEvent(project, creator));
+    project.raise(new ProjectFormationStartedEvent(project));
     return project;
   }
 
@@ -139,7 +185,7 @@ export class Project extends AggregateRoot<ProjectId> {
     if (description) {
       this.description = description;
     }
-    this.apply(new ProjectUpdatedEvent(this));
+    this.raise(new ProjectUpdatedEvent(this));
   }
 
   /**
@@ -148,7 +194,7 @@ export class Project extends AggregateRoot<ProjectId> {
   public archive(): void {
     this.state.assertEquals(ProjectState.FORMATION);
     this.state = ProjectState.ARCHIVED;
-    this.apply(new ProjectArchivedEvent(this));
+    this.raise(new ProjectArchivedEvent(this));
   }
 
   /**
@@ -158,7 +204,7 @@ export class Project extends AggregateRoot<ProjectId> {
     this.state.assertEquals(ProjectState.FORMATION);
     const role = Role.from(this.id, title, description);
     this.roles.add(role);
-    this.apply(new RoleCreatedEvent(this.id, role.id));
+    this.raise(new RoleCreatedEvent(this.id, role.id));
     return role;
   }
 
@@ -179,7 +225,7 @@ export class Project extends AggregateRoot<ProjectId> {
       roleToUpdate.description = description;
     }
     if (title || description) {
-      this.apply(new RoleUpdatedEvent(roleToUpdate));
+      this.raise(new RoleUpdatedEvent(roleToUpdate));
     }
   }
 
@@ -190,13 +236,13 @@ export class Project extends AggregateRoot<ProjectId> {
     this.state.assertEquals(ProjectState.FORMATION);
     const roleToRemove = this.roles.find(roleId);
     this.roles.remove(roleToRemove);
-    this.apply(new RoleDeletedEvent(roleToRemove));
+    this.raise(new RoleDeletedEvent(roleToRemove));
   }
 
   /**
    * Assigns a user to a role
    */
-  public assignUserToRole(userToAssign: User, roleId: RoleId): void {
+  public assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void {
     const roleToBeAssigned = this.roles.find(roleId);
     this.state.assertEquals(ProjectState.FORMATION);
     if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
@@ -211,7 +257,7 @@ export class Project extends AggregateRoot<ProjectId> {
     }
     roleToBeAssigned.assigneeId = userToAssign.id;
     this.roles.assertSingleAssignmentPerUser();
-    this.apply(new UserAssignedEvent(this, roleToBeAssigned, userToAssign));
+    this.raise(new UserAssignedEvent(this, roleToBeAssigned, userToAssign));
   }
 
   /**
@@ -224,7 +270,7 @@ export class Project extends AggregateRoot<ProjectId> {
     role.assertAssigned();
     const previousAssigneeId = role.assigneeId as UserId;
     role.assigneeId = null;
-    this.apply(new UserUnassignedEvent(this, role, previousAssigneeId));
+    this.raise(new UserUnassignedEvent(this, role, previousAssigneeId));
   }
 
   /**
@@ -235,19 +281,20 @@ export class Project extends AggregateRoot<ProjectId> {
     this.roles.assertSufficientAmount();
     this.roles.assertAllAreAssigned();
     this.state = ProjectState.PEER_REVIEW;
-    this.apply(new ProjectFormationFinishedEvent(this));
-    this.apply(new ProjectPeerReviewStartedEvent(this));
+    this.raise(new ProjectFormationFinishedEvent(this));
+    this.raise(new ProjectPeerReviewStartedEvent(this));
   }
 
   /**
    *
    */
   public submitPeerReviews(
-    senderRole: Role,
+    senderRoleId: RoleId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
+    const senderRole = this.roles.find(senderRoleId);
     this.state.assertEquals(ProjectState.PEER_REVIEW);
     senderRole.assertHasNotSubmittedPeerReviews();
     this.assertSubmittedPeerReviewsMatchRoles(senderRole, submittedPeerReviews);
@@ -256,11 +303,11 @@ export class Project extends AggregateRoot<ProjectId> {
       submittedPeerReviews,
     );
     senderRole.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-    this.apply(
+    this.raise(
       new PeerReviewsSubmittedEvent(this, senderRole, addedPeerReviews),
     );
     if (this.roles.allHaveSubmittedPeerReviews()) {
-      this.apply(new FinalPeerReviewSubmittedEvent(this));
+      this.raise(new FinalPeerReviewSubmittedEvent(this));
       this.finishPeerReview(contributionsComputer, consensualityComputer);
     }
   }
@@ -312,13 +359,13 @@ export class Project extends AggregateRoot<ProjectId> {
 
     if (this.skipManagerReview.shouldSkipManagerReview(this)) {
       this.state = ProjectState.FINISHED;
-      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
-      this.apply(new ProjectManagerReviewSkippedEvent(this.id));
-      this.apply(new ProjectFinishedEvent(this));
+      this.raise(new ProjectPeerReviewFinishedEvent(this.id));
+      this.raise(new ProjectManagerReviewSkippedEvent(this.id));
+      this.raise(new ProjectFinishedEvent(this));
     } else {
       this.state = ProjectState.MANAGER_REVIEW;
-      this.apply(new ProjectPeerReviewFinishedEvent(this.id));
-      this.apply(new ProjectManagerReviewStartedEvent(this));
+      this.raise(new ProjectPeerReviewFinishedEvent(this.id));
+      this.raise(new ProjectManagerReviewStartedEvent(this));
     }
   }
 
@@ -328,15 +375,15 @@ export class Project extends AggregateRoot<ProjectId> {
   public submitManagerReview(): void {
     this.state.assertEquals(ProjectState.MANAGER_REVIEW);
     this.state = ProjectState.FINISHED;
-    this.apply(new ProjectManagerReviewFinishedEvent(this.id));
-    this.apply(new ProjectFinishedEvent(this));
+    this.raise(new ProjectManagerReviewFinishedEvent(this.id));
+    this.raise(new ProjectFinishedEvent(this));
   }
 
-  public isCreator(user: User): boolean {
+  public isCreator(user: ReadonlyUser): boolean {
     return this.creatorId.equals(user.id);
   }
 
-  public assertCreator(user: User): void {
+  public assertCreator(user: ReadonlyUser): void {
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
     }

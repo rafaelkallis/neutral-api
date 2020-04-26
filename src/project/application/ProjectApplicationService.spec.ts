@@ -10,11 +10,8 @@ import { UpdateProjectDto } from 'project/application/dto/UpdateProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { CreateProjectDto } from 'project/application/dto/CreateProjectDto';
 import { ProjectState } from 'project/domain/value-objects/ProjectState';
-import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
-import { RoleDto } from 'project/application/dto/RoleDto';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { Role } from 'project/domain/Role';
-import { PeerReview } from 'project/domain/PeerReview';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -164,51 +161,6 @@ describe(ProjectApplicationService.name, () => {
       await expect(
         projectApplication.getProject(ownerUser, project.id.value),
       ).resolves.toEqual(mockProjectDto);
-    });
-  });
-
-  describe.skip('get roles', () => {
-    let mockRoleDto: object;
-    let getRolesQueryDto: GetRolesQueryDto;
-
-    beforeEach(() => {
-      getRolesQueryDto = new GetRolesQueryDto(project.id.value);
-    });
-
-    test('happy path', async () => {
-      const roleDtos = await projectApplication.getRoles(
-        ownerUser,
-        getRolesQueryDto,
-      );
-      for (const roleDto of roleDtos) {
-        expect(roleDto).toEqual(mockRoleDto);
-      }
-      expect(objectMapper.map).toHaveBeenCalledWith(expect.any(Role), RoleDto, {
-        project,
-        authUser: ownerUser,
-      });
-    });
-  });
-
-  describe.skip('get role', () => {
-    let mockRoleDto: object;
-    let sentPeerReview: PeerReview;
-
-    beforeEach(() => {
-      sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
-      project.peerReviews.add(sentPeerReview);
-    });
-
-    test('happy path', async () => {
-      const roleDto = await projectApplication.getRole(
-        ownerUser,
-        roles[0].id.value,
-      );
-      expect(objectMapper.map).toHaveBeenCalledWith(roles[0], RoleDto, {
-        project,
-        authUser: ownerUser,
-      });
-      expect(roleDto).toEqual(mockRoleDto);
     });
   });
 
@@ -531,7 +483,7 @@ describe(ProjectApplicationService.name, () => {
           submitPeerReviewsDto,
         );
         expect(project.submitPeerReviews).toHaveBeenCalledWith(
-          roles[0],
+          roles[0].id,
           expect.any(Array),
           contributionsComputer,
           consensualityComputer,

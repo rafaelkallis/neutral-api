@@ -148,8 +148,7 @@ describe('project (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
@@ -173,13 +172,12 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       assignees = [
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
       ];
-      await scenario.userRepository.persist(...assignees);
-      project = scenario.modelFaker.project(user.id);
+      project = await scenario.createProject(user);
       project.state = ProjectState.FORMATION;
       roles = [
         scenario.modelFaker.role(project.id, assignees[0].id),
@@ -209,8 +207,7 @@ describe('project (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );

@@ -58,7 +58,7 @@ export class PairwiseRelativeJudgementsConsensualityComputerService
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
-    const peerReviews = PeerReviewCollection.empty();
+    const peerReviews = new PeerReviewCollection([]);
     const peers = [];
     for (let i = 0; i < n; i++) {
       peers.push(RoleId.create());

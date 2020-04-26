@@ -1,26 +1,41 @@
-import { IsObject } from 'class-validator';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { User } from 'user/domain/User';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { NotificationAlreadyReadException } from 'notification/domain/exceptions/NotificationAlreadyReadException';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
 
+export interface ReadonlyNotification
+  extends ReadonlyAggregateRoot<NotificationId> {
+  readonly ownerId: UserId;
+  readonly type: NotificationType;
+  readonly isRead: NotificationIsRead;
+  readonly payload: object;
+
+  markRead(): void;
+  assertOwner(user: User): void;
+  assertNotRead(): void;
+}
+
 /**
  * Notification Model
  */
-export class Notification extends AggregateRoot<NotificationId> {
-  public ownerId: UserId;
-  public type: NotificationType;
+export class Notification extends AggregateRoot<NotificationId>
+  implements ReadonlyNotification {
+  public readonly ownerId: UserId;
+  public readonly type: NotificationType;
   public isRead: NotificationIsRead;
 
-  @IsObject()
-  public payload: object;
+  // TODO needs some kind of type
+  public readonly payload: object;
 
   public constructor(
     id: NotificationId,
@@ -44,7 +59,7 @@ export class Notification extends AggregateRoot<NotificationId> {
   public markRead(): void {
     this.assertNotRead();
     this.isRead = NotificationIsRead.from(true);
-    this.apply(new NotificationReadEvent(this));
+    this.raise(new NotificationReadEvent(this));
   }
 
   /**

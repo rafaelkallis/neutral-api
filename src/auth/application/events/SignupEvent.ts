@@ -1,4 +1,4 @@
-import { User } from 'user/domain/User';
+import { ReadonlyUser } from 'user/domain/User';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
@@ -7,9 +7,9 @@ import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
  */
 @DomainEventKey('auth.signup')
 export class SignupEvent extends DomainEvent {
-  public readonly user: User;
+  public readonly user: ReadonlyUser;
 
-  constructor(user: User) {
+  constructor(user: ReadonlyUser) {
     super();
     this.user = user;
   }

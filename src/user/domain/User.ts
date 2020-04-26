@@ -1,4 +1,7 @@
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
@@ -15,7 +18,22 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/UserState';
 import { LoginEvent } from 'user/domain/events/LoginEvent';
 
-export class User extends AggregateRoot<UserId> {
+export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
+  readonly email: Email;
+  readonly name: Name;
+  readonly avatar: Avatar | null;
+  readonly state: UserState;
+  readonly lastLoginAt: LastLoginAt;
+
+  login(): void;
+  changeEmail(email: Email): void;
+  updateName(name: Name): void;
+  updateAvatar(newAvatar: Avatar): void;
+  removeAvatar(): void;
+  forget(): void;
+}
+
+export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   public email: Email;
   public name: Name;
   public avatar: Avatar | null;
@@ -43,7 +61,7 @@ export class User extends AggregateRoot<UserId> {
   /**
    *
    */
-  public static createActive(email: Email, name: Name): User {
+  public static createActive(email: Email, name: Name): ReadonlyUser {
     const userId = UserId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -60,14 +78,14 @@ export class User extends AggregateRoot<UserId> {
       state,
       lastLoginAt,
     );
-    user.apply(new UserCreatedEvent(user.id));
+    user.raise(new UserCreatedEvent(user.id));
     return user;
   }
 
   /**
    *
    */
-  public static createInvited(email: Email): User {
+  public static createInvited(email: Email): ReadonlyUser {
     const first = '';
     const last = '';
     const name = Name.from(first, last);
@@ -87,7 +105,7 @@ export class User extends AggregateRoot<UserId> {
       state,
       lastLoginAt,
     );
-    user.apply(new UserCreatedEvent(user.id));
+    user.raise(new UserCreatedEvent(user.id));
     return user;
   }
 
@@ -101,7 +119,7 @@ export class User extends AggregateRoot<UserId> {
     }
     this.state.assertEquals(UserState.ACTIVE);
     this.lastLoginAt = LastLoginAt.now();
-    this.apply(new LoginEvent(this));
+    this.raise(new LoginEvent(this));
   }
 
   /**
@@ -110,7 +128,7 @@ export class User extends AggregateRoot<UserId> {
   public changeEmail(email: Email): void {
     this.state.assertEquals(UserState.ACTIVE);
     this.email = email;
-    this.apply(new EmailChangedEvent(this));
+    this.raise(new EmailChangedEvent(this));
   }
 
   /**
@@ -119,7 +137,7 @@ export class User extends AggregateRoot<UserId> {
   public updateName(name: Name): void {
     this.state.assertEquals(UserState.ACTIVE);
     this.name = name;
-    this.apply(new UserNameUpdatedEvent(this));
+    this.raise(new UserNameUpdatedEvent(this));
   }
 
   /**
@@ -132,7 +150,7 @@ export class User extends AggregateRoot<UserId> {
       return;
     }
     this.avatar = newAvatar;
-    this.apply(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
+    this.raise(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
   }
 
   /**
@@ -143,7 +161,7 @@ export class User extends AggregateRoot<UserId> {
     const oldAvatar = this.avatar;
     if (oldAvatar) {
       this.avatar = null;
-      this.apply(new UserAvatarRemovedEvent(this, oldAvatar));
+      this.raise(new UserAvatarRemovedEvent(this, oldAvatar));
     }
   }
 
@@ -155,6 +173,6 @@ export class User extends AggregateRoot<UserId> {
       this.avatar = Avatar.redacted();
     }
     this.state = UserState.FORGOTTEN;
-    this.apply(new UserForgottenEvent(this.id));
+    this.raise(new UserForgottenEvent(this.id));
   }
 }

@@ -48,11 +48,10 @@ describe('submit manager review (e2e)', () => {
     expect(response.status).toBe(400);
   });
 
-  test('should fail if authenticated user is not the project owner', async () => {
+  test('should fail if authenticated user is not the project creator', async () => {
     const otherUser = scenario.modelFaker.user();
     await scenario.userRepository.persist(otherUser);
-    project.creatorId = otherUser.id;
-    await scenario.projectRepository.persist(project);
+    await scenario.authenticateUser(otherUser);
 
     const response = await scenario.session.post(
       `/projects/${project.id}/submit-manager-review`,

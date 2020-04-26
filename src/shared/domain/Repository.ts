@@ -1,5 +1,8 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  AggregateRoot,
+  ReadonlyAggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { Subject, Observable } from './Observer';
 
 export interface PersistedListener<
@@ -14,7 +17,7 @@ export interface PersistedListener<
  */
 export abstract class Repository<
   TId extends Id,
-  TModel extends AggregateRoot<TId>
+  TModel extends ReadonlyAggregateRoot<TId>
 > {
   private readonly persistedModelsSubject: Subject<TModel>;
 

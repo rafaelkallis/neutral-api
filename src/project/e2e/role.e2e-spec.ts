@@ -25,44 +25,6 @@ describe('roles (e2e)', () => {
     await scenario.teardown();
   });
 
-  describe.skip('/roles (GET)', () => {
-    test('happy path', async () => {
-      const response = await scenario.session
-        .get('/roles')
-        .query({ projectId: project.id.value });
-      expect(response.status).toBe(200);
-      expect(response.body).toContainEqual({
-        id: role.id.value,
-        projectId: project.id.value,
-        assigneeId: null,
-        title: role.title.value,
-        description: role.description.value,
-        contribution: null,
-        hasSubmittedPeerReviews: false,
-        createdAt: expect.any(Number),
-        updatedAt: expect.any(Number),
-      });
-    });
-  });
-
-  describe.skip('/roles/:id (GET)', () => {
-    test('happy path', async () => {
-      const response = await scenario.session.get(`/roles/${role.id.value}`);
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        id: role.id.value,
-        projectId: project.id.value,
-        assigneeId: null,
-        title: role.title.value,
-        description: role.description.value,
-        contribution: null,
-        hasSubmittedPeerReviews: false,
-        createdAt: expect.any(Number),
-        updatedAt: expect.any(Number),
-      });
-    });
-  });
-
   describe('/projects/:project_id/roles (POST)', () => {
     let title: string;
     let description: string;
@@ -153,8 +115,7 @@ describe('roles (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });

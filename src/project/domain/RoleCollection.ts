@@ -1,7 +1,10 @@
-import { Role } from 'project/domain/Role';
+import { Role, ReadonlyRole } from 'project/domain/Role';
 import { RoleNotFoundException } from 'project/domain/exceptions/RoleNotFoundException';
-import { User } from 'user/domain/User';
-import { ModelCollection } from 'shared/domain/ModelCollection';
+import { ReadonlyUser } from 'user/domain/User';
+import {
+  ModelCollection,
+  ReadonlyModelCollection,
+} from 'shared/domain/ModelCollection';
 import { Contributions } from 'project/domain/ContributionsComputer';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
@@ -9,16 +12,19 @@ import { RoleId } from 'project/domain/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { InsufficientRoleAmountException } from './exceptions/InsufficientRoleAmountException';
 
-export class RoleCollection extends ModelCollection<RoleId, Role> {
-  public static empty(): RoleCollection {
-    return new RoleCollection([]);
-  }
+export interface ReadonlyRoleCollection
+  extends ReadonlyModelCollection<RoleId, ReadonlyRole> {
+  isAnyAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean;
+  findByAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): ReadonlyRole;
+}
 
+export class RoleCollection extends ModelCollection<RoleId, Role>
+  implements ReadonlyRoleCollection {
   /**
    * Find role by assignee.
    * @param assigneeOrAssigneeId
    */
-  public findByAssignee(assigneeOrAssigneeId: User | UserId): Role {
+  public findByAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): Role {
     for (const role of this) {
       if (role.isAssignedToUser(assigneeOrAssigneeId)) {
         return role;
@@ -40,7 +46,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role> {
     }
   }
 
-  public isAnyAssignedToUser(userOrUserId: User | UserId): boolean {
+  public isAnyAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean {
     return this.isAny((role) => role.isAssignedToUser(userOrUserId));
   }
 
