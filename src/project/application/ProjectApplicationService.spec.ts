@@ -32,6 +32,7 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe(ProjectApplicationService.name, () => {
   let modelFaker: ModelFaker;
@@ -416,6 +417,7 @@ describe(ProjectApplicationService.name, () => {
 
   describe('archive project', () => {
     beforeEach(() => {
+      project.state = ProjectFinished.INSTANCE;
       jest.spyOn(project, 'archive');
     });
 

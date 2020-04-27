@@ -6,7 +6,6 @@ import { Project } from 'project/domain/Project';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
-import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { Role } from 'project/domain/Role';
@@ -20,7 +19,6 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
 import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
 import { CancellableState } from 'project/domain/value-objects/states/CancellableState';
 
@@ -44,11 +42,6 @@ export class ProjectFormation extends DefaultProjectState {
       project.description = description;
     }
     project.raise(new ProjectUpdatedEvent(project));
-  }
-
-  public archive(project: Project): void {
-    project.state = ProjectArchived.INSTANCE;
-    project.raise(new ProjectArchivedEvent(project));
   }
 
   public addRole(

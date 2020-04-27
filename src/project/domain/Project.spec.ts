@@ -1,3 +1,4 @@
+import td from 'testdouble';
 import { User } from 'user/domain/User';
 import { Project, CreateProjectOptions } from 'project/domain/Project';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
@@ -5,13 +6,8 @@ import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
-import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
-import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
-import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { Role } from 'project/domain/Role';
 import { PeerReview } from 'project/domain/PeerReview';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -31,11 +27,8 @@ import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerR
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
-import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
 import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
 import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
@@ -86,202 +79,74 @@ describe(Project.name, () => {
     });
   });
 
-  describe('update project', () => {
-    let title: ProjectTitle;
-
-    beforeEach(() => {
-      project.state = ProjectFormation.INSTANCE;
-      title = ProjectTitle.from(primitiveFaker.words());
-    });
-
-    test('happy path', () => {
-      project.update(title);
-      expect(project.domainEvents).toEqual([expect.any(ProjectUpdatedEvent)]);
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.update(title)).toThrow();
-    });
+  test('update project', () => {
+    const title = ProjectTitle.from(primitiveFaker.words());
+    project.state = td.object();
+    project.update(title);
+    td.verify(project.state.update(project, title, undefined));
   });
 
-  describe('archive project', () => {
-    test('happy path', () => {
-      project.archive();
-      expect(project.state).toBe(ProjectArchived.INSTANCE);
-      expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.archive()).toThrow();
-    });
+  test('archive project', () => {
+    project.state = td.object();
+    project.archive();
+    td.verify(project.state.archive(project));
   });
 
-  describe('add role', () => {
-    let title: RoleTitle;
-    let description: RoleDescription;
-
-    beforeEach(() => {
-      title = RoleTitle.from(primitiveFaker.words());
-      description = RoleDescription.from(primitiveFaker.paragraph());
-    });
-
-    test('happy path', () => {
-      const addedRole = project.addRole(title, description);
-      expect(project.roles.contains(addedRole.id)).toBeTruthy();
-      expect(project.domainEvents).toContainEqual(expect.any(RoleCreatedEvent));
-    });
-
-    test('should fail when project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.addRole(title, description)).toThrow();
-    });
+  test('add role', () => {
+    const title = RoleTitle.from(primitiveFaker.words());
+    const description = RoleDescription.from(primitiveFaker.paragraph());
+    const addedRole: Role = td.object();
+    project.state = td.object();
+    td.when(project.state.addRole(project, title, description)).thenReturn(
+      addedRole,
+    );
+    const actualRole = project.addRole(title, description);
+    expect(actualRole).toBe(addedRole);
   });
 
-  describe('update role', () => {
-    let title: RoleTitle;
-    let roleToUpdate: Role;
-
-    beforeEach(() => {
-      title = RoleTitle.from(primitiveFaker.words());
-      roleToUpdate = roles[0];
-    });
-
-    test('happy path', () => {
-      project.updateRole(roleToUpdate.id, title);
-      expect(roleToUpdate.title).toEqual(title);
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.updateRole(roleToUpdate.id, title)).toThrow();
-    });
+  test('update role', () => {
+    const title = RoleTitle.from(primitiveFaker.words());
+    const roleToUpdate = roles[0];
+    project.state = td.object();
+    project.updateRole(roleToUpdate.id, title);
+    td.verify(
+      project.state.updateRole(project, roleToUpdate.id, title, undefined),
+    );
   });
 
-  describe('remove role', () => {
-    let roleToRemove: Role;
-
-    beforeEach(() => {
-      roleToRemove = roles[0];
-    });
-
-    test('happy path', () => {
-      project.removeRole(roleToRemove.id);
-      expect(project.roles.contains(roleToRemove.id)).toBeFalsy();
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.removeRole(roleToRemove.id)).toThrow();
-    });
+  test('remove role', () => {
+    const roleToRemove = roles[0];
+    project.state = td.object();
+    project.removeRole(roleToRemove.id);
+    td.verify(project.state.removeRole(project, roleToRemove.id));
   });
 
-  describe('assign user to role', () => {
-    let userToAssign: User;
-    let roleToBeAssigned: Role;
-
-    beforeEach(() => {
-      userToAssign = modelFaker.user();
-      roleToBeAssigned = roles[0];
-    });
-
-    test('happy path', () => {
-      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
-      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.domainEvents).toContainEqual(
-        expect.any(UserAssignedEvent),
-      );
-    });
-
-    test('when another user is already assigned, should unassign other user', () => {
-      roleToBeAssigned.assigneeId = UserId.create();
-      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
-      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.domainEvents).toContainEqual(
-        expect.any(UserUnassignedEvent),
-      );
-    });
-
-    test('when user is already assigned to another role, should unassign other role', () => {
-      const currentAssignedRole = roles[1];
-      project.assignUserToRole(userToAssign, currentAssignedRole.id);
-      project.assignUserToRole(userToAssign, roleToBeAssigned.id);
-      expect(currentAssignedRole.assigneeId).toBeNull();
-      expect(roleToBeAssigned.assigneeId?.equals(userToAssign.id)).toBeTruthy();
-      expect(project.domainEvents).toContainEqual(
-        expect.any(UserAssignedEvent),
-      );
-      expect(project.domainEvents).toContainEqual(
-        expect.any(UserUnassignedEvent),
-      );
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() =>
-        project.assignUserToRole(userToAssign, roleToBeAssigned.id),
-      ).toThrow();
-    });
+  test('assign user to role', () => {
+    const userToAssign = modelFaker.user();
+    const roleToBeAssigned = roles[0];
+    project.state = td.object();
+    project.assignUserToRole(userToAssign, roleToBeAssigned.id);
+    td.verify(
+      project.state.assignUserToRole(
+        project,
+        userToAssign,
+        roleToBeAssigned.id,
+      ),
+    );
   });
 
-  describe('unassign', () => {
-    let roleToUnassign: Role;
-
-    beforeEach(() => {
-      roleToUnassign = roles[0];
-      roleToUnassign.assigneeId = UserId.create();
-    });
-
-    test('happy path', () => {
-      project.unassign(roleToUnassign.id);
-      expect(roleToUnassign.assigneeId).toBeNull();
-      expect(project.domainEvents).toContainEqual(
-        expect.any(UserUnassignedEvent),
-      );
-    });
-
-    test('when project is not in formation state, should fail', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.unassign(roleToUnassign.id)).toThrow();
-    });
-
-    test('when no user is assigned, should fail', () => {
-      roleToUnassign.assigneeId = null;
-      expect(() => project.unassign(roleToUnassign.id)).toThrow();
-    });
+  test('unassign', () => {
+    const roleToUnassign = roles[0];
+    roleToUnassign.assigneeId = UserId.create();
+    project.state = td.object();
+    project.unassign(roleToUnassign.id);
+    td.verify(project.state.unassign(project, roleToUnassign.id));
   });
 
-  describe('finish formation', () => {
-    beforeEach(() => {
-      project.state = ProjectFormation.INSTANCE;
-      for (const role of project.roles) {
-        role.assigneeId = UserId.create();
-      }
-    });
-
-    test('happy path', () => {
-      project.finishFormation();
-      expect(project.domainEvents).toEqual([
-        expect.any(ProjectFormationFinishedEvent),
-        expect.any(ProjectPeerReviewStartedEvent),
-      ]);
-    });
-
-    test('should fail if project is not in formation state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.finishFormation()).toThrow();
-    });
-
-    test('should fail if a role has no user assigned', () => {
-      roles[0].assigneeId = null;
-      expect(() => project.finishFormation()).toThrow();
-    });
-
-    test('should fail if amount of roles is insufficient', () => {
-      project.roles.remove(roles[0]);
-      expect(() => project.finishFormation()).toThrow();
-    });
+  test('finish formation', () => {
+    project.state = td.object();
+    project.finishFormation();
+    td.verify(project.state.finishFormation(project));
   });
 
   describe('submit peer reviews', () => {

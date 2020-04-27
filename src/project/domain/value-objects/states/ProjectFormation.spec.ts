@@ -4,7 +4,6 @@ import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { Role } from 'project/domain/Role';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
@@ -15,7 +14,6 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
-import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
 import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
 
 describe(ProjectFormation.name, () => {
@@ -55,14 +53,6 @@ describe(ProjectFormation.name, () => {
       expect(project.domainEvents).toContainEqual(
         expect.any(ProjectUpdatedEvent),
       );
-    });
-  });
-
-  describe('archive', () => {
-    test('happy path', () => {
-      state.archive(project);
-      expect(project.state).toBe(ProjectArchived.INSTANCE);
-      expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
     });
   });
 
