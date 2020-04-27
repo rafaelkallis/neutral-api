@@ -1,5 +1,7 @@
-import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import {
+  ProjectState,
+  DefaultProjectState,
+} from 'project/domain/value-objects/states/ProjectState';
 import { Project } from 'project/domain/Project';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
@@ -20,15 +22,15 @@ import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectForm
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
 import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { CancellableState } from 'project/domain/value-objects/states/CancellableState';
 
-export class ProjectFormation extends ProjectState {
-  private static readonly INSTANCE = new ProjectFormation();
-  public static getInstance(): ProjectState {
-    return ProjectFormation.INSTANCE;
-  }
+export class ProjectFormation extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancellableState(
+    new ProjectFormation(),
+  );
 
   private constructor() {
-    super(ProjectStateValue.FORMATION);
+    super();
   }
   public update(
     project: Project,
@@ -45,7 +47,7 @@ export class ProjectFormation extends ProjectState {
   }
 
   public archive(project: Project): void {
-    project.state = ProjectArchived.getInstance();
+    project.state = ProjectArchived.INSTANCE;
     project.raise(new ProjectArchivedEvent(project));
   }
 
@@ -118,7 +120,7 @@ export class ProjectFormation extends ProjectState {
   public finishFormation(project: Project): void {
     project.roles.assertSufficientAmount();
     project.roles.assertAllAreAssigned();
-    project.state = ProjectPeerReview.getInstance();
+    project.state = ProjectPeerReview.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project));
   }

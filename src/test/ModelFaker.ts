@@ -76,7 +76,7 @@ export class ModelFaker {
     const description = ProjectDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    const state = ProjectFormation.getInstance();
+    const state = ProjectFormation.INSTANCE;
     const consensuality = null;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;

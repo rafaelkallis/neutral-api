@@ -37,14 +37,14 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
-        shouldExpose = project.state.equals(ProjectFinished.getInstance());
+        shouldExpose = project.state.equals(ProjectFinished.INSTANCE);
         break;
       }
 
       case ContributionVisibility.PROJECT: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectFinished.getInstance())) {
+        } else if (!project.state.equals(ProjectFinished.INSTANCE)) {
           shouldExpose = false;
         } else {
           shouldExpose = project.roles.isAnyAssignedToUser(authUser);
@@ -55,7 +55,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       case ContributionVisibility.SELF: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectFinished.getInstance())) {
+        } else if (!project.state.equals(ProjectFinished.INSTANCE)) {
           shouldExpose = false;
         } else {
           shouldExpose = role.isAssignedToUser(authUser);

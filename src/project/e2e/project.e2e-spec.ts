@@ -158,7 +158,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = ProjectPeerReview.getInstance();
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -180,7 +180,7 @@ describe('project (e2e)', () => {
         await scenario.createUser(),
       ];
       project = await scenario.createProject(user);
-      project.state = ProjectFormation.getInstance();
+      project.state = ProjectFormation.INSTANCE;
       roles = [
         scenario.modelFaker.role(project.id, assignees[0].id),
         scenario.modelFaker.role(project.id, assignees[1].id),
@@ -203,7 +203,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(ProjectPeerReview.getInstance());
+      expect(updatedProject.state).toEqual(ProjectPeerReview.INSTANCE);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -217,7 +217,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = ProjectPeerReview.getInstance();
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
@@ -255,7 +255,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectArchived.getInstance());
+      expect(updatedProject.state).toBe(ProjectArchived.INSTANCE);
     });
   });
 
@@ -284,7 +284,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectArchived.getInstance());
+      expect(updatedProject.state).toBe(ProjectArchived.INSTANCE);
     });
   });
 });

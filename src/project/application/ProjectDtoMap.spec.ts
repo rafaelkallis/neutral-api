@@ -7,6 +7,7 @@ import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
+import { getProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
 
 describe('project dto map', () => {
   let objectMapper: ObjectMapper;
@@ -47,7 +48,7 @@ describe('project dto map', () => {
       title: project.title.value,
       description: project.description.value,
       creatorId: project.creatorId.value,
-      state: project.state.value,
+      state: getProjectStateValue(project.state),
       consensuality: null,
       contributionVisibility: project.contributionVisibility.value,
       skipManagerReview: project.skipManagerReview.value,

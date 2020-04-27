@@ -64,7 +64,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should not be part of e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectPeerReview.getInstance();
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .post(`/projects/${project.id.value}/roles`)
@@ -103,7 +103,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should be tested in e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectPeerReview.getInstance();
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)

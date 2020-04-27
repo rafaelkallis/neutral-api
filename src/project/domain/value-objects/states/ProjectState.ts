@@ -1,6 +1,3 @@
-import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
-import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { OperationNotSupportedByCurrentProjectStateException } from 'project/domain/exceptions/OperationNotSupportedByCurrentProjectStateException';
 import { Project } from 'project/domain/Project';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -13,33 +10,83 @@ import { ReadonlyUser } from 'user/domain/User';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export abstract class ProjectState extends EnumValueObject<ProjectStateValue> {
-  public update(
+export abstract class ProjectState extends ValueObject {
+  public abstract update(
     project: Project,
     title?: ProjectTitle,
     description?: ProjectDescription,
+  ): void;
+
+  public abstract addRole(
+    project: Project,
+    title: RoleTitle,
+    description: RoleDescription,
+  ): Role;
+
+  public abstract updateRole(
+    project: Project,
+    roleId: RoleId,
+    title?: RoleTitle,
+    description?: RoleDescription,
+  ): void;
+
+  public abstract removeRole(project: Project, roleId: RoleId): void;
+
+  public abstract assignUserToRole(
+    project: Project,
+    userToAssign: ReadonlyUser,
+    roleId: RoleId,
+  ): void;
+
+  public abstract unassign(project: Project, roleId: RoleId): void;
+
+  public abstract finishFormation(project: Project): void;
+
+  public abstract submitPeerReviews(
+    project: Project,
+    senderRoleId: RoleId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+
+  public abstract submitManagerReview(project: Project): void;
+
+  public abstract cancel(project: Project): void;
+
+  public abstract archive(project: Project): void;
+}
+
+/**
+ *
+ */
+export abstract class DefaultProjectState extends ProjectState {
+  public update(
+    _project: Project,
+    _title?: ProjectTitle,
+    _description?: ProjectDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public addRole(
-    project: Project,
-    title: RoleTitle,
-    description: RoleDescription,
+    _project: Project,
+    _title: RoleTitle,
+    _description: RoleDescription,
   ): Role {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public updateRole(
-    project: Project,
-    roleId: RoleId,
-    title?: RoleTitle,
-    description?: RoleDescription,
+    _project: Project,
+    _roleId: RoleId,
+    _title?: RoleTitle,
+    _description?: RoleDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
@@ -60,14 +107,14 @@ export abstract class ProjectState extends EnumValueObject<ProjectStateValue> {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public finishFormation(project: Project): void {
+  public finishFormation(_project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public submitPeerReviews(
-    project: Project,
-    senderRoleId: RoleId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    _project: Project,
+    _senderRoleId: RoleId,
+    _submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
@@ -78,22 +125,11 @@ export abstract class ProjectState extends EnumValueObject<ProjectStateValue> {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public archive(project: Project): void {
+  public cancel(project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public equals(other: ValueObject): boolean {
-    if (!(other instanceof ProjectState)) {
-      return false;
-    }
-    return super.equals(other);
-  }
-
-  protected getEnumType(): Record<string, string> {
-    return ProjectStateValue;
-  }
-
-  protected throwInvalidValueObjectException(): never {
-    throw new InvalidProjectStateException();
+  public archive(project: Project): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
   }
 }

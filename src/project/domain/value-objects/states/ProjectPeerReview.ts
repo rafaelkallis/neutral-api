@@ -1,5 +1,7 @@
-import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import {
+  ProjectState,
+  DefaultProjectState,
+} from 'project/domain/value-objects/states/ProjectState';
 import { Project } from 'project/domain/Project';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
@@ -16,15 +18,15 @@ import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
+import { CancellableState } from 'project/domain/value-objects/states/CancellableState';
 
-export class ProjectPeerReview extends ProjectState {
-  private static readonly INSTANCE = new ProjectPeerReview();
-  public static getInstance(): ProjectState {
-    return ProjectPeerReview.INSTANCE;
-  }
+export class ProjectPeerReview extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancellableState(
+    new ProjectPeerReview(),
+  );
 
   private constructor() {
-    super(ProjectStateValue.PEER_REVIEW);
+    super();
   }
 
   public submitPeerReviews(
@@ -105,12 +107,12 @@ export class ProjectPeerReview extends ProjectState {
     project.consensuality = consensualityComputer.compute(project.peerReviews);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {
-      project.state = ProjectFinished.getInstance();
+      project.state = ProjectFinished.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewSkippedEvent(project.id));
       project.raise(new ProjectFinishedEvent(project));
     } else {
-      project.state = ProjectManagerReview.getInstance();
+      project.state = ProjectManagerReview.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
     }

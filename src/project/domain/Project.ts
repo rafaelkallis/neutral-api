@@ -132,7 +132,7 @@ export class Project extends AggregateRoot<ProjectId>
       contributionVisibility,
       skipManagerReview,
     } = createProjectOptions;
-    const state = ProjectFormation.getInstance();
+    const state = ProjectFormation.INSTANCE;
     const consensuality = null;
     const roles = new RoleCollection([]);
     const peerReviews = new PeerReviewCollection([]);
@@ -210,6 +210,13 @@ export class Project extends AggregateRoot<ProjectId>
    */
   public finishFormation(): void {
     this.state.finishFormation(this);
+  }
+
+  /**
+   * Cancel the project.
+   */
+  public cancel(): void {
+    this.state.cancel(this);
   }
 
   /**

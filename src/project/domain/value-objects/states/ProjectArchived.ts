@@ -1,13 +1,12 @@
-import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import {
+  DefaultProjectState,
+  ProjectState,
+} from 'project/domain/value-objects/states/ProjectState';
 
-export class ProjectArchived extends ProjectState {
-  private static readonly INSTANCE = new ProjectArchived();
-  public static getInstance(): ProjectState {
-    return ProjectArchived.INSTANCE;
-  }
+export class ProjectArchived extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new ProjectArchived();
 
   private constructor() {
-    super(ProjectStateValue.ARCHIVED);
+    super();
   }
 }

@@ -7,6 +7,7 @@ import { PeerReviewDto } from './dto/PeerReviewDto';
 import { PeerReview } from 'project/domain/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable, Type } from '@nestjs/common';
+import { getProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
@@ -24,7 +25,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.title.value,
       project.description.value,
       project.creatorId.value,
-      project.state.value,
+      getProjectStateValue(project.state),
       this.mapConsensuality(project, authUser),
       project.contributionVisibility.value,
       project.skipManagerReview.value,
