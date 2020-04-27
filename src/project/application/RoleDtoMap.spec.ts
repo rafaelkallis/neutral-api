@@ -26,7 +26,7 @@ describe('role dto map', () => {
       publicUser: modelFaker.user(),
     };
     project = modelFaker.project(users.owner.id);
-    project.state = ProjectFinished.getInstance();
+    project.state = ProjectFinished.INSTANCE;
     project.roles.addAll([
       modelFaker.role(project.id, users.assignee.id),
       modelFaker.role(project.id, users.projectUser.id),
@@ -70,7 +70,7 @@ describe('role dto map', () => {
 
   test('should not show contribution if not project owner and if project not finished', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
-    project.state = ProjectPeerReview.getInstance();
+    project.state = ProjectPeerReview.INSTANCE;
     role.contribution = Contribution.from(1);
     const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
     expect(roleDto.contribution).toBeFalsy();

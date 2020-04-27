@@ -189,7 +189,7 @@ describe(ProjectApplicationService.name, () => {
     let updateProjectDto: UpdateProjectDto;
 
     beforeEach(async () => {
-      project.state = ProjectFormation.getInstance();
+      project.state = ProjectFormation.INSTANCE;
       await projectRepository.persist(project);
       newTitle = ProjectTitle.from(primitiveFaker.words());
       updateProjectDto = new UpdateProjectDto(newTitle.value);
@@ -394,7 +394,7 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
-      project.state = ProjectFormation.getInstance();
+      project.state = ProjectFormation.INSTANCE;
       await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
     });
@@ -438,7 +438,7 @@ describe(ProjectApplicationService.name, () => {
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
-      project.state = ProjectPeerReview.getInstance();
+      project.state = ProjectPeerReview.INSTANCE;
       roles = [
         modelFaker.role(project.id, ownerUser.id),
         modelFaker.role(project.id),
@@ -508,7 +508,7 @@ describe(ProjectApplicationService.name, () => {
 
     describe('submit manager review', () => {
       beforeEach(async () => {
-        project.state = ProjectManagerReview.getInstance();
+        project.state = ProjectManagerReview.INSTANCE;
         await projectRepository.persist(project);
         jest.spyOn(project, 'submitManagerReview');
       });

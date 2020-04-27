@@ -18,7 +18,7 @@ describe('submit manager review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectManagerReview.getInstance();
+    project.state = ProjectManagerReview.INSTANCE;
     await scenario.projectRepository.persist(project);
   });
 
@@ -37,11 +37,11 @@ describe('submit manager review (e2e)', () => {
     if (!updatedProject) {
       throw new Error();
     }
-    expect(updatedProject.state).toBe(ProjectFinished.getInstance());
+    expect(updatedProject.state).toBe(ProjectFinished.INSTANCE);
   });
 
   test('should fail if project is not in manager-review state', async () => {
-    project.state = ProjectFormation.getInstance();
+    project.state = ProjectFormation.INSTANCE;
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session.post(

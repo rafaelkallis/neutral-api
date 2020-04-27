@@ -29,7 +29,7 @@ describe('submit peer review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectPeerReview.getInstance();
+    project.state = ProjectPeerReview.INSTANCE;
 
     /* prepare roles */
     role1 = scenario.modelFaker.role(project.id, user.id);
@@ -112,7 +112,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][submittedPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectManagerReview.getInstance());
+    expect(updatedProject.state).toBe(ProjectManagerReview.INSTANCE);
     expect(updatedProject.consensuality).not.toBeNull();
     expect((updatedProject.consensuality as Consensuality).value).toEqual(
       expect.any(Number),
@@ -147,14 +147,14 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectPeerReview.getInstance());
+    expect(updatedProject.state).toBe(ProjectPeerReview.INSTANCE);
     for (const updatedRole of updatedProject.roles) {
       expect(updatedRole.contribution).toBeFalsy();
     }
   });
 
   test('should fail if project is not in peer-review state', async () => {
-    project.state = ProjectFormation.getInstance();
+    project.state = ProjectFormation.INSTANCE;
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session
