@@ -18,7 +18,6 @@ import { FakeContributionsComputerService } from 'project/infrastructure/FakeCon
 import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { RoleCollection } from 'project/domain/RoleCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
@@ -161,44 +160,6 @@ describe(ProjectApplicationService.name, () => {
       await expect(
         projectApplication.getProject(ownerUser, project.id.value),
       ).resolves.toEqual(mockProjectDto);
-    });
-  });
-
-  describe('create role', () => {
-    let title: string;
-    let description: string;
-
-    beforeEach(() => {
-      title = primitiveFaker.words();
-      description = primitiveFaker.paragraph();
-      jest.spyOn(project, 'addRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.addRole(
-        ownerUser,
-        project.id.value,
-        title,
-        description,
-      );
-      expect(project.addRole).toHaveBeenCalledWith(
-        RoleTitle.from(title),
-        RoleDescription.from(description),
-      );
-    });
-
-    test('should fail if authenticated user is not project owner', async () => {
-      const otherUser = modelFaker.user();
-      await userRepository.persist(otherUser);
-      await expect(
-        projectApplication.addRole(
-          otherUser,
-          project.id.value,
-          title,
-          description,
-        ),
-      ).rejects.toThrow();
-      expect(project.addRole).not.toHaveBeenCalled();
     });
   });
 

@@ -97,28 +97,6 @@ export class ProjectApplicationService {
   }
 
   /**
-   * Add a role
-   */
-  public async addRole(
-    authUser: User,
-    rawProjectId: string,
-    rawTitle: string,
-    rawDescription: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    const title = RoleTitle.from(rawTitle);
-    const description = RoleDescription.from(rawDescription);
-    project.addRole(title, description);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
    * Update a role
    */
   public async updateRole(
