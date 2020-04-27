@@ -24,8 +24,6 @@ import {
   Contributions,
 } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { ProjectCancelled } from 'project/domain/value-objects/states/ProjectCancelled';
-import { ProjectCancelledEvent } from 'project/domain/events/ProjectCancelledEvent';
 
 describe(ProjectPeerReview.name, () => {
   let modelFaker: ModelFaker;
@@ -245,16 +243,6 @@ describe(ProjectPeerReview.name, () => {
           consensualityComputer,
         ),
       ).toThrow(expect.any(PeerReviewRoleMismatchException));
-    });
-  });
-
-  describe('cancel', () => {
-    test('happy path', () => {
-      state.cancel(project);
-      expect(project.state.equals(ProjectCancelled.INSTANCE)).toBeTruthy();
-      expect(project.domainEvents).toContainEqual(
-        expect.any(ProjectCancelledEvent),
-      );
     });
   });
 });

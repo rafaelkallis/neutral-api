@@ -13,11 +13,7 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -25,7 +21,6 @@ describe(Project.name, () => {
 
   let creator: User;
   let project: Project;
-  let roles: Role[];
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
@@ -33,13 +28,7 @@ describe(Project.name, () => {
 
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
-    roles = [
-      modelFaker.role(project.id, creator.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
-    ];
-    project.roles.addAll(roles);
+    project.state = td.object();
   });
 
   describe('create project', () => {
@@ -64,13 +53,11 @@ describe(Project.name, () => {
 
   test('update project', () => {
     const title = ProjectTitle.from(primitiveFaker.words());
-    project.state = td.object();
     project.update(title);
     td.verify(project.state.update(project, title, undefined));
   });
 
   test('archive project', () => {
-    project.state = td.object();
     project.archive();
     td.verify(project.state.archive(project));
   });
@@ -79,7 +66,6 @@ describe(Project.name, () => {
     const title = RoleTitle.from(primitiveFaker.words());
     const description = RoleDescription.from(primitiveFaker.paragraph());
     const addedRole: Role = td.object();
-    project.state = td.object();
     td.when(project.state.addRole(project, title, description)).thenReturn(
       addedRole,
     );
@@ -89,57 +75,47 @@ describe(Project.name, () => {
 
   test('update role', () => {
     const title = RoleTitle.from(primitiveFaker.words());
-    const roleToUpdate = roles[0];
-    project.state = td.object();
-    project.updateRole(roleToUpdate.id, title);
+    const roleIdToUpdate = RoleId.create();
+    project.updateRole(roleIdToUpdate, title);
     td.verify(
-      project.state.updateRole(project, roleToUpdate.id, title, undefined),
+      project.state.updateRole(project, roleIdToUpdate, title, undefined),
     );
   });
 
   test('remove role', () => {
-    const roleToRemove = roles[0];
-    project.state = td.object();
-    project.removeRole(roleToRemove.id);
-    td.verify(project.state.removeRole(project, roleToRemove.id));
+    const roleIdToRemove = RoleId.create();
+    project.removeRole(roleIdToRemove);
+    td.verify(project.state.removeRole(project, roleIdToRemove));
   });
 
   test('assign user to role', () => {
-    const userToAssign = modelFaker.user();
-    const roleToBeAssigned = roles[0];
-    project.state = td.object();
-    project.assignUserToRole(userToAssign, roleToBeAssigned.id);
+    const userToAssign: User = td.object();
+    const roleIdToBeAssigned = RoleId.create();
+    project.assignUserToRole(userToAssign, roleIdToBeAssigned);
     td.verify(
-      project.state.assignUserToRole(
-        project,
-        userToAssign,
-        roleToBeAssigned.id,
-      ),
+      project.state.assignUserToRole(project, userToAssign, roleIdToBeAssigned),
     );
   });
 
   test('unassign', () => {
-    const roleToUnassign = roles[0];
-    roleToUnassign.assigneeId = UserId.create();
-    project.state = td.object();
-    project.unassign(roleToUnassign.id);
-    td.verify(project.state.unassign(project, roleToUnassign.id));
+    const roleIdToUnassign = RoleId.create();
+    project.unassign(roleIdToUnassign);
+    td.verify(project.state.unassign(project, roleIdToUnassign));
   });
 
   test('finish formation', () => {
-    project.state = td.object();
     project.finishFormation();
     td.verify(project.state.finishFormation(project));
   });
 
   test('submit peer reviews', () => {
-    project.state = td.object();
+    const senderRoleId = RoleId.create();
     const submittedPeerReviews: [RoleId, PeerReviewScore][] = td.object();
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
 
     project.submitPeerReviews(
-      roles[0].id,
+      senderRoleId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -147,7 +123,7 @@ describe(Project.name, () => {
     td.verify(
       project.state.submitPeerReviews(
         project,
-        roles[0].id,
+        senderRoleId,
         submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,
@@ -155,19 +131,8 @@ describe(Project.name, () => {
     );
   });
 
-  describe('submit manager review', () => {
-    beforeEach(() => {
-      project.state = ProjectManagerReview.INSTANCE;
-    });
-
-    test('happy path', () => {
-      project.submitManagerReview();
-      expect(project.state).toBe(ProjectFinished.INSTANCE);
-    });
-
-    test('should fail if project is not in manager-review state', () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      expect(() => project.submitManagerReview()).toThrow();
-    });
+  test('submit manager review', () => {
+    project.submitManagerReview();
+    td.verify(project.state.submitManagerReview(project));
   });
 });
