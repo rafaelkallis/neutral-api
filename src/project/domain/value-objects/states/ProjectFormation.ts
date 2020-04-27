@@ -15,7 +15,6 @@ import { RoleUpdatedEvent } from 'project/domain/events/RoleUpdatedEvent';
 import { RoleDeletedEvent } from 'project/domain/events/RoleDeletedEvent';
 import { ReadonlyUser } from 'user/domain/User';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
@@ -89,11 +88,11 @@ export class ProjectFormation extends DefaultProjectState {
       return;
     }
     if (roleToBeAssigned.isAssigned()) {
-      project.unassign(roleToBeAssigned.id);
+      project.unassignRole(roleToBeAssigned.id);
     }
     if (project.roles.isAnyAssignedToUser(userToAssign)) {
       const currentAssignedRole = project.roles.findByAssignee(userToAssign);
-      project.unassign(currentAssignedRole.id);
+      project.unassignRole(currentAssignedRole.id);
     }
     roleToBeAssigned.assigneeId = userToAssign.id;
     project.roles.assertSingleAssignmentPerUser();
@@ -104,8 +103,7 @@ export class ProjectFormation extends DefaultProjectState {
 
   public unassign(project: Project, roleId: RoleId): void {
     const role = project.roles.find(roleId);
-    role.assertAssigned();
-    const previousAssigneeId = role.assigneeId as UserId;
+    const previousAssigneeId = role.assertAssigned();
     role.assigneeId = null;
     project.raise(new UserUnassignedEvent(project, role, previousAssigneeId));
   }

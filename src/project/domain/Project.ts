@@ -62,7 +62,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   ): void;
   removeRole(roleId: RoleId): void;
   assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
-  unassign(roleId: RoleId): void;
+  unassignRole(roleId: RoleId): void;
   finishFormation(): void;
   submitPeerReviews(
     senderRoleId: RoleId,
@@ -71,8 +71,8 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     consensualityComputer: ConsensualityComputer,
   ): void;
   submitManagerReview(): void;
-  isCreator(user: User): boolean;
-  assertCreator(user: User): void;
+  isCreator(user: ReadonlyUser): boolean;
+  assertCreator(user: ReadonlyUser): void;
 }
 
 /**
@@ -201,7 +201,7 @@ export class Project extends AggregateRoot<ProjectId>
    * Unassign a role.
    * @param roleId The roleId to unassign.
    */
-  public unassign(roleId: RoleId): void {
+  public unassignRole(roleId: RoleId): void {
     this.state.unassign(this, roleId);
   }
 

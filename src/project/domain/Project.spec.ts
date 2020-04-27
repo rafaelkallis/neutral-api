@@ -57,11 +57,6 @@ describe(Project.name, () => {
     td.verify(project.state.update(project, title, undefined));
   });
 
-  test('archive project', () => {
-    project.archive();
-    td.verify(project.state.archive(project));
-  });
-
   test('add role', () => {
     const title = RoleTitle.from(primitiveFaker.words());
     const description = RoleDescription.from(primitiveFaker.paragraph());
@@ -99,7 +94,7 @@ describe(Project.name, () => {
 
   test('unassign', () => {
     const roleIdToUnassign = RoleId.create();
-    project.unassign(roleIdToUnassign);
+    project.unassignRole(roleIdToUnassign);
     td.verify(project.state.unassign(project, roleIdToUnassign));
   });
 
@@ -134,5 +129,10 @@ describe(Project.name, () => {
   test('submit manager review', () => {
     project.submitManagerReview();
     td.verify(project.state.submitManagerReview(project));
+  });
+
+  test('archive project', () => {
+    project.archive();
+    td.verify(project.state.archive(project));
   });
 });

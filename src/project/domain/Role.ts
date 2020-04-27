@@ -84,10 +84,11 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     return Boolean(this.assigneeId);
   }
 
-  public assertAssigned(): void {
-    if (!this.isAssigned()) {
+  public assertAssigned(): UserId {
+    if (!this.assigneeId) {
       throw new RoleNoUserAssignedException();
     }
+    return this.assigneeId;
   }
 
   public isAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean {

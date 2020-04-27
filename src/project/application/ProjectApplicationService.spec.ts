@@ -385,6 +385,38 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
+  describe('unassign role', () => {
+    let assignee: User;
+
+    beforeEach(async () => {
+      assignee = modelFaker.user();
+      await userRepository.persist(assignee);
+      roles[0].assigneeId = assignee.id;
+      await projectRepository.persist(project);
+    });
+
+    test('happy path', async () => {
+      await projectApplication.unassignRole(
+        ownerUser,
+        project.id.value,
+        roles[0].id.value,
+      );
+      expect(roles[0].assigneeId).toBeNull();
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const notCreatorUser = modelFaker.user();
+      await userRepository.persist(notCreatorUser);
+      await expect(
+        projectApplication.unassignRole(
+          notCreatorUser,
+          project.id.value,
+          roles[0].id.value,
+        ),
+      ).rejects.toThrowError();
+    });
+  });
+
   describe('finish formation', () => {
     let assignees: User[];
     beforeEach(async () => {
