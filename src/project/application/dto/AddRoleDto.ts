@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 /**
- * Create role DTO
+ * Add role DTO
  */
-export class CreateRoleDto {
+export class AddRoleDto {
   @IsString()
   @IsOptional()
   @ApiProperty({

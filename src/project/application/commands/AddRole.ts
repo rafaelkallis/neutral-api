@@ -1,25 +1,25 @@
 import { Type, Injectable } from '@nestjs/common';
-import { Project } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
 } from 'project/application/commands/ProjectCommand';
 import { User } from 'user/domain/User';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 
-export class UpdateProjectCommand extends ProjectCommand {
+export class AddRoleCommand extends ProjectCommand {
   public readonly projectId: string;
-  public readonly title?: string;
-  public readonly description?: string;
+  public readonly title: string;
+  public readonly description: string;
 
   public constructor(
     authUser: User,
     projectId: string,
-    title?: string,
-    description?: string,
+    title: string,
+    description: string,
   ) {
     super(authUser);
     this.projectId = projectId;
@@ -29,25 +29,23 @@ export class UpdateProjectCommand extends ProjectCommand {
 }
 
 @Injectable()
-export class UpdateProjectCommandHandler extends ProjectCommandHandler<
-  UpdateProjectCommand
+export class AddRoleCommandHandler extends ProjectCommandHandler<
+  AddRoleCommand
 > {
-  protected async doHandle(command: UpdateProjectCommand): Promise<Project> {
+  protected async doHandle(command: AddRoleCommand): Promise<ReadonlyProject> {
     const projectId = ProjectId.from(command.projectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(command.authUser);
-    const title = command.title ? ProjectTitle.from(command.title) : undefined;
-    const description = command.description
-      ? ProjectDescription.from(command.description)
-      : undefined;
-    project.update(title, description);
+    const title = RoleTitle.from(command.title);
+    const description = RoleDescription.from(command.description);
+    project.addRole(title, description);
     return project;
   }
 
-  public getCommandType(): Type<UpdateProjectCommand> {
-    return UpdateProjectCommand;
+  public getCommandType(): Type<AddRoleCommand> {
+    return AddRoleCommand;
   }
 }

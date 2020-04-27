@@ -21,11 +21,13 @@ import {
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { User } from 'user/domain/User';
-import { CreateRoleDto } from 'project/application/dto/CreateRoleDto';
+import { AddRoleDto } from 'project/application/dto/AddRoleDto';
 import { UpdateRoleDto } from 'project/application/dto/UpdateRoleDto';
 import { AssignmentDto } from 'project/application/dto/AssignmentDto';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
+import { Mediator } from 'shared/mediator/Mediator';
+import { AddRoleCommand } from 'project/application/commands/AddRole';
 
 /**
  * Role Controller
@@ -35,9 +37,14 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 @ApiTags('Projects')
 export class RoleController {
   private readonly projectApplication: ProjectApplicationService;
+  private readonly mediator: Mediator;
 
-  public constructor(projectApplication: ProjectApplicationService) {
+  public constructor(
+    projectApplication: ProjectApplicationService,
+    mediator: Mediator,
+  ) {
     this.projectApplication = projectApplication;
+    this.mediator = mediator;
   }
 
   /**
@@ -45,25 +52,26 @@ export class RoleController {
    */
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ operationId: 'createRole', summary: 'Create a role' })
+  @ApiOperation({ operationId: 'addRole', summary: 'Add a role' })
   @ApiCreatedResponse({
-    description: 'Role created successfully',
+    description: 'Role added successfully',
     type: ProjectDto,
   })
   @ApiForbiddenResponse({ description: 'User is not the project creator' })
   @ApiNotFoundResponse({ description: 'Project not found' })
   @ApiNotFoundResponse({ description: 'Assignee not found' })
-  public async createRole(
+  public async addRole(
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
-    @Body(ValidationPipe) dto: CreateRoleDto,
+    @Body(ValidationPipe) addRoleDto: AddRoleDto,
   ): Promise<ProjectDto> {
-    const { title, description } = dto;
-    return this.projectApplication.addRole(
-      authUser,
-      projectId,
-      title,
-      description,
+    return this.mediator.send(
+      new AddRoleCommand(
+        authUser,
+        projectId,
+        addRoleDto.title,
+        addRoleDto.description,
+      ),
     );
   }
 

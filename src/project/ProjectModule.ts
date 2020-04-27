@@ -18,7 +18,8 @@ import { RoleDtoMap } from 'project/application/RoleDtoMap';
 import { PeerReviewDtoMap } from 'project/application/PeerReviewDtoMap';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { CreateProjectCommandHandler } from 'project/application/commands/CreateProject';
-import { UpdateProjectCommandHandler } from './application/commands/UpdateProject';
+import { UpdateProjectCommandHandler } from 'project/application/commands/UpdateProject';
+import { AddRoleCommandHandler } from 'project/application/commands/AddRole';
 
 /**
  * Project Module
@@ -47,6 +48,7 @@ import { UpdateProjectCommandHandler } from './application/commands/UpdateProjec
     ReverseProjectTypeOrmEntityMap,
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,
+    AddRoleCommandHandler,
   ],
   exports: [ProjectRepository],
 })
