@@ -1,25 +1,44 @@
+import td from 'testdouble';
 import { User } from 'user/domain/User';
 import { Project } from 'project/domain/Project';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
-import { Mock } from 'test/Mock';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { RoleDto } from 'project/application/dto/RoleDto';
+import { PeerReviewDto } from './dto/PeerReviewDto';
+import { getProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
 
 describe('project dto map', () => {
+  let objectMapper: ObjectMapper;
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
   let owner: User;
   let user: User;
   let project: Project;
 
-  beforeEach(async () => {
-    const modelMapper = Mock(ObjectMapper);
-    projectDtoMap = new ProjectDtoMap(modelMapper);
+  beforeEach(() => {
+    objectMapper = td.object();
+    projectDtoMap = new ProjectDtoMap(objectMapper);
     modelFaker = new ModelFaker();
     owner = modelFaker.user();
     user = modelFaker.user();
     project = modelFaker.project(owner.id);
+
+    td.when(
+      objectMapper.mapArray(
+        td.matchers.anything(),
+        RoleDto,
+        td.matchers.anything(),
+      ),
+    ).thenReturn([]);
+    td.when(
+      objectMapper.mapArray(
+        td.matchers.anything(),
+        PeerReviewDto,
+        td.matchers.anything(),
+      ),
+    ).thenReturn([]);
   });
 
   test('general', () => {
@@ -29,7 +48,7 @@ describe('project dto map', () => {
       title: project.title.value,
       description: project.description.value,
       creatorId: project.creatorId.value,
-      state: project.state.value,
+      state: getProjectStateValue(project.state),
       consensuality: null,
       contributionVisibility: project.contributionVisibility.value,
       skipManagerReview: project.skipManagerReview.value,

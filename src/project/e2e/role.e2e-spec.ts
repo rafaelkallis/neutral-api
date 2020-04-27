@@ -1,9 +1,9 @@
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Project } from 'project/domain/Project';
 import { Role } from 'project/domain/Role';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
 
 describe('roles (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -23,44 +23,6 @@ describe('roles (e2e)', () => {
 
   afterEach(async () => {
     await scenario.teardown();
-  });
-
-  describe.skip('/roles (GET)', () => {
-    test('happy path', async () => {
-      const response = await scenario.session
-        .get('/roles')
-        .query({ projectId: project.id.value });
-      expect(response.status).toBe(200);
-      expect(response.body).toContainEqual({
-        id: role.id.value,
-        projectId: project.id.value,
-        assigneeId: null,
-        title: role.title.value,
-        description: role.description.value,
-        contribution: null,
-        hasSubmittedPeerReviews: false,
-        createdAt: expect.any(Number),
-        updatedAt: expect.any(Number),
-      });
-    });
-  });
-
-  describe.skip('/roles/:id (GET)', () => {
-    test('happy path', async () => {
-      const response = await scenario.session.get(`/roles/${role.id.value}`);
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        id: role.id.value,
-        projectId: project.id.value,
-        assigneeId: null,
-        title: role.title.value,
-        description: role.description.value,
-        contribution: null,
-        hasSubmittedPeerReviews: false,
-        createdAt: expect.any(Number),
-        updatedAt: expect.any(Number),
-      });
-    });
   });
 
   describe('/projects/:project_id/roles (POST)', () => {
@@ -102,7 +64,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should not be part of e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .post(`/projects/${project.id.value}/roles`)
@@ -141,7 +103,7 @@ describe('roles (e2e)', () => {
 
     // TODO: should be tested in e2e tests!
     test('should fail when project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
@@ -153,8 +115,7 @@ describe('roles (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
         .send({ title });
@@ -182,7 +143,7 @@ describe('roles (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.roles.exists(role.id)).toBeFalsy();
+      expect(updatedProject.roles.contains(role.id)).toBeFalsy();
     });
   });
 });

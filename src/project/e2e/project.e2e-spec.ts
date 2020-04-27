@@ -1,9 +1,14 @@
 import { Project } from 'project/domain/Project';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
+import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -19,7 +24,7 @@ describe('project (e2e)', () => {
     await scenario.teardown();
   });
 
-  describe('/projects (GET)', () => {
+  describe('/projects?type=created (GET)', () => {
     test('happy path', async () => {
       const projects = [
         scenario.modelFaker.project(user.id),
@@ -30,6 +35,37 @@ describe('project (e2e)', () => {
       const response = await scenario.session
         .get('/projects')
         .query({ type: 'created' });
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(3);
+      for (const project of projects) {
+        expect(response.body).toContainEqual(
+          expect.objectContaining({
+            id: project.id.value,
+          }),
+        );
+      }
+    });
+  });
+
+  describe('/projects?type=assigned (GET)', () => {
+    test('happy path', async () => {
+      const creator = await scenario.createUser();
+      const projects = [
+        scenario.modelFaker.project(creator.id),
+        scenario.modelFaker.project(creator.id),
+        scenario.modelFaker.project(creator.id),
+      ];
+      for (const project of projects) {
+        const role = project.addRole(
+          RoleTitle.from(''),
+          RoleDescription.from(''),
+        );
+        project.assignUserToRole(user, role.id);
+      }
+      await scenario.projectRepository.persist(...projects);
+      const response = await scenario.session
+        .get('/projects')
+        .query({ type: 'assigned' });
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(3);
       for (const project of projects) {
@@ -56,7 +92,8 @@ describe('project (e2e)', () => {
         `/projects/${project.id.value}`,
       );
       expect(response.status).toBe(200);
-      // TODO more assertions?
+      expect(response.body).toBeDefined();
+      expect(response.body.roles).toEqual([]);
     });
   });
 
@@ -114,8 +151,7 @@ describe('project (e2e)', () => {
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
@@ -123,7 +159,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -139,14 +175,13 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       assignees = [
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
-        scenario.modelFaker.user(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
       ];
-      await scenario.userRepository.persist(...assignees);
-      project = scenario.modelFaker.project(user.id);
-      project.state = ProjectState.FORMATION;
+      project = await scenario.createProject(user);
+      project.state = ProjectFormation.INSTANCE;
       roles = [
         scenario.modelFaker.role(project.id, assignees[0].id),
         scenario.modelFaker.role(project.id, assignees[1].id),
@@ -169,14 +204,13 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(ProjectState.PEER_REVIEW);
+      expect(updatedProject.state).toEqual(ProjectPeerReview.INSTANCE);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
       const otherUser = scenario.modelFaker.user();
       await scenario.userRepository.persist(otherUser);
-      project.creatorId = otherUser.id;
-      await scenario.projectRepository.persist(project);
+      await scenario.authenticateUser(otherUser);
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );
@@ -184,7 +218,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
@@ -202,35 +236,12 @@ describe('project (e2e)', () => {
     });
   });
 
-  describe('/projects/:id (DELETE)', () => {
-    let project: Project;
-
-    beforeEach(async () => {
-      project = scenario.modelFaker.project(user.id);
-      await scenario.projectRepository.persist(project);
-    });
-
-    test('happy path', async () => {
-      const response = await scenario.session.delete(
-        `/projects/${project.id.value}`,
-      );
-      expect(response.status).toBe(204);
-      expect(response.body).toBeDefined();
-      const updatedProject = await scenario.projectRepository.findById(
-        project.id,
-      );
-      if (!updatedProject) {
-        throw new Error();
-      }
-      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
-    });
-  });
-
   describe('/projects/:id/archive (POST)', () => {
     let project: Project;
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
+      project.state = ProjectFinished.INSTANCE;
       await scenario.projectRepository.persist(project);
     });
 
@@ -251,7 +262,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectState.ARCHIVED);
+      expect(updatedProject.state).toBe(ProjectArchived.INSTANCE);
     });
   });
 });

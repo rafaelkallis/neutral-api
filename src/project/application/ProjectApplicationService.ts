@@ -7,15 +7,13 @@ import {
 } from 'project/application/dto/GetProjectsQueryDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { Project } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
-import { RoleDto } from 'project/application/dto/RoleDto';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
 import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
-import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
 import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
-import { User } from 'user/domain/User';
+import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
@@ -62,7 +60,7 @@ export class ProjectApplicationService {
     authUser: User,
     query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
-    let projects: Project[] = [];
+    let projects: ReadonlyProject[] = [];
     switch (query.type) {
       case GetProjectsType.CREATED: {
         projects = await this.projectRepository.findByCreatorId(authUser.id);
@@ -95,55 +93,6 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
-   * Get roles of a particular project
-   */
-  public async getRoles(
-    authUser: User,
-    query: GetRolesQueryDto,
-  ): Promise<RoleDto[]> {
-    const projectId = ProjectId.from(query.projectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    const roles = Array.from(project.roles);
-    return roles.map((role) =>
-      this.objectMapper.map(role, RoleDto, { project, authUser }),
-    );
-  }
-
-  /**
-   * Get the role with the given id
-   */
-  public async getRole(authUser: User, rawRoleId: string): Promise<RoleDto> {
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findByRoleId(roleId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    const role = project.roles.find(roleId);
-    return this.objectMapper.map(role, RoleDto, { project, authUser });
-  }
-
-  /**
-   * Archive a project
-   */
-  public async archiveProject(
-    authUser: User,
-    rawProjectId: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    project.archive();
-    await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
@@ -236,7 +185,7 @@ export class ProjectApplicationService {
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }
-    let userToAssign: User | undefined = undefined;
+    let userToAssign: ReadonlyUser | undefined = undefined;
     if (rawAssigneeId) {
       const assigneeId = UserId.from(rawAssigneeId);
       const user = await this.userRepository.findById(assigneeId);
@@ -270,7 +219,30 @@ export class ProjectApplicationService {
       // shouldn't be possible to get here
       throw new InternalServerErrorException();
     }
-    project.assignUserToRole(userToAssign, roleToAssign);
+    project.assignUserToRole(userToAssign, roleToAssign.id);
+    await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
+  }
+
+  /**
+   * Unassign the specified role.
+   * @param authUser The authenticated user.
+   * @param rawProjectId The raw project id.
+   * @param rawRoleId The raw role id.
+   */
+  public async unassignRole(
+    authUser: ReadonlyUser,
+    rawProjectId: string,
+    rawRoleId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const roleId = RoleId.from(rawRoleId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    project.assertCreator(authUser);
+    project.unassignRole(roleId);
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
@@ -306,7 +278,7 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    if (!project.roles.anyAssignedToUser(authUser)) {
+    if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
     const authRole = project.roles.findByAssignee(authUser);
@@ -317,7 +289,7 @@ export class ProjectApplicationService {
       PeerReviewScore.from(score),
     ]);
     project.submitPeerReviews(
-      authRole,
+      authRole.id,
       peerReviews,
       this.contributionsComputer,
       this.consensualityComputer,
@@ -340,6 +312,42 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     project.submitManagerReview();
+    await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
+  }
+
+  /**
+   * Cancel a project
+   */
+  public async cancelProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    project.assertCreator(authUser);
+    project.cancel();
+    await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
+  }
+
+  /**
+   * Archive a project
+   */
+  public async archiveProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    project.assertCreator(authUser);
+    project.archive();
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

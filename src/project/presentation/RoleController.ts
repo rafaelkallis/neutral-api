@@ -119,14 +119,14 @@ export class RoleController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({
-    operationId: 'assignUser',
+    operationId: 'assignUserToRole',
     summary: 'Assign a user to a role',
   })
   @ApiOkResponse({ description: 'Role updated succesfully', type: ProjectDto })
   @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
   })
-  public async assignUser(
+  public async assignUserToRole(
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
@@ -139,5 +139,30 @@ export class RoleController {
       dto.assigneeId,
       dto.assigneeEmail,
     );
+  }
+
+  /**
+   * Unassign a role
+   */
+  @Post(':role_id/unassign')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'unassignRole',
+    summary: 'Unassign a role',
+  })
+  @ApiOkResponse({
+    description: 'Role unassigned succesfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({
+    description: "Authenticated user is not the role's project owner",
+  })
+  public async unassignRole(
+    @AuthUser() authUser: User,
+    @Param('project_id') projectId: string,
+    @Param('role_id') roleId: string,
+  ): Promise<ProjectDto> {
+    return this.projectApplication.unassignRole(authUser, projectId, roleId);
   }
 }

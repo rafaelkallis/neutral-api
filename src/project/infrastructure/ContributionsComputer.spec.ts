@@ -1,6 +1,9 @@
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import {
+  PeerReviewCollection,
+  ReadonlyPeerReviewCollection,
+} from 'project/domain/PeerReviewCollection';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 
@@ -10,7 +13,7 @@ describe('ContributionsModelService', () => {
   let b: string;
   let c: string;
   let d: string;
-  let specificationsDocumentExamplePeerReviews: PeerReviewCollection;
+  let specificationsDocumentExamplePeerReviews: ReadonlyPeerReviewCollection;
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();

@@ -1,5 +1,5 @@
 import { Type, Injectable } from '@nestjs/common';
-import { Project } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -32,7 +32,9 @@ export class UpdateProjectCommand extends ProjectCommand {
 export class UpdateProjectCommandHandler extends ProjectCommandHandler<
   UpdateProjectCommand
 > {
-  protected async doHandle(command: UpdateProjectCommand): Promise<Project> {
+  protected async doHandle(
+    command: UpdateProjectCommand,
+  ): Promise<ReadonlyProject> {
     const projectId = ProjectId.from(command.projectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {

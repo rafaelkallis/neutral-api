@@ -4,7 +4,7 @@ import { CommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { Project } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/Project';
 
 export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {}
 
@@ -22,5 +22,5 @@ export abstract class ProjectCommandHandler<
     });
   }
 
-  protected abstract doHandle(command: TCommand): Promise<Project>;
+  protected abstract doHandle(command: TCommand): Promise<ReadonlyProject>;
 }

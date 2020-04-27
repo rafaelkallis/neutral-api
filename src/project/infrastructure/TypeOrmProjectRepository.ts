@@ -105,7 +105,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     const projectEntities = await this.typeOrmClient.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
-      .leftJoinAndSelect('role', 'role.project_id = project.id')
+      .leftJoinAndSelect('project.roles', 'role')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
       .where((builder) => {
         const subQuery = builder

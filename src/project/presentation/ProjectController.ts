@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   Query,
@@ -22,7 +21,6 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiBadRequestResponse,
-  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
@@ -166,49 +164,6 @@ export class ProjectController {
   }
 
   /**
-   * Delete a project
-   */
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth()
-  @ApiOperation({
-    operationId: 'deleteProject',
-    summary: 'Archive a project. Use "/:id/archive" instead!',
-    deprecated: true,
-  })
-  @ApiNoContentResponse({ description: 'Project archived succesfully' })
-  @ApiForbiddenResponse({
-    description: 'Authenticated user is not the project owner',
-  })
-  public async deleteProject(
-    @AuthUser() authUser: User,
-    @Param('id') id: string,
-  ): Promise<void> {
-    await this.projectApplicationService.archiveProject(authUser, id);
-  }
-
-  /**
-   * Archive a project
-   */
-  @Post(':id/archive')
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  @ApiOperation({ operationId: 'archiveProject', summary: 'Archive a project' })
-  @ApiOkResponse({
-    description: 'Project archived succesfully',
-    type: ProjectDto,
-  })
-  @ApiForbiddenResponse({
-    description: 'Authenticated user is not the project owner',
-  })
-  public async archiveProject(
-    @AuthUser() authUser: User,
-    @Param('id') id: string,
-  ): Promise<ProjectDto> {
-    return this.projectApplicationService.archiveProject(authUser, id);
-  }
-
-  /**
    * Call to submit peer reviews.
    */
   @Post(':id/submit-peer-reviews')
@@ -253,5 +208,49 @@ export class ProjectController {
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.submitManagerReview(authUser, id);
+  }
+
+  /**
+   * Call to cancel a project.
+   */
+  @Post(':project_id/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'cancelProject',
+    summary: 'Cancels a project',
+  })
+  @ApiOkResponse({
+    description: 'Project cancelled successfully',
+    type: ProjectDto,
+  })
+  @ApiBadRequestResponse({ description: 'Project not in a cancellable state' })
+  @ApiBadRequestResponse({ description: 'Not the project owner' })
+  public async cancel(
+    @AuthUser() authUser: User,
+    @Param('project_id') projectId: string,
+  ): Promise<ProjectDto> {
+    return this.projectApplicationService.cancelProject(authUser, projectId);
+  }
+
+  /**
+   * Archive a project
+   */
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ operationId: 'archiveProject', summary: 'Archive a project' })
+  @ApiOkResponse({
+    description: 'Project archived succesfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Authenticated user is not the project owner',
+  })
+  public async archiveProject(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<ProjectDto> {
+    return this.projectApplicationService.archiveProject(authUser, id);
   }
 }

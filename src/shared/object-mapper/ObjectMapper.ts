@@ -19,7 +19,7 @@ export class ObjectMapper {
    * @param context Mapping context.
    */
   public map<TTarget>(
-    o: object,
+    o: Object,
     targetType: Type<TTarget>,
     context: object = {},
   ): TTarget {

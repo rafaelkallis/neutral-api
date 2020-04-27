@@ -3,7 +3,6 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
@@ -25,13 +24,17 @@ import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { Injectable, Type } from '@nestjs/common';
+import {
+  getProjectState,
+  getProjectStateValue,
+} from 'project/domain/value-objects/states/ProjectStateValue';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
   Project,
   ProjectTypeOrmEntity
 > {
-  protected innerMap(projectModel: Project): ProjectTypeOrmEntity {
+  protected doMap(projectModel: Project): ProjectTypeOrmEntity {
     const roleEntities: RoleTypeOrmEntity[] = [];
     const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
     const projectEntity = new ProjectTypeOrmEntity(
@@ -41,7 +44,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.title.value,
       projectModel.description.value,
       projectModel.creatorId.value,
-      projectModel.state.value,
+      getProjectStateValue(projectModel.state),
       projectModel.consensuality ? projectModel.consensuality.value : null,
       projectModel.contributionVisibility.value,
       projectModel.skipManagerReview.value,
@@ -93,7 +96,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
   ProjectTypeOrmEntity,
   Project
 > {
-  protected innerMap(projectEntity: ProjectTypeOrmEntity): Project {
+  protected doMap(projectEntity: ProjectTypeOrmEntity): Project {
     const roles = new RoleCollection(
       projectEntity.roles.map(
         (roleEntity) =>
@@ -132,7 +135,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTitle.from(projectEntity.title),
       ProjectDescription.from(projectEntity.description),
       UserId.from(projectEntity.creatorId),
-      ProjectState.from(projectEntity.state),
+      getProjectState(projectEntity.state),
       projectEntity.consensuality
         ? Consensuality.from(projectEntity.consensuality)
         : null,

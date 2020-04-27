@@ -1,6 +1,7 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/Role';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 import { Project } from 'project/domain/Project';
 import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
 import { Contribution } from 'project/domain/value-objects/Contribution';
@@ -25,7 +26,7 @@ describe('peer review dto map', () => {
       publicUser: modelFaker.user(),
     };
     project = modelFaker.project(users.owner.id);
-    project.state = ProjectState.FINISHED;
+    project.state = ProjectFinished.INSTANCE;
     project.roles.addAll([
       modelFaker.role(project.id, users.assignee.id),
       modelFaker.role(project.id, users.projectUser.id),
@@ -69,7 +70,7 @@ describe('peer review dto map', () => {
 
   test('should not show contribution if not project owner and if project not finished', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
-    project.state = ProjectState.PEER_REVIEW;
+    project.state = ProjectPeerReview.INSTANCE;
     role.contribution = Contribution.from(1);
     const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
     expect(roleDto.contribution).toBeFalsy();

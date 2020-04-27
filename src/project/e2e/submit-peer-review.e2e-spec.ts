@@ -1,5 +1,4 @@
 import { Project } from 'project/domain/Project';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
 import { Role } from 'project/domain/Role';
 import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
@@ -7,6 +6,9 @@ import { Contribution } from 'project/domain/value-objects/Contribution';
 import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -27,7 +29,7 @@ describe('submit peer review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectState.PEER_REVIEW;
+    project.state = ProjectPeerReview.INSTANCE;
 
     /* prepare roles */
     role1 = scenario.modelFaker.role(project.id, user.id);
@@ -110,7 +112,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][submittedPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectState.MANAGER_REVIEW);
+    expect(updatedProject.state).toBe(ProjectManagerReview.INSTANCE);
     expect(updatedProject.consensuality).not.toBeNull();
     expect((updatedProject.consensuality as Consensuality).value).toEqual(
       expect.any(Number),
@@ -145,14 +147,14 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectState.PEER_REVIEW);
+    expect(updatedProject.state).toBe(ProjectPeerReview.INSTANCE);
     for (const updatedRole of updatedProject.roles) {
       expect(updatedRole.contribution).toBeFalsy();
     }
   });
 
   test('should fail if project is not in peer-review state', async () => {
-    project.state = ProjectState.FORMATION;
+    project.state = ProjectFormation.INSTANCE;
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session

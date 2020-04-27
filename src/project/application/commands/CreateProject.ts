@@ -1,5 +1,9 @@
 import { Type, Injectable } from '@nestjs/common';
-import { Project, CreateProjectOptions } from 'project/domain/Project';
+import {
+  Project,
+  CreateProjectOptions,
+  ReadonlyProject,
+} from 'project/domain/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -41,7 +45,9 @@ export class CreateProjectCommand extends ProjectCommand {
 export class CreateProjectCommandHandler extends ProjectCommandHandler<
   CreateProjectCommand
 > {
-  protected async doHandle(command: CreateProjectCommand): Promise<Project> {
+  protected async doHandle(
+    command: CreateProjectCommand,
+  ): Promise<ReadonlyProject> {
     const createProjectOptions: CreateProjectOptions = {
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),

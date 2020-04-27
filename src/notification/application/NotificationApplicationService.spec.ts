@@ -2,7 +2,6 @@ import td from 'testdouble';
 import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
-import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
@@ -66,7 +65,6 @@ describe('notification application service', () => {
 
     beforeEach(async () => {
       notification = modelFaker.notification(user.id);
-      notification.isRead = NotificationIsRead.from(false);
       await notificationRepository.persist(notification);
       jest.spyOn(notification, 'markRead');
     });

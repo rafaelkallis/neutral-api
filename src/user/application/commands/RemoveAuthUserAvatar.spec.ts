@@ -31,7 +31,7 @@ describe(RemoveAuthUserAvatarCommand.name, () => {
     commandHandler = scenario.subject;
     authUser = scenario.modelFaker.user();
     avatarToDelete = Avatar.create();
-    authUser.avatar = avatarToDelete;
+    authUser.updateAvatar(avatarToDelete);
 
     const objectMapper = scenario.module.get(ObjectMapper);
     userDto = td.object();

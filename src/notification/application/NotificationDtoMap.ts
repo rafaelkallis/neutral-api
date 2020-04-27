@@ -8,7 +8,7 @@ export class NotificationDtoMap extends ObjectMap<
   Notification,
   NotificationDto
 > {
-  protected innerMap(notification: Notification): NotificationDto {
+  protected doMap(notification: Notification): NotificationDto {
     return new NotificationDto(
       notification.id.value,
       notification.createdAt.value,

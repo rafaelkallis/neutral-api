@@ -3,60 +3,97 @@ import { Request, Response } from 'express';
 import {
   TelemetryClient,
   TelemetryAction,
+  HttpTelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
+import { User } from 'user/domain/User';
 
 /**
- * Local Telemetry Client
+ * Logging Telemetry Client
  */
 @Injectable()
 export class LoggingTelemetryClient extends TelemetryClient {
-  private currentTransaction: Logger | null;
+  private readonly logger: LoggerService;
 
   public constructor() {
     super();
-    this.currentTransaction = null;
+    this.logger = new Logger();
   }
 
-  public setTransaction(request: Request, response: Response): void {
-    const endpoint = request.route.path;
-    const newTransaction = new Logger(`Telemetry ${endpoint}`, true);
-    newTransaction.log('');
-    this.currentTransaction = newTransaction;
-  }
-
-  public createAction(name: string): TelemetryAction {
-    if (!this.currentTransaction) {
-      throw new Error('forgot to setTransaction()');
-    }
-    return new LoggingTelemetryAction(this.currentTransaction, name);
-  }
-
-  public error(error: Error): void {
-    if (!this.currentTransaction) {
-      throw new Error('forgot to setTransaction()');
-    }
-    this.currentTransaction.error(
-      `${error.name}: ${error.message}`,
-      error.stack?.toString(),
+  protected doStartHttpTransaction(
+    transactionName: string,
+    transactionId: string,
+    request: Request,
+    response: Response,
+    user?: User,
+  ): HttpTelemetryTransaction {
+    transactionName = `Telemetry ${transactionName}`;
+    return new LoggingTelemetryTransaction(
+      transactionName,
+      transactionId,
+      request,
+      response,
+      user,
+      this.logger,
     );
   }
 }
 
-class LoggingTelemetryAction implements TelemetryAction {
-  private readonly logger: LoggerService;
-  private readonly name: string;
-  private readonly start: number;
+class LoggingTelemetryTransaction extends HttpTelemetryTransaction {
+  readonly logger: LoggerService;
 
-  public constructor(logger: LoggerService, name: string) {
+  public constructor(
+    transactionName: string,
+    transactionId: string,
+    request: Request,
+    response: Response,
+    user: User | undefined,
+    logger: LoggerService,
+  ) {
+    super(transactionName, transactionId, request, response, user);
     this.logger = logger;
-    this.name = name;
-    this.start = Date.now();
-    this.logger.log(`${name}: {start: ${this.start}}`);
   }
 
-  public end(): void {
-    const end = Date.now();
-    const duration = end - this.start;
-    this.logger.log(`${this.name}: {end: ${end}, duration: ${duration}}`);
+  public startAction(actionName: string): TelemetryAction {
+    return new LoggingTelemetryAction(
+      this.transactionName,
+      this.transactionId,
+      actionName,
+      this.logger,
+    );
+  }
+
+  protected doEnd(error?: Error): void {
+    const logMessage = `{duration: ${this.transactionDuration}ms}`;
+    if (error) {
+      this.logger.error(
+        `${logMessage} \n${error.name}: ${error.message}`,
+        this.transactionName,
+      );
+    } else {
+      this.logger.log(logMessage, this.transactionName);
+    }
+  }
+}
+
+class LoggingTelemetryAction extends TelemetryAction {
+  readonly logger: LoggerService;
+
+  public constructor(
+    transactionName: string,
+    transactionId: string,
+    actionName: string,
+    logger: LoggerService,
+  ) {
+    super(transactionName, transactionId, actionName);
+    this.logger = logger;
+  }
+
+  protected doEnd(error?: Error): void {
+    const logMessage = `${this.actionName}: {duration: ${this.actionDuration}}`;
+    if (error) {
+      this.logger.error(logMessage, undefined, this.transactionName);
+    } else {
+      this.logger.log(logMessage, this.transactionName);
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { Role } from 'project/domain/Role';
 import { Project } from 'project/domain/Project';
-import { User } from 'user/domain/User';
+import { ReadonlyUser } from 'user/domain/User';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 /**
@@ -11,9 +11,9 @@ import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 export class UserAssignedEvent extends DomainEvent {
   public readonly project: Project;
   public readonly role: Role;
-  public readonly user: User;
+  public readonly user: ReadonlyUser;
 
-  public constructor(project: Project, role: Role, user: User) {
+  public constructor(project: Project, role: Role, user: ReadonlyUser) {
     super();
     this.project = project;
     this.role = role;

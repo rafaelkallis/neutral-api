@@ -5,6 +5,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserState } from 'user/domain/value-objects/UserState';
 import { EmailManager } from 'shared/email/manager/EmailManager';
+import { HttpStatus } from '@nestjs/common';
 
 describe('user (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -37,11 +38,11 @@ describe('user (e2e)', () => {
 
     test('happy path, text search', async () => {
       const user1 = scenario.modelFaker.user();
-      user1.name = Name.from('Anna', 'Smith');
+      user1.updateName(Name.from('Anna', 'Smith'));
       const user2 = scenario.modelFaker.user();
-      user2.name = Name.from('Hannah', 'Fitzgerald');
+      user2.updateName(Name.from('Hannah', 'Fitzgerald'));
       const user3 = scenario.modelFaker.user();
-      user3.name = Name.from('Nanna', 'Thompson');
+      user3.updateName(Name.from('Nanna', 'Thompson'));
       await scenario.userRepository.persist(user1, user2, user3);
       const response = await scenario.session.get('/users').query({ q: 'ann' });
       expect(response.status).toBe(200);
@@ -179,6 +180,8 @@ describe('user (e2e)', () => {
       expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
       expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
       expect(updatedUser.state.equals(UserState.FORGOTTEN)).toBeTruthy();
+      const meResponse = await scenario.session.get('/users/me');
+      expect(meResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     });
   });
 

@@ -1,7 +1,6 @@
-import { Model } from 'shared/domain/Model';
+import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Project } from 'project/domain/Project';
-import { User } from 'user/domain/User';
-import { Id } from 'shared/domain/value-objects/Id';
+import { ReadonlyUser } from 'user/domain/User';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
@@ -14,10 +13,19 @@ import { RoleId } from 'project/domain/value-objects/RoleId';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 
+export interface ReadonlyRole extends ReadonlyModel<RoleId> {
+  readonly projectId: ProjectId;
+  readonly assigneeId: UserId | null;
+  readonly title: RoleTitle;
+  readonly description: RoleDescription;
+  readonly contribution: Contribution | null;
+  readonly hasSubmittedPeerReviews: HasSubmittedPeerReviews;
+}
+
 /**
  * Role
  */
-export class Role extends Model<RoleId> {
+export class Role extends Model<RoleId> implements ReadonlyRole {
   public projectId: ProjectId;
   public assigneeId: UserId | null;
   public title: RoleTitle;
@@ -76,15 +84,16 @@ export class Role extends Model<RoleId> {
     return Boolean(this.assigneeId);
   }
 
-  public assertAssigned(): void {
-    if (!this.isAssigned()) {
+  public assertAssigned(): UserId {
+    if (!this.assigneeId) {
       throw new RoleNoUserAssignedException();
     }
+    return this.assigneeId;
   }
 
-  public isAssignedToUser(userOrUserId: User | Id): boolean {
+  public isAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean {
     const userId =
-      userOrUserId instanceof User ? userOrUserId.id : userOrUserId;
+      userOrUserId instanceof UserId ? userOrUserId : userOrUserId.id;
     return this.assigneeId ? this.assigneeId.equals(userId) : false;
   }
 

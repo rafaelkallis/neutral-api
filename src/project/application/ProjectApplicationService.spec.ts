@@ -7,11 +7,10 @@ import {
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { ProjectState } from 'project/domain/value-objects/ProjectState';
-import { GetRolesQueryDto } from 'project/application/dto/GetRolesQueryDto';
-import { RoleDto } from 'project/application/dto/RoleDto';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
 import { Role } from 'project/domain/Role';
-import { PeerReview } from 'project/domain/PeerReview';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -30,6 +29,7 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe(ProjectApplicationService.name, () => {
   let modelFaker: ModelFaker;
@@ -70,8 +70,13 @@ describe(ProjectApplicationService.name, () => {
     await userRepository.persist(ownerUser);
 
     project = modelFaker.project(ownerUser.id);
-    roles = [modelFaker.role(project.id), modelFaker.role(project.id)];
-    project.roles = new RoleCollection(roles);
+    roles = [
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+      modelFaker.role(project.id),
+    ];
+    project.roles.addAll(roles);
     await projectRepository.persist(project);
 
     mockProjectDto = {};
@@ -156,51 +161,6 @@ describe(ProjectApplicationService.name, () => {
       await expect(
         projectApplication.getProject(ownerUser, project.id.value),
       ).resolves.toEqual(mockProjectDto);
-    });
-  });
-
-  describe.skip('get roles', () => {
-    let mockRoleDto: object;
-    let getRolesQueryDto: GetRolesQueryDto;
-
-    beforeEach(() => {
-      getRolesQueryDto = new GetRolesQueryDto(project.id.value);
-    });
-
-    test('happy path', async () => {
-      const roleDtos = await projectApplication.getRoles(
-        ownerUser,
-        getRolesQueryDto,
-      );
-      for (const roleDto of roleDtos) {
-        expect(roleDto).toEqual(mockRoleDto);
-      }
-      expect(objectMapper.map).toHaveBeenCalledWith(expect.any(Role), RoleDto, {
-        project,
-        authUser: ownerUser,
-      });
-    });
-  });
-
-  describe.skip('get role', () => {
-    let mockRoleDto: object;
-    let sentPeerReview: PeerReview;
-
-    beforeEach(() => {
-      sentPeerReview = modelFaker.peerReview(roles[0].id, roles[1].id);
-      project.peerReviews.add(sentPeerReview);
-    });
-
-    test('happy path', async () => {
-      const roleDto = await projectApplication.getRole(
-        ownerUser,
-        roles[0].id.value,
-      );
-      expect(objectMapper.map).toHaveBeenCalledWith(roles[0], RoleDto, {
-        project,
-        authUser: ownerUser,
-      });
-      expect(roleDto).toEqual(mockRoleDto);
     });
   });
 
@@ -355,19 +315,6 @@ describe(ProjectApplicationService.name, () => {
       // TODO check if events emitted
     });
 
-    test('should fail if project is not in formation state', async () => {
-      project.state = ProjectState.PEER_REVIEW;
-      await projectRepository.persist(project);
-      await expect(
-        projectApplication.assignUserToRole(
-          ownerUser,
-          project.id.value,
-          roles[0].id.value,
-          assignee.id.value,
-        ),
-      ).rejects.toThrowError();
-    });
-
     test('should fail if authenticated user is not project owner', async () => {
       const notCreatorUser = modelFaker.user();
       await userRepository.persist(notCreatorUser);
@@ -380,15 +327,35 @@ describe(ProjectApplicationService.name, () => {
         ),
       ).rejects.toThrowError();
     });
+  });
 
-    test('should fail if user is already assigned to another role', async () => {
-      roles[1].assigneeId = assignee.id;
+  describe('unassign role', () => {
+    let assignee: User;
+
+    beforeEach(async () => {
+      assignee = modelFaker.user();
+      await userRepository.persist(assignee);
+      roles[0].assigneeId = assignee.id;
+      await projectRepository.persist(project);
+    });
+
+    test('happy path', async () => {
+      await projectApplication.unassignRole(
+        ownerUser,
+        project.id.value,
+        roles[0].id.value,
+      );
+      expect(roles[0].assigneeId).toBeNull();
+    });
+
+    test('should fail if authenticated user is not project owner', async () => {
+      const notCreatorUser = modelFaker.user();
+      await userRepository.persist(notCreatorUser);
       await expect(
-        projectApplication.assignUserToRole(
-          ownerUser,
+        projectApplication.unassignRole(
+          notCreatorUser,
           project.id.value,
           roles[0].id.value,
-          assignee.id.value,
         ),
       ).rejects.toThrowError();
     });
@@ -397,18 +364,21 @@ describe(ProjectApplicationService.name, () => {
   describe('finish formation', () => {
     let assignees: User[];
     beforeEach(async () => {
-      assignees = [modelFaker.user(), modelFaker.user()];
-      await userRepository.persist(...assignees);
-      roles[0].assigneeId = assignees[0].id;
-      roles[1].assigneeId = assignees[1].id;
-      project.state = ProjectState.FORMATION;
+      assignees = [];
+      for (const role of roles) {
+        const assignee = await modelFaker.user();
+        role.assigneeId = assignee.id;
+        assignees.push(assignee);
+        await userRepository.persist(assignee);
+      }
+      project.state = ProjectFormation.INSTANCE;
       await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
     });
 
     test('happy path', async () => {
       await projectApplication.finishFormation(ownerUser, project.id.value);
-      expect(project.finishFormation).toHaveBeenCalledWith();
+      expect(project.finishFormation).toHaveBeenCalled();
     });
 
     test('should fail if authenticated user is ot project owner', async () => {
@@ -421,31 +391,11 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('archive project', () => {
-    beforeEach(() => {
-      jest.spyOn(project, 'archive');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.archiveProject(ownerUser, project.id.value);
-      expect(project.archive).toHaveBeenCalledWith();
-    });
-
-    test('should fail if authenticated user is ot project owner', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.archiveProject(notOwnerUser, project.id.value),
-      ).rejects.toThrow();
-      expect(project.archive).not.toHaveBeenCalled();
-    });
-  });
-
   describe('submit peer reviews', () => {
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
     beforeEach(async () => {
-      project.state = ProjectState.PEER_REVIEW;
+      project.state = ProjectPeerReview.INSTANCE;
       roles = [
         modelFaker.role(project.id, ownerUser.id),
         modelFaker.role(project.id),
@@ -492,7 +442,7 @@ describe(ProjectApplicationService.name, () => {
           submitPeerReviewsDto,
         );
         expect(project.submitPeerReviews).toHaveBeenCalledWith(
-          roles[0],
+          roles[0].id,
           expect.any(Array),
           contributionsComputer,
           consensualityComputer,
@@ -515,7 +465,7 @@ describe(ProjectApplicationService.name, () => {
 
     describe('submit manager review', () => {
       beforeEach(async () => {
-        project.state = ProjectState.MANAGER_REVIEW;
+        project.state = ProjectManagerReview.INSTANCE;
         await projectRepository.persist(project);
         jest.spyOn(project, 'submitManagerReview');
       });
@@ -535,6 +485,47 @@ describe(ProjectApplicationService.name, () => {
         ).rejects.toThrow();
         expect(project.submitManagerReview).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('cancel project', () => {
+    beforeEach(() => {
+      jest.spyOn(project, 'cancel');
+    });
+
+    test('happy path', async () => {
+      await projectApplication.cancelProject(ownerUser, project.id.value);
+      expect(project.cancel).toHaveBeenCalled();
+    });
+
+    test('should fail if authenticated user is ot project owner', async () => {
+      const notOwnerUser = modelFaker.user();
+      await userRepository.persist(notOwnerUser);
+      await expect(
+        projectApplication.cancelProject(notOwnerUser, project.id.value),
+      ).rejects.toThrow();
+      expect(project.cancel).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('archive project', () => {
+    beforeEach(() => {
+      project.state = ProjectFinished.INSTANCE;
+      jest.spyOn(project, 'archive');
+    });
+
+    test('happy path', async () => {
+      await projectApplication.archiveProject(ownerUser, project.id.value);
+      expect(project.archive).toHaveBeenCalledWith();
+    });
+
+    test('should fail if authenticated user is ot project owner', async () => {
+      const notOwnerUser = modelFaker.user();
+      await userRepository.persist(notOwnerUser);
+      await expect(
+        projectApplication.archiveProject(notOwnerUser, project.id.value),
+      ).rejects.toThrow();
+      expect(project.archive).not.toHaveBeenCalled();
     });
   });
 });

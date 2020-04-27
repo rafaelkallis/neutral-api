@@ -44,7 +44,7 @@ export class EnvalidConfig extends Config {
       //   devDefault: 'http://127.0.0.1:8200',
       // }),
       AZURE_MONITOR_INSTRUMENTATION_KEY: envalid.str({
-        devDefault: '6c9d2cba-671d-4020-a139-d5cd80632b4f',
+        devDefault: '12629b1b-253b-4e15-acf3-7ba31f8bceb4',
       }),
       AZURE_BLOB_STORAGE_CONNECTION_STRING: envalid.str({
         devDefault:

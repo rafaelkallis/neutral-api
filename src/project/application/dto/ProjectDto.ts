@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
-import { ProjectStateValue } from 'project/domain/value-objects/ProjectState';
+import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 
@@ -47,8 +47,8 @@ export class ProjectDto extends ModelDto {
   })
   public skipManagerReview: SkipManagerReviewValue;
 
-  @ApiProperty({ type: [RoleDto], required: false })
-  public roles: RoleDto[] | null;
+  @ApiProperty({ type: [RoleDto] })
+  public roles: RoleDto[];
 
   @ApiProperty({ type: [PeerReviewDto], required: false })
   public peerReviews: PeerReviewDto[] | null;
@@ -62,7 +62,7 @@ export class ProjectDto extends ModelDto {
     consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
-    roles: RoleDto[] | null,
+    roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
     createdAt: number,
     updatedAt: number,
