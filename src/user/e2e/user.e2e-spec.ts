@@ -5,6 +5,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserState } from 'user/domain/value-objects/UserState';
 import { EmailManager } from 'shared/email/manager/EmailManager';
+import { HttpStatus } from '@nestjs/common';
 
 describe('user (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -179,6 +180,8 @@ describe('user (e2e)', () => {
       expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
       expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
       expect(updatedUser.state.equals(UserState.FORGOTTEN)).toBeTruthy();
+      const meResponse = await scenario.session.get('/users/me');
+      expect(meResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     });
   });
 
