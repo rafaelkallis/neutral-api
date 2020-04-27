@@ -8,6 +8,7 @@ import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
 import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
 import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
+import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -235,35 +236,12 @@ describe('project (e2e)', () => {
     });
   });
 
-  describe('/projects/:id (DELETE)', () => {
-    let project: Project;
-
-    beforeEach(async () => {
-      project = scenario.modelFaker.project(user.id);
-      await scenario.projectRepository.persist(project);
-    });
-
-    test('happy path', async () => {
-      const response = await scenario.session.delete(
-        `/projects/${project.id.value}`,
-      );
-      expect(response.status).toBe(204);
-      expect(response.body).toBeDefined();
-      const updatedProject = await scenario.projectRepository.findById(
-        project.id,
-      );
-      if (!updatedProject) {
-        throw new Error();
-      }
-      expect(updatedProject.state).toBe(ProjectArchived.INSTANCE);
-    });
-  });
-
   describe('/projects/:id/archive (POST)', () => {
     let project: Project;
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
+      project.state = ProjectFinished.INSTANCE;
       await scenario.projectRepository.persist(project);
     });
 

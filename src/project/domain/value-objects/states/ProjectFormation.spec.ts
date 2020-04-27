@@ -15,6 +15,8 @@ import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
 import { ProjectState } from 'project/domain/value-objects/states/ProjectState';
+import { ProjectCancelledEvent } from 'project/domain/events/ProjectCancelledEvent';
+import { ProjectCancelled } from './ProjectCancelled';
 
 describe(ProjectFormation.name, () => {
   let modelFaker: ModelFaker;
@@ -186,6 +188,16 @@ describe(ProjectFormation.name, () => {
     test('should fail if amount of roles is insufficient', () => {
       project.roles.remove(roles[0]);
       expect(() => project.finishFormation()).toThrow();
+    });
+  });
+
+  describe('cancel', () => {
+    test('happy path', () => {
+      state.cancel(project);
+      expect(project.state.equals(ProjectCancelled.INSTANCE)).toBeTruthy();
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ProjectCancelledEvent),
+      );
     });
   });
 });

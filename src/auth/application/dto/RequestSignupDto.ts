@@ -5,7 +5,7 @@ import { IsEmail } from 'class-validator';
  * Request Signup DTO
  */
 export class RequestSignupDto {
-  @IsEmail()
+  @IsEmail(undefined, { message: 'The provided email is not valid.' })
   @ApiProperty({
     example: 'me@example.com',
     description: 'Email address to send the magic signup link to',

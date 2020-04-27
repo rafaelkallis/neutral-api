@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   Query,
@@ -22,7 +21,6 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiBadRequestResponse,
-  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
@@ -140,28 +138,6 @@ export class ProjectController {
     @Param('id') id: string,
   ): Promise<ProjectDto> {
     return this.projectApplicationService.finishFormation(authUser, id);
-  }
-
-  /**
-   * Delete a project
-   */
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth()
-  @ApiOperation({
-    operationId: 'deleteProject',
-    summary: 'Archive a project. Use "/:id/archive" instead!',
-    deprecated: true,
-  })
-  @ApiNoContentResponse({ description: 'Project archived succesfully' })
-  @ApiForbiddenResponse({
-    description: 'Authenticated user is not the project owner',
-  })
-  public async deleteProject(
-    @AuthUser() authUser: User,
-    @Param('id') id: string,
-  ): Promise<void> {
-    await this.projectApplicationService.archiveProject(authUser, id);
   }
 
   /**
