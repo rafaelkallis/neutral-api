@@ -447,27 +447,6 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('archive project', () => {
-    beforeEach(() => {
-      project.state = ProjectFinished.INSTANCE;
-      jest.spyOn(project, 'archive');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.archiveProject(ownerUser, project.id.value);
-      expect(project.archive).toHaveBeenCalledWith();
-    });
-
-    test('should fail if authenticated user is ot project owner', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.archiveProject(notOwnerUser, project.id.value),
-      ).rejects.toThrow();
-      expect(project.archive).not.toHaveBeenCalled();
-    });
-  });
-
   describe('submit peer reviews', () => {
     let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
@@ -562,6 +541,47 @@ describe(ProjectApplicationService.name, () => {
         ).rejects.toThrow();
         expect(project.submitManagerReview).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('cancel project', () => {
+    beforeEach(() => {
+      jest.spyOn(project, 'cancel');
+    });
+
+    test('happy path', async () => {
+      await projectApplication.cancelProject(ownerUser, project.id.value);
+      expect(project.cancel).toHaveBeenCalled();
+    });
+
+    test('should fail if authenticated user is ot project owner', async () => {
+      const notOwnerUser = modelFaker.user();
+      await userRepository.persist(notOwnerUser);
+      await expect(
+        projectApplication.cancelProject(notOwnerUser, project.id.value),
+      ).rejects.toThrow();
+      expect(project.cancel).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('archive project', () => {
+    beforeEach(() => {
+      project.state = ProjectFinished.INSTANCE;
+      jest.spyOn(project, 'archive');
+    });
+
+    test('happy path', async () => {
+      await projectApplication.archiveProject(ownerUser, project.id.value);
+      expect(project.archive).toHaveBeenCalledWith();
+    });
+
+    test('should fail if authenticated user is ot project owner', async () => {
+      const notOwnerUser = modelFaker.user();
+      await userRepository.persist(notOwnerUser);
+      await expect(
+        projectApplication.archiveProject(notOwnerUser, project.id.value),
+      ).rejects.toThrow();
+      expect(project.archive).not.toHaveBeenCalled();
     });
   });
 });

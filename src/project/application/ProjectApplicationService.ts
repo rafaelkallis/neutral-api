@@ -159,24 +159,6 @@ export class ProjectApplicationService {
   }
 
   /**
-   * Archive a project
-   */
-  public async archiveProject(
-    authUser: User,
-    rawProjectId: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    project.archive();
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
    * Add a role
    */
   public async addRole(
@@ -392,6 +374,42 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     project.submitManagerReview();
+    await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
+  }
+
+  /**
+   * Cancel a project
+   */
+  public async cancelProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    project.assertCreator(authUser);
+    project.cancel();
+    await this.projectRepository.persist(project);
+    return this.objectMapper.map(project, ProjectDto, { authUser });
+  }
+
+  /**
+   * Archive a project
+   */
+  public async archiveProject(
+    authUser: User,
+    rawProjectId: string,
+  ): Promise<ProjectDto> {
+    const projectId = ProjectId.from(rawProjectId);
+    const project = await this.projectRepository.findById(projectId);
+    if (!project) {
+      throw new ProjectNotFoundException();
+    }
+    project.assertCreator(authUser);
+    project.archive();
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

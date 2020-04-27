@@ -53,7 +53,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly peerReviews: ReadonlyPeerReviewCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
-  archive(): void;
   addRole(title: RoleTitle, description: RoleDescription): Role;
   updateRole(
     roleId: RoleId,
@@ -71,6 +70,8 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     consensualityComputer: ConsensualityComputer,
   ): void;
   submitManagerReview(): void;
+  archive(): void;
+  cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
 }
