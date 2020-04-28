@@ -28,6 +28,9 @@ export class EnvalidConfig extends Config {
         devDefault: 'postgres://covee-saas:password@127.0.0.1:5432/covee-saas',
       }),
       SMTP_URL: envalid.url({ devDefault: 'smtp://127.0.0.1:25' }),
+      EMAIL_SENDER: envalid.str({
+        devDefault: 'Covee Network <welcome@covee.local>',
+      }),
       // SENDGRID_API_KEY: envalid.str({ devDefault: 'sendgrid-api-key' }),
       // SENDGRID_URL: envalid.url({ devDefault: 'http://localhost:3050' }),
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 10 }),

@@ -16,12 +16,14 @@ export class SmtpEmailSender extends EmailSender
   implements OnModuleInit, OnApplicationShutdown {
   private readonly logger: Logger;
   private readonly transporter: Transporter;
+  private readonly emailSender: string;
 
   public constructor(config: Config) {
     super();
     this.logger = new Logger(SmtpEmailSender.name, true);
     const smtpUrl = config.get('SMTP_URL');
     this.transporter = createTransport(smtpUrl);
+    this.emailSender = config.get('EMAIL_SENDER');
   }
 
   public async onModuleInit(): Promise<void> {
@@ -36,8 +38,7 @@ export class SmtpEmailSender extends EmailSender
 
   public async sendEmail(options: SendEmailOptions): Promise<void> {
     const mailOptions = {
-      // TODO change to no-reply@covee.network
-      from: 'Covee Network <no-reply@rafael.coffee>',
+      from: this.emailSender,
       to: options.to,
       subject: options.subject,
       text: options.text,
