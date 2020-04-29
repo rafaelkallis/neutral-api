@@ -14,7 +14,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     const authUser = context.get('authUser', User);
     return new RoleDto(
       role.id.value,
-      role.projectId.value,
+      project.id.value,
       role.assigneeId ? role.assigneeId.value : null,
       role.title.value,
       role.description.value,

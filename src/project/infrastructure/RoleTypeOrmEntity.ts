@@ -7,10 +7,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
  */
 @Entity('roles')
 export class RoleTypeOrmEntity extends TypeOrmEntity {
-  @ManyToOne(
-    () => ProjectTypeOrmEntity,
-    // project => project.roles,
-  )
+  @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.roles)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 

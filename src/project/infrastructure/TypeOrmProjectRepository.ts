@@ -10,6 +10,7 @@ import { Repository } from 'shared/domain/Repository';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
+import { SelectQueryBuilder } from 'typeorm';
 
 /**
  * TypeOrm Project Repository
@@ -78,11 +79,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   }
 
   public async findByRoleId(roleId: RoleId): Promise<Project | undefined> {
-    const projectEntity = await this.typeOrmClient.entityManager
-      .getRepository(ProjectTypeOrmEntity)
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.roles', 'role')
-      .leftJoinAndSelect('project.peerReviews', 'peerReview')
+    const projectEntity = await this.createProjectQueryBuilder()
       .where((builder) => {
         const subQuery = builder
           .subQuery()
@@ -102,11 +99,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
-    const projectEntities = await this.typeOrmClient.entityManager
-      .getRepository(ProjectTypeOrmEntity)
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.roles', 'role')
-      .leftJoinAndSelect('project.peerReviews', 'peerReview')
+    const projectEntities = await this.createProjectQueryBuilder()
       .where((builder) => {
         const subQuery = builder
           .subQuery()
@@ -121,5 +114,16 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       .getMany();
     const projectModels = this.objectMapper.mapArray(projectEntities, Project);
     return projectModels;
+  }
+
+  private createProjectQueryBuilder(): SelectQueryBuilder<
+    ProjectTypeOrmEntity
+  > {
+    return this.typeOrmClient.entityManager
+      .getRepository(ProjectTypeOrmEntity)
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.roles', 'role')
+      .leftJoinAndSelect('project.peerReviews', 'peerReview')
+      .leftJoinAndSelect('project.reviewTopics', 'reviewTopic');
   }
 }

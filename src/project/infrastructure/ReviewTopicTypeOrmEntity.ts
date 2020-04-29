@@ -7,7 +7,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
  */
 @Entity('review_topics')
 export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
-  @ManyToOne(() => ProjectTypeOrmEntity)
+  @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.reviewTopics)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 

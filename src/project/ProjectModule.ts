@@ -20,7 +20,14 @@ import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { CreateProjectCommandHandler } from 'project/application/commands/CreateProject';
 import { UpdateProjectCommandHandler } from 'project/application/commands/UpdateProject';
 import { AddRoleCommandHandler } from 'project/application/commands/AddRole';
-import { ReviewTopicTypeOrmEntityMap } from 'project/infrastructure/ReviewTopicTypeOrmEntityMap';
+import {
+  ReviewTopicTypeOrmEntityMap,
+  ReverseReviewTopicTypeOrmEntityMap,
+} from 'project/infrastructure/ReviewTopicTypeOrmEntityMap';
+import {
+  RoleTypeOrmEntityMap,
+  ReverseRoleTypeOrmEntityMap,
+} from 'project/infrastructure/RoleTypeOrmEntityMap';
 
 /**
  * Project Module
@@ -42,12 +49,17 @@ import { ReviewTopicTypeOrmEntityMap } from 'project/infrastructure/ReviewTopicT
       useClass: CoveeContributionsComputerService,
     },
     ProjectApplicationService,
+    // maps
     ProjectDtoMap,
     RoleDtoMap,
     PeerReviewDtoMap,
     ProjectTypeOrmEntityMap,
-    ReviewTopicTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
+    RoleTypeOrmEntityMap,
+    ReverseRoleTypeOrmEntityMap,
+    ReviewTopicTypeOrmEntityMap,
+    ReverseReviewTopicTypeOrmEntityMap,
+    // command handlers
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,
     AddRoleCommandHandler,

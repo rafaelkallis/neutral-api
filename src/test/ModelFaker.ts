@@ -101,7 +101,7 @@ export class ModelFaker {
   /**
    * Create a fake role
    */
-  public role(projectId: ProjectId, assigneeId: UserId | null = null): Role {
+  public role(_projectId: ProjectId, assigneeId: UserId | null = null): Role {
     const id = RoleId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
@@ -113,7 +113,6 @@ export class ModelFaker {
       id,
       createdAt,
       updatedAt,
-      projectId,
       assigneeId,
       title,
       description,

@@ -51,9 +51,9 @@ describe('project (e2e)', () => {
     test('happy path', async () => {
       const creator = await scenario.createUser();
       const projects = [
-        scenario.modelFaker.project(creator.id),
-        scenario.modelFaker.project(creator.id),
-        scenario.modelFaker.project(creator.id),
+        await scenario.createProject(creator),
+        await scenario.createProject(creator),
+        await scenario.createProject(creator),
       ];
       for (const project of projects) {
         const role = project.addRole(

@@ -48,7 +48,7 @@ export class ProjectDraft extends DefaultProjectState {
     title: RoleTitle,
     description: RoleDescription,
   ): Role {
-    const role = Role.from(project.id, title, description);
+    const role = Role.from(title, description);
     project.roles.add(role);
     project.raise(new RoleCreatedEvent(project.id, role.id));
     return role;

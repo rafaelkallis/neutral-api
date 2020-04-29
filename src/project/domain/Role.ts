@@ -1,5 +1,4 @@
 import { Model, ReadonlyModel } from 'shared/domain/Model';
-import { Project } from 'project/domain/Project';
 import { ReadonlyUser } from 'user/domain/User';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -10,11 +9,9 @@ import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmitt
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 
 export interface ReadonlyRole extends ReadonlyModel<RoleId> {
-  readonly projectId: ProjectId;
   readonly assigneeId: UserId | null;
   readonly title: RoleTitle;
   readonly description: RoleDescription;
@@ -26,7 +23,6 @@ export interface ReadonlyRole extends ReadonlyModel<RoleId> {
  * Role
  */
 export class Role extends Model<RoleId> implements ReadonlyRole {
-  public projectId: ProjectId;
   public assigneeId: UserId | null;
   public title: RoleTitle;
   public description: RoleDescription;
@@ -37,7 +33,6 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     id: RoleId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
-    projectId: ProjectId,
     assigneeId: UserId | null,
     title: RoleTitle,
     description: RoleDescription,
@@ -45,7 +40,6 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     hasSubmittedPeerReviews: HasSubmittedPeerReviews,
   ) {
     super(id, createdAt, updatedAt);
-    this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
@@ -56,11 +50,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
   /**
    *
    */
-  public static from(
-    projectId: ProjectId,
-    title: RoleTitle,
-    description: RoleDescription,
-  ): Role {
+  public static from(title: RoleTitle, description: RoleDescription): Role {
     const id = RoleId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -71,7 +61,6 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
       id,
       createdAt,
       updatedAt,
-      projectId,
       assigneeId,
       title,
       description,
@@ -95,10 +84,6 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     const userId =
       userOrUserId instanceof UserId ? userOrUserId : userOrUserId.id;
     return this.assigneeId ? this.assigneeId.equals(userId) : false;
-  }
-
-  public belongsToProject(project: Project): boolean {
-    return this.projectId === project.id;
   }
 
   public assertHasNotSubmittedPeerReviews(): void {

@@ -42,7 +42,7 @@ export class ObjectMapper {
    * @param context Mapping context.
    */
   public mapArray<T>(
-    arr: object[],
+    arr: ReadonlyArray<object>,
     targetType: Type<T>,
     context: object = {},
   ): T[] {
