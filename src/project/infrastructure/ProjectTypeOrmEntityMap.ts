@@ -28,6 +28,7 @@ import {
   getProjectState,
   getProjectStateValue,
 } from 'project/domain/value-objects/states/ProjectStateValue';
+import { ReviewTopicCollection } from 'project/domain/ReviewTopicCollection';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
@@ -128,6 +129,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
           ),
       ),
     );
+    const reviewTopics = new ReviewTopicCollection([]);
     return new Project(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
@@ -143,6 +145,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       SkipManagerReview.from(projectEntity.skipManagerReview),
       roles,
       peerReviews,
+      reviewTopics,
     );
   }
 

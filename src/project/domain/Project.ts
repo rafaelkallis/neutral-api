@@ -31,7 +31,11 @@ import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNo
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/value-objects/RoleId';
-import { ProjectFormation } from './value-objects/states/ProjectFormation';
+import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import {
+  ReadonlyReviewTopicCollection,
+  ReviewTopicCollection,
+} from 'project/domain/ReviewTopicCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -51,6 +55,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly skipManagerReview: SkipManagerReview;
   readonly roles: ReadonlyRoleCollection;
   readonly peerReviews: ReadonlyPeerReviewCollection;
+  readonly reviewTopics: ReadonlyReviewTopicCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
   addRole(title: RoleTitle, description: RoleDescription): Role;
@@ -90,6 +95,7 @@ export class Project extends AggregateRoot<ProjectId>
   public skipManagerReview: SkipManagerReview;
   public roles: RoleCollection;
   public peerReviews: PeerReviewCollection;
+  public reviewTopics: ReviewTopicCollection;
 
   public constructor(
     id: ProjectId,
@@ -104,6 +110,7 @@ export class Project extends AggregateRoot<ProjectId>
     skipManagerReview: SkipManagerReview,
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
+    reviewTopics: ReviewTopicCollection,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -115,6 +122,7 @@ export class Project extends AggregateRoot<ProjectId>
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;
+    this.reviewTopics = reviewTopics;
   }
 
   /**
@@ -137,6 +145,7 @@ export class Project extends AggregateRoot<ProjectId>
     const consensuality = null;
     const roles = new RoleCollection([]);
     const peerReviews = new PeerReviewCollection([]);
+    const reviewTopics = new ReviewTopicCollection([]);
     const project = new Project(
       projectId,
       createdAt,
@@ -152,6 +161,7 @@ export class Project extends AggregateRoot<ProjectId>
       skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
       roles,
       peerReviews,
+      reviewTopics,
     );
     project.raise(new ProjectCreatedEvent(project, creator));
     project.raise(new ProjectFormationStartedEvent(project));

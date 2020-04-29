@@ -28,6 +28,7 @@ import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserState } from 'user/domain/value-objects/UserState';
 import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ReviewTopicCollection } from 'project/domain/ReviewTopicCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -93,6 +94,7 @@ export class ModelFaker {
       skipManagerReview,
       new RoleCollection([]),
       new PeerReviewCollection([]),
+      new ReviewTopicCollection([]),
     );
   }
 
