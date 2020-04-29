@@ -8,14 +8,19 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Repository } from 'shared/domain/Repository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
+import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
+
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
+
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 
 import { UserMigration1564324478234 } from 'shared/typeorm/migration/1564324478234-UserMigration';
@@ -42,8 +47,7 @@ import { AddProjectIdToPeerReviewMigration1581946721000 } from 'shared/typeorm/m
 import { AddAvatarToUsersMigration1584023287000 } from 'shared/typeorm/migration/1584023287000AddAvatarToUsers';
 import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/1587059776000AddStateToUsers';
 import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
-import { TypeOrmRepository } from './TypeOrmRepository';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
+import { AddReviewTopicsMigration1588178451000 } from 'shared/typeorm/migration/1588178451000AddReviewTopicsMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -65,6 +69,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ProjectTypeOrmEntity,
         RoleTypeOrmEntity,
         PeerReviewTypeOrmEntity,
+        ReviewTopicTypeOrmEntity,
         NotificationTypeOrmEntity,
       ],
       migrations: [
@@ -92,6 +97,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddAvatarToUsersMigration1584023287000,
         AddStateToUsersMigration1587059776000,
         DropUniqueUserEmailConstraintMigration1587070723000,
+        AddReviewTopicsMigration1588178451000,
       ],
     });
     this.connection = connection;
