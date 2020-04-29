@@ -3,7 +3,7 @@ import {
   Project,
   CreateProjectOptions,
   ReadonlyProject,
-} from 'project/domain/Project';
+} from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -11,14 +11,14 @@ import {
 import {
   ContributionVisibilityValue,
   ContributionVisibility,
-} from 'project/domain/value-objects/ContributionVisibility';
+} from 'project/domain/project/value-objects/ContributionVisibility';
 import {
   SkipManagerReviewValue,
   SkipManagerReview,
-} from 'project/domain/value-objects/SkipManagerReview';
+} from 'project/domain/project/value-objects/SkipManagerReview';
 import { User } from 'user/domain/User';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;

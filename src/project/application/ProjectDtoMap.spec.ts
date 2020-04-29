@@ -1,13 +1,13 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
-import { Project } from 'project/domain/Project';
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { Project } from 'project/domain/project/Project';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
-import { getProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 
 describe('project dto map', () => {
   let objectMapper: ObjectMapper;
@@ -26,7 +26,7 @@ describe('project dto map', () => {
     project = modelFaker.project(owner.id);
 
     td.when(
-      objectMapper.mapArray(
+      objectMapper.mapIterable(
         td.matchers.anything(),
         RoleDto,
         td.matchers.anything(),

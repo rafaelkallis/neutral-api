@@ -1,14 +1,14 @@
-import { Project } from 'project/domain/Project';
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { Project } from 'project/domain/project/Project';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
-import { Role } from 'project/domain/Role';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
-import { ProjectArchived } from 'project/domain/value-objects/states/ProjectArchived';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
+import { Role } from 'project/domain/role/Role';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
+import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
+import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;

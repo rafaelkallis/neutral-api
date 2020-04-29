@@ -1,6 +1,6 @@
-import { Contribution } from 'project/domain/value-objects/Contribution';
-import { ReadonlyPeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 /**
  *

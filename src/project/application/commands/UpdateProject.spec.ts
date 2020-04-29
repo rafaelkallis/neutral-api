@@ -3,9 +3,9 @@ import { User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ProjectDto } from '../dto/ProjectDto';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { Project } from 'project/domain/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { Project } from 'project/domain/project/Project';
 import {
   UpdateProjectCommand,
   UpdateProjectCommandHandler,

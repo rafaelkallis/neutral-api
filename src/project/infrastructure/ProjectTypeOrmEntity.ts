@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
-import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
+import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from './ReviewTopicTypeOrmEntity';

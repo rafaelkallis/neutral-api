@@ -3,14 +3,14 @@ import { User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ProjectDto } from '../dto/ProjectDto';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { Project } from 'project/domain/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { Project } from 'project/domain/project/Project';
 import {
   AddRoleCommand,
   AddRoleCommandHandler,
 } from 'project/application/commands/AddRole';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 
 describe(AddRoleCommand.name, () => {
   let scenario: UnitTestScenario<AddRoleCommandHandler>;

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { PeerReview } from 'project/domain/PeerReview';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);

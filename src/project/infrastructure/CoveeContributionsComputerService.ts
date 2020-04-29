@@ -3,8 +3,8 @@ import {
   ContributionsComputer,
   Contributions,
 } from 'project/domain/ContributionsComputer';
-import { Contribution } from 'project/domain/value-objects/Contribution';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
 import { Id } from 'shared/domain/value-objects/Id';
 

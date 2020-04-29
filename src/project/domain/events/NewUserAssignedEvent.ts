@@ -1,7 +1,7 @@
-import { ReadonlyRole } from 'project/domain/Role';
+import { ReadonlyRole } from 'project/domain/role/Role';
 import { Email } from 'user/domain/value-objects/Email';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { ReadonlyProject } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 @DomainEventKey('project.new_user_assigned')

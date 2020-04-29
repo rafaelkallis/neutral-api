@@ -1,11 +1,11 @@
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
 import { InternalServerErrorException, Injectable, Type } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import { Role } from 'project/domain/Role';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
-import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
+import { Role } from 'project/domain/role/Role';
+import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 
 @Injectable()
 export class RoleDtoMap extends ObjectMap<Role, RoleDto> {

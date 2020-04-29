@@ -1,14 +1,14 @@
 import { Type, Injectable } from '@nestjs/common';
-import { ReadonlyProject } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
 } from 'project/application/commands/ProjectCommand';
 import { User } from 'user/domain/User';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 
 export class AddRoleCommand extends ProjectCommand {
   public readonly projectId: string;

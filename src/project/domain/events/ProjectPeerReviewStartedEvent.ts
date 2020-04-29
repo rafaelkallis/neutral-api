@@ -1,4 +1,4 @@
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 

@@ -1,14 +1,14 @@
-import { Project } from 'project/domain/Project';
-import { Role } from 'project/domain/Role';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
-import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
-import { Contribution } from 'project/domain/value-objects/Contribution';
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { Project } from 'project/domain/project/Project';
+import { Role } from 'project/domain/role/Role';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
+import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
-import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;

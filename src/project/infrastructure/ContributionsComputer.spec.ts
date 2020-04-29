@@ -3,9 +3,9 @@ import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeC
 import {
   PeerReviewCollection,
   ReadonlyPeerReviewCollection,
-} from 'project/domain/PeerReviewCollection';
+} from 'project/domain/peer-review/PeerReviewCollection';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 describe('ContributionsModelService', () => {
   let primitiveFaker: PrimitiveFaker;

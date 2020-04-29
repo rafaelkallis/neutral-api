@@ -3,8 +3,8 @@ import { AuthenticatedCommand } from 'shared/command/Command';
 import { CommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ReadonlyProject } from 'project/domain/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ReadonlyProject } from 'project/domain/project/Project';
 
 export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {}
 

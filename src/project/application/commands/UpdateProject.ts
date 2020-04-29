@@ -1,13 +1,13 @@
 import { Type, Injectable } from '@nestjs/common';
-import { ReadonlyProject } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
 } from 'project/application/commands/ProjectCommand';
 import { User } from 'user/domain/User';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 
 export class UpdateProjectCommand extends ProjectCommand {

@@ -1,8 +1,8 @@
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { HttpStatus } from '@nestjs/common';
-import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 
 describe('cancel project', () => {
   let scenario: IntegrationTestScenario;

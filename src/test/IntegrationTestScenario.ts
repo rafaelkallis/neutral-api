@@ -3,12 +3,12 @@ import { TestingModule, Test, TestingModuleBuilder } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app/AppModule';
 import { UserRepository } from 'user/domain/UserRepository';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailManager } from 'shared/email/manager/EmailManager';
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
 

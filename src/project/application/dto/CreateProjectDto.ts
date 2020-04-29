@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
-import { SkipManagerReviewValue } from 'project/domain/value-objects/SkipManagerReview';
-import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
+import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
+import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 
 /**
  * Create project DTO

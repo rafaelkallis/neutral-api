@@ -1,15 +1,15 @@
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { Project } from 'project/domain/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { Project } from 'project/domain/project/Project';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Repository } from 'shared/domain/Repository';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 

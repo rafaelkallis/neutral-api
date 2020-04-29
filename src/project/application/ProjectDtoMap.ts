@@ -1,13 +1,13 @@
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { ProjectDto } from './dto/ProjectDto';
 import { User } from 'user/domain/User';
 import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
-import { PeerReview } from 'project/domain/PeerReview';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable, Type } from '@nestjs/common';
-import { getProjectStateValue } from 'project/domain/value-objects/states/ProjectStateValue';
+import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
@@ -48,8 +48,12 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
   }
 
   private mapRoleDtos(project: Project, authUser: User): RoleDto[] {
-    const roles = Array.from(project.roles);
-    return this.objectMapper.mapArray(roles, RoleDto, { project, authUser });
+    return Array.from(
+      this.objectMapper.mapIterable(project.roles, RoleDto, {
+        project,
+        authUser,
+      }),
+    );
   }
 
   private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {

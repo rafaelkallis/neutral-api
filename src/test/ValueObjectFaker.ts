@@ -1,6 +1,6 @@
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 
 export class ValueObjectFaker {
   private readonly primitiveFaker: PrimitiveFaker;

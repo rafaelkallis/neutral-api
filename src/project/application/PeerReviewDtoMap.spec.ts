@@ -1,11 +1,11 @@
 import { User } from 'user/domain/User';
-import { Role } from 'project/domain/Role';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
-import { Project } from 'project/domain/Project';
-import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
-import { Contribution } from 'project/domain/value-objects/Contribution';
-import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { Role } from 'project/domain/role/Role';
+import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { Project } from 'project/domain/project/Project';
+import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
 

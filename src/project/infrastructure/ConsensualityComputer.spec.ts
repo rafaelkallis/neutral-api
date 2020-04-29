@@ -2,12 +2,12 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import {
   PeerReviewCollection,
   ReadonlyPeerReviewCollection,
-} from 'project/domain/PeerReviewCollection';
+} from 'project/domain/peer-review/PeerReviewCollection';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 
 describe('consensuality computer', () => {
   let consensualityComputer: ConsensualityComputer;

@@ -1,24 +1,24 @@
 import td from 'testdouble';
-import { Project } from 'project/domain/Project';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { Project } from 'project/domain/project/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
-import { Role } from 'project/domain/Role';
+import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { Role } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { FakeContributionsComputerService } from 'project/infrastructure/FakeContributionsComputerService';
 import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
-import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleCollection } from 'project/domain/RoleCollection';
+import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
@@ -28,7 +28,7 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
+import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
 
 describe(ProjectApplicationService.name, () => {
   let modelFaker: ModelFaker;

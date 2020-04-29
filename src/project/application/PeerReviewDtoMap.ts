@@ -1,5 +1,5 @@
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
-import { PeerReview } from 'project/domain/PeerReview';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { Injectable, Type } from '@nestjs/common';
 

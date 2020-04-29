@@ -1,5 +1,5 @@
-import { Project } from 'project/domain/Project';
-import { Role } from 'project/domain/Role';
+import { Project } from 'project/domain/project/Project';
+import { Role } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { HttpStatus } from '@nestjs/common';

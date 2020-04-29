@@ -7,10 +7,10 @@ import {
   CreateProjectCommandHandler,
 } from 'project/application/commands/CreateProject';
 import { ProjectDto } from '../dto/ProjectDto';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
-import { Project } from 'project/domain/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import { Project } from 'project/domain/project/Project';
 
 describe(CreateProjectCommand.name, () => {
   let scenario: UnitTestScenario<CreateProjectCommandHandler>;

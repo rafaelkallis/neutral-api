@@ -3,14 +3,14 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Injectable, Type } from '@nestjs/common';
-import { Role } from 'project/domain/Role';
+import { Role } from 'project/domain/role/Role';
 import { RoleTypeOrmEntity } from './RoleTypeOrmEntity';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
-import { Contribution } from 'project/domain/value-objects/Contribution';
-import { HasSubmittedPeerReviews } from 'project/domain/value-objects/HasSubmittedPeerReviews';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
+import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 
 @Injectable()
 export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {

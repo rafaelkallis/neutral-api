@@ -1,7 +1,7 @@
-import { Project } from 'project/domain/Project';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { Project } from 'project/domain/project/Project';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 

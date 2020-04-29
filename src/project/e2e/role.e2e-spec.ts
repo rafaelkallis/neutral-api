@@ -1,9 +1,9 @@
-import { Project } from 'project/domain/Project';
-import { Role } from 'project/domain/Role';
+import { Project } from 'project/domain/project/Project';
+import { Role } from 'project/domain/role/Role';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
-import { ProjectPeerReview } from 'project/domain/value-objects/states/ProjectPeerReview';
+import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 
 describe('roles (e2e)', () => {
   let scenario: IntegrationTestScenario;

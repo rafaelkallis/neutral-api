@@ -1,5 +1,5 @@
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
-import { ReadonlyPeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 /**
  * Computes a project's consensuality.

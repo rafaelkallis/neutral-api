@@ -3,11 +3,11 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Injectable, Type } from '@nestjs/common';
-import { RoleId } from 'project/domain/value-objects/RoleId';
-import { PeerReview } from 'project/domain/PeerReview';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
-import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 
 @Injectable()
 export class PeerReviewTypeOrmEntityMap extends ObjectMap<

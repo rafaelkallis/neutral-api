@@ -1,9 +1,9 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
-import { ProjectManagerReview } from 'project/domain/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/value-objects/states/ProjectFinished';
-import { ProjectFormation } from 'project/domain/value-objects/states/ProjectFormation';
+import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 
 describe('submit manager review (e2e)', () => {
   let scenario: IntegrationTestScenario;

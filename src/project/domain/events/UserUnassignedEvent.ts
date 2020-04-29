@@ -1,7 +1,7 @@
-import { Role } from 'project/domain/Role';
+import { Role } from 'project/domain/role/Role';
 import { Id } from 'shared/domain/value-objects/Id';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 /**

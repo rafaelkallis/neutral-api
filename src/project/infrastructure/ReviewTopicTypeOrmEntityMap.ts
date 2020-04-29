@@ -3,11 +3,11 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Injectable, Type } from '@nestjs/common';
-import { ReviewTopic } from 'project/domain/ReviewTopic';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
-import { ReviewTopicId } from 'project/domain/value-objects/ReviewTopicId';
-import { ReviewTopicTitle } from 'project/domain/value-objects/ReviewTopicTitle';
-import { ReviewTopicDescription } from 'project/domain/value-objects/ReviewTopicDescription';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 
 @Injectable()
 export class ReviewTopicTypeOrmEntityMap extends ObjectMap<

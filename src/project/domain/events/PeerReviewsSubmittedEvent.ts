@@ -1,7 +1,7 @@
-import { Role } from 'project/domain/Role';
-import { Project } from 'project/domain/Project';
+import { Role } from 'project/domain/role/Role';
+import { Project } from 'project/domain/project/Project';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { PeerReview } from 'project/domain/PeerReview';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 @DomainEventKey('project.peer_reviews_submitted')

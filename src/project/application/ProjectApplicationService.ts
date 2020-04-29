@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
-import { ProjectRepository } from 'project/domain/ProjectRepository';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { ReadonlyProject } from 'project/domain/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
@@ -16,13 +16,13 @@ import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAss
 import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { RoleTitle } from 'project/domain/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/value-objects/RoleDescription';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
+import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
+import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
-import { RoleId } from 'project/domain/value-objects/RoleId';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';

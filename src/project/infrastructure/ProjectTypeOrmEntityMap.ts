@@ -1,30 +1,30 @@
-import { Project } from 'project/domain/Project';
+import { Project } from 'project/domain/project/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
-import { SkipManagerReview } from 'project/domain/value-objects/SkipManagerReview';
-import { ContributionVisibility } from 'project/domain/value-objects/ContributionVisibility';
-import { Consensuality } from 'project/domain/value-objects/Consensuality';
-import { ProjectTitle } from 'project/domain/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/value-objects/ProjectDescription';
+import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
+import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
-import { Role } from 'project/domain/Role';
-import { PeerReview } from 'project/domain/PeerReview';
-import { RoleCollection } from 'project/domain/RoleCollection';
-import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
+import { Role } from 'project/domain/role/Role';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { RoleCollection } from 'project/domain/role/RoleCollection';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable, Type } from '@nestjs/common';
 import {
   getProjectState,
   getProjectStateValue,
-} from 'project/domain/value-objects/states/ProjectStateValue';
-import { ReviewTopicCollection } from 'project/domain/ReviewTopicCollection';
+} from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ReviewTopicTypeOrmEntity } from './ReviewTopicTypeOrmEntity';
-import { ReviewTopic } from 'project/domain/ReviewTopic';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<

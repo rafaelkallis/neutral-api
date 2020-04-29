@@ -1,5 +1,5 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { Role } from 'project/domain/Role';
+import { Role } from 'project/domain/role/Role';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
 /**
