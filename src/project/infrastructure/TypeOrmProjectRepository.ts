@@ -3,6 +3,7 @@ import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { Project } from 'project/domain/Project';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
@@ -65,6 +66,15 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       await this.typeOrmClient.entityManager.delete(
         PeerReviewTypeOrmEntity,
         peerReviewIdsToDelete,
+      );
+    }
+    const reviewTopicIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.reviewTopics.getRemovedModels())
+      .map((reviewTopicModel) => reviewTopicModel.id.value);
+    if (reviewTopicIdsToDelete.length > 0) {
+      await this.typeOrmClient.entityManager.delete(
+        ReviewTopicTypeOrmEntity,
+        reviewTopicIdsToDelete,
       );
     }
     await this.typeOrmRepository.persist(...projectModels);
