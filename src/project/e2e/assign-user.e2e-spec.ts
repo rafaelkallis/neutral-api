@@ -18,7 +18,7 @@ describe('assign user to role', () => {
     creator = await scenario.createUser();
     await scenario.authenticateUser(creator);
     project = scenario.modelFaker.project(creator.id);
-    roleToAssign = scenario.modelFaker.role(project.id);
+    roleToAssign = scenario.modelFaker.role();
     project.roles.add(roleToAssign);
     await scenario.projectRepository.persist(project);
 

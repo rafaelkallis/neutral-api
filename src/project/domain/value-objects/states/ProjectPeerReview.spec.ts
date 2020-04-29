@@ -55,10 +55,10 @@ describe(ProjectPeerReview.name, () => {
       consensualityComputer = td.object();
       project.state = ProjectPeerReview.INSTANCE;
       roles = [
-        modelFaker.role(project.id, creator.id),
-        modelFaker.role(project.id),
-        modelFaker.role(project.id),
-        modelFaker.role(project.id),
+        modelFaker.role(creator.id),
+        modelFaker.role(),
+        modelFaker.role(),
+        modelFaker.role(),
       ];
       project.roles.addAll(roles);
       project.skipManagerReview = SkipManagerReview.NO;

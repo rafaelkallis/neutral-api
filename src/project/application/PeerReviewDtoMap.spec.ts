@@ -28,8 +28,8 @@ describe('peer review dto map', () => {
     project = modelFaker.project(users.owner.id);
     project.state = ProjectFinished.INSTANCE;
     project.roles.addAll([
-      modelFaker.role(project.id, users.assignee.id),
-      modelFaker.role(project.id, users.projectUser.id),
+      modelFaker.role(users.assignee.id),
+      modelFaker.role(users.projectUser.id),
     ]);
     role = project.roles.findByAssignee(users.assignee);
     role.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;

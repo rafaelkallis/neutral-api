@@ -16,7 +16,7 @@ describe('roles (e2e)', () => {
     user = await scenario.createUser();
     await scenario.authenticateUser(user);
     project = scenario.modelFaker.project(user.id);
-    role = scenario.modelFaker.role(project.id);
+    role = scenario.modelFaker.role();
     project.roles.add(role);
     await scenario.projectRepository.persist(project);
   });

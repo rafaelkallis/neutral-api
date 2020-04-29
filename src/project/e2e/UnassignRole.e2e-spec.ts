@@ -17,7 +17,7 @@ describe('unassign role', () => {
     assignee = await scenario.createUser();
     await scenario.authenticateUser(creator);
     project = scenario.modelFaker.project(creator.id);
-    roleToUnassign = scenario.modelFaker.role(project.id);
+    roleToUnassign = scenario.modelFaker.role();
     roleToUnassign.assigneeId = assignee.id;
     project.roles.add(roleToUnassign);
     await scenario.projectRepository.persist(project);

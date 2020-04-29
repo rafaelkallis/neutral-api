@@ -70,10 +70,10 @@ describe(ProjectApplicationService.name, () => {
 
     project = modelFaker.project(ownerUser.id);
     roles = [
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
+      modelFaker.role(),
+      modelFaker.role(),
+      modelFaker.role(),
+      modelFaker.role(),
     ];
     project.roles.addAll(roles);
     await projectRepository.persist(project);
@@ -130,7 +130,7 @@ describe(ProjectApplicationService.name, () => {
       for (let i = 0; i < 3; i++) {
         projects[i] = modelFaker.project(ownerUser.id);
         projects[i].roles = new RoleCollection([
-          modelFaker.role(projects[i].id, assigneeUser.id),
+          modelFaker.role(assigneeUser.id),
         ]);
       }
       await projectRepository.persist(...projects);
@@ -358,10 +358,10 @@ describe(ProjectApplicationService.name, () => {
     beforeEach(async () => {
       project.state = ProjectPeerReview.INSTANCE;
       roles = [
-        modelFaker.role(project.id, ownerUser.id),
-        modelFaker.role(project.id),
-        modelFaker.role(project.id),
-        modelFaker.role(project.id),
+        modelFaker.role(ownerUser.id),
+        modelFaker.role(),
+        modelFaker.role(),
+        modelFaker.role(),
       ];
       project.roles = new RoleCollection(roles);
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;

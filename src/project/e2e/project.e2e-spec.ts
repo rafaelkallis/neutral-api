@@ -183,10 +183,10 @@ describe('project (e2e)', () => {
       project = await scenario.createProject(user);
       project.state = ProjectFormation.INSTANCE;
       roles = [
-        scenario.modelFaker.role(project.id, assignees[0].id),
-        scenario.modelFaker.role(project.id, assignees[1].id),
-        scenario.modelFaker.role(project.id, assignees[2].id),
-        scenario.modelFaker.role(project.id, assignees[3].id),
+        scenario.modelFaker.role(assignees[0].id),
+        scenario.modelFaker.role(assignees[1].id),
+        scenario.modelFaker.role(assignees[2].id),
+        scenario.modelFaker.role(assignees[3].id),
       ];
       project.roles.addAll(roles);
       await scenario.projectRepository.persist(project);

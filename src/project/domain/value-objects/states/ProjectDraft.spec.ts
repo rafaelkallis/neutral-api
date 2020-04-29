@@ -33,10 +33,10 @@ describe(ProjectDraft.name, () => {
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
     roles = [
-      modelFaker.role(project.id, creator.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
-      modelFaker.role(project.id),
+      modelFaker.role(creator.id),
+      modelFaker.role(),
+      modelFaker.role(),
+      modelFaker.role(),
     ];
     project.roles.addAll(roles);
   });

@@ -32,10 +32,10 @@ describe('submit peer review (e2e)', () => {
     project.state = ProjectPeerReview.INSTANCE;
 
     /* prepare roles */
-    role1 = scenario.modelFaker.role(project.id, user.id);
-    role2 = scenario.modelFaker.role(project.id);
-    role3 = scenario.modelFaker.role(project.id);
-    role4 = scenario.modelFaker.role(project.id);
+    role1 = scenario.modelFaker.role(user.id);
+    role2 = scenario.modelFaker.role();
+    role3 = scenario.modelFaker.role();
+    role4 = scenario.modelFaker.role();
 
     role1.hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
     role2.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;

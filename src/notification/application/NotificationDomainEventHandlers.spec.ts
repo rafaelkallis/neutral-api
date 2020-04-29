@@ -34,7 +34,7 @@ describe('notification sagas', () => {
     const owner = modelFaker.user();
     const project = modelFaker.project(owner.id);
     const assignee = modelFaker.user();
-    const role = modelFaker.role(project.id, assignee.id);
+    const role = modelFaker.role(assignee.id);
     const event = new UserAssignedEvent(project, role, assignee);
 
     await notificationDomainEventHandler.onUserAssignedCreateNewAssignmentNotification(
@@ -53,9 +53,9 @@ describe('notification sagas', () => {
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
     project.roles.addAll([
-      modelFaker.role(project.id, assignees[0].id),
-      modelFaker.role(project.id, assignees[1].id),
-      modelFaker.role(project.id, assignees[2].id),
+      modelFaker.role(assignees[0].id),
+      modelFaker.role(assignees[1].id),
+      modelFaker.role(assignees[2].id),
     ]);
     const event = new ProjectPeerReviewStartedEvent(project);
 
@@ -88,9 +88,9 @@ describe('notification sagas', () => {
     const project = modelFaker.project(owner.id);
     const assignees = [modelFaker.user(), modelFaker.user(), modelFaker.user()];
     project.roles.addAll([
-      modelFaker.role(project.id, assignees[0].id),
-      modelFaker.role(project.id, assignees[1].id),
-      modelFaker.role(project.id, assignees[2].id),
+      modelFaker.role(assignees[0].id),
+      modelFaker.role(assignees[1].id),
+      modelFaker.role(assignees[2].id),
     ]);
     const event = new ProjectFinishedEvent(project);
 
