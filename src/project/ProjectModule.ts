@@ -28,6 +28,10 @@ import {
   RoleTypeOrmEntityMap,
   ReverseRoleTypeOrmEntityMap,
 } from 'project/infrastructure/RoleTypeOrmEntityMap';
+import {
+  PeerReviewTypeOrmEntityMap,
+  ReversePeerReviewTypeOrmEntityMap,
+} from './infrastructure/PeerReviewTypeOrmEntityMap';
 
 /**
  * Project Module
@@ -57,6 +61,8 @@ import {
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,
     ReverseRoleTypeOrmEntityMap,
+    PeerReviewTypeOrmEntityMap,
+    ReversePeerReviewTypeOrmEntityMap,
     ReviewTopicTypeOrmEntityMap,
     ReverseReviewTopicTypeOrmEntityMap,
     // command handlers

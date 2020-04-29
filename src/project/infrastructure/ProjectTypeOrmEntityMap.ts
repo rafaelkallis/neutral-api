@@ -13,12 +13,9 @@ import { Role } from 'project/domain/Role';
 import { PeerReview } from 'project/domain/PeerReview';
 import { RoleCollection } from 'project/domain/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/PeerReviewCollection';
-import { PeerReviewScore } from 'project/domain/value-objects/PeerReviewScore';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
-import { RoleId } from 'project/domain/value-objects/RoleId';
 import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { PeerReviewId } from 'project/domain/value-objects/PeerReviewId';
 import { Injectable, Type } from '@nestjs/common';
 import {
   getProjectState,
@@ -35,6 +32,9 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
   ProjectTypeOrmEntity
 > {
   private static readonly rolesSentinel: ReadonlyArray<RoleTypeOrmEntity> = [];
+  private static readonly peerReviewsSentinel: ReadonlyArray<
+    PeerReviewTypeOrmEntity
+  > = [];
   private static readonly reviewTopicsSentinel: ReadonlyArray<
     ReviewTopicTypeOrmEntity
   > = [];
@@ -47,7 +47,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
   }
 
   protected doMap(projectModel: Project): ProjectTypeOrmEntity {
-    const peerReviewEntities: PeerReviewTypeOrmEntity[] = [];
     const projectEntity = new ProjectTypeOrmEntity(
       projectModel.id.value,
       projectModel.createdAt.value,
@@ -60,7 +59,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.contributionVisibility.value,
       projectModel.skipManagerReview.value,
       ProjectTypeOrmEntityMap.rolesSentinel,
-      peerReviewEntities,
+      ProjectTypeOrmEntityMap.peerReviewsSentinel,
       ProjectTypeOrmEntityMap.reviewTopicsSentinel,
     );
     projectEntity.roles = Array.from(
@@ -68,19 +67,13 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
         project: projectEntity,
       }),
     );
-    for (const peerReview of projectModel.peerReviews) {
-      peerReviewEntities.push(
-        new PeerReviewTypeOrmEntity(
-          peerReview.id.value,
-          peerReview.createdAt.value,
-          peerReview.updatedAt.value,
-          projectEntity,
-          peerReview.senderRoleId.value,
-          peerReview.receiverRoleId.value,
-          peerReview.score.value,
-        ),
-      );
-    }
+    projectEntity.peerReviews = Array.from(
+      this.objectMapper.mapIterable(
+        projectModel.peerReviews,
+        PeerReviewTypeOrmEntity,
+        { project: projectEntity },
+      ),
+    );
     projectEntity.reviewTopics = Array.from(
       this.objectMapper.mapIterable(
         projectModel.reviewTopics,
@@ -117,17 +110,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       this.objectMapper.mapArray(projectEntity.roles, Role),
     );
     const peerReviews = new PeerReviewCollection(
-      projectEntity.peerReviews.map(
-        (peerReviewEntity) =>
-          new PeerReview(
-            PeerReviewId.from(peerReviewEntity.id),
-            CreatedAt.from(peerReviewEntity.createdAt),
-            UpdatedAt.from(peerReviewEntity.updatedAt),
-            RoleId.from(peerReviewEntity.senderRoleId),
-            RoleId.from(peerReviewEntity.receiverRoleId),
-            PeerReviewScore.from(peerReviewEntity.score),
-          ),
-      ),
+      this.objectMapper.mapArray(projectEntity.peerReviews, PeerReview),
     );
     const reviewTopics = new ReviewTopicCollection(
       this.objectMapper.mapArray(projectEntity.reviewTopics, ReviewTopic),

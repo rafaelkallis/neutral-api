@@ -2,7 +2,6 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { ProjectId } from 'project/domain/value-objects/ProjectId';
 import { Injectable, Type } from '@nestjs/common';
 import { ReviewTopic } from 'project/domain/ReviewTopic';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
@@ -48,7 +47,6 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       ReviewTopicId.from(reviewTopicEntity.id),
       CreatedAt.from(reviewTopicEntity.createdAt),
       UpdatedAt.from(reviewTopicEntity.updatedAt),
-      ProjectId.from(reviewTopicEntity.project.id),
       ReviewTopicTitle.from(reviewTopicEntity.title),
       ReviewTopicDescription.from(reviewTopicEntity.description),
     );
