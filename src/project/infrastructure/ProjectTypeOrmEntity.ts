@@ -4,6 +4,7 @@ import { ProjectStateValue } from 'project/domain/value-objects/states/ProjectSt
 import { ContributionVisibilityValue } from 'project/domain/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from './ReviewTopicTypeOrmEntity';
 
 /**
  * Project TypeOrm Entity
@@ -51,6 +52,16 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   )
   public peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>;
 
+  @OneToMany(
+    () => ReviewTopicTypeOrmEntity,
+    (reviewTopic) => reviewTopic.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -64,6 +75,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     skipManagerReview: string,
     roles: ReadonlyArray<RoleTypeOrmEntity>,
     peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,
+    reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -75,5 +87,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;
+    this.reviewTopics = reviewTopics;
   }
 }

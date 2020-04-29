@@ -48,4 +48,20 @@ export class ObjectMapper {
   ): T[] {
     return arr.map((o) => this.map(o, targetType, context));
   }
+
+  /**
+   * Maps the given object instances to the specified object type.
+   * @param iter Iterable of objects to map.
+   * @param targetType The type to map to.
+   * @param context Mapping context.
+   */
+  public *mapIterable<T>(
+    arr: Iterable<object>,
+    targetType: Type<T>,
+    context: object = {},
+  ): Iterable<T> {
+    for (const o of arr) {
+      yield this.map(o, targetType, context);
+    }
+  }
 }

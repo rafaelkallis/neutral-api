@@ -15,9 +15,12 @@ import { Config } from 'shared/config/application/Config';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
+
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
+
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 
 import { UserMigration1564324478234 } from 'shared/typeorm/migration/1564324478234-UserMigration';
@@ -66,6 +69,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ProjectTypeOrmEntity,
         RoleTypeOrmEntity,
         PeerReviewTypeOrmEntity,
+        ReviewTopicTypeOrmEntity,
         NotificationTypeOrmEntity,
       ],
       migrations: [

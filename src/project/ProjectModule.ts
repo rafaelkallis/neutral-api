@@ -20,6 +20,7 @@ import { ProjectRepository } from 'project/domain/ProjectRepository';
 import { CreateProjectCommandHandler } from 'project/application/commands/CreateProject';
 import { UpdateProjectCommandHandler } from 'project/application/commands/UpdateProject';
 import { AddRoleCommandHandler } from 'project/application/commands/AddRole';
+import { ReviewTopicTypeOrmEntityMap } from 'project/infrastructure/ReviewTopicTypeOrmEntityMap';
 
 /**
  * Project Module
@@ -45,6 +46,7 @@ import { AddRoleCommandHandler } from 'project/application/commands/AddRole';
     RoleDtoMap,
     PeerReviewDtoMap,
     ProjectTypeOrmEntityMap,
+    ReviewTopicTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,
