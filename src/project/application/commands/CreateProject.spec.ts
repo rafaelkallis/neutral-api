@@ -40,13 +40,13 @@ describe(CreateProjectCommand.name, () => {
     const projectFactory = scenario.module.get(ProjectFactory);
     createdProject = td.object();
     td.when(
-      projectFactory.createProject(
-        td.matchers.isA(ProjectTitle),
-        td.matchers.isA(ProjectDescription),
-        authUser,
-        undefined,
-        undefined,
-      ),
+      projectFactory.create({
+        title: td.matchers.isA(ProjectTitle),
+        description: td.matchers.isA(ProjectDescription),
+        creator: authUser,
+        contributionVisibility: undefined,
+        skipManagerReview: undefined,
+      }),
     ).thenReturn(createdProject);
 
     const objectMapper = scenario.module.get(ObjectMapper);

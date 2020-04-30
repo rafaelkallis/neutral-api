@@ -30,11 +30,11 @@ describe(ProjectFactory.name, () => {
     });
 
     test('happy path', () => {
-      const createdProject = projectFactory.createProject(
+      const createdProject = projectFactory.create({
         title,
         description,
         creator,
-      );
+      });
       expect(createdProject.domainEvents).toEqual([
         expect.any(ProjectCreatedEvent),
         expect.any(ProjectFormationStartedEvent),

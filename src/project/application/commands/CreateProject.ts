@@ -52,17 +52,17 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
   protected async doHandle(
     command: CreateProjectCommand,
   ): Promise<ReadonlyProject> {
-    return this.projectFactory.createProject(
-      ProjectTitle.from(command.title),
-      ProjectDescription.from(command.description),
-      command.authUser,
-      command.contributionVisibility
+    return this.projectFactory.create({
+      title: ProjectTitle.from(command.title),
+      description: ProjectDescription.from(command.description),
+      creator: command.authUser,
+      contributionVisibility: command.contributionVisibility
         ? ContributionVisibility.from(command.contributionVisibility)
         : undefined,
-      command.skipManagerReview
+      skipManagerReview: command.skipManagerReview
         ? SkipManagerReview.from(command.skipManagerReview)
         : undefined,
-    );
+    });
   }
 
   public getCommandType(): Type<CreateProjectCommand> {

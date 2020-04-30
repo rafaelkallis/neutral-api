@@ -14,24 +14,29 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
+import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
+
+export interface CreateProjectOptions {
+  title: ProjectTitle;
+  description: ProjectDescription;
+  creator: ReadonlyUser;
+  contributionVisibility?: ContributionVisibility;
+  skipManagerReview?: SkipManagerReview;
+}
 
 @Injectable()
-export class ProjectFactory {
-  /**
-   * Creates a new project.
-   * @param title
-   * @param description
-   * @param creator
-   * @param contributionVisibility
-   * @param skipManagerReview
-   */
-  public createProject(
-    title: ProjectTitle,
-    description: ProjectDescription,
-    creator: ReadonlyUser,
-    contributionVisibility?: ContributionVisibility,
-    skipManagerReview?: SkipManagerReview,
-  ): ReadonlyProject {
+export class ProjectFactory extends AggregateRootFactory<
+  CreateProjectOptions,
+  ProjectId,
+  ReadonlyProject
+> {
+  protected doCreate({
+    title,
+    description,
+    creator,
+    contributionVisibility,
+    skipManagerReview,
+  }: CreateProjectOptions): ReadonlyProject {
     const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
