@@ -1,9 +1,5 @@
 import { Type, Injectable } from '@nestjs/common';
-import {
-  Project,
-  CreateProjectOptions,
-  ReadonlyProject,
-} from 'project/domain/project/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -19,6 +15,7 @@ import {
 import { User } from 'user/domain/User';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import { ProjectFactory } from '../ProjectFactory';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
@@ -45,25 +42,27 @@ export class CreateProjectCommand extends ProjectCommand {
 export class CreateProjectCommandHandler extends ProjectCommandHandler<
   CreateProjectCommand
 > {
+  private readonly projectFactory: ProjectFactory;
+
+  public constructor(projectFactory: ProjectFactory) {
+    super();
+    this.projectFactory = projectFactory;
+  }
+
   protected async doHandle(
     command: CreateProjectCommand,
   ): Promise<ReadonlyProject> {
-    const createProjectOptions: CreateProjectOptions = {
-      title: ProjectTitle.from(command.title),
-      description: ProjectDescription.from(command.description),
-      creator: command.authUser,
-    };
-    if (command.skipManagerReview) {
-      createProjectOptions.skipManagerReview = SkipManagerReview.from(
-        command.skipManagerReview,
-      );
-    }
-    if (command.contributionVisibility) {
-      createProjectOptions.contributionVisibility = ContributionVisibility.from(
-        command.contributionVisibility,
-      );
-    }
-    return Project.create(createProjectOptions);
+    return this.projectFactory.createProject(
+      ProjectTitle.from(command.title),
+      ProjectDescription.from(command.description),
+      command.authUser,
+      command.contributionVisibility
+        ? ContributionVisibility.from(command.contributionVisibility)
+        : undefined,
+      command.skipManagerReview
+        ? SkipManagerReview.from(command.skipManagerReview)
+        : undefined,
+    );
   }
 
   public getCommandType(): Type<CreateProjectCommand> {

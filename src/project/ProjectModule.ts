@@ -31,7 +31,8 @@ import {
 import {
   PeerReviewTypeOrmEntityMap,
   ReversePeerReviewTypeOrmEntityMap,
-} from './infrastructure/PeerReviewTypeOrmEntityMap';
+} from 'project/infrastructure/PeerReviewTypeOrmEntityMap';
+import { ProjectFactory } from 'project/application/ProjectFactory';
 
 /**
  * Project Module
@@ -53,6 +54,7 @@ import {
       useClass: CoveeContributionsComputerService,
     },
     ProjectApplicationService,
+    ProjectFactory,
     // maps
     ProjectDtoMap,
     RoleDtoMap,

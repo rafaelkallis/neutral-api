@@ -1,10 +1,7 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
-import { Project, CreateProjectOptions } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
-import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { Role } from 'project/domain/role/Role';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -29,26 +26,6 @@ describe(Project.name, () => {
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
     project.state = td.object();
-  });
-
-  describe('create project', () => {
-    let title: ProjectTitle;
-    let description: ProjectDescription;
-    let createProjectOptions: CreateProjectOptions;
-
-    beforeEach(() => {
-      title = ProjectTitle.from(primitiveFaker.words());
-      description = ProjectDescription.from(primitiveFaker.paragraph());
-      createProjectOptions = { title, description, creator };
-    });
-
-    test('happy path', () => {
-      const createdProject = Project.create(createProjectOptions);
-      expect(createdProject.domainEvents).toEqual([
-        expect.any(ProjectCreatedEvent),
-        expect.any(ProjectFormationStartedEvent),
-      ]);
-    });
   });
 
   test('update project', () => {

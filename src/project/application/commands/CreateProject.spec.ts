@@ -10,7 +10,8 @@ import { ProjectDto } from '../dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { Project } from 'project/domain/project/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
+import { ProjectFactory } from '../ProjectFactory';
 
 describe(CreateProjectCommand.name, () => {
   let scenario: UnitTestScenario<CreateProjectCommandHandler>;
@@ -20,12 +21,14 @@ describe(CreateProjectCommand.name, () => {
   let title: string;
   let description: string;
   let command: CreateProjectCommand;
+  let createdProject: ReadonlyProject;
   let projectDto: ProjectDto;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(CreateProjectCommandHandler)
       .addProviderMock(ObjectMapper)
       .addProviderMock(ProjectRepository)
+      .addProviderMock(ProjectFactory)
       .build();
     commandHandler = scenario.subject;
     projectRepository = scenario.module.get(ProjectRepository);
@@ -34,14 +37,22 @@ describe(CreateProjectCommand.name, () => {
     description = scenario.primitiveFaker.paragraph();
     command = new CreateProjectCommand(authUser, title, description);
 
+    const projectFactory = scenario.module.get(ProjectFactory);
+    createdProject = td.object();
+    td.when(
+      projectFactory.createProject(
+        td.matchers.isA(ProjectTitle),
+        td.matchers.isA(ProjectDescription),
+        authUser,
+        undefined,
+        undefined,
+      ),
+    ).thenReturn(createdProject);
+
     const objectMapper = scenario.module.get(ObjectMapper);
     projectDto = td.object();
     td.when(
-      objectMapper.map(
-        td.matchers.isA(Project),
-        ProjectDto,
-        td.matchers.anything(),
-      ),
+      objectMapper.map(createdProject, ProjectDto, td.matchers.anything()),
     ).thenReturn(projectDto);
   });
 
@@ -50,15 +61,8 @@ describe(CreateProjectCommand.name, () => {
   });
 
   test('happy path', async () => {
-    const result = await commandHandler.handle(command);
-    expect(result).toBe(projectDto);
-    td.verify(
-      projectRepository.persist(
-        td.matchers.contains({
-          title: ProjectTitle.from(title),
-          description: ProjectDescription.from(description),
-        }),
-      ),
-    );
+    const actualProjectDto = await commandHandler.handle(command);
+    expect(actualProjectDto).toBe(projectDto);
+    td.verify(projectRepository.persist(createdProject));
   });
 });

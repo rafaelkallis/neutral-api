@@ -11,8 +11,6 @@ import { ContributionVisibility } from 'project/domain/project/value-objects/Con
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
-import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { Role } from 'project/domain/role/Role';
 import {
   RoleCollection,
@@ -31,7 +29,6 @@ import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNo
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import {
   ReadonlyReviewTopicCollection,
   ReviewTopicCollection,
@@ -123,49 +120,6 @@ export class Project extends AggregateRoot<ProjectId>
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
-  }
-
-  /**
-   *
-   */
-  public static create(
-    createProjectOptions: CreateProjectOptions,
-  ): ReadonlyProject {
-    const projectId = ProjectId.create();
-    const createdAt = CreatedAt.now();
-    const updatedAt = UpdatedAt.now();
-    const {
-      title,
-      description,
-      creator,
-      contributionVisibility,
-      skipManagerReview,
-    } = createProjectOptions;
-    const state = ProjectFormation.INSTANCE;
-    const consensuality = null;
-    const roles = new RoleCollection([]);
-    const peerReviews = new PeerReviewCollection([]);
-    const reviewTopics = new ReviewTopicCollection([]);
-    const project = new Project(
-      projectId,
-      createdAt,
-      updatedAt,
-      title,
-      description,
-      creator.id,
-      state,
-      consensuality,
-      contributionVisibility
-        ? contributionVisibility
-        : ContributionVisibility.SELF,
-      skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
-      roles,
-      peerReviews,
-      reviewTopics,
-    );
-    project.raise(new ProjectCreatedEvent(project, creator));
-    project.raise(new ProjectFormationStartedEvent(project));
-    return project;
   }
 
   /**
