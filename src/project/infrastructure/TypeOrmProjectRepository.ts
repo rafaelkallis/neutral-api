@@ -50,6 +50,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   }
 
   protected async doPersist(...projectModels: Project[]): Promise<void> {
+    // TypeOrm does not delete removed one-to-many models, have to manually delete
     const roleIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
       .map((projectModel) => projectModel.id.value);
