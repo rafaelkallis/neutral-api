@@ -150,12 +150,8 @@ export class ProjectApplicationService {
       );
     } else if (rawAssigneeEmail) {
       const assigneeEmail = Email.from(rawAssigneeEmail);
-      const userExists = await this.userRepository.existsByEmail(assigneeEmail);
-      if (userExists) {
-        userToAssign = await this.userRepository.findByEmail(assigneeEmail);
-        if (!userToAssign) {
-          throw new UserNotFoundException();
-        }
+      userToAssign = await this.userRepository.findByEmail(assigneeEmail);
+      if (userToAssign) {
         await this.domainEventBroker.publish(
           new ExistingUserAssignedEvent(project, roleToAssign),
         );

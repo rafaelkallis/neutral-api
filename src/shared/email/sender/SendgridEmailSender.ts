@@ -10,13 +10,15 @@ import axios from 'axios';
 export class SendgridEmailSender extends EmailSender {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
+  private readonly emailSender: string;
 
-  public constructor(_config: Config) {
+  public constructor(config: Config) {
     super();
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';
     this.sendgridUrl = '';
+    this.emailSender = config.get('EMAIL_SENDER');
     throw new NotImplementedException();
   }
 
@@ -30,8 +32,7 @@ export class SendgridEmailSender extends EmailSender {
         },
       ],
       from: {
-        // TODO set to no-reply@covee.network
-        email: 'no-reply@example.com',
+        email: this.emailSender,
         name: 'Covee Network',
       },
       content: [
