@@ -48,6 +48,7 @@ import { AddAvatarToUsersMigration1584023287000 } from 'shared/typeorm/migration
 import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/1587059776000AddStateToUsers';
 import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
 import { AddReviewTopicsMigration1588178451000 } from 'shared/typeorm/migration/1588178451000AddReviewTopicsMigration';
+import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration/1588327814000AddContributionMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -98,6 +99,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddStateToUsersMigration1587059776000,
         DropUniqueUserEmailConstraintMigration1587070723000,
         AddReviewTopicsMigration1588178451000,
+        AddContributionsMigration1588327814000,
       ],
     });
     this.connection = connection;
