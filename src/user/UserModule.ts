@@ -19,6 +19,7 @@ import { SubmitEmailChangeCommandHandler } from 'user/application/commands/Submi
 import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/UpdateAuthUserAvatar';
 import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
+import { UserFactory } from 'user/application/UserFactory';
 
 /**
  * User Module
@@ -34,16 +35,19 @@ import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvata
     UserTypeOrmEntityMap,
     ReverseUserTypeOrmEntityMap,
     { provide: UserRepository, useClass: TypeOrmUserRepository },
+    UserFactory,
+    // query handlers
     GetUsersQueryHandler,
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
     GetUserAvatarQueryHandler,
+    // command handlers
     UpdateAuthUserCommandHandler,
     ForgetAuthUserCommandHandler,
     SubmitEmailChangeCommandHandler,
     UpdateAuthUserAvatarCommandHandler,
     RemoveAuthUserAvatarCommandHandler,
   ],
-  exports: [UserRepository],
+  exports: [UserRepository, UserFactory],
 })
 export class UserModule {}

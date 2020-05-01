@@ -3,10 +3,10 @@ import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
- * User Created Event
+ * User Activated Event
  */
-@DomainEventKey('user.created')
-export class UserCreatedEvent extends DomainEvent {
+@DomainEventKey('user.activated')
+export class UserActivatedEvent extends DomainEvent {
   public readonly userId: UserId;
 
   constructor(userId: UserId) {

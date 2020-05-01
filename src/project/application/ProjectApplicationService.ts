@@ -27,11 +27,13 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { UserFactory } from 'user/application/UserFactory';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
+  private readonly userFactory: UserFactory;
   private readonly objectMapper: ObjectMapper;
   private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
@@ -40,6 +42,7 @@ export class ProjectApplicationService {
   public constructor(
     projectRepository: ProjectRepository,
     userRepository: UserRepository,
+    userFactory: UserFactory,
     domainEventBroker: DomainEventBroker,
     modelMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
@@ -47,6 +50,7 @@ export class ProjectApplicationService {
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
+    this.userFactory = userFactory;
     this.objectMapper = modelMapper;
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
@@ -76,9 +80,7 @@ export class ProjectApplicationService {
         throw new InvalidProjectTypeQueryException();
       }
     }
-    return projects.map((project) =>
-      this.objectMapper.map(project, ProjectDto, { authUser }),
-    );
+    return this.objectMapper.mapArray(projects, ProjectDto, { authUser });
   }
 
   /**
@@ -186,7 +188,8 @@ export class ProjectApplicationService {
           new ExistingUserAssignedEvent(project, roleToAssign),
         );
       } else {
-        userToAssign = User.createInvited(assigneeEmail);
+        userToAssign = this.userFactory.create({ email: assigneeEmail });
+        userToAssign.invite();
         await this.userRepository.persist(userToAssign);
         await this.domainEventBroker.publish(
           new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),

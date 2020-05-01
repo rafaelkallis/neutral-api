@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
-import { UserStateValue } from 'user/domain/value-objects/UserState';
+import { UserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
 /**
  * User TypeOrm Entity

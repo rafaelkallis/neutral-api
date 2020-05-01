@@ -1,14 +1,13 @@
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { UserState } from './value-objects/UserState';
-import { LoginEvent } from './events/LoginEvent';
+import { LoginEvent } from 'user/domain/events/LoginEvent';
+import { ForgottenState } from 'user/domain/value-objects/states/ForgottenState';
 
 describe(User.name, () => {
   let modelFaker: ModelFaker;
@@ -19,23 +18,6 @@ describe(User.name, () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
     user = modelFaker.user();
-  });
-
-  describe('create user', () => {
-    let email: Email;
-    let name: Name;
-
-    beforeEach(() => {
-      email = Email.from(primitiveFaker.email());
-      const firstName = primitiveFaker.word();
-      const lastName = primitiveFaker.word();
-      name = Name.from(firstName, lastName);
-    });
-
-    test('happy path', () => {
-      const user = User.createActive(email, name);
-      expect(user.domainEvents).toContainEqual(expect.any(UserCreatedEvent));
-    });
   });
 
   describe('update email', () => {
@@ -99,7 +81,7 @@ describe(User.name, () => {
   describe('forget user', () => {
     test('happy path', () => {
       user.forget();
-      expect(user.state.equals(UserState.FORGOTTEN)).toBeTruthy();
+      expect(user.state.equals(ForgottenState.getInstance())).toBeTruthy();
       expect(user.domainEvents).toContainEqual(expect.any(UserForgottenEvent));
     });
 

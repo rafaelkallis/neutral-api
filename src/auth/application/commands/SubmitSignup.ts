@@ -9,10 +9,10 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Email } from 'user/domain/value-objects/Email';
 import { EmailAlreadyUsedException } from '../exceptions/EmailAlreadyUsedException';
 import { Name } from 'user/domain/value-objects/Name';
-import { User } from 'user/domain/User';
 import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { Type, Injectable } from '@nestjs/common';
+import { UserFactory } from 'user/application/UserFactory';
 
 /**
  * Passwordless signup token submit
@@ -46,18 +46,21 @@ export class SubmitSignupCommandHandler extends CommandHandler<
   SubmitSignupCommand
 > {
   private readonly userRepository: UserRepository;
+  private readonly userFactory: UserFactory;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
   private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
+    userFactory: UserFactory,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
     domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
+    this.userFactory = userFactory;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
     this.domainEventBroker = domainEventBroker;
@@ -73,8 +76,9 @@ export class SubmitSignupCommandHandler extends CommandHandler<
       throw new EmailAlreadyUsedException();
     }
 
+    const user = this.userFactory.create({ email });
     const name = Name.from(command.firstName, command.lastName);
-    const user = User.createActive(email, name);
+    user.activate(name);
     await this.userRepository.persist(user);
     await this.domainEventBroker.publish(new SignupEvent(user));
 

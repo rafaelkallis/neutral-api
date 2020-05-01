@@ -26,9 +26,9 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { UserState } from 'user/domain/value-objects/UserState';
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
+import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -50,7 +50,7 @@ export class ModelFaker {
       this.primitiveFaker.word(),
     );
     const avatar = null;
-    const state = UserState.ACTIVE;
+    const state = ActiveState.getInstance();
     const lastLoginAt = LastLoginAt.from(
       this.primitiveFaker.timestampUnixMillis(),
     );

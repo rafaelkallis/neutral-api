@@ -4,19 +4,14 @@ import {
 } from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserForgottenEvent } from 'user/domain/events/UserForgottenEvent';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
-import { EmailChangedEvent } from 'user/domain/events/EmailChangedEvent';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
-import { UserNameUpdatedEvent } from 'user/domain/events/UserNameUpdatedEvent';
 import { Avatar } from 'user/domain/value-objects/Avatar';
-import { UserAvatarUpdatedEvent } from 'user/domain/events/UserAvatarUpdatedEvent';
-import { UserAvatarRemovedEvent } from 'user/domain/events/UserAvatarRemovedEvent';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { UserState } from 'user/domain/value-objects/UserState';
-import { LoginEvent } from 'user/domain/events/LoginEvent';
+import { UserState } from 'user/domain/value-objects/states/UserState';
+import { InvitedState } from 'user/domain/value-objects/states/InvitedState';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -25,6 +20,8 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly state: UserState;
   readonly lastLoginAt: LastLoginAt;
 
+  invite(): void;
+  activate(name: Name): void;
   login(): void;
   changeEmail(email: Email): void;
   updateName(name: Name): void;
@@ -61,30 +58,6 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   /**
    *
    */
-  public static createActive(email: Email, name: Name): ReadonlyUser {
-    const userId = UserId.create();
-    const createdAt = CreatedAt.now();
-    const updatedAt = UpdatedAt.now();
-    const avatar = null;
-    const state = UserState.ACTIVE;
-    const lastLoginAt = LastLoginAt.now();
-    const user = new User(
-      userId,
-      createdAt,
-      updatedAt,
-      email,
-      name,
-      avatar,
-      state,
-      lastLoginAt,
-    );
-    user.raise(new UserCreatedEvent(user.id));
-    return user;
-  }
-
-  /**
-   *
-   */
   public static createInvited(email: Email): ReadonlyUser {
     const first = '';
     const last = '';
@@ -93,7 +66,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const avatar = null;
-    const state = UserState.INVITED;
+    const state = InvitedState.getInstance();
     const lastLoginAt = LastLoginAt.never();
     const user = new User(
       userId,
@@ -109,70 +82,50 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     return user;
   }
 
+  public invite(): void {
+    this.state.invite(this);
+  }
+
+  public activate(name: Name): void {
+    this.state.activate(this, name);
+  }
+
   /**
    *
    */
   public login(): void {
-    if (this.state.equals(UserState.INVITED)) {
-      this.state = UserState.ACTIVE;
-      // TODO apply event
-    }
-    this.state.assertEquals(UserState.ACTIVE);
-    this.lastLoginAt = LastLoginAt.now();
-    this.raise(new LoginEvent(this));
+    this.state.login(this);
   }
 
   /**
    *
    */
-  public changeEmail(email: Email): void {
-    this.state.assertEquals(UserState.ACTIVE);
-    this.email = email;
-    this.raise(new EmailChangedEvent(this));
+  public changeEmail(newEmail: Email): void {
+    this.state.changeEmail(this, newEmail);
   }
 
   /**
    *
    */
-  public updateName(name: Name): void {
-    this.state.assertEquals(UserState.ACTIVE);
-    this.name = name;
-    this.raise(new UserNameUpdatedEvent(this));
+  public updateName(newName: Name): void {
+    this.state.updateName(this, newName);
   }
 
   /**
    *
    */
   public updateAvatar(newAvatar: Avatar): void {
-    this.state.assertEquals(UserState.ACTIVE);
-    const oldAvatar = this.avatar;
-    if (oldAvatar?.equals(newAvatar)) {
-      return;
-    }
-    this.avatar = newAvatar;
-    this.raise(new UserAvatarUpdatedEvent(this, newAvatar, oldAvatar));
+    this.state.updateAvatar(this, newAvatar);
   }
 
   /**
    *
    */
   public removeAvatar(): void {
-    this.state.assertEquals(UserState.ACTIVE);
-    const oldAvatar = this.avatar;
-    if (oldAvatar) {
-      this.avatar = null;
-      this.raise(new UserAvatarRemovedEvent(this, oldAvatar));
-    }
+    this.state.removeAvatar(this);
   }
 
   public forget(): void {
-    this.state.assertEquals(UserState.ACTIVE);
-    this.email = Email.redacted();
-    this.name = Name.redacted();
-    if (this.avatar) {
-      this.avatar = Avatar.redacted();
-    }
-    this.state = UserState.FORGOTTEN;
-    this.raise(new UserForgottenEvent(this.id));
+    this.state.forget(this);
   }
 }

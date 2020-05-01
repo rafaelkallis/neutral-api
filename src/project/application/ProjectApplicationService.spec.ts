@@ -1,5 +1,5 @@
 import td from 'testdouble';
-import { Project } from 'project/domain/project/Project';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
@@ -10,7 +10,7 @@ import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsD
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { Role } from 'project/domain/role/Role';
+import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -19,67 +19,78 @@ import { FakeConsensualityComputerService } from 'project/infrastructure/FakeCon
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
-import { ModelFaker } from 'test/ModelFaker';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { Mock } from 'test/Mock';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { UserFactory } from 'user/application/UserFactory';
+import { Email } from 'user/domain/value-objects/Email';
+import { InitialState } from 'user/domain/value-objects/states/InitialState';
 
 describe(ProjectApplicationService.name, () => {
-  let modelFaker: ModelFaker;
-  let primitiveFaker: PrimitiveFaker;
+  let scenario: UnitTestScenario<ProjectApplicationService>;
+  let projectApplication: ProjectApplicationService;
 
-  let domainEventBroker: DomainEventBroker;
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
-  let projectApplication: ProjectApplicationService;
-  let ownerUser: User;
+  let creatorUser: User;
   let project: Project;
   let roles: Role[];
-  let mockProjectDto: unknown;
+  let expectedProjectDto: unknown;
 
   beforeEach(async () => {
-    primitiveFaker = new PrimitiveFaker();
-    modelFaker = new ModelFaker();
+    scenario = await UnitTestScenario.builder(ProjectApplicationService)
+      .addProviderValue(ProjectRepository, new MemoryProjectRepository())
+      .addProviderValue(UserRepository, new MemoryUserRepository())
+      .addProviderMock(UserFactory)
+      .addProviderMock(DomainEventBroker)
+      .addProviderMock(ObjectMapper)
+      .addProviderValue(
+        ContributionsComputer,
+        new FakeContributionsComputerService(),
+      )
+      .addProviderValue(
+        ConsensualityComputer,
+        new FakeConsensualityComputerService(),
+      )
+      .build();
+    projectApplication = scenario.subject;
 
-    domainEventBroker = td.object();
-    userRepository = new MemoryUserRepository();
-    projectRepository = new MemoryProjectRepository();
-    objectMapper = Mock(ObjectMapper);
-    contributionsComputer = new FakeContributionsComputerService();
-    consensualityComputer = new FakeConsensualityComputerService();
-    projectApplication = new ProjectApplicationService(
-      projectRepository,
-      userRepository,
-      domainEventBroker,
-      objectMapper,
-      contributionsComputer,
-      consensualityComputer,
-    );
+    userRepository = scenario.module.get(UserRepository);
+    projectRepository = scenario.module.get(ProjectRepository);
+    objectMapper = scenario.module.get(ObjectMapper);
+    contributionsComputer = scenario.module.get(ContributionsComputer);
+    consensualityComputer = scenario.module.get(ConsensualityComputer);
 
-    ownerUser = modelFaker.user();
-    await userRepository.persist(ownerUser);
+    creatorUser = scenario.modelFaker.user();
+    await userRepository.persist(creatorUser);
 
-    project = modelFaker.project(ownerUser.id);
+    project = scenario.modelFaker.project(creatorUser.id);
+    jest.spyOn(project, 'assertCreator');
     roles = [
-      modelFaker.role(),
-      modelFaker.role(),
-      modelFaker.role(),
-      modelFaker.role(),
+      scenario.modelFaker.role(),
+      scenario.modelFaker.role(),
+      scenario.modelFaker.role(),
+      scenario.modelFaker.role(),
     ];
     project.roles.addAll(roles);
     await projectRepository.persist(project);
 
-    mockProjectDto = {};
-    jest.spyOn(objectMapper, 'map').mockReturnValue(mockProjectDto);
+    expectedProjectDto = td.object();
+    td.when(
+      objectMapper.map(
+        td.matchers.isA(Project),
+        ProjectDto,
+        td.matchers.anything(),
+      ),
+    ).thenReturn(expectedProjectDto);
   });
 
   test('should be defined', () => {
@@ -87,34 +98,35 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('get created projects', () => {
-    let projects: Project[];
     let query: GetProjectsQueryDto;
+    let projects: ReadonlyProject[];
+    let projectDtos: ProjectDto[];
 
     beforeEach(async () => {
+      query = new GetProjectsQueryDto(GetProjectsType.CREATED);
       projects = [
-        modelFaker.project(ownerUser.id),
-        modelFaker.project(ownerUser.id),
-        modelFaker.project(ownerUser.id),
+        scenario.modelFaker.project(creatorUser.id),
+        scenario.modelFaker.project(creatorUser.id),
+        scenario.modelFaker.project(creatorUser.id),
       ];
       await projectRepository.persist(...projects);
-      query = new GetProjectsQueryDto(GetProjectsType.CREATED);
+      // td.when(projectRepository.findByCreatorId(ownerUser.id)).thenResolve(projects);
+      projectDtos = td.object();
+      td.when(
+        objectMapper.mapArray(
+          td.matchers.anything(),
+          ProjectDto,
+          td.matchers.anything(),
+        ),
+      ).thenReturn(projectDtos);
     });
 
     test('happy path', async () => {
-      const projectDtos = await projectApplication.getProjects(
-        ownerUser,
+      const actualProjectDtos = await projectApplication.getProjects(
+        creatorUser,
         query,
       );
-      expect(objectMapper.map).toHaveBeenCalledWith(
-        expect.any(Project),
-        ProjectDto,
-        {
-          authUser: ownerUser,
-        },
-      );
-      for (const projectDto of projectDtos) {
-        expect(projectDto).toEqual(mockProjectDto);
-      }
+      expect(actualProjectDtos).toBe(projectDtos);
     });
   });
 
@@ -122,44 +134,46 @@ describe(ProjectApplicationService.name, () => {
     let projects: Project[];
     let assigneeUser: User;
     let query: GetProjectsQueryDto;
+    let projectDtos: ProjectDto[];
 
     beforeEach(async () => {
-      assigneeUser = modelFaker.user();
+      assigneeUser = scenario.modelFaker.user();
       await userRepository.persist(assigneeUser);
       projects = [];
       for (let i = 0; i < 3; i++) {
-        projects[i] = modelFaker.project(ownerUser.id);
+        projects[i] = scenario.modelFaker.project(creatorUser.id);
         projects[i].roles = new RoleCollection([
-          modelFaker.role(assigneeUser.id),
+          scenario.modelFaker.role(assigneeUser.id),
         ]);
       }
       await projectRepository.persist(...projects);
       query = new GetProjectsQueryDto(GetProjectsType.ASSIGNED);
+      projectDtos = td.object();
+      td.when(
+        objectMapper.mapArray(
+          td.matchers.anything(),
+          ProjectDto,
+          td.matchers.anything(),
+        ),
+      ).thenReturn(projectDtos);
     });
 
     test('happy path', async () => {
-      const projectDtos = await projectApplication.getProjects(
+      const actualProjectDtos = await projectApplication.getProjects(
         assigneeUser,
         query,
       );
-      expect(objectMapper.map).toHaveBeenCalledWith(
-        expect.any(Project),
-        ProjectDto,
-        {
-          authUser: assigneeUser,
-        },
-      );
-      for (const projectDto of projectDtos) {
-        expect(projectDto).toEqual(mockProjectDto);
-      }
+      expect(actualProjectDtos).toBe(projectDtos);
     });
   });
 
   describe('get project', () => {
     test('happy path', async () => {
-      await expect(
-        projectApplication.getProject(ownerUser, project.id.value),
-      ).resolves.toEqual(mockProjectDto);
+      const actualProjectDto = await projectApplication.getProject(
+        creatorUser,
+        project.id.value,
+      );
+      expect(actualProjectDto).toBe(expectedProjectDto);
     });
   });
 
@@ -168,39 +182,25 @@ describe(ProjectApplicationService.name, () => {
     let roleToUpdate: Role;
 
     beforeEach(() => {
-      newTitle = RoleTitle.from(primitiveFaker.words());
+      newTitle = RoleTitle.from(scenario.primitiveFaker.words());
       roleToUpdate = roles[0];
       jest.spyOn(project, 'updateRole');
     });
 
     test('happy path', async () => {
-      const projectDto = await projectApplication.updateRole(
-        ownerUser,
+      const actualProjectDto = await projectApplication.updateRole(
+        creatorUser,
         project.id.value,
         roleToUpdate.id.value,
         newTitle.value,
       );
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
       expect(project.updateRole).toHaveBeenCalledWith(
         roleToUpdate.id,
         newTitle,
         undefined,
       );
-      expect(roleToUpdate.title).toEqual(newTitle);
-      expect(projectDto).toEqual(mockProjectDto);
-    });
-
-    test('should fail if authenticated user is not project owner', async () => {
-      const nonOwnerUser = modelFaker.user();
-      await userRepository.persist(nonOwnerUser);
-      await expect(
-        projectApplication.updateRole(
-          nonOwnerUser,
-          project.id.value,
-          roles[0].id.value,
-          newTitle.value,
-        ),
-      ).rejects.toThrow();
-      expect(project.updateRole).not.toHaveBeenCalled();
+      expect(actualProjectDto).toBe(expectedProjectDto);
     });
   });
 
@@ -214,111 +214,97 @@ describe(ProjectApplicationService.name, () => {
 
     test('happy path', async () => {
       await projectApplication.removeRole(
-        ownerUser,
+        creatorUser,
         project.id.value,
         roleToRemove.id.value,
       );
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
       expect(project.removeRole).toHaveBeenCalledWith(roleToRemove.id);
-    });
-
-    test('should fail if authenticated user is not project owner', async () => {
-      const nonOwnerUser = modelFaker.user();
-      await userRepository.persist(nonOwnerUser);
-      await expect(
-        projectApplication.removeRole(
-          nonOwnerUser,
-          project.id.value,
-          roleToRemove.id.value,
-        ),
-      ).rejects.toThrow();
-      expect(project.removeRole).not.toHaveBeenCalled();
     });
   });
 
   describe('assign user to role', () => {
     let assignee: User;
+    let roleToBeAssigned: ReadonlyRole;
 
     beforeEach(async () => {
-      assignee = modelFaker.user();
+      assignee = scenario.modelFaker.user();
       await userRepository.persist(assignee);
+      roleToBeAssigned = roles[0];
+      jest.spyOn(project, 'assignUserToRole');
     });
 
     test('happy path', async () => {
       await projectApplication.assignUserToRole(
-        ownerUser,
+        creatorUser,
         project.id.value,
-        roles[0].id.value,
+        roleToBeAssigned.id.value,
         assignee.id.value,
       );
-      expect(roles[0].assigneeId?.equals(assignee.id)).toBeTruthy();
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
     test('happy path, email of user that exists', async () => {
       await projectApplication.assignUserToRole(
-        ownerUser,
+        creatorUser,
         project.id.value,
-        roles[0].id.value,
+        roleToBeAssigned.id.value,
         undefined,
         assignee.email.value,
       );
-      expect(roles[0].assigneeId?.equals(assignee.id)).toBeTruthy();
+      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
     test("happy path, email of user that doesn't exist", async () => {
-      const assigneeEmail = primitiveFaker.email();
+      const assigneeEmail = scenario.primitiveFaker.email();
+      const createdUser = scenario.modelFaker.user();
+      createdUser.state = InitialState.getInstance();
+      jest.spyOn(createdUser, 'invite');
+      const userFactory = scenario.module.get(UserFactory);
+      td.when(
+        userFactory.create({ email: Email.from(assigneeEmail) }),
+      ).thenReturn(createdUser);
+      jest.spyOn(userRepository, 'persist');
+
       await projectApplication.assignUserToRole(
-        ownerUser,
+        creatorUser,
         project.id.value,
-        roles[0].id.value,
+        roleToBeAssigned.id.value,
         undefined,
         assigneeEmail,
       );
-      // TODO check if events emitted
-    });
 
-    test('should fail if authenticated user is not project owner', async () => {
-      const notCreatorUser = modelFaker.user();
-      await userRepository.persist(notCreatorUser);
-      await expect(
-        projectApplication.assignUserToRole(
-          notCreatorUser,
-          project.id.value,
-          roles[0].id.value,
-          assignee.id.value,
-        ),
-      ).rejects.toThrowError();
+      expect(createdUser.invite).toHaveBeenCalledWith();
+      expect(userRepository.persist).toHaveBeenCalledWith(createdUser);
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        createdUser,
+        roleToBeAssigned.id,
+      );
+      // TODO check if events emitted
     });
   });
 
   describe('unassign role', () => {
-    let assignee: User;
+    let roleToUnassign: Role;
 
     beforeEach(async () => {
-      assignee = modelFaker.user();
+      roleToUnassign = roles[0];
+      const assignee = scenario.modelFaker.user();
       await userRepository.persist(assignee);
-      roles[0].assigneeId = assignee.id;
+      roleToUnassign.assigneeId = assignee.id;
       await projectRepository.persist(project);
+      jest.spyOn(project, 'unassignRole');
     });
 
     test('happy path', async () => {
       await projectApplication.unassignRole(
-        ownerUser,
+        creatorUser,
         project.id.value,
-        roles[0].id.value,
+        roleToUnassign.id.value,
       );
-      expect(roles[0].assigneeId).toBeNull();
-    });
-
-    test('should fail if authenticated user is not project owner', async () => {
-      const notCreatorUser = modelFaker.user();
-      await userRepository.persist(notCreatorUser);
-      await expect(
-        projectApplication.unassignRole(
-          notCreatorUser,
-          project.id.value,
-          roles[0].id.value,
-        ),
-      ).rejects.toThrowError();
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(project.unassignRole).toHaveBeenCalledWith(roleToUnassign.id);
     });
   });
 
@@ -327,28 +313,19 @@ describe(ProjectApplicationService.name, () => {
     beforeEach(async () => {
       assignees = [];
       for (const role of roles) {
-        const assignee = await modelFaker.user();
+        const assignee = scenario.modelFaker.user();
         role.assigneeId = assignee.id;
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
       project.state = ProjectFormation.INSTANCE;
-      await projectRepository.persist(project);
       jest.spyOn(project, 'finishFormation');
     });
 
     test('happy path', async () => {
-      await projectApplication.finishFormation(ownerUser, project.id.value);
-      expect(project.finishFormation).toHaveBeenCalled();
-    });
-
-    test('should fail if authenticated user is ot project owner', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.finishFormation(notOwnerUser, project.id.value),
-      ).rejects.toThrow();
-      expect(project.finishFormation).not.toHaveBeenCalled();
+      await projectApplication.finishFormation(creatorUser, project.id.value);
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(project.finishFormation).toHaveBeenCalledWith();
     });
   });
 
@@ -358,10 +335,10 @@ describe(ProjectApplicationService.name, () => {
     beforeEach(async () => {
       project.state = ProjectPeerReview.INSTANCE;
       roles = [
-        modelFaker.role(ownerUser.id),
-        modelFaker.role(),
-        modelFaker.role(),
-        modelFaker.role(),
+        scenario.modelFaker.role(creatorUser.id),
+        scenario.modelFaker.role(),
+        scenario.modelFaker.role(),
+        scenario.modelFaker.role(),
       ];
       project.roles = new RoleCollection(roles);
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
@@ -378,7 +355,7 @@ describe(ProjectApplicationService.name, () => {
           if (senderRole.equals(roles[0])) {
             continue;
           }
-          const peerReview = modelFaker.peerReview(
+          const peerReview = scenario.modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
           );
@@ -398,7 +375,7 @@ describe(ProjectApplicationService.name, () => {
     describe('happy path', () => {
       test('final peer review', async () => {
         await projectApplication.submitPeerReviews(
-          ownerUser,
+          creatorUser,
           project.id.value,
           submitPeerReviewsDto,
         );
@@ -411,7 +388,7 @@ describe(ProjectApplicationService.name, () => {
       });
 
       test('should fail if authenticated user is not a project peer', async () => {
-        const nonPeerUser = modelFaker.user();
+        const nonPeerUser = scenario.modelFaker.user();
         await userRepository.persist(nonPeerUser);
         await expect(
           projectApplication.submitPeerReviews(
@@ -425,26 +402,18 @@ describe(ProjectApplicationService.name, () => {
     });
 
     describe('submit manager review', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         project.state = ProjectManagerReview.INSTANCE;
-        await projectRepository.persist(project);
         jest.spyOn(project, 'submitManagerReview');
       });
 
       test('happy path', async () => {
         await projectApplication.submitManagerReview(
-          ownerUser,
+          creatorUser,
           project.id.value,
         );
+        expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
         expect(project.submitManagerReview).toHaveBeenCalledWith();
-      });
-
-      test('should fail if authenticated user is not project owner', async () => {
-        const otherUser = modelFaker.user();
-        await expect(
-          projectApplication.submitManagerReview(otherUser, project.id.value),
-        ).rejects.toThrow();
-        expect(project.submitManagerReview).not.toHaveBeenCalled();
       });
     });
   });
@@ -455,17 +424,9 @@ describe(ProjectApplicationService.name, () => {
     });
 
     test('happy path', async () => {
-      await projectApplication.cancelProject(ownerUser, project.id.value);
-      expect(project.cancel).toHaveBeenCalled();
-    });
-
-    test('should fail if authenticated user is ot project owner', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.cancelProject(notOwnerUser, project.id.value),
-      ).rejects.toThrow();
-      expect(project.cancel).not.toHaveBeenCalled();
+      await projectApplication.cancelProject(creatorUser, project.id.value);
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(project.cancel).toHaveBeenCalledWith();
     });
   });
 
@@ -476,17 +437,9 @@ describe(ProjectApplicationService.name, () => {
     });
 
     test('happy path', async () => {
-      await projectApplication.archiveProject(ownerUser, project.id.value);
+      await projectApplication.archiveProject(creatorUser, project.id.value);
+      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
       expect(project.archive).toHaveBeenCalledWith();
-    });
-
-    test('should fail if authenticated user is ot project owner', async () => {
-      const notOwnerUser = modelFaker.user();
-      await userRepository.persist(notOwnerUser);
-      await expect(
-        projectApplication.archiveProject(notOwnerUser, project.id.value),
-      ).rejects.toThrow();
-      expect(project.archive).not.toHaveBeenCalled();
     });
   });
 });
