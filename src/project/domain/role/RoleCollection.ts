@@ -26,7 +26,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
    * @param assigneeOrAssigneeId
    */
   public findByAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): Role {
-    for (const role of this) {
+    for (const role of this.toArray()) {
       if (role.isAssignedToUser(assigneeOrAssigneeId)) {
         return role;
       }
@@ -38,11 +38,11 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
     if (!this.contains(roleToExclude.id)) {
       throw new RoleNotFoundException();
     }
-    return this.filter((role) => !role.equals(roleToExclude));
+    return this.toArray().filter((role) => !role.equals(roleToExclude));
   }
 
   public applyContributions(contributions: Contributions): void {
-    for (const role of this) {
+    for (const role of this.toArray()) {
       role.contribution = contributions.of(role.id);
     }
   }
@@ -53,7 +53,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
 
   public assertSingleAssignmentPerUser(): void {
     const seenUsers: UserId[] = [];
-    for (const role of this) {
+    for (const role of this.toArray()) {
       if (role.assigneeId) {
         for (const seenUser of seenUsers) {
           if (role.isAssignedToUser(seenUser)) {
@@ -66,15 +66,13 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
   }
 
   public assertAllAreAssigned(): void {
-    for (const role of this) {
-      if (!role.isAssigned()) {
-        throw new RoleNoUserAssignedException();
-      }
+    if (!this.toArray().every((role) => role.isAssigned())) {
+      throw new RoleNoUserAssignedException();
     }
   }
 
   public assertSufficientAmount(): void {
-    if (Array.from(this).length < 4) {
+    if (this.toArray().length < 4) {
       throw new InsufficientRoleAmountException();
     }
   }

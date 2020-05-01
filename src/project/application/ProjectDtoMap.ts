@@ -50,22 +50,21 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
   }
 
   private mapRoleDtos(project: Project, authUser: User): RoleDto[] {
-    return Array.from(
-      this.objectMapper.mapIterable(project.roles, RoleDto, {
-        project,
-        authUser,
-      }),
-    );
+    return this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
+      project,
+      authUser,
+    });
   }
 
   private mapReviewTopicDtos(project: Project): ReviewTopicDto[] {
-    return Array.from(
-      this.objectMapper.mapIterable(project.reviewTopics, ReviewTopicDto),
+    return this.objectMapper.mapArray(
+      project.reviewTopics.toArray(),
+      ReviewTopicDto,
     );
   }
 
   private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {
-    let peerReviews = Array.from(project.peerReviews);
+    let peerReviews = project.peerReviews.toArray();
     peerReviews = peerReviews.filter((peerReview) =>
       this.shouldExposePeerReview(peerReview, project, authUser),
     );

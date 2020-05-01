@@ -42,7 +42,9 @@ export class PeerReviewCollection
   }
 
   public findBySenderRole(senderRoleId: RoleId): Iterable<PeerReview> {
-    return this.filter((peerReview) => peerReview.isSenderRole(senderRoleId));
+    return this.toArray().filter((peerReview) =>
+      peerReview.isSenderRole(senderRoleId),
+    );
   }
 
   public addForSender(
@@ -60,7 +62,7 @@ export class PeerReviewCollection
 
   public toMap(): Record<string, Record<string, number>> {
     const map: Record<string, Record<string, number>> = {};
-    for (const { senderRoleId, receiverRoleId, score } of this) {
+    for (const { senderRoleId, receiverRoleId, score } of this.toArray()) {
       if (!map[senderRoleId.value]) {
         map[senderRoleId.value] = {};
       }

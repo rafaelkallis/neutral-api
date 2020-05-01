@@ -69,31 +69,27 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTypeOrmEntityMap.reviewTopicsSentinel,
       ProjectTypeOrmEntityMap.contributionsSentinel,
     );
-    projectEntity.roles = Array.from(
-      this.objectMapper.mapIterable(projectModel.roles, RoleTypeOrmEntity, {
+    projectEntity.roles = this.objectMapper.mapArray(
+      projectModel.roles.toArray(),
+      RoleTypeOrmEntity,
+      {
         project: projectEntity,
-      }),
+      },
     );
-    projectEntity.peerReviews = Array.from(
-      this.objectMapper.mapIterable(
-        projectModel.peerReviews,
-        PeerReviewTypeOrmEntity,
-        { project: projectEntity },
-      ),
+    projectEntity.peerReviews = this.objectMapper.mapArray(
+      projectModel.peerReviews.toArray(),
+      PeerReviewTypeOrmEntity,
+      { project: projectEntity },
     );
-    projectEntity.reviewTopics = Array.from(
-      this.objectMapper.mapIterable(
-        projectModel.reviewTopics,
-        ReviewTopicTypeOrmEntity,
-        { project: projectEntity },
-      ),
+    projectEntity.reviewTopics = this.objectMapper.mapArray(
+      projectModel.reviewTopics.toArray(),
+      ReviewTopicTypeOrmEntity,
+      { project: projectEntity },
     );
-    projectEntity.contributions = Array.from(
-      this.objectMapper.mapIterable(
-        projectModel.contributions,
-        ContributionTypeOrmEntity,
-        { project: projectEntity },
-      ),
+    projectEntity.contributions = this.objectMapper.mapArray(
+      projectModel.contributions.toArray(),
+      ContributionTypeOrmEntity,
+      { project: projectEntity },
     );
     return projectEntity;
   }

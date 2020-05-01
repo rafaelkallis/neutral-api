@@ -68,8 +68,8 @@ describe(ProjectPeerReview.name, () => {
       roles[3].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
       const peerReviews: PeerReview[] = [];
-      for (const senderRole of project.roles) {
-        for (const receiverRole of project.roles) {
+      for (const senderRole of project.roles.toArray()) {
+        for (const receiverRole of project.roles.toArray()) {
           if (senderRole.equals(receiverRole)) {
             // no self review
             continue;
@@ -192,7 +192,7 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        for (const role of project.roles) {
+        for (const role of project.roles.toArray()) {
           expect(role.contribution).toBeNull();
         }
         expect(project.state.equals(ProjectPeerReview.INSTANCE)).toBeTruthy();

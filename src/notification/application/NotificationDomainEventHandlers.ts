@@ -43,7 +43,7 @@ export class NotificationDomainEventHandlers {
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
     const notifications: Notification[] = [];
-    for (const role of event.project.roles) {
+    for (const role of event.project.roles.toArray()) {
       const notification = this.notificationFactory.createPeerReviewRequestedNotification(
         event.project,
         role,
@@ -79,7 +79,7 @@ export class NotificationDomainEventHandlers {
         event.project.creatorId,
       ),
     ];
-    for (const role of event.project.roles) {
+    for (const role of event.project.roles.toArray()) {
       if (!role.assigneeId) {
         throw new InternalServerErrorException();
       }

@@ -27,8 +27,8 @@ export class ContributionCollection
     roleOrId: Role | RoleId,
   ): ReadonlyArray<ReadonlyContribution> {
     const roleId = this.getId(roleOrId);
-    return Array.from(
-      this.filter((contribution) => contribution.roleId.equals(roleId)),
+    return this.toArray().filter((contribution) =>
+      contribution.roleId.equals(roleId),
     );
   }
 
@@ -36,10 +36,8 @@ export class ContributionCollection
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
   ): ReadonlyArray<ReadonlyContribution> {
     const reviewTopicId = this.getId(reviewTopicOrId);
-    return Array.from(
-      this.filter((contribution) =>
-        contribution.reviewTopicId.equals(reviewTopicId),
-      ),
+    return this.toArray().filter((contribution) =>
+      contribution.reviewTopicId.equals(reviewTopicId),
     );
   }
 }

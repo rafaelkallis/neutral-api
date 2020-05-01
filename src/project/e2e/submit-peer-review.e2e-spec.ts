@@ -117,7 +117,7 @@ describe('submit peer review (e2e)', () => {
     expect((updatedProject.consensuality as Consensuality).value).toEqual(
       expect.any(Number),
     );
-    for (const updatedRole of updatedProject.roles) {
+    for (const updatedRole of updatedProject.roles.toArray()) {
       expect(updatedRole.contribution).not.toBeNull();
       expect((updatedRole.contribution as ContributionAmount).value).toEqual(
         expect.any(Number),
@@ -148,7 +148,7 @@ describe('submit peer review (e2e)', () => {
       );
     }
     expect(updatedProject.state).toBe(ProjectPeerReview.INSTANCE);
-    for (const updatedRole of updatedProject.roles) {
+    for (const updatedRole of updatedProject.roles.toArray()) {
       expect(updatedRole.contribution).toBeFalsy();
     }
   });

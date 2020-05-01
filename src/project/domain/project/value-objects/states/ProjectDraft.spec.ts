@@ -165,7 +165,7 @@ describe(ProjectDraft.name, () => {
 
   describe('finish formation', () => {
     beforeEach(() => {
-      for (const role of project.roles) {
+      for (const role of project.roles.toArray()) {
         role.assigneeId = UserId.create();
       }
     });

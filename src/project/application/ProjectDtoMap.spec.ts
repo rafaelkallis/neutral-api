@@ -32,19 +32,23 @@ describe('project dto map', () => {
 
     roleDtos = [];
     td.when(
-      objectMapper.mapIterable(project.roles, RoleDto, td.matchers.anything()),
+      objectMapper.mapArray(
+        project.roles.toArray(),
+        RoleDto,
+        td.matchers.anything(),
+      ),
     ).thenReturn(roleDtos);
     peerReviewDtos = [];
     td.when(
       objectMapper.mapArray(
-        td.matchers.anything(),
+        project.peerReviews.toArray(),
         PeerReviewDto,
         td.matchers.anything(),
       ),
     ).thenReturn(peerReviewDtos);
     reviewTopicDtos = [];
     td.when(
-      objectMapper.mapIterable(td.matchers.anything(), ReviewTopicDto),
+      objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto),
     ).thenReturn(reviewTopicDtos);
   });
 

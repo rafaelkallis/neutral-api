@@ -1,18 +1,18 @@
 import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { FilterIterable } from 'shared/domain/FilterIterable';
 
 export interface ReadonlyModelCollection<
   TId extends Id,
   TModel extends ReadonlyModel<TId>
-> extends Iterable<TModel> {
+> {
   contains(modelOrId: TModel | TId): boolean;
   findById(id: TId): TModel;
+  toArray(): ReadonlyArray<TModel>;
 }
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   implements ReadonlyModelCollection<TId, TModel> {
-  private readonly models: TModel[];
+  private models: TModel[];
   private readonly removedModels: TModel[];
 
   public constructor(models: ReadonlyArray<TModel>) {
@@ -21,7 +21,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public toArray(): ReadonlyArray<TModel> {
-    return Array.from(this);
+    return Array.from(this.models);
   }
 
   public add(modelToAdd: TModel): void {
@@ -42,8 +42,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
       throw new Error('model does not exist');
     }
     this.removedModels.push(modelToRemove);
-    const modelToRemoveIndex = this.indexOf(modelToRemove.id);
-    this.models.splice(modelToRemoveIndex, 1);
+    this.models = this.models.filter((model) => !model.equals(modelToRemove));
   }
 
   public removeAll(modelsToRemove: TModel[]): void {
@@ -53,20 +52,11 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public findById(id: TId): TModel {
-    for (const model of this) {
-      if (model.id.equals(id)) {
-        return model;
-      }
+    const model = this.models.find((model) => model.id.equals(id));
+    if (!model) {
+      throw new Error('model does not exist');
     }
-    throw new Error('model does not exist');
-  }
-
-  public [Symbol.iterator](): Iterator<TModel> {
-    return this.models[Symbol.iterator]();
-  }
-
-  public filter(predicate: (model: TModel) => boolean): Iterable<TModel> {
-    return new FilterIterable(this, predicate);
+    return model;
   }
 
   /**
@@ -85,36 +75,14 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   protected isAny(predicate: (model: TModel) => boolean): boolean {
-    for (const model of this) {
-      if (predicate(model)) {
-        return true;
-      }
-    }
-    return false;
+    return this.models.some(predicate);
   }
 
   protected areAll(predicate: (model: TModel) => boolean): boolean {
-    for (const model of this) {
-      if (!predicate(model)) {
-        return false;
-      }
-    }
-    return true;
+    return this.models.every(predicate);
   }
 
   protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {
     return modelOrId instanceof Model ? modelOrId.id : modelOrId;
-  }
-
-  /**
-   *
-   */
-  private indexOf(id: TId): number {
-    for (let i = 0; i < this.models.length; i++) {
-      if (this.models[i].id.equals(id)) {
-        return i;
-      }
-    }
-    return -1;
   }
 }
