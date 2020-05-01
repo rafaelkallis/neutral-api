@@ -16,8 +16,6 @@ import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAss
 import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
-import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
@@ -95,32 +93,6 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
-   * Update a role
-   */
-  public async updateRole(
-    authUser: User,
-    rawProjectId: string,
-    rawRoleId: string,
-    rawTitle?: string,
-    rawDescription?: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    const title = rawTitle ? RoleTitle.from(rawTitle) : undefined;
-    const description = rawDescription
-      ? RoleDescription.from(rawDescription)
-      : undefined;
-    project.updateRole(roleId, title, description);
-    await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 

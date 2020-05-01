@@ -17,7 +17,6 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { FakeContributionsComputerService } from 'project/infrastructure/FakeContributionsComputerService';
 import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
-import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
@@ -172,33 +171,6 @@ describe(ProjectApplicationService.name, () => {
       const actualProjectDto = await projectApplication.getProject(
         creatorUser,
         project.id.value,
-      );
-      expect(actualProjectDto).toBe(expectedProjectDto);
-    });
-  });
-
-  describe('update role', () => {
-    let newTitle: RoleTitle;
-    let roleToUpdate: Role;
-
-    beforeEach(() => {
-      newTitle = RoleTitle.from(scenario.primitiveFaker.words());
-      roleToUpdate = roles[0];
-      jest.spyOn(project, 'updateRole');
-    });
-
-    test('happy path', async () => {
-      const actualProjectDto = await projectApplication.updateRole(
-        creatorUser,
-        project.id.value,
-        roleToUpdate.id.value,
-        newTitle.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.updateRole).toHaveBeenCalledWith(
-        roleToUpdate.id,
-        newTitle,
-        undefined,
       );
       expect(actualProjectDto).toBe(expectedProjectDto);
     });

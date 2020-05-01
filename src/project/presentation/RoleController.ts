@@ -28,6 +28,7 @@ import { ProjectApplicationService } from 'project/application/ProjectApplicatio
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { AddRoleCommand } from 'project/application/commands/AddRole';
+import { UpdateRoleCommand } from 'project/application/commands/UpdateRole';
 
 /**
  * Role Controller
@@ -89,15 +90,16 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
-    @Body(ValidationPipe) dto: UpdateRoleDto,
+    @Body(ValidationPipe) updateRoleDto: UpdateRoleDto,
   ): Promise<ProjectDto> {
-    const { title, description } = dto;
-    return this.projectApplication.updateRole(
-      authUser,
-      projectId,
-      roleId,
-      title,
-      description,
+    return this.mediator.send(
+      new UpdateRoleCommand(
+        authUser,
+        projectId,
+        roleId,
+        updateRoleDto.title,
+        updateRoleDto.description,
+      ),
     );
   }
 
