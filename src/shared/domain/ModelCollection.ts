@@ -7,7 +7,7 @@ export interface ReadonlyModelCollection<
   TModel extends ReadonlyModel<TId>
 > extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
-  find(id: TId): TModel;
+  findById(id: TId): TModel;
 }
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
@@ -52,7 +52,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     }
   }
 
-  public find(id: TId): TModel {
+  public findById(id: TId): TModel {
     for (const model of this) {
       if (model.id.equals(id)) {
         return model;

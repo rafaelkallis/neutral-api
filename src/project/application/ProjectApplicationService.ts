@@ -133,7 +133,7 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    const roleToAssign = project.roles.find(roleId);
+    const roleToAssign = project.roles.findById(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }

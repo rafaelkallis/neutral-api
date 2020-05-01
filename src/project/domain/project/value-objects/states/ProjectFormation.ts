@@ -67,7 +67,7 @@ export class ProjectFormation extends DefaultProjectState {
     title?: RoleTitle,
     description?: RoleDescription,
   ): void {
-    const roleToUpdate = project.roles.find(roleId);
+    const roleToUpdate = project.roles.findById(roleId);
     if (title) {
       roleToUpdate.title = title;
     }
@@ -80,7 +80,7 @@ export class ProjectFormation extends DefaultProjectState {
   }
 
   public removeRole(project: Project, roleId: RoleId): void {
-    const roleToRemove = project.roles.find(roleId);
+    const roleToRemove = project.roles.findById(roleId);
     project.roles.remove(roleToRemove);
     project.raise(new RoleDeletedEvent(roleToRemove));
   }
@@ -90,7 +90,7 @@ export class ProjectFormation extends DefaultProjectState {
     userToAssign: ReadonlyUser,
     roleId: RoleId,
   ): void {
-    const roleToBeAssigned = project.roles.find(roleId);
+    const roleToBeAssigned = project.roles.findById(roleId);
     if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
       return;
     }
@@ -109,7 +109,7 @@ export class ProjectFormation extends DefaultProjectState {
   }
 
   public unassign(project: Project, roleId: RoleId): void {
-    const role = project.roles.find(roleId);
+    const role = project.roles.findById(roleId);
     const previousAssigneeId = role.assertAssigned();
     role.assigneeId = null;
     project.raise(new UserUnassignedEvent(project, role, previousAssigneeId));
