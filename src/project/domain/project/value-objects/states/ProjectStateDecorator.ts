@@ -10,6 +10,9 @@ import { ReadonlyUser } from 'user/domain/User';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -53,6 +56,13 @@ export abstract class ProjectStateDecorator extends ProjectState {
   }
   public unassign(project: Project, roleId: RoleId): void {
     this.base.unassign(project, roleId);
+  }
+  public addReviewTopic(
+    project: Project,
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic {
+    return this.base.addReviewTopic(project, title, description);
   }
   public finishFormation(project: Project): void {
     this.base.finishFormation(project);

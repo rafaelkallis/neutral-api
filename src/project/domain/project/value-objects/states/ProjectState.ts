@@ -11,6 +11,9 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 /**
  *
@@ -44,6 +47,12 @@ export abstract class ProjectState extends ValueObject {
   ): void;
 
   public abstract unassign(project: Project, roleId: RoleId): void;
+
+  public abstract addReviewTopic(
+    project: Project,
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic;
 
   public abstract finishFormation(project: Project): void;
 
@@ -91,19 +100,27 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public removeRole(project: Project, roleId: RoleId): void {
+  public removeRole(_project: Project, _roleId: RoleId): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public assignUserToRole(
-    project: Project,
-    userToAssign: ReadonlyUser,
-    roleId: RoleId,
+    _project: Project,
+    _userToAssign: ReadonlyUser,
+    _roleId: RoleId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public unassign(project: Project, roleId: RoleId): void {
+  public unassign(_project: Project, _roleId: RoleId): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
+  public addReviewTopic(
+    _project: Project,
+    _title: ReviewTopicTitle,
+    _description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
@@ -115,21 +132,21 @@ export abstract class DefaultProjectState extends ProjectState {
     _project: Project,
     _senderRoleId: RoleId,
     _submittedPeerReviews: [RoleId, PeerReviewScore][],
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    _contributionsComputer: ContributionsComputer,
+    _consensualityComputer: ConsensualityComputer,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public submitManagerReview(project: Project): void {
+  public submitManagerReview(_project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public cancel(project: Project): void {
+  public cancel(_project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public archive(project: Project): void {
+  public archive(_project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 }

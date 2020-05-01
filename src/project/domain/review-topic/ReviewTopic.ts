@@ -33,7 +33,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
   public static from(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
-  ): ReadonlyReviewTopic {
+  ): ReviewTopic {
     const id = ReviewTopicId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();

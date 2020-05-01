@@ -15,6 +15,9 @@ import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
 
 describe(ProjectFormation.name, () => {
   let modelFaker: ModelFaker;
@@ -160,6 +163,28 @@ describe(ProjectFormation.name, () => {
     test('when no user is assigned, should fail', () => {
       roleToUnassign.assigneeId = null;
       expect(() => state.unassign(project, roleToUnassign.id)).toThrow();
+    });
+  });
+
+  describe('add review topic', () => {
+    let title: ReviewTopicTitle;
+    let description: ReviewTopicDescription;
+
+    beforeEach(() => {
+      title = ReviewTopicTitle.from(primitiveFaker.words());
+      description = ReviewTopicDescription.from(primitiveFaker.paragraph());
+    });
+
+    test('happy path', () => {
+      const addedReviewTopic = state.addReviewTopic(
+        project,
+        title,
+        description,
+      );
+      expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicCreatedEvent),
+      );
     });
   });
 

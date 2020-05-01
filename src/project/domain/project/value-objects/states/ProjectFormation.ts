@@ -20,6 +20,13 @@ import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectForm
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import {
+  ReadonlyReviewTopic,
+  ReviewTopic,
+} from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
 
 export class ProjectFormation extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableState(
@@ -106,6 +113,17 @@ export class ProjectFormation extends DefaultProjectState {
     const previousAssigneeId = role.assertAssigned();
     role.assigneeId = null;
     project.raise(new UserUnassignedEvent(project, role, previousAssigneeId));
+  }
+
+  public addReviewTopic(
+    project: Project,
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic {
+    const reviewTopic = ReviewTopic.from(title, description);
+    project.reviewTopics.add(reviewTopic);
+    project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
+    return reviewTopic;
   }
 
   public finishFormation(project: Project): void {

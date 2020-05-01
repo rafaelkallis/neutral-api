@@ -60,6 +60,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly contributions: ReadonlyContributionCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
+
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
   updateRole(
     roleId: RoleId,
@@ -69,6 +70,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   removeRole(roleId: RoleId): void;
   assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
   unassignRole(roleId: RoleId): void;
+
   finishFormation(): void;
   submitPeerReviews(
     senderRoleId: RoleId,

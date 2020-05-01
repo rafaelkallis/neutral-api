@@ -8,7 +8,7 @@ import { InvalidReviewTopicDescriptionException } from 'project/domain/exception
 export class ReviewTopicDescription extends StringValueObject {
   private constructor(value: string) {
     super(value);
-    this.assertMaxLength(value, 100);
+    this.assertMaxLength(value, 1024);
   }
 
   /**

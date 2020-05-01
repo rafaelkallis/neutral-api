@@ -1,13 +1,14 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
-import { Id } from 'shared/domain/value-objects/Id';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 @DomainEventKey('project.role_created')
 export class RoleCreatedEvent extends DomainEvent {
-  public readonly projectId: Id;
-  public readonly roleId: Id;
+  public readonly projectId: ProjectId;
+  public readonly roleId: RoleId;
 
-  public constructor(projecId: Id, roleId: Id) {
+  public constructor(projecId: ProjectId, roleId: RoleId) {
     super();
     this.projectId = projecId;
     this.roleId = roleId;
