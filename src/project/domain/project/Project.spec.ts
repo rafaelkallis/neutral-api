@@ -11,6 +11,9 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -73,6 +76,17 @@ describe(Project.name, () => {
     const roleIdToUnassign = RoleId.create();
     project.unassignRole(roleIdToUnassign);
     td.verify(project.state.unassign(project, roleIdToUnassign));
+  });
+
+  test('add review topic', () => {
+    const title = ReviewTopicTitle.from(primitiveFaker.words());
+    const description = ReviewTopicDescription.from(primitiveFaker.paragraph());
+    const addedReviewTopic: ReadonlyReviewTopic = td.object();
+    td.when(
+      project.state.addReviewTopic(project, title, description),
+    ).thenReturn(addedReviewTopic);
+    const actualRole = project.addReviewTopic(title, description);
+    expect(actualRole).toBe(addedReviewTopic);
   });
 
   test('finish formation', () => {

@@ -37,6 +37,9 @@ import {
   ReadonlyContributionCollection,
   ContributionCollection,
 } from 'project/domain/contribution/ContributionCollection';
+import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
+import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -70,6 +73,11 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   removeRole(roleId: RoleId): void;
   assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
   unassignRole(roleId: RoleId): void;
+
+  addReviewTopic(
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic;
 
   finishFormation(): void;
   submitPeerReviews(
@@ -177,6 +185,13 @@ export class Project extends AggregateRoot<ProjectId>
    */
   public unassignRole(roleId: RoleId): void {
     this.state.unassign(this, roleId);
+  }
+
+  public addReviewTopic(
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic {
+    return this.state.addReviewTopic(this, title, description);
   }
 
   /**
