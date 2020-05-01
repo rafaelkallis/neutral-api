@@ -38,6 +38,7 @@ import {
   ContributionTypeOrmEntityMap,
   ReverseContributionTypeOrmEntityMap,
 } from 'project/infrastructure/ContributionTypeOrmEntityMap';
+import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 
 /**
  * Project Module
@@ -79,6 +80,7 @@ import {
     UpdateProjectCommandHandler,
     AddRoleCommandHandler,
     UpdateRoleCommandHandler,
+    AddReviewTopicCommandHandler,
   ],
   exports: [ProjectRepository],
 })
