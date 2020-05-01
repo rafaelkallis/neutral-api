@@ -3,7 +3,7 @@ import {
   ContributionsComputer,
   Contributions,
 } from 'project/domain/ContributionsComputer';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
 import { Id } from 'shared/domain/value-objects/Id';
@@ -42,12 +42,12 @@ export class CoveeContributionsComputerService extends ContributionsComputer {
       }
     }
     const relContVec: number[] = this.computeContributionsFromMatrix(S);
-    const relContMap: Record<string, Contribution> = {};
+    const relContMap: Record<string, ContributionAmount> = {};
     for (const [i, iId] of ids.entries()) {
-      relContMap[iId] = Contribution.from(relContVec[i]);
+      relContMap[iId] = ContributionAmount.from(relContVec[i]);
     }
     return {
-      of(roleId: Id): Contribution {
+      of(roleId: Id): ContributionAmount {
         const contribution = relContMap[roleId.value];
         if (!contribution) {
           throw new InternalServerErrorException();

@@ -9,7 +9,7 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 
 @Injectable()
@@ -51,7 +51,7 @@ export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
       RoleTitle.from(roleEntity.title),
       RoleDescription.from(roleEntity.description),
       roleEntity.contribution
-        ? Contribution.from(roleEntity.contribution)
+        ? ContributionAmount.from(roleEntity.contribution)
         : null,
       HasSubmittedPeerReviews.from(roleEntity.hasSubmittedPeerReviews),
     );

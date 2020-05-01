@@ -3,7 +3,7 @@ import {
   ContributionsComputer,
   Contributions,
 } from 'project/domain/ContributionsComputer';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { Id } from 'shared/domain/value-objects/Id';
 
@@ -13,8 +13,8 @@ export class FakeContributionsComputerService extends ContributionsComputer {
     const peers = Object.keys(peerReviews.toMap());
     const n = peers.length;
     return {
-      of(_roleId: Id): Contribution {
-        return Contribution.from(1 / n);
+      of(_roleId: Id): ContributionAmount {
+        return ContributionAmount.from(1 / n);
       },
     };
   }

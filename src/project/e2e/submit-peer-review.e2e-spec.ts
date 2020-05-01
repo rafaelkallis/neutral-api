@@ -2,7 +2,7 @@ import { Project } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
@@ -119,7 +119,7 @@ describe('submit peer review (e2e)', () => {
     );
     for (const updatedRole of updatedProject.roles) {
       expect(updatedRole.contribution).not.toBeNull();
-      expect((updatedRole.contribution as Contribution).value).toEqual(
+      expect((updatedRole.contribution as ContributionAmount).value).toEqual(
         expect.any(Number),
       );
     }
