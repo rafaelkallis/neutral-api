@@ -41,6 +41,7 @@ import {
 } from 'project/infrastructure/ContributionTypeOrmEntityMap';
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
+import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
 
 /**
  * Project Module
@@ -68,6 +69,7 @@ import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
     RoleDtoMap,
     PeerReviewDtoMap,
     ReviewTopicDtoMap,
+    ContributionDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,

@@ -9,6 +9,7 @@ import { RoleDto } from 'project/application/dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
+import { ContributionDto } from './dto/ContributionDto';
 
 describe('project dto map', () => {
   let objectMapper: ObjectMapper;
@@ -21,6 +22,7 @@ describe('project dto map', () => {
   let roleDtos: RoleDto[];
   let peerReviewDtos: RoleDto[];
   let reviewTopicDtos: ReviewTopicDto[];
+  let contributionDtos: ContributionDto[];
 
   beforeEach(() => {
     objectMapper = td.object();
@@ -50,6 +52,13 @@ describe('project dto map', () => {
     td.when(
       objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto),
     ).thenReturn(reviewTopicDtos);
+    contributionDtos = [];
+    td.when(
+      objectMapper.mapArray(project.contributions.toArray(), ContributionDto, {
+        authUser,
+        project,
+      }),
+    ).thenReturn(contributionDtos);
   });
 
   test('general', () => {
@@ -66,6 +75,7 @@ describe('project dto map', () => {
       roles: roleDtos,
       peerReviews: peerReviewDtos,
       reviewTopics: reviewTopicDtos,
+      contributions: contributionDtos,
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });

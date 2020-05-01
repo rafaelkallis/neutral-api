@@ -9,6 +9,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable, Type } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
+import { ContributionDto } from './dto/ContributionDto';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
@@ -32,9 +33,20 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       this.mapConsensuality(project, authUser),
       project.contributionVisibility.value,
       project.skipManagerReview.value,
-      this.mapRoleDtos(project, authUser),
+      this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
+        project,
+        authUser,
+      }),
       this.mapPeerReviewDtos(project, authUser),
-      this.mapReviewTopicDtos(project),
+      this.objectMapper.mapArray(
+        project.reviewTopics.toArray(),
+        ReviewTopicDto,
+      ),
+      this.objectMapper.mapArray(
+        project.contributions.toArray(),
+        ContributionDto,
+        { authUser, project },
+      ),
     );
   }
 
@@ -47,20 +59,6 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       return null;
     }
     return project.consensuality.value;
-  }
-
-  private mapRoleDtos(project: Project, authUser: User): RoleDto[] {
-    return this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
-      project,
-      authUser,
-    });
-  }
-
-  private mapReviewTopicDtos(project: Project): ReviewTopicDto[] {
-    return this.objectMapper.mapArray(
-      project.reviewTopics.toArray(),
-      ReviewTopicDto,
-    );
   }
 
   private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {

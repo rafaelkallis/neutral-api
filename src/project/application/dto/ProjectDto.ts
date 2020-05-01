@@ -6,6 +6,7 @@ import { ProjectStateValue } from 'project/domain/project/value-objects/states/P
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 import { ReviewTopicDto } from './ReviewTopicDto';
+import { ContributionDto } from './ContributionDto';
 
 /**
  * Project DTO
@@ -57,6 +58,9 @@ export class ProjectDto extends ModelDto {
   @ApiProperty({ type: [ReviewTopicDto] })
   public reviewTopics: ReviewTopicDto[];
 
+  @ApiProperty({ type: [ContributionDto] })
+  public contributions: ContributionDto[];
+
   public constructor(
     id: string,
     createdAt: number,
@@ -71,6 +75,7 @@ export class ProjectDto extends ModelDto {
     roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
     reviewTopics: ReviewTopicDto[],
+    contributions: ContributionDto[],
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -83,5 +88,6 @@ export class ProjectDto extends ModelDto {
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
+    this.contributions = contributions;
   }
 }
