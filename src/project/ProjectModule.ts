@@ -34,6 +34,10 @@ import {
 } from 'project/infrastructure/PeerReviewTypeOrmEntityMap';
 import { ProjectFactory } from 'project/application/ProjectFactory';
 import { UpdateRoleCommandHandler } from 'project/application/commands/UpdateRole';
+import {
+  ContributionTypeOrmEntityMap,
+  ReverseContributionTypeOrmEntityMap,
+} from 'project/infrastructure/ContributionTypeOrmEntityMap';
 
 /**
  * Project Module
@@ -68,6 +72,8 @@ import { UpdateRoleCommandHandler } from 'project/application/commands/UpdateRol
     ReversePeerReviewTypeOrmEntityMap,
     ReviewTopicTypeOrmEntityMap,
     ReverseReviewTopicTypeOrmEntityMap,
+    ContributionTypeOrmEntityMap,
+    ReverseContributionTypeOrmEntityMap,
     // command handlers
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,

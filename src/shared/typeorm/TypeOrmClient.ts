@@ -49,6 +49,7 @@ import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/
 import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
 import { AddReviewTopicsMigration1588178451000 } from 'shared/typeorm/migration/1588178451000AddReviewTopicsMigration';
 import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration/1588327814000AddContributionMigration';
+import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -71,6 +72,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RoleTypeOrmEntity,
         PeerReviewTypeOrmEntity,
         ReviewTopicTypeOrmEntity,
+        ContributionTypeOrmEntity,
         NotificationTypeOrmEntity,
       ],
       migrations: [

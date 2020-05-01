@@ -4,7 +4,8 @@ import { ProjectStateValue } from 'project/domain/project/value-objects/states/P
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
-import { ReviewTopicTypeOrmEntity } from './ReviewTopicTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
+import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 
 /**
  * Project TypeOrm Entity
@@ -62,6 +63,16 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   )
   public reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>;
 
+  @OneToMany(
+    () => ContributionTypeOrmEntity,
+    (contribution) => contribution.project,
+    {
+      eager: true,
+      cascade: true,
+    },
+  )
+  public contributions: ReadonlyArray<ContributionTypeOrmEntity>;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -76,6 +87,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     roles: ReadonlyArray<RoleTypeOrmEntity>,
     peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,
     reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>,
+    contributions: ReadonlyArray<ContributionTypeOrmEntity>,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -88,5 +100,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
+    this.contributions = contributions;
   }
 }

@@ -135,6 +135,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.roles', 'role')
       .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .leftJoinAndSelect('project.reviewTopics', 'reviewTopic');
+      .leftJoinAndSelect('project.reviewTopics', 'reviewTopic')
+      .leftJoinAndSelect('project.contributions', 'contribution');
   }
 }
