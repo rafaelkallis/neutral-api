@@ -8,41 +8,48 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ReviewTopicDto } from './dto/ReviewTopicDto';
 
 describe('project dto map', () => {
   let objectMapper: ObjectMapper;
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
   let owner: User;
-  let user: User;
+  let authUser: User;
   let project: Project;
+
+  let roleDtos: RoleDto[];
+  let peerReviewDtos: RoleDto[];
+  let reviewTopicDtos: ReviewTopicDto[];
 
   beforeEach(() => {
     objectMapper = td.object();
     projectDtoMap = new ProjectDtoMap(objectMapper);
     modelFaker = new ModelFaker();
     owner = modelFaker.user();
-    user = modelFaker.user();
+    authUser = modelFaker.user();
     project = modelFaker.project(owner.id);
 
+    roleDtos = [];
     td.when(
-      objectMapper.mapIterable(
-        td.matchers.anything(),
-        RoleDto,
-        td.matchers.anything(),
-      ),
-    ).thenReturn([]);
+      objectMapper.mapIterable(project.roles, RoleDto, td.matchers.anything()),
+    ).thenReturn(roleDtos);
+    peerReviewDtos = [];
     td.when(
       objectMapper.mapArray(
         td.matchers.anything(),
         PeerReviewDto,
         td.matchers.anything(),
       ),
-    ).thenReturn([]);
+    ).thenReturn(peerReviewDtos);
+    reviewTopicDtos = [];
+    td.when(
+      objectMapper.mapIterable(td.matchers.anything(), ReviewTopicDto),
+    ).thenReturn(reviewTopicDtos);
   });
 
   test('general', () => {
-    const projectDto = projectDtoMap.map(project, { authUser: user });
+    const projectDto = projectDtoMap.map(project, { authUser });
     expect(projectDto).toEqual({
       id: project.id.value,
       title: project.title.value,
@@ -52,8 +59,9 @@ describe('project dto map', () => {
       consensuality: null,
       contributionVisibility: project.contributionVisibility.value,
       skipManagerReview: project.skipManagerReview.value,
-      roles: [],
-      peerReviews: [],
+      roles: roleDtos,
+      peerReviews: peerReviewDtos,
+      reviewTopics: reviewTopicDtos,
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });
@@ -67,7 +75,7 @@ describe('project dto map', () => {
 
   test('should not expose consensuality if not project owner', () => {
     project.consensuality = Consensuality.from(1);
-    const projectDto = projectDtoMap.map(project, { authUser: user });
+    const projectDto = projectDtoMap.map(project, { authUser: authUser });
     expect(projectDto.consensuality).toBeNull();
   });
 });

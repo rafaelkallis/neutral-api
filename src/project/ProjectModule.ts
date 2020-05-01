@@ -4,6 +4,7 @@ import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
 import { RoleController } from 'project/presentation/RoleController';
+import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
 import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -39,13 +40,14 @@ import {
   ReverseContributionTypeOrmEntityMap,
 } from 'project/infrastructure/ContributionTypeOrmEntityMap';
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
+import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 
 /**
  * Project Module
  */
 @Module({
   imports: [SharedModule, UserModule],
-  controllers: [ProjectController, RoleController],
+  controllers: [ProjectController, RoleController, ReviewTopicController],
   providers: [
     {
       provide: ProjectRepository,
@@ -65,6 +67,7 @@ import { AddReviewTopicCommandHandler } from 'project/application/commands/AddRe
     ProjectDtoMap,
     RoleDtoMap,
     PeerReviewDtoMap,
+    ReviewTopicDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,

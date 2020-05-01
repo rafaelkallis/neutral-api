@@ -8,6 +8,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable, Type } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ReviewTopicDto } from './dto/ReviewTopicDto';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
@@ -22,6 +23,8 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,
+      project.createdAt.value,
+      project.updatedAt.value,
       project.title.value,
       project.description.value,
       project.creatorId.value,
@@ -31,8 +34,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.skipManagerReview.value,
       this.mapRoleDtos(project, authUser),
       this.mapPeerReviewDtos(project, authUser),
-      project.createdAt.value,
-      project.updatedAt.value,
+      this.mapReviewTopicDtos(project),
     );
   }
 
@@ -53,6 +55,12 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
         project,
         authUser,
       }),
+    );
+  }
+
+  private mapReviewTopicDtos(project: Project): ReviewTopicDto[] {
+    return Array.from(
+      this.objectMapper.mapIterable(project.reviewTopics, ReviewTopicDto),
     );
   }
 

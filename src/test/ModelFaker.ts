@@ -30,6 +30,10 @@ import { ProjectFormation } from 'project/domain/project/value-objects/states/Pr
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -139,6 +143,17 @@ export class ModelFaker {
       receiverRoleId,
       score,
     );
+  }
+
+  public reviewTopic(): ReviewTopic {
+    const id = ReviewTopicId.create();
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const title = ReviewTopicTitle.from(this.primitiveFaker.words());
+    const description = ReviewTopicDescription.from(
+      this.primitiveFaker.paragraph(),
+    );
+    return new ReviewTopic(id, createdAt, updatedAt, title, description);
   }
 
   /**

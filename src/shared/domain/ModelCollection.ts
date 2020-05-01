@@ -20,6 +20,10 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     this.removedModels = [];
   }
 
+  public toArray(): ReadonlyArray<TModel> {
+    return Array.from(this);
+  }
+
   public add(modelToAdd: TModel): void {
     if (this.contains(modelToAdd.id)) {
       throw new Error('model already exists');

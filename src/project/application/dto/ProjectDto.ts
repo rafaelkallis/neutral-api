@@ -5,6 +5,7 @@ import { SkipManagerReviewValue } from 'project/domain/project/value-objects/Ski
 import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
+import { ReviewTopicDto } from './ReviewTopicDto';
 
 /**
  * Project DTO
@@ -53,8 +54,13 @@ export class ProjectDto extends ModelDto {
   @ApiProperty({ type: [PeerReviewDto], required: false })
   public peerReviews: PeerReviewDto[] | null;
 
+  @ApiProperty({ type: [ReviewTopicDto] })
+  public reviewTopics: ReviewTopicDto[];
+
   public constructor(
     id: string,
+    createdAt: number,
+    updatedAt: number,
     title: string,
     description: string,
     creatorId: string,
@@ -64,8 +70,7 @@ export class ProjectDto extends ModelDto {
     skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
-    createdAt: number,
-    updatedAt: number,
+    reviewTopics: ReviewTopicDto[],
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -77,5 +82,6 @@ export class ProjectDto extends ModelDto {
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;
+    this.reviewTopics = reviewTopics;
   }
 }
