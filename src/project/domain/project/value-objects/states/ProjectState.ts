@@ -5,7 +5,7 @@ import { ProjectDescription } from 'project/domain/project/value-objects/Project
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { Role } from 'project/domain/role/Role';
+import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyUser } from 'user/domain/User';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -26,7 +26,7 @@ export abstract class ProjectState extends ValueObject {
     project: Project,
     title: RoleTitle,
     description: RoleDescription,
-  ): Role;
+  ): ReadonlyRole;
 
   public abstract updateRole(
     project: Project,
@@ -78,7 +78,7 @@ export abstract class DefaultProjectState extends ProjectState {
     _project: Project,
     _title: RoleTitle,
     _description: RoleDescription,
-  ): Role {
+  ): ReadonlyRole {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 

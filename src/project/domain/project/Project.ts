@@ -11,7 +11,7 @@ import { ContributionVisibility } from 'project/domain/project/value-objects/Con
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { Role } from 'project/domain/role/Role';
+import { ReadonlyRole } from 'project/domain/role/Role';
 import {
   RoleCollection,
   ReadonlyRoleCollection,
@@ -55,7 +55,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly reviewTopics: ReadonlyReviewTopicCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
-  addRole(title: RoleTitle, description: RoleDescription): Role;
+  addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
   updateRole(
     roleId: RoleId,
     title?: RoleTitle,
@@ -132,8 +132,7 @@ export class Project extends AggregateRoot<ProjectId>
   /**
    *
    */
-  public addRole(title: RoleTitle, description: RoleDescription): Role {
-    // TODO ReadonlyRole return
+  public addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole {
     return this.state.addRole(this, title, description);
   }
 

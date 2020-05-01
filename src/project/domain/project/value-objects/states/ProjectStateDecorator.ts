@@ -5,7 +5,7 @@ import { ProjectDescription } from 'project/domain/project/value-objects/Project
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { Role } from 'project/domain/role/Role';
+import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyUser } from 'user/domain/User';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -30,7 +30,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
     project: Project,
     title: RoleTitle,
     description: RoleDescription,
-  ): Role {
+  ): ReadonlyRole {
     return this.base.addRole(project, title, description);
   }
   public updateRole(
