@@ -8,7 +8,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
@@ -44,7 +44,7 @@ describe(ProjectPeerReview.name, () => {
   describe('submit peer review', () => {
     let roles: Role[];
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
-    let contribution: Contribution;
+    let contribution: ContributionAmount;
     let contributions: Contributions;
     let consensuality: Consensuality;
     let contributionsComputer: ContributionsComputer;
@@ -97,7 +97,7 @@ describe(ProjectPeerReview.name, () => {
         consensuality,
       );
 
-      contribution = td.object(Contribution.from(0.5));
+      contribution = td.object(ContributionAmount.from(0.5));
       contributions = td.object();
       td.when(contributions.of(td.matchers.anything())).thenReturn(
         contribution,

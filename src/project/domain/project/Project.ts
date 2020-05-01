@@ -33,6 +33,10 @@ import {
   ReadonlyReviewTopicCollection,
   ReviewTopicCollection,
 } from 'project/domain/review-topic/ReviewTopicCollection';
+import {
+  ReadonlyContributionCollection,
+  ContributionCollection,
+} from 'project/domain/contribution/ContributionCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -53,6 +57,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly roles: ReadonlyRoleCollection;
   readonly peerReviews: ReadonlyPeerReviewCollection;
   readonly reviewTopics: ReadonlyReviewTopicCollection;
+  readonly contributions: ReadonlyContributionCollection;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
@@ -93,6 +98,7 @@ export class Project extends AggregateRoot<ProjectId>
   public roles: RoleCollection;
   public peerReviews: PeerReviewCollection;
   public reviewTopics: ReviewTopicCollection;
+  public contributions: ContributionCollection;
 
   public constructor(
     id: ProjectId,
@@ -108,6 +114,7 @@ export class Project extends AggregateRoot<ProjectId>
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
     reviewTopics: ReviewTopicCollection,
+    contributions: ContributionCollection,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -120,6 +127,7 @@ export class Project extends AggregateRoot<ProjectId>
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
+    this.contributions = contributions;
   }
 
   /**

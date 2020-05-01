@@ -23,8 +23,11 @@ import {
 } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { ReviewTopicTypeOrmEntity } from './ReviewTopicTypeOrmEntity';
+import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { Contribution } from 'project/domain/contribution/Contribution';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
@@ -37,6 +40,9 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
   > = [];
   private static readonly reviewTopicsSentinel: ReadonlyArray<
     ReviewTopicTypeOrmEntity
+  > = [];
+  private static readonly contributionsSentinel: ReadonlyArray<
+    ContributionTypeOrmEntity
   > = [];
 
   private readonly objectMapper: ObjectMapper;
@@ -61,6 +67,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTypeOrmEntityMap.rolesSentinel,
       ProjectTypeOrmEntityMap.peerReviewsSentinel,
       ProjectTypeOrmEntityMap.reviewTopicsSentinel,
+      ProjectTypeOrmEntityMap.contributionsSentinel,
     );
     projectEntity.roles = Array.from(
       this.objectMapper.mapIterable(projectModel.roles, RoleTypeOrmEntity, {
@@ -78,6 +85,13 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       this.objectMapper.mapIterable(
         projectModel.reviewTopics,
         ReviewTopicTypeOrmEntity,
+        { project: projectEntity },
+      ),
+    );
+    projectEntity.contributions = Array.from(
+      this.objectMapper.mapIterable(
+        projectModel.contributions,
+        ContributionTypeOrmEntity,
         { project: projectEntity },
       ),
     );
@@ -115,6 +129,9 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     const reviewTopics = new ReviewTopicCollection(
       this.objectMapper.mapArray(projectEntity.reviewTopics, ReviewTopic),
     );
+    const contributions = new ContributionCollection(
+      this.objectMapper.mapArray(projectEntity.contributions, Contribution),
+    );
     return new Project(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
@@ -131,6 +148,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       roles,
       peerReviews,
       reviewTopics,
+      contributions,
     );
   }
 

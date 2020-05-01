@@ -29,6 +29,7 @@ import { NotificationId } from 'notification/domain/value-objects/NotificationId
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -95,6 +96,7 @@ export class ModelFaker {
       new RoleCollection([]),
       new PeerReviewCollection([]),
       new ReviewTopicCollection([]),
+      new ContributionCollection([]),
     );
   }
 

@@ -15,6 +15,7 @@ import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCo
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -45,6 +46,7 @@ export class ProjectFactory extends AggregateRootFactory<
     const roles = new RoleCollection([]);
     const peerReviews = new PeerReviewCollection([]);
     const reviewTopics = new ReviewTopicCollection([]);
+    const contributions = new ContributionCollection([]);
     const project = new Project(
       projectId,
       createdAt,
@@ -61,6 +63,7 @@ export class ProjectFactory extends AggregateRootFactory<
       roles,
       peerReviews,
       reviewTopics,
+      contributions,
     );
     project.raise(new ProjectCreatedEvent(project, creator));
     project.raise(new ProjectFormationStartedEvent(project));

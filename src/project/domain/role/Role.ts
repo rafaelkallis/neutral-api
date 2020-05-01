@@ -4,7 +4,7 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { Contribution } from 'project/domain/role/value-objects/Contribution';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
@@ -15,7 +15,7 @@ export interface ReadonlyRole extends ReadonlyModel<RoleId> {
   readonly assigneeId: UserId | null;
   readonly title: RoleTitle;
   readonly description: RoleDescription;
-  readonly contribution: Contribution | null;
+  readonly contribution: ContributionAmount | null;
   readonly hasSubmittedPeerReviews: HasSubmittedPeerReviews;
 }
 
@@ -26,7 +26,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
   public assigneeId: UserId | null;
   public title: RoleTitle;
   public description: RoleDescription;
-  public contribution: Contribution | null;
+  public contribution: ContributionAmount | null;
   public hasSubmittedPeerReviews: HasSubmittedPeerReviews;
 
   public constructor(
@@ -36,7 +36,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     assigneeId: UserId | null,
     title: RoleTitle,
     description: RoleDescription,
-    contribution: Contribution | null,
+    contribution: ContributionAmount | null,
     hasSubmittedPeerReviews: HasSubmittedPeerReviews,
   ) {
     super(id, createdAt, updatedAt);

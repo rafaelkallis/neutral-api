@@ -1,11 +1,11 @@
 import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
-import { InvalidContributionException } from 'project/domain/exceptions/InvalidContributionException';
+import { InvalidContributionAmountException } from 'project/domain/exceptions/InvalidContributionAmountException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 /**
  *
  */
-export class Contribution extends UnitDecimalValueObject {
+export class ContributionAmount extends UnitDecimalValueObject {
   private constructor(value: number) {
     super(value);
   }
@@ -13,18 +13,18 @@ export class Contribution extends UnitDecimalValueObject {
   /**
    *
    */
-  public static from(value: number): Contribution {
-    return new Contribution(value);
+  public static from(value: number): ContributionAmount {
+    return new ContributionAmount(value);
   }
 
   public equals(other: ValueObject): boolean {
-    if (!(other instanceof Contribution)) {
+    if (!(other instanceof ContributionAmount)) {
       return false;
     }
     return super.equals(other);
   }
 
   protected throwInvalidValueObjectException(): never {
-    throw new InvalidContributionException();
+    throw new InvalidContributionAmountException();
   }
 }
