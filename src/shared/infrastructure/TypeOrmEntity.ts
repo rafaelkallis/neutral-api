@@ -20,12 +20,14 @@ export abstract class TypeOrmEntity {
     this.updatedAt = updatedAt;
   }
 
+  // TODO remove
   @BeforeInsert()
   public beforeInsert(): void {
     this.createdAt = Date.now();
     this.updatedAt = Date.now();
   }
 
+  // TODO remove
   @BeforeUpdate()
   public beforeUpdate(): void {
     this.updatedAt = Date.now();

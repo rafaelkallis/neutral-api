@@ -9,6 +9,7 @@ import { ProjectPeerReview } from 'project/domain/project/value-objects/states/P
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -92,8 +93,22 @@ describe('project (e2e)', () => {
         `/projects/${project.id.value}`,
       );
       expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-      expect(response.body.roles).toEqual([]);
+      expect(response.body).toEqual({
+        id: project.id.value,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+        title: project.title.value,
+        description: project.description.value,
+        creatorId: project.creatorId.value,
+        state: getProjectStateValue(project.state),
+        consensuality: project.consensuality?.value,
+        skipManagerReview: project.skipManagerReview.value,
+        contributionVisibility: project.contributionVisibility.value,
+        roles: [],
+        peerReviews: [],
+        reviewTopics: [],
+        contributions: [],
+      });
     });
   });
 

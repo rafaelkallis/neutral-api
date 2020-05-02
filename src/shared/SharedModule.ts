@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, ClassSerializerInterceptor } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { TelemetryModule } from 'shared/telemetry/TelemetryModule';
 import { ConfigModule } from 'shared/config/ConfigModule';
@@ -31,6 +32,13 @@ import { AmqpModule } from 'shared/amqp/AmqpModule';
     MediatorModule,
     DomainEventModule,
     AmqpModule,
+  ],
+  providers: [
+    // @see https://docs.nestjs.com/techniques/serialization#overview
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
   ],
   exports: [
     UtilityModule,
