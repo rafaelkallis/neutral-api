@@ -6,10 +6,12 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerReviewException';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly senderRoleId: RoleId;
   readonly receiverRoleId: RoleId;
+  readonly reviewTopicId: ReviewTopicId;
   readonly score: PeerReviewScore;
 
   isSenderRole(roleOrRoleId: Role | RoleId): boolean;
@@ -23,6 +25,7 @@ export class PeerReview extends Model<PeerReviewId>
   implements ReadonlyPeerReview {
   public senderRoleId: RoleId;
   public receiverRoleId: RoleId;
+  public reviewTopicId: ReviewTopicId;
   public score: PeerReviewScore;
 
   public constructor(
@@ -31,11 +34,13 @@ export class PeerReview extends Model<PeerReviewId>
     updatedAt: UpdatedAt,
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     score: PeerReviewScore,
   ) {
     super(id, createdAt, updatedAt);
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
+    this.reviewTopicId = reviewTopicId;
     this.score = score;
     this.assertNoSelfReview();
   }
@@ -43,6 +48,7 @@ export class PeerReview extends Model<PeerReviewId>
   public static from(
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     score: PeerReviewScore,
   ): PeerReview {
     const peerReviewId = PeerReviewId.create();
@@ -54,6 +60,7 @@ export class PeerReview extends Model<PeerReviewId>
       peerReviewUpdatedAt,
       senderRoleId,
       receiverRoleId,
+      reviewTopicId,
       score,
     );
   }

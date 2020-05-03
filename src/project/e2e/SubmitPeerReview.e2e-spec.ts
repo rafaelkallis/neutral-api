@@ -9,6 +9,7 @@ import { User } from 'user/domain/User';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -19,6 +20,7 @@ describe('submit peer review (e2e)', () => {
   let role2: Role;
   let role3: Role;
   let role4: Role;
+  let reviewTopic: ReviewTopic;
   let peerReviews: Record<string, Record<string, number>>;
 
   beforeEach(async () => {
@@ -43,6 +45,11 @@ describe('submit peer review (e2e)', () => {
     role4.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
     project.roles.addAll([role1, role2, role3, role4]);
+    await scenario.projectRepository.persist(project);
+
+    /* add review topic */
+    reviewTopic = scenario.modelFaker.reviewTopic();
+    project.reviewTopics.add(reviewTopic);
     await scenario.projectRepository.persist(project);
 
     peerReviews = {
@@ -77,6 +84,7 @@ describe('submit peer review (e2e)', () => {
         const peerReview = scenario.modelFaker.peerReview(
           senderRole.id,
           receiverRole.id,
+          reviewTopic.id,
         );
         peerReview.score = PeerReviewScore.from(
           peerReviews[senderRole.id.value][receiverRole.id.value],
@@ -123,6 +131,10 @@ describe('submit peer review (e2e)', () => {
         expect.any(Number),
       );
     }
+    expect(updatedProject.contributions.toArray()).toHaveLength(
+      updatedProject.roles.toArray().length *
+        updatedProject.reviewTopics.toArray().length,
+    );
   });
 
   test('happy path, not final peer review', async () => {

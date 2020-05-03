@@ -19,11 +19,11 @@ import { ProjectManagerReview } from 'project/domain/project/value-objects/state
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
-import {
-  ContributionsComputer,
-  Contributions,
-} from 'project/domain/ContributionsComputer';
+import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { Contribution } from 'project/domain/contribution/Contribution';
 
 describe(ProjectPeerReview.name, () => {
   let modelFaker: ModelFaker;
@@ -43,9 +43,10 @@ describe(ProjectPeerReview.name, () => {
 
   describe('submit peer review', () => {
     let roles: Role[];
+    let reviewTopic: ReviewTopic;
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
     let contribution: ContributionAmount;
-    let contributions: Contributions;
+    let contributions: ContributionCollection;
     let consensuality: Consensuality;
     let contributionsComputer: ContributionsComputer;
     let consensualityComputer: ConsensualityComputer;
@@ -61,6 +62,10 @@ describe(ProjectPeerReview.name, () => {
         modelFaker.role(),
       ];
       project.roles.addAll(roles);
+
+      reviewTopic = modelFaker.reviewTopic();
+      project.reviewTopics.add(reviewTopic);
+
       project.skipManagerReview = SkipManagerReview.NO;
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
       roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -80,6 +85,7 @@ describe(ProjectPeerReview.name, () => {
           const peerReview = modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
+            reviewTopic.id,
           );
           peerReviews.push(peerReview);
         }
@@ -97,10 +103,11 @@ describe(ProjectPeerReview.name, () => {
         consensuality,
       );
 
-      contribution = td.object(ContributionAmount.from(0.5));
-      contributions = td.object();
-      td.when(contributions.of(td.matchers.anything())).thenReturn(
-        contribution,
+      contribution = td.object();
+      contributions = new ContributionCollection(
+        roles.map((role) =>
+          Contribution.from(role.id, reviewTopic.id, contribution),
+        ),
       );
       td.when(contributionsComputer.compute(td.matchers.anything())).thenReturn(
         contributions,
@@ -112,6 +119,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -136,6 +144,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -149,6 +158,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -162,6 +172,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -174,6 +185,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -188,6 +200,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -205,6 +218,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -221,6 +235,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -238,6 +253,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,

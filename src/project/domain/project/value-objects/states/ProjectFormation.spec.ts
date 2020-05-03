@@ -197,10 +197,12 @@ describe(ProjectFormation.name, () => {
 
     test('happy path', () => {
       state.finishFormation(project);
-      expect(project.domainEvents).toEqual([
+      expect(project.domainEvents).toContainEqual(
         expect.any(ProjectFormationFinishedEvent),
+      );
+      expect(project.domainEvents).toContainEqual(
         expect.any(ProjectPeerReviewStartedEvent),
-      ]);
+      );
     });
 
     test('should fail if a role has no user assigned', () => {

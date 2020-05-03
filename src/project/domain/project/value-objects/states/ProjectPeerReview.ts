@@ -19,6 +19,7 @@ import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 export class ProjectPeerReview extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableState(
@@ -32,6 +33,7 @@ export class ProjectPeerReview extends DefaultProjectState {
   public submitPeerReviews(
     project: Project,
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -45,6 +47,7 @@ export class ProjectPeerReview extends DefaultProjectState {
     );
     const addedPeerReviews = project.peerReviews.addForSender(
       senderRole.id,
+      reviewTopicId,
       submittedPeerReviews,
     );
     senderRole.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -102,8 +105,11 @@ export class ProjectPeerReview extends DefaultProjectState {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    const contributions = contributionsComputer.compute(project.peerReviews);
-    project.roles.applyContributions(contributions);
+    project.contributions = contributionsComputer.compute(project.peerReviews);
+
+    // TODO remove
+    project.roles.applyContributions(project.contributions);
+
     project.consensuality = consensualityComputer.compute(project.peerReviews);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {

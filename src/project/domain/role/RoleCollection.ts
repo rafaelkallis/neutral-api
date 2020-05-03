@@ -5,12 +5,12 @@ import {
   ModelCollection,
   ReadonlyModelCollection,
 } from 'shared/domain/ModelCollection';
-import { Contributions } from 'project/domain/ContributionsComputer';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { InsufficientRoleAmountException } from 'project/domain/exceptions/InsufficientRoleAmountException';
+import { ReadonlyContributionCollection } from '../contribution/ContributionCollection';
 
 export interface ReadonlyRoleCollection
   extends ReadonlyModelCollection<RoleId, ReadonlyRole> {
@@ -41,9 +41,12 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
     return this.toArray().filter((role) => !role.equals(roleToExclude));
   }
 
-  public applyContributions(contributions: Contributions): void {
-    for (const role of this.toArray()) {
-      role.contribution = contributions.of(role.id);
+  // TODO should be removed
+  public applyContributions(
+    contributions: ReadonlyContributionCollection,
+  ): void {
+    for (const role of this) {
+      role.contribution = contributions.findByRole(role).first().amount;
     }
   }
 

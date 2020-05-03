@@ -127,10 +127,25 @@ export class ModelFaker {
     );
   }
 
+  public reviewTopic(): ReviewTopic {
+    const id = ReviewTopicId.create();
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const title = ReviewTopicTitle.from(this.primitiveFaker.words());
+    const description = ReviewTopicDescription.from(
+      this.primitiveFaker.paragraph(),
+    );
+    return new ReviewTopic(id, createdAt, updatedAt, title, description);
+  }
+
   /**
    * Create a fake peer review
    */
-  public peerReview(senderRoleId: RoleId, receiverRoleId: RoleId): PeerReview {
+  public peerReview(
+    senderRoleId: RoleId,
+    receiverRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): PeerReview {
     const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
@@ -141,19 +156,9 @@ export class ModelFaker {
       updatedAt,
       senderRoleId,
       receiverRoleId,
+      reviewTopicId,
       score,
     );
-  }
-
-  public reviewTopic(): ReviewTopic {
-    const id = ReviewTopicId.create();
-    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const title = ReviewTopicTitle.from(this.primitiveFaker.words());
-    const description = ReviewTopicDescription.from(
-      this.primitiveFaker.paragraph(),
-    );
-    return new ReviewTopic(id, createdAt, updatedAt, title, description);
   }
 
   /**

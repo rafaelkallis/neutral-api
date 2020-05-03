@@ -14,6 +14,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /**
  *
@@ -59,6 +60,7 @@ export abstract class ProjectState extends ValueObject {
   public abstract submitPeerReviews(
     project: Project,
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -131,6 +133,7 @@ export abstract class DefaultProjectState extends ProjectState {
   public submitPeerReviews(
     _project: Project,
     _senderRoleId: RoleId,
+    _reviewTopicId: ReviewTopicId,
     _submittedPeerReviews: [RoleId, PeerReviewScore][],
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,

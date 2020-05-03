@@ -1,13 +1,15 @@
 import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
+import { InternalServerErrorException } from '@nestjs/common';
 
 export interface ReadonlyModelCollection<
   TId extends Id,
   TModel extends ReadonlyModel<TId>
-> {
+> extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
   findById(id: TId): TModel;
   toArray(): ReadonlyArray<TModel>;
+  first(): TModel;
 }
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
@@ -20,8 +22,19 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     this.removedModels = [];
   }
 
+  public [Symbol.iterator](): Iterator<TModel> {
+    return this.models[Symbol.iterator]();
+  }
+
   public toArray(): ReadonlyArray<TModel> {
     return Array.from(this.models);
+  }
+
+  public first(): TModel {
+    if (this.models.length === 0) {
+      throw new InternalServerErrorException();
+    }
+    return this.models[0];
   }
 
   public add(modelToAdd: TModel): void {
@@ -74,11 +87,11 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.removedModels;
   }
 
-  protected isAny(predicate: (model: TModel) => boolean): boolean {
+  public isAny(predicate: (model: TModel) => boolean): boolean {
     return this.models.some(predicate);
   }
 
-  protected areAll(predicate: (model: TModel) => boolean): boolean {
+  public areAll(predicate: (model: TModel) => boolean): boolean {
     return this.models.every(predicate);
   }
 

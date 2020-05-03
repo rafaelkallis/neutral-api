@@ -227,6 +227,14 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
+
+    // TODO remove
+    // for backwards compatibility
+    const [defaultReviewTopic] = project.reviewTopics.toArray();
+    if (!defaultReviewTopic) {
+      throw new InternalServerErrorException('default review topic not found');
+    }
+
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
@@ -239,6 +247,7 @@ export class ProjectApplicationService {
     ]);
     project.submitPeerReviews(
       authRole.id,
+      defaultReviewTopic.id,
       peerReviews,
       this.contributionsComputer,
       this.consensualityComputer,

@@ -14,7 +14,7 @@ import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { FakeContributionsComputerService } from 'project/infrastructure/FakeContributionsComputerService';
+import { FakeContributionsComputer } from 'project/infrastructure/FakeContributionsComputer';
 import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
@@ -29,6 +29,7 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
 import { InitialState } from 'user/domain/value-objects/states/InitialState';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -42,6 +43,7 @@ describe(ProjectApplicationService.name, () => {
   let creatorUser: User;
   let project: Project;
   let roles: Role[];
+  let reviewTopic: ReviewTopic;
   let expectedProjectDto: unknown;
 
   beforeEach(async () => {
@@ -51,10 +53,7 @@ describe(ProjectApplicationService.name, () => {
       .addProviderMock(UserFactory)
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ObjectMapper)
-      .addProviderValue(
-        ContributionsComputer,
-        new FakeContributionsComputerService(),
-      )
+      .addProviderValue(ContributionsComputer, new FakeContributionsComputer())
       .addProviderValue(
         ConsensualityComputer,
         new FakeConsensualityComputerService(),
@@ -80,6 +79,10 @@ describe(ProjectApplicationService.name, () => {
       scenario.modelFaker.role(),
     ];
     project.roles.addAll(roles);
+
+    reviewTopic = scenario.modelFaker.reviewTopic();
+    project.reviewTopics.add(reviewTopic);
+
     await projectRepository.persist(project);
 
     expectedProjectDto = td.object();
@@ -330,6 +333,7 @@ describe(ProjectApplicationService.name, () => {
           const peerReview = scenario.modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
+            reviewTopic.id,
           );
           project.peerReviews.add(peerReview);
         }
@@ -353,6 +357,7 @@ describe(ProjectApplicationService.name, () => {
         );
         expect(project.submitPeerReviews).toHaveBeenCalledWith(
           roles[0].id,
+          project.reviewTopics.toArray()[0].id, // TODO replace with used review topic
           expect.any(Array),
           contributionsComputer,
           consensualityComputer,

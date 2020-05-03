@@ -1,12 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import {
-  ContributionsComputer,
-  Contributions,
-} from 'project/domain/ContributionsComputer';
+import { Injectable } from '@nestjs/common';
+import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
-import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
-import { Id } from 'shared/domain/value-objects/Id';
+import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { Contribution } from 'project/domain/contribution/Contribution';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -14,47 +11,82 @@ import { Id } from 'shared/domain/value-objects/Id';
  * Covee Contributions Computer
  */
 @Injectable()
-export class CoveeContributionsComputerService extends ContributionsComputer {
+export class CoveeContributionsComputer extends ContributionsComputer {
   /**
    * Computes the relative contributions.
    */
-  public compute(peerReviewCollection: PeerReviewCollection): Contributions {
-    const peerReviews = peerReviewCollection.toMap();
-    const ids: string[] = Object.keys(peerReviews).sort();
-    const S: number[][] = [];
-    for (const [i, iId] of ids.entries()) {
-      if (ids.length - 1 !== Object.keys(peerReviews[iId]).length) {
-        throw new InvariantViolationException();
+  public compute(
+    peerReviews: ReadonlyPeerReviewCollection,
+  ): ContributionCollection {
+    const contributions: Contribution[] = [];
+    for (const reviewTopicId of peerReviews.getReviewTopics()) {
+      const peers = peerReviews.getPeers();
+      const S: number[][] = [];
+      for (const [i, iId] of peers.entries()) {
+        S[i] = [];
+        for (const [j, jId] of peers.entries()) {
+          if (i === j) {
+            continue;
+          }
+          const peerReview = peerReviews
+            .findByReviewTopic(reviewTopicId)
+            .findBySenderRole(iId)
+            .findByReceiverRole(jId)
+            .first();
+          S[i][j] = peerReview.score.value;
+        }
       }
-      S[i] = [];
-      for (const [j, jId] of ids.entries()) {
-        if (i === j) {
-          S[i][j] = 0;
-          continue;
-        }
-        if (iId === jId) {
-          throw new InvariantViolationException();
-        }
-        if (peerReviews[iId][jId] === undefined) {
-          throw new InvariantViolationException();
-        }
-        S[i][j] = peerReviews[iId][jId];
+      const relContVec: number[] = this.computeContributionsFromMatrix(S);
+      for (const [i, iId] of peers.entries()) {
+        const contributionAmount = ContributionAmount.from(relContVec[i]);
+        const contribution = Contribution.from(
+          iId,
+          reviewTopicId,
+          contributionAmount,
+        );
+        contributions.push(contribution);
       }
     }
-    const relContVec: number[] = this.computeContributionsFromMatrix(S);
-    const relContMap: Record<string, ContributionAmount> = {};
-    for (const [i, iId] of ids.entries()) {
-      relContMap[iId] = ContributionAmount.from(relContVec[i]);
-    }
-    return {
-      of(roleId: Id): ContributionAmount {
-        const contribution = relContMap[roleId.value];
-        if (!contribution) {
-          throw new InternalServerErrorException();
-        }
-        return contribution;
-      },
-    };
+    return new ContributionCollection(contributions);
+
+    // legacy implementation
+
+    // const peerReviews = peerReviewCollection.toMap();
+    // const ids: string[] = Object.keys(peerReviews).sort();
+    // const S: number[][] = [];
+    // for (const [i, iId] of ids.entries()) {
+    //   if (ids.length - 1 !== Object.keys(peerReviews[iId]).length) {
+    //     throw new InvariantViolationException();
+    //   }
+    //   S[i] = [];
+    //   for (const [j, jId] of ids.entries()) {
+    //     if (i === j) {
+    //       S[i][j] = 0;
+    //       continue;
+    //     }
+    //     if (iId === jId) {
+    //       throw new InvariantViolationException();
+    //     }
+    //     if (peerReviews[iId][jId] === undefined) {
+    //       throw new InvariantViolationException();
+    //     }
+    //     S[i][j] = peerReviews[iId][jId];
+    //   }
+    // }
+    // const relContVec: number[] = this.computeContributionsFromMatrix(S);
+    // const relContMap: Record<string, ContributionAmount> = {};
+    // for (const [i, iId] of ids.entries()) {
+    //   relContMap[iId] = ContributionAmount.from(relContVec[i]);
+    // }
+    // return {
+    //   of(roleId: Id): ContributionAmount {
+    //     const contribution = relContMap[roleId.value];
+    //     if (!contribution) {
+    //       throw new InternalServerErrorException();
+    //     }
+    //     return contribution;
+    //   },
+    // };
   }
 
   private computeContributionsFromMatrix(S: number[][]): number[] {

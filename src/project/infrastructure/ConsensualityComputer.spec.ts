@@ -8,6 +8,7 @@ import { VarianceConsensualityComputerService } from 'project/infrastructure/Var
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 describe('consensuality computer', () => {
   let consensualityComputer: ConsensualityComputer;
@@ -34,74 +35,83 @@ describe('consensuality computer', () => {
     c = primitiveFaker.id();
     d = primitiveFaker.id();
 
-    cyclePeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: l,
-        [c]: o,
-        [d]: o,
+    cyclePeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [b]: {
+          [a]: o,
+          [c]: l,
+          [d]: o,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: l,
+          [b]: o,
+          [c]: o,
+        },
       },
-      [b]: {
-        [a]: o,
-        [c]: l,
-        [d]: o,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: l,
-        [b]: o,
-        [c]: o,
-      },
-    });
+      ReviewTopicId.create(),
+    );
 
-    clusterPeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: l,
-        [c]: o,
-        [d]: o,
+    clusterPeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [b]: {
+          [a]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: o,
+          [b]: o,
+          [c]: l,
+        },
       },
-      [b]: {
-        [a]: l,
-        [c]: o,
-        [d]: o,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: o,
-        [b]: o,
-        [c]: l,
-      },
-    });
+      ReviewTopicId.create(),
+    );
 
-    oneDidItAllPeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: o,
-        [c]: o,
-        [d]: l,
+    oneDidItAllPeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: o,
+          [c]: o,
+          [d]: l,
+        },
+        [b]: {
+          [a]: o,
+          [c]: o,
+          [d]: l,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: 1 / 3,
+          [b]: 1 / 3,
+          [c]: 1 / 3,
+        },
       },
-      [b]: {
-        [a]: o,
-        [c]: o,
-        [d]: l,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: 1 / 3,
-        [b]: 1 / 3,
-        [c]: 1 / 3,
-      },
-    });
+      ReviewTopicId.create(),
+    );
   });
 
   describe('mean deviation method', () => {

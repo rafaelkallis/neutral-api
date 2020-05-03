@@ -1,13 +1,5 @@
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
-
-/**
- *
- */
-export interface Contributions {
-  of(roleId: RoleId): ContributionAmount;
-}
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 
 /**
  * Contributions Computer
@@ -18,5 +10,5 @@ export abstract class ContributionsComputer {
    */
   public abstract compute(
     peerReviews: ReadonlyPeerReviewCollection,
-  ): Contributions;
+  ): ContributionCollection;
 }

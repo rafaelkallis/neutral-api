@@ -129,6 +129,15 @@ export class ProjectFormation extends DefaultProjectState {
   public finishFormation(project: Project): void {
     project.roles.assertSufficientAmount();
     project.roles.assertAllAreAssigned();
+
+    // for backwards compatibility
+    this.addReviewTopic(
+      project,
+      ReviewTopicTitle.from('Contribution'),
+      ReviewTopicDescription.from(''),
+    );
+
+    project.reviewTopics.assertSufficientAmount();
     project.state = ProjectPeerReview.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project));

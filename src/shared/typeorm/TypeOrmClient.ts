@@ -20,6 +20,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
+import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 
@@ -49,7 +50,7 @@ import { AddStateToUsersMigration1587059776000 } from 'shared/typeorm/migration/
 import { DropUniqueUserEmailConstraintMigration1587070723000 } from 'shared/typeorm/migration/1587070723000DropUniqueUserEmailConstraint';
 import { AddReviewTopicsMigration1588178451000 } from 'shared/typeorm/migration/1588178451000AddReviewTopicsMigration';
 import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration/1588327814000AddContributionMigration';
-import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
+import { AddReviewTopicToPeerReviewMigration1588452568000 } from 'shared/typeorm/migration/1588452568000AddReviewTopicToPeerReviewMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -102,6 +103,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         DropUniqueUserEmailConstraintMigration1587070723000,
         AddReviewTopicsMigration1588178451000,
         AddContributionsMigration1588327814000,
+        AddReviewTopicToPeerReviewMigration1588452568000,
       ],
     });
     this.connection = connection;

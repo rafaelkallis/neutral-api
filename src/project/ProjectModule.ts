@@ -5,7 +5,7 @@ import { ProjectApplicationService } from 'project/application/ProjectApplicatio
 import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
-import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
+import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -60,7 +60,7 @@ import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
     },
     {
       provide: ContributionsComputer,
-      useClass: CoveeContributionsComputerService,
+      useClass: CoveeContributionsComputer,
     },
     ProjectApplicationService,
     ProjectFactory,
