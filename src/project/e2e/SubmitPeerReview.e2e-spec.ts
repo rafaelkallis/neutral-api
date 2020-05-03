@@ -2,7 +2,6 @@ import { Project } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
@@ -125,12 +124,6 @@ describe('submit peer review (e2e)', () => {
     expect((updatedProject.consensuality as Consensuality).value).toEqual(
       expect.any(Number),
     );
-    for (const updatedRole of updatedProject.roles.toArray()) {
-      expect(updatedRole.contribution).not.toBeNull();
-      expect((updatedRole.contribution as ContributionAmount).value).toEqual(
-        expect.any(Number),
-      );
-    }
     expect(updatedProject.contributions.toArray()).toHaveLength(
       updatedProject.roles.toArray().length *
         updatedProject.reviewTopics.toArray().length,
@@ -160,9 +153,7 @@ describe('submit peer review (e2e)', () => {
       );
     }
     expect(updatedProject.state).toBe(ProjectPeerReview.INSTANCE);
-    for (const updatedRole of updatedProject.roles.toArray()) {
-      expect(updatedRole.contribution).toBeFalsy();
-    }
+    expect(updatedProject.contributions.toArray()).toHaveLength(0);
   });
 
   test('should fail if project is not in peer-review state', async () => {

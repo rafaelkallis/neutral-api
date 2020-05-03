@@ -133,9 +133,7 @@ describe(ProjectPeerReview.name, () => {
         expect(
           project.state.equals(ProjectManagerReview.INSTANCE),
         ).toBeTruthy();
-        for (const role of roles) {
-          expect(role.contribution).toBe(contribution);
-        }
+        expect(project.contributions).toBe(contributions);
         expect(project.consensuality).toBe(consensuality);
       });
 
@@ -205,10 +203,8 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        for (const role of project.roles.toArray()) {
-          expect(role.contribution).toBeNull();
-        }
         expect(project.state.equals(ProjectPeerReview.INSTANCE)).toBeTruthy();
+        expect(project.contributions.toArray()).toHaveLength(0);
       });
     });
 

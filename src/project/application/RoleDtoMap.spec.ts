@@ -8,12 +8,16 @@ import { ContributionAmount } from 'project/domain/role/value-objects/Contributi
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { Contribution } from 'project/domain/contribution/Contribution';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe('role dto map', () => {
   let modelFaker: ModelFaker;
   let roleDtoMap: RoleDtoMap;
   let users: Record<string, User>;
   let role: Role;
+  let reviewTopic: ReviewTopic;
   let project: Project;
 
   beforeEach(async () => {
@@ -33,6 +37,11 @@ describe('role dto map', () => {
     ]);
     role = project.roles.findByAssignee(users.assignee);
     role.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
+    reviewTopic = modelFaker.reviewTopic();
+    project.reviewTopics.add(reviewTopic);
+    project.contributions = new ContributionCollection([
+      Contribution.from(role.id, reviewTopic.id, ContributionAmount.from(1)),
+    ]);
   });
 
   const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
@@ -59,7 +68,6 @@ describe('role dto map', () => {
     'contributions',
     (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
-      role.contribution = ContributionAmount.from(1);
       const roleDto = roleDtoMap.map(role, {
         project,
         authUser: users[authUser],
@@ -71,9 +79,8 @@ describe('role dto map', () => {
   test('should not show contribution if not project owner and if project not finished', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = ProjectPeerReview.INSTANCE;
-    role.contribution = ContributionAmount.from(1);
     const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
-    expect(roleDto.contribution).toBeFalsy();
+    expect(roleDto.contribution).toBeNull();
   });
 
   // const sentPeerReviewsCases: [string, boolean][] = [

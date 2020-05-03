@@ -34,7 +34,6 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     assigneeId: string | null,
     title: string,
     description: string,
-    contribution: number | null,
     hasSubmittedPeerReviews: boolean,
   ) {
     super(id, createdAt, updatedAt);
@@ -42,7 +41,7 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
-    this.contribution = contribution;
+    this.contribution = null;
     this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
   }
 }

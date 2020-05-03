@@ -113,7 +113,6 @@ export class ModelFaker {
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const title = RoleTitle.from(this.primitiveFaker.words());
     const description = RoleDescription.from(this.primitiveFaker.paragraph());
-    const contribution = null;
     const hasSubmittedPeerReviews = HasSubmittedPeerReviews.from(false);
     return new Role(
       id,
@@ -122,7 +121,6 @@ export class ModelFaker {
       assigneeId,
       title,
       description,
-      contribution,
       hasSubmittedPeerReviews,
     );
   }

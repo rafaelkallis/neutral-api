@@ -30,7 +30,8 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     project: Project,
     authUser: User,
   ): number | null {
-    if (role.contribution === null) {
+    const [contribution] = project.contributions.findByRole(role).toArray();
+    if (!contribution) {
       return null;
     }
     let shouldExpose = false;
@@ -72,7 +73,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         throw new InternalServerErrorException();
       }
     }
-    return shouldExpose ? role.contribution.value : null;
+    return shouldExpose ? contribution.amount.value : null;
   }
 
   private mapHasSubmittedPeerReviews(
