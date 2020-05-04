@@ -1,4 +1,13 @@
-import { Post, Body, Param, UseGuards, Controller } from '@nestjs/common';
+import {
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Controller,
+  HttpStatus,
+  HttpCode,
+  Patch,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -14,9 +23,12 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { AddReviewTopicDto } from 'project/presentation/dto/AddReviewTopicDto';
 import { AddReviewTopicCommand } from 'project/application/commands/AddReviewTopic';
+import { UpdateReviewTopicDto } from './dto/UpdateReviewTopicDto';
+import { UpdateReviewTopicCommand } from 'project/application/commands/UpdateReviewTopic';
 
 @Controller('projects/:project_id/review-topics')
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
 @ApiTags('Projects')
 export class ReviewTopicController {
   private readonly mediator: Mediator;
@@ -26,7 +38,6 @@ export class ReviewTopicController {
   }
 
   @Post()
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'addReviewTopic',
     summary: 'Add a review topic',
@@ -48,6 +59,35 @@ export class ReviewTopicController {
         projectId,
         addReviewTopicDto.title,
         addReviewTopicDto.description,
+      ),
+    );
+  }
+
+  @Patch(':review_topic_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    operationId: 'updateReviewTopic',
+    summary: 'Update a review topic',
+  })
+  @ApiCreatedResponse({
+    description: 'Review topic updated successfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({ description: 'User is not the project creator' })
+  @ApiNotFoundResponse({ description: 'Project not found' })
+  public async updateReviewTopic(
+    @AuthUser() authUser: User,
+    @Param('project_id') projectId: string,
+    @Param('review_topic_id') reviewTopicId: string,
+    @Body(ValidationPipe) updateReviewTopicDto: UpdateReviewTopicDto,
+  ): Promise<ProjectDto> {
+    return this.mediator.send(
+      new UpdateReviewTopicCommand(
+        authUser,
+        projectId,
+        reviewTopicId,
+        updateReviewTopicDto.title,
+        updateReviewTopicDto.description,
       ),
     );
   }

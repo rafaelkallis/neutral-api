@@ -27,6 +27,8 @@ import {
   ReviewTopic,
 } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 
 export class ProjectFormation extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableState(
@@ -124,6 +126,22 @@ export class ProjectFormation extends DefaultProjectState {
     project.reviewTopics.add(reviewTopic);
     project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
     return reviewTopic;
+  }
+
+  public updateReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    const reviewTopicToUpdate = project.reviewTopics.findById(reviewTopicId);
+    if (title) {
+      reviewTopicToUpdate.title = title;
+    }
+    if (description) {
+      reviewTopicToUpdate.description = description;
+    }
+    project.raise(new ReviewTopicUpdatedEvent(reviewTopicToUpdate.id));
   }
 
   public finishFormation(project: Project): void {

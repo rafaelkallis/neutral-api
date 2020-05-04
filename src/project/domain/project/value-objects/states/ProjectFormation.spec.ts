@@ -18,6 +18,8 @@ import { ProjectState } from 'project/domain/project/value-objects/states/Projec
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 
 describe(ProjectFormation.name, () => {
   let modelFaker: ModelFaker;
@@ -27,6 +29,7 @@ describe(ProjectFormation.name, () => {
   let creator: User;
   let project: Project;
   let roles: Role[];
+  let reviewTopics: ReviewTopic[];
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
@@ -42,6 +45,12 @@ describe(ProjectFormation.name, () => {
       modelFaker.role(),
     ];
     project.roles.addAll(roles);
+    reviewTopics = [
+      modelFaker.reviewTopic(),
+      modelFaker.reviewTopic(),
+      modelFaker.reviewTopic(),
+    ];
+    project.reviewTopics.addAll(reviewTopics);
   });
 
   describe('update', () => {
@@ -184,6 +193,24 @@ describe(ProjectFormation.name, () => {
       expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(
         expect.any(ReviewTopicCreatedEvent),
+      );
+    });
+  });
+
+  describe('update review topic', () => {
+    let title: ReviewTopicTitle;
+    let reviewTopicToUpdate: ReviewTopic;
+
+    beforeEach(() => {
+      title = ReviewTopicTitle.from(primitiveFaker.words());
+      reviewTopicToUpdate = reviewTopics[0];
+    });
+
+    test('happy path', () => {
+      state.updateReviewTopic(project, reviewTopicToUpdate.id, title);
+      expect(reviewTopicToUpdate.title).toEqual(title);
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicUpdatedEvent),
       );
     });
   });

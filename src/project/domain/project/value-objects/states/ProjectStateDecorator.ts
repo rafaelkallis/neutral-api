@@ -65,6 +65,14 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): ReadonlyReviewTopic {
     return this.base.addReviewTopic(project, title, description);
   }
+  public updateReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    this.base.updateReviewTopic(project, reviewTopicId, title, description);
+  }
   public finishFormation(project: Project): void {
     this.base.finishFormation(project);
   }
