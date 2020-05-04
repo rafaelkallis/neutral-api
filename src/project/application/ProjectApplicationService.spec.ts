@@ -238,29 +238,6 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('unassign role', () => {
-    let roleToUnassign: Role;
-
-    beforeEach(async () => {
-      roleToUnassign = roles[0];
-      const assignee = scenario.modelFaker.user();
-      await userRepository.persist(assignee);
-      roleToUnassign.assigneeId = assignee.id;
-      await projectRepository.persist(project);
-      jest.spyOn(project, 'unassignRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.unassignRole(
-        creatorUser,
-        project.id.value,
-        roleToUnassign.id.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.unassignRole).toHaveBeenCalledWith(roleToUnassign.id);
-    });
-  });
-
   describe('finish formation', () => {
     let assignees: User[];
     beforeEach(async () => {

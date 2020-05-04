@@ -43,6 +43,7 @@ import { AddReviewTopicCommandHandler } from 'project/application/commands/AddRe
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
+import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
 
 /**
  * Project Module
@@ -88,6 +89,7 @@ import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRol
     UpdateRoleCommandHandler,
     AddReviewTopicCommandHandler,
     RemoveRoleCommandHandler,
+    UnassignRoleCommandHandler,
   ],
   exports: [ProjectRepository],
 })

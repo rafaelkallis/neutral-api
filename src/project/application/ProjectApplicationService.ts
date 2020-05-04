@@ -154,29 +154,6 @@ export class ProjectApplicationService {
   }
 
   /**
-   * Unassign the specified role.
-   * @param authUser The authenticated user.
-   * @param rawProjectId The raw project id.
-   * @param rawRoleId The raw role id.
-   */
-  public async unassignRole(
-    authUser: ReadonlyUser,
-    rawProjectId: string,
-    rawRoleId: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    project.unassignRole(roleId);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
    * Finish project formation
    */
   public async finishFormation(

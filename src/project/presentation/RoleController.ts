@@ -30,6 +30,7 @@ import { Mediator } from 'shared/mediator/Mediator';
 import { AddRoleCommand } from 'project/application/commands/AddRole';
 import { UpdateRoleCommand } from 'project/application/commands/UpdateRole';
 import { RemoveRoleCommand } from 'project/application/commands/RemoveRole';
+import { UnassignRoleCommand } from 'project/application/commands/UnassignRole';
 
 /**
  * Role Controller
@@ -179,6 +180,11 @@ export class RoleController {
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
   ): Promise<ProjectDto> {
-    return this.projectApplication.unassignRole(authUser, projectId, roleId);
+    const unassignRoleCommand = new UnassignRoleCommand(
+      authUser,
+      projectId,
+      roleId,
+    );
+    return this.mediator.send(unassignRoleCommand);
   }
 }
