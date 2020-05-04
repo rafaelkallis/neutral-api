@@ -1,9 +1,10 @@
+import td from 'testdouble';
 import { User } from 'user/domain/User';
 import { ModelFaker } from 'test/ModelFaker';
 import { UserDtoMap } from 'user/application/UserDtoMap';
-import { MockConfig } from 'shared/config/infrastructure/MockConfig';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { Config } from 'shared/config/application/Config';
 
 describe('user map', () => {
   let userMap: UserDtoMap;
@@ -12,8 +13,8 @@ describe('user map', () => {
   let user: User;
 
   beforeEach(async () => {
-    const config = new MockConfig();
-    config.set('SERVER_URL', 'http://example.com');
+    const config: Config = td.object();
+    td.when(config.get('SERVER_URL')).thenReturn('http://example.com');
     userMap = new UserDtoMap(config);
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
