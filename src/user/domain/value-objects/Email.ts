@@ -1,4 +1,4 @@
-import { Validator } from 'class-validator';
+import { isEmail } from 'class-validator';
 import { InvalidEmailException } from 'user/domain/exceptions/InvalidEmailException';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
@@ -35,8 +35,7 @@ export class Email extends StringValueObject {
   }
 
   private assertEmail(value: string): void {
-    const validator = new Validator();
-    if (value !== '[REDACTED]' && !validator.isEmail(value)) {
+    if (value !== '[REDACTED]' && !isEmail(value)) {
       this.throwInvalidValueObjectException();
     }
   }

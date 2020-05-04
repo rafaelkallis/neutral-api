@@ -14,6 +14,9 @@ export class ValidationPipe extends NestValidationPipe {
     super({
       exceptionFactory: (errors: ValidationError[]): ValidationException => {
         const [error] = errors;
+        if (!error.constraints) {
+          return new ValidationException(error.toString());
+        }
         const [message] = Object.values(error.constraints);
         return new ValidationException(message);
       },
