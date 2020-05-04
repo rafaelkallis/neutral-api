@@ -176,25 +176,6 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('remove role', () => {
-    let roleToRemove: Role;
-
-    beforeEach(() => {
-      roleToRemove = roles[0];
-      jest.spyOn(project, 'removeRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.removeRole(
-        creatorUser,
-        project.id.value,
-        roleToRemove.id.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.removeRole).toHaveBeenCalledWith(roleToRemove.id);
-    });
-  });
-
   describe('assign user to role', () => {
     let assignee: User;
     let roleToBeAssigned: ReadonlyRole;

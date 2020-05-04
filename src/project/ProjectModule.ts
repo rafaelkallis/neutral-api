@@ -42,6 +42,7 @@ import {
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
+import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 
 /**
  * Project Module
@@ -86,6 +87,7 @@ import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
     AddRoleCommandHandler,
     UpdateRoleCommandHandler,
     AddReviewTopicCommandHandler,
+    RemoveRoleCommandHandler,
   ],
   exports: [ProjectRepository],
 })
