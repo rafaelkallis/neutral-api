@@ -16,11 +16,11 @@ async function main(): Promise<void> {
   const serverUrl = config.get('SERVER_URL');
   const sessionName = config.get('SESSION_NAME');
   const options = new DocumentBuilder()
-    .setTitle('Covee SaaS Api')
+    .setTitle('Covee Api')
     .setVersion('1.0')
     .addServer(serverUrl)
     .addBearerAuth()
-    .addSecurity('cookie', { type: 'apiKey', in: 'cookie', name: sessionName })
+    .addCookieAuth(sessionName)
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('docs', app, document);
