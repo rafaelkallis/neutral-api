@@ -35,6 +35,7 @@ describe('add review topic (e2e)', () => {
             id: expect.any(String),
             title,
             description,
+            consensuality: null,
             createdAt: expect.any(Number),
             updatedAt: expect.any(Number),
           },
