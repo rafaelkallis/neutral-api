@@ -1,33 +1,32 @@
-import { MockEmailManager } from 'shared/email/manager/MockEmailManager';
 import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { Email } from 'user/domain/value-objects/Email';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { ModelFaker } from 'test/ModelFaker';
+import { EmailManager } from 'shared/email/manager/EmailManager';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe('email domain event handlers', () => {
-  let primitiveFaker: PrimitiveFaker;
-  let modelFaker: ModelFaker;
-  let emailService: MockEmailManager;
-  let emailSagas: EmailDomainEventHandlers;
+  let scenario: UnitTestScenario<EmailDomainEventHandlers>;
+  let emailDomainEventHandlers: EmailDomainEventHandlers;
+  let emailManager: EmailManager;
 
-  beforeEach(() => {
-    primitiveFaker = new PrimitiveFaker();
-    modelFaker = new ModelFaker();
-    emailService = new MockEmailManager();
-    emailSagas = new EmailDomainEventHandlers(emailService);
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(EmailDomainEventHandlers)
+      .addProviderMock(EmailManager)
+      .build();
+    emailDomainEventHandlers = scenario.subject;
+    emailManager = scenario.module.get(EmailManager);
   });
 
   test('should be defined', () => {
-    expect(emailSagas).toBeDefined();
+    expect(emailDomainEventHandlers).toBeDefined();
   });
 
   test('email change requested', async () => {
-    jest.spyOn(emailService, 'sendEmailChangeEmail');
-    const user = modelFaker.user();
-    const email = Email.from(primitiveFaker.email());
+    jest.spyOn(emailManager, 'sendEmailChangeEmail');
+    const user = scenario.modelFaker.user();
+    const email = Email.from(scenario.primitiveFaker.email());
     const emailChangeMagicLink = '';
     const event = new EmailChangeRequestedEvent(
       user,
@@ -35,37 +34,37 @@ describe('email domain event handlers', () => {
       emailChangeMagicLink,
     );
 
-    await emailSagas.emailChangeRequested(event);
+    await emailDomainEventHandlers.emailChangeRequested(event);
 
-    expect(emailService.sendEmailChangeEmail).toHaveBeenCalledWith(
+    expect(emailManager.sendEmailChangeEmail).toHaveBeenCalledWith(
       email.value,
       emailChangeMagicLink,
     );
   });
 
   test('login requested', async () => {
-    jest.spyOn(emailService, 'sendLoginEmail');
-    const user = modelFaker.user();
+    jest.spyOn(emailManager, 'sendLoginEmail');
+    const user = scenario.modelFaker.user();
     const signinMagicLink = '';
     const event = new LoginRequestedEvent(user, signinMagicLink);
 
-    await emailSagas.signinRequested(event);
+    await emailDomainEventHandlers.signinRequested(event);
 
-    expect(emailService.sendLoginEmail).toHaveBeenCalledWith(
+    expect(emailManager.sendLoginEmail).toHaveBeenCalledWith(
       user.email.value,
       signinMagicLink,
     );
   });
 
   test('signup requested', async () => {
-    jest.spyOn(emailService, 'sendSignupEmail');
-    const email = primitiveFaker.email();
+    jest.spyOn(emailManager, 'sendSignupEmail');
+    const email = scenario.primitiveFaker.email();
     const signupMagicLink = '';
     const event = new SignupRequestedEvent(Email.from(email), signupMagicLink);
 
-    await emailSagas.signupRequested(event);
+    await emailDomainEventHandlers.signupRequested(event);
 
-    expect(emailService.sendSignupEmail).toHaveBeenCalledWith(
+    expect(emailManager.sendSignupEmail).toHaveBeenCalledWith(
       email,
       signupMagicLink,
     );

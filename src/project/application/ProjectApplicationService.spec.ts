@@ -179,25 +179,6 @@ describe(ProjectApplicationService.name, () => {
     });
   });
 
-  describe('remove role', () => {
-    let roleToRemove: Role;
-
-    beforeEach(() => {
-      roleToRemove = roles[0];
-      jest.spyOn(project, 'removeRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.removeRole(
-        creatorUser,
-        project.id.value,
-        roleToRemove.id.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.removeRole).toHaveBeenCalledWith(roleToRemove.id);
-    });
-  });
-
   describe('assign user to role', () => {
     let assignee: User;
     let roleToBeAssigned: ReadonlyRole;
@@ -257,29 +238,6 @@ describe(ProjectApplicationService.name, () => {
         roleToBeAssigned.id,
       );
       // TODO check if events emitted
-    });
-  });
-
-  describe('unassign role', () => {
-    let roleToUnassign: Role;
-
-    beforeEach(async () => {
-      roleToUnassign = roles[0];
-      const assignee = scenario.modelFaker.user();
-      await userRepository.persist(assignee);
-      roleToUnassign.assigneeId = assignee.id;
-      await projectRepository.persist(project);
-      jest.spyOn(project, 'unassignRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.unassignRole(
-        creatorUser,
-        project.id.value,
-        roleToUnassign.id.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.unassignRole).toHaveBeenCalledWith(roleToUnassign.id);
     });
   });
 

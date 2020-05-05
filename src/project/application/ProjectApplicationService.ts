@@ -97,26 +97,6 @@ export class ProjectApplicationService {
   }
 
   /**
-   * Remove a role
-   */
-  public async removeRole(
-    authUser: User,
-    rawProjectId: string,
-    rawRoleId: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    project.removeRole(roleId);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
    * Assign user to a role
    */
   public async assignUserToRole(
@@ -169,29 +149,6 @@ export class ProjectApplicationService {
       throw new InternalServerErrorException();
     }
     project.assignUserToRole(userToAssign, roleToAssign.id);
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
-   * Unassign the specified role.
-   * @param authUser The authenticated user.
-   * @param rawProjectId The raw project id.
-   * @param rawRoleId The raw role id.
-   */
-  public async unassignRole(
-    authUser: ReadonlyUser,
-    rawProjectId: string,
-    rawRoleId: string,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    project.unassignRole(roleId);
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

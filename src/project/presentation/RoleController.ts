@@ -29,6 +29,8 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { AddRoleCommand } from 'project/application/commands/AddRole';
 import { UpdateRoleCommand } from 'project/application/commands/UpdateRole';
+import { RemoveRoleCommand } from 'project/application/commands/RemoveRole';
+import { UnassignRoleCommand } from 'project/application/commands/UnassignRole';
 
 /**
  * Role Controller
@@ -114,12 +116,17 @@ export class RoleController {
   @ApiForbiddenResponse({
     description: "Authenticated user is not the role's project owner",
   })
-  public async deleteRole(
+  public async removeRole(
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
   ): Promise<ProjectDto> {
-    return this.projectApplication.removeRole(authUser, projectId, roleId);
+    const removeRoleCommand = new RemoveRoleCommand(
+      authUser,
+      projectId,
+      roleId,
+    );
+    return this.mediator.send(removeRoleCommand);
   }
 
   /**
@@ -173,6 +180,11 @@ export class RoleController {
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
   ): Promise<ProjectDto> {
-    return this.projectApplication.unassignRole(authUser, projectId, roleId);
+    const unassignRoleCommand = new UnassignRoleCommand(
+      authUser,
+      projectId,
+      roleId,
+    );
+    return this.mediator.send(unassignRoleCommand);
   }
 }

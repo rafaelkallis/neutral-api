@@ -1,12 +1,13 @@
+import td from 'testdouble';
 import { SendgridEmailManager } from 'shared/email/manager/SendgridEmailManager';
-import { MockConfig } from 'shared/config/infrastructure/MockConfig';
+import { Config } from 'shared/config/application/Config';
 
 describe.skip('SendgridEmailManager', () => {
-  let config: MockConfig;
+  let config: Config;
   let sendgridEmail: SendgridEmailManager;
 
   beforeEach(async () => {
-    config = new MockConfig();
+    config = td.object();
     sendgridEmail = new SendgridEmailManager(config);
   });
 

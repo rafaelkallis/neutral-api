@@ -16,6 +16,8 @@ import { User } from 'user/domain/User';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ProjectFactory } from '../ProjectFactory';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
@@ -44,8 +46,12 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
 > {
   private readonly projectFactory: ProjectFactory;
 
-  public constructor(projectFactory: ProjectFactory) {
-    super();
+  public constructor(
+    projectFactory: ProjectFactory,
+    objectMapper: ObjectMapper,
+    projectRepository: ProjectRepository,
+  ) {
+    super(objectMapper, projectRepository);
     this.projectFactory = projectFactory;
   }
 

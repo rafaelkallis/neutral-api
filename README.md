@@ -66,3 +66,25 @@ Each module follows a 3 tier architecture:
 ![Dependencies between layers in DDD](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/media/ddd-oriented-microservice/ddd-service-layer-dependencies.png)
 
 Figure from a [dotnet DDD microservice article](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice).
+
+## FAQs
+
+#### 1. How do I run all external dependencies?
+
+You can use the supplied docker compose file. Just run:
+
+```sh
+$ docker-compose up --detach
+```
+
+#### 2. When I run `npm run dev`, I get the following error: 
+
+```
+Error: The postgres extension "pg_trgm" is not installed. An administrator should install the extension: "CREATE EXTENSION pg_trgm;"
+```
+
+ Connect to your local postgres intance (`psql postgres://covee-saas:password@localhost:5432/covee-saas`) and run `CREATE EXTENSION pg_trgm;`.
+
+ #### 3. How do I override environment variables?
+
+ Create an `.env` file and specify your custom environment variables. The `.env` file is ignored and will not be commited.

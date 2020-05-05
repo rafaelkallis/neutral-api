@@ -1,5 +1,5 @@
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
-import { Validator } from 'class-validator';
+import { isEnum } from 'class-validator';
 import { InvalidNotificationTypeException } from 'notification/domain/exceptions/InvalidNotificationTypeException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
@@ -31,8 +31,7 @@ export class NotificationType extends EnumValueObject<NotificationTypeValue> {
    *
    */
   public static from(value: NotificationTypeValue): NotificationType {
-    const validator = new Validator();
-    if (!validator.isEnum(value, NotificationTypeValue)) {
+    if (!isEnum(value, NotificationTypeValue)) {
       throw new InvalidNotificationTypeException();
     }
     switch (value) {
