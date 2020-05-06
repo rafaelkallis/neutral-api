@@ -4,19 +4,11 @@ import { Consensuality } from 'project/domain/project/value-objects/Consensualit
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { InternalServerErrorException } from '@nestjs/common';
 
-export class ConsensualityComputationResult {
-  private readonly results: [ReviewTopicId, Consensuality][];
-
-  public constructor() {
-    this.results = [];
-  }
-
-  public add(reviewTopic: ReviewTopicId, consensuality: Consensuality): void {
-    this.results.push([reviewTopic, consensuality]);
-  }
-
+export class ConsensualityComputationResult extends Array<
+  [ReviewTopicId, Consensuality]
+> {
   public ofReviewTopic(reviewTopic: ReviewTopicId): Consensuality {
-    for (const [otherReviewTopic, consensuality] of this.results) {
+    for (const [otherReviewTopic, consensuality] of this) {
       if (reviewTopic.equals(otherReviewTopic)) {
         return consensuality;
       }
@@ -46,7 +38,7 @@ export abstract class ConsensualityComputer {
       const reviewTopicConsensuality = this.computeForReviewTopic(
         peerReviews.findByReviewTopic(reviewTopic),
       );
-      result.add(reviewTopic, reviewTopicConsensuality);
+      result.push([reviewTopic, reviewTopicConsensuality]);
     }
     return result;
   }
