@@ -7,7 +7,6 @@ import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerRe
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
@@ -18,14 +17,15 @@ import { ProjectManagerReview } from 'project/domain/project/value-objects/state
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
+import {
+  ContributionsComputer,
+  ContributionsComputationResult,
+} from 'project/domain/ContributionsComputer';
 import {
   ConsensualityComputer,
   ConsensualityComputationResult,
 } from 'project/domain/ConsensualityComputer';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import { Contribution } from 'project/domain/contribution/Contribution';
 
 describe(ProjectPeerReview.name, () => {
   let modelFaker: ModelFaker;
@@ -47,8 +47,7 @@ describe(ProjectPeerReview.name, () => {
     let roles: Role[];
     let reviewTopic: ReviewTopic;
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
-    let contribution: ContributionAmount;
-    let contributions: ContributionCollection;
+    let contributionsComputationResult: ContributionsComputationResult;
     let consensualityComputationResult: ConsensualityComputationResult;
     let contributionsComputer: ContributionsComputer;
     let consensualityComputer: ConsensualityComputer;
@@ -101,19 +100,13 @@ describe(ProjectPeerReview.name, () => {
       ];
 
       consensualityComputationResult = td.object();
-      jest.spyOn(consensualityComputationResult, 'applyTo');
       td.when(consensualityComputer.compute(project.peerReviews)).thenReturn(
         consensualityComputationResult,
       );
 
-      contribution = td.object();
-      contributions = new ContributionCollection(
-        roles.map((role) =>
-          Contribution.from(role.id, reviewTopic.id, contribution),
-        ),
-      );
-      td.when(contributionsComputer.compute(td.matchers.anything())).thenReturn(
-        contributions,
+      contributionsComputationResult = td.object();
+      td.when(contributionsComputer.compute(project.peerReviews)).thenReturn(
+        contributionsComputationResult,
       );
     });
 
@@ -136,10 +129,8 @@ describe(ProjectPeerReview.name, () => {
         expect(
           project.state.equals(ProjectManagerReview.INSTANCE),
         ).toBeTruthy();
-        expect(project.contributions).toBe(contributions);
-        expect(consensualityComputationResult.applyTo).toHaveBeenCalledWith(
-          project,
-        );
+        td.verify(contributionsComputationResult.applyTo(project));
+        td.verify(consensualityComputationResult.applyTo(project));
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {

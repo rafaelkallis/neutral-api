@@ -65,16 +65,20 @@ describe('ContributionsModelService', () => {
         specificationsDocumentExamplePeerReviews,
       );
       expect(
-        contributions.findByRole(RoleId.from(a)).first().amount.value,
+        contributions.find((con) => con.roleId.equals(RoleId.from(a)))?.amount
+          .value,
       ).toBeCloseTo(0.1);
       expect(
-        contributions.findByRole(RoleId.from(b)).first().amount.value,
+        contributions.find((con) => con.roleId.equals(RoleId.from(b)))?.amount
+          .value,
       ).toBeCloseTo(0.2);
       expect(
-        contributions.findByRole(RoleId.from(c)).first().amount.value,
+        contributions.find((con) => con.roleId.equals(RoleId.from(c)))?.amount
+          .value,
       ).toBeCloseTo(0.3);
       expect(
-        contributions.findByRole(RoleId.from(d)).first().amount.value,
+        contributions.find((con) => con.roleId.equals(RoleId.from(d)))?.amount
+          .value,
       ).toBeCloseTo(0.4);
     });
   });

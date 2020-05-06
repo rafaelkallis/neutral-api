@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /* eslint-disable security/detect-object-injection */
 
@@ -15,39 +15,38 @@ export class CoveeContributionsComputer extends ContributionsComputer {
   /**
    * Computes the relative contributions.
    */
-  public compute(
+  protected computeForReviewTopic(
+    reviewTopic: ReviewTopicId,
     peerReviews: ReadonlyPeerReviewCollection,
-  ): ContributionCollection {
+  ): Contribution[] {
     const contributions: Contribution[] = [];
-    for (const reviewTopicId of peerReviews.getReviewTopics()) {
-      const peers = peerReviews.getPeers();
-      const S: number[][] = [];
-      for (const [i, iId] of peers.entries()) {
-        S[i] = [];
-        for (const [j, jId] of peers.entries()) {
-          if (i === j) {
-            continue;
-          }
-          const peerReview = peerReviews
-            .findByReviewTopic(reviewTopicId)
-            .findBySenderRole(iId)
-            .findByReceiverRole(jId)
-            .first();
-          S[i][j] = peerReview.score.value;
+    const peers = peerReviews.getPeers();
+    const S: number[][] = [];
+    for (const [i, iId] of peers.entries()) {
+      S[i] = [];
+      for (const [j, jId] of peers.entries()) {
+        if (i === j) {
+          continue;
         }
-      }
-      const relContVec: number[] = this.computeContributionsFromMatrix(S);
-      for (const [i, iId] of peers.entries()) {
-        const contributionAmount = ContributionAmount.from(relContVec[i]);
-        const contribution = Contribution.from(
-          iId,
-          reviewTopicId,
-          contributionAmount,
-        );
-        contributions.push(contribution);
+        const peerReview = peerReviews
+          .findByReviewTopic(reviewTopic)
+          .findBySenderRole(iId)
+          .findByReceiverRole(jId)
+          .first();
+        S[i][j] = peerReview.score.value;
       }
     }
-    return new ContributionCollection(contributions);
+    const relContVec: number[] = this.computeContributionsFromMatrix(S);
+    for (const [i, iId] of peers.entries()) {
+      const contributionAmount = ContributionAmount.from(relContVec[i]);
+      const contribution = Contribution.from(
+        iId,
+        reviewTopic,
+        contributionAmount,
+      );
+      contributions.push(contribution);
+    }
+    return contributions;
 
     // legacy implementation
 
