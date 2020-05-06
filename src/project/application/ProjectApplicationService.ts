@@ -42,14 +42,14 @@ export class ProjectApplicationService {
     userRepository: UserRepository,
     userFactory: UserFactory,
     domainEventBroker: DomainEventBroker,
-    modelMapper: ObjectMapper,
+    objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
     this.userFactory = userFactory;
-    this.objectMapper = modelMapper;
+    this.objectMapper = objectMapper;
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
@@ -187,10 +187,7 @@ export class ProjectApplicationService {
 
     // TODO remove
     // for backwards compatibility
-    const [defaultReviewTopic] = project.reviewTopics.toArray();
-    if (!defaultReviewTopic) {
-      throw new InternalServerErrorException('default review topic not found');
-    }
+    const defaultReviewTopic = project.reviewTopics.first();
 
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
@@ -201,7 +198,7 @@ export class ProjectApplicationService {
     ).map(([receiverRoleId, score]) => [
       RoleId.from(receiverRoleId),
       PeerReviewScore.from(score),
-    ]);
+    ]); // TODO use dto.toPeerReviewList()
     project.submitPeerReviews(
       authRole.id,
       defaultReviewTopic.id,

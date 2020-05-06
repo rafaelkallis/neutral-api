@@ -107,7 +107,7 @@ export class ProjectPeerReview extends DefaultProjectState {
   ): void {
     project.contributions = contributionsComputer.compute(project.peerReviews);
 
-    project.consensuality = consensualityComputer.compute(project.peerReviews);
+    consensualityComputer.compute(project.peerReviews).applyTo(project);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {
       project.state = ProjectFinished.INSTANCE;

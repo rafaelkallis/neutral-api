@@ -10,6 +10,8 @@ export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
   readonly description: ReviewTopicDescription;
   readonly consensuality: Consensuality | null;
+
+  isConsensual(): boolean;
 }
 
 export class ReviewTopic extends Model<ReviewTopicId>
@@ -51,5 +53,9 @@ export class ReviewTopic extends Model<ReviewTopicId>
       description,
       consensuality,
     );
+  }
+
+  public isConsensual(): boolean {
+    return this.consensuality !== null && this.consensuality.isConsensual();
   }
 }

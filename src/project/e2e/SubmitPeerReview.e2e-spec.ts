@@ -2,7 +2,6 @@ import { Project } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
@@ -120,10 +119,10 @@ describe('submit peer review (e2e)', () => {
       );
     }
     expect(updatedProject.state).toBe(ProjectManagerReview.INSTANCE);
-    expect(updatedProject.consensuality).not.toBeNull();
-    expect((updatedProject.consensuality as Consensuality).value).toEqual(
-      expect.any(Number),
-    );
+    expect(updatedProject.consensuality).toBeNull();
+    for (const consensuality of updatedProject.reviewTopics) {
+      expect(consensuality).not.toBeNull();
+    }
     expect(updatedProject.contributions.toArray()).toHaveLength(
       updatedProject.roles.toArray().length *
         updatedProject.reviewTopics.toArray().length,

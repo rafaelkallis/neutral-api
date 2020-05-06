@@ -19,12 +19,13 @@ function mean(arr: number[]): number {
  * Computes consensuality using pairwise relative judgements.
  */
 @Injectable()
-export class PairwiseRelativeJudgementsConsensualityComputerService
-  implements ConsensualityComputer {
+export class PairwiseRelativeJudgementsConsensualityComputerService extends ConsensualityComputer {
   /**
    * Computes a project's consensuality.
    */
-  public compute(peerReviews: PeerReviewCollection): Consensuality {
+  protected computeForReviewTopic(
+    peerReviews: PeerReviewCollection,
+  ): Consensuality {
     const n = peerReviews.getNumberOfPeers();
     const cyclicPeerReviews = this.createCyclicPeerReviews(n);
     const normalizedDissent =

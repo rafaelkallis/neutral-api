@@ -63,6 +63,8 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly reviewTopics: ReadonlyReviewTopicCollection;
   readonly contributions: ReadonlyContributionCollection;
 
+  isConsensual(): boolean;
+
   update(title?: ProjectTitle, description?: ProjectDescription): void;
 
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
@@ -150,6 +152,10 @@ export class Project extends AggregateRoot<ProjectId>
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
+  }
+
+  public isConsensual(): boolean {
+    return this.reviewTopics.areAll((topic) => topic.isConsensual());
   }
 
   /**

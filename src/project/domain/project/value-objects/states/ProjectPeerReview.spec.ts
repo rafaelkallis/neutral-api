@@ -5,7 +5,6 @@ import { SkipManagerReview } from 'project/domain/project/value-objects/SkipMana
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
@@ -20,7 +19,10 @@ import { ProjectFinished } from 'project/domain/project/value-objects/states/Pro
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import {
+  ConsensualityComputer,
+  ConsensualityComputationResult,
+} from 'project/domain/ConsensualityComputer';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
@@ -47,7 +49,7 @@ describe(ProjectPeerReview.name, () => {
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
     let contribution: ContributionAmount;
     let contributions: ContributionCollection;
-    let consensuality: Consensuality;
+    let consensualityComputationResult: ConsensualityComputationResult;
     let contributionsComputer: ContributionsComputer;
     let consensualityComputer: ConsensualityComputer;
 
@@ -98,9 +100,10 @@ describe(ProjectPeerReview.name, () => {
         [roles[3].id, PeerReviewScore.from(1 / 3)],
       ];
 
-      consensuality = td.object(Consensuality.from(1));
-      td.when(consensualityComputer.compute(td.matchers.anything())).thenReturn(
-        consensuality,
+      consensualityComputationResult = td.object();
+      jest.spyOn(consensualityComputationResult, 'applyTo');
+      td.when(consensualityComputer.compute(project.peerReviews)).thenReturn(
+        consensualityComputationResult,
       );
 
       contribution = td.object();
@@ -134,7 +137,9 @@ describe(ProjectPeerReview.name, () => {
           project.state.equals(ProjectManagerReview.INSTANCE),
         ).toBeTruthy();
         expect(project.contributions).toBe(contributions);
-        expect(project.consensuality).toBe(consensuality);
+        expect(consensualityComputationResult.applyTo).toHaveBeenCalledWith(
+          project,
+        );
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {
@@ -152,7 +157,7 @@ describe(ProjectPeerReview.name, () => {
 
       test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        td.when(consensuality.isConsensual()).thenReturn(true);
+        jest.spyOn(project, 'isConsensual').mockReturnValue(true);
         state.submitPeerReviews(
           project,
           roles[0].id,
@@ -166,7 +171,7 @@ describe(ProjectPeerReview.name, () => {
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        td.when(consensuality.isConsensual()).thenReturn(false);
+        jest.spyOn(project, 'isConsensual').mockReturnValue(false);
         state.submitPeerReviews(
           project,
           roles[0].id,
