@@ -42,5 +42,6 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': ['error'],
     '@typescript-eslint/promise-function-async': ['error'],
     '@typescript-eslint/prefer-readonly': ['error'],
+    'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'td.verify']}],
   },
 };
