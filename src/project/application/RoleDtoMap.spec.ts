@@ -20,7 +20,7 @@ describe('role dto map', () => {
   let reviewTopic: ReviewTopic;
   let project: Project;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     modelFaker = new ModelFaker();
     roleDtoMap = new RoleDtoMap();
     users = {

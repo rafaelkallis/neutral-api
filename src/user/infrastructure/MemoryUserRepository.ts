@@ -36,21 +36,23 @@ export class MemoryUserRepository extends UserRepository {
   }
 
   public async findByName(fullName: string): Promise<User[]> {
-    return this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .filter((entity) => entity.name.toString().includes(fullName));
+    return Promise.resolve(results);
   }
 
   public async findByEmail(email: Email): Promise<User | undefined> {
-    return this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .find((user) => user.email.equals(email));
+    return Promise.resolve(results);
   }
 
   public async existsByEmail(email: Email): Promise<boolean> {
     const user = this.memoryRepository
       .getModels()
       .find((model) => model.email.equals(email));
-    return Boolean(user);
+    return Promise.resolve(Boolean(user));
   }
 }

@@ -79,7 +79,7 @@ describe('roles (e2e)', () => {
   describe('projects/:project_id/roles/:roleId (PATCH)', () => {
     let title: string;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       title = scenario.primitiveFaker.words();
     });
 
