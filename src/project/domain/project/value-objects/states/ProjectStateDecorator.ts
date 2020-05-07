@@ -73,6 +73,12 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): void {
     this.base.updateReviewTopic(project, reviewTopicId, title, description);
   }
+  public removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    this.base.removeReviewTopic(project, reviewTopicId);
+  }
   public finishFormation(project: Project): void {
     this.base.finishFormation(project);
   }
