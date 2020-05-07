@@ -19,7 +19,7 @@ import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import {
@@ -32,7 +32,7 @@ import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdate
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
 export class ProjectFormation extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableState(
+  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
     new ProjectFormation(),
   );
 

@@ -7,9 +7,9 @@ import {
 } from 'project/domain/project/value-objects/states/ProjectState';
 import { ProjectCancelled } from './ProjectCancelled';
 import { ProjectCancelledEvent } from 'project/domain/events/ProjectCancelledEvent';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 
-describe(CancellableState.name, () => {
+describe(CancellableProjectState.name, () => {
   let modelFaker: ModelFaker;
 
   let baseState: ProjectState;
@@ -27,7 +27,7 @@ describe(CancellableState.name, () => {
     modelFaker = new ModelFaker();
 
     baseState = new BaseState();
-    cancellableState = new CancellableState(baseState);
+    cancellableState = new CancellableProjectState(baseState);
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
   });

@@ -18,11 +18,11 @@ import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectM
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 export class ProjectPeerReview extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableState(
+  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
     new ProjectPeerReview(),
   );
 
