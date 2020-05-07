@@ -20,7 +20,7 @@ describe(GetUsersQuery.name, () => {
   let userDtos: UserDto[];
   let queryHandler: GetUsersQueryHandler;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = td.object();
     objectMapper = td.object();
     const modelFaker = new ModelFaker();

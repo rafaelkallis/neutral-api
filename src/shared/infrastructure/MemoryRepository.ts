@@ -38,16 +38,17 @@ export class MemoryRepository<
    *
    */
   public async findPage(afterId?: Id): Promise<TModel[]> {
-    return Array.from(this.models.values()).filter((model) =>
+    const results = Array.from(this.models.values()).filter((model) =>
       afterId ? afterId.lessThan(model.id) : true,
     );
+    return Promise.resolve(results);
   }
 
   /**
    *
    */
   public async findById(id: Id): Promise<TModel | undefined> {
-    return this.models.get(id.value);
+    return Promise.resolve(this.models.get(id.value));
   }
 
   /**
@@ -61,7 +62,7 @@ export class MemoryRepository<
    *
    */
   public async exists(id: Id): Promise<boolean> {
-    return this.models.has(id.value);
+    return Promise.resolve(this.models.has(id.value));
   }
 
   /**
@@ -71,5 +72,6 @@ export class MemoryRepository<
     for (const model of models) {
       this.models.set(model.id.value, model);
     }
+    return Promise.resolve();
   }
 }

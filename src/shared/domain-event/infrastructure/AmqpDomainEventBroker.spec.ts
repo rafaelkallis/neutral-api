@@ -50,7 +50,7 @@ describe('amqp domain event broker', () => {
     test('happy path', async () => {
       const domainEventHandler: DomainEventHandler<MyDomainEvent> = {
         key: 'test_handler',
-        handleDomainEvent: td.function(async () => {}),
+        handleDomainEvent: td.function(async () => Promise.resolve()),
       };
       const actualSubscription = await amqpDomainEventBroker.subscribe(
         MyDomainEvent,

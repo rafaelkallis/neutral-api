@@ -7,21 +7,21 @@ import { SessionState } from 'shared/session';
 
 describe(LogoutCommand.name, () => {
   let session: SessionState;
-  let command: LogoutCommand;
-  let commandHandler: LogoutCommandHandler;
+  let logoutCommand: LogoutCommand;
+  let logoutCommandHandler: LogoutCommandHandler;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     session = td.object<SessionState>();
-    command = new LogoutCommand(session);
-    commandHandler = new LogoutCommandHandler();
+    logoutCommand = new LogoutCommand(session);
+    logoutCommandHandler = new LogoutCommandHandler();
   });
 
   test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
+    expect(logoutCommandHandler).toBeDefined();
   });
 
-  test('happy path', async () => {
-    await commandHandler.handle(command);
+  test('happy path', () => {
+    logoutCommandHandler.handle(logoutCommand);
     td.verify(session.clear());
   });
 });

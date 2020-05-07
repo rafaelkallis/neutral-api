@@ -88,5 +88,3 @@ export class PairwiseRelativeJudgementsConsensualityComputerService extends Cons
     return peerReviews;
   }
 }
-
-/* eslint-enable security/detect-object-injection */

@@ -5,8 +5,6 @@ import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerRev
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
-/* eslint-disable security/detect-object-injection */
-
 /**
  * Covee Contributions Computer
  */
@@ -227,5 +225,3 @@ export class CoveeContributionsComputer extends ContributionsComputer {
     return m;
   }
 }
-
-/* eslint-enable security/detect-object-injection */

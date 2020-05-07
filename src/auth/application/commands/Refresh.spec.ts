@@ -9,18 +9,18 @@ import { RefreshResponseDto } from '../dto/RefreshResponseDto';
 
 describe(RefreshCommand.name, () => {
   let tokenManager: TokenManager;
-  let commandHandler: RefreshCommandHandler;
+  let refreshCommandHandler: RefreshCommandHandler;
   let userId: string;
   let refreshToken: string;
   let accessToken: string;
-  let command: RefreshCommand;
+  let refreshCommand: RefreshCommand;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     tokenManager = td.object<TokenManager>();
-    commandHandler = new RefreshCommandHandler(tokenManager);
+    refreshCommandHandler = new RefreshCommandHandler(tokenManager);
     const primitiveFaker = new PrimitiveFaker();
     refreshToken = primitiveFaker.id();
-    command = new RefreshCommand(refreshToken);
+    refreshCommand = new RefreshCommand(refreshToken);
     userId = primitiveFaker.id();
     td.when(tokenManager.validateRefreshToken(refreshToken)).thenReturn({
       sub: userId,
@@ -30,11 +30,11 @@ describe(RefreshCommand.name, () => {
   });
 
   test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
+    expect(refreshCommandHandler).toBeDefined();
   });
 
-  test('happy path', async () => {
-    const result = await commandHandler.handle(command);
+  test('happy path', () => {
+    const result = refreshCommandHandler.handle(refreshCommand);
     expect(result).toBeInstanceOf(RefreshResponseDto);
     expect(result.accessToken).toBe(accessToken);
   });

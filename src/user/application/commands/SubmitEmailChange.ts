@@ -28,7 +28,7 @@ export class SubmitEmailChangeCommandHandler extends AbstractUserCommandHandler<
   @Inject()
   private readonly tokenManager!: TokenManager;
 
-  protected async doHandle(command: SubmitEmailChangeCommand): Promise<User> {
+  protected doHandle(command: SubmitEmailChangeCommand): User {
     const payload = this.tokenManager.validateEmailChangeToken(command.token);
     const userIdFromPayload = UserId.from(payload.sub);
     if (!userIdFromPayload.equals(command.authUser.id)) {

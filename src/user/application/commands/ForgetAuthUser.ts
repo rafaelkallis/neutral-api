@@ -21,7 +21,7 @@ export class ForgetAuthUserCommand extends UserCommand {
 export class ForgetAuthUserCommandHandler extends AbstractUserCommandHandler<
   ForgetAuthUserCommand
 > {
-  protected async doHandle(command: ForgetAuthUserCommand): Promise<User> {
+  protected doHandle(command: ForgetAuthUserCommand): User {
     command.authUser.forget();
     command.session.clear();
     return command.authUser;

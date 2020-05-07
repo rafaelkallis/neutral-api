@@ -42,5 +42,6 @@ export abstract class AmqpClient {
   protected async handleSubscriptionError(error: Error): Promise<void> {
     // TODO what to do with error? pass to telemetry?
     this.logger.error(error.toString(), error.stack);
+    return Promise.resolve();
   }
 }
