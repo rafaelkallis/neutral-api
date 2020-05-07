@@ -86,6 +86,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
   ): void;
+  removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
   finishFormation(): void;
   submitPeerReviews(
@@ -218,6 +219,10 @@ export class Project extends AggregateRoot<ProjectId>
     description?: ReviewTopicDescription,
   ): void {
     this.state.updateReviewTopic(this, reviewTopicId, title, description);
+  }
+
+  public removeReviewTopic(reviewTopicId: ReviewTopicId): void {
+    this.state.removeReviewTopic(this, reviewTopicId);
   }
 
   /**

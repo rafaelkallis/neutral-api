@@ -62,6 +62,11 @@ export abstract class ProjectState extends ValueObject {
     description?: ReviewTopicDescription,
   ): void;
 
+  public abstract removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void;
+
   public abstract finishFormation(project: Project): void;
 
   public abstract submitPeerReviews(
@@ -138,6 +143,13 @@ export abstract class DefaultProjectState extends ProjectState {
     _reviewTopicId: ReviewTopicId,
     _title?: ReviewTopicTitle,
     _description?: ReviewTopicDescription,
+  ): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
+  public removeReviewTopic(
+    _project: Project,
+    _reviewTopicId: ReviewTopicId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

@@ -90,6 +90,26 @@ describe(Project.name, () => {
     expect(actualRole).toBe(addedReviewTopic);
   });
 
+  test('update review topic', () => {
+    const title = ReviewTopicTitle.from(primitiveFaker.words());
+    const reviewTopicIdToUpdate = ReviewTopicId.create();
+    project.updateReviewTopic(reviewTopicIdToUpdate, title);
+    td.verify(
+      project.state.updateReviewTopic(
+        project,
+        reviewTopicIdToUpdate,
+        title,
+        undefined,
+      ),
+    );
+  });
+
+  test('remove review topic', () => {
+    const reviewTopicIdToRemove = ReviewTopicId.create();
+    project.removeReviewTopic(reviewTopicIdToRemove);
+    td.verify(project.state.removeReviewTopic(project, reviewTopicIdToRemove));
+  });
+
   test('finish formation', () => {
     project.finishFormation();
     td.verify(project.state.finishFormation(project));

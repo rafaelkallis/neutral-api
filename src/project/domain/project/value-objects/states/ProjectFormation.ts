@@ -29,6 +29,7 @@ import {
 import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
+import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
 export class ProjectFormation extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableState(
@@ -142,6 +143,15 @@ export class ProjectFormation extends DefaultProjectState {
       reviewTopicToUpdate.description = description;
     }
     project.raise(new ReviewTopicUpdatedEvent(reviewTopicToUpdate.id));
+  }
+
+  public removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    const reviewTopicToRemove = project.reviewTopics.findById(reviewTopicId);
+    project.reviewTopics.remove(reviewTopicToRemove);
+    project.raise(new ReviewTopicRemovedEvent(reviewTopicId));
   }
 
   public finishFormation(project: Project): void {

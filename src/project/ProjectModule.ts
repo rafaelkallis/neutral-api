@@ -43,6 +43,7 @@ import { AddReviewTopicCommandHandler } from 'project/application/commands/AddRe
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
 import { UpdateReviewTopicCommandHandler } from 'project/application/commands/UpdateReviewTopic';
+import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
 
@@ -90,6 +91,7 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
     UpdateRoleCommandHandler,
     AddReviewTopicCommandHandler,
     UpdateReviewTopicCommandHandler,
+    RemoveReviewTopicCommandHandler,
     RemoveRoleCommandHandler,
     UnassignRoleCommandHandler,
   ],
