@@ -3,7 +3,7 @@ import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 
 describe('submit manager review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -41,7 +41,7 @@ describe('submit manager review (e2e)', () => {
   });
 
   test('should fail if project is not in manager-review state', async () => {
-    project.state = ProjectFormation.INSTANCE;
+    project.state = FormationProjectState.INSTANCE;
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session.post(

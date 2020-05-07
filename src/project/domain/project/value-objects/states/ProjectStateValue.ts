@@ -1,5 +1,5 @@
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
@@ -19,7 +19,7 @@ export enum ProjectStateValue {
 // TODO need a better solution than this
 
 const associations: [ProjectStateValue, ProjectState][] = [
-  [ProjectStateValue.FORMATION, ProjectFormation.INSTANCE],
+  [ProjectStateValue.FORMATION, FormationProjectState.INSTANCE],
   [ProjectStateValue.PEER_REVIEW, ProjectPeerReview.INSTANCE],
   [ProjectStateValue.MANAGER_REVIEW, ProjectManagerReview.INSTANCE],
   [ProjectStateValue.FINISHED, FinishedProjectState.INSTANCE],

@@ -31,9 +31,9 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
-export class ProjectFormation extends DefaultProjectState {
+export class FormationProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
-    new ProjectFormation(),
+    new FormationProjectState(),
   );
 
   private constructor() {

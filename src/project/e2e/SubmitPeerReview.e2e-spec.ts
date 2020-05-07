@@ -6,7 +6,7 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe('submit peer review (e2e)', () => {
@@ -156,7 +156,7 @@ describe('submit peer review (e2e)', () => {
   });
 
   test('should fail if project is not in peer-review state', async () => {
-    project.state = ProjectFormation.INSTANCE;
+    project.state = FormationProjectState.INSTANCE;
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session

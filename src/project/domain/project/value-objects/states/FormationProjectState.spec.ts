@@ -13,7 +13,7 @@ import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
@@ -22,7 +22,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
-describe(ProjectFormation.name, () => {
+describe(FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
@@ -36,7 +36,7 @@ describe(ProjectFormation.name, () => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
 
-    state = ProjectFormation.INSTANCE;
+    state = FormationProjectState.INSTANCE;
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
     roles = [

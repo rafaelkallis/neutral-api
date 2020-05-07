@@ -6,7 +6,7 @@ import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -239,7 +239,7 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
-      project.state = ProjectFormation.INSTANCE;
+      project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });
 

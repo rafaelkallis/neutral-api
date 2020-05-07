@@ -6,7 +6,7 @@ import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
@@ -196,7 +196,7 @@ describe('project (e2e)', () => {
         await scenario.createUser(),
       ];
       project = await scenario.createProject(user);
-      project.state = ProjectFormation.INSTANCE;
+      project.state = FormationProjectState.INSTANCE;
       roles = [
         scenario.modelFaker.role(assignees[0].id),
         scenario.modelFaker.role(assignees[1].id),

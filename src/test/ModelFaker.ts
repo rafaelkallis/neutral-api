@@ -26,7 +26,7 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
@@ -82,7 +82,7 @@ export class ModelFaker {
     const description = ProjectDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    const state = ProjectFormation.INSTANCE;
+    const state = FormationProjectState.INSTANCE;
     const consensuality = null;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;
