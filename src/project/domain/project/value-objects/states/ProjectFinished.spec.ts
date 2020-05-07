@@ -3,7 +3,7 @@ import { Project } from 'project/domain/project/Project';
 import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
-import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 
 describe(ProjectFinished.name, () => {
@@ -24,7 +24,7 @@ describe(ProjectFinished.name, () => {
   describe('archive', () => {
     test('happy path', () => {
       state.archive(project);
-      expect(project.state).toBe(ProjectArchived.INSTANCE);
+      expect(project.state).toBe(ArchivedProjectState.INSTANCE);
       expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
     });
   });

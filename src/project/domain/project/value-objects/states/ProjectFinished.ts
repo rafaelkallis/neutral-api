@@ -3,7 +3,7 @@ import {
   ProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
 import { Project } from 'project/domain/project/Project';
-import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 
 export class ProjectFinished extends DefaultProjectState {
@@ -14,7 +14,7 @@ export class ProjectFinished extends DefaultProjectState {
   }
 
   public archive(project: Project): void {
-    project.state = ProjectArchived.INSTANCE;
+    project.state = ArchivedProjectState.INSTANCE;
     project.raise(new ProjectArchivedEvent(project));
   }
 }
