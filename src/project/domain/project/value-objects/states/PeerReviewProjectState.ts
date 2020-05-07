@@ -21,9 +21,9 @@ import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectM
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
-export class ProjectPeerReview extends DefaultProjectState {
+export class PeerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
-    new ProjectPeerReview(),
+    new PeerReviewProjectState(),
   );
 
   private constructor() {

@@ -1,6 +1,6 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { Project } from 'project/domain/project/Project';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
@@ -78,7 +78,7 @@ describe('role dto map', () => {
 
   test('should not show contribution if not project owner and if project not finished', () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
-    project.state = ProjectPeerReview.INSTANCE;
+    project.state = PeerReviewProjectState.INSTANCE;
     const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
     expect(roleDto.contribution).toBeNull();
   });

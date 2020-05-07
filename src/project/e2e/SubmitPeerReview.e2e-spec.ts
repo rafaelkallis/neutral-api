@@ -4,7 +4,7 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
@@ -29,7 +29,7 @@ describe('submit peer review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectPeerReview.INSTANCE;
+    project.state = PeerReviewProjectState.INSTANCE;
 
     /* prepare roles */
     role1 = scenario.modelFaker.role(user.id);
@@ -151,7 +151,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][sentPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectPeerReview.INSTANCE);
+    expect(updatedProject.state).toBe(PeerReviewProjectState.INSTANCE);
     expect(updatedProject.contributions.toArray()).toHaveLength(0);
   });
 

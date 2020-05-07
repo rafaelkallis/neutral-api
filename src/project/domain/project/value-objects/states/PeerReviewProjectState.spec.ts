@@ -12,7 +12,7 @@ import { ModelFaker } from 'test/ModelFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
@@ -27,7 +27,7 @@ import {
 } from 'project/domain/ConsensualityComputer';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
-describe(ProjectPeerReview.name, () => {
+describe(PeerReviewProjectState.name, () => {
   let modelFaker: ModelFaker;
 
   let state: ProjectState;
@@ -37,7 +37,7 @@ describe(ProjectPeerReview.name, () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
 
-    state = ProjectPeerReview.INSTANCE;
+    state = PeerReviewProjectState.INSTANCE;
 
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
@@ -55,7 +55,7 @@ describe(ProjectPeerReview.name, () => {
     beforeEach(() => {
       contributionsComputer = td.object();
       consensualityComputer = td.object();
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       roles = [
         modelFaker.role(creator.id),
         modelFaker.role(),
@@ -201,7 +201,9 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state.equals(ProjectPeerReview.INSTANCE)).toBeTruthy();
+        expect(
+          project.state.equals(PeerReviewProjectState.INSTANCE),
+        ).toBeTruthy();
         expect(project.contributions.toArray()).toHaveLength(0);
       });
     });

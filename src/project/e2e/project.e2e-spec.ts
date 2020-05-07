@@ -5,7 +5,7 @@ import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
@@ -174,7 +174,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -219,7 +219,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(ProjectPeerReview.INSTANCE);
+      expect(updatedProject.state).toEqual(PeerReviewProjectState.INSTANCE);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -233,7 +233,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
