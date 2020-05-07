@@ -32,6 +32,7 @@ describe(AmqpDomainEventBroker.name, () => {
       async handleDomainEvent(domainEvent: MyDomainEvent): Promise<void> {
         // no assertions in here!
         actualDomainEvent = domainEvent;
+        return Promise.resolve();
       },
     };
     const subscription = await amqpDomainEventBroker.subscribe(
