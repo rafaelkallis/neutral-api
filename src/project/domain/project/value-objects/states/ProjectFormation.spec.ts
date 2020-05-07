@@ -20,6 +20,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
+import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
 describe(ProjectFormation.name, () => {
   let modelFaker: ModelFaker;
@@ -211,6 +212,22 @@ describe(ProjectFormation.name, () => {
       expect(reviewTopicToUpdate.title).toEqual(title);
       expect(project.domainEvents).toContainEqual(
         expect.any(ReviewTopicUpdatedEvent),
+      );
+    });
+  });
+
+  describe('remove review topic', () => {
+    let reviewTopicToRemove: ReviewTopic;
+
+    beforeEach(() => {
+      reviewTopicToRemove = reviewTopics[0];
+    });
+
+    test('happy path', () => {
+      state.removeReviewTopic(project, reviewTopicToRemove.id);
+      expect(project.reviewTopics.contains(reviewTopicToRemove.id)).toBeFalsy();
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicRemovedEvent),
       );
     });
   });
