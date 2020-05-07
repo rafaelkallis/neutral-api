@@ -14,30 +14,32 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 
 export interface ReadonlyContributionCollection
   extends ReadonlyModelCollection<ContributionId, ReadonlyContribution> {
-  findByRole(roleOrId: Role | RoleId): ReadonlyArray<ReadonlyContribution>;
+  findByRole(roleOrId: Role | RoleId): ReadonlyContributionCollection;
   findByReviewTopic(
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
-  ): ReadonlyArray<ReadonlyContribution>;
+  ): ReadonlyContributionCollection;
 }
 
 export class ContributionCollection
   extends ModelCollection<ContributionId, Contribution>
   implements ReadonlyContributionCollection {
-  public findByRole(
-    roleOrId: Role | RoleId,
-  ): ReadonlyArray<ReadonlyContribution> {
+  public findByRole(roleOrId: Role | RoleId): ReadonlyContributionCollection {
     const roleId = this.getId(roleOrId);
-    return this.toArray().filter((contribution) =>
-      contribution.roleId.equals(roleId),
-    );
+    return this.filter((contribution) => contribution.roleId.equals(roleId));
   }
 
   public findByReviewTopic(
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
-  ): ReadonlyArray<ReadonlyContribution> {
+  ): ReadonlyContributionCollection {
     const reviewTopicId = this.getId(reviewTopicOrId);
-    return this.toArray().filter((contribution) =>
+    return this.filter((contribution) =>
       contribution.reviewTopicId.equals(reviewTopicId),
     );
+  }
+
+  private filter(
+    predicate: (contribution: Contribution) => boolean,
+  ): ReadonlyContributionCollection {
+    return new ContributionCollection(this.toArray().filter(predicate));
   }
 }

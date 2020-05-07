@@ -10,6 +10,7 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
       peerReview.id.value,
       peerReview.senderRoleId.value,
       peerReview.receiverRoleId.value,
+      peerReview.reviewTopicId.value,
       peerReview.score.value,
       peerReview.createdAt.value,
       peerReview.updatedAt.value,

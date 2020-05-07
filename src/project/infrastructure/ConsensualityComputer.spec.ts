@@ -8,11 +8,13 @@ import { VarianceConsensualityComputerService } from 'project/infrastructure/Var
 import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 describe('consensuality computer', () => {
   let consensualityComputer: ConsensualityComputer;
 
   let primitiveFaker: PrimitiveFaker;
+  let reviewTopic: ReviewTopicId;
 
   let a: string;
   let b: string;
@@ -28,80 +30,90 @@ describe('consensuality computer', () => {
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
+    reviewTopic = ReviewTopicId.create();
 
     a = primitiveFaker.id();
     b = primitiveFaker.id();
     c = primitiveFaker.id();
     d = primitiveFaker.id();
 
-    cyclePeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: l,
-        [c]: o,
-        [d]: o,
+    cyclePeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [b]: {
+          [a]: o,
+          [c]: l,
+          [d]: o,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: l,
+          [b]: o,
+          [c]: o,
+        },
       },
-      [b]: {
-        [a]: o,
-        [c]: l,
-        [d]: o,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: l,
-        [b]: o,
-        [c]: o,
-      },
-    });
+      reviewTopic,
+    );
 
-    clusterPeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: l,
-        [c]: o,
-        [d]: o,
+    clusterPeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [b]: {
+          [a]: l,
+          [c]: o,
+          [d]: o,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: o,
+          [b]: o,
+          [c]: l,
+        },
       },
-      [b]: {
-        [a]: l,
-        [c]: o,
-        [d]: o,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: o,
-        [b]: o,
-        [c]: l,
-      },
-    });
+      reviewTopic,
+    );
 
-    oneDidItAllPeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: o,
-        [c]: o,
-        [d]: l,
+    oneDidItAllPeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: o,
+          [c]: o,
+          [d]: l,
+        },
+        [b]: {
+          [a]: o,
+          [c]: o,
+          [d]: l,
+        },
+        [c]: {
+          [a]: o,
+          [b]: o,
+          [d]: l,
+        },
+        [d]: {
+          [a]: 1 / 3,
+          [b]: 1 / 3,
+          [c]: 1 / 3,
+        },
       },
-      [b]: {
-        [a]: o,
-        [c]: o,
-        [d]: l,
-      },
-      [c]: {
-        [a]: o,
-        [b]: o,
-        [d]: l,
-      },
-      [d]: {
-        [a]: 1 / 3,
-        [b]: 1 / 3,
-        [c]: 1 / 3,
-      },
-    });
+      reviewTopic,
+    );
   });
 
   describe('mean deviation method', () => {
@@ -110,18 +122,18 @@ describe('consensuality computer', () => {
     });
 
     test('cycle', () => {
-      const c = consensualityComputer.compute(cyclePeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(cyclePeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const c = consensualityComputer.compute(clusterPeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(clusterPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const c = consensualityComputer.compute(oneDidItAllPeerReviews);
-      expect(c.value).toBeCloseTo(3 / 4);
+      const result = consensualityComputer.compute(oneDidItAllPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(3 / 4);
     });
   });
 
@@ -131,18 +143,18 @@ describe('consensuality computer', () => {
     });
 
     test('cycle', () => {
-      const c = consensualityComputer.compute(cyclePeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(cyclePeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const c = consensualityComputer.compute(clusterPeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(clusterPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const c = consensualityComputer.compute(oneDidItAllPeerReviews);
-      expect(c.value).toBeCloseTo(0.91666);
+      const result = consensualityComputer.compute(oneDidItAllPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0.91666);
     });
   });
 
@@ -152,18 +164,18 @@ describe('consensuality computer', () => {
     });
 
     test('cycle', () => {
-      const c = consensualityComputer.compute(cyclePeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(cyclePeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const c = consensualityComputer.compute(clusterPeerReviews);
-      expect(c.value).toBeCloseTo(0);
+      const result = consensualityComputer.compute(clusterPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const c = consensualityComputer.compute(oneDidItAllPeerReviews);
-      expect(c.value).toBeCloseTo(1);
+      const result = consensualityComputer.compute(oneDidItAllPeerReviews);
+      expect(result.ofReviewTopic(reviewTopic).value).toBeCloseTo(1);
     });
   });
 });

@@ -17,7 +17,7 @@ export class RoleDto extends ModelDto {
   @ApiProperty()
   public description: string;
 
-  @ApiProperty({ type: String, required: false })
+  @ApiProperty({ type: String, required: false, deprecated: true })
   public contribution: number | null;
 
   @ApiProperty({

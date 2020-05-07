@@ -21,7 +21,7 @@ describe(RequestSignupCommand.name, () => {
   let signupToken: string;
   let command: RequestSignupCommand;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = td.object();
     tokenManager = td.object();
     config = td.object();

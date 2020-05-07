@@ -13,10 +13,16 @@ import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
-import { ProjectDraft } from 'project/domain/project/value-objects/states/ProjectDraft';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
+import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
-describe(ProjectDraft.name, () => {
+describe(FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
@@ -24,12 +30,13 @@ describe(ProjectDraft.name, () => {
   let creator: User;
   let project: Project;
   let roles: Role[];
+  let reviewTopics: ReviewTopic[];
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
     modelFaker = new ModelFaker();
 
-    state = ProjectDraft.INSTANCE;
+    state = FormationProjectState.INSTANCE;
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
     roles = [
@@ -39,6 +46,12 @@ describe(ProjectDraft.name, () => {
       modelFaker.role(),
     ];
     project.roles.addAll(roles);
+    reviewTopics = [
+      modelFaker.reviewTopic(),
+      modelFaker.reviewTopic(),
+      modelFaker.reviewTopic(),
+    ];
+    project.reviewTopics.addAll(reviewTopics);
   });
 
   describe('update', () => {
@@ -163,6 +176,62 @@ describe(ProjectDraft.name, () => {
     });
   });
 
+  describe('add review topic', () => {
+    let title: ReviewTopicTitle;
+    let description: ReviewTopicDescription;
+
+    beforeEach(() => {
+      title = ReviewTopicTitle.from(primitiveFaker.words());
+      description = ReviewTopicDescription.from(primitiveFaker.paragraph());
+    });
+
+    test('happy path', () => {
+      const addedReviewTopic = state.addReviewTopic(
+        project,
+        title,
+        description,
+      );
+      expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicCreatedEvent),
+      );
+    });
+  });
+
+  describe('update review topic', () => {
+    let title: ReviewTopicTitle;
+    let reviewTopicToUpdate: ReviewTopic;
+
+    beforeEach(() => {
+      title = ReviewTopicTitle.from(primitiveFaker.words());
+      reviewTopicToUpdate = reviewTopics[0];
+    });
+
+    test('happy path', () => {
+      state.updateReviewTopic(project, reviewTopicToUpdate.id, title);
+      expect(reviewTopicToUpdate.title).toEqual(title);
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicUpdatedEvent),
+      );
+    });
+  });
+
+  describe('remove review topic', () => {
+    let reviewTopicToRemove: ReviewTopic;
+
+    beforeEach(() => {
+      reviewTopicToRemove = reviewTopics[0];
+    });
+
+    test('happy path', () => {
+      state.removeReviewTopic(project, reviewTopicToRemove.id);
+      expect(project.reviewTopics.contains(reviewTopicToRemove.id)).toBeFalsy();
+      expect(project.domainEvents).toContainEqual(
+        expect.any(ReviewTopicRemovedEvent),
+      );
+    });
+  });
+
   describe('finish formation', () => {
     beforeEach(() => {
       for (const role of project.roles.toArray()) {
@@ -172,10 +241,12 @@ describe(ProjectDraft.name, () => {
 
     test('happy path', () => {
       state.finishFormation(project);
-      expect(project.domainEvents).toEqual([
+      expect(project.domainEvents).toContainEqual(
         expect.any(ProjectFormationFinishedEvent),
+      );
+      expect(project.domainEvents).toContainEqual(
         expect.any(ProjectPeerReviewStartedEvent),
-      ]);
+      );
     });
 
     test('should fail if a role has no user assigned', () => {

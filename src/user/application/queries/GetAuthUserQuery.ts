@@ -27,9 +27,10 @@ export class GetAuthUserQueryHandler extends QueryHandler<
   }
 
   public async handle(query: GetAuthUserQuery): Promise<UserDto> {
-    return this.objectMapper.map(query.authUser, UserDto, {
+    const authUserDto = this.objectMapper.map(query.authUser, UserDto, {
       authUser: query.authUser,
     });
+    return Promise.resolve(authUserDto);
   }
 
   public getQueryType(): Type<GetAuthUserQuery> {

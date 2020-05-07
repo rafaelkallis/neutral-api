@@ -6,7 +6,7 @@ describe.skip('SendgridEmailManager', () => {
   let config: Config;
   let sendgridEmail: SendgridEmailManager;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     config = td.object();
     sendgridEmail = new SendgridEmailManager(config);
   });

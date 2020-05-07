@@ -12,17 +12,18 @@ import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubm
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPeerReviewFinishedEvent';
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
-export class ProjectPeerReview extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableState(
-    new ProjectPeerReview(),
+export class PeerReviewProjectState extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
+    new PeerReviewProjectState(),
   );
 
   private constructor() {
@@ -32,6 +33,7 @@ export class ProjectPeerReview extends DefaultProjectState {
   public submitPeerReviews(
     project: Project,
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -45,6 +47,7 @@ export class ProjectPeerReview extends DefaultProjectState {
     );
     const addedPeerReviews = project.peerReviews.addForSender(
       senderRole.id,
+      reviewTopicId,
       submittedPeerReviews,
     );
     senderRole.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -102,17 +105,16 @@ export class ProjectPeerReview extends DefaultProjectState {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    const contributions = contributionsComputer.compute(project.peerReviews);
-    project.roles.applyContributions(contributions);
-    project.consensuality = consensualityComputer.compute(project.peerReviews);
+    contributionsComputer.compute(project.peerReviews).applyTo(project);
+    consensualityComputer.compute(project.peerReviews).applyTo(project);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewSkippedEvent(project.id));
       project.raise(new ProjectFinishedEvent(project));
     } else {
-      project.state = ProjectManagerReview.INSTANCE;
+      project.state = ManagerReviewProjectState.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
     }

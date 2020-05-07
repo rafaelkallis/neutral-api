@@ -5,7 +5,7 @@ import { ProjectApplicationService } from 'project/application/ProjectApplicatio
 import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
-import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
+import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -42,6 +42,8 @@ import {
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
+import { UpdateReviewTopicCommandHandler } from 'project/application/commands/UpdateReviewTopic';
+import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
 
@@ -62,7 +64,7 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
     },
     {
       provide: ContributionsComputer,
-      useClass: CoveeContributionsComputerService,
+      useClass: CoveeContributionsComputer,
     },
     ProjectApplicationService,
     ProjectFactory,
@@ -88,6 +90,8 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
     AddRoleCommandHandler,
     UpdateRoleCommandHandler,
     AddReviewTopicCommandHandler,
+    UpdateReviewTopicCommandHandler,
+    RemoveReviewTopicCommandHandler,
     RemoveRoleCommandHandler,
     UnassignRoleCommandHandler,
   ],

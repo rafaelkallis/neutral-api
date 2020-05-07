@@ -16,7 +16,7 @@ describe('notification application service', () => {
   let user: User;
   let mockNotificationDto: unknown;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     modelFaker = new ModelFaker();
     notificationRepository = new MemoryNotificationRepository();
     objectMapper = td.object();

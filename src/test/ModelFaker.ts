@@ -26,7 +26,7 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
@@ -82,7 +82,7 @@ export class ModelFaker {
     const description = ProjectDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    const state = ProjectFormation.INSTANCE;
+    const state = FormationProjectState.INSTANCE;
     const consensuality = null;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;
@@ -113,7 +113,6 @@ export class ModelFaker {
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const title = RoleTitle.from(this.primitiveFaker.words());
     const description = RoleDescription.from(this.primitiveFaker.paragraph());
-    const contribution = null;
     const hasSubmittedPeerReviews = HasSubmittedPeerReviews.from(false);
     return new Role(
       id,
@@ -122,26 +121,7 @@ export class ModelFaker {
       assigneeId,
       title,
       description,
-      contribution,
       hasSubmittedPeerReviews,
-    );
-  }
-
-  /**
-   * Create a fake peer review
-   */
-  public peerReview(senderRoleId: RoleId, receiverRoleId: RoleId): PeerReview {
-    const id = PeerReviewId.from(this.primitiveFaker.id());
-    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const score = PeerReviewScore.from(PeerReviewScore.EPSILON);
-    return new PeerReview(
-      id,
-      createdAt,
-      updatedAt,
-      senderRoleId,
-      receiverRoleId,
-      score,
     );
   }
 
@@ -153,7 +133,30 @@ export class ModelFaker {
     const description = ReviewTopicDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    return new ReviewTopic(id, createdAt, updatedAt, title, description);
+    return new ReviewTopic(id, createdAt, updatedAt, title, description, null);
+  }
+
+  /**
+   * Create a fake peer review
+   */
+  public peerReview(
+    senderRoleId: RoleId,
+    receiverRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): PeerReview {
+    const id = PeerReviewId.from(this.primitiveFaker.id());
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const score = PeerReviewScore.from(PeerReviewScore.EPSILON);
+    return new PeerReview(
+      id,
+      createdAt,
+      updatedAt,
+      senderRoleId,
+      receiverRoleId,
+      reviewTopicId,
+      score,
+    );
   }
 
   /**

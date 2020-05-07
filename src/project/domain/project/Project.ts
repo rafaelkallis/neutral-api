@@ -40,6 +40,7 @@ import {
 import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
+import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -62,6 +63,8 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly reviewTopics: ReadonlyReviewTopicCollection;
   readonly contributions: ReadonlyContributionCollection;
 
+  isConsensual(): boolean;
+
   update(title?: ProjectTitle, description?: ProjectDescription): void;
 
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
@@ -78,10 +81,17 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic;
+  updateReviewTopic(
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void;
+  removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
   finishFormation(): void;
   submitPeerReviews(
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -91,6 +101,11 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
+
+  /**
+   * Asserts that a peer review exists for each review topic and source-target role.
+   */
+  assertPeerReviewsComplete(): void;
 }
 
 /**
@@ -138,6 +153,10 @@ export class Project extends AggregateRoot<ProjectId>
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
+  }
+
+  public isConsensual(): boolean {
+    return this.reviewTopics.areAll((topic) => topic.isConsensual());
   }
 
   /**
@@ -194,6 +213,18 @@ export class Project extends AggregateRoot<ProjectId>
     return this.state.addReviewTopic(this, title, description);
   }
 
+  public updateReviewTopic(
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    this.state.updateReviewTopic(this, reviewTopicId, title, description);
+  }
+
+  public removeReviewTopic(reviewTopicId: ReviewTopicId): void {
+    this.state.removeReviewTopic(this, reviewTopicId);
+  }
+
   /**
    * Finish project formation
    */
@@ -213,6 +244,7 @@ export class Project extends AggregateRoot<ProjectId>
    */
   public submitPeerReviews(
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -220,6 +252,7 @@ export class Project extends AggregateRoot<ProjectId>
     this.state.submitPeerReviews(
       this,
       senderRoleId,
+      reviewTopicId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -247,6 +280,37 @@ export class Project extends AggregateRoot<ProjectId>
   public assertCreator(user: ReadonlyUser): void {
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
+    }
+  }
+
+  public assertPeerReviewsComplete(): void {
+    let expectedPeerReviews: [ReviewTopicId, RoleId, RoleId][] = [];
+    for (const reviewTopic of this.reviewTopics) {
+      for (const sender of this.roles) {
+        for (const receiver of this.roles.excluding(sender)) {
+          // cartesian product of (reviewTopics * sender-roles * receiver-roles)
+          expectedPeerReviews.push([reviewTopic.id, sender.id, receiver.id]);
+        }
+      }
+    }
+    for (const peerReview of this.peerReviews) {
+      const oldPeerReviews = expectedPeerReviews;
+      expectedPeerReviews = expectedPeerReviews.filter(
+        ([reviewTopicId, senderRoleId, receiverRoleId]) =>
+          !(
+            reviewTopicId.equals(peerReview.reviewTopicId) &&
+            senderRoleId.equals(peerReview.senderRoleId) &&
+            receiverRoleId.equals(peerReview.reviewTopicId)
+          ),
+      );
+      if (expectedPeerReviews.length !== oldPeerReviews.length - 1) {
+        throw new Error(
+          `peer review missing {review-topic: ${peerReview.reviewTopicId.value}, sender: ${peerReview.senderRoleId.value}, receicer: ${peerReview.senderRoleId.value}}`,
+        );
+      }
+    }
+    if (expectedPeerReviews.length !== 0) {
+      throw new Error('too many peer reviews');
     }
   }
 }

@@ -16,7 +16,7 @@ describe(MediatorModule.name, () => {
 
   @Injectable()
   class TestRequestHandler extends RequestHandler<number, TestRequest> {
-    public async handle(request: TestRequest): Promise<number> {
+    public handle(request: TestRequest): number {
       return request.input + 1;
     }
 
@@ -29,7 +29,7 @@ describe(MediatorModule.name, () => {
 
   @Injectable()
   class RejectingRequestHandler extends RequestHandler<void, RejectingRequest> {
-    public async handle(request: RejectingRequest): Promise<void> {
+    public handle(request: RejectingRequest): void {
       throw new Error();
     }
 

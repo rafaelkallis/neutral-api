@@ -49,6 +49,7 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       UpdatedAt.from(reviewTopicEntity.updatedAt),
       ReviewTopicTitle.from(reviewTopicEntity.title),
       ReviewTopicDescription.from(reviewTopicEntity.description),
+      null,
     );
   }
 

@@ -48,7 +48,8 @@ export abstract class TelemetryClient {
     return `${request.method} ${request.route.path}`;
   }
 
-  protected computeHttpTransactionId(request: Request): string {
+  protected computeHttpTransactionId(_request: Request): string {
+    // TODO check if transaction id exists in request header
     return crypto.randomBytes(16).toString('hex');
   }
 }

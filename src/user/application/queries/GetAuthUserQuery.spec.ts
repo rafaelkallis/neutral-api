@@ -14,7 +14,7 @@ describe(GetAuthUserQuery.name, () => {
   let userDto: UserDto;
   let queryHandler: GetAuthUserQueryHandler;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     objectMapper = td.object();
     authUser = td.object();
     userDto = td.object();

@@ -11,6 +11,9 @@ export class PeerReviewDto extends ModelDto {
   @ApiProperty({ type: String, example: '507f1f77bcf86cd799439011' })
   public receiverRoleId: string;
 
+  @ApiProperty({ type: String, example: '507f1f77bcf86cd799439011' })
+  public reviewTopicId: string;
+
   @ApiProperty({ type: Number, example: 0.4 })
   public score: number;
 
@@ -18,6 +21,7 @@ export class PeerReviewDto extends ModelDto {
     id: string,
     senderRoleId: string,
     receiverRoleId: string,
+    reviewTopicId: string,
     score: number,
     createdAt: number,
     updatedAt: number,
@@ -25,6 +29,7 @@ export class PeerReviewDto extends ModelDto {
     super(id, createdAt, updatedAt);
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
+    this.reviewTopicId = reviewTopicId;
     this.score = score;
   }
 }

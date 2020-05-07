@@ -12,7 +12,7 @@ describe('user map', () => {
   let modelFaker: ModelFaker;
   let user: User;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     const config: Config = td.object();
     td.when(config.get('SERVER_URL')).thenReturn('http://example.com');
     userMap = new UserDtoMap(config);

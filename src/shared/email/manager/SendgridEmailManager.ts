@@ -101,10 +101,12 @@ export class SendgridEmailManager extends EmailManager {
       personalizations: [
         {
           to: { email: to },
+          // eslint-disable-next-line @typescript-eslint/camelcase
           dynamic_template_data: dynamicTemplateData,
         },
       ],
       from: { email: 'no-reply@covee.network' },
+      // eslint-disable-next-line @typescript-eslint/camelcase
       template_id: templateId,
     };
     const config = {

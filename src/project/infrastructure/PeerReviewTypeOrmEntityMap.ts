@@ -8,6 +8,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 @Injectable()
 export class PeerReviewTypeOrmEntityMap extends ObjectMap<
@@ -25,6 +26,7 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
       ctx.get('project', ProjectTypeOrmEntity),
       peerReviewModel.senderRoleId.value,
       peerReviewModel.receiverRoleId.value,
+      peerReviewModel.reviewTopicId.value,
       peerReviewModel.score.value,
     );
   }
@@ -50,6 +52,7 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
       UpdatedAt.from(peerReviewEntity.updatedAt),
       RoleId.from(peerReviewEntity.senderRoleId),
       RoleId.from(peerReviewEntity.receiverRoleId),
+      ReviewTopicId.from(peerReviewEntity.reviewTopicId),
       PeerReviewScore.from(peerReviewEntity.score),
     );
   }

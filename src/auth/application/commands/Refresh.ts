@@ -31,7 +31,7 @@ export class RefreshCommandHandler extends CommandHandler<
     this.tokenManager = tokenManager;
   }
 
-  public async handle(command: RefreshCommand): Promise<RefreshResponseDto> {
+  public handle(command: RefreshCommand): RefreshResponseDto {
     const payload = this.tokenManager.validateRefreshToken(
       command.refreshToken,
     );

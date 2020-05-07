@@ -13,6 +13,7 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -64,6 +65,20 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): ReadonlyReviewTopic {
     return this.base.addReviewTopic(project, title, description);
   }
+  public updateReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    this.base.updateReviewTopic(project, reviewTopicId, title, description);
+  }
+  public removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    this.base.removeReviewTopic(project, reviewTopicId);
+  }
   public finishFormation(project: Project): void {
     this.base.finishFormation(project);
   }
@@ -73,6 +88,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
   public submitPeerReviews(
     project: Project,
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -80,6 +96,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
     this.base.submitPeerReviews(
       project,
       senderRoleId,
+      reviewTopicId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,

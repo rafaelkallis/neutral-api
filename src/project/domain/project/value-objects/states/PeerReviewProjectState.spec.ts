@@ -5,27 +5,29 @@ import { SkipManagerReview } from 'project/domain/project/value-objects/SkipMana
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
 import {
   ContributionsComputer,
-  Contributions,
+  ContributionsComputationResult,
 } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import {
+  ConsensualityComputer,
+  ConsensualityComputationResult,
+} from 'project/domain/ConsensualityComputer';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
-describe(ProjectPeerReview.name, () => {
+describe(PeerReviewProjectState.name, () => {
   let modelFaker: ModelFaker;
 
   let state: ProjectState;
@@ -35,7 +37,7 @@ describe(ProjectPeerReview.name, () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
 
-    state = ProjectPeerReview.INSTANCE;
+    state = PeerReviewProjectState.INSTANCE;
 
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
@@ -43,17 +45,17 @@ describe(ProjectPeerReview.name, () => {
 
   describe('submit peer review', () => {
     let roles: Role[];
+    let reviewTopic: ReviewTopic;
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
-    let contribution: ContributionAmount;
-    let contributions: Contributions;
-    let consensuality: Consensuality;
+    let contributionsComputationResult: ContributionsComputationResult;
+    let consensualityComputationResult: ConsensualityComputationResult;
     let contributionsComputer: ContributionsComputer;
     let consensualityComputer: ConsensualityComputer;
 
     beforeEach(() => {
       contributionsComputer = td.object();
       consensualityComputer = td.object();
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       roles = [
         modelFaker.role(creator.id),
         modelFaker.role(),
@@ -61,6 +63,10 @@ describe(ProjectPeerReview.name, () => {
         modelFaker.role(),
       ];
       project.roles.addAll(roles);
+
+      reviewTopic = modelFaker.reviewTopic();
+      project.reviewTopics.add(reviewTopic);
+
       project.skipManagerReview = SkipManagerReview.NO;
       roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
       roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
@@ -80,6 +86,7 @@ describe(ProjectPeerReview.name, () => {
           const peerReview = modelFaker.peerReview(
             senderRole.id,
             receiverRole.id,
+            reviewTopic.id,
           );
           peerReviews.push(peerReview);
         }
@@ -92,18 +99,14 @@ describe(ProjectPeerReview.name, () => {
         [roles[3].id, PeerReviewScore.from(1 / 3)],
       ];
 
-      consensuality = td.object(Consensuality.from(1));
-      td.when(consensualityComputer.compute(td.matchers.anything())).thenReturn(
-        consensuality,
+      consensualityComputationResult = td.object();
+      td.when(consensualityComputer.compute(project.peerReviews)).thenReturn(
+        consensualityComputationResult,
       );
 
-      contribution = td.object(ContributionAmount.from(0.5));
-      contributions = td.object();
-      td.when(contributions.of(td.matchers.anything())).thenReturn(
-        contribution,
-      );
-      td.when(contributionsComputer.compute(td.matchers.anything())).thenReturn(
-        contributions,
+      contributionsComputationResult = td.object();
+      td.when(contributionsComputer.compute(project.peerReviews)).thenReturn(
+        contributionsComputationResult,
       );
     });
 
@@ -112,6 +115,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -123,12 +127,10 @@ describe(ProjectPeerReview.name, () => {
           expect.any(FinalPeerReviewSubmittedEvent),
         );
         expect(
-          project.state.equals(ProjectManagerReview.INSTANCE),
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
         ).toBeTruthy();
-        for (const role of roles) {
-          expect(role.contribution).toBe(contribution);
-        }
-        expect(project.consensuality).toBe(consensuality);
+        td.verify(contributionsComputationResult.applyTo(project));
+        td.verify(consensualityComputationResult.applyTo(project));
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {
@@ -136,37 +138,42 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectFinished.INSTANCE);
+        expect(project.state).toBe(FinishedProjectState.INSTANCE);
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        td.when(consensuality.isConsensual()).thenReturn(true);
+        jest.spyOn(project, 'isConsensual').mockReturnValue(true);
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state.equals(ProjectFinished.INSTANCE)).toBeTruthy();
+        expect(
+          project.state.equals(FinishedProjectState.INSTANCE),
+        ).toBeTruthy();
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        td.when(consensuality.isConsensual()).thenReturn(false);
+        jest.spyOn(project, 'isConsensual').mockReturnValue(false);
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectManagerReview.INSTANCE);
+        expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
@@ -174,12 +181,13 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
         expect(
-          project.state.equals(ProjectManagerReview.INSTANCE),
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
         ).toBeTruthy();
       });
 
@@ -188,14 +196,15 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         );
-        for (const role of project.roles.toArray()) {
-          expect(role.contribution).toBeNull();
-        }
-        expect(project.state.equals(ProjectPeerReview.INSTANCE)).toBeTruthy();
+        expect(
+          project.state.equals(PeerReviewProjectState.INSTANCE),
+        ).toBeTruthy();
+        expect(project.contributions.toArray()).toHaveLength(0);
       });
     });
 
@@ -205,6 +214,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -221,6 +231,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -238,6 +249,7 @@ describe(ProjectPeerReview.name, () => {
         state.submitPeerReviews(
           project,
           roles[0].id,
+          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,

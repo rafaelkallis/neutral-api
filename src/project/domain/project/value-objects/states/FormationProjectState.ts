@@ -18,12 +18,22 @@ import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import {
+  ReadonlyReviewTopic,
+  ReviewTopic,
+} from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
+import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 
-export class ProjectDraft extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableState(
-    new ProjectDraft(),
+export class FormationProjectState extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
+    new FormationProjectState(),
   );
 
   private constructor() {
@@ -108,10 +118,55 @@ export class ProjectDraft extends DefaultProjectState {
     project.raise(new UserUnassignedEvent(project, role, previousAssigneeId));
   }
 
+  public addReviewTopic(
+    project: Project,
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic {
+    const reviewTopic = ReviewTopic.from(title, description);
+    project.reviewTopics.add(reviewTopic);
+    project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
+    return reviewTopic;
+  }
+
+  public updateReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    const reviewTopicToUpdate = project.reviewTopics.findById(reviewTopicId);
+    if (title) {
+      reviewTopicToUpdate.title = title;
+    }
+    if (description) {
+      reviewTopicToUpdate.description = description;
+    }
+    project.raise(new ReviewTopicUpdatedEvent(reviewTopicToUpdate.id));
+  }
+
+  public removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    const reviewTopicToRemove = project.reviewTopics.findById(reviewTopicId);
+    project.reviewTopics.remove(reviewTopicToRemove);
+    project.raise(new ReviewTopicRemovedEvent(reviewTopicId));
+  }
+
   public finishFormation(project: Project): void {
     project.roles.assertSufficientAmount();
     project.roles.assertAllAreAssigned();
-    project.state = ProjectPeerReview.INSTANCE;
+
+    // for backwards compatibility
+    this.addReviewTopic(
+      project,
+      ReviewTopicTitle.from('Contribution'),
+      ReviewTopicDescription.from(''),
+    );
+
+    project.reviewTopics.assertSufficientAmount();
+    project.state = PeerReviewProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project));
   }

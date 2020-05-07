@@ -19,11 +19,13 @@ export class Subject<T> implements Observable<T>, Observer<T> {
 
   public async subscribe(observer: Observer<T>): Promise<Subscription> {
     this.observers.add(observer);
-    return {
+    const subscription = {
       unsubscribe: async (): Promise<void> => {
         this.observers.delete(observer);
+        return Promise.resolve();
       },
     };
+    return Promise.resolve(subscription);
   }
 
   public async handle(event: T): Promise<void> {

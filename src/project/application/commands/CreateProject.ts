@@ -55,9 +55,7 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
     this.projectFactory = projectFactory;
   }
 
-  protected async doHandle(
-    command: CreateProjectCommand,
-  ): Promise<ReadonlyProject> {
+  protected doHandle(command: CreateProjectCommand): ReadonlyProject {
     return this.projectFactory.create({
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),

@@ -1,11 +1,12 @@
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { CoveeContributionsComputerService } from 'project/infrastructure/CoveeContributionsComputerService';
+import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
 import {
   PeerReviewCollection,
   ReadonlyPeerReviewCollection,
 } from 'project/domain/peer-review/PeerReviewCollection';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 describe('ContributionsModelService', () => {
   let primitiveFaker: PrimitiveFaker;
@@ -21,35 +22,38 @@ describe('ContributionsModelService', () => {
     b = primitiveFaker.id();
     c = primitiveFaker.id();
     d = primitiveFaker.id();
-    specificationsDocumentExamplePeerReviews = PeerReviewCollection.fromMap({
-      [a]: {
-        [b]: 20 / 90,
-        [c]: 30 / 90,
-        [d]: 40 / 90,
+    specificationsDocumentExamplePeerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: 20 / 90,
+          [c]: 30 / 90,
+          [d]: 40 / 90,
+        },
+        [b]: {
+          [a]: 10 / 80,
+          [c]: 30 / 80,
+          [d]: 40 / 80,
+        },
+        [c]: {
+          [a]: 10 / 70,
+          [b]: 20 / 70,
+          [d]: 40 / 70,
+        },
+        [d]: {
+          [a]: 10 / 60,
+          [b]: 20 / 60,
+          [c]: 30 / 60,
+        },
       },
-      [b]: {
-        [a]: 10 / 80,
-        [c]: 30 / 80,
-        [d]: 40 / 80,
-      },
-      [c]: {
-        [a]: 10 / 70,
-        [b]: 20 / 70,
-        [d]: 40 / 70,
-      },
-      [d]: {
-        [a]: 10 / 60,
-        [b]: 20 / 60,
-        [c]: 30 / 60,
-      },
-    });
+      ReviewTopicId.create(),
+    );
   });
 
   describe('covee method', () => {
     let contributionsComputer: ContributionsComputer;
 
     beforeEach(() => {
-      contributionsComputer = new CoveeContributionsComputerService();
+      contributionsComputer = new CoveeContributionsComputer();
     });
 
     test('should be defined', () => {
@@ -60,10 +64,22 @@ describe('ContributionsModelService', () => {
       const contributions = contributionsComputer.compute(
         specificationsDocumentExamplePeerReviews,
       );
-      expect(contributions.of(RoleId.from(a)).value).toBeCloseTo(0.1);
-      expect(contributions.of(RoleId.from(b)).value).toBeCloseTo(0.2);
-      expect(contributions.of(RoleId.from(c)).value).toBeCloseTo(0.3);
-      expect(contributions.of(RoleId.from(d)).value).toBeCloseTo(0.4);
+      expect(
+        contributions.find((con) => con.roleId.equals(RoleId.from(a)))?.amount
+          .value,
+      ).toBeCloseTo(0.1);
+      expect(
+        contributions.find((con) => con.roleId.equals(RoleId.from(b)))?.amount
+          .value,
+      ).toBeCloseTo(0.2);
+      expect(
+        contributions.find((con) => con.roleId.equals(RoleId.from(c)))?.amount
+          .value,
+      ).toBeCloseTo(0.3);
+      expect(
+        contributions.find((con) => con.roleId.equals(RoleId.from(d)))?.amount
+          .value,
+      ).toBeCloseTo(0.4);
     });
   });
 });

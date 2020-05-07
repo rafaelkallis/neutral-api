@@ -8,10 +8,11 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
   protected doMap(reviewTopic: ReviewTopic): ReviewTopicDto {
     return new ReviewTopicDto(
       reviewTopic.id.value,
-      reviewTopic.title.value,
-      reviewTopic.description.value,
       reviewTopic.createdAt.value,
       reviewTopic.updatedAt.value,
+      reviewTopic.title.value,
+      reviewTopic.description.value,
+      reviewTopic.consensuality ? reviewTopic.consensuality.value : null,
     );
   }
 

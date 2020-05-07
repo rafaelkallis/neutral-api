@@ -3,14 +3,14 @@ import {
   ProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
 import { Project } from 'project/domain/project/Project';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/ProjectManagerReviewFinishedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
-import { CancellableState } from 'project/domain/project/value-objects/states/CancellableState';
+import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 
-export class ProjectManagerReview extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableState(
-    new ProjectManagerReview(),
+export class ManagerReviewProjectState extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
+    new ManagerReviewProjectState(),
   );
 
   private constructor() {
@@ -18,7 +18,7 @@ export class ProjectManagerReview extends DefaultProjectState {
   }
 
   public submitManagerReview(project: Project): void {
-    project.state = ProjectFinished.INSTANCE;
+    project.state = FinishedProjectState.INSTANCE;
     project.raise(new ProjectManagerReviewFinishedEvent(project.id));
     project.raise(new ProjectFinishedEvent(project));
   }

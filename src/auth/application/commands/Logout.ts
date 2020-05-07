@@ -17,7 +17,7 @@ export class LogoutCommand extends Command<void> {
 
 @Injectable()
 export class LogoutCommandHandler extends CommandHandler<void, LogoutCommand> {
-  public async handle(command: LogoutCommand): Promise<void> {
+  public handle(command: LogoutCommand): void {
     command.session.clear();
   }
 

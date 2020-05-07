@@ -4,6 +4,7 @@ import {
   DomainEventSubscription,
 } from 'shared/domain-event/application/DomainEventBroker';
 
+// TODO remove
 @Injectable()
 export class MockDomainEventBroker extends DomainEventBroker {
   public async publish(): Promise<void> {

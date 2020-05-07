@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { TestingModule, Test, TestingModuleBuilder } from '@nestjs/testing';
+import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app/AppModule';
 import { UserRepository } from 'user/domain/UserRepository';
@@ -48,16 +48,10 @@ export class IntegrationTestScenario extends TestScenario {
     this.session = session;
   }
 
-  public static async create(
-    builderExpression?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
-  ): Promise<IntegrationTestScenario> {
-    let builder = await Test.createTestingModule({
+  public static async create(): Promise<IntegrationTestScenario> {
+    const module = await Test.createTestingModule({
       imports: [AppModule],
-    });
-    if (builderExpression) {
-      builder = builderExpression(builder);
-    }
-    const module = await builder.compile();
+    }).compile();
     const app = await module.createNestApplication().init();
     const session = request.agent(app.getHttpServer());
     return new IntegrationTestScenario(

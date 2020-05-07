@@ -2,11 +2,11 @@ import { User } from 'user/domain/User';
 import { Project } from 'project/domain/project/Project';
 import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ModelFaker } from 'test/ModelFaker';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
-import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 
-describe(ProjectFinished.name, () => {
+describe(FinishedProjectState.name, () => {
   let modelFaker: ModelFaker;
 
   let state: ProjectState;
@@ -16,7 +16,7 @@ describe(ProjectFinished.name, () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
 
-    state = ProjectFinished.INSTANCE;
+    state = FinishedProjectState.INSTANCE;
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
   });
@@ -24,7 +24,7 @@ describe(ProjectFinished.name, () => {
   describe('archive', () => {
     test('happy path', () => {
       state.archive(project);
-      expect(project.state).toBe(ProjectArchived.INSTANCE);
+      expect(project.state).toBe(ArchivedProjectState.INSTANCE);
       expect(project.domainEvents).toEqual([expect.any(ProjectArchivedEvent)]);
     });
   });

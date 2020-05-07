@@ -16,6 +16,28 @@ import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { PerformanceMeasurer } from 'shared/telemetry/application/PerformanceMeasurer';
 
+// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Schema/PublicSchema/ContextTagKeys.bond
+enum AzureMonitorContextTags {
+  APPLICATION_VERSION = 'ai.application.ver',
+  DEVICE_ID = 'ai.device.id',
+  LOCATION_IP = 'ai.location.ip',
+  OPERATION_ID = 'ai.operation.id',
+  OPERATION_NAME = 'ai.operation.name',
+  OPERATION_PARENT_ID = 'ai.operation.parentId',
+  USER_ID = 'ai.user.id',
+}
+
+// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Declarations/Constants.ts#L28-L40
+enum AzureMonitorPerformanceMetrics {
+  // Memory
+  PRIVATE_BYTES = '\\Process(??APP_WIN32_PROC??)\\Private Bytes',
+  AVAILABLE_BYTES = '\\Memory\\Available Bytes',
+
+  // CPU
+  PROCESSOR_TIME = '\\Processor(_Total)\\% Processor Time',
+  PROCESS_TIME = '\\Process(??APP_WIN32_PROC??)\\% Processor Time',
+}
+
 /**
  * Azure Monitor Telemetry Client
  */
@@ -159,26 +181,4 @@ class AzureMonitorTelemetryAction extends TelemetryAction {
       },
     });
   }
-}
-
-// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Schema/PublicSchema/ContextTagKeys.bond
-enum AzureMonitorContextTags {
-  APPLICATION_VERSION = 'ai.application.ver',
-  DEVICE_ID = 'ai.device.id',
-  LOCATION_IP = 'ai.location.ip',
-  OPERATION_ID = 'ai.operation.id',
-  OPERATION_NAME = 'ai.operation.name',
-  OPERATION_PARENT_ID = 'ai.operation.parentId',
-  USER_ID = 'ai.user.id',
-}
-
-// @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Declarations/Constants.ts#L28-L40
-enum AzureMonitorPerformanceMetrics {
-  // Memory
-  PRIVATE_BYTES = '\\Process(??APP_WIN32_PROC??)\\Private Bytes',
-  AVAILABLE_BYTES = '\\Memory\\Available Bytes',
-
-  // CPU
-  PROCESSOR_TIME = '\\Processor(_Total)\\% Processor Time',
-  PROCESS_TIME = '\\Process(??APP_WIN32_PROC??)\\% Processor Time',
 }

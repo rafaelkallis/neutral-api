@@ -34,7 +34,12 @@ export class ProjectDto extends ModelDto {
   })
   public state: ProjectStateValue;
 
-  @ApiProperty({ type: Number, required: false, example: 0.5 })
+  @ApiProperty({
+    type: Number,
+    required: false,
+    example: 0.5,
+    deprecated: true,
+  })
   public consensuality: number | null;
 
   @ApiProperty({

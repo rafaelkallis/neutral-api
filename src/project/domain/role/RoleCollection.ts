@@ -5,7 +5,6 @@ import {
   ModelCollection,
   ReadonlyModelCollection,
 } from 'shared/domain/ModelCollection';
-import { Contributions } from 'project/domain/ContributionsComputer';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -39,12 +38,6 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
       throw new RoleNotFoundException();
     }
     return this.toArray().filter((role) => !role.equals(roleToExclude));
-  }
-
-  public applyContributions(contributions: Contributions): void {
-    for (const role of this.toArray()) {
-      role.contribution = contributions.of(role.id);
-    }
   }
 
   public isAnyAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean {
