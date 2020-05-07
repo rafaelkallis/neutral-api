@@ -5,7 +5,7 @@ import {
   ProjectState,
   DefaultProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
-import { ProjectCancelled } from './ProjectCancelled';
+import { CancelledProjectState } from './CancelledProjectState';
 import { ProjectCancelledEvent } from 'project/domain/events/ProjectCancelledEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 
@@ -35,7 +35,7 @@ describe(CancellableProjectState.name, () => {
   describe('cancel', () => {
     test('happy path', () => {
       cancellableState.cancel(project);
-      expect(project.state.equals(ProjectCancelled.INSTANCE)).toBeTruthy();
+      expect(project.state.equals(CancelledProjectState.INSTANCE)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(
         expect.any(ProjectCancelledEvent),
       );

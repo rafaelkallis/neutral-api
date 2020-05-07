@@ -3,8 +3,8 @@ import {
   DefaultProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
 
-export class ProjectCancelled extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new ProjectCancelled();
+export class CancelledProjectState extends DefaultProjectState {
+  public static readonly INSTANCE: ProjectState = new CancelledProjectState();
 
   private constructor() {
     super();

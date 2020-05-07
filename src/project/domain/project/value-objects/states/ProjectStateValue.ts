@@ -4,7 +4,7 @@ import { ProjectPeerReview } from 'project/domain/project/value-objects/states/P
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
 import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
-import { ProjectCancelled } from 'project/domain/project/value-objects/states/ProjectCancelled';
+import { CancelledProjectState } from 'project/domain/project/value-objects/states/CancelledProjectState';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 
 export enum ProjectStateValue {
@@ -24,7 +24,7 @@ const associations: [ProjectStateValue, ProjectState][] = [
   [ProjectStateValue.MANAGER_REVIEW, ProjectManagerReview.INSTANCE],
   [ProjectStateValue.FINISHED, ProjectFinished.INSTANCE],
   [ProjectStateValue.ARCHIVED, ArchivedProjectState.INSTANCE],
-  [ProjectStateValue.CANCELLED, ProjectCancelled.INSTANCE],
+  [ProjectStateValue.CANCELLED, CancelledProjectState.INSTANCE],
 ];
 
 export function getProjectState(targetValue: ProjectStateValue): ProjectState {
