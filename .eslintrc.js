@@ -5,13 +5,11 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'prettier/@typescript-eslint',
-    'plugin:security/recommended',
     'plugin:promise/recommended',
   ],
   plugins: [
     '@typescript-eslint',
     'jest',
-    'security',
     'promise',
   ],
   parser: '@typescript-eslint/parser',
