@@ -5,7 +5,7 @@ import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSu
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
@@ -118,7 +118,7 @@ describe('submit peer review (e2e)', () => {
         peerReviews[role1.id.value][submittedPeerReview.receiverRoleId.value],
       );
     }
-    expect(updatedProject.state).toBe(ProjectManagerReview.INSTANCE);
+    expect(updatedProject.state).toBe(ManagerReviewProjectState.INSTANCE);
     expect(updatedProject.consensuality).toBeNull();
     for (const consensuality of updatedProject.reviewTopics) {
       expect(consensuality).not.toBeNull();

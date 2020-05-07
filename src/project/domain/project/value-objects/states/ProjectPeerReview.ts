@@ -16,7 +16,7 @@ import { FinishedProjectState } from 'project/domain/project/value-objects/state
 import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPeerReviewFinishedEvent';
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
@@ -114,7 +114,7 @@ export class ProjectPeerReview extends DefaultProjectState {
       project.raise(new ProjectManagerReviewSkippedEvent(project.id));
       project.raise(new ProjectFinishedEvent(project));
     } else {
-      project.state = ProjectManagerReview.INSTANCE;
+      project.state = ManagerReviewProjectState.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
     }

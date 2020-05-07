@@ -1,7 +1,7 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 
@@ -18,7 +18,7 @@ describe('submit manager review (e2e)', () => {
 
     /* prepare project */
     project = scenario.modelFaker.project(user.id);
-    project.state = ProjectManagerReview.INSTANCE;
+    project.state = ManagerReviewProjectState.INSTANCE;
     await scenario.projectRepository.persist(project);
   });
 

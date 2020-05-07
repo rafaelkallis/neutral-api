@@ -13,7 +13,7 @@ import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerR
 import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
@@ -127,7 +127,7 @@ describe(ProjectPeerReview.name, () => {
           expect.any(FinalPeerReviewSubmittedEvent),
         );
         expect(
-          project.state.equals(ProjectManagerReview.INSTANCE),
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
         ).toBeTruthy();
         td.verify(contributionsComputationResult.applyTo(project));
         td.verify(consensualityComputationResult.applyTo(project));
@@ -173,7 +173,7 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectManagerReview.INSTANCE);
+        expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
@@ -187,7 +187,7 @@ describe(ProjectPeerReview.name, () => {
           consensualityComputer,
         );
         expect(
-          project.state.equals(ProjectManagerReview.INSTANCE),
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
         ).toBeTruthy();
       });
 

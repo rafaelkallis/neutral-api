@@ -8,9 +8,9 @@ import { ProjectManagerReviewFinishedEvent } from 'project/domain/events/Project
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 
-export class ProjectManagerReview extends DefaultProjectState {
+export class ManagerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
-    new ProjectManagerReview(),
+    new ManagerReviewProjectState(),
   );
 
   private constructor() {

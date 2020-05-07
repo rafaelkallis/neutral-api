@@ -1,7 +1,7 @@
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { CancelledProjectState } from 'project/domain/project/value-objects/states/CancelledProjectState';
@@ -21,7 +21,7 @@ export enum ProjectStateValue {
 const associations: [ProjectStateValue, ProjectState][] = [
   [ProjectStateValue.FORMATION, FormationProjectState.INSTANCE],
   [ProjectStateValue.PEER_REVIEW, ProjectPeerReview.INSTANCE],
-  [ProjectStateValue.MANAGER_REVIEW, ProjectManagerReview.INSTANCE],
+  [ProjectStateValue.MANAGER_REVIEW, ManagerReviewProjectState.INSTANCE],
   [ProjectStateValue.FINISHED, FinishedProjectState.INSTANCE],
   [ProjectStateValue.ARCHIVED, ArchivedProjectState.INSTANCE],
   [ProjectStateValue.CANCELLED, CancelledProjectState.INSTANCE],
