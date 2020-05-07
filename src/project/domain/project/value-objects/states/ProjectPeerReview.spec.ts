@@ -14,7 +14,7 @@ import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { Role } from 'project/domain/role/Role';
 import {
@@ -143,7 +143,7 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ProjectFinished.INSTANCE);
+        expect(project.state).toBe(FinishedProjectState.INSTANCE);
       });
 
       test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
@@ -157,7 +157,9 @@ describe(ProjectPeerReview.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state.equals(ProjectFinished.INSTANCE)).toBeTruthy();
+        expect(
+          project.state.equals(FinishedProjectState.INSTANCE),
+        ).toBeTruthy();
       });
 
       test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {

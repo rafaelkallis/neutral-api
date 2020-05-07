@@ -18,7 +18,7 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
@@ -264,7 +264,7 @@ describe(ProjectApplicationService.name, () => {
 
   describe('archive project', () => {
     beforeEach(() => {
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       jest.spyOn(project, 'archive');
     });
 

@@ -1,7 +1,7 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { Project } from 'project/domain/project/Project';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
@@ -30,7 +30,7 @@ describe('role dto map', () => {
       publicUser: modelFaker.user(),
     };
     project = modelFaker.project(users.owner.id);
-    project.state = ProjectFinished.INSTANCE;
+    project.state = FinishedProjectState.INSTANCE;
     project.roles.addAll([
       modelFaker.role(users.assignee.id),
       modelFaker.role(users.projectUser.id),

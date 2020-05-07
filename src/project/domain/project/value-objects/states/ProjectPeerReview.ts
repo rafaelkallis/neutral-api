@@ -12,7 +12,7 @@ import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubm
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPeerReviewFinishedEvent';
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -109,7 +109,7 @@ export class ProjectPeerReview extends DefaultProjectState {
     consensualityComputer.compute(project.peerReviews).applyTo(project);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewSkippedEvent(project.id));
       project.raise(new ProjectFinishedEvent(project));

@@ -8,7 +8,7 @@ import { RoleDescription } from 'project/domain/role/value-objects/RoleDescripti
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 
 describe('project (e2e)', () => {
@@ -256,7 +256,7 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
     });
 

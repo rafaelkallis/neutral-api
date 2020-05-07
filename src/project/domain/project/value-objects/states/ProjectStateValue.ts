@@ -2,7 +2,7 @@ import { ProjectState } from 'project/domain/project/value-objects/states/Projec
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { CancelledProjectState } from 'project/domain/project/value-objects/states/CancelledProjectState';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
@@ -22,7 +22,7 @@ const associations: [ProjectStateValue, ProjectState][] = [
   [ProjectStateValue.FORMATION, ProjectFormation.INSTANCE],
   [ProjectStateValue.PEER_REVIEW, ProjectPeerReview.INSTANCE],
   [ProjectStateValue.MANAGER_REVIEW, ProjectManagerReview.INSTANCE],
-  [ProjectStateValue.FINISHED, ProjectFinished.INSTANCE],
+  [ProjectStateValue.FINISHED, FinishedProjectState.INSTANCE],
   [ProjectStateValue.ARCHIVED, ArchivedProjectState.INSTANCE],
   [ProjectStateValue.CANCELLED, CancelledProjectState.INSTANCE],
 ];

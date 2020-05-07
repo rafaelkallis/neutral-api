@@ -2,7 +2,7 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
 import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
 
 describe('submit manager review (e2e)', () => {
@@ -37,7 +37,7 @@ describe('submit manager review (e2e)', () => {
     if (!updatedProject) {
       throw new Error();
     }
-    expect(updatedProject.state).toBe(ProjectFinished.INSTANCE);
+    expect(updatedProject.state).toBe(FinishedProjectState.INSTANCE);
   });
 
   test('should fail if project is not in manager-review state', async () => {
