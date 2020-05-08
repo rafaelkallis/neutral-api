@@ -1,0 +1,23 @@
+{% extends "_base.njk" %}
+
+{% block title %}
+  Covee Magic Login
+{% endblock %}
+
+{% block preview %}
+  Your magic login link has arrived.
+{% endblock %}
+
+{% block content %}
+<mj-section >
+  <mj-column>
+    <mj-text>Hi there,</mj-text>
+    <mj-text>You have requested a login.</mj-text>
+    <mj-spacer />
+    <mj-button mj-class="primary-button" href="{{ loginMagicLink }}">Login</mj-button>
+    <mj-text mj-class="alt-text">Link not working? Try this: <a href="{{ loginMagicLink }}">{{ loginMagicLink }}</a></mj-text>
+    <mj-spacer />
+    <mj-text>- Team Covee</mj-text>
+  </mj-column>
+</mj-section>
+{% endblock %}

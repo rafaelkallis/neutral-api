@@ -1,0 +1,25 @@
+{% extends "_base.njk" %}
+
+{% block title %}
+  Covee Email Change Confirmation
+{% endblock %}
+
+{% block preview %}
+  Your magic email-change link has arrived.
+{% endblock %}
+
+{% block content %}
+<mj-section>
+  <mj-column>
+    <mj-text>Hi there,</mj-text>
+    <mj-text>You have requested an email change.</mj-text>
+    <mj-spacer />
+    <mj-button mj-class="primary-button" href="{{ emailChangeMagicLink }}">Confirm Email</mj-button>
+    <mj-text mj-class="alt-text">
+      Link not working? Try this: <a href="{{ emailChangeMagicLink }}">{{ emailChangeMagicLink }}</a>
+    </mj-text>
+    <mj-spacer />
+    <mj-text>- Team Covee</mj-text>
+  </mj-column>
+</mj-section>
+{% endblock %}
