@@ -33,25 +33,4 @@ export abstract class Config {
    * Get a config variable.
    */
   public abstract get<K extends keyof ConfigProps>(key: K): ConfigProps[K];
-
-  /**
-   * Returns true if app is running in a production environment.
-   */
-  public isProduction(): boolean {
-    return this.get('NODE_ENV') === 'production';
-  }
-
-  /**
-   * Returns true if app is running in a development environment.
-   */
-  public isDevelopment(): boolean {
-    return this.get('NODE_ENV') === 'development';
-  }
-
-  /**
-   * Returns true if app is running in a test environment.
-   */
-  public isTest(): boolean {
-    return this.get('NODE_ENV') === 'test';
-  }
 }

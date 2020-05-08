@@ -1,7 +1,6 @@
-import td from 'testdouble';
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { Config } from 'shared/config/application/Config';
+import { Environment } from 'shared/utility/application/Environment';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
   let scenario: UnitTestScenario<MjmlEmailHtmlRenderer>;
@@ -9,11 +8,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(MjmlEmailHtmlRenderer)
-      .addProviderMock(Config)
+      .addProvider(Environment)
       .build();
     mjmlEmailHtmlRenderer = scenario.subject;
-    const config = scenario.module.get(Config);
-    td.when(config.isDevelopment()).thenReturn(true);
   });
 
   it('should be defined', () => {

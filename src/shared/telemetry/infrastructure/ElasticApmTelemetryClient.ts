@@ -7,22 +7,23 @@ import {
   HttpTelemetryTransaction,
 } from 'shared/telemetry/application/TelemetryClient';
 import { User } from 'user/domain/User';
-import { Config } from 'shared/config/application/Config';
+import { Environment } from 'shared/utility/application/Environment';
 
 /**
  * Elastic Apm Telemetry Client
  */
 @Injectable()
 export class ElasticApmTelemetryClient extends TelemetryClient {
-  private readonly config: Config;
+  private readonly environment: Environment;
 
-  public constructor(config: Config) {
+  public constructor(environment: Environment) {
     super();
-    this.config = config;
+    this.environment = environment;
   }
 
   public onModuleInit(): void {
-    if (!apm.isStarted() && !this.config.isTest()) {
+    if (!apm.isStarted() && !this.environment.isTest()) {
+      // TODO remove test condition
       throw new Error('Elastic apm not started');
     }
   }
