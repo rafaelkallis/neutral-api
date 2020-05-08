@@ -1,4 +1,4 @@
-import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/NunjucksEmailHtmlRenderer';
+import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/nunjucks/NunjucksEmailHtmlRenderer';
 
 describe('NunjucksEmailHtmlRenderer', () => {
   let nunjucksEmailHtmlRenderer: NunjucksEmailHtmlRenderer;

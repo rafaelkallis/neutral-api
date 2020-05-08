@@ -1,54 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
-import { Environment as NunjucksRenderer } from 'nunjucks';
-import fs from 'fs';
+import { Environment as NunjucksRenderer, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import mjml2html from 'mjml';
+import { Config } from 'shared/config/application/Config';
 
 /**
  * Mjml Email Html Renderer
  * @see https://mjml.io/
- *
- * PRODUCTION CHECKLIST:
- * - compile mjml during build
- * - async file read
- * - cache read files
  */
 @Injectable()
 export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
+  private readonly config: Config;
   private readonly nunjucksRenderer: NunjucksRenderer;
 
-  public constructor() {
+  public constructor(config: Config) {
     super();
-    this.nunjucksRenderer = new NunjucksRenderer();
+    this.config = config;
+    const mjmlTemplatesPath = path.resolve(__dirname, 'templates');
+    const fileSystemLoader = new FileSystemLoader(mjmlTemplatesPath);
+    this.nunjucksRenderer = new NunjucksRenderer(fileSystemLoader);
   }
 
   public renderLoginEmailHtml(loginMagicLink: string): string {
-    return this.render('login.mjml', { loginMagicLink });
+    return this.render('login', { loginMagicLink });
   }
 
   public renderSignupEmailHtml(signupMagicLink: string): string {
-    throw new Error('Method not implemented.');
+    return this.render('signup', { signupMagicLink });
   }
   public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
-    throw new Error('Method not implemented.');
+    return this.render('email-change', { emailChangeMagicLink });
   }
   public renderNewAssignmentEmailHtml(): string {
-    throw new Error('Method not implemented.');
+    return this.render('new-assignment', {});
   }
   public renderUnregisteredUserNewAssignmentEmailHtml(): string {
-    throw new Error('Method not implemented.');
+    return this.render('invited-new-assignment', {});
   }
 
   private render(templateName: string, context: object): string {
-    const mjmlTemplatePath = path.join(__dirname, 'templates', templateName);
-    const mjmlTemplateBuf = fs.readFileSync(mjmlTemplatePath);
-    const mjmlTemplate = mjmlTemplateBuf.toString();
-    const { html: njkTemplate, errors } = mjml2html(mjmlTemplate);
+    const mjmlString = this.nunjucksRenderer.render(
+      `${templateName}.njk`,
+      context,
+    );
+    const validationLevel = this.config.isDevelopment() ? 'strict' : 'skip';
+    const { html, errors } = mjml2html(mjmlString, { validationLevel });
     if (errors.length > 0) {
+      // TODO improve error handling
       throw new Error();
     }
-    const html = this.nunjucksRenderer.renderString(njkTemplate, context);
     return html;
   }
 }
