@@ -3,7 +3,7 @@ import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer'
 import { Environment as NunjucksRenderer, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import mjml2html from 'mjml';
-import { Config } from 'shared/config/application/Config';
+import { Environment } from 'shared/utility/application/Environment';
 
 /**
  * Mjml Email Html Renderer
@@ -11,12 +11,12 @@ import { Config } from 'shared/config/application/Config';
  */
 @Injectable()
 export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
-  private readonly config: Config;
+  private readonly environment: Environment;
   private readonly nunjucksRenderer: NunjucksRenderer;
 
-  public constructor(config: Config) {
+  public constructor(environment: Environment) {
     super();
-    this.config = config;
+    this.environment = environment;
     const mjmlTemplatesPath = path.resolve(__dirname, 'templates');
     const fileSystemLoader = new FileSystemLoader(mjmlTemplatesPath);
     this.nunjucksRenderer = new NunjucksRenderer(fileSystemLoader);
@@ -44,7 +44,9 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
       `${templateName}.njk`,
       context,
     );
-    const validationLevel = this.config.isDevelopment() ? 'strict' : 'skip';
+    const validationLevel = this.environment.isDevelopment()
+      ? 'strict'
+      : 'skip';
     const { html, errors } = mjml2html(mjmlString, { validationLevel });
     if (errors.length > 0) {
       // TODO improve error handling

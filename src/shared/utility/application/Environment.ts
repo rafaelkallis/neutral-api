@@ -19,7 +19,7 @@ export class Environment implements OnModuleInit {
     return process.env.NODE_ENV === 'development';
   }
 
-  public isTesting(): boolean {
+  public isTest(): boolean {
     return process.env.NODE_ENV === 'test';
   }
 }
