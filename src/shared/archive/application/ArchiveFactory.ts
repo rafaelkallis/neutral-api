@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Readable, Writable, finished } from 'stream';
+import { Readable, Writable } from 'stream';
 import fs from 'fs';
-import tmp from 'tmp-promise';
+import { TempFileFactory } from 'shared/utility/application/TempFileFactory';
+
+export interface ArchiveBuildResult {
+  file: string;
+  contentType: string;
+}
 
 export interface ArchiveContent {
   path: string;
@@ -9,12 +14,14 @@ export interface ArchiveContent {
 }
 
 export abstract class ArchiveBuilder {
-  private isBuilt: boolean;
+  private readonly tempFileFactory: TempFileFactory;
   private readonly archiveContents: ArchiveContent[];
+  private isBuilt: boolean;
 
-  public constructor() {
-    this.isBuilt = false;
+  public constructor(tempFileFactory: TempFileFactory) {
+    this.tempFileFactory = tempFileFactory;
     this.archiveContents = [];
+    this.isBuilt = false;
   }
 
   public addString(path: string, content: string): this {
@@ -22,29 +29,30 @@ export abstract class ArchiveBuilder {
     this.archiveContents.push({ path, content });
     return this;
   }
+
   public addStream(path: string, content: Readable): this {
     this.assertNotBuilt();
     this.archiveContents.push({ path, content });
     return this;
   }
+
   public addFile(path: string, content: string): this {
     return this.addStream(path, fs.createReadStream(content));
   }
-  public async build(): Promise<Readable> {
+
+  public async build(): Promise<ArchiveBuildResult> {
     this.assertNotBuilt();
     this.isBuilt = true;
-    const tmpFile = await tmp.file();
-    const writable = fs.createWriteStream(tmpFile.path);
-    await this.doBuild(this.archiveContents, writable);
-    const readable = fs.createReadStream(tmpFile.path);
-    finished(readable, () => tmpFile.cleanup());
-    return readable;
+    const tempFile = this.tempFileFactory.createTempFile();
+    const writable = fs.createWriteStream(tempFile);
+    const { contentType } = await this.doBuild(this.archiveContents, writable);
+    return { file: tempFile, contentType };
   }
 
   protected abstract async doBuild(
     zipContents: ReadonlyArray<ArchiveContent>,
     writable: Writable,
-  ): Promise<void>;
+  ): Promise<{ contentType: string }>;
 
   private assertNotBuilt(): void {
     if (this.isBuilt) {
@@ -55,5 +63,11 @@ export abstract class ArchiveBuilder {
 
 @Injectable()
 export abstract class ArchiveFactory {
+  protected readonly tempFileFactory: TempFileFactory;
+
+  public constructor(tempFileFactory: TempFileFactory) {
+    this.tempFileFactory = tempFileFactory;
+  }
+
   public abstract createArchiveBuilder(): ArchiveBuilder;
 }

@@ -13,7 +13,7 @@ import { CacheModule } from 'shared/cache/CacheModule';
 import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
-import { ArchiveModule } from 'shared/zip/ArchiveModule';
+import { ArchiveModule } from 'shared/archive/ArchiveModule';
 
 /**
  * Shared Module
