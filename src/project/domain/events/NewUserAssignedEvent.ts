@@ -4,7 +4,7 @@ import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 
-@DomainEventKey('project.new_user_assigned')
+@DomainEventKey('project.invited_user_assigned')
 export class NewUserAssignedEvent extends DomainEvent {
   public readonly project: ReadonlyProject;
   public readonly role: ReadonlyRole;

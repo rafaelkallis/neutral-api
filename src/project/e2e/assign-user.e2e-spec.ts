@@ -54,10 +54,7 @@ describe('assign user to role', () => {
     });
 
     test("happy path, email of user that doesn't exist", async () => {
-      jest.spyOn(
-        scenario.emailManager,
-        'sendUnregisteredUserNewAssignmentEmail',
-      );
+      jest.spyOn(scenario.emailManager, 'sendInvitedUserNewAssignmentEmail');
       assigneeEmail = scenario.primitiveFaker.email();
 
       const response = await scenario.session
@@ -67,8 +64,14 @@ describe('assign user to role', () => {
         .send({ assigneeEmail });
       expect(response.status).toBe(HttpStatus.OK);
       expect(
-        scenario.emailManager.sendUnregisteredUserNewAssignmentEmail,
-      ).toHaveBeenCalledWith(assigneeEmail);
+        scenario.emailManager.sendInvitedUserNewAssignmentEmail,
+      ).toHaveBeenCalledWith(
+        assigneeEmail,
+        project.id.value,
+        project.title.value,
+        roleToAssign.title.value,
+        '',
+      ); // TODO signupMagicLink
     });
   });
 });

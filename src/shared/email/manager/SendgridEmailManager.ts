@@ -80,9 +80,7 @@ export class SendgridEmailManager extends EmailManager {
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public async sendUnregisteredUserNewAssignmentEmail(
-    to: string,
-  ): Promise<void> {
+  public async sendInvitedUserNewAssignmentEmail(to: string): Promise<void> {
     const templateId = '';
     const dynamicTemplateData = {};
     await this.sendEmail(to, templateId, dynamicTemplateData);

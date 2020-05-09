@@ -57,13 +57,17 @@ export class EmailDomainEventHandlers {
    */
   @HandleDomainEvent(
     NewUserAssignedEvent,
-    'send_unregistered_user_new_assignment_email',
+    'send_invited_user_new_assignment_email',
   )
   public async handleNewUserAssignedEvent(
     event: NewUserAssignedEvent,
   ): Promise<void> {
-    await this.emailManager.sendUnregisteredUserNewAssignmentEmail(
+    await this.emailManager.sendInvitedUserNewAssignmentEmail(
       event.assigneeEmail.value,
+      event.project.id.value,
+      event.project.title.value,
+      event.role.title.value,
+      '', // TODO signupMagicLink
     );
   }
 }
