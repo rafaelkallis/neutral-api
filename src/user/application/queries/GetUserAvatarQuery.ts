@@ -2,10 +2,10 @@ import { Query } from 'shared/query/Query';
 import { QueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Inject, NotFoundException, Type, Injectable } from '@nestjs/common';
+import { NotFoundException, Type, Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
-import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
+import { AvatarStore } from 'user/application/AvatarStore';
 
 export class GetUserAvatarQuery extends Query<{
   file: string;
@@ -26,10 +26,14 @@ export class GetUserAvatarQueryHandler extends QueryHandler<
   { file: string; contentType: string },
   GetUserAvatarQuery
 > {
-  @Inject()
-  private readonly userRepository!: UserRepository;
-  @Inject()
-  private readonly objectStorage!: ObjectStorage;
+  private readonly userRepository: UserRepository;
+  private readonly avatarStore: AvatarStore;
+
+  public constructor(userRepository: UserRepository, avatarStore: AvatarStore) {
+    super();
+    this.userRepository = userRepository;
+    this.avatarStore = avatarStore;
+  }
 
   public async handle(
     query: GetUserAvatarQuery,
@@ -43,10 +47,7 @@ export class GetUserAvatarQueryHandler extends QueryHandler<
     if (!user.avatar) {
       throw new NotFoundException();
     }
-    const userAvatar = await this.objectStorage.get({
-      containerName: 'avatars',
-      key: user.avatar.value,
-    });
+    const userAvatar = await this.avatarStore.get(user.avatar);
     return userAvatar;
   }
 

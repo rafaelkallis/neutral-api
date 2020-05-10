@@ -3,10 +3,9 @@ import {
   UserCommand,
   AbstractUserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject, Type } from '@nestjs/common';
-import { AvatarUnsupportedContentTypeException } from 'user/application/exceptions/AvatarUnsupportedContentTypeException';
-import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
+import { Type, Injectable } from '@nestjs/common';
 import { Avatar } from 'user/domain/value-objects/Avatar';
+import { AvatarStore } from 'user/application/AvatarStore';
 
 /**
  * Update the authenticated user's avatar.
@@ -22,37 +21,27 @@ export class UpdateAuthUserAvatarCommand extends UserCommand {
   }
 }
 
+@Injectable()
 export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandler<
   UpdateAuthUserAvatarCommand
 > {
-  public static AVATAR_MIME_TYPES = ['image/png', 'image/jpeg'];
-  @Inject()
-  private readonly objectStorage!: ObjectStorage;
+  private readonly avatarStore: AvatarStore;
+
+  public constructor(avatarStore: AvatarStore) {
+    super();
+    this.avatarStore = avatarStore;
+  }
 
   protected async doHandle(
     command: UpdateAuthUserAvatarCommand,
   ): Promise<User> {
     const { authUser, avatarFile, contentType } = command;
-    if (
-      !UpdateAuthUserAvatarCommandHandler.AVATAR_MIME_TYPES.includes(
-        contentType,
-      )
-    ) {
-      throw new AvatarUnsupportedContentTypeException();
-    }
-    const { key } = await this.objectStorage.put({
-      containerName: 'avatars',
-      file: avatarFile,
-      contentType,
-    });
+    const newAvatar = Avatar.create();
+    await this.avatarStore.put(newAvatar, avatarFile, contentType);
     const oldAvatar = authUser.avatar;
     if (oldAvatar) {
-      await this.objectStorage.delete({
-        containerName: 'avatars',
-        key: oldAvatar.value,
-      });
+      await this.avatarStore.delete(oldAvatar);
     }
-    const newAvatar = Avatar.from(key);
     authUser.updateAvatar(newAvatar);
     return authUser;
   }

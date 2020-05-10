@@ -7,19 +7,19 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import {
   UpdateAuthUserAvatarCommand,
   UpdateAuthUserAvatarCommandHandler,
-} from './UpdateAuthUserAvatar';
-import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
+} from 'user/application/commands/UpdateAuthUserAvatar';
 import { Avatar } from 'user/domain/value-objects/Avatar';
+import { AvatarStore } from 'user/application/AvatarStore';
 
 describe(UpdateAuthUserAvatarCommand.name, () => {
   let scenario: UnitTestScenario<UpdateAuthUserAvatarCommandHandler>;
   let commandHandler: UpdateAuthUserAvatarCommandHandler;
+  let oldAvatar: Avatar;
   let authUser: User;
-  let newAvatar: Avatar;
   let contentType: string;
   let command: UpdateAuthUserAvatarCommand;
   let userDto: UserDto;
-  let objectStorage: ObjectStorage;
+  let avatarStore: AvatarStore;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(
@@ -27,11 +27,12 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
     )
       .addProviderMock(ObjectMapper)
       .addProviderMock(UserRepository)
-      .addProviderMock(ObjectStorage)
+      .addProviderMock(AvatarStore)
       .build();
     commandHandler = scenario.subject;
+    oldAvatar = Avatar.create();
     authUser = scenario.modelFaker.user();
-    newAvatar = Avatar.create();
+    authUser.avatar = oldAvatar;
     contentType = 'image/png';
 
     const objectMapper = scenario.module.get(ObjectMapper);
@@ -40,10 +41,7 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
     ).thenReturn(userDto);
 
-    objectStorage = scenario.module.get(ObjectStorage);
-    td.when(objectStorage.put(td.matchers.anything())).thenResolve({
-      key: newAvatar.value,
-    });
+    avatarStore = scenario.module.get(AvatarStore);
 
     command = new UpdateAuthUserAvatarCommand(
       authUser,
@@ -52,36 +50,19 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
     );
   });
 
-  test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
+  test('should replace auth user avatar', async () => {
+    await commandHandler.handle(command);
+    expect(authUser.avatar).toBeDefined();
+    expect(authUser.avatar?.equals(oldAvatar)).toBeFalsy();
   });
 
-  test('happy path', async () => {
-    const result = await commandHandler.handle(command);
-    expect(result).toBe(userDto);
-    expect(authUser.avatar?.equals(newAvatar)).toBeTruthy();
+  test('should return dto', async () => {
+    const actualUserDto = await commandHandler.handle(command);
+    expect(actualUserDto).toBe(userDto);
   });
 
   test('should delete old avatar', async () => {
-    const oldAvatar = Avatar.create();
-    authUser.updateAvatar(oldAvatar);
     await commandHandler.handle(command);
-    td.verify(
-      objectStorage.delete(
-        td.matchers.contains({
-          key: oldAvatar.value,
-        }),
-      ),
-    );
-    expect(authUser.avatar?.equals(newAvatar)).toBeTruthy();
-  });
-
-  test('should fail of content type not supported', async () => {
-    command = new UpdateAuthUserAvatarCommand(
-      authUser,
-      'avatar file',
-      'text/plain',
-    );
-    await expect(commandHandler.handle(command)).rejects.toThrow();
+    td.verify(avatarStore.delete(oldAvatar));
   });
 });

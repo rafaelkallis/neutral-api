@@ -21,6 +21,7 @@ import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/Re
 import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
 import { UserFactory } from 'user/application/UserFactory';
 import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuthUserDataZipQuery';
+import { AvatarStore } from 'user/application/AvatarStore';
 
 /**
  * User Module
@@ -37,6 +38,7 @@ import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuth
     ReverseUserTypeOrmEntityMap,
     { provide: UserRepository, useClass: TypeOrmUserRepository },
     UserFactory,
+    AvatarStore,
     // query handlers
     GetUsersQueryHandler,
     GetUserQueryHandler,
