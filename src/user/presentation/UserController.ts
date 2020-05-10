@@ -48,6 +48,7 @@ import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAut
 import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 import { SessionState } from 'shared/session/session-state';
+import { GetUserDataZipQuery } from 'user/application/queries/GetUserDataZipQuery';
 
 /**
  * User Controller
@@ -121,6 +122,27 @@ export class UserController {
   ): Promise<void> {
     const { file, contentType } = await this.mediator.send(
       new GetUserAvatarQuery(authUser, userId),
+    );
+    response.set('Content-Type', contentType);
+    response.sendFile(file);
+  }
+
+  /**
+   * Get a zip of the authenticated user's data.
+   */
+  @Get('me/zip')
+  @ApiOperation({
+    operationId: 'getAuthUserDataZip',
+    summary: "Get the authenticated user's data in zip format",
+  })
+  @ApiOkResponse({ description: "The authenticated user's data" })
+  @ApiProduces('application/zip')
+  public async getAuthUserDataZip(
+    @AuthUser() authUser: User,
+    @Res() response: Response,
+  ): Promise<void> {
+    const { file, contentType } = await this.mediator.send(
+      new GetUserDataZipQuery(authUser),
     );
     response.set('Content-Type', contentType);
     response.sendFile(file);
