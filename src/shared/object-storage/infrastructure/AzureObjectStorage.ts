@@ -49,7 +49,7 @@ export class AzureObjectStorage extends ObjectStorage {
     const file = this.tempFileFactory.createTempFile();
     let response;
     try {
-      response = await blob.downloadToFile(file);
+      response = await blob.downloadToFile(file.path);
     } catch (error) {
       if (error?.details?.errorCode === 'BlobNotFound') {
         throw new ObjectNotFoundException();
@@ -60,7 +60,7 @@ export class AzureObjectStorage extends ObjectStorage {
     if (!contentType) {
       throw new InternalServerErrorException();
     }
-    return { file, contentType };
+    return { file: file.path, contentType };
   }
 
   public async delete({ containerName, key }: DeleteContext): Promise<void> {

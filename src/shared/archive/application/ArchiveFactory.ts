@@ -50,9 +50,11 @@ export abstract class ArchiveBuilder {
     this.assertNotBuilt();
     this.isBuilt = true;
     const tempFile = this.tempFileFactory.createTempFile();
-    const writable = fs.createWriteStream(tempFile);
-    const { contentType } = await this.doBuild(this.archiveContents, writable);
-    return { file: tempFile, contentType };
+    const { contentType } = await this.doBuild(
+      this.archiveContents,
+      tempFile.writeStream(),
+    );
+    return { file: tempFile.path, contentType };
   }
 
   protected abstract async doBuild(
