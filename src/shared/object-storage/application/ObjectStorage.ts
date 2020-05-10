@@ -1,5 +1,3 @@
-import os from 'os';
-import path from 'path';
 import ObjectID from 'bson-objectid';
 
 export interface PutContext {
@@ -52,14 +50,5 @@ export abstract class ObjectStorage {
    */
   protected createKey(): string {
     return new ObjectID().toHexString();
-  }
-
-  /**
-   *
-   */
-  protected createTempFile(): string {
-    const tmpdir = os.tmpdir();
-    const filename = new ObjectID().toHexString() + '.tmp';
-    return path.join(tmpdir, filename);
   }
 }
