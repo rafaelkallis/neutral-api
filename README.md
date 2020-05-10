@@ -88,3 +88,15 @@ Error: The postgres extension "pg_trgm" is not installed. An administrator shoul
  #### 3. How do I override environment variables?
 
  Create an `.env` file and specify your custom environment variables. The `.env` file is ignored and will not be commited.
+
+ #### 4. Setup email environment outside of [mailslurper](http://mailslurper.com/)
+
+Any smtp server works for this. [Mailjet](https://www.mailjet.com/) offers 200 emails/day for free. Go ahead and create a new account with them.
+
+Set the following variables in your `.env` file:
+```
+SMTP_URL="smtps://<mj-smtp-api-key>:<mj-smtp-secret>@in-v3.mailjet.com"
+EMAIL_SENDER="Covee Network <you@covee.network>"
+```
+
+The `EMAIL_SENDER` should be the email address you used to register on mailjet.
