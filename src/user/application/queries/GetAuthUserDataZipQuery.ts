@@ -6,7 +6,7 @@ import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
 
-export class GetUserDataZipQuery extends Query<{
+export class GetAuthUserDataZipQuery extends Query<{
   file: string;
   contentType: string;
 }> {
@@ -19,9 +19,9 @@ export class GetUserDataZipQuery extends Query<{
 }
 
 @Injectable()
-export class GetUserDataZipQueryHandler extends QueryHandler<
+export class GetAuthUserDataZipQueryHandler extends QueryHandler<
   { file: string; contentType: string },
-  GetUserDataZipQuery
+  GetAuthUserDataZipQuery
 > {
   private readonly archiveFactory: ArchiveFactory;
   private readonly jsonSerializer: JsonSerializer;
@@ -39,7 +39,7 @@ export class GetUserDataZipQueryHandler extends QueryHandler<
   }
 
   public async handle(
-    query: GetUserDataZipQuery,
+    query: GetAuthUserDataZipQuery,
   ): Promise<{ file: string; contentType: string }> {
     const archiveBuilder = this.archiveFactory.createArchiveBuilder();
     const serializedUser = (
@@ -56,7 +56,7 @@ export class GetUserDataZipQueryHandler extends QueryHandler<
     return archiveBuilder.build();
   }
 
-  public getQueryType(): Type<GetUserDataZipQuery> {
-    return GetUserDataZipQuery;
+  public getQueryType(): Type<GetAuthUserDataZipQuery> {
+    return GetAuthUserDataZipQuery;
   }
 }

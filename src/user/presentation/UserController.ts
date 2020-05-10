@@ -48,7 +48,7 @@ import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAut
 import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 import { SessionState } from 'shared/session/session-state';
-import { GetUserDataZipQuery } from 'user/application/queries/GetUserDataZipQuery';
+import { GetAuthUserDataZipQuery } from 'user/application/queries/GetAuthUserDataZipQuery';
 
 /**
  * User Controller
@@ -142,7 +142,7 @@ export class UserController {
     @Res() response: Response,
   ): Promise<void> {
     const { file, contentType } = await this.mediator.send(
-      new GetUserDataZipQuery(authUser),
+      new GetAuthUserDataZipQuery(authUser),
     );
     response.set('Content-Type', contentType);
     response.sendFile(file);
