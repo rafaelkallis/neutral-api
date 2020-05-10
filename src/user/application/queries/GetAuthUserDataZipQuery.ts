@@ -6,10 +6,14 @@ import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
 
-export class GetAuthUserDataZipQuery extends Query<{
+export interface GetAuthUserDataZipQueryResult {
   file: string;
   contentType: string;
-}> {
+}
+
+export class GetAuthUserDataZipQuery extends Query<
+  GetAuthUserDataZipQueryResult
+> {
   public readonly authUser: User;
 
   public constructor(authUser: User) {
@@ -20,7 +24,7 @@ export class GetAuthUserDataZipQuery extends Query<{
 
 @Injectable()
 export class GetAuthUserDataZipQueryHandler extends QueryHandler<
-  { file: string; contentType: string },
+  GetAuthUserDataZipQueryResult,
   GetAuthUserDataZipQuery
 > {
   private readonly archiveFactory: ArchiveFactory;
@@ -40,12 +44,10 @@ export class GetAuthUserDataZipQueryHandler extends QueryHandler<
 
   public async handle(
     query: GetAuthUserDataZipQuery,
-  ): Promise<{ file: string; contentType: string }> {
+  ): Promise<GetAuthUserDataZipQueryResult> {
     const archiveBuilder = this.archiveFactory.createArchiveBuilder();
-    const serializedUser = (
-      await this.jsonSerializer.serialize(query.authUser)
-    ).toString();
-    archiveBuilder.addString('user.json', serializedUser);
+    const serializedUser = await this.jsonSerializer.serialize(query.authUser);
+    archiveBuilder.addBuffer('user.json', serializedUser);
     if (query.authUser.avatar) {
       const getResult = await this.objectStorage.get({
         containerName: 'avatars',

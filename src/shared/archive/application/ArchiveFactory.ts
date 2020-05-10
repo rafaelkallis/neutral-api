@@ -3,14 +3,14 @@ import { Readable, Writable } from 'stream';
 import fs from 'fs';
 import { TempFileFactory } from 'shared/utility/application/TempFileFactory';
 
-export interface ArchiveBuildResult {
+export interface Archive {
   file: string;
   contentType: string;
 }
 
 export interface ArchiveContent {
   path: string;
-  content: string | Readable;
+  content: string | Buffer | Readable;
 }
 
 export abstract class ArchiveBuilder {
@@ -22,6 +22,12 @@ export abstract class ArchiveBuilder {
     this.tempFileFactory = tempFileFactory;
     this.archiveContents = [];
     this.isBuilt = false;
+  }
+
+  public addBuffer(path: string, content: Buffer): this {
+    this.assertNotBuilt();
+    this.archiveContents.push({ path, content });
+    return this;
   }
 
   public addString(path: string, content: string): this {
@@ -40,7 +46,7 @@ export abstract class ArchiveBuilder {
     return this.addStream(path, fs.createReadStream(content));
   }
 
-  public async build(): Promise<ArchiveBuildResult> {
+  public async build(): Promise<Archive> {
     this.assertNotBuilt();
     this.isBuilt = true;
     const tempFile = this.tempFileFactory.createTempFile();
