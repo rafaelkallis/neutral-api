@@ -20,6 +20,7 @@ import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/Up
 import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
 import { UserFactory } from 'user/application/UserFactory';
+import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuthUserDataZipQuery';
 
 /**
  * User Module
@@ -41,6 +42,7 @@ import { UserFactory } from 'user/application/UserFactory';
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
     GetUserAvatarQueryHandler,
+    GetAuthUserDataZipQueryHandler,
     // command handlers
     UpdateAuthUserCommandHandler,
     ForgetAuthUserCommandHandler,
