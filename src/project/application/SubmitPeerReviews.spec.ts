@@ -28,7 +28,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let projectId: ProjectId;
   let project: Project;
   let authRole: Role;
-  let defaultReviewTopic: ReviewTopic;
+  let reviewTopic: ReviewTopic;
   let expectedProjectDto: unknown;
   let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
@@ -56,8 +56,12 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     td.when(projectRepository.findById(projectId)).thenResolve(project);
 
     project.reviewTopics = td.object();
-    defaultReviewTopic = scenario.modelFaker.reviewTopic();
-    td.when(project.reviewTopics.first()).thenReturn(defaultReviewTopic);
+    reviewTopic = scenario.modelFaker.reviewTopic();
+    td.when(project.reviewTopics.findById(reviewTopic.id)).thenReturn(
+      reviewTopic,
+    );
+    // TODO remove
+    td.when(project.reviewTopics.first()).thenReturn(reviewTopic);
 
     project.roles = td.object();
     td.when(project.roles.isAnyAssignedToUser(creatorUser)).thenReturn(true);
@@ -65,7 +69,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     authRole = scenario.modelFaker.role();
     td.when(project.roles.findByAssignee(creatorUser)).thenReturn(authRole);
 
-    submitPeerReviewsDto = new SubmitPeerReviewsDto({});
+    submitPeerReviewsDto = new SubmitPeerReviewsDto({}, reviewTopic.id.value);
 
     expectedProjectDto = td.object();
     td.when(
@@ -82,7 +86,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     td.verify(
       project.submitPeerReviews(
         authRole.id,
-        defaultReviewTopic.id, // TODO replace with used review topic
+        reviewTopic.id,
         td.matchers.isA(Array),
         contributionsComputer,
         consensualityComputer,

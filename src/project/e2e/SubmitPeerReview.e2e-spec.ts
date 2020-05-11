@@ -101,7 +101,10 @@ describe('submit peer review (e2e)', () => {
   test('happy path, final peer review', async () => {
     const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
-      .send({ peerReviews: peerReviews[role1.id.value] });
+      .send({
+        peerReviews: peerReviews[role1.id.value],
+        reviewTopicId: reviewTopic.id.value,
+      });
     expect(response.status).toBe(200);
     const updatedProject = await scenario.projectRepository.findById(
       project.id,

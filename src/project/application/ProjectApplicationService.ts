@@ -26,6 +26,7 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -187,7 +188,9 @@ export class ProjectApplicationService {
 
     // TODO remove
     // for backwards compatibility
-    const defaultReviewTopic = project.reviewTopics.first();
+    const reviewTopic = dto.reviewTopicId
+      ? project.reviewTopics.findById(ReviewTopicId.from(dto.reviewTopicId))
+      : project.reviewTopics.first();
 
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
@@ -201,7 +204,7 @@ export class ProjectApplicationService {
     ]); // TODO use dto.toPeerReviewList()
     project.submitPeerReviews(
       authRole.id,
-      defaultReviewTopic.id,
+      reviewTopic.id,
       peerReviews,
       this.contributionsComputer,
       this.consensualityComputer,
