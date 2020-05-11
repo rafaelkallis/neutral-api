@@ -159,11 +159,13 @@ export class FormationProjectState extends DefaultProjectState {
     project.roles.assertAllAreAssigned();
 
     // for backwards compatibility
-    this.addReviewTopic(
-      project,
-      ReviewTopicTitle.from('Contribution'),
-      ReviewTopicDescription.from(''),
-    );
+    if (project.reviewTopics.toArray().length === 0) {
+      this.addReviewTopic(
+        project,
+        ReviewTopicTitle.from('Contribution'),
+        ReviewTopicDescription.from(''),
+      );
+    }
 
     project.reviewTopics.assertSufficientAmount();
     project.state = PeerReviewProjectState.INSTANCE;
