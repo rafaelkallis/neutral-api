@@ -19,7 +19,6 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       role.title.value,
       role.description.value,
       this.mapContribution(role, project, authUser),
-      this.mapHasSubmittedPeerReviews(role, project, authUser),
       role.createdAt.value,
       role.updatedAt.value,
     );
@@ -74,21 +73,6 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       }
     }
     return shouldExpose ? contribution.amount.value : null;
-  }
-
-  private mapHasSubmittedPeerReviews(
-    role: Role,
-    project: Project,
-    authUser: User,
-  ): boolean | null {
-    let shouldExpose = false;
-    if (project.isCreator(authUser)) {
-      shouldExpose = true;
-    }
-    if (role.isAssignedToUser(authUser)) {
-      shouldExpose = true;
-    }
-    return shouldExpose ? role.hasSubmittedPeerReviews.value : null;
   }
 
   public getSourceType(): Type<Role> {

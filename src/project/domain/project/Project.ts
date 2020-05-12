@@ -101,11 +101,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
-
-  /**
-   * Asserts that a peer review exists for each review topic and source-target role.
-   */
-  assertPeerReviewsComplete(): void;
 }
 
 /**
@@ -280,37 +275,6 @@ export class Project extends AggregateRoot<ProjectId>
   public assertCreator(user: ReadonlyUser): void {
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
-    }
-  }
-
-  public assertPeerReviewsComplete(): void {
-    let expectedPeerReviews: [ReviewTopicId, RoleId, RoleId][] = [];
-    for (const reviewTopic of this.reviewTopics) {
-      for (const sender of this.roles) {
-        for (const receiver of this.roles.excluding(sender)) {
-          // cartesian product of (reviewTopics * sender-roles * receiver-roles)
-          expectedPeerReviews.push([reviewTopic.id, sender.id, receiver.id]);
-        }
-      }
-    }
-    for (const peerReview of this.peerReviews) {
-      const oldPeerReviews = expectedPeerReviews;
-      expectedPeerReviews = expectedPeerReviews.filter(
-        ([reviewTopicId, senderRoleId, receiverRoleId]) =>
-          !(
-            reviewTopicId.equals(peerReview.reviewTopicId) &&
-            senderRoleId.equals(peerReview.senderRoleId) &&
-            receiverRoleId.equals(peerReview.reviewTopicId)
-          ),
-      );
-      if (expectedPeerReviews.length !== oldPeerReviews.length - 1) {
-        throw new Error(
-          `peer review missing {review-topic: ${peerReview.reviewTopicId.value}, sender: ${peerReview.senderRoleId.value}, receicer: ${peerReview.senderRoleId.value}}`,
-        );
-      }
-    }
-    if (expectedPeerReviews.length !== 0) {
-      throw new Error('too many peer reviews');
     }
   }
 }

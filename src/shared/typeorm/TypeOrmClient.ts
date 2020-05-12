@@ -52,6 +52,7 @@ import { AddReviewTopicsMigration1588178451000 } from 'shared/typeorm/migration/
 import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration/1588327814000AddContributionMigration';
 import { AddReviewTopicToPeerReviewMigration1588452568000 } from 'shared/typeorm/migration/1588452568000AddReviewTopicToPeerReviewMigration';
 import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/migration/1588526416000RemoveRoleContributionMigration';
+import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -106,6 +107,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddContributionsMigration1588327814000,
         AddReviewTopicToPeerReviewMigration1588452568000,
         RemoveRoleContributionMigration1588526416000,
+        RemoveHasSubmittedPeerReviewsMigration1589309292000,
       ],
     });
     this.connection = connection;

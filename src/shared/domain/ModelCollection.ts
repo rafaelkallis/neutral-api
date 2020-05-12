@@ -7,9 +7,11 @@ export interface ReadonlyModelCollection<
   TModel extends ReadonlyModel<TId>
 > extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
+  assertContains(modelOrId: TModel | TId): void;
   findById(id: TId): TModel;
   toArray(): ReadonlyArray<TModel>;
   first(): TModel;
+  isEmpty(): boolean;
 }
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
@@ -44,7 +46,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     this.models.push(modelToAdd);
   }
 
-  public addAll(modelsToAdd: TModel[]): void {
+  public addAll(modelsToAdd: Iterable<TModel>): void {
     for (const modelToAdd of modelsToAdd) {
       this.add(modelToAdd);
     }
@@ -80,6 +82,14 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.isAny((model) => model.id.equals(id));
   }
 
+  public assertContains(modelOrId: TModel | TId): void {
+    if (!this.contains(modelOrId)) {
+      throw new Error(
+        'assertion failed: collection does not contain given model',
+      );
+    }
+  }
+
   /**
    *
    */
@@ -93,6 +103,10 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
 
   public areAll(predicate: (model: TModel) => boolean): boolean {
     return this.models.every(predicate);
+  }
+
+  public isEmpty(): boolean {
+    return this.models.length === 0;
   }
 
   protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {

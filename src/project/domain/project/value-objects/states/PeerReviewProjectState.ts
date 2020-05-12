@@ -7,7 +7,6 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { Role } from 'project/domain/role/Role';
@@ -39,22 +38,26 @@ export class PeerReviewProjectState extends DefaultProjectState {
     consensualityComputer: ConsensualityComputer,
   ): void {
     const senderRole = project.roles.findById(senderRoleId);
-    senderRole.assertHasNotSubmittedPeerReviews();
+    project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic(
+      project,
+      senderRoleId,
+      reviewTopicId,
+    );
     this.assertSubmittedPeerReviewsMatchRoles(
       project,
       senderRole,
       submittedPeerReviews,
     );
+
     const addedPeerReviews = project.peerReviews.addForSender(
       senderRole.id,
       reviewTopicId,
       submittedPeerReviews,
     );
-    senderRole.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
     project.raise(
       new PeerReviewsSubmittedEvent(project, senderRole, addedPeerReviews),
     );
-    if (project.roles.allHaveSubmittedPeerReviews()) {
+    if (project.peerReviews.areSubmitted(project)) {
       project.raise(new FinalPeerReviewSubmittedEvent(project));
       this.finishPeerReview(
         project,

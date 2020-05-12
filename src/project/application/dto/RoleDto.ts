@@ -20,14 +20,6 @@ export class RoleDto extends ModelDto {
   @ApiProperty({ type: String, required: false, deprecated: true })
   public contribution: number | null;
 
-  @ApiProperty({
-    type: Boolean,
-    required: false,
-    description:
-      'Specifies whether or not the assigned user has submitted peer reviews. Only visible to the project manager and the assignee.',
-  })
-  public hasSubmittedPeerReviews: boolean | null;
-
   public constructor(
     id: string,
     projectId: string,
@@ -35,7 +27,6 @@ export class RoleDto extends ModelDto {
     title: string,
     description: string,
     contribution: number | null,
-    hasSubmittedPeerReviews: boolean | null,
     createdAt: number,
     updatedAt: number,
   ) {
@@ -45,6 +36,5 @@ export class RoleDto extends ModelDto {
     this.title = title;
     this.description = description;
     this.contribution = contribution;
-    this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
   }
 }

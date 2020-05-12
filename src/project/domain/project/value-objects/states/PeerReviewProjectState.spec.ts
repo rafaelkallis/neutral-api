@@ -5,12 +5,10 @@ import { SkipManagerReview } from 'project/domain/project/value-objects/SkipMana
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
-import { PeerReviewsAlreadySubmittedException } from 'project/domain/exceptions/PeerReviewsAlreadySubmittedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
@@ -68,10 +66,6 @@ describe(PeerReviewProjectState.name, () => {
       project.reviewTopics.add(reviewTopic);
 
       project.skipManagerReview = SkipManagerReview.NO;
-      roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
-      roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-      roles[2].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-      roles[3].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
 
       const peerReviews: PeerReview[] = [];
       for (const senderRole of project.roles.toArray()) {
@@ -92,6 +86,10 @@ describe(PeerReviewProjectState.name, () => {
         }
       }
       project.peerReviews = new PeerReviewCollection(peerReviews);
+      jest.spyOn(
+        project.peerReviews,
+        'assertNotSubmittedForSenderRoleAndReviewTopic',
+      );
 
       submittedPeerReviews = [
         [roles[1].id, PeerReviewScore.from(1 / 3)],
@@ -108,118 +106,6 @@ describe(PeerReviewProjectState.name, () => {
       td.when(contributionsComputer.compute(project.peerReviews)).thenReturn(
         contributionsComputationResult,
       );
-    });
-
-    describe('happy path', () => {
-      test('final peer review', () => {
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(project.domainEvents).toContainEqual(
-          expect.any(PeerReviewsSubmittedEvent),
-        );
-        expect(project.domainEvents).toContainEqual(
-          expect.any(FinalPeerReviewSubmittedEvent),
-        );
-        expect(
-          project.state.equals(ManagerReviewProjectState.INSTANCE),
-        ).toBeTruthy();
-        td.verify(contributionsComputationResult.applyTo(project));
-        td.verify(consensualityComputationResult.applyTo(project));
-      });
-
-      test('final peer review, should skip manager review if "skipManagerReview" is "yes"', () => {
-        project.skipManagerReview = SkipManagerReview.YES;
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(project.state).toBe(FinishedProjectState.INSTANCE);
-      });
-
-      test('final peer review, should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
-        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        jest.spyOn(project, 'isConsensual').mockReturnValue(true);
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(
-          project.state.equals(FinishedProjectState.INSTANCE),
-        ).toBeTruthy();
-      });
-
-      test('final peer review, should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
-        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
-        jest.spyOn(project, 'isConsensual').mockReturnValue(false);
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
-      });
-
-      test('final peer review, should not skip manager review if "skipManagerReview" is "no"', () => {
-        project.skipManagerReview = SkipManagerReview.NO;
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(
-          project.state.equals(ManagerReviewProjectState.INSTANCE),
-        ).toBeTruthy();
-      });
-
-      test('not final peer review, should not compute contributions and consensuality', () => {
-        roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(
-          project.state.equals(PeerReviewProjectState.INSTANCE),
-        ).toBeTruthy();
-        expect(project.contributions.toArray()).toHaveLength(0);
-      });
-    });
-
-    test('should fail if peer reviews have been previously submitted', () => {
-      roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-      expect(() =>
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        ),
-      ).toThrow(expect.any(PeerReviewsAlreadySubmittedException));
     });
 
     test('should fail if a peer review miss a peer', () => {
@@ -255,6 +141,116 @@ describe(PeerReviewProjectState.name, () => {
           consensualityComputer,
         ),
       ).toThrow(expect.any(PeerReviewRoleMismatchException));
+    });
+
+    describe('final peer review', () => {
+      beforeEach(() => {
+        jest.spyOn(project.peerReviews, 'areSubmitted').mockReturnValue(true);
+      });
+
+      test('should advance state and compute contributions and compute consensuality', () => {
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(project.domainEvents).toContainEqual(
+          expect.any(PeerReviewsSubmittedEvent),
+        );
+        expect(project.domainEvents).toContainEqual(
+          expect.any(FinalPeerReviewSubmittedEvent),
+        );
+        expect(
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
+        ).toBeTruthy();
+        td.verify(contributionsComputationResult.applyTo(project));
+        td.verify(consensualityComputationResult.applyTo(project));
+      });
+
+      test('should skip manager review if "skipManagerReview" is "yes"', () => {
+        project.skipManagerReview = SkipManagerReview.YES;
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(project.state).toBe(FinishedProjectState.INSTANCE);
+      });
+
+      test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
+        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
+        jest.spyOn(project, 'isConsensual').mockReturnValue(true);
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(
+          project.state.equals(FinishedProjectState.INSTANCE),
+        ).toBeTruthy();
+      });
+
+      test('should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
+        project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
+        jest.spyOn(project, 'isConsensual').mockReturnValue(false);
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
+      });
+
+      test('should not skip manager review if "skipManagerReview" is "no"', () => {
+        project.skipManagerReview = SkipManagerReview.NO;
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(
+          project.state.equals(ManagerReviewProjectState.INSTANCE),
+        ).toBeTruthy();
+      });
+    });
+
+    describe('not final peer review', () => {
+      beforeEach(() => {
+        jest.spyOn(project.peerReviews, 'areSubmitted').mockReturnValue(false);
+      });
+
+      test('should not compute contributions and consensuality', () => {
+        state.submitPeerReviews(
+          project,
+          roles[0].id,
+          reviewTopic.id,
+          submittedPeerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+        expect(
+          project.state.equals(PeerReviewProjectState.INSTANCE),
+        ).toBeTruthy();
+        expect(project.contributions.isEmpty()).toBeTruthy();
+        expect(
+          project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic,
+        ).toHaveBeenCalledWith(project, roles[0].id, reviewTopic.id);
+      });
     });
   });
 });

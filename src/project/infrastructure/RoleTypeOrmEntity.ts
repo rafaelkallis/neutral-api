@@ -20,9 +20,6 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'description' })
   public description: string;
 
-  @Column({ name: 'has_submitted_peer_reviews' })
-  public hasSubmittedPeerReviews: boolean;
-
   public constructor(
     id: string,
     createdAt: number,
@@ -31,13 +28,11 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     assigneeId: string | null,
     title: string,
     description: string,
-    hasSubmittedPeerReviews: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
-    this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
   }
 }

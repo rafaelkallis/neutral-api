@@ -53,7 +53,6 @@ describe('roles (e2e)', () => {
               title,
               description,
               contribution: null,
-              hasSubmittedPeerReviews: false,
               createdAt: expect.any(Number),
               updatedAt: expect.any(Number),
             },

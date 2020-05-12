@@ -5,7 +5,6 @@ import { FinishedProjectState } from 'project/domain/project/value-objects/state
 import { Project } from 'project/domain/project/Project';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
@@ -36,7 +35,6 @@ describe('role dto map', () => {
       modelFaker.role(users.projectUser.id),
     ]);
     role = project.roles.findByAssignee(users.assignee);
-    role.hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
     reviewTopic = modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
     project.contributions = new ContributionCollection([
@@ -104,23 +102,23 @@ describe('role dto map', () => {
   //   },
   // );
 
-  const hasSubmittedPeerReviewsCases: [string, boolean][] = [
-    ['owner', true],
-    ['assignee', true],
-    ['projectUser', false],
-    ['publicUser', false],
-  ];
+  // const hasSubmittedPeerReviewsCases: [string, boolean][] = [
+  //   ['owner', true],
+  //   ['assignee', true],
+  //   ['projectUser', false],
+  //   ['publicUser', false],
+  // ];
 
-  test.each(hasSubmittedPeerReviewsCases)(
-    'has submitted peer reviews',
-    (authUser, isHasSubmittedPeerReviewsVisible) => {
-      const roleDto = roleDtoMap.map(role, {
-        project,
-        authUser: users[authUser],
-      });
-      expect(Boolean(roleDto.hasSubmittedPeerReviews)).toBe(
-        isHasSubmittedPeerReviewsVisible,
-      );
-    },
-  );
+  // test.each(hasSubmittedPeerReviewsCases)(
+  //   'has submitted peer reviews',
+  //   (authUser, isHasSubmittedPeerReviewsVisible) => {
+  //     const roleDto = roleDtoMap.map(role, {
+  //       project,
+  //       authUser: users[authUser],
+  //     });
+  //     expect(Boolean(roleDto.hasSubmittedPeerReviews)).toBe(
+  //       isHasSubmittedPeerReviewsVisible,
+  //     );
+  //   },
+  // );
 });

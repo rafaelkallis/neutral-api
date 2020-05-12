@@ -10,6 +10,8 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReadonlyProject } from '../project/Project';
+import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsAlreadySubmittedException';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -24,6 +26,28 @@ export interface ReadonlyPeerReviewCollection
     submittedPeerReviews: [RoleId, PeerReviewScore][],
   ): ReadonlyArray<ReadonlyPeerReview>; // TODO return ReadonlyPeerReviewCollection
   getNumberOfPeers(): number;
+
+  // TODO make project private readonly
+  areSubmitted(project: ReadonlyProject): boolean;
+  assertSubmitted(project: ReadonlyProject): void;
+  areSubmittedForReviewTopic(
+    project: ReadonlyProject,
+    reviewTopicId: ReviewTopicId,
+  ): boolean;
+  areSubmittedForSenderRole(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+  ): boolean;
+  areSubmittedForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): boolean;
+  assertNotSubmittedForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): void;
 }
 
 export class PeerReviewCollection
@@ -117,6 +141,103 @@ export class PeerReviewCollection
 
   public getNumberOfPeers(): number {
     return this.getPeers().length;
+  }
+
+  public areSubmitted(project: ReadonlyProject): boolean {
+    for (const reviewTopic of project.reviewTopics) {
+      for (const senderRole of project.roles) {
+        if (
+          !this.areSubmittedForSenderRoleAndReviewTopic(
+            project,
+            senderRole.id,
+            reviewTopic.id,
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public assertSubmitted(project: ReadonlyProject): void {
+    if (!this.areSubmitted(project)) {
+      throw new Error('peer reviews not complete');
+    }
+  }
+
+  public areSubmittedForReviewTopic(
+    project: ReadonlyProject,
+    reviewTopicId: ReviewTopicId,
+  ): boolean {
+    project.reviewTopics.assertContains(reviewTopicId);
+    for (const senderRole of project.roles) {
+      if (
+        !this.areSubmittedForSenderRoleAndReviewTopic(
+          project,
+          senderRole.id,
+          reviewTopicId,
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public areSubmittedForSenderRole(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+  ): boolean {
+    project.roles.assertContains(senderRoleId);
+    for (const reviewTopic of project.reviewTopics) {
+      if (
+        !this.areSubmittedForSenderRoleAndReviewTopic(
+          project,
+          senderRoleId,
+          reviewTopic.id,
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public areSubmittedForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): boolean {
+    project.roles.assertContains(senderRoleId);
+    project.reviewTopics.assertContains(reviewTopicId);
+    for (const receiverRole of project.roles) {
+      if (
+        this.findByReviewTopic(reviewTopicId)
+          .findBySenderRole(senderRoleId)
+          .findByReceiverRole(receiverRole.id)
+          .isEmpty()
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public assertNotSubmittedForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    if (
+      this.areSubmittedForSenderRoleAndReviewTopic(
+        project,
+        senderRoleId,
+        reviewTopicId,
+      )
+    ) {
+      throw new PeerReviewsAlreadySubmittedException();
+    }
   }
 
   protected filter(

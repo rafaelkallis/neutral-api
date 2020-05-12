@@ -9,7 +9,6 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 
 @Injectable()
 export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
@@ -22,7 +21,6 @@ export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
       roleModel.assigneeId ? roleModel.assigneeId.value : null,
       roleModel.title.value,
       roleModel.description.value,
-      roleModel.hasSubmittedPeerReviews.value,
     );
   }
 
@@ -48,7 +46,6 @@ export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
       roleEntity.assigneeId ? UserId.from(roleEntity.assigneeId) : null,
       RoleTitle.from(roleEntity.title),
       RoleDescription.from(roleEntity.description),
-      HasSubmittedPeerReviews.from(roleEntity.hasSubmittedPeerReviews),
     );
   }
 

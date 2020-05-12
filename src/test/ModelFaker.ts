@@ -18,7 +18,6 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { Notification } from 'notification/domain/Notification';
 import { UserId } from 'user/domain/value-objects/UserId';
@@ -113,16 +112,7 @@ export class ModelFaker {
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const title = RoleTitle.from(this.primitiveFaker.words());
     const description = RoleDescription.from(this.primitiveFaker.paragraph());
-    const hasSubmittedPeerReviews = HasSubmittedPeerReviews.from(false);
-    return new Role(
-      id,
-      createdAt,
-      updatedAt,
-      assigneeId,
-      title,
-      description,
-      hasSubmittedPeerReviews,
-    );
+    return new Role(id, createdAt, updatedAt, assigneeId, title, description);
   }
 
   public reviewTopic(): ReviewTopic {

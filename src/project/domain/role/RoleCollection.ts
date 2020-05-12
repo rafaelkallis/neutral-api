@@ -69,8 +69,4 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
       throw new InsufficientRoleAmountException();
     }
   }
-
-  public allHaveSubmittedPeerReviews(): boolean {
-    return this.areAll((role) => role.hasSubmittedPeerReviews.value);
-  }
 }
