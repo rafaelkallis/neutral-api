@@ -15,7 +15,7 @@ export abstract class ContributionsComputer {
     for (const reviewTopic of project.reviewTopics) {
       const contributions = this.computeForReviewTopic(
         reviewTopic.id,
-        project.peerReviews.findByReviewTopic(reviewTopic.id),
+        project.peerReviews.whereReviewTopic(reviewTopic.id),
       );
       result.push(...contributions);
     }

@@ -34,7 +34,7 @@ export abstract class ConsensualityComputer {
     const result = new ConsensualityComputationResult();
     for (const reviewTopic of project.reviewTopics) {
       const reviewTopicConsensuality = this.computeForReviewTopic(
-        project.peerReviews.findByReviewTopic(reviewTopic.id),
+        project.peerReviews.whereReviewTopic(reviewTopic.id),
       );
       result.push([reviewTopic.id, reviewTopicConsensuality]);
     }

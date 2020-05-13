@@ -63,7 +63,7 @@ describe('submit peer review (e2e)', () => {
     if (!updatedProject) {
       throw new Error();
     }
-    const sentPeerReviews = updatedProject.peerReviews.findBySenderRole(
+    const sentPeerReviews = updatedProject.peerReviews.whereSenderRole(
       role1.id,
     );
     expect(sentPeerReviews.toArray()).toHaveLength(3);

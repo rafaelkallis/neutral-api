@@ -10,21 +10,22 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { ReadonlyProject } from '../project/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsAlreadySubmittedException';
+import { Role } from 'project/domain/role/Role';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
   getReviewTopics(): ReadonlyArray<ReviewTopicId>;
   getPeers(): ReadonlyArray<RoleId>;
-  findBySenderRole(senderRoleId: RoleId): ReadonlyPeerReviewCollection;
-  findByReceiverRole(receiverRoleId: RoleId): ReadonlyPeerReviewCollection;
-  findByReviewTopic(reviewTopicId: ReviewTopicId): ReadonlyPeerReviewCollection;
-  addForSender(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ): ReadonlyArray<ReadonlyPeerReview>; // TODO return ReadonlyPeerReviewCollection
+  whereSenderRole(senderRoleOrId: Role | RoleId): ReadonlyPeerReviewCollection;
+  whereReceiverRole(
+    receiverRoleOrId: Role | RoleId,
+  ): ReadonlyPeerReviewCollection;
+  whereReviewTopic(
+    reviewTopicOrId: ReviewTopic | ReviewTopicId,
+  ): ReadonlyPeerReviewCollection;
   getNumberOfPeers(): number;
 
   // TODO make project private readonly
@@ -93,17 +94,26 @@ export class PeerReviewCollection
     return Array.from(peers.values());
   }
 
-  public findByReviewTopic(reviewTopicId: ReviewTopicId): PeerReviewCollection {
+  public whereReviewTopic(
+    reviewTopicOrId: ReviewTopic | ReviewTopicId,
+  ): ReadonlyPeerReviewCollection {
+    const reviewTopicId = this.getId(reviewTopicOrId);
     return this.filter((peerReview) =>
       peerReview.reviewTopicId.equals(reviewTopicId),
     );
   }
 
-  public findBySenderRole(senderRoleId: RoleId): PeerReviewCollection {
+  public whereSenderRole(
+    senderRoleOrId: Role | RoleId,
+  ): ReadonlyPeerReviewCollection {
+    const senderRoleId = this.getId(senderRoleOrId);
     return this.filter((peerReview) => peerReview.isSenderRole(senderRoleId));
   }
 
-  public findByReceiverRole(receiverRoleId: RoleId): PeerReviewCollection {
+  public whereReceiverRole(
+    receiverRoleOrId: Role | RoleId,
+  ): ReadonlyPeerReviewCollection {
+    const receiverRoleId = this.getId(receiverRoleOrId);
     return this.filter((peerReview) =>
       peerReview.isReceiverRole(receiverRoleId),
     );
@@ -213,9 +223,9 @@ export class PeerReviewCollection
     project.reviewTopics.assertContains(reviewTopicId);
     for (const receiverRole of project.roles) {
       if (
-        this.findByReviewTopic(reviewTopicId)
-          .findBySenderRole(senderRoleId)
-          .findByReceiverRole(receiverRole.id)
+        this.whereReviewTopic(reviewTopicId)
+          .whereSenderRole(senderRoleId)
+          .whereReceiverRole(receiverRole.id)
           .isEmpty()
       ) {
         return false;
@@ -242,7 +252,7 @@ export class PeerReviewCollection
 
   protected filter(
     predicate: (peerReview: PeerReview) => boolean,
-  ): PeerReviewCollection {
+  ): ReadonlyPeerReviewCollection {
     return new PeerReviewCollection(this.toArray().filter(predicate));
   }
 }

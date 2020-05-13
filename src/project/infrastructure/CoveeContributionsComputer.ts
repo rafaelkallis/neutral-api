@@ -27,9 +27,9 @@ export class CoveeContributionsComputer extends ContributionsComputer {
           continue;
         }
         const peerReview = peerReviews
-          .findByReviewTopic(reviewTopic)
-          .findBySenderRole(iId)
-          .findByReceiverRole(jId)
+          .whereReviewTopic(reviewTopic)
+          .whereSenderRole(iId)
+          .whereReceiverRole(jId)
           .first();
         S[i][j] = peerReview.score.value;
       }
