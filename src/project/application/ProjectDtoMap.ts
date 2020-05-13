@@ -81,7 +81,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       return true;
     }
     if (project.roles.isAnyAssignedToUser(authUser)) {
-      const authUserRole = project.roles.findByAssignee(authUser);
+      const authUserRole = project.roles.whereAssignee(authUser);
       if (peerReview.isSenderRole(authUserRole)) {
         return true;
       }

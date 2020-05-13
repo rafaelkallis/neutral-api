@@ -67,7 +67,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     td.when(project.roles.isAnyAssignedToUser(creatorUser)).thenReturn(true);
 
     authRole = scenario.modelFaker.role();
-    td.when(project.roles.findByAssignee(creatorUser)).thenReturn(authRole);
+    td.when(project.roles.whereAssignee(creatorUser)).thenReturn(authRole);
 
     submitPeerReviewsDto = new SubmitPeerReviewsDto({}, reviewTopic.id.value);
 

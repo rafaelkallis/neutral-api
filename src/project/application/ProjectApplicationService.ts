@@ -195,7 +195,7 @@ export class ProjectApplicationService {
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    const authRole = project.roles.findByAssignee(authUser);
+    const authRole = project.roles.whereAssignee(authUser);
     const peerReviews: [RoleId, PeerReviewScore][] = Object.entries(
       dto.peerReviews,
     ).map(([receiverRoleId, score]) => [

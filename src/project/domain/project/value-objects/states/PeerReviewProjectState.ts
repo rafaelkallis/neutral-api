@@ -77,7 +77,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
     submittedPeerReviews: [RoleId, PeerReviewScore][],
   ): void {
     const expectedIds: RoleId[] = Array.from(
-      project.roles.excluding(senderRole),
+      project.roles.whereNot(senderRole),
     ).map((role) => role.id);
     const actualIds: RoleId[] = submittedPeerReviews.map(
       ([receiverRoleId]) => receiverRoleId,

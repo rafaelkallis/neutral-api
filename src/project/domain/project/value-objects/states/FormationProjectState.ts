@@ -101,11 +101,11 @@ export class FormationProjectState extends DefaultProjectState {
       project.unassignRole(roleToBeAssigned.id);
     }
     if (project.roles.isAnyAssignedToUser(userToAssign)) {
-      const currentAssignedRole = project.roles.findByAssignee(userToAssign);
+      const currentAssignedRole = project.roles.whereAssignee(userToAssign);
       project.unassignRole(currentAssignedRole.id);
     }
     roleToBeAssigned.assigneeId = userToAssign.id;
-    project.roles.assertSingleAssignmentPerUser();
+    project.roles.assertUniqueAssignees();
     project.raise(
       new UserAssignedEvent(project, roleToBeAssigned, userToAssign),
     );

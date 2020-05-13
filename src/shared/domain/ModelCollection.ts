@@ -8,6 +8,7 @@ export interface ReadonlyModelCollection<
   contains(modelOrId: TModel | TId): boolean;
   assertContains(modelOrId: TModel | TId): void;
   whereId(id: TId): TModel;
+  count(): number;
   toArray(): ReadonlyArray<TModel>;
   first(): TModel;
   firstOrNull(): TModel | null;
@@ -19,8 +20,8 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   private models: Iterable<TModel>;
   private readonly removedModels: TModel[];
 
-  public constructor(models: ReadonlyArray<TModel>) {
-    this.models = Array.from(models);
+  public constructor(models: Iterable<TModel>) {
+    this.models = models;
     this.removedModels = [];
   }
 
@@ -30,6 +31,10 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
 
   public toArray(): ReadonlyArray<TModel> {
     return Array.from(this);
+  }
+
+  public count(): number {
+    return this.toArray().length;
   }
 
   public firstOrNull(): TModel | null {
@@ -113,7 +118,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public isEmpty(): boolean {
-    return this.toArray().length === 0;
+    return this.count() === 0;
   }
 
   protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {

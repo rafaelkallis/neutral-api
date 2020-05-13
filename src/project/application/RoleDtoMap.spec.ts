@@ -34,7 +34,7 @@ describe('role dto map', () => {
       modelFaker.role(users.assignee.id),
       modelFaker.role(users.projectUser.id),
     ]);
-    role = project.roles.findByAssignee(users.assignee);
+    role = project.roles.whereAssignee(users.assignee);
     reviewTopic = modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
     project.contributions = new ContributionCollection([
