@@ -37,7 +37,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    const senderRole = project.roles.findById(senderRoleId);
+    const senderRole = project.roles.whereId(senderRoleId);
     project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic(
       project,
       senderRoleId,

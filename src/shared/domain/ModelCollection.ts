@@ -1,6 +1,5 @@
 import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { InternalServerErrorException } from '@nestjs/common';
 
 export interface ReadonlyModelCollection<
   TId extends Id,
@@ -8,9 +7,10 @@ export interface ReadonlyModelCollection<
 > extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
   assertContains(modelOrId: TModel | TId): void;
-  findById(id: TId): TModel;
+  whereId(id: TId): TModel;
   toArray(): ReadonlyArray<TModel>;
   first(): TModel;
+  firstOrNull(): TModel | null;
   isEmpty(): boolean;
 }
 
@@ -32,11 +32,16 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return Array.from(this.models);
   }
 
+  public firstOrNull(): TModel | null {
+    return this.models[0] || null;
+  }
+
   public first(): TModel {
-    if (this.models.length === 0) {
-      throw new InternalServerErrorException();
+    const first = this.firstOrNull();
+    if (first === null) {
+      throw new Error('collection is empty');
     }
-    return this.models[0];
+    return first;
   }
 
   public add(modelToAdd: TModel): void {
@@ -66,7 +71,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     }
   }
 
-  public findById(id: TId): TModel {
+  public whereId(id: TId): TModel {
     const model = this.models.find((model) => model.id.equals(id));
     if (!model) {
       throw new Error('model does not exist');

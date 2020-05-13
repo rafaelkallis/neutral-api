@@ -114,7 +114,7 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    const roleToAssign = project.roles.findById(roleId);
+    const roleToAssign = project.roles.whereId(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }
@@ -189,7 +189,7 @@ export class ProjectApplicationService {
     // TODO remove
     // for backwards compatibility
     const reviewTopic = dto.reviewTopicId
-      ? project.reviewTopics.findById(ReviewTopicId.from(dto.reviewTopicId))
+      ? project.reviewTopics.whereId(ReviewTopicId.from(dto.reviewTopicId))
       : project.reviewTopics.first();
 
     if (!project.roles.isAnyAssignedToUser(authUser)) {

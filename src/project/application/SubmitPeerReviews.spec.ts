@@ -57,7 +57,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
 
     project.reviewTopics = td.object();
     reviewTopic = scenario.modelFaker.reviewTopic();
-    td.when(project.reviewTopics.findById(reviewTopic.id)).thenReturn(
+    td.when(project.reviewTopics.whereId(reviewTopic.id)).thenReturn(
       reviewTopic,
     );
     // TODO remove

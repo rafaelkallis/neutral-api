@@ -70,7 +70,7 @@ export class FormationProjectState extends DefaultProjectState {
     title?: RoleTitle,
     description?: RoleDescription,
   ): void {
-    const roleToUpdate = project.roles.findById(roleId);
+    const roleToUpdate = project.roles.whereId(roleId);
     if (title) {
       roleToUpdate.title = title;
     }
@@ -83,7 +83,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public removeRole(project: Project, roleId: RoleId): void {
-    const roleToRemove = project.roles.findById(roleId);
+    const roleToRemove = project.roles.whereId(roleId);
     project.roles.remove(roleToRemove);
     project.raise(new RoleDeletedEvent(roleToRemove));
   }
@@ -93,7 +93,7 @@ export class FormationProjectState extends DefaultProjectState {
     userToAssign: ReadonlyUser,
     roleId: RoleId,
   ): void {
-    const roleToBeAssigned = project.roles.findById(roleId);
+    const roleToBeAssigned = project.roles.whereId(roleId);
     if (roleToBeAssigned.isAssignedToUser(userToAssign)) {
       return;
     }
@@ -112,7 +112,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public unassign(project: Project, roleId: RoleId): void {
-    const role = project.roles.findById(roleId);
+    const role = project.roles.whereId(roleId);
     const previousAssigneeId = role.assertAssigned();
     role.assigneeId = null;
     project.raise(new UserUnassignedEvent(project, role, previousAssigneeId));
@@ -135,7 +135,7 @@ export class FormationProjectState extends DefaultProjectState {
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
   ): void {
-    const reviewTopicToUpdate = project.reviewTopics.findById(reviewTopicId);
+    const reviewTopicToUpdate = project.reviewTopics.whereId(reviewTopicId);
     if (title) {
       reviewTopicToUpdate.title = title;
     }
@@ -149,7 +149,7 @@ export class FormationProjectState extends DefaultProjectState {
     project: Project,
     reviewTopicId: ReviewTopicId,
   ): void {
-    const reviewTopicToRemove = project.reviewTopics.findById(reviewTopicId);
+    const reviewTopicToRemove = project.reviewTopics.whereId(reviewTopicId);
     project.reviewTopics.remove(reviewTopicToRemove);
     project.raise(new ReviewTopicRemovedEvent(reviewTopicId));
   }
