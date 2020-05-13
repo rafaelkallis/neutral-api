@@ -1,6 +1,6 @@
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
-import { Project } from 'project/domain/project/Project';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /**
@@ -10,14 +10,12 @@ export abstract class ContributionsComputer {
   /**
    * Computes the relative contributions.
    */
-  public compute(
-    peerReviews: ReadonlyPeerReviewCollection,
-  ): ContributionsComputationResult {
+  public compute(project: ReadonlyProject): ContributionsComputationResult {
     const result = new ContributionsComputationResult();
-    for (const reviewTopic of peerReviews.getReviewTopics()) {
+    for (const reviewTopic of project.reviewTopics) {
       const contributions = this.computeForReviewTopic(
-        reviewTopic,
-        peerReviews.findByReviewTopic(reviewTopic),
+        reviewTopic.id,
+        project.peerReviews.findByReviewTopic(reviewTopic.id),
       );
       result.push(...contributions);
     }

@@ -1,5 +1,5 @@
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { Project } from 'project/domain/project/Project';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -30,15 +30,13 @@ export abstract class ConsensualityComputer {
   /**
    * Computes a project's consensuality.
    */
-  public compute(
-    peerReviews: ReadonlyPeerReviewCollection,
-  ): ConsensualityComputationResult {
+  public compute(project: ReadonlyProject): ConsensualityComputationResult {
     const result = new ConsensualityComputationResult();
-    for (const reviewTopic of peerReviews.getReviewTopics()) {
+    for (const reviewTopic of project.reviewTopics) {
       const reviewTopicConsensuality = this.computeForReviewTopic(
-        peerReviews.findByReviewTopic(reviewTopic),
+        project.peerReviews.findByReviewTopic(reviewTopic.id),
       );
-      result.push([reviewTopic, reviewTopicConsensuality]);
+      result.push([reviewTopic.id, reviewTopicConsensuality]);
     }
     return result;
   }

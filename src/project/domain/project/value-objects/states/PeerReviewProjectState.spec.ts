@@ -98,12 +98,12 @@ describe(PeerReviewProjectState.name, () => {
       ];
 
       consensualityComputationResult = td.object();
-      td.when(consensualityComputer.compute(project.peerReviews)).thenReturn(
+      td.when(consensualityComputer.compute(project)).thenReturn(
         consensualityComputationResult,
       );
 
       contributionsComputationResult = td.object();
-      td.when(contributionsComputer.compute(project.peerReviews)).thenReturn(
+      td.when(contributionsComputer.compute(project)).thenReturn(
         contributionsComputationResult,
       );
     });

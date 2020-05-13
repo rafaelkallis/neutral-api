@@ -56,7 +56,7 @@ export class PeerReviewCollection
   public static fromMap(
     peerReviewMap: Record<string, Record<string, number>>,
     reviewTopicId: ReviewTopicId,
-  ): ReadonlyPeerReviewCollection {
+  ): PeerReviewCollection {
     const peerReviews: PeerReview[] = [];
     for (const sender of Object.keys(peerReviewMap)) {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {
