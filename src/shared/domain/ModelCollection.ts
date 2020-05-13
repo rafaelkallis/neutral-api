@@ -16,7 +16,7 @@ export interface ReadonlyModelCollection<
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   implements ReadonlyModelCollection<TId, TModel> {
-  private models: TModel[];
+  private models: Iterable<TModel>;
   private readonly removedModels: TModel[];
 
   public constructor(models: ReadonlyArray<TModel>) {
@@ -29,11 +29,11 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public toArray(): ReadonlyArray<TModel> {
-    return Array.from(this.models);
+    return Array.from(this);
   }
 
   public firstOrNull(): TModel | null {
-    return this.models[0] || null;
+    return this.toArray()[0] || null;
   }
 
   public first(): TModel {
@@ -48,7 +48,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     if (this.contains(modelToAdd.id)) {
       throw new Error('model already exists');
     }
-    this.models.push(modelToAdd);
+    this.models = this.toArray().concat(modelToAdd);
   }
 
   public addAll(modelsToAdd: Iterable<TModel>): void {
@@ -62,7 +62,9 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
       throw new Error('model does not exist');
     }
     this.removedModels.push(modelToRemove);
-    this.models = this.models.filter((model) => !model.equals(modelToRemove));
+    this.models = this.toArray().filter(
+      (model) => !model.equals(modelToRemove),
+    );
   }
 
   public removeAll(modelsToRemove: TModel[]): void {
@@ -72,7 +74,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public whereId(id: TId): TModel {
-    const model = this.models.find((model) => model.id.equals(id));
+    const model = this.toArray().find((model) => model.id.equals(id));
     if (!model) {
       throw new Error('model does not exist');
     }
@@ -103,15 +105,15 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public isAny(predicate: (model: TModel) => boolean): boolean {
-    return this.models.some(predicate);
+    return this.toArray().some(predicate);
   }
 
   public areAll(predicate: (model: TModel) => boolean): boolean {
-    return this.models.every(predicate);
+    return this.toArray().every(predicate);
   }
 
   public isEmpty(): boolean {
-    return this.models.length === 0;
+    return this.toArray().length === 0;
   }
 
   protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {
