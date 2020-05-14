@@ -19,7 +19,7 @@ export interface ReadonlyRoleCollection
    * @param assigneeOrAssigneeId
    */
   whereAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): ReadonlyRole;
-  whereNot(roleToExclude: ReadonlyRole): ReadonlyRoleCollection;
+  whereNot(roleOrIdToExclude: ReadonlyRole | RoleId): ReadonlyRoleCollection;
 }
 
 export class RoleCollection extends ModelCollection<RoleId, Role>
@@ -33,7 +33,9 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
     throw new RoleNotFoundException();
   }
 
-  public whereNot(roleToExclude: Role): ReadonlyRoleCollection {
+  public whereNot(roleOrIdToExclude: Role | RoleId): ReadonlyRoleCollection {
+    const roleIdToExclude = this.getId(roleOrIdToExclude);
+    const roleToExclude = this.whereId(roleIdToExclude);
     this.assertContains(roleToExclude);
     return this.filter((role) => !role.equals(roleToExclude));
   }

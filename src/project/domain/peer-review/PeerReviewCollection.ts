@@ -216,15 +216,15 @@ export class PeerReviewCollection
 
   public areSubmittedForSenderRoleAndReviewTopic(
     project: ReadonlyProject,
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
+    senderRole: RoleId,
+    reviewTopic: ReviewTopicId,
   ): boolean {
-    project.roles.assertContains(senderRoleId);
-    project.reviewTopics.assertContains(reviewTopicId);
-    for (const receiverRole of project.roles) {
+    project.roles.assertContains(senderRole);
+    project.reviewTopics.assertContains(reviewTopic);
+    for (const receiverRole of project.roles.whereNot(senderRole)) {
       if (
-        this.whereReviewTopic(reviewTopicId)
-          .whereSenderRole(senderRoleId)
+        this.whereReviewTopic(reviewTopic)
+          .whereSenderRole(senderRole)
           .whereReceiverRole(receiverRole.id)
           .isEmpty()
       ) {
