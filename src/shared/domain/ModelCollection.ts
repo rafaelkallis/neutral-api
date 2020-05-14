@@ -15,7 +15,7 @@ export interface ReadonlyModelCollection<
   isEmpty(): boolean;
 }
 
-export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
+export class ModelCollection<TId extends Id, TModel extends Model<TId>>
   implements ReadonlyModelCollection<TId, TModel> {
   private models: Iterable<TModel>;
   private readonly removedModels: TModel[];
@@ -50,9 +50,7 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public add(modelToAdd: TModel): void {
-    if (this.contains(modelToAdd.id)) {
-      throw new Error('model already exists');
-    }
+    this.assertNotContains(modelToAdd);
     this.models = this.toArray().concat(modelToAdd);
   }
 
@@ -99,6 +97,12 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
       throw new Error(
         'assertion failed: collection does not contain given model',
       );
+    }
+  }
+
+  public assertNotContains(modelOrId: TModel | TId): void {
+    if (this.contains(modelOrId)) {
+      throw new Error('collection already contains model');
     }
   }
 
