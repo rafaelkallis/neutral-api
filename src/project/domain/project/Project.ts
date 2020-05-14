@@ -1,4 +1,4 @@
-import { User, ReadonlyUser } from 'user/domain/User';
+import { ReadonlyUser } from 'user/domain/User';
 import {
   AggregateRoot,
   ReadonlyAggregateRoot,
@@ -41,14 +41,6 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
-
-export interface CreateProjectOptions {
-  title: ProjectTitle;
-  description: ProjectDescription;
-  creator: User;
-  contributionVisibility?: ContributionVisibility;
-  skipManagerReview?: SkipManagerReview;
-}
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
