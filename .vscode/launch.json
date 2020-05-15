@@ -15,8 +15,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-			"presentation": {
-				"hidden": false,
+            "presentation": {
+                "hidden": false,
             },
             "protocol": "inspector",
             "console": "integratedTerminal",
