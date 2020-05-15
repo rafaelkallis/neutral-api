@@ -8,7 +8,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "dev-debug"
+                "dev:debug"
             ],
             "env": {"NODE_ENV":"development"},
             "port": 9229,

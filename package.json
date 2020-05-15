@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node -r ts-node/register -r tsconfig-paths/register build/main.js",
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
-    "dev-debug": "ts-node-dev --inspect --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
+    "dev:debug": "ts-node-dev --inspect --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
     "type": "tsc --noEmit",
     "type:watch": "tsc --noEmit --watch",
     "format": "prettier --write \"src/**/*.ts\"",
