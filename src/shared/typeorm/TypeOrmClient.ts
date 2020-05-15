@@ -53,6 +53,7 @@ import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration
 import { AddReviewTopicToPeerReviewMigration1588452568000 } from 'shared/typeorm/migration/1588452568000AddReviewTopicToPeerReviewMigration';
 import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/migration/1588526416000RemoveRoleContributionMigration';
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -122,12 +123,14 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   >(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
+    unitOfWork: UnitOfWork,
   ): Repository<TId, TModel> {
     return new TypeOrmRepository(
       modelType,
       entityType,
       this.entityManager,
       this.objectMapper,
+      unitOfWork,
     );
   }
 

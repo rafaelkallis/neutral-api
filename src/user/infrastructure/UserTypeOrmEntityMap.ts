@@ -6,13 +6,14 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
-import { ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Type, Injectable } from '@nestjs/common';
 import {
   getUserState,
   getUserStateValue,
 } from 'user/domain/value-objects/states/UserStateValue';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
@@ -44,8 +45,9 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
   UserTypeOrmEntity,
   User
 > {
-  protected doMap(entity: UserTypeOrmEntity): User {
+  protected doMap(entity: UserTypeOrmEntity, context: ObjectMapContext): User {
     return new User(
+      context.get('unitOfWork', UnitOfWork),
       UserId.from(entity.id),
       CreatedAt.from(entity.createdAt),
       UpdatedAt.from(entity.updatedAt),

@@ -7,6 +7,7 @@ import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerRevie
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly senderRoleId: RoleId;
@@ -29,6 +30,7 @@ export class PeerReview extends Model<PeerReviewId>
   public score: PeerReviewScore;
 
   public constructor(
+    unitOfWork: UnitOfWork,
     id: PeerReviewId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -37,7 +39,7 @@ export class PeerReview extends Model<PeerReviewId>
     reviewTopicId: ReviewTopicId,
     score: PeerReviewScore,
   ) {
-    super(id, createdAt, updatedAt);
+    super(unitOfWork, id, createdAt, updatedAt);
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;
@@ -46,6 +48,7 @@ export class PeerReview extends Model<PeerReviewId>
   }
 
   public static from(
+    unitOfWork: UnitOfWork,
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
@@ -55,6 +58,7 @@ export class PeerReview extends Model<PeerReviewId>
     const peerReviewCreatedAt = CreatedAt.now();
     const peerReviewUpdatedAt = UpdatedAt.now();
     return new PeerReview(
+      unitOfWork,
       peerReviewId,
       peerReviewCreatedAt,
       peerReviewUpdatedAt,

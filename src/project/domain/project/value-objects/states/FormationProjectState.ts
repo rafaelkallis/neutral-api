@@ -58,7 +58,7 @@ export class FormationProjectState extends DefaultProjectState {
     title: RoleTitle,
     description: RoleDescription,
   ): Role {
-    const role = Role.from(title, description);
+    const role = Role.from(project.unitOfWork, title, description);
     project.roles.add(role);
     project.raise(new RoleCreatedEvent(project.id, role.id));
     return role;
@@ -123,7 +123,11 @@ export class FormationProjectState extends DefaultProjectState {
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic {
-    const reviewTopic = ReviewTopic.from(title, description);
+    const reviewTopic = ReviewTopic.from(
+      project.unitOfWork,
+      title,
+      description,
+    );
     project.reviewTopics.add(reviewTopic);
     project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
     return reviewTopic;

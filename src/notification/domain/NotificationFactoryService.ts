@@ -8,9 +8,16 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class NotificationFactoryService {
+  private readonly unitOfWork: UnitOfWork;
+
+  public constructor(unitOfWork: UnitOfWork) {
+    this.unitOfWork = unitOfWork;
+  }
+
   /**
    *
    */
@@ -106,6 +113,7 @@ export class NotificationFactoryService {
     const updatedAt = UpdatedAt.now();
     const isRead = NotificationIsRead.from(false);
     return new Notification(
+      this.unitOfWork,
       id,
       createdAt,
       updatedAt,

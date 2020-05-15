@@ -12,6 +12,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
 import { InvitedState } from 'user/domain/value-objects/states/InvitedState';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -38,6 +39,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   public lastLoginAt: LastLoginAt;
 
   public constructor(
+    unitOfWork: UnitOfWork,
     id: UserId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -47,7 +49,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     state: UserState,
     lastLoginAt: LastLoginAt,
   ) {
-    super(id, createdAt, updatedAt);
+    super(unitOfWork, id, createdAt, updatedAt);
     this.email = email;
     this.name = name;
     this.avatar = avatar;
@@ -58,7 +60,10 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   /**
    *
    */
-  public static createInvited(email: Email): ReadonlyUser {
+  public static createInvited(
+    unitOfWork: UnitOfWork,
+    email: Email,
+  ): ReadonlyUser {
     const first = '';
     const last = '';
     const name = Name.from(first, last);
@@ -69,6 +74,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     const state = InvitedState.getInstance();
     const lastLoginAt = LastLoginAt.never();
     const user = new User(
+      unitOfWork,
       userId,
       createdAt,
       updatedAt,

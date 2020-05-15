@@ -13,7 +13,7 @@ import { Role } from 'project/domain/role/Role';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable, Type } from '@nestjs/common';
@@ -28,6 +28,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
@@ -115,7 +116,10 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     this.objectMapper = objectMapper;
   }
 
-  protected doMap(projectEntity: ProjectTypeOrmEntity): Project {
+  protected doMap(
+    projectEntity: ProjectTypeOrmEntity,
+    context: ObjectMapContext,
+  ): Project {
     const roles = new RoleCollection(
       this.objectMapper.mapArray(projectEntity.roles, Role),
     );
@@ -129,6 +133,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       this.objectMapper.mapArray(projectEntity.contributions, Contribution),
     );
     return new Project(
+      context.get('unitOfWork', UnitOfWork),
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),

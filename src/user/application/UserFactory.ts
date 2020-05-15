@@ -9,6 +9,7 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { Name } from 'user/domain/value-objects/Name';
 import { InitialState } from 'user/domain/value-objects/states/InitialState';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface CreateUserOptions {
   email: Email;
@@ -20,6 +21,13 @@ export class UserFactory extends AggregateRootFactory<
   UserId,
   ReadonlyUser
 > {
+  private readonly unitOfWork: UnitOfWork;
+
+  public constructor(unitOfWork: UnitOfWork) {
+    super();
+    this.unitOfWork = unitOfWork;
+  }
+
   protected doCreate({ email }: CreateUserOptions): ReadonlyUser {
     const userId = UserId.create();
     const createdAt = CreatedAt.now();
@@ -29,6 +37,7 @@ export class UserFactory extends AggregateRootFactory<
     const state = InitialState.getInstance();
     const lastLoginAt = LastLoginAt.now();
     const user = new User(
+      this.unitOfWork,
       userId,
       createdAt,
       updatedAt,

@@ -12,26 +12,31 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
-/**
- * TypeOrm Project Repository
- */
 @Injectable()
 export class TypeOrmProjectRepository extends ProjectRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly typeOrmRepository: Repository<ProjectId, Project>;
   private readonly objectMapper: ObjectMapper;
+  private readonly unitOfWork: UnitOfWork;
   /**
    *
    */
-  public constructor(typeOrmClient: TypeOrmClient, objectMapper: ObjectMapper) {
+  public constructor(
+    typeOrmClient: TypeOrmClient,
+    objectMapper: ObjectMapper,
+    unitOfWork: UnitOfWork,
+  ) {
     super();
     this.typeOrmClient = typeOrmClient;
     this.typeOrmRepository = this.typeOrmClient.createRepository(
       Project,
       ProjectTypeOrmEntity,
+      unitOfWork,
     );
     this.objectMapper = objectMapper;
+    this.unitOfWork = unitOfWork;
   }
   public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
     return this.typeOrmRepository.findPage(afterId);
@@ -85,7 +90,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     const projectEntities = await this.typeOrmClient.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
-    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
+    const projectModels = this.objectMapper.mapArray(projectEntities, Project, {
+      unitOfWork: this.unitOfWork,
+    });
     return projectModels;
   }
 
@@ -106,7 +113,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     if (!projectEntity) {
       return undefined;
     }
-    return this.objectMapper.map(projectEntity, Project);
+    return this.objectMapper.map(projectEntity, Project, {
+      unitOfWork: this.unitOfWork,
+    });
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
@@ -123,7 +132,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       })
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
-    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
+    const projectModels = this.objectMapper.mapArray(projectEntities, Project, {
+      unitOfWork: this.unitOfWork,
+    });
     return projectModels;
   }
 

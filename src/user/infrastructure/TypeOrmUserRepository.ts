@@ -7,24 +7,29 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Repository } from 'shared/domain/Repository';
 import { Injectable } from '@nestjs/common';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
-/**
- * TypeOrm User Repository
- */
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly typeOrmRepository: Repository<UserId, User>;
   private readonly objectMapper: ObjectMapper;
+  private readonly unitOfWork: UnitOfWork;
 
-  public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
+  public constructor(
+    objectMapper: ObjectMapper,
+    typeOrmClient: TypeOrmClient,
+    unitOfWork: UnitOfWork,
+  ) {
     super();
     this.typeOrmClient = typeOrmClient;
     this.typeOrmRepository = typeOrmClient.createRepository(
       User,
       UserTypeOrmEntity,
+      unitOfWork,
     );
     this.objectMapper = objectMapper;
+    this.unitOfWork = unitOfWork;
   }
 
   public async findPage(afterId?: UserId | undefined): Promise<User[]> {
@@ -58,7 +63,9 @@ export class TypeOrmUserRepository extends UserRepository {
       .orderBy('id', 'DESC')
       .take(10)
       .getMany();
-    return this.objectMapper.mapArray(userEntities, User);
+    return this.objectMapper.mapArray(userEntities, User, {
+      unitOfWork: this.unitOfWork,
+    });
   }
 
   /**
@@ -71,7 +78,9 @@ export class TypeOrmUserRepository extends UserRepository {
     if (!userEntity) {
       return undefined;
     }
-    return this.objectMapper.map(userEntity, User);
+    return this.objectMapper.map(userEntity, User, {
+      unitOfWork: this.unitOfWork,
+    });
   }
 
   /**

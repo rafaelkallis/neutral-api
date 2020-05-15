@@ -6,6 +6,7 @@ import { EntityManager } from 'typeorm';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Observable } from 'shared/domain/Observer';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export class TypeOrmRepository<
   TId extends Id,
@@ -16,18 +17,21 @@ export class TypeOrmRepository<
   protected readonly entityType: Type<TEntity>;
   protected readonly entityManager: EntityManager;
   protected readonly objectMapper: ObjectMapper;
+  protected readonly unitOfWork: UnitOfWork;
 
   public constructor(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
     entityManager: EntityManager,
     modelMapper: ObjectMapper,
+    unitOfWork: UnitOfWork,
   ) {
     super();
     this.modelType = modelType;
     this.entityType = entityType;
     this.entityManager = entityManager;
     this.objectMapper = modelMapper;
+    this.unitOfWork = unitOfWork;
   }
 
   public get persistedModels(): Observable<TModel> {
@@ -52,7 +56,9 @@ export class TypeOrmRepository<
       builder = builder.andWhere('id > :afterId', { afterId: afterId.value });
     }
     const entities = await builder.getMany();
-    const models = this.objectMapper.mapArray(entities, this.modelType);
+    const models = this.objectMapper.mapArray(entities, this.modelType, {
+      unitOfWork: this.unitOfWork,
+    });
     return models;
   }
 

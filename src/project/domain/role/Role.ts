@@ -7,6 +7,7 @@ import { RoleDescription } from 'project/domain/role/value-objects/RoleDescripti
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyRole extends ReadonlyModel<RoleId> {
   readonly assigneeId: UserId | null;
@@ -23,6 +24,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
   public description: RoleDescription;
 
   public constructor(
+    unitOfWork: UnitOfWork,
     id: RoleId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -30,7 +32,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     title: RoleTitle,
     description: RoleDescription,
   ) {
-    super(id, createdAt, updatedAt);
+    super(unitOfWork, id, createdAt, updatedAt);
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
@@ -39,12 +41,24 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
   /**
    *
    */
-  public static from(title: RoleTitle, description: RoleDescription): Role {
+  public static from(
+    unitOfWork: UnitOfWork,
+    title: RoleTitle,
+    description: RoleDescription,
+  ): Role {
     const id = RoleId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const assigneeId = null;
-    return new Role(id, createdAt, updatedAt, assigneeId, title, description);
+    return new Role(
+      unitOfWork,
+      id,
+      createdAt,
+      updatedAt,
+      assigneeId,
+      title,
+      description,
+    );
   }
 
   public isAssigned(): boolean {

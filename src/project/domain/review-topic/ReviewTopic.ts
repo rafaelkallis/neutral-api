@@ -5,6 +5,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Consensuality } from '../project/value-objects/Consensuality';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
@@ -21,6 +22,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
   public consensuality: Consensuality | null;
 
   public constructor(
+    unitOfWork: UnitOfWork,
     id: ReviewTopicId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -28,7 +30,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
     description: ReviewTopicDescription,
     consensuality: Consensuality | null,
   ) {
-    super(id, createdAt, updatedAt);
+    super(unitOfWork, id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
     this.consensuality = consensuality;
@@ -38,6 +40,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
    *
    */
   public static from(
+    unitOfWork: UnitOfWork,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReviewTopic {
@@ -46,6 +49,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
     const updatedAt = UpdatedAt.now();
     const consensuality = null;
     return new ReviewTopic(
+      unitOfWork,
       id,
       createdAt,
       updatedAt,

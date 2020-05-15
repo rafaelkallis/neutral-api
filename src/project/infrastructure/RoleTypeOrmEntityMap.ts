@@ -9,6 +9,7 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
@@ -38,8 +39,12 @@ export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
   RoleTypeOrmEntity,
   Role
 > {
-  protected doMap(roleEntity: RoleTypeOrmEntity): Role {
+  protected doMap(
+    roleEntity: RoleTypeOrmEntity,
+    context: ObjectMapContext,
+  ): Role {
     return new Role(
+      context.get('unitOfWork', UnitOfWork),
       RoleId.from(roleEntity.id),
       CreatedAt.from(roleEntity.createdAt),
       UpdatedAt.from(roleEntity.updatedAt),
