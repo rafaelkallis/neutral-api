@@ -9,7 +9,6 @@ import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTy
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class ContributionTypeOrmEntityMap extends ObjectMap<
@@ -45,12 +44,8 @@ export class ReverseContributionTypeOrmEntityMap extends ObjectMap<
   ContributionTypeOrmEntity,
   Contribution
 > {
-  protected doMap(
-    contribution: ContributionTypeOrmEntity,
-    context: ObjectMapContext,
-  ): Contribution {
+  protected doMap(contribution: ContributionTypeOrmEntity): Contribution {
     return new Contribution(
-      context.get('unitOfWork', UnitOfWork),
       ContributionId.from(contribution.id),
       CreatedAt.from(contribution.createdAt),
       UpdatedAt.from(contribution.updatedAt),

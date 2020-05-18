@@ -41,7 +41,6 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -114,7 +113,6 @@ export class Project extends AggregateRoot<ProjectId>
   public contributions: ContributionCollection;
 
   public constructor(
-    unitOfWork: UnitOfWork,
     id: ProjectId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -130,7 +128,7 @@ export class Project extends AggregateRoot<ProjectId>
     reviewTopics: ReviewTopicCollection,
     contributions: ContributionCollection,
   ) {
-    super(unitOfWork, id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
     this.creatorId = creatorId;

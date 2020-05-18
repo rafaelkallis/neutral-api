@@ -2,22 +2,25 @@ import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
-import { ModelFaker } from 'test/ModelFaker';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 describe('notification model', () => {
-  let modelFaker: ModelFaker;
+  let scenario: UnitTestScenario<NotificationFactoryService>;
   let notificationFactory: NotificationFactoryService;
   let user: User;
 
-  beforeEach(() => {
-    modelFaker = new ModelFaker();
-    notificationFactory = new NotificationFactoryService();
-    user = modelFaker.user();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(NotificationFactoryService)
+      .addProviderMock(UnitOfWork)
+      .build();
+    notificationFactory = scenario.subject;
+    user = scenario.modelFaker.user();
   });
 
   describe('create notification', () => {
     test('happy path', () => {
-      const project = modelFaker.project(user.id);
+      const project = scenario.modelFaker.project(user.id);
       const notification = notificationFactory.createProjectFinishedNotification(
         project,
         user.id,
@@ -30,7 +33,7 @@ describe('notification model', () => {
     let notification: Notification;
 
     beforeEach(() => {
-      notification = modelFaker.notification(user.id);
+      notification = scenario.modelFaker.notification(user.id);
     });
 
     test('happy path', () => {

@@ -20,7 +20,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
   public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
     super();
     this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = typeOrmClient.createRepository(
+    this.typeOrmRepository = typeOrmClient.createRepositoryStrategy(
       Notification,
       NotificationTypeOrmEntity,
     );

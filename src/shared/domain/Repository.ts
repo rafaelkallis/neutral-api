@@ -12,16 +12,30 @@ export interface PersistedListener<
   handlePersisted(model: TModel): Promise<void>;
 }
 
+export abstract class RepositoryStrategy<
+  TId extends Id,
+  TModel extends ReadonlyAggregateRoot<TId>
+> {
+  public abstract findPage(afterId?: TId): Promise<TModel[]>;
+  public abstract findById(id: TId): Promise<TModel | undefined>;
+  public abstract findByIds(ids: TId[]): Promise<(TModel | undefined)[]>;
+  public abstract exists(id: TId): Promise<boolean>;
+  public abstract persist(...models: TModel[]): Promise<void>;
+}
+
 /**
  * Repository
  */
 export abstract class Repository<
   TId extends Id,
   TModel extends ReadonlyAggregateRoot<TId>
-> {
+> extends RepositoryStrategy<TId, TModel> {
+  private readonly strategy: RepositoryStrategy<TId, TModel>;
   private readonly persistedModelsSubject: Subject<TModel>;
 
-  public constructor() {
+  public constructor(strategy: RepositoryStrategy<TId, TModel>) {
+    super();
+    this.strategy = strategy;
     this.persistedModelsSubject = new Subject();
   }
 
@@ -35,32 +49,38 @@ export abstract class Repository<
   /**
    *
    */
-  public abstract findPage(afterId?: TId): Promise<TModel[]>;
+  public async findPage(afterId?: TId): Promise<TModel[]> {
+    return this.strategy.findPage(afterId);
+  }
 
   /**
    *
    */
-  public abstract findById(id: TId): Promise<TModel | undefined>;
+  public async findById(id: TId): Promise<TModel | undefined> {
+    return this.strategy.findById(id);
+  }
 
   /**
    *
    */
-  public abstract findByIds(ids: TId[]): Promise<(TModel | undefined)[]>;
+  public async findByIds(ids: TId[]): Promise<(TModel | undefined)[]> {
+    return this.strategy.findByIds(ids);
+  }
 
   /**
    *
    */
-  public abstract exists(id: TId): Promise<boolean>;
+  public async exists(id: TId): Promise<boolean> {
+    return this.strategy.exists(id);
+  }
 
   /**
    *
    */
   public async persist(...models: TModel[]): Promise<void> {
-    await this.doPersist(...models);
+    await this.strategy.persist(...models);
     for (const model of models) {
       await this.persistedModelsSubject.handle(model);
     }
   }
-
-  protected abstract doPersist(...models: TModel[]): Promise<void>;
 }

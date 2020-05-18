@@ -6,29 +6,33 @@ import {
 import { UserRepository } from 'user/domain/UserRepository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
-import { ModelFaker } from 'test/ModelFaker';
 import { UserDto } from '../dto/UserDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe(GetUsersQuery.name, () => {
+  let scenario: UnitTestScenario<GetUsersQueryHandler>;
   let query: GetUsersQuery;
+  let queryHandler: GetUsersQueryHandler;
   let userRepository: UserRepository;
   let objectMapper: ObjectMapper;
   let authUser: User;
   let users: User[];
   let userDtos: UserDto[];
-  let queryHandler: GetUsersQueryHandler;
 
-  beforeEach(() => {
-    userRepository = td.object();
-    objectMapper = td.object();
-    const modelFaker = new ModelFaker();
-    authUser = modelFaker.user();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(GetUsersQueryHandler)
+      .addProviderMock(UserRepository)
+      .addProviderMock(ObjectMapper)
+      .build();
+    queryHandler = scenario.subject;
+    userRepository = scenario.module.get(UserRepository);
+    objectMapper = scenario.module.get(ObjectMapper);
+    authUser = scenario.modelFaker.user();
     users = td.object();
     userDtos = td.object();
     query = new GetUsersQuery(authUser);
-    queryHandler = new GetUsersQueryHandler(userRepository, objectMapper);
     td.when(objectMapper.mapArray(users, UserDto, { authUser })).thenReturn(
       userDtos,
     );

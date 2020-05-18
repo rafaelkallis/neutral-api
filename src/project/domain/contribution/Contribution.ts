@@ -5,7 +5,6 @@ import { ContributionAmount } from 'project/domain/role/value-objects/Contributi
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyContribution extends ReadonlyModel<ContributionId> {
   readonly roleId: RoleId;
@@ -20,7 +19,6 @@ export class Contribution extends Model<ContributionId>
   public readonly amount: ContributionAmount;
 
   public constructor(
-    unitOfWork: UnitOfWork,
     id: ContributionId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -28,14 +26,13 @@ export class Contribution extends Model<ContributionId>
     reviewTopicId: ReviewTopicId,
     amount: ContributionAmount,
   ) {
-    super(unitOfWork, id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt);
     this.roleId = roleId;
     this.reviewTopicId = reviewTopicId;
     this.amount = amount;
   }
 
   public static from(
-    unitOfWork: UnitOfWork,
     roleId: RoleId,
     reviewTopicId: ReviewTopicId,
     amount: ContributionAmount,
@@ -44,7 +41,6 @@ export class Contribution extends Model<ContributionId>
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     return new Contribution(
-      unitOfWork,
       id,
       createdAt,
       updatedAt,

@@ -8,7 +8,6 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
@@ -43,12 +42,8 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
   ReviewTopicTypeOrmEntity,
   ReviewTopic
 > {
-  protected doMap(
-    reviewTopicEntity: ReviewTopicTypeOrmEntity,
-    context: ObjectMapContext,
-  ): ReviewTopic {
+  protected doMap(reviewTopicEntity: ReviewTopicTypeOrmEntity): ReviewTopic {
     return new ReviewTopic(
-      context.get('unitOfWork', UnitOfWork),
       ReviewTopicId.from(reviewTopicEntity.id),
       CreatedAt.from(reviewTopicEntity.createdAt),
       UpdatedAt.from(reviewTopicEntity.updatedAt),

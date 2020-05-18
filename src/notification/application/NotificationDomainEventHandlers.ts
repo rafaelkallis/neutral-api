@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
-import { Notification } from 'notification/domain/Notification';
+import { ReadonlyNotification } from 'notification/domain/Notification';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -42,7 +42,7 @@ export class NotificationDomainEventHandlers {
   public async onPeerReviewStartedCreatePeerReviewRequestedNotifications(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
-    const notifications: Notification[] = [];
+    const notifications: ReadonlyNotification[] = [];
     for (const role of event.project.roles.toArray()) {
       const notification = this.notificationFactory.createPeerReviewRequestedNotification(
         event.project,
@@ -73,7 +73,7 @@ export class NotificationDomainEventHandlers {
   public async onProjectFinishedCreateProjectFinishedNotification(
     event: ProjectFinishedEvent,
   ): Promise<void> {
-    const notifications: Notification[] = [
+    const notifications: ReadonlyNotification[] = [
       this.notificationFactory.createProjectFinishedNotification(
         event.project,
         event.project.creatorId,

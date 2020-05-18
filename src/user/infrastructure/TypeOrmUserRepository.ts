@@ -3,16 +3,13 @@ import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
-import { Repository } from 'shared/domain/Repository';
 import { Injectable } from '@nestjs/common';
 import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   private readonly typeOrmClient: TypeOrmClient;
-  private readonly typeOrmRepository: Repository<UserId, User>;
   private readonly objectMapper: ObjectMapper;
   private readonly unitOfWork: UnitOfWork;
 
@@ -21,35 +18,10 @@ export class TypeOrmUserRepository extends UserRepository {
     typeOrmClient: TypeOrmClient,
     unitOfWork: UnitOfWork,
   ) {
-    super();
+    super(typeOrmClient.createRepositoryStrategy(User, UserTypeOrmEntity));
     this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = typeOrmClient.createRepository(
-      User,
-      UserTypeOrmEntity,
-      unitOfWork,
-    );
     this.objectMapper = objectMapper;
     this.unitOfWork = unitOfWork;
-  }
-
-  public async findPage(afterId?: UserId | undefined): Promise<User[]> {
-    return this.typeOrmRepository.findPage(afterId);
-  }
-
-  public async findById(id: UserId): Promise<User | undefined> {
-    return this.typeOrmRepository.findById(id);
-  }
-
-  public async findByIds(ids: UserId[]): Promise<(User | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ids);
-  }
-
-  public async exists(id: UserId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
-  }
-
-  protected async doPersist(...users: User[]): Promise<void> {
-    await this.typeOrmRepository.persist(...users);
   }
 
   /**

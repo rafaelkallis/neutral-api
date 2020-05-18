@@ -2,29 +2,36 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Project } from 'project/domain/project/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { Role } from 'project/domain/role/Role';
-import { Notification } from 'notification/domain/Notification';
+import {
+  Notification,
+  ReadonlyNotification,
+} from 'notification/domain/Notification';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { NotificationIsRead } from 'notification/domain/value-objects/NotificationIsRead';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
+
+export interface CreateNotificationContext {
+  readonly ownerId: UserId;
+  readonly type: NotificationType;
+  readonly payload: object;
+}
 
 @Injectable()
-export class NotificationFactoryService {
-  private readonly unitOfWork: UnitOfWork;
-
-  public constructor(unitOfWork: UnitOfWork) {
-    this.unitOfWork = unitOfWork;
-  }
-
+export class NotificationFactoryService extends AggregateRootFactory<
+  CreateNotificationContext,
+  NotificationId,
+  ReadonlyNotification
+> {
   /**
    *
    */
   public createNewAssignmentNotification(
     project: Project,
     role: Role,
-  ): Notification {
+  ): ReadonlyNotification {
     if (!role.assigneeId) {
       throw new Error('role has no assignment');
     }
@@ -40,7 +47,7 @@ export class NotificationFactoryService {
         title: project.title.value,
       },
     };
-    return this.createNotification(ownerId, type, payload);
+    return this.create({ ownerId, type, payload });
   }
 
   /**
@@ -49,7 +56,7 @@ export class NotificationFactoryService {
   public createPeerReviewRequestedNotification(
     project: Project,
     role: Role,
-  ): Notification {
+  ): ReadonlyNotification {
     if (!role.assigneeId) {
       throw new InternalServerErrorException();
     }
@@ -65,7 +72,7 @@ export class NotificationFactoryService {
         title: project.title.value,
       },
     };
-    return this.createNotification(ownerId, type, payload);
+    return this.create({ ownerId, type, payload });
   }
 
   /**
@@ -73,7 +80,7 @@ export class NotificationFactoryService {
    */
   public createManagerReviewRequestedNotification(
     project: Project,
-  ): Notification {
+  ): ReadonlyNotification {
     const ownerId = project.creatorId;
     const type = NotificationType.MANAGER_REVIEW_REQUESTED;
     const payload = {
@@ -82,7 +89,7 @@ export class NotificationFactoryService {
         title: project.title.value,
       },
     };
-    return this.createNotification(ownerId, type, payload);
+    return this.create({ ownerId, type, payload });
   }
 
   /**
@@ -91,7 +98,7 @@ export class NotificationFactoryService {
   public createProjectFinishedNotification(
     project: Project,
     projectMemberId: UserId,
-  ): Notification {
+  ): ReadonlyNotification {
     const ownerId = projectMemberId;
     const type = NotificationType.PROJECT_FINISHED;
     const payload = {
@@ -100,20 +107,19 @@ export class NotificationFactoryService {
         title: project.title.value,
       },
     };
-    return this.createNotification(ownerId, type, payload);
+    return this.create({ ownerId, type, payload });
   }
 
-  private createNotification(
-    ownerId: UserId,
-    type: NotificationType,
-    payload: object,
-  ): Notification {
+  protected doCreate({
+    ownerId,
+    type,
+    payload,
+  }: CreateNotificationContext): ReadonlyNotification {
     const id = NotificationId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const isRead = NotificationIsRead.from(false);
     return new Notification(
-      this.unitOfWork,
       id,
       createdAt,
       updatedAt,

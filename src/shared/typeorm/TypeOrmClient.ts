@@ -9,10 +9,10 @@ import {
 } from '@nestjs/common';
 import { Id } from 'shared/domain/value-objects/Id';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Repository } from 'shared/domain/Repository';
+import { RepositoryStrategy } from 'shared/domain/Repository';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
-import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
+import { TypeOrmRepositoryStrategy } from 'shared/typeorm/TypeOrmRepositoryStrategy';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 
@@ -53,7 +53,6 @@ import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration
 import { AddReviewTopicToPeerReviewMigration1588452568000 } from 'shared/typeorm/migration/1588452568000AddReviewTopicToPeerReviewMigration';
 import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/migration/1588526416000RemoveRoleContributionMigration';
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -116,21 +115,19 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
     this.objectMapper = objectMapper;
   }
 
-  public createRepository<
+  public createRepositoryStrategy<
     TId extends Id,
     TModel extends AggregateRoot<TId>,
     TEntity extends TypeOrmEntity
   >(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
-    unitOfWork: UnitOfWork,
-  ): Repository<TId, TModel> {
-    return new TypeOrmRepository(
+  ): RepositoryStrategy<TId, TModel> {
+    return new TypeOrmRepositoryStrategy(
       modelType,
       entityType,
       this.entityManager,
       this.objectMapper,
-      unitOfWork,
     );
   }
 

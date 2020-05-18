@@ -9,7 +9,6 @@ import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOr
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 @Injectable()
 export class PeerReviewTypeOrmEntityMap extends ObjectMap<
@@ -46,12 +45,8 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
   PeerReviewTypeOrmEntity,
   PeerReview
 > {
-  protected doMap(
-    peerReviewEntity: PeerReviewTypeOrmEntity,
-    context: ObjectMapContext,
-  ): PeerReview {
+  protected doMap(peerReviewEntity: PeerReviewTypeOrmEntity): PeerReview {
     return new PeerReview(
-      context.get('unitOfWork', UnitOfWork),
       PeerReviewId.from(peerReviewEntity.id),
       CreatedAt.from(peerReviewEntity.createdAt),
       UpdatedAt.from(peerReviewEntity.updatedAt),

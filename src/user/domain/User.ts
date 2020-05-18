@@ -4,15 +4,12 @@ import {
 } from 'shared/domain/AggregateRoot';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
-import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
-import { InvitedState } from 'user/domain/value-objects/states/InvitedState';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -39,7 +36,6 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   public lastLoginAt: LastLoginAt;
 
   public constructor(
-    unitOfWork: UnitOfWork,
     id: UserId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -49,43 +45,12 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     state: UserState,
     lastLoginAt: LastLoginAt,
   ) {
-    super(unitOfWork, id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt);
     this.email = email;
     this.name = name;
     this.avatar = avatar;
     this.state = state;
     this.lastLoginAt = lastLoginAt;
-  }
-
-  /**
-   *
-   */
-  public static createInvited(
-    unitOfWork: UnitOfWork,
-    email: Email,
-  ): ReadonlyUser {
-    const first = '';
-    const last = '';
-    const name = Name.from(first, last);
-    const userId = UserId.create();
-    const createdAt = CreatedAt.now();
-    const updatedAt = UpdatedAt.now();
-    const avatar = null;
-    const state = InvitedState.getInstance();
-    const lastLoginAt = LastLoginAt.never();
-    const user = new User(
-      unitOfWork,
-      userId,
-      createdAt,
-      updatedAt,
-      email,
-      name,
-      avatar,
-      state,
-      lastLoginAt,
-    );
-    user.raise(new UserCreatedEvent(user.id));
-    return user;
   }
 
   public invite(): void {

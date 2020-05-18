@@ -1,45 +1,32 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
-import { Repository } from 'shared/domain/Repository';
-import { Type, InternalServerErrorException } from '@nestjs/common';
+import { RepositoryStrategy } from 'shared/domain/Repository';
+import { Type } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Observable } from 'shared/domain/Observer';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
-export class TypeOrmRepository<
+export class TypeOrmRepositoryStrategy<
   TId extends Id,
   TModel extends AggregateRoot<TId>,
   TEntity extends TypeOrmEntity
-> extends Repository<TId, TModel> {
+> extends RepositoryStrategy<TId, TModel> {
   protected readonly modelType: Type<TModel>;
   protected readonly entityType: Type<TEntity>;
   protected readonly entityManager: EntityManager;
   protected readonly objectMapper: ObjectMapper;
-  protected readonly unitOfWork: UnitOfWork;
 
   public constructor(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
     entityManager: EntityManager,
     modelMapper: ObjectMapper,
-    unitOfWork: UnitOfWork,
   ) {
     super();
     this.modelType = modelType;
     this.entityType = entityType;
     this.entityManager = entityManager;
     this.objectMapper = modelMapper;
-    this.unitOfWork = unitOfWork;
-  }
-
-  public get persistedModels(): Observable<TModel> {
-    throw new InternalServerErrorException();
-  }
-
-  public get deletedModels(): Observable<TModel> {
-    throw new InternalServerErrorException();
   }
 
   /**
@@ -56,9 +43,7 @@ export class TypeOrmRepository<
       builder = builder.andWhere('id > :afterId', { afterId: afterId.value });
     }
     const entities = await builder.getMany();
-    const models = this.objectMapper.mapArray(entities, this.modelType, {
-      unitOfWork: this.unitOfWork,
-    });
+    const models = this.objectMapper.mapArray(entities, this.modelType);
     return models;
   }
 
@@ -72,7 +57,8 @@ export class TypeOrmRepository<
     if (entity === undefined) {
       return undefined;
     }
-    return this.objectMapper.map(entity, this.modelType);
+    const model = this.objectMapper.map(entity, this.modelType);
+    return model;
   }
 
   /**
@@ -99,15 +85,7 @@ export class TypeOrmRepository<
   /**
    *
    */
-  protected async doDelete(...models: TModel[]): Promise<void> {
-    const ids = models.map((m) => m.id.value);
-    await this.entityManager.getRepository(this.entityType).delete(ids);
-  }
-
-  /**
-   *
-   */
-  protected async doPersist(...models: TModel[]): Promise<void> {
+  public async persist(...models: TModel[]): Promise<void> {
     const entities = this.objectMapper.mapArray(models, this.entityType);
     await this.entityManager.save(entities);
   }

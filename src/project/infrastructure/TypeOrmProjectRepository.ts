@@ -28,33 +28,19 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     objectMapper: ObjectMapper,
     unitOfWork: UnitOfWork,
   ) {
-    super();
-    this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = this.typeOrmClient.createRepository(
-      Project,
-      ProjectTypeOrmEntity,
-      unitOfWork,
+    super(
+      typeOrmClient.createRepositoryStrategy(
+        Project,
+        ProjectTypeOrmEntity,
+        unitOfWork,
+      ),
     );
+    this.typeOrmClient = typeOrmClient;
     this.objectMapper = objectMapper;
     this.unitOfWork = unitOfWork;
   }
-  public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
-    return this.typeOrmRepository.findPage(afterId);
-  }
 
-  public async findById(id: ProjectId): Promise<Project | undefined> {
-    return this.typeOrmRepository.findById(id);
-  }
-
-  public async findByIds(ids: ProjectId[]): Promise<(Project | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ids);
-  }
-
-  public async exists(id: ProjectId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
-  }
-
-  protected async doPersist(...projectModels: Project[]): Promise<void> {
+  public async persist(...projectModels: Project[]): Promise<void> {
     // TypeOrm does not delete removed one-to-many models, have to manually delete
     const roleIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
@@ -83,7 +69,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         reviewTopicIdsToDelete,
       );
     }
-    await this.typeOrmRepository.persist(...projectModels);
+    await super.persist(...projectModels);
   }
 
   public async findByCreatorId(creatorId: UserId): Promise<Project[]> {

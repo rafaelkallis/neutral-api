@@ -1,11 +1,14 @@
 import {
   UnitOfWorkState,
   UnitOfWorkStateView,
-  ReadUnitOfWorkState,
+  CleanUnitOfWorkState,
   NewUnitOfWorkState,
 } from 'shared/domain/unit-of-work/UnitOfWorkState';
 
-export abstract class UnitOfWorkStateWrapper {
+/**
+ * Encapsulates a UnitOfWork state machine.
+ */
+export abstract class UnitOfWorkStateMachine implements UnitOfWorkStateView {
   protected _state: UnitOfWorkState;
   public get state(): UnitOfWorkStateView {
     return this._state;
@@ -15,21 +18,21 @@ export abstract class UnitOfWorkStateWrapper {
     this._state = state;
   }
 
-  public static ofReadState(): UnitOfWorkStateWrapper {
-    return new InternalUnitOfWorkStateWrapper(
-      ReadUnitOfWorkState.getInstance(),
+  public static ofCleanState(): UnitOfWorkStateMachine {
+    return new InternalUnitOfWorkStateMachine(
+      CleanUnitOfWorkState.getInstance(),
     );
   }
 
-  public static ofNewState(): UnitOfWorkStateWrapper {
-    return new InternalUnitOfWorkStateWrapper(NewUnitOfWorkState.getInstance());
+  public static ofNewState(): UnitOfWorkStateMachine {
+    return new InternalUnitOfWorkStateMachine(NewUnitOfWorkState.getInstance());
   }
 
   public isNew(): boolean {
     return this.state.isNew();
   }
-  public isRead(): boolean {
-    return this.state.isRead();
+  public isClean(): boolean {
+    return this.state.isClean();
   }
   public isDirty(): boolean {
     return this.state.isDirty();
@@ -43,7 +46,7 @@ export abstract class UnitOfWorkStateWrapper {
   }
 }
 
-export class InternalUnitOfWorkStateWrapper extends UnitOfWorkStateWrapper {
+export class InternalUnitOfWorkStateMachine extends UnitOfWorkStateMachine {
   public constructor(unitOfWorkState: UnitOfWorkState) {
     super(unitOfWorkState);
   }

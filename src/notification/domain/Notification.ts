@@ -12,7 +12,6 @@ import { NotificationReadEvent } from 'notification/domain/events/NotificationRe
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 
 export interface ReadonlyNotification
   extends ReadonlyAggregateRoot<NotificationId> {
@@ -39,7 +38,6 @@ export class Notification extends AggregateRoot<NotificationId>
   public readonly payload: object;
 
   public constructor(
-    unitOfWork: UnitOfWork,
     id: NotificationId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
@@ -48,7 +46,7 @@ export class Notification extends AggregateRoot<NotificationId>
     isRead: NotificationIsRead,
     payload: object,
   ) {
-    super(unitOfWork, id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt);
     this.ownerId = ownerId;
     this.type = type;
     this.isRead = isRead;

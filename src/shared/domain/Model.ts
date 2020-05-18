@@ -2,13 +2,14 @@ import { Id } from 'shared/domain/value-objects/Id';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { Subject, Observable } from 'rxjs';
 
 export interface ReadonlyModel<TId extends Id> {
   readonly id: TId;
   readonly createdAt: CreatedAt;
   readonly updatedAt: UpdatedAt;
   readonly domainEvents: ReadonlyArray<DomainEvent>;
+  readonly markedDirty: Observable<void>;
 
   equals(other: ReadonlyModel<TId>): boolean;
 }
@@ -26,19 +27,14 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
 
   readonly #domainEvents: Array<DomainEvent>;
 
-  public readonly unitOfWork: UnitOfWork;
+  private readonly markedDirtySubject: Subject<void>;
 
-  public constructor(
-    unitOfWork: UnitOfWork,
-    id: TId,
-    createdAt: CreatedAt,
-    updatedAt: UpdatedAt,
-  ) {
+  public constructor(id: TId, createdAt: CreatedAt, updatedAt: UpdatedAt) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.#domainEvents = [];
-    this.unitOfWork = unitOfWork;
+    this.markedDirtySubject = new Subject();
   }
 
   /**
@@ -56,7 +52,13 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
     this.#domainEvents.push(domainEvent);
   }
 
+  public get markedDirty(): Observable<void> {
+    return this.markedDirtySubject.asObservable();
+  }
+
+  // public for project state (friend class)
   public markDirty(): void {
-    this.unitOfWork.markDirty(this);
+    // this.unitOfWork.markDirty(this);
+    this.markedDirtySubject.next();
   }
 }

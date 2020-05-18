@@ -1,14 +1,14 @@
-import { InternalUnitOfWorkStateWrapper } from 'shared/domain/unit-of-work/UnitOfWorkStateWrapper';
+import { InternalUnitOfWorkStateMachine } from 'shared/domain/unit-of-work/UnitOfWorkStateMachine';
 
 export interface UnitOfWorkStateView {
   isNew(): boolean;
-  isRead(): boolean;
+  isClean(): boolean;
   isDirty(): boolean;
 }
 
 export interface UnitOfWorkState extends UnitOfWorkStateView {
-  markDirty(context: InternalUnitOfWorkStateWrapper): void;
-  commit(context: InternalUnitOfWorkStateWrapper): void;
+  markDirty(context: InternalUnitOfWorkStateMachine): void;
+  commit(context: InternalUnitOfWorkStateMachine): void;
 }
 
 export class NewUnitOfWorkState implements UnitOfWorkState {
@@ -22,15 +22,15 @@ export class NewUnitOfWorkState implements UnitOfWorkState {
 
   public markDirty(): void {}
 
-  public commit(context: InternalUnitOfWorkStateWrapper): void {
-    context.setState(ReadUnitOfWorkState.getInstance());
+  public commit(context: InternalUnitOfWorkStateMachine): void {
+    context.setState(CleanUnitOfWorkState.getInstance());
   }
 
   public isNew(): boolean {
     return true;
   }
 
-  public isRead(): boolean {
+  public isClean(): boolean {
     return false;
   }
 
@@ -39,15 +39,15 @@ export class NewUnitOfWorkState implements UnitOfWorkState {
   }
 }
 
-export class ReadUnitOfWorkState implements UnitOfWorkState {
-  private static INSTANCE?: ReadUnitOfWorkState;
+export class CleanUnitOfWorkState implements UnitOfWorkState {
+  private static INSTANCE?: CleanUnitOfWorkState;
   public static getInstance(): UnitOfWorkState {
-    if (!ReadUnitOfWorkState.INSTANCE) {
-      ReadUnitOfWorkState.INSTANCE = new ReadUnitOfWorkState();
+    if (!CleanUnitOfWorkState.INSTANCE) {
+      CleanUnitOfWorkState.INSTANCE = new CleanUnitOfWorkState();
     }
-    return ReadUnitOfWorkState.INSTANCE;
+    return CleanUnitOfWorkState.INSTANCE;
   }
-  public markDirty(context: InternalUnitOfWorkStateWrapper): void {
+  public markDirty(context: InternalUnitOfWorkStateMachine): void {
     context.setState(DirtyUnitOfWorkState.getInstance());
   }
   public commit(): void {}
@@ -56,7 +56,7 @@ export class ReadUnitOfWorkState implements UnitOfWorkState {
     return false;
   }
 
-  public isRead(): boolean {
+  public isClean(): boolean {
     return true;
   }
 
@@ -74,15 +74,15 @@ export class DirtyUnitOfWorkState implements UnitOfWorkState {
     return DirtyUnitOfWorkState.INSTANCE;
   }
   public markDirty(): void {}
-  public commit(context: InternalUnitOfWorkStateWrapper): void {
-    context.setState(ReadUnitOfWorkState.getInstance());
+  public commit(context: InternalUnitOfWorkStateMachine): void {
+    context.setState(CleanUnitOfWorkState.getInstance());
   }
 
   public isNew(): boolean {
     return false;
   }
 
-  public isRead(): boolean {
+  public isClean(): boolean {
     return false;
   }
 
