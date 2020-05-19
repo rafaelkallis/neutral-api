@@ -2,16 +2,24 @@ import { Config } from 'shared/config/application/Config';
 import { SessionState } from 'shared/session/session-state';
 import { Request, Response, CookieOptions } from 'express';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Environment } from 'shared/utility/application/Environment';
 
 /**
  *
  */
 export class ExpressCookieSessionState implements SessionState {
+  private readonly environment: Environment;
   private readonly config: Config;
   private readonly request: Request;
   private readonly response: Response;
 
-  public constructor(config: Config, request: Request, response: Response) {
+  public constructor(
+    environment: Environment,
+    config: Config,
+    request: Request,
+    response: Response,
+  ) {
+    this.environment = environment;
     this.config = config;
     this.request = request;
     this.response = response;
@@ -39,7 +47,7 @@ export class ExpressCookieSessionState implements SessionState {
    *
    */
   public set(state: string): void {
-    const secure = this.config.isProduction();
+    const secure = this.environment.isProduction();
     const options: CookieOptions = {
       secure,
       httpOnly: true,

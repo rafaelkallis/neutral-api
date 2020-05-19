@@ -1,15 +1,15 @@
 import { Project } from 'project/domain/project/Project';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
-import { ProjectArchived } from 'project/domain/project/value-objects/states/ProjectArchived';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -84,7 +84,6 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
-      project.consensuality = Consensuality.from(0.8);
       await scenario.projectRepository.persist(project);
     });
 
@@ -101,8 +100,8 @@ describe('project (e2e)', () => {
         description: project.description.value,
         creatorId: project.creatorId.value,
         state: getProjectStateValue(project.state),
-        consensuality: project.consensuality?.value,
         skipManagerReview: project.skipManagerReview.value,
+        consensuality: null,
         contributionVisibility: project.contributionVisibility.value,
         roles: [],
         peerReviews: [],
@@ -174,7 +173,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -187,6 +186,7 @@ describe('project (e2e)', () => {
     let assignees: User[];
     let project: Project;
     let roles: Role[];
+    let reviewTopics: ReviewTopic[];
 
     beforeEach(async () => {
       assignees = [
@@ -196,7 +196,7 @@ describe('project (e2e)', () => {
         await scenario.createUser(),
       ];
       project = await scenario.createProject(user);
-      project.state = ProjectFormation.INSTANCE;
+      project.state = FormationProjectState.INSTANCE;
       roles = [
         scenario.modelFaker.role(assignees[0].id),
         scenario.modelFaker.role(assignees[1].id),
@@ -204,6 +204,11 @@ describe('project (e2e)', () => {
         scenario.modelFaker.role(assignees[3].id),
       ];
       project.roles.addAll(roles);
+      reviewTopics = [
+        scenario.modelFaker.reviewTopic(),
+        scenario.modelFaker.reviewTopic(),
+      ];
+      project.reviewTopics.addAll(reviewTopics);
       await scenario.projectRepository.persist(project);
     });
 
@@ -219,7 +224,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(ProjectPeerReview.INSTANCE);
+      expect(updatedProject.state).toEqual(PeerReviewProjectState.INSTANCE);
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -233,7 +238,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = ProjectPeerReview.INSTANCE;
+      project.state = PeerReviewProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id}/finish-formation`,
@@ -256,7 +261,7 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
     });
 
@@ -277,7 +282,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ProjectArchived.INSTANCE);
+      expect(updatedProject.state).toBe(ArchivedProjectState.INSTANCE);
     });
   });
 });

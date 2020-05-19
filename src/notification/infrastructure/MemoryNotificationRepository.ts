@@ -46,8 +46,9 @@ export class MemoryNotificationRepository extends NotificationRepository {
    *
    */
   public async findByOwnerId(ownerId: UserId): Promise<Notification[]> {
-    return this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .filter((notification) => notification.ownerId.equals(ownerId));
+    return Promise.resolve(results);
   }
 }

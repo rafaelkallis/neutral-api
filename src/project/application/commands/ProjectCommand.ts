@@ -32,5 +32,7 @@ export abstract class ProjectCommandHandler<
     });
   }
 
-  protected abstract doHandle(command: TCommand): Promise<ReadonlyProject>;
+  protected abstract doHandle(
+    command: TCommand,
+  ): ReadonlyProject | Promise<ReadonlyProject>;
 }

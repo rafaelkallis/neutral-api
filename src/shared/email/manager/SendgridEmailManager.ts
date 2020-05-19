@@ -80,9 +80,7 @@ export class SendgridEmailManager extends EmailManager {
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public async sendUnregisteredUserNewAssignmentEmail(
-    to: string,
-  ): Promise<void> {
+  public async sendInvitedUserNewAssignmentEmail(to: string): Promise<void> {
     const templateId = '';
     const dynamicTemplateData = {};
     await this.sendEmail(to, templateId, dynamicTemplateData);
@@ -101,10 +99,12 @@ export class SendgridEmailManager extends EmailManager {
       personalizations: [
         {
           to: { email: to },
+          // eslint-disable-next-line @typescript-eslint/camelcase
           dynamic_template_data: dynamicTemplateData,
         },
       ],
       from: { email: 'no-reply@covee.network' },
+      // eslint-disable-next-line @typescript-eslint/camelcase
       template_id: templateId,
     };
     const config = {

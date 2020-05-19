@@ -20,6 +20,8 @@ import { UpdateAuthUserAvatarCommandHandler } from 'user/application/commands/Up
 import { RemoveAuthUserAvatarCommandHandler } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvatarQuery';
 import { UserFactory } from 'user/application/UserFactory';
+import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuthUserDataZipQuery';
+import { AvatarStore } from 'user/application/AvatarStore';
 
 /**
  * User Module
@@ -36,11 +38,13 @@ import { UserFactory } from 'user/application/UserFactory';
     ReverseUserTypeOrmEntityMap,
     { provide: UserRepository, useClass: TypeOrmUserRepository },
     UserFactory,
+    AvatarStore,
     // query handlers
     GetUsersQueryHandler,
     GetUserQueryHandler,
     GetAuthUserQueryHandler,
     GetUserAvatarQueryHandler,
+    GetAuthUserDataZipQueryHandler,
     // command handlers
     UpdateAuthUserCommandHandler,
     ForgetAuthUserCommandHandler,

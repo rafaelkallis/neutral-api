@@ -22,5 +22,5 @@ export abstract class AbstractUserCommandHandler<
     return this.objectMapper.map(user, UserDto, { authUser: command.authUser });
   }
 
-  protected abstract doHandle(command: TCommand): Promise<User>;
+  protected abstract doHandle(command: TCommand): User | Promise<User>;
 }

@@ -1,20 +1,21 @@
 module.exports = {
-  extends: [
-    'eslint:recommended',
-    'plugin:jest/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
-    'plugin:security/recommended',
-    'plugin:promise/recommended',
-  ],
+  root: true,
+  parser: '@typescript-eslint/parser',
   plugins: [
     '@typescript-eslint',
     'jest',
-    'security',
     'promise',
   ],
-  parser: '@typescript-eslint/parser',
+  extends: [
+    'eslint:recommended',
+    'plugin:jest/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'prettier',
+    'prettier/@typescript-eslint',
+    'plugin:promise/recommended',
+  ],
   parserOptions: {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
@@ -32,6 +33,9 @@ module.exports = {
     'consistent-return': ['error'],
     'no-invalid-this': ['error'],
     'no-dupe-class-members': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
+    '@typescript-eslint/no-use-before-define': ['error', { 'functions': false, 'classes': false }],
     '@typescript-eslint/explicit-function-return-type': [
       'error',
       {
@@ -42,5 +46,6 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': ['error'],
     '@typescript-eslint/promise-function-async': ['error'],
     '@typescript-eslint/prefer-readonly': ['error'],
+    'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'td.verify']}],
   },
 };

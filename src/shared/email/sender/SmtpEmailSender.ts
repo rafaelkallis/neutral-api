@@ -31,7 +31,7 @@ export class SmtpEmailSender extends EmailSender
     this.logger.log('Smtp connected');
   }
 
-  public async onApplicationShutdown(): Promise<void> {
+  public onApplicationShutdown(): void {
     this.transporter.close();
     this.logger.log('Smtp disconnected');
   }

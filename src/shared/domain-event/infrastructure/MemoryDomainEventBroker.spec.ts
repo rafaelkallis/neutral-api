@@ -19,7 +19,9 @@ describe('amqp domain event broker', () => {
     const domainEventHandler: DomainEventHandler<MyDomainEvent> = {
       key: 'test_handler',
       async handleDomainEvent(actualDomainEvent: MyDomainEvent): Promise<void> {
+        // TODO code smell!
         expect(actualDomainEvent).toBe(domainEvent);
+        return Promise.resolve();
       },
     };
     const subscription = await domainEventBroker.subscribe(

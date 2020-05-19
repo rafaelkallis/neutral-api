@@ -17,7 +17,7 @@ describe(GetUsersQuery.name, () => {
   let userDto: UserDto;
   let queryHandler: GetUserQueryHandler;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = td.object();
     objectMapper = td.object();
     authUser = td.object();

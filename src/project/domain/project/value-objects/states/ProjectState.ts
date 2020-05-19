@@ -14,6 +14,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /**
  *
@@ -54,11 +55,24 @@ export abstract class ProjectState extends ValueObject {
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic;
 
+  public abstract updateReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void;
+
+  public abstract removeReviewTopic(
+    project: Project,
+    reviewTopicId: ReviewTopicId,
+  ): void;
+
   public abstract finishFormation(project: Project): void;
 
   public abstract submitPeerReviews(
     project: Project,
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -124,6 +138,22 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
+  public updateReviewTopic(
+    _project: Project,
+    _reviewTopicId: ReviewTopicId,
+    _title?: ReviewTopicTitle,
+    _description?: ReviewTopicDescription,
+  ): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
+  public removeReviewTopic(
+    _project: Project,
+    _reviewTopicId: ReviewTopicId,
+  ): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
   public finishFormation(_project: Project): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
@@ -131,6 +161,7 @@ export abstract class DefaultProjectState extends ProjectState {
   public submitPeerReviews(
     _project: Project,
     _senderRoleId: RoleId,
+    _reviewTopicId: ReviewTopicId,
     _submittedPeerReviews: [RoleId, PeerReviewScore][],
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,

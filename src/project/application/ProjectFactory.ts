@@ -8,7 +8,7 @@ import { ContributionVisibility } from 'project/domain/project/value-objects/Con
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
@@ -41,8 +41,7 @@ export class ProjectFactory extends AggregateRootFactory<
     const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
-    const state = ProjectFormation.INSTANCE;
-    const consensuality = null;
+    const state = FormationProjectState.INSTANCE;
     const roles = new RoleCollection([]);
     const peerReviews = new PeerReviewCollection([]);
     const reviewTopics = new ReviewTopicCollection([]);
@@ -55,7 +54,6 @@ export class ProjectFactory extends AggregateRootFactory<
       description,
       creator.id,
       state,
-      consensuality,
       contributionVisibility
         ? contributionVisibility
         : ContributionVisibility.SELF,

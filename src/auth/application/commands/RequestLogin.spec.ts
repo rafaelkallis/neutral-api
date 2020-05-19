@@ -22,7 +22,7 @@ describe(RequestLoginCommand.name, () => {
   let command: RequestLoginCommand;
   let loginToken: string;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = td.object();
     tokenManager = td.object();
     config = td.object();

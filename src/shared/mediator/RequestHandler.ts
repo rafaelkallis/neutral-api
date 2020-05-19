@@ -6,5 +6,5 @@ import { Request } from 'shared/mediator/Request';
  */
 export abstract class RequestHandler<T, TRequest extends Request<T>> {
   public abstract getRequestType(): Type<TRequest>;
-  public abstract handle(request: TRequest): Promise<T>;
+  public abstract handle(request: TRequest): T | Promise<T>;
 }

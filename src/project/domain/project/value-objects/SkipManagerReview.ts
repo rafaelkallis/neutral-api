@@ -1,20 +1,12 @@
 import { Project } from 'project/domain/project/Project';
 import { EnumValueObject } from 'shared/domain/value-objects/EnumValueObject';
 import { InvalidSkipManagerReviewException } from 'project/domain/exceptions/InvalidSkipManagerReviewException';
-import { InvariantViolationException } from 'shared/exceptions/invariant-violation.exception';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export enum SkipManagerReviewValue {
   YES = 'yes',
   IF_CONSENSUAL = 'if-consensual',
   NO = 'no',
-}
-
-function shouldSkipManagerReviewIfConsensual(project: Project): boolean {
-  if (!project.consensuality) {
-    throw new InvariantViolationException();
-  }
-  return project.consensuality.isConsensual();
 }
 
 /**
@@ -27,7 +19,7 @@ export class SkipManagerReview extends EnumValueObject<SkipManagerReviewValue> {
   );
   public static readonly IF_CONSENSUAL = new SkipManagerReview(
     SkipManagerReviewValue.IF_CONSENSUAL,
-    shouldSkipManagerReviewIfConsensual,
+    (project) => project.isConsensual(),
   );
   public static readonly NO = new SkipManagerReview(
     SkipManagerReviewValue.NO,

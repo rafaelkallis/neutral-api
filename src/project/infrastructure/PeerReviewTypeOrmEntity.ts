@@ -17,6 +17,9 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'receiver_role_id' })
   public receiverRoleId: string;
 
+  @Column({ name: 'review_topic_id' })
+  public reviewTopicId: string;
+
   @Column({ name: 'score' })
   public score: number;
 
@@ -27,12 +30,14 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     project: ProjectTypeOrmEntity,
     senderRoleId: string,
     receiverRoleId: string,
+    reviewTopicId: string,
     score: number,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
+    this.reviewTopicId = reviewTopicId;
     this.score = score;
   }
 }

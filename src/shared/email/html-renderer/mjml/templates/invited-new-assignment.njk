@@ -1,0 +1,20 @@
+{% extends "_base.njk" %}
+
+{% block title %}
+  Covee New Assignment
+{% endblock %}
+
+{% block preview %}
+  You have a new assignment waiting for you.
+{% endblock %}
+
+{% block content %}
+<mj-section >
+  <mj-column>
+    <mj-text>Hi there,</mj-text>
+    <mj-text>You are invited to join as {{ roleTitle }} in {{ projectTitle }}.</mj-text>
+    <mj-button mj-class="primary-button" href="{{ signupMagicLink }}">Get Started</mj-button>
+    <mj-text mj-class="alt-text">Link not working? Try this: <a href="{{ signupMagicLink }}">{{ signupMagicLink }}</a></mj-text>
+  </mj-column>
+</mj-section>
+{% endblock %}

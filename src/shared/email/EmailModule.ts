@@ -4,17 +4,21 @@ import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers'
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { SelfManagedEmailManager } from 'shared/email/manager/SelfManagedEmailManager';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
-import { NunjucksEmailHtmlRenderer } from 'shared/email/html-renderer/NunjucksEmailHtmlRenderer';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
 import { EmailSender } from 'shared/email/sender/EmailSender';
 import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
+import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
+import { Environment } from 'shared/utility/application/Environment';
+import { DummyEmailSender } from './sender/DummyEmailSender';
+import { Config } from 'shared/config/application/Config';
+import { UtilityModule } from 'shared/utility/UtilityModule';
 
 /**
  * Email Module
  */
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, UtilityModule],
   providers: [
     {
       provide: EmailManager,
@@ -22,7 +26,7 @@ import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
     },
     {
       provide: EmailHtmlRenderer,
-      useClass: NunjucksEmailHtmlRenderer,
+      useClass: MjmlEmailHtmlRenderer,
     },
     {
       provide: EmailPlaintextRenderer,
@@ -30,7 +34,13 @@ import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
     },
     {
       provide: EmailSender,
-      useClass: SmtpEmailSender,
+      useFactory(environment: Environment, config: Config): EmailSender {
+        if (environment.isTest()) {
+          return new DummyEmailSender();
+        }
+        return new SmtpEmailSender(config);
+      },
+      inject: [Environment, Config],
     },
     EmailDomainEventHandlers,
   ],

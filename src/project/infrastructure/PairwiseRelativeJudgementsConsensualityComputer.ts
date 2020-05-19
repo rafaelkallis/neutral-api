@@ -5,6 +5,7 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -18,12 +19,13 @@ function mean(arr: number[]): number {
  * Computes consensuality using pairwise relative judgements.
  */
 @Injectable()
-export class PairwiseRelativeJudgementsConsensualityComputerService
-  implements ConsensualityComputer {
+export class PairwiseRelativeJudgementsConsensualityComputerService extends ConsensualityComputer {
   /**
    * Computes a project's consensuality.
    */
-  public compute(peerReviews: PeerReviewCollection): Consensuality {
+  protected computeForReviewTopic(
+    peerReviews: PeerReviewCollection,
+  ): Consensuality {
     const n = peerReviews.getNumberOfPeers();
     const cyclicPeerReviews = this.createCyclicPeerReviews(n);
     const normalizedDissent =
@@ -77,6 +79,7 @@ export class PairwiseRelativeJudgementsConsensualityComputerService
         const peerReview = PeerReview.from(
           peers[i],
           peers[j],
+          ReviewTopicId.create(),
           PeerReviewScore.from(score),
         );
         peerReviews.add(peerReview);
@@ -85,5 +88,3 @@ export class PairwiseRelativeJudgementsConsensualityComputerService
     return peerReviews;
   }
 }
-
-/* eslint-enable security/detect-object-injection */

@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { Config } from 'shared/config/application/Config';
 import { ExpressCookieSessionState } from 'shared/session/express-cookie-session-state';
 import { SessionState } from 'shared/session/session-state';
+import { Environment } from 'shared/utility/application/Environment';
 
 /**
  * Session Middleware.
@@ -12,9 +13,11 @@ import { SessionState } from 'shared/session/session-state';
  */
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
+  private readonly environment: Environment;
   private readonly config: Config;
 
-  public constructor(config: Config) {
+  public constructor(environment: Environment, config: Config) {
+    this.environment = environment;
     this.config = config;
   }
 
@@ -28,6 +31,7 @@ export class SessionMiddleware implements NestMiddleware {
   ): void {
     if (!request.session) {
       request.session = new ExpressCookieSessionState(
+        this.environment,
         this.config,
         request,
         response,

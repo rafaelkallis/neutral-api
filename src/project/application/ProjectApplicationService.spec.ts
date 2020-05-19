@@ -6,17 +6,11 @@ import {
   GetProjectsQueryDto,
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
-import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
-import { ProjectFormation } from 'project/domain/project/value-objects/states/ProjectFormation';
-import { ProjectPeerReview } from 'project/domain/project/value-objects/states/ProjectPeerReview';
-import { ProjectManagerReview } from 'project/domain/project/value-objects/states/ProjectManagerReview';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { FakeContributionsComputerService } from 'project/infrastructure/FakeContributionsComputerService';
-import { FakeConsensualityComputerService } from 'project/infrastructure/FakeConsensualityComputer';
-import { HasSubmittedPeerReviews } from 'project/domain/role/value-objects/HasSubmittedPeerReviews';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
@@ -24,11 +18,12 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
 import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
 import { InitialState } from 'user/domain/value-objects/states/InitialState';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -37,11 +32,10 @@ describe(ProjectApplicationService.name, () => {
   let userRepository: UserRepository;
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
-  let contributionsComputer: ContributionsComputer;
-  let consensualityComputer: ConsensualityComputer;
   let creatorUser: User;
   let project: Project;
   let roles: Role[];
+  let reviewTopic: ReviewTopic;
   let expectedProjectDto: unknown;
 
   beforeEach(async () => {
@@ -49,24 +43,16 @@ describe(ProjectApplicationService.name, () => {
       .addProviderValue(ProjectRepository, new MemoryProjectRepository())
       .addProviderValue(UserRepository, new MemoryUserRepository())
       .addProviderMock(UserFactory)
-      .addProviderMock(DomainEventBroker)
       .addProviderMock(ObjectMapper)
-      .addProviderValue(
-        ContributionsComputer,
-        new FakeContributionsComputerService(),
-      )
-      .addProviderValue(
-        ConsensualityComputer,
-        new FakeConsensualityComputerService(),
-      )
+      .addProviderMock(DomainEventBroker)
+      .addProviderMock(ContributionsComputer)
+      .addProviderMock(ConsensualityComputer)
       .build();
     projectApplication = scenario.subject;
 
     userRepository = scenario.module.get(UserRepository);
     projectRepository = scenario.module.get(ProjectRepository);
     objectMapper = scenario.module.get(ObjectMapper);
-    contributionsComputer = scenario.module.get(ContributionsComputer);
-    consensualityComputer = scenario.module.get(ConsensualityComputer);
 
     creatorUser = scenario.modelFaker.user();
     await userRepository.persist(creatorUser);
@@ -80,6 +66,10 @@ describe(ProjectApplicationService.name, () => {
       scenario.modelFaker.role(),
     ];
     project.roles.addAll(roles);
+
+    reviewTopic = scenario.modelFaker.reviewTopic();
+    project.reviewTopics.add(reviewTopic);
+
     await projectRepository.persist(project);
 
     expectedProjectDto = td.object();
@@ -240,6 +230,7 @@ describe(ProjectApplicationService.name, () => {
 
   describe('finish formation', () => {
     let assignees: User[];
+
     beforeEach(async () => {
       assignees = [];
       for (const role of roles) {
@@ -248,7 +239,7 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
-      project.state = ProjectFormation.INSTANCE;
+      project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });
 
@@ -256,95 +247,6 @@ describe(ProjectApplicationService.name, () => {
       await projectApplication.finishFormation(creatorUser, project.id.value);
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
       expect(project.finishFormation).toHaveBeenCalledWith();
-    });
-  });
-
-  describe('submit peer reviews', () => {
-    let submitPeerReviewsDto: SubmitPeerReviewsDto;
-
-    beforeEach(async () => {
-      project.state = ProjectPeerReview.INSTANCE;
-      roles = [
-        scenario.modelFaker.role(creatorUser.id),
-        scenario.modelFaker.role(),
-        scenario.modelFaker.role(),
-        scenario.modelFaker.role(),
-      ];
-      project.roles = new RoleCollection(roles);
-      roles[0].hasSubmittedPeerReviews = HasSubmittedPeerReviews.FALSE;
-      roles[1].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-      roles[2].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-      roles[3].hasSubmittedPeerReviews = HasSubmittedPeerReviews.TRUE;
-
-      for (const senderRole of roles) {
-        for (const receiverRole of roles) {
-          if (senderRole.equals(receiverRole)) {
-            // no self review
-            continue;
-          }
-          if (senderRole.equals(roles[0])) {
-            continue;
-          }
-          const peerReview = scenario.modelFaker.peerReview(
-            senderRole.id,
-            receiverRole.id,
-          );
-          project.peerReviews.add(peerReview);
-        }
-      }
-      await projectRepository.persist(project);
-
-      submitPeerReviewsDto = new SubmitPeerReviewsDto({
-        [roles[1].id.value]: 1 / 3,
-        [roles[2].id.value]: 1 / 3,
-        [roles[3].id.value]: 1 / 3,
-      });
-      jest.spyOn(project, 'submitPeerReviews');
-    });
-
-    describe('happy path', () => {
-      test('final peer review', async () => {
-        await projectApplication.submitPeerReviews(
-          creatorUser,
-          project.id.value,
-          submitPeerReviewsDto,
-        );
-        expect(project.submitPeerReviews).toHaveBeenCalledWith(
-          roles[0].id,
-          expect.any(Array),
-          contributionsComputer,
-          consensualityComputer,
-        );
-      });
-
-      test('should fail if authenticated user is not a project peer', async () => {
-        const nonPeerUser = scenario.modelFaker.user();
-        await userRepository.persist(nonPeerUser);
-        await expect(
-          projectApplication.submitPeerReviews(
-            nonPeerUser,
-            project.id.value,
-            submitPeerReviewsDto,
-          ),
-        ).rejects.toThrow();
-        expect(project.submitPeerReviews).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('submit manager review', () => {
-      beforeEach(() => {
-        project.state = ProjectManagerReview.INSTANCE;
-        jest.spyOn(project, 'submitManagerReview');
-      });
-
-      test('happy path', async () => {
-        await projectApplication.submitManagerReview(
-          creatorUser,
-          project.id.value,
-        );
-        expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-        expect(project.submitManagerReview).toHaveBeenCalledWith();
-      });
     });
   });
 
@@ -362,7 +264,7 @@ describe(ProjectApplicationService.name, () => {
 
   describe('archive project', () => {
     beforeEach(() => {
-      project.state = ProjectFinished.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE;
       jest.spyOn(project, 'archive');
     });
 

@@ -8,6 +8,7 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 
 @Injectable()
 export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
@@ -25,6 +26,9 @@ export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
       ctx.get('project', ProjectTypeOrmEntity),
       reviewTopicModel.title.value,
       reviewTopicModel.description.value,
+      reviewTopicModel.consensuality
+        ? reviewTopicModel.consensuality.value
+        : null,
     );
   }
 
@@ -49,6 +53,9 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       UpdatedAt.from(reviewTopicEntity.updatedAt),
       ReviewTopicTitle.from(reviewTopicEntity.title),
       ReviewTopicDescription.from(reviewTopicEntity.description),
+      reviewTopicEntity.consensuality
+        ? Consensuality.from(reviewTopicEntity.consensuality)
+        : null,
     );
   }
 

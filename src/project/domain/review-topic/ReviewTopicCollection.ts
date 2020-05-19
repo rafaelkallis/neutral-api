@@ -7,10 +7,19 @@ import {
   ReadonlyReviewTopic,
   ReviewTopic,
 } from 'project/domain/review-topic/ReviewTopic';
+import { InsufficientReviewTopicAmountException } from '../exceptions/InsufficientReviewTopicAmountException';
 
 export interface ReadonlyReviewTopicCollection
-  extends ReadonlyModelCollection<ReviewTopicId, ReadonlyReviewTopic> {}
+  extends ReadonlyModelCollection<ReviewTopicId, ReadonlyReviewTopic> {
+  assertSufficientAmount(): void;
+}
 
 export class ReviewTopicCollection
   extends ModelCollection<ReviewTopicId, ReviewTopic>
-  implements ReadonlyReviewTopicCollection {}
+  implements ReadonlyReviewTopicCollection {
+  public assertSufficientAmount(): void {
+    if (this.toArray().length < 1) {
+      throw new InsufficientReviewTopicAmountException();
+    }
+  }
+}

@@ -37,21 +37,23 @@ export class MemoryProjectRepository extends ProjectRepository {
    *
    */
   public async findByCreatorId(creatorId: UserId): Promise<Project[]> {
-    return this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .filter((project) => project.creatorId.equals(creatorId));
+    return Promise.resolve(results);
   }
 
   public async findByRoleId(roleId: RoleId): Promise<Project | undefined> {
-    return this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .find((project) => project.roles.contains(roleId));
+    return Promise.resolve(results);
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
-    const projects = this.memoryRepository
+    const results = this.memoryRepository
       .getModels()
       .filter((project) => project.roles.isAnyAssignedToUser(assigneeId));
-    return projects;
+    return Promise.resolve(results);
   }
 }

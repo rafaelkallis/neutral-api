@@ -14,6 +14,7 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
+import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -89,6 +90,26 @@ describe(Project.name, () => {
     expect(actualRole).toBe(addedReviewTopic);
   });
 
+  test('update review topic', () => {
+    const title = ReviewTopicTitle.from(primitiveFaker.words());
+    const reviewTopicIdToUpdate = ReviewTopicId.create();
+    project.updateReviewTopic(reviewTopicIdToUpdate, title);
+    td.verify(
+      project.state.updateReviewTopic(
+        project,
+        reviewTopicIdToUpdate,
+        title,
+        undefined,
+      ),
+    );
+  });
+
+  test('remove review topic', () => {
+    const reviewTopicIdToRemove = ReviewTopicId.create();
+    project.removeReviewTopic(reviewTopicIdToRemove);
+    td.verify(project.state.removeReviewTopic(project, reviewTopicIdToRemove));
+  });
+
   test('finish formation', () => {
     project.finishFormation();
     td.verify(project.state.finishFormation(project));
@@ -96,12 +117,14 @@ describe(Project.name, () => {
 
   test('submit peer reviews', () => {
     const senderRoleId = RoleId.create();
+    const reviewTopicId = ReviewTopicId.create();
     const submittedPeerReviews: [RoleId, PeerReviewScore][] = td.object();
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
 
     project.submitPeerReviews(
       senderRoleId,
+      reviewTopicId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -110,6 +133,7 @@ describe(Project.name, () => {
       project.state.submitPeerReviews(
         project,
         senderRoleId,
+        reviewTopicId,
         submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,

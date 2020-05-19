@@ -53,9 +53,10 @@ function mean(arr: number[]): number {
  *
  */
 @Injectable()
-export class MeanDeviationConsensualityComputerService
-  implements ConsensualityComputer {
-  public compute(peerReviewCollection: PeerReviewCollection): Consensuality {
+export class MeanDeviationConsensualityComputerService extends ConsensualityComputer {
+  protected computeForReviewTopic(
+    peerReviewCollection: PeerReviewCollection,
+  ): Consensuality {
     const peerReviews = peerReviewCollection.toMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;

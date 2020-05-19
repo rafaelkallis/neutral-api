@@ -26,6 +26,7 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -42,14 +43,14 @@ export class ProjectApplicationService {
     userRepository: UserRepository,
     userFactory: UserFactory,
     domainEventBroker: DomainEventBroker,
-    modelMapper: ObjectMapper,
+    objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
     this.userFactory = userFactory;
-    this.objectMapper = modelMapper;
+    this.objectMapper = objectMapper;
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
@@ -113,7 +114,7 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    const roleToAssign = project.roles.findById(roleId);
+    const roleToAssign = project.roles.whereId(roleId);
     if (!rawAssigneeId && !rawAssigneeEmail) {
       throw new NoAssigneeException();
     }
@@ -184,18 +185,24 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
+
+    const reviewTopic = project.reviewTopics.whereId(
+      ReviewTopicId.from(dto.reviewTopicId),
+    );
+
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
-    const authRole = project.roles.findByAssignee(authUser);
+    const authRole = project.roles.whereAssignee(authUser);
     const peerReviews: [RoleId, PeerReviewScore][] = Object.entries(
       dto.peerReviews,
     ).map(([receiverRoleId, score]) => [
       RoleId.from(receiverRoleId),
       PeerReviewScore.from(score),
-    ]);
+    ]); // TODO use dto.toPeerReviewList()
     project.submitPeerReviews(
       authRole.id,
+      reviewTopic.id,
       peerReviews,
       this.contributionsComputer,
       this.consensualityComputer,

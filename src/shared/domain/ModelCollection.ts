@@ -4,34 +4,59 @@ import { Id } from 'shared/domain/value-objects/Id';
 export interface ReadonlyModelCollection<
   TId extends Id,
   TModel extends ReadonlyModel<TId>
-> {
+> extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
-  findById(id: TId): TModel;
+  assertContains(modelOrId: TModel | TId): void;
+  whereId(id: TId): TModel;
+  count(): number;
   toArray(): ReadonlyArray<TModel>;
+  first(): TModel;
+  firstOrNull(): TModel | null;
+  isEmpty(): boolean;
 }
 
 export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
   implements ReadonlyModelCollection<TId, TModel> {
-  private models: TModel[];
+  private models: Iterable<TModel>;
   private readonly removedModels: TModel[];
 
-  public constructor(models: ReadonlyArray<TModel>) {
-    this.models = Array.from(models);
+  public constructor(models: Iterable<TModel>) {
+    this.models = models;
     this.removedModels = [];
   }
 
+  public [Symbol.iterator](): Iterator<TModel> {
+    return this.models[Symbol.iterator]();
+  }
+
   public toArray(): ReadonlyArray<TModel> {
-    return Array.from(this.models);
+    return Array.from(this);
+  }
+
+  public count(): number {
+    return this.toArray().length;
+  }
+
+  public firstOrNull(): TModel | null {
+    return this.toArray()[0] || null;
+  }
+
+  public first(): TModel {
+    const first = this.firstOrNull();
+    if (first === null) {
+      throw new Error('collection is empty');
+    }
+    return first;
   }
 
   public add(modelToAdd: TModel): void {
     if (this.contains(modelToAdd.id)) {
       throw new Error('model already exists');
     }
-    this.models.push(modelToAdd);
+    this.models = this.toArray().concat(modelToAdd);
   }
 
-  public addAll(modelsToAdd: TModel[]): void {
+  public addAll(modelsToAdd: Iterable<TModel>): void {
     for (const modelToAdd of modelsToAdd) {
       this.add(modelToAdd);
     }
@@ -42,7 +67,9 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
       throw new Error('model does not exist');
     }
     this.removedModels.push(modelToRemove);
-    this.models = this.models.filter((model) => !model.equals(modelToRemove));
+    this.models = this.toArray().filter(
+      (model) => !model.equals(modelToRemove),
+    );
   }
 
   public removeAll(modelsToRemove: TModel[]): void {
@@ -51,8 +78,8 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     }
   }
 
-  public findById(id: TId): TModel {
-    const model = this.models.find((model) => model.id.equals(id));
+  public whereId(id: TId): TModel {
+    const model = this.toArray().find((model) => model.id.equals(id));
     if (!model) {
       throw new Error('model does not exist');
     }
@@ -67,6 +94,14 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.isAny((model) => model.id.equals(id));
   }
 
+  public assertContains(modelOrId: TModel | TId): void {
+    if (!this.contains(modelOrId)) {
+      throw new Error(
+        'assertion failed: collection does not contain given model',
+      );
+    }
+  }
+
   /**
    *
    */
@@ -74,15 +109,21 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.removedModels;
   }
 
-  protected isAny(predicate: (model: TModel) => boolean): boolean {
-    return this.models.some(predicate);
+  public isAny(predicate: (model: TModel) => boolean): boolean {
+    return this.toArray().some(predicate);
   }
 
-  protected areAll(predicate: (model: TModel) => boolean): boolean {
-    return this.models.every(predicate);
+  public areAll(predicate: (model: TModel) => boolean): boolean {
+    return this.toArray().every(predicate);
   }
 
-  protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {
+  public isEmpty(): boolean {
+    return this.count() === 0;
+  }
+
+  protected getId<TId2 extends Id>(
+    modelOrId: ReadonlyModel<TId2> | TId2,
+  ): TId2 {
     return modelOrId instanceof Model ? modelOrId.id : modelOrId;
   }
 }

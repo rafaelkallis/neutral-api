@@ -5,7 +5,6 @@ import {
   ModelCollection,
   ReadonlyModelCollection,
 } from 'shared/domain/ModelCollection';
-import { Contributions } from 'project/domain/ContributionsComputer';
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -15,17 +14,17 @@ import { InsufficientRoleAmountException } from 'project/domain/exceptions/Insuf
 export interface ReadonlyRoleCollection
   extends ReadonlyModelCollection<RoleId, ReadonlyRole> {
   isAnyAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean;
-  findByAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): ReadonlyRole;
-  excluding(roleToExclude: ReadonlyRole): Iterable<ReadonlyRole>;
-}
-
-export class RoleCollection extends ModelCollection<RoleId, Role>
-  implements ReadonlyRoleCollection {
   /**
    * Find role by assignee.
    * @param assigneeOrAssigneeId
    */
-  public findByAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): Role {
+  whereAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): ReadonlyRole;
+  whereNot(roleOrIdToExclude: ReadonlyRole | RoleId): ReadonlyRoleCollection;
+}
+
+export class RoleCollection extends ModelCollection<RoleId, Role>
+  implements ReadonlyRoleCollection {
+  public whereAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): Role {
     for (const role of this.toArray()) {
       if (role.isAssignedToUser(assigneeOrAssigneeId)) {
         return role;
@@ -34,50 +33,45 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
     throw new RoleNotFoundException();
   }
 
-  public excluding(roleToExclude: Role): Iterable<Role> {
-    if (!this.contains(roleToExclude.id)) {
-      throw new RoleNotFoundException();
-    }
-    return this.toArray().filter((role) => !role.equals(roleToExclude));
-  }
-
-  public applyContributions(contributions: Contributions): void {
-    for (const role of this.toArray()) {
-      role.contribution = contributions.of(role.id);
-    }
+  public whereNot(roleOrIdToExclude: Role | RoleId): ReadonlyRoleCollection {
+    const roleIdToExclude = this.getId(roleOrIdToExclude);
+    const roleToExclude = this.whereId(roleIdToExclude);
+    this.assertContains(roleToExclude);
+    return this.filter((role) => !role.equals(roleToExclude));
   }
 
   public isAnyAssignedToUser(userOrUserId: ReadonlyUser | UserId): boolean {
     return this.isAny((role) => role.isAssignedToUser(userOrUserId));
   }
 
-  public assertSingleAssignmentPerUser(): void {
+  public assertUniqueAssignees(): void {
     const seenUsers: UserId[] = [];
-    for (const role of this.toArray()) {
-      if (role.assigneeId) {
-        for (const seenUser of seenUsers) {
-          if (role.isAssignedToUser(seenUser)) {
-            throw new SingleAssignmentPerUserViolationException();
-          }
-        }
-        seenUsers.push(role.assigneeId);
+    for (const role of this) {
+      if (!role.assigneeId) {
+        continue;
       }
+      if (seenUsers.some((seenUser) => role.isAssignedToUser(seenUser))) {
+        throw new SingleAssignmentPerUserViolationException();
+      }
+      seenUsers.push(role.assigneeId);
     }
   }
 
   public assertAllAreAssigned(): void {
-    if (!this.toArray().every((role) => role.isAssigned())) {
+    if (!this.areAll((role) => role.isAssigned())) {
       throw new RoleNoUserAssignedException();
     }
   }
 
   public assertSufficientAmount(): void {
-    if (this.toArray().length < 4) {
+    if (this.count() < 4) {
       throw new InsufficientRoleAmountException();
     }
   }
 
-  public allHaveSubmittedPeerReviews(): boolean {
-    return this.areAll((role) => role.hasSubmittedPeerReviews.value);
+  protected filter(
+    predicate: (role: ReadonlyRole) => boolean,
+  ): ReadonlyRoleCollection {
+    return new RoleCollection(this.toArray().filter(predicate));
   }
 }

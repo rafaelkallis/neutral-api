@@ -1,5 +1,5 @@
 import td from 'testdouble';
-import { Type, Provider, ValueProvider } from '@nestjs/common';
+import { Type, Provider, ValueProvider, ClassProvider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TestScenario } from 'test/TestScenario';
 
@@ -20,11 +20,24 @@ export class UnitTestScenario<TSubject> extends TestScenario {
 
 export class UnitTestScenarioBuilder<TSubject> {
   private readonly subjectType: Type<TSubject>;
-  private readonly providers: Provider[];
+  private readonly providers: (Provider | Type<unknown>)[];
 
   public constructor(subjectType: Type<TSubject>) {
     this.subjectType = subjectType;
     this.providers = [{ provide: subjectType, useClass: subjectType }];
+  }
+
+  public addProvider<T>(provider: Type<T>): this {
+    this.providers.push(provider);
+    return this;
+  }
+
+  public addProviderFor<T>(
+    provide: ClassProvider['provide'],
+    classProvider: Type<T>,
+  ): this {
+    this.providers.push({ provide, useClass: classProvider });
+    return this;
   }
 
   public addProviderValue<TProvider>(

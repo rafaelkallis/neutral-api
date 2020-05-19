@@ -11,7 +11,7 @@ describe('app (e2e)', () => {
     await scenario.teardown();
   });
 
-  test('should be defined', async () => {
+  test('should be defined', () => {
     expect(scenario.app).toBeDefined();
   });
 

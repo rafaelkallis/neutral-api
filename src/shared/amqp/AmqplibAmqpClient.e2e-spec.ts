@@ -34,6 +34,7 @@ describe('amqplib amqp client', () => {
       messageType: Dto,
       async handleMessage(message: Dto): Promise<void> {
         messages.push(message);
+        return Promise.resolve();
       },
     });
     await amqpClient.publish({
@@ -63,6 +64,7 @@ describe('amqplib amqp client', () => {
       async handleMessage(_message: Dto): Promise<void> {
         messages++;
         throw new Error('test error, nothing to worry about!');
+        return Promise.resolve();
       },
     });
     await amqpClient.publish({

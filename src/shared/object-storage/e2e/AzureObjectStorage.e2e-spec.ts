@@ -3,28 +3,25 @@ import ObjectID from 'bson-objectid';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
-import { Test } from '@nestjs/testing';
 import { Config } from 'shared/config/application/Config';
 import { EnvalidConfig } from 'shared/config/infrastructure/EnvalidConfig';
 import { ObjectNotFoundException } from 'shared/object-storage/application/exceptions/ObjectNotFoundException';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { TempFileFactory } from 'shared/utility/application/TempFileFactory';
 
-describe('azure object storage', () => {
+describe(AzureObjectStorage.name, () => {
+  let scenario: UnitTestScenario<AzureObjectStorage>;
   let azureObjectStorage: AzureObjectStorage;
   let key: string;
   const containerName = '.tests';
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      providers: [
-        {
-          provide: Config,
-          useClass: EnvalidConfig,
-        },
-        AzureObjectStorage,
-      ],
-    }).compile();
-    azureObjectStorage = module.get(AzureObjectStorage);
-    await module.init();
+    scenario = await UnitTestScenario.builder(AzureObjectStorage)
+      .addProviderFor(Config, EnvalidConfig)
+      .addProvider(TempFileFactory)
+      .build();
+    azureObjectStorage = scenario.subject;
+    await scenario.module.init();
     key = new ObjectID().toHexString();
   });
 

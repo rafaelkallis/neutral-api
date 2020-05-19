@@ -15,7 +15,7 @@ describe('notification sagas', () => {
   let notificationFactory: NotificationFactoryService;
   let notificationDomainEventHandler: NotificationDomainEventHandlers;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     modelFaker = new ModelFaker();
     notificationRepository = new MemoryNotificationRepository();
     notificationFactory = new NotificationFactoryService();

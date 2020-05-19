@@ -4,7 +4,7 @@ import { User } from 'user/domain/User';
 import { InternalServerErrorException, Injectable, Type } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role } from 'project/domain/role/Role';
-import { ProjectFinished } from 'project/domain/project/value-objects/states/ProjectFinished';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 
 @Injectable()
@@ -19,7 +19,6 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       role.title.value,
       role.description.value,
       this.mapContribution(role, project, authUser),
-      this.mapHasSubmittedPeerReviews(role, project, authUser),
       role.createdAt.value,
       role.updatedAt.value,
     );
@@ -30,21 +29,22 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     project: Project,
     authUser: User,
   ): number | null {
-    if (role.contribution === null) {
+    const [contribution] = project.contributions.whereRole(role).toArray();
+    if (!contribution) {
       return null;
     }
     let shouldExpose = false;
     // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
       case ContributionVisibility.PUBLIC: {
-        shouldExpose = project.state.equals(ProjectFinished.INSTANCE);
+        shouldExpose = project.state.equals(FinishedProjectState.INSTANCE);
         break;
       }
 
       case ContributionVisibility.PROJECT: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectFinished.INSTANCE)) {
+        } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
           shouldExpose = false;
         } else {
           shouldExpose = project.roles.isAnyAssignedToUser(authUser);
@@ -55,7 +55,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       case ContributionVisibility.SELF: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(ProjectFinished.INSTANCE)) {
+        } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
           shouldExpose = false;
         } else {
           shouldExpose = role.isAssignedToUser(authUser);
@@ -72,22 +72,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         throw new InternalServerErrorException();
       }
     }
-    return shouldExpose ? role.contribution.value : null;
-  }
-
-  private mapHasSubmittedPeerReviews(
-    role: Role,
-    project: Project,
-    authUser: User,
-  ): boolean | null {
-    let shouldExpose = false;
-    if (project.isCreator(authUser)) {
-      shouldExpose = true;
-    }
-    if (role.isAssignedToUser(authUser)) {
-      shouldExpose = true;
-    }
-    return shouldExpose ? role.hasSubmittedPeerReviews.value : null;
+    return shouldExpose ? contribution.amount.value : null;
   }
 
   public getSourceType(): Type<Role> {

@@ -1,4 +1,4 @@
-import { User, ReadonlyUser } from 'user/domain/User';
+import { ReadonlyUser } from 'user/domain/User';
 import {
   AggregateRoot,
   ReadonlyAggregateRoot,
@@ -8,7 +8,6 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ReadonlyRole } from 'project/domain/role/Role';
@@ -40,27 +39,21 @@ import {
 import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
-
-export interface CreateProjectOptions {
-  title: ProjectTitle;
-  description: ProjectDescription;
-  creator: User;
-  contributionVisibility?: ContributionVisibility;
-  skipManagerReview?: SkipManagerReview;
-}
+import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
   readonly description: ProjectDescription;
   readonly creatorId: UserId;
   readonly state: ProjectState;
-  readonly consensuality: Consensuality | null;
   readonly contributionVisibility: ContributionVisibility;
   readonly skipManagerReview: SkipManagerReview;
   readonly roles: ReadonlyRoleCollection;
   readonly peerReviews: ReadonlyPeerReviewCollection;
   readonly reviewTopics: ReadonlyReviewTopicCollection;
   readonly contributions: ReadonlyContributionCollection;
+
+  isConsensual(): boolean;
 
   update(title?: ProjectTitle, description?: ProjectDescription): void;
 
@@ -78,10 +71,17 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic;
+  updateReviewTopic(
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void;
+  removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
   finishFormation(): void;
   submitPeerReviews(
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -102,7 +102,6 @@ export class Project extends AggregateRoot<ProjectId>
   public description: ProjectDescription;
   public readonly creatorId: UserId;
   public state: ProjectState;
-  public consensuality: Consensuality | null;
   public contributionVisibility: ContributionVisibility;
   public skipManagerReview: SkipManagerReview;
   public roles: RoleCollection;
@@ -118,7 +117,6 @@ export class Project extends AggregateRoot<ProjectId>
     description: ProjectDescription,
     creatorId: UserId,
     state: ProjectState,
-    consensuality: Consensuality | null,
     contributionVisibility: ContributionVisibility,
     skipManagerReview: SkipManagerReview,
     roles: RoleCollection,
@@ -131,13 +129,16 @@ export class Project extends AggregateRoot<ProjectId>
     this.description = description;
     this.creatorId = creatorId;
     this.state = state;
-    this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
+  }
+
+  public isConsensual(): boolean {
+    return this.reviewTopics.areAll((topic) => topic.isConsensual());
   }
 
   /**
@@ -194,6 +195,18 @@ export class Project extends AggregateRoot<ProjectId>
     return this.state.addReviewTopic(this, title, description);
   }
 
+  public updateReviewTopic(
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void {
+    this.state.updateReviewTopic(this, reviewTopicId, title, description);
+  }
+
+  public removeReviewTopic(reviewTopicId: ReviewTopicId): void {
+    this.state.removeReviewTopic(this, reviewTopicId);
+  }
+
   /**
    * Finish project formation
    */
@@ -213,6 +226,7 @@ export class Project extends AggregateRoot<ProjectId>
    */
   public submitPeerReviews(
     senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
@@ -220,6 +234,7 @@ export class Project extends AggregateRoot<ProjectId>
     this.state.submitPeerReviews(
       this,
       senderRoleId,
+      reviewTopicId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,

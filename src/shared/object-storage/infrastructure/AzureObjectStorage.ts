@@ -11,6 +11,7 @@ import { Config } from 'shared/config/application/Config';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { ObjectNotFoundException } from 'shared/object-storage/application/exceptions/ObjectNotFoundException';
 import { TelemetryAction } from 'shared/telemetry/application/TelemetryAction';
+import { TempFileFactory } from 'shared/utility/application/TempFileFactory';
 
 /**
  * Azure Object Storage Service
@@ -18,11 +19,13 @@ import { TelemetryAction } from 'shared/telemetry/application/TelemetryAction';
 @Injectable()
 export class AzureObjectStorage extends ObjectStorage {
   private readonly client: BlobServiceClient;
+  private readonly tempFileFactory: TempFileFactory;
 
-  public constructor(config: Config) {
+  public constructor(config: Config, tempFileFactory: TempFileFactory) {
     super();
     const connectionString = config.get('AZURE_BLOB_STORAGE_CONNECTION_STRING');
     this.client = BlobServiceClient.fromConnectionString(connectionString);
+    this.tempFileFactory = tempFileFactory;
   }
 
   @TelemetryAction()
@@ -43,10 +46,10 @@ export class AzureObjectStorage extends ObjectStorage {
   @TelemetryAction()
   public async get({ containerName, key }: GetContext): Promise<GetReturn> {
     const blob = await this.getBlob(containerName, key);
-    const file = super.createTempFile();
+    const file = this.tempFileFactory.createTempFile();
     let response;
     try {
-      response = await blob.downloadToFile(file);
+      response = await blob.downloadToFile(file.path);
     } catch (error) {
       if (error?.details?.errorCode === 'BlobNotFound') {
         throw new ObjectNotFoundException();
@@ -57,7 +60,7 @@ export class AzureObjectStorage extends ObjectStorage {
     if (!contentType) {
       throw new InternalServerErrorException();
     }
-    return { file, contentType };
+    return { file: file.path, contentType };
   }
 
   public async delete({ containerName, key }: DeleteContext): Promise<void> {

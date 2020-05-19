@@ -34,7 +34,11 @@ export abstract class EmailManager {
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public abstract async sendUnregisteredUserNewAssignmentEmail(
+  public abstract async sendInvitedUserNewAssignmentEmail(
     to: string,
+    projectId: string,
+    projectTitle: string,
+    roleTitle: string,
+    signupMagicLink: string,
   ): Promise<void>;
 }

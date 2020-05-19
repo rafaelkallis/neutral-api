@@ -1,4 +1,14 @@
-import { Post, Body, Param, UseGuards, Controller } from '@nestjs/common';
+import {
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Controller,
+  HttpStatus,
+  HttpCode,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -14,9 +24,13 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { AddReviewTopicDto } from 'project/presentation/dto/AddReviewTopicDto';
 import { AddReviewTopicCommand } from 'project/application/commands/AddReviewTopic';
+import { UpdateReviewTopicDto } from 'project/presentation/dto/UpdateReviewTopicDto';
+import { UpdateReviewTopicCommand } from 'project/application/commands/UpdateReviewTopic';
+import { RemoveReviewTopicCommand } from 'project/application/commands/RemoveReviewTopic';
 
 @Controller('projects/:project_id/review-topics')
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
 @ApiTags('Projects')
 export class ReviewTopicController {
   private readonly mediator: Mediator;
@@ -26,7 +40,6 @@ export class ReviewTopicController {
   }
 
   @Post()
-  @ApiBearerAuth()
   @ApiOperation({
     operationId: 'addReviewTopic',
     summary: 'Add a review topic',
@@ -50,5 +63,59 @@ export class ReviewTopicController {
         addReviewTopicDto.description,
       ),
     );
+  }
+
+  @Patch(':review_topic_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    operationId: 'updateReviewTopic',
+    summary: 'Update a review topic',
+  })
+  @ApiCreatedResponse({
+    description: 'Review topic updated successfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({ description: 'User is not the project creator' })
+  @ApiNotFoundResponse({ description: 'Project not found' })
+  public async updateReviewTopic(
+    @AuthUser() authUser: User,
+    @Param('project_id') projectId: string,
+    @Param('review_topic_id') reviewTopicId: string,
+    @Body(ValidationPipe) updateReviewTopicDto: UpdateReviewTopicDto,
+  ): Promise<ProjectDto> {
+    return this.mediator.send(
+      new UpdateReviewTopicCommand(
+        authUser,
+        projectId,
+        reviewTopicId,
+        updateReviewTopicDto.title,
+        updateReviewTopicDto.description,
+      ),
+    );
+  }
+
+  @Delete(':review_topic_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    operationId: 'removeReviewTopic',
+    summary: 'Remove a review topic',
+  })
+  @ApiCreatedResponse({
+    description: 'Review topic remove successfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({ description: 'User is not the project creator' })
+  @ApiNotFoundResponse({ description: 'Project not found' })
+  public async removeReviewTopic(
+    @AuthUser() authUser: User,
+    @Param('project_id') projectId: string,
+    @Param('review_topic_id') reviewTopicId: string,
+  ): Promise<ProjectDto> {
+    const removeReviewTopicCommand = new RemoveReviewTopicCommand(
+      authUser,
+      projectId,
+      reviewTopicId,
+    );
+    return this.mediator.send(removeReviewTopicCommand);
   }
 }

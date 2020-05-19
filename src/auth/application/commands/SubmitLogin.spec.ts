@@ -24,7 +24,7 @@ describe(SubmitLoginCommand.name, () => {
   let userDto: UserDto;
   let command: SubmitLoginCommand;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = td.object();
     tokenManager = td.object();
     objectMapper = td.object();

@@ -9,6 +9,7 @@ import { LoggingTelemetryClient } from 'shared/telemetry/infrastructure/LoggingT
 import { TelemetryActionManager } from 'shared/telemetry/application/TelemetryActionManager';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { PerformanceMeasurer } from './application/PerformanceMeasurer';
+import { Environment } from 'shared/utility/application/Environment';
 
 /**
  * Telemetry Module
@@ -19,16 +20,17 @@ import { PerformanceMeasurer } from './application/PerformanceMeasurer';
     {
       provide: TelemetryClient,
       useFactory: (
+        environment: Environment,
         config: Config,
         performanceMeasurer: PerformanceMeasurer,
       ): TelemetryClient => {
-        if (config.isProduction()) {
+        if (environment.isProduction()) {
           return new AzureMonitorTelemetryClient(config, performanceMeasurer);
         } else {
           return new LoggingTelemetryClient();
         }
       },
-      inject: [Config, PerformanceMeasurer],
+      inject: [Environment, Config, PerformanceMeasurer],
     },
     { provide: APP_INTERCEPTOR, useClass: TelemetryInterceptor },
     TelemetryActionManager,
