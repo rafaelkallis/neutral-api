@@ -1,7 +1,6 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
 import { Project } from 'project/domain/project/Project';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
@@ -50,7 +49,10 @@ describe('project dto map', () => {
     ).thenReturn(peerReviewDtos);
     reviewTopicDtos = [];
     td.when(
-      objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto),
+      objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto, {
+        authUser,
+        project,
+      }),
     ).thenReturn(reviewTopicDtos);
     contributionDtos = [];
     td.when(
@@ -79,17 +81,5 @@ describe('project dto map', () => {
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });
-  });
-
-  test('should expose consensuality if project owner', () => {
-    project.consensuality = Consensuality.from(1);
-    const projectDto = projectDtoMap.map(project, { authUser: owner });
-    expect(projectDto.consensuality).toBeTruthy();
-  });
-
-  test('should not expose consensuality if not project owner', () => {
-    project.consensuality = Consensuality.from(1);
-    const projectDto = projectDtoMap.map(project, { authUser: authUser });
-    expect(projectDto.consensuality).toBeNull();
   });
 });

@@ -42,7 +42,6 @@ export class ProjectFactory extends AggregateRootFactory<
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const state = FormationProjectState.INSTANCE;
-    const consensuality = null;
     const roles = new RoleCollection([]);
     const peerReviews = new PeerReviewCollection([]);
     const reviewTopics = new ReviewTopicCollection([]);
@@ -55,7 +54,6 @@ export class ProjectFactory extends AggregateRootFactory<
       description,
       creator.id,
       state,
-      consensuality,
       contributionVisibility
         ? contributionVisibility
         : ContributionVisibility.SELF,

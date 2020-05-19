@@ -82,7 +82,6 @@ export class ModelFaker {
       this.primitiveFaker.paragraph(),
     );
     const state = FormationProjectState.INSTANCE;
-    const consensuality = null;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;
     return new Project(
@@ -93,7 +92,6 @@ export class ModelFaker {
       description,
       creatorId,
       state,
-      consensuality,
       contributionVisibility,
       skipManagerReview,
       new RoleCollection([]),

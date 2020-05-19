@@ -8,7 +8,6 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ReadonlyRole } from 'project/domain/role/Role';
@@ -47,7 +46,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly description: ProjectDescription;
   readonly creatorId: UserId;
   readonly state: ProjectState;
-  readonly consensuality: Consensuality | null;
   readonly contributionVisibility: ContributionVisibility;
   readonly skipManagerReview: SkipManagerReview;
   readonly roles: ReadonlyRoleCollection;
@@ -104,7 +102,6 @@ export class Project extends AggregateRoot<ProjectId>
   public description: ProjectDescription;
   public readonly creatorId: UserId;
   public state: ProjectState;
-  public consensuality: Consensuality | null;
   public contributionVisibility: ContributionVisibility;
   public skipManagerReview: SkipManagerReview;
   public roles: RoleCollection;
@@ -120,7 +117,6 @@ export class Project extends AggregateRoot<ProjectId>
     description: ProjectDescription,
     creatorId: UserId,
     state: ProjectState,
-    consensuality: Consensuality | null,
     contributionVisibility: ContributionVisibility,
     skipManagerReview: SkipManagerReview,
     roles: RoleCollection,
@@ -133,7 +129,6 @@ export class Project extends AggregateRoot<ProjectId>
     this.description = description;
     this.creatorId = creatorId;
     this.state = state;
-    this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
