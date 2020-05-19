@@ -5,10 +5,9 @@ import { NotificationApplicationService } from 'notification/application/Notific
 import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 
-describe('notification application service', () => {
+describe(NotificationApplicationService.name, () => {
   let modelFaker: ModelFaker;
   let notificationRepository: NotificationRepository;
   let objectMapper: ObjectMapper;
@@ -18,7 +17,7 @@ describe('notification application service', () => {
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
-    notificationRepository = new MemoryNotificationRepository();
+    notificationRepository = td.object();
     objectMapper = td.object();
     notificationApplicationService = new NotificationApplicationService(
       notificationRepository,
@@ -39,16 +38,18 @@ describe('notification application service', () => {
     let notifications: Notification[];
     let mockNotificationDtos: NotificationDto[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       notifications = [
         modelFaker.notification(user.id),
         modelFaker.notification(user.id),
         modelFaker.notification(user.id),
       ];
-      await notificationRepository.persist(...notifications);
+      td.when(notificationRepository.findByOwnerId(user.id)).thenResolve(
+        notifications,
+      );
       mockNotificationDtos = td.object();
       td.when(
-        objectMapper.mapArray(td.matchers.anything(), NotificationDto),
+        objectMapper.mapArray(notifications, NotificationDto),
       ).thenResolve(mockNotificationDtos);
     });
 
@@ -63,9 +64,11 @@ describe('notification application service', () => {
   describe('mark read', () => {
     let notification: Notification;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       notification = modelFaker.notification(user.id);
-      await notificationRepository.persist(notification);
+      td.when(notificationRepository.findById(notification.id)).thenResolve(
+        notification,
+      );
       jest.spyOn(notification, 'markRead');
     });
 

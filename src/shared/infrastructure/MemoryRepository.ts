@@ -1,37 +1,19 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { Repository } from 'shared/domain/Repository';
+import { RepositoryStrategy } from 'shared/domain/Repository';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { InternalServerErrorException } from '@nestjs/common';
-import { Observable } from 'shared/domain/Observer';
 
-export class MemoryRepository<
-  TId extends Id,
-  TModel extends AggregateRoot<TId>
-> extends Repository<TId, TModel> {
+export class MemoryRepository<TId extends Id, TModel extends AggregateRoot<TId>>
+  extends RepositoryStrategy<TId, TModel>
+  implements Iterable<TModel> {
   private readonly models: Map<string, TModel>;
 
-  private constructor() {
+  public constructor() {
     super();
     this.models = new Map();
   }
 
-  public static create<
-    TId extends Id,
-    TModel extends AggregateRoot<TId>
-  >(): MemoryRepository<TId, TModel> {
-    return new MemoryRepository();
-  }
-
-  public get persistedModels(): Observable<TModel> {
-    throw new InternalServerErrorException();
-  }
-
-  public get deletedModels(): Observable<TModel> {
-    throw new InternalServerErrorException();
-  }
-
-  public getModels(): TModel[] {
-    return Array.from(this.models.values());
+  public [Symbol.iterator](): Iterator<TModel> {
+    return this.models.values()[Symbol.iterator]();
   }
 
   /**
@@ -68,7 +50,7 @@ export class MemoryRepository<
   /**
    *
    */
-  protected async doPersist(...models: TModel[]): Promise<void> {
+  public async persist(...models: TModel[]): Promise<void> {
     for (const model of models) {
       this.models.set(model.id.value, model);
     }

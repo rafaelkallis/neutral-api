@@ -38,6 +38,9 @@ describe(NotificationDomainEventHandlers.name, () => {
     const assignee = scenario.modelFaker.user();
     const role = scenario.modelFaker.role(assignee.id);
     const event = new UserAssignedEvent(project, role, assignee);
+    td.when(
+      notificationFactory.createNewAssignmentNotification(project, role),
+    ).thenReturn(notification);
 
     await notificationDomainEventHandler.onUserAssignedCreateNewAssignmentNotification(
       event,
@@ -60,6 +63,12 @@ describe(NotificationDomainEventHandlers.name, () => {
       scenario.modelFaker.role(assignees[2].id),
     ]);
     const event = new ProjectPeerReviewStartedEvent(project);
+    td.when(
+      notificationFactory.createPeerReviewRequestedNotification(
+        project,
+        td.matchers.anything(),
+      ),
+    ).thenReturn(notification);
 
     await notificationDomainEventHandler.onPeerReviewStartedCreatePeerReviewRequestedNotifications(
       event,
@@ -75,6 +84,9 @@ describe(NotificationDomainEventHandlers.name, () => {
     const owner = scenario.modelFaker.user();
     const project = scenario.modelFaker.project(owner.id);
     const event = new ProjectManagerReviewStartedEvent(project);
+    td.when(
+      notificationFactory.createManagerReviewRequestedNotification(project),
+    ).thenReturn(notification);
 
     await notificationDomainEventHandler.onManagerReviewStartedCreateManagerReviewRequestedNotification(
       event,
@@ -98,12 +110,24 @@ describe(NotificationDomainEventHandlers.name, () => {
     ]);
     const event = new ProjectFinishedEvent(project);
 
+    td.when(
+      notificationFactory.createProjectFinishedNotification(
+        event.project,
+        td.matchers.anything(),
+      ),
+    ).thenReturn(notification);
+
     await notificationDomainEventHandler.onProjectFinishedCreateProjectFinishedNotification(
       event,
     );
 
     td.verify(
-      notificationRepository.persist(notification, notification, notification),
+      notificationRepository.persist(
+        notification,
+        notification,
+        notification,
+        notification,
+      ),
     );
     // TODO: more assertions
   });

@@ -5,9 +5,7 @@ import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
-import { Repository } from 'shared/domain/Repository';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
@@ -17,7 +15,6 @@ import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
 @Injectable()
 export class TypeOrmProjectRepository extends ProjectRepository {
   private readonly typeOrmClient: TypeOrmClient;
-  private readonly typeOrmRepository: Repository<ProjectId, Project>;
   private readonly objectMapper: ObjectMapper;
   private readonly unitOfWork: UnitOfWork;
   /**
@@ -29,11 +26,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     unitOfWork: UnitOfWork,
   ) {
     super(
-      typeOrmClient.createRepositoryStrategy(
-        Project,
-        ProjectTypeOrmEntity,
-        unitOfWork,
-      ),
+      typeOrmClient.createRepositoryStrategy(Project, ProjectTypeOrmEntity),
     );
     this.typeOrmClient = typeOrmClient;
     this.objectMapper = objectMapper;

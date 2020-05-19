@@ -1,7 +1,9 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
 import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export abstract class AggregateRootFactory<
   TCreateOptions,
   TId extends Id,
