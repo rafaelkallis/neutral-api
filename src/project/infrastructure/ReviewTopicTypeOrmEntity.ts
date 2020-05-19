@@ -17,6 +17,9 @@ export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'description' })
   public description: string;
 
+  @Column({ name: 'consensuality', type: 'real', nullable: true })
+  public consensuality: number | null;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -24,10 +27,12 @@ export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
     project: ProjectTypeOrmEntity,
     title: string,
     description: string,
+    consensuality: number | null,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
     this.title = title;
     this.description = description;
+    this.consensuality = consensuality;
   }
 }

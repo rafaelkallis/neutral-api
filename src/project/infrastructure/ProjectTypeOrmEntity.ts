@@ -24,9 +24,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'state', type: 'enum', enum: ProjectStateValue })
   public state: ProjectStateValue;
 
-  @Column({ name: 'consensuality', type: 'real', nullable: true })
-  public consensuality: number | null;
-
   @Column({
     name: 'contribution_visibility',
     type: 'enum',
@@ -81,7 +78,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     description: string,
     creatorId: string,
     state: ProjectStateValue,
-    consensuality: number | null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: string,
     roles: ReadonlyArray<RoleTypeOrmEntity>,
@@ -94,7 +90,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.description = description;
     this.creatorId = creatorId;
     this.state = state;
-    this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;

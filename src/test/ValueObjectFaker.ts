@@ -1,19 +1,43 @@
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
+import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
+import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 
 export class ValueObjectFaker {
-  private readonly primitiveFaker: PrimitiveFaker;
+  public readonly role: RoleValueObjectFaker;
+  public readonly reviewTopic: ReviewTopicValueObjectFaker;
+
+  public constructor(primitiveFaker: PrimitiveFaker) {
+    this.role = new RoleValueObjectFaker(primitiveFaker);
+    this.reviewTopic = new ReviewTopicValueObjectFaker(primitiveFaker);
+  }
+}
+
+abstract class ModelValueObjectFaker {
+  protected readonly primitiveFaker: PrimitiveFaker;
 
   public constructor(primitiveFaker: PrimitiveFaker) {
     this.primitiveFaker = primitiveFaker;
   }
+}
 
-  public roleTitle(): RoleTitle {
+class RoleValueObjectFaker extends ModelValueObjectFaker {
+  public title(): RoleTitle {
     return RoleTitle.from(this.primitiveFaker.words());
   }
 
-  public roleDescription(): RoleDescription {
+  public description(): RoleDescription {
     return RoleDescription.from(this.primitiveFaker.paragraph());
+  }
+}
+
+class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
+  public title(): ReviewTopicTitle {
+    return ReviewTopicTitle.from(this.primitiveFaker.words());
+  }
+
+  public description(): ReviewTopicDescription {
+    return ReviewTopicDescription.from(this.primitiveFaker.paragraph());
   }
 }

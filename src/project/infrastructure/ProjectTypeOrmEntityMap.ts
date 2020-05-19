@@ -4,7 +4,6 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
@@ -61,7 +60,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.description.value,
       projectModel.creatorId.value,
       getProjectStateValue(projectModel.state),
-      projectModel.consensuality ? projectModel.consensuality.value : null,
       projectModel.contributionVisibility.value,
       projectModel.skipManagerReview.value,
       ProjectTypeOrmEntityMap.rolesSentinel,
@@ -136,9 +134,6 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       ProjectDescription.from(projectEntity.description),
       UserId.from(projectEntity.creatorId),
       getProjectState(projectEntity.state),
-      projectEntity.consensuality
-        ? Consensuality.from(projectEntity.consensuality)
-        : null,
       ContributionVisibility.from(projectEntity.contributionVisibility),
       SkipManagerReview.from(projectEntity.skipManagerReview),
       roles,

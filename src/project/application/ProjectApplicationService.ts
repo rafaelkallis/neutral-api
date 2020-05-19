@@ -186,11 +186,9 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
 
-    // TODO remove
-    // for backwards compatibility
-    const reviewTopic = dto.reviewTopicId
-      ? project.reviewTopics.whereId(ReviewTopicId.from(dto.reviewTopicId))
-      : project.reviewTopics.first();
+    const reviewTopic = project.reviewTopics.whereId(
+      ReviewTopicId.from(dto.reviewTopicId),
+    );
 
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();

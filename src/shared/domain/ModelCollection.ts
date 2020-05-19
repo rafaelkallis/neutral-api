@@ -121,7 +121,9 @@ export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.count() === 0;
   }
 
-  protected getId<TId2 extends Id>(modelOrId: Model<TId2> | TId2): TId2 {
+  protected getId<TId2 extends Id>(
+    modelOrId: ReadonlyModel<TId2> | TId2,
+  ): TId2 {
     return modelOrId instanceof Model ? modelOrId.id : modelOrId;
   }
 }

@@ -30,7 +30,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.description.value,
       project.creatorId.value,
       getProjectStateValue(project.state),
-      this.mapConsensuality(project, authUser),
+      null, // TODO remove
       project.contributionVisibility.value,
       project.skipManagerReview.value,
       this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
@@ -41,6 +41,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       this.objectMapper.mapArray(
         project.reviewTopics.toArray(),
         ReviewTopicDto,
+        { authUser, project },
       ),
       this.objectMapper.mapArray(
         project.contributions.toArray(),
@@ -48,17 +49,6 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
         { authUser, project },
       ),
     );
-  }
-
-  private mapConsensuality(project: Project, authUser: User): number | null {
-    const shouldExpose = project.isCreator(authUser);
-    if (!shouldExpose) {
-      return null;
-    }
-    if (!project.consensuality) {
-      return null;
-    }
-    return project.consensuality.value;
   }
 
   private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {

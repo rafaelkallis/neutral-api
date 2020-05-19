@@ -10,7 +10,7 @@ import { ModelFaker } from 'test/ModelFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
-describe('consensuality computer', () => {
+describe(ConsensualityComputer.name, () => {
   let consensualityComputer: ConsensualityComputer;
 
   let modelFaker: ModelFaker;

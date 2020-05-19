@@ -1,5 +1,4 @@
 import { Project } from 'project/domain/project/Project';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
@@ -10,6 +9,7 @@ import { FormationProjectState } from 'project/domain/project/value-objects/stat
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -84,7 +84,6 @@ describe('project (e2e)', () => {
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);
-      project.consensuality = Consensuality.from(0.8);
       await scenario.projectRepository.persist(project);
     });
 
@@ -101,8 +100,8 @@ describe('project (e2e)', () => {
         description: project.description.value,
         creatorId: project.creatorId.value,
         state: getProjectStateValue(project.state),
-        consensuality: project.consensuality?.value,
         skipManagerReview: project.skipManagerReview.value,
+        consensuality: null,
         contributionVisibility: project.contributionVisibility.value,
         roles: [],
         peerReviews: [],
@@ -187,6 +186,7 @@ describe('project (e2e)', () => {
     let assignees: User[];
     let project: Project;
     let roles: Role[];
+    let reviewTopics: ReviewTopic[];
 
     beforeEach(async () => {
       assignees = [
@@ -204,6 +204,11 @@ describe('project (e2e)', () => {
         scenario.modelFaker.role(assignees[3].id),
       ];
       project.roles.addAll(roles);
+      reviewTopics = [
+        scenario.modelFaker.reviewTopic(),
+        scenario.modelFaker.reviewTopic(),
+      ];
+      project.reviewTopics.addAll(reviewTopics);
       await scenario.projectRepository.persist(project);
     });
 

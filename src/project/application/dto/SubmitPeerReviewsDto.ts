@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPeerReviews } from 'shared/validation/is-peer-reviews';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString } from 'class-validator';
 
 /**
  * Submit peer reviews DTO
@@ -14,19 +14,17 @@ export class SubmitPeerReviewsDto {
   })
   public peerReviews: Record<string, number>;
 
-  // TODO make mandatory when dropping backwards compatibility
   @IsString()
-  @IsOptional()
   @ApiProperty({
     type: String,
     example: '507f1f77bcf86cd799439011',
     description: 'The review topic the peer reviews are applied to',
   })
-  public reviewTopicId?: string;
+  public reviewTopicId: string;
 
   public constructor(
     peerReviews: Record<string, number>,
-    reviewTopicId?: string,
+    reviewTopicId: string,
   ) {
     this.peerReviews = peerReviews;
     this.reviewTopicId = reviewTopicId;

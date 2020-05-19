@@ -29,7 +29,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     project: Project,
     authUser: User,
   ): number | null {
-    const [contribution] = project.contributions.findByRole(role).toArray();
+    const [contribution] = project.contributions.whereRole(role).toArray();
     if (!contribution) {
       return null;
     }

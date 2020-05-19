@@ -60,8 +60,6 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     td.when(project.reviewTopics.whereId(reviewTopic.id)).thenReturn(
       reviewTopic,
     );
-    // TODO remove
-    td.when(project.reviewTopics.first()).thenReturn(reviewTopic);
 
     project.roles = td.object();
     td.when(project.roles.isAnyAssignedToUser(creatorUser)).thenReturn(true);
