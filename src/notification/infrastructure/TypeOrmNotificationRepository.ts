@@ -5,6 +5,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable } from '@nestjs/common';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 /**
  * TypeOrm Notification Repository
@@ -14,8 +15,13 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly objectMapper: ObjectMapper;
 
-  public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
+  public constructor(
+    unitOfWork: UnitOfWork,
+    objectMapper: ObjectMapper,
+    typeOrmClient: TypeOrmClient,
+  ) {
     super(
+      unitOfWork,
       typeOrmClient.createRepositoryStrategy(
         Notification,
         NotificationTypeOrmEntity,

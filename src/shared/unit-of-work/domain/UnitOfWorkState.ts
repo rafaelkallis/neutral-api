@@ -1,14 +1,19 @@
-import { InternalUnitOfWorkStateMachine } from 'shared/domain/unit-of-work/UnitOfWorkStateMachine';
+import { InternalUnitOfWorkStateMachine } from 'shared/unit-of-work/domain/UnitOfWorkStateMachine';
 
-export interface UnitOfWorkStateView {
-  isNew(): boolean;
-  isClean(): boolean;
-  isDirty(): boolean;
+export interface UnitOfWorkStateVisitor<T> {
+  visitClean(): T;
+  visitDirty(): T;
+  visitNew(): T;
 }
 
-export interface UnitOfWorkState extends UnitOfWorkStateView {
-  markDirty(context: InternalUnitOfWorkStateMachine): void;
-  commit(context: InternalUnitOfWorkStateMachine): void;
+export interface ReadonlyUnitOfWorkState {
+  accept<T>(visitor: UnitOfWorkStateVisitor<T>): T;
+}
+
+export abstract class UnitOfWorkState {
+  public abstract markDirty(context: InternalUnitOfWorkStateMachine): void;
+  public abstract commit(context: InternalUnitOfWorkStateMachine): void;
+  public abstract accept<T>(visitor: UnitOfWorkStateVisitor<T>): T;
 }
 
 export class NewUnitOfWorkState implements UnitOfWorkState {
@@ -26,16 +31,8 @@ export class NewUnitOfWorkState implements UnitOfWorkState {
     context.setState(CleanUnitOfWorkState.getInstance());
   }
 
-  public isNew(): boolean {
-    return true;
-  }
-
-  public isClean(): boolean {
-    return false;
-  }
-
-  public isDirty(): boolean {
-    return false;
+  public accept<T>(visitor: UnitOfWorkStateVisitor<T>): T {
+    return visitor.visitNew();
   }
 }
 
@@ -52,16 +49,8 @@ export class CleanUnitOfWorkState implements UnitOfWorkState {
   }
   public commit(): void {}
 
-  public isNew(): boolean {
-    return false;
-  }
-
-  public isClean(): boolean {
-    return true;
-  }
-
-  public isDirty(): boolean {
-    return false;
+  public accept<T>(visitor: UnitOfWorkStateVisitor<T>): T {
+    return visitor.visitClean();
   }
 }
 
@@ -78,15 +67,7 @@ export class DirtyUnitOfWorkState implements UnitOfWorkState {
     context.setState(CleanUnitOfWorkState.getInstance());
   }
 
-  public isNew(): boolean {
-    return false;
-  }
-
-  public isClean(): boolean {
-    return false;
-  }
-
-  public isDirty(): boolean {
-    return true;
+  public accept<T>(visitor: UnitOfWorkStateVisitor<T>): T {
+    return visitor.visitDirty();
   }
 }

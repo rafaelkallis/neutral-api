@@ -2,13 +2,17 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from 'shared/config/ConfigModule';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
+import { TypeOrmEntityRegistry } from 'shared/typeorm/TypeOrmEntityRegistry';
+import { UnitOfWorkModule } from 'shared/unit-of-work/UnitOfWorkModule';
+import { CommittedModelTypeOrmPersistConnector } from 'shared/typeorm/CommittedModelTypeOrmPersistConnector';
 
-/**
- * Database Module
- */
 @Module({
-  imports: [ConfigModule, ObjectMapperModule],
-  providers: [TypeOrmClient],
-  exports: [TypeOrmClient],
+  imports: [ConfigModule, ObjectMapperModule, UnitOfWorkModule],
+  providers: [
+    TypeOrmClient,
+    TypeOrmEntityRegistry,
+    CommittedModelTypeOrmPersistConnector,
+  ],
+  exports: [TypeOrmClient, TypeOrmEntityRegistry],
 })
 export class TypeOrmModule {}

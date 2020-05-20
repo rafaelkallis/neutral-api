@@ -3,15 +3,16 @@ import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { Subject, Observable } from 'rxjs';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyModel<TId extends Id> {
   readonly id: TId;
   readonly createdAt: CreatedAt;
   readonly updatedAt: UpdatedAt;
-  readonly domainEvents: ReadonlyArray<DomainEvent>;
-  readonly markedDirty: Observable<void>;
 
   equals(other: ReadonlyModel<TId>): boolean;
+
+  getType(): Type<ReadonlyModel<Id>>;
 }
 
 /**
@@ -43,6 +44,9 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
   public equals(other: ReadonlyModel<TId>): boolean {
     return this.id.equals(other.id);
   }
+
+  public abstract getType(): Type<ReadonlyModel<Id>>;
+  public abstract getRemovedModels(): Iterable<ReadonlyModel<Id>>;
 
   /**
    *

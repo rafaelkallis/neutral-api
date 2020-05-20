@@ -5,7 +5,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { delayWhen } from 'rxjs/operators';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 import { Observable, from } from 'rxjs';
 
 @Injectable()

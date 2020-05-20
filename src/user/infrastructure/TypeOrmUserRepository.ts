@@ -5,23 +5,24 @@ import { Email } from 'user/domain/value-objects/Email';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable } from '@nestjs/common';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly objectMapper: ObjectMapper;
-  private readonly unitOfWork: UnitOfWork;
 
   public constructor(
+    unitOfWork: UnitOfWork,
     objectMapper: ObjectMapper,
     typeOrmClient: TypeOrmClient,
-    unitOfWork: UnitOfWork,
   ) {
-    super(typeOrmClient.createRepositoryStrategy(User, UserTypeOrmEntity));
+    super(
+      unitOfWork,
+      typeOrmClient.createRepositoryStrategy(User, UserTypeOrmEntity),
+    );
     this.typeOrmClient = typeOrmClient;
     this.objectMapper = objectMapper;
-    this.unitOfWork = unitOfWork;
   }
 
   /**

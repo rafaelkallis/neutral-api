@@ -1,6 +1,6 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

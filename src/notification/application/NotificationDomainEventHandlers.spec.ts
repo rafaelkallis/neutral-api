@@ -8,7 +8,7 @@ import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 describe(NotificationDomainEventHandlers.name, () => {
   let scenario: UnitTestScenario<NotificationDomainEventHandlers>;

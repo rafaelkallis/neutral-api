@@ -10,6 +10,9 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
+import { ReadonlyModel } from 'shared/domain/Model';
+import { Id } from 'shared/domain/value-objects/Id';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -99,4 +102,10 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   public forget(): void {
     this.state.forget(this);
   }
+
+  public getType(): Type<ReadonlyModel<Id>> {
+    return User;
+  }
+
+  public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {}
 }

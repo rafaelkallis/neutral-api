@@ -1,16 +1,18 @@
 import {
   UnitOfWorkState,
-  UnitOfWorkStateView,
+  ReadonlyUnitOfWorkState,
   CleanUnitOfWorkState,
   NewUnitOfWorkState,
-} from 'shared/domain/unit-of-work/UnitOfWorkState';
+  UnitOfWorkStateVisitor,
+} from 'shared/unit-of-work/domain/UnitOfWorkState';
 
 /**
  * Encapsulates a UnitOfWork state machine.
  */
-export abstract class UnitOfWorkStateMachine implements UnitOfWorkStateView {
+export abstract class UnitOfWorkStateMachine
+  implements ReadonlyUnitOfWorkState {
   protected _state: UnitOfWorkState;
-  public get state(): UnitOfWorkStateView {
+  public get state(): ReadonlyUnitOfWorkState {
     return this._state;
   }
 
@@ -28,14 +30,8 @@ export abstract class UnitOfWorkStateMachine implements UnitOfWorkStateView {
     return new InternalUnitOfWorkStateMachine(NewUnitOfWorkState.getInstance());
   }
 
-  public isNew(): boolean {
-    return this.state.isNew();
-  }
-  public isClean(): boolean {
-    return this.state.isClean();
-  }
-  public isDirty(): boolean {
-    return this.state.isDirty();
+  public accept<T>(visitor: UnitOfWorkStateVisitor<T>): T {
+    return this.state.accept(visitor);
   }
 
   public abstract markDirty(): void;

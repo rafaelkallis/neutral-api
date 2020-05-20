@@ -10,27 +10,24 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 @Injectable()
 export class TypeOrmProjectRepository extends ProjectRepository {
   private readonly typeOrmClient: TypeOrmClient;
   private readonly objectMapper: ObjectMapper;
-  private readonly unitOfWork: UnitOfWork;
-  /**
-   *
-   */
+
   public constructor(
+    unitOfWork: UnitOfWork,
     typeOrmClient: TypeOrmClient,
     objectMapper: ObjectMapper,
-    unitOfWork: UnitOfWork,
   ) {
     super(
+      unitOfWork,
       typeOrmClient.createRepositoryStrategy(Project, ProjectTypeOrmEntity),
     );
     this.typeOrmClient = typeOrmClient;
     this.objectMapper = objectMapper;
-    this.unitOfWork = unitOfWork;
   }
 
   public async persist(...projectModels: Project[]): Promise<void> {

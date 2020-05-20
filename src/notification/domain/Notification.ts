@@ -12,6 +12,9 @@ import { NotificationReadEvent } from 'notification/domain/events/NotificationRe
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { Type } from '@nestjs/common';
+import { ReadonlyModel } from 'shared/domain/Model';
+import { Id } from 'shared/domain/value-objects/Id';
 
 export interface ReadonlyNotification
   extends ReadonlyAggregateRoot<NotificationId> {
@@ -76,4 +79,10 @@ export class Notification extends AggregateRoot<NotificationId>
       throw new NotificationAlreadyReadException();
     }
   }
+
+  public getType(): Type<ReadonlyModel<Id>> {
+    return Notification;
+  }
+
+  public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {}
 }

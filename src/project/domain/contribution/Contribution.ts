@@ -5,6 +5,8 @@ import { ContributionAmount } from 'project/domain/role/value-objects/Contributi
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { Type } from '@nestjs/common';
+import { Id } from 'shared/domain/value-objects/Id';
 
 export interface ReadonlyContribution extends ReadonlyModel<ContributionId> {
   readonly roleId: RoleId;
@@ -49,4 +51,10 @@ export class Contribution extends Model<ContributionId>
       amount,
     );
   }
+
+  public getType(): Type<ReadonlyModel<Id>> {
+    return Contribution;
+  }
+
+  public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {}
 }

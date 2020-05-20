@@ -5,7 +5,7 @@ import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { ProjectFactory } from 'project/application/ProjectFactory';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 describe(ProjectFactory.name, () => {
   let scenario: UnitTestScenario<ProjectFactory>;

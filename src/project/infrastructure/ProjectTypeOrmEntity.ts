@@ -6,6 +6,10 @@ import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
+import { Type } from '@nestjs/common';
+import { Project } from 'project/domain/project/Project';
+import { Model } from 'shared/domain/Model';
+import { Id } from 'shared/domain/value-objects/Id';
 
 /**
  * Project TypeOrm Entity
@@ -96,5 +100,9 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
+  }
+
+  public getModelType(): Type<Model<Id>> {
+    return Project;
   }
 }

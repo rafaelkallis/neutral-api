@@ -3,7 +3,7 @@ import { User } from 'user/domain/User';
 import { NotificationReadEvent } from 'notification/domain/events/NotificationReadEvent';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 
 describe('notification model', () => {
   let scenario: UnitTestScenario<NotificationFactoryService>;

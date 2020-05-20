@@ -11,7 +11,7 @@ import { EmailManager } from 'shared/email/manager/EmailManager';
 import { Project } from 'project/domain/project/Project';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
-import { UnitOfWork } from 'shared/domain/unit-of-work/UnitOfWork';
+import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 import { ContextIdFactory } from '@nestjs/core';
 
 type Session = request.SuperTest<request.Test>;

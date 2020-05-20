@@ -7,6 +7,8 @@ import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerRevie
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { Type } from '@nestjs/common';
+import { Id } from 'shared/domain/value-objects/Id';
 
 export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly senderRoleId: RoleId;
@@ -82,4 +84,10 @@ export class PeerReview extends Model<PeerReviewId>
       throw new SelfPeerReviewException();
     }
   }
+
+  public getType(): Type<ReadonlyModel<Id>> {
+    return PeerReview;
+  }
+
+  public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {}
 }

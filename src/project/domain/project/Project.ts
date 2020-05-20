@@ -40,6 +40,9 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
+import { ReadonlyModel } from 'shared/domain/Model';
+import { Id } from 'shared/domain/value-objects/Id';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -263,5 +266,16 @@ export class Project extends AggregateRoot<ProjectId>
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
     }
+  }
+
+  public getType(): Type<ReadonlyModel<Id>> {
+    return Project;
+  }
+
+  public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {
+    yield* this.roles.getRemovedModels();
+    yield* this.reviewTopics.getRemovedModels();
+    yield* this.peerReviews.getRemovedModels();
+    yield* this.contributions.getRemovedModels();
   }
 }

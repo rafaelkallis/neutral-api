@@ -1,30 +1,27 @@
 import { ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { UnitOfWorkStateMachine } from 'shared/domain/unit-of-work/UnitOfWorkStateMachine';
+import { UnitOfWorkStateMachine } from 'shared/unit-of-work/domain/UnitOfWorkStateMachine';
 import { Subject, Observable } from 'shared/domain/Observer';
+import { ReadonlyUnitOfWorkState } from 'shared/unit-of-work/domain/UnitOfWorkState';
 
 export class UnitOfWork {
   private readonly modelStateMachines: [
     ReadonlyModel<Id>,
     UnitOfWorkStateMachine,
   ][];
-
-  // TODO add committedCleanModelsSubject for "optimistic concurrency control"
-  private readonly committedDirtyModelsSubject: Subject<ReadonlyModel<Id>>;
-  private readonly committedNewModelsSubject: Subject<ReadonlyModel<Id>>;
+  private readonly committedModelsSubject: Subject<
+    [ReadonlyModel<Id>, ReadonlyUnitOfWorkState]
+  >;
 
   public constructor() {
     this.modelStateMachines = [];
-    this.committedDirtyModelsSubject = new Subject();
-    this.committedNewModelsSubject = new Subject();
+    this.committedModelsSubject = new Subject();
   }
 
-  public get committedDirtyModels(): Observable<ReadonlyModel<Id>> {
-    return this.committedDirtyModelsSubject;
-  }
-
-  public get committedNewModels(): Observable<ReadonlyModel<Id>> {
-    return this.committedNewModelsSubject;
+  public get committedModels(): Observable<
+    [ReadonlyModel<Id>, ReadonlyUnitOfWorkState]
+  > {
+    return this.committedModelsSubject;
   }
 
   public registerRead(model: ReadonlyModel<Id>): void {
@@ -39,22 +36,11 @@ export class UnitOfWork {
     this.register(model, UnitOfWorkStateMachine.ofNewState());
   }
 
-  // public markDirty(model: Model<Id>): void {
-  //   const stateMachine = this.getModelStateWrapper(model);
-  //   stateMachine.markDirty();
-  // }
-
   public async commit(): Promise<void> {
     for (const [model, stateMachine] of this.modelStateMachines) {
-      if (stateMachine.isDirty()) {
-        await this.committedDirtyModelsSubject.handle(model);
-      }
-      if (stateMachine.isNew()) {
-        await this.committedNewModelsSubject.handle(model);
-      }
+      await this.committedModelsSubject.handle([model, stateMachine]);
       stateMachine.commit();
     }
-    return Promise.resolve();
   }
 
   private register(
