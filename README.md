@@ -3,6 +3,8 @@
 </p>
 <h1 align="center">Covee Network 2.0</h1>
 
+[![Build Status](https://dev.azure.com/covee-network/Covee%20Network/_apis/build/status/covee-saas-api?branchName=master)](https://dev.azure.com/covee-network/Covee%20Network/_build/latest?definitionId=8&branchName=master)
+
 ## Usage
 
 ```bash
