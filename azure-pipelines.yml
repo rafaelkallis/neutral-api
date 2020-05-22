@@ -23,7 +23,7 @@ steps:
   displayName: 'build'
   inputs:
     targetType: 'inline'
-    script: 'npm run-scripts build'
+    script: 'npm run-script build'
 - task: ArchiveFiles@2
   displayName: 'archive files'
   inputs:
