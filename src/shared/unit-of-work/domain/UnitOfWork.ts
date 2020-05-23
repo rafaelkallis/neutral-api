@@ -3,6 +3,7 @@ import { Id } from 'shared/domain/value-objects/Id';
 import { UnitOfWorkStateMachine } from 'shared/unit-of-work/domain/UnitOfWorkStateMachine';
 import { Subject, Observable } from 'shared/domain/Observer';
 import { ReadonlyUnitOfWorkState } from 'shared/unit-of-work/domain/UnitOfWorkState';
+import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
 
 export class UnitOfWork {
   private readonly modelStateMachines: [
@@ -24,16 +25,16 @@ export class UnitOfWork {
     return this.committedModelsSubject;
   }
 
-  public registerRead(model: ReadonlyModel<Id>): void {
-    this.register(model, UnitOfWorkStateMachine.ofCleanState());
+  public registerRead(readAggregateRoot: ReadonlyAggregateRoot<Id>): void {
+    this.register(readAggregateRoot, UnitOfWorkStateMachine.ofCleanState());
   }
 
-  public registerReadArray(models: ReadonlyModel<Id>[]): void {
-    models.forEach((model) => this.registerRead(model));
+  public registerReadArray(aggregateRoots: ReadonlyAggregateRoot<Id>[]): void {
+    aggregateRoots.forEach((ar) => this.registerRead(ar));
   }
 
-  public registerNew(model: ReadonlyModel<Id>): void {
-    this.register(model, UnitOfWorkStateMachine.ofNewState());
+  public registerNew(newAggregateRoot: ReadonlyAggregateRoot<Id>): void {
+    this.register(newAggregateRoot, UnitOfWorkStateMachine.ofNewState());
   }
 
   public async commit(): Promise<void> {
@@ -44,15 +45,15 @@ export class UnitOfWork {
   }
 
   private register(
-    model: ReadonlyModel<Id>,
+    aggregateRoot: ReadonlyAggregateRoot<Id>,
     stateMachine: UnitOfWorkStateMachine,
   ): void {
     for (const [existingModel] of this.modelStateMachines) {
-      if (existingModel.equals(model)) {
+      if (existingModel.equals(aggregateRoot)) {
         throw new Error('model already exists in unit of work');
       }
     }
-    this.modelStateMachines.push([model, stateMachine]);
-    model.markedDirty.subscribe(() => stateMachine.markDirty());
+    this.modelStateMachines.push([aggregateRoot, stateMachine]);
+    aggregateRoot.markedDirty.subscribe(() => stateMachine.markDirty());
   }
 }

@@ -4,12 +4,12 @@ import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 import { DomainEventBroker } from './DomainEventBroker';
 import { ReadonlyUnitOfWorkState } from 'shared/unit-of-work/domain/UnitOfWorkState';
 import { Observer } from 'shared/domain/Observer';
-import { ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
+import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
 
 @Injectable()
 export class CommittedModelDomainEventPublishConnector extends Connector
-  implements Observer<[ReadonlyModel<Id>, ReadonlyUnitOfWorkState]> {
+  implements Observer<[ReadonlyAggregateRoot<Id>, ReadonlyUnitOfWorkState]> {
   private readonly unitOfWork: UnitOfWork;
   private readonly domainEventBroker: DomainEventBroker;
 
@@ -27,9 +27,10 @@ export class CommittedModelDomainEventPublishConnector extends Connector
     this.manageSuscription(subscription);
   }
 
-  async handle([model]: [ReadonlyModel<Id>, ReadonlyUnitOfWorkState]): Promise<
-    void
-  > {
-    await this.domainEventBroker.publishFromAggregateRoot(model);
+  async handle([aggregateRoot]: [
+    ReadonlyAggregateRoot<Id>,
+    ReadonlyUnitOfWorkState,
+  ]): Promise<void> {
+    await this.domainEventBroker.publishFromAggregateRoot(aggregateRoot);
   }
 }
