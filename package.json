@@ -1,9 +1,14 @@
 {
   "name": "covee-saas-api",
-  "version": "0.0.1",
   "description": "",
   "author": "",
-  "license": "UNLICENSED",
+  "version": "0.1.0",
+  "license": "COVEE",
+  "private": true,
+  "engines": {
+    "node": "^12",
+    "npm": "^6"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node -r ts-node/register -r tsconfig-paths/register build/main.js",
