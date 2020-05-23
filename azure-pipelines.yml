@@ -14,16 +14,29 @@ steps:
   displayName: 'Install Node.js'
   inputs:
     versionSpec: '12.x'
-- task: Bash@3
-  displayName: 'install'
+
+- script: |
+    npm ci
+  displayName: 'npm ci'
+
+- script: |
+    npm run-script type
+  displayName: 'type check'
+
+- script: |
+    npm run-script test:cov
+  displayName: 'unit tests'
+
+- task: PublishCodeCoverageResults@1
   inputs:
-    targetType: 'inline'
-    script: 'npm ci'
-- task: Bash@3
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml
+  displayName: 'publish unit test coverage'
+
+- script: |
+    npm run-script build
   displayName: 'build'
-  inputs:
-    targetType: 'inline'
-    script: 'npm run-script build'
+
 - task: ArchiveFiles@2
   displayName: 'archive files'
   inputs:
