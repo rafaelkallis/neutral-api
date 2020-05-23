@@ -27,6 +27,12 @@ steps:
     npm run-script test:ci
   displayName: 'unit tests'
 
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'junit.xml'
+  displayName: 'publish unit test results'
+
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: Cobertura
