@@ -5,19 +5,20 @@ import { DomainEventHandlerRegistrar } from 'shared/domain-event/application/Dom
 import { MemoryDomainEventBroker } from 'shared/domain-event/infrastructure/MemoryDomainEventBroker';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { AmqpDomainEventBroker } from 'shared/domain-event/infrastructure/AmqpDomainEventBroker';
-import { PersistedModelsDomainEventConnector } from 'shared/domain-event/application/PersistedModelsDomainEventConnector';
+import { CommittedModelDomainEventPublishingConnector } from 'shared/domain-event/application/CommittedModelDomainEventPublishingConnector';
+import { UnitOfWorkModule } from 'shared/unit-of-work/UnitOfWorkModule';
 
 /**
  * Domain Event Module
  */
 @Module({
-  imports: [UtilityModule, AmqpModule],
+  imports: [UtilityModule, AmqpModule, UnitOfWorkModule],
   providers: [
     MemoryDomainEventBroker,
     AmqpDomainEventBroker,
     { provide: DomainEventBroker, useExisting: MemoryDomainEventBroker },
     DomainEventHandlerRegistrar,
-    PersistedModelsDomainEventConnector,
+    CommittedModelDomainEventPublishingConnector,
   ],
   exports: [DomainEventBroker],
 })

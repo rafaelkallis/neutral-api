@@ -8,7 +8,7 @@ import { Id } from 'shared/domain/value-objects/Id';
 import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
 
 @Injectable()
-export class CommittedModelDomainEventPublishConnector extends Connector
+export class CommittedModelDomainEventPublishingConnector extends Connector
   implements Observer<[ReadonlyAggregateRoot<Id>, ReadonlyUnitOfWorkState]> {
   private readonly unitOfWork: UnitOfWork;
   private readonly domainEventBroker: DomainEventBroker;
