@@ -4,6 +4,7 @@
   "preset": "ts-jest",
   "testEnvironment": "node",
   "moduleDirectories": ["node_modules", "src"],
+  "reporters": ["default", "jest-junit"],
   "coverageDirectory": "../coverage",
   "coverageReporters": ["text", "cobertura"]
 }
