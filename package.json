@@ -21,6 +21,7 @@
     "test": "jest --verbose --config jest.config.json",
     "test:watch": "jest --config jest.config.json --watch",
     "test:cov": "jest --config jest.config.json --coverage",
+    "test:ci": "jest --ci --config jest.config.json --coverage",
     "test:e2e": "jest --verbose --config jest.e2e-config.json",
     "test:e2e:watch": "jest --verbose --config jest.e2e-config.json --watch",
     "test:e2e:cov": "jest --config jest.e2e-config.json --coverage"

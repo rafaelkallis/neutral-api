@@ -24,7 +24,7 @@ steps:
   displayName: 'type check'
 
 - script: |
-    npm run-script test:cov
+    npm run-script test:ci
   displayName: 'unit tests'
 
 - task: PublishCodeCoverageResults@1
