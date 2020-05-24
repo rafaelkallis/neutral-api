@@ -2,12 +2,11 @@ import { Command } from 'shared/command/Command';
 import { CommandHandler } from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
-import { TokenManager } from 'shared/token/application/TokenManager';
-import { Config } from 'shared/config/application/Config';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { Type, Injectable } from '@nestjs/common';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 /**
  * Passwordless signup
@@ -29,21 +28,18 @@ export class RequestSignupCommandHandler extends CommandHandler<
   RequestSignupCommand
 > {
   private readonly userRepository: UserRepository;
-  private readonly tokenManager: TokenManager;
-  private readonly config: Config;
   private readonly domainEventBroker: DomainEventBroker;
+  private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
     userRepository: UserRepository,
-    tokenManager: TokenManager,
-    config: Config,
     domainEventBroker: DomainEventBroker,
+    magicLinkFactory: MagicLinkFactory,
   ) {
     super();
     this.userRepository = userRepository;
-    this.tokenManager = tokenManager;
-    this.config = config;
     this.domainEventBroker = domainEventBroker;
+    this.magicLinkFactory = magicLinkFactory;
   }
 
   public async handle(command: RequestSignupCommand): Promise<void> {
@@ -52,18 +48,10 @@ export class RequestSignupCommandHandler extends CommandHandler<
     if (userExists) {
       throw new EmailAlreadyUsedException();
     }
-    const magicSignupLink = this.createMagicSignupLink(email);
+    const magicSignupLink = this.magicLinkFactory.createSignupLink(email);
     await this.domainEventBroker.publish(
       new SignupRequestedEvent(email, magicSignupLink),
     );
-  }
-
-  private createMagicSignupLink(email: Email): string {
-    const signupToken = this.tokenManager.newSignupToken(email.value);
-    const uriSafeSignupToken = encodeURIComponent(signupToken);
-    const frontendUrl = this.config.get('FRONTEND_URL');
-    const magicSignupLink = `${frontendUrl}/signup/callback?token=${uriSafeSignupToken}`;
-    return magicSignupLink;
   }
 
   public getCommandType(): Type<RequestSignupCommand> {

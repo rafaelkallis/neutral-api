@@ -9,15 +9,18 @@ export class NewUserAssignedEvent extends DomainEvent {
   public readonly project: ReadonlyProject;
   public readonly role: ReadonlyRole;
   public readonly assigneeEmail: Email;
+  public readonly signupLink: string;
 
   public constructor(
     project: ReadonlyProject,
     role: ReadonlyRole,
     assigneeEmail: Email,
+    signupLink: string,
   ) {
     super();
     this.project = project;
     this.role = role;
     this.assigneeEmail = assigneeEmail;
+    this.signupLink = signupLink;
   }
 }

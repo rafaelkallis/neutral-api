@@ -64,10 +64,11 @@ export class EmailDomainEventHandlers {
   ): Promise<void> {
     await this.emailManager.sendInvitedUserNewAssignmentEmail(
       event.assigneeEmail.value,
-      event.project.id.value,
-      event.project.title.value,
-      event.role.title.value,
-      '', // TODO signupMagicLink
+      {
+        projectTitle: event.project.title.value,
+        roleTitle: event.role.title.value,
+        signupMagicLink: event.signupLink,
+      },
     );
   }
 }

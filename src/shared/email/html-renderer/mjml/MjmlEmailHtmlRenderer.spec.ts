@@ -1,6 +1,7 @@
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Environment } from 'shared/utility/application/Environment';
+import { InvitedUserNewAssignmentModel } from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
   let scenario: UnitTestScenario<MjmlEmailHtmlRenderer>;
@@ -13,38 +14,41 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     mjmlEmailHtmlRenderer = scenario.subject;
   });
 
-  it('should be defined', () => {
-    expect(mjmlEmailHtmlRenderer).toBeDefined();
-  });
-
-  it('should render login html', () => {
+  test('should render login html', () => {
     const html = mjmlEmailHtmlRenderer.renderLoginEmailHtml(
       'https://example.com/login',
     );
-    expect(html).toEqual(expect.any(String));
+    expect(html).toMatchSnapshot();
   });
 
-  it('should render signup html', () => {
+  test('should render signup html', () => {
     const html = mjmlEmailHtmlRenderer.renderSignupEmailHtml(
       'https://example.com/signup',
     );
-    expect(html).toEqual(expect.any(String));
+    expect(html).toMatchSnapshot();
   });
 
-  it('should render email change html', () => {
+  test('should render email change html', () => {
     const html = mjmlEmailHtmlRenderer.renderEmailChangeEmailHtml(
       'https://example.com/email-change',
     );
     expect(html).toEqual(expect.any(String));
   });
 
-  it('should render new assignment html', () => {
+  test('should render new assignment html', () => {
     const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml();
     expect(html).toEqual(expect.any(String));
   });
 
-  it('should render unregistered user new assignment html', () => {
-    const html = mjmlEmailHtmlRenderer.renderUnregisteredUserNewAssignmentEmailHtml();
-    expect(html).toEqual(expect.any(String));
+  test('should render new user new assignment html', () => {
+    const model: InvitedUserNewAssignmentModel = {
+      projectTitle: 'My Project',
+      roleTitle: 'Lead Engineer',
+      signupMagicLink: 'http://example.com',
+    };
+    const html = mjmlEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
+      model,
+    );
+    expect(html).toMatchSnapshot();
   });
 });

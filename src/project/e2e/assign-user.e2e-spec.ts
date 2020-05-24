@@ -70,8 +70,8 @@ describe('assign user to role', () => {
         project.id.value,
         project.title.value,
         roleToAssign.title.value,
-        '',
-      ); // TODO signupMagicLink
+        expect.any(String),
+      );
     });
   });
 });

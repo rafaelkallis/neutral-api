@@ -1,3 +1,5 @@
+import { InvitedUserNewAssignmentModel } from 'shared/email/manager/EmailManager';
+
 /**
  *
  */
@@ -27,5 +29,7 @@ export abstract class EmailPlaintextRenderer {
   /**
    *
    */
-  public abstract renderUnregisteredUserNewAssignmentEmailPlaintext(): string;
+  public abstract renderUnregisteredUserNewAssignmentEmailPlaintext(
+    model: InvitedUserNewAssignmentModel,
+  ): string;
 }

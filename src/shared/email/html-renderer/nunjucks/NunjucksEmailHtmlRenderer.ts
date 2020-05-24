@@ -47,7 +47,7 @@ export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
   /**
    *
    */
-  public renderUnregisteredUserNewAssignmentEmailHtml(): string {
+  public renderInvitedUserNewAssignmentEmailHtml(): string {
     return this.environment.render('unregistered-user-new-assignment.njk');
   }
 }
