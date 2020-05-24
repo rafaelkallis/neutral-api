@@ -11,8 +11,8 @@ import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
-import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
-import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
+import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -131,14 +131,14 @@ export class ProjectApplicationService {
       }
       userToAssign = user;
       await this.domainEventBroker.publish(
-        new ExistingUserAssignedEvent(project, roleToAssign),
+        new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
       );
     } else if (rawAssigneeEmail) {
       const assigneeEmail = Email.from(rawAssigneeEmail);
       userToAssign = await this.userRepository.findByEmail(assigneeEmail);
       if (userToAssign) {
         await this.domainEventBroker.publish(
-          new ExistingUserAssignedEvent(project, roleToAssign),
+          new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
         );
       } else {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
@@ -148,10 +148,10 @@ export class ProjectApplicationService {
           assigneeEmail,
         );
         await this.domainEventBroker.publish(
-          new NewUserAssignedEvent(
+          new InvitedUserAssignedEvent(
             project,
             roleToAssign,
-            assigneeEmail,
+            userToAssign,
             signupLink,
           ),
         );

@@ -1,4 +1,7 @@
-import { InvitedUserNewAssignmentModel } from 'shared/email/manager/EmailManager';
+import {
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from 'shared/email/manager/EmailManager';
 
 /**
  *
@@ -24,7 +27,9 @@ export abstract class EmailHtmlRenderer {
   /**
    *
    */
-  public abstract renderNewAssignmentEmailHtml(): string;
+  public abstract renderNewAssignmentEmailHtml(
+    model: NewAssignmentModel,
+  ): string;
 
   /**
    *

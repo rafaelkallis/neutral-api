@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
-import { InvitedUserNewAssignmentModel } from '../manager/EmailManager';
+import {
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from '../manager/EmailManager';
 
 /**
  * Literal Email Plaintext Renderer
@@ -55,11 +58,20 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   /**
    *
    */
-  public renderNewAssignmentEmailPlaintext(): string {
+  public renderNewAssignmentEmailPlaintext(model: NewAssignmentModel): string {
+    const roleToken = model.roleTitle
+      ? `the role of ${model.roleTitle}`
+      : `a role`;
+    const projectToken = model.projectTitle || 'a project';
     return `
       Hi there,
 
-      You have a new assignment.
+      You were assigned ${roleToken} in ${projectToken}.
+
+      >> See Assignment
+      ${model.projectUrl}
+
+      - Team Covee
     `;
   }
 

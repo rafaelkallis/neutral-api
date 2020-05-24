@@ -1,7 +1,10 @@
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Environment } from 'shared/utility/application/Environment';
-import { InvitedUserNewAssignmentModel } from 'shared/email/manager/EmailManager';
+import {
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
   let scenario: UnitTestScenario<MjmlEmailHtmlRenderer>;
@@ -35,12 +38,17 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     expect(html).toEqual(expect.any(String));
   });
 
-  test('should render new assignment html', () => {
-    const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml();
-    expect(html).toEqual(expect.any(String));
+  test('should render user assigned html', () => {
+    const model: NewAssignmentModel = {
+      projectTitle: 'My Project',
+      roleTitle: 'Lead Engineer',
+      projectUrl: 'http://example.com',
+    };
+    const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml(model);
+    expect(html).toMatchSnapshot();
   });
 
-  test('should render new user new assignment html', () => {
+  test('should render invited user assigned html', () => {
     const model: InvitedUserNewAssignmentModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',

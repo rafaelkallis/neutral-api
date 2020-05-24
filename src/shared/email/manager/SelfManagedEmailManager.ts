@@ -3,6 +3,7 @@ import { EmailSender } from 'shared/email/sender/EmailSender';
 import {
   EmailManager,
   InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -68,10 +69,15 @@ export class SelfManagedEmailManager extends EmailManager {
   /**
    * Sends an email to a user that was assigned to a role.
    */
-  public async sendNewAssignmentEmail(to: string): Promise<void> {
+  public async sendNewAssignmentEmail(
+    to: string,
+    model: NewAssignmentModel,
+  ): Promise<void> {
     const subject = '[Covee] new assignment';
-    const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml();
-    const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
+    const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml(model);
+    const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
+      model,
+    );
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 

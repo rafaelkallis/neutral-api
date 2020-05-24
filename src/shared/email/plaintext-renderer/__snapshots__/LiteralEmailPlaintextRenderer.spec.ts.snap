@@ -1,5 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`LiteralEmailPlaintextRenderer should render email change text 1`] = `
+"
+      Hi there,
+
+      You have requested an email change.
+
+      >> Confirm Email
+      https://example.com/email-change
+
+      - Team Covee
+    "
+`;
+
+exports[`LiteralEmailPlaintextRenderer should render login text 1`] = `
+"
+      Hi there,
+
+      You have requested a login.
+
+      >> Login
+      https://example.com/login
+
+      - Team Covee
+    "
+`;
+
+exports[`LiteralEmailPlaintextRenderer should render new assignment text 1`] = `
+"
+      Hi there,
+
+      You were assigned the role of Particle Scientist in Neutron Collider.
+
+      >> See Assignment
+      http://example.com
+
+      - Team Covee
+    "
+`;
+
+exports[`LiteralEmailPlaintextRenderer should render signup text 1`] = `
+"
+      Hi there,
+
+      You have requested a signup.
+
+      >> Signup
+      https://example.com/signup
+
+      - Team Covee
+    "
+`;
+
 exports[`LiteralEmailPlaintextRenderer should render unregistered user new assignment text 1`] = `
 "
       Hi there,

@@ -1,5 +1,8 @@
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
-import { InvitedUserNewAssignmentModel } from '../manager/EmailManager';
+import {
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe(LiteralEmailPlaintextRenderer.name, () => {
@@ -17,26 +20,33 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
     const text = literalEmailPlaintextRenderer.renderLoginEmailPlaintext(
       'https://example.com/login',
     );
-    expect(text).toEqual(expect.any(String));
+    expect(text).toMatchSnapshot();
   });
 
   it('should render signup text', () => {
     const text = literalEmailPlaintextRenderer.renderSignupEmailPlaintext(
       'https://example.com/signup',
     );
-    expect(text).toEqual(expect.any(String));
+    expect(text).toMatchSnapshot();
   });
 
   it('should render email change text', () => {
     const text = literalEmailPlaintextRenderer.renderEmailChangeEmailPlaintext(
       'https://example.com/email-change',
     );
-    expect(text).toEqual(expect.any(String));
+    expect(text).toMatchSnapshot();
   });
 
   it('should render new assignment text', () => {
-    const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
-    expect(text).toEqual(expect.any(String));
+    const model: NewAssignmentModel = {
+      projectTitle: 'Neutron Collider',
+      roleTitle: 'Particle Scientist',
+      projectUrl: 'http://example.com',
+    };
+    const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
+      model,
+    );
+    expect(text).toMatchSnapshot();
   });
 
   it('should render unregistered user new assignment text', () => {
