@@ -1,44 +1,53 @@
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
+import { InvitedUserNewAssignmentModel } from '../manager/EmailManager';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
-describe('LiteralEmailPlaintextRenderer', () => {
-  let defaultEmailPlaintextRenderer: LiteralEmailPlaintextRenderer;
+describe(LiteralEmailPlaintextRenderer.name, () => {
+  let scenario: UnitTestScenario<LiteralEmailPlaintextRenderer>;
+  let literalEmailPlaintextRenderer: LiteralEmailPlaintextRenderer;
 
-  beforeEach(() => {
-    defaultEmailPlaintextRenderer = new LiteralEmailPlaintextRenderer();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(
+      LiteralEmailPlaintextRenderer,
+    ).build();
+    literalEmailPlaintextRenderer = scenario.subject;
   });
 
-  it('should be defined', () => {
-    expect(defaultEmailPlaintextRenderer).toBeDefined();
-  });
-
-  it('should render login html', () => {
-    const html = defaultEmailPlaintextRenderer.renderLoginEmailPlaintext(
+  it('should render login text', () => {
+    const text = literalEmailPlaintextRenderer.renderLoginEmailPlaintext(
       'https://example.com/login',
     );
-    expect(html).toEqual(expect.any(String));
+    expect(text).toEqual(expect.any(String));
   });
 
-  it('should render signup html', () => {
-    const html = defaultEmailPlaintextRenderer.renderSignupEmailPlaintext(
+  it('should render signup text', () => {
+    const text = literalEmailPlaintextRenderer.renderSignupEmailPlaintext(
       'https://example.com/signup',
     );
-    expect(html).toEqual(expect.any(String));
+    expect(text).toEqual(expect.any(String));
   });
 
-  it('should render email change html', () => {
-    const html = defaultEmailPlaintextRenderer.renderEmailChangeEmailPlaintext(
+  it('should render email change text', () => {
+    const text = literalEmailPlaintextRenderer.renderEmailChangeEmailPlaintext(
       'https://example.com/email-change',
     );
-    expect(html).toEqual(expect.any(String));
+    expect(text).toEqual(expect.any(String));
   });
 
-  it('should render new assignment html', () => {
-    const html = defaultEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
-    expect(html).toEqual(expect.any(String));
+  it('should render new assignment text', () => {
+    const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
+    expect(text).toEqual(expect.any(String));
   });
 
-  it('should render unregistered user new assignment html', () => {
-    const html = defaultEmailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext();
-    expect(html).toEqual(expect.any(String));
+  it('should render unregistered user new assignment text', () => {
+    const model: InvitedUserNewAssignmentModel = {
+      projectTitle: 'Neutron Collider',
+      roleTitle: 'Particle Scientist',
+      signupMagicLink: 'http://example.com/signup',
+    };
+    const text = literalEmailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
+      model,
+    );
+    expect(text).toMatchSnapshot();
   });
 });

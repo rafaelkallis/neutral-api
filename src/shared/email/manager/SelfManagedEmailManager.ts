@@ -86,7 +86,7 @@ export class SelfManagedEmailManager extends EmailManager {
     const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
       model,
     );
-    const text = this.emailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext(
+    const text = this.emailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
       model,
     );
     await this.emailSender.sendEmail({ to, subject, html, text });

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
+import { InvitedUserNewAssignmentModel } from '../manager/EmailManager';
 
 /**
  * Literal Email Plaintext Renderer
@@ -10,10 +11,12 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
     return `
       Hi there,
 
-      Here's the magic login link you have requested:
+      You have requested a login.
 
-      >> Covee Login
+      >> Login
       ${loginMagicLink}
+
+      - Team Covee
     `;
   }
 
@@ -24,10 +27,12 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
     return `
       Hi there,
 
-      Here's the magic signup link you have requested:
+      You have requested a signup.
 
-      >> Covee Signup
+      >> Signup
       ${signupMagicLink}
+
+      - Team Covee
     `;
   }
 
@@ -38,10 +43,12 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
     return `
       Hi there,
 
-      Here's the magic email-change link you have requested:
+      You have requested an email change.
 
       >> Confirm Email
       ${emailChangeMagicLink}
+
+      - Team Covee
     `;
   }
 
@@ -59,11 +66,22 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   /**
    *
    */
-  public renderUnregisteredUserNewAssignmentEmailPlaintext(): string {
+  public renderInvitedUserNewAssignmentEmailPlaintext(
+    model: InvitedUserNewAssignmentModel,
+  ): string {
+    const roleToken = model.roleTitle
+      ? `the role of ${model.roleTitle}`
+      : `a role`;
+    const projectToken = model.projectTitle || 'a project';
     return `
       Hi there,
 
-      You have a new assignment.
+      You were assigned ${roleToken} in ${projectToken}.
+
+      >> Get Started
+      ${model.signupMagicLink}
+
+      - Team Covee
     `;
   }
 }

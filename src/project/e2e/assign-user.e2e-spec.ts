@@ -54,7 +54,6 @@ describe('assign user to role', () => {
     });
 
     test("happy path, email of user that doesn't exist", async () => {
-      jest.spyOn(scenario.emailManager, 'sendInvitedUserNewAssignmentEmail');
       assigneeEmail = scenario.primitiveFaker.email();
 
       const response = await scenario.session

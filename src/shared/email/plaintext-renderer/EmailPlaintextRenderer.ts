@@ -29,7 +29,7 @@ export abstract class EmailPlaintextRenderer {
   /**
    *
    */
-  public abstract renderUnregisteredUserNewAssignmentEmailPlaintext(
+  public abstract renderInvitedUserNewAssignmentEmailPlaintext(
     model: InvitedUserNewAssignmentModel,
   ): string;
 }

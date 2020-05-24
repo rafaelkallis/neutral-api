@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LiteralEmailPlaintextRenderer should render unregistered user new assignment text 1`] = `
+"
+      Hi there,
+
+      You were assigned the role of Particle Scientist in Neutron Collider.
+
+      >> Get Started
+      http://example.com/signup
+
+      - Team Covee
+    "
+`;
