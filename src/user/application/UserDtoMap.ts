@@ -3,6 +3,7 @@ import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
 import { ObjectMapContext, ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
 @Injectable()
 export class UserDtoMap extends ObjectMap<User, UserDto> {
@@ -26,6 +27,7 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
       user.createdAt.value,
       user.updatedAt.value,
       user.avatar ? this.createAvatarUrl(user) : null,
+      getUserStateValue(user.state),
     );
   }
 
