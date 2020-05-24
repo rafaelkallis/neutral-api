@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
+import { UserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
 /**
  * User DTO
@@ -26,6 +27,12 @@ export class UserDto extends ModelDto {
   })
   public avatarUrl: string | null;
 
+  @ApiProperty({
+    enum: UserStateValue,
+    example: UserStateValue.ACTIVE,
+  })
+  public state: UserStateValue;
+
   public constructor(
     id: string,
     email: string | null,
@@ -34,11 +41,13 @@ export class UserDto extends ModelDto {
     createdAt: number,
     updatedAt: number,
     avatarUrl: string | null,
+    state: UserStateValue,
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
     this.avatarUrl = avatarUrl;
+    this.state = state;
   }
 }

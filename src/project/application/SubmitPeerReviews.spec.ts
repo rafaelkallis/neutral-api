@@ -15,6 +15,7 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -41,6 +42,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
+      .addProviderMock(MagicLinkFactory)
       .build();
     projectApplication = scenario.subject;
 

@@ -6,6 +6,7 @@ import { Email } from 'user/domain/value-objects/Email';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { HttpStatus } from '@nestjs/common';
 import { ForgottenState } from 'user/domain/value-objects/states/ForgottenState';
+import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
 describe('user (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -54,6 +55,7 @@ describe('user (e2e)', () => {
           firstName: queryUser.name.first,
           lastName: queryUser.name.last,
           avatarUrl: null,
+          state: getUserStateValue(queryUser.state),
           createdAt: expect.any(Number),
           updatedAt: expect.any(Number),
         });

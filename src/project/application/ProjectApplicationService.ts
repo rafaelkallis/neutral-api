@@ -27,6 +27,7 @@ import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundE
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -37,6 +38,7 @@ export class ProjectApplicationService {
   private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
+  private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
     projectRepository: ProjectRepository,
@@ -46,6 +48,7 @@ export class ProjectApplicationService {
     objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    magicLinkFactory: MagicLinkFactory,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
@@ -54,6 +57,7 @@ export class ProjectApplicationService {
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
+    this.magicLinkFactory = magicLinkFactory;
   }
 
   /**
@@ -140,8 +144,16 @@ export class ProjectApplicationService {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
         userToAssign.invite();
         await this.userRepository.persist(userToAssign);
+        const signupLink = this.magicLinkFactory.createSignupLink(
+          assigneeEmail,
+        );
         await this.domainEventBroker.publish(
-          new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),
+          new NewUserAssignedEvent(
+            project,
+            roleToAssign,
+            assigneeEmail,
+            signupLink,
+          ),
         );
       }
     }

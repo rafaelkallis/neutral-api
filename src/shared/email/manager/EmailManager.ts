@@ -36,9 +36,12 @@ export abstract class EmailManager {
    */
   public abstract async sendInvitedUserNewAssignmentEmail(
     to: string,
-    projectId: string,
-    projectTitle: string,
-    roleTitle: string,
-    signupMagicLink: string,
+    model: InvitedUserNewAssignmentModel,
   ): Promise<void>;
+}
+
+export interface InvitedUserNewAssignmentModel {
+  projectTitle: string;
+  roleTitle: string;
+  signupMagicLink: string;
 }

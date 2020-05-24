@@ -14,6 +14,7 @@ import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
+import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
 
 /**
  * Shared Module
@@ -34,6 +35,7 @@ import { ArchiveModule } from 'shared/archive/ArchiveModule';
     DomainEventModule,
     AmqpModule,
     ArchiveModule,
+    MagicLinkModule,
   ],
   providers: [
     // @see https://docs.nestjs.com/techniques/serialization#overview
@@ -57,6 +59,7 @@ import { ArchiveModule } from 'shared/archive/ArchiveModule';
     DomainEventModule,
     AmqpModule,
     ArchiveModule,
+    MagicLinkModule,
   ],
 })
 export class SharedModule {}

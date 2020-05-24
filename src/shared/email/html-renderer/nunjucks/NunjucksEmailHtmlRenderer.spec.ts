@@ -38,7 +38,7 @@ describe('NunjucksEmailHtmlRenderer', () => {
   });
 
   it('should render unregistered user new assignment html', () => {
-    const html = nunjucksEmailHtmlRenderer.renderUnregisteredUserNewAssignmentEmailHtml();
+    const html = nunjucksEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml();
     expect(html).toEqual(expect.any(String));
   });
 });

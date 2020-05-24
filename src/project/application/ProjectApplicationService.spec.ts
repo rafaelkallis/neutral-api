@@ -24,6 +24,7 @@ import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
 import { InitialState } from 'user/domain/value-objects/states/InitialState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -47,6 +48,7 @@ describe(ProjectApplicationService.name, () => {
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
+      .addProviderMock(MagicLinkFactory)
       .build();
     projectApplication = scenario.subject;
 

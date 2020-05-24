@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
-import { EmailManager } from 'shared/email/manager/EmailManager';
+import {
+  EmailManager,
+  InvitedUserNewAssignmentModel,
+} from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 
@@ -75,10 +78,17 @@ export class SelfManagedEmailManager extends EmailManager {
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public async sendInvitedUserNewAssignmentEmail(to: string): Promise<void> {
-    const subject = '[Covee] assignment invitation';
-    const html = this.emailHtmlRenderer.renderUnregisteredUserNewAssignmentEmailHtml();
-    const text = this.emailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext();
+  public async sendInvitedUserNewAssignmentEmail(
+    to: string,
+    model: InvitedUserNewAssignmentModel,
+  ): Promise<void> {
+    const subject = '[Covee] new assignment';
+    const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
+      model,
+    );
+    const text = this.emailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext(
+      model,
+    );
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 }
