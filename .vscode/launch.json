@@ -4,8 +4,8 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch MailSlurper UI in Chrome",
-            "url": "http://localhost:8080",
+            "name": "Launch MailHog in Chrome",
+            "url": "http://localhost:8025",
             "webRoot": "${workspaceFolder}"
         },
         {
@@ -18,7 +18,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch RabbitMQ UI in Chrome",
+            "name": "Launch RabbitMQ Dashboard in Chrome",
             "url": "http://localhost:15672/",
             "webRoot": "${workspaceFolder}"
         },
