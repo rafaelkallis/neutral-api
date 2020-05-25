@@ -60,10 +60,6 @@ describe(SubmitLoginCommand.name, () => {
     );
   });
 
-  test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
-  });
-
   test('happy path', async () => {
     const result = await commandHandler.handle(command);
     expect(result).toBeInstanceOf(AuthenticationResponseDto);
