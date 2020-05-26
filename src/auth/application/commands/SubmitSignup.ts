@@ -7,7 +7,6 @@ import { SessionState } from 'shared/session';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Email } from 'user/domain/value-objects/Email';
-import { EmailAlreadyUsedException } from '../exceptions/EmailAlreadyUsedException';
 import { Name } from 'user/domain/value-objects/Name';
 import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
@@ -71,12 +70,10 @@ export class SubmitSignupCommandHandler extends CommandHandler<
   ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenManager.validateSignupToken(command.signupToken);
     const email = Email.from(payload.sub);
-    const userExists = await this.userRepository.existsByEmail(email);
-    if (userExists) {
-      throw new EmailAlreadyUsedException();
+    let user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      user = this.userFactory.create({ email });
     }
-
-    const user = this.userFactory.create({ email });
     const name = Name.from(command.firstName, command.lastName);
     user.activate(name);
     await this.userRepository.persist(user);

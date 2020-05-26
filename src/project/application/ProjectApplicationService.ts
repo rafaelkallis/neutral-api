@@ -11,8 +11,8 @@ import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
-import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
-import { ExistingUserAssignedEvent } from 'project/domain/events/ExistingUserAssignedEvent';
+import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
+import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -27,6 +27,7 @@ import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundE
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -37,6 +38,7 @@ export class ProjectApplicationService {
   private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
+  private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
     projectRepository: ProjectRepository,
@@ -46,6 +48,7 @@ export class ProjectApplicationService {
     objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    magicLinkFactory: MagicLinkFactory,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
@@ -54,6 +57,7 @@ export class ProjectApplicationService {
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
+    this.magicLinkFactory = magicLinkFactory;
   }
 
   /**
@@ -127,21 +131,29 @@ export class ProjectApplicationService {
       }
       userToAssign = user;
       await this.domainEventBroker.publish(
-        new ExistingUserAssignedEvent(project, roleToAssign),
+        new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
       );
     } else if (rawAssigneeEmail) {
       const assigneeEmail = Email.from(rawAssigneeEmail);
       userToAssign = await this.userRepository.findByEmail(assigneeEmail);
       if (userToAssign) {
         await this.domainEventBroker.publish(
-          new ExistingUserAssignedEvent(project, roleToAssign),
+          new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
         );
       } else {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
         userToAssign.invite();
         await this.userRepository.persist(userToAssign);
+        const signupLink = this.magicLinkFactory.createSignupLink(
+          assigneeEmail,
+        );
         await this.domainEventBroker.publish(
-          new NewUserAssignedEvent(project, roleToAssign, assigneeEmail),
+          new InvitedUserAssignedEvent(
+            project,
+            roleToAssign,
+            userToAssign,
+            signupLink,
+          ),
         );
       }
     }

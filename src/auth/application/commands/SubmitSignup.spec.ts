@@ -1,7 +1,7 @@
 import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { ReadonlyUser } from 'user/domain/User';
+import { ReadonlyUser, User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { SessionState } from 'shared/session/session-state';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -13,14 +13,13 @@ import {
 import { Email } from 'user/domain/value-objects/Email';
 import { SignupEvent } from '../events/SignupEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { EmailAlreadyUsedException } from '../exceptions/EmailAlreadyUsedException';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe(SubmitSignupCommand.name, () => {
   let scenario: UnitTestScenario<SubmitSignupCommandHandler>;
-  let commandHandler: SubmitSignupCommandHandler;
+  let submitSignupCommandHandler: SubmitSignupCommandHandler;
   let userRepository: UserRepository;
   let userFactory: UserFactory;
   let tokenManager: TokenManager;
@@ -36,7 +35,7 @@ describe(SubmitSignupCommand.name, () => {
   let refreshToken: string;
   let session: SessionState;
   let userDto: UserDto;
-  let command: SubmitSignupCommand;
+  let submitSignupCommand: SubmitSignupCommand;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(SubmitSignupCommandHandler)
@@ -46,7 +45,7 @@ describe(SubmitSignupCommand.name, () => {
       .addProviderMock(ObjectMapper)
       .addProviderMock(DomainEventBroker)
       .build();
-    commandHandler = scenario.subject;
+    submitSignupCommandHandler = scenario.subject;
     userRepository = scenario.module.get(UserRepository);
     userFactory = scenario.module.get(UserFactory);
     tokenManager = scenario.module.get(TokenManager);
@@ -58,13 +57,13 @@ describe(SubmitSignupCommand.name, () => {
     email = scenario.primitiveFaker.email();
     firstName = scenario.primitiveFaker.word();
     lastName = scenario.primitiveFaker.word();
-    command = new SubmitSignupCommand(
+    submitSignupCommand = new SubmitSignupCommand(
       signupToken,
       session,
       firstName,
       lastName,
     );
-    td.when(userRepository.existsByEmail(Email.from(email))).thenResolve(false);
+    td.when(userRepository.findByEmail(Email.from(email))).thenResolve(null);
 
     createdUser = td.object(scenario.modelFaker.user());
     td.when(userFactory.create({ email: Email.from(email) })).thenReturn(
@@ -93,11 +92,11 @@ describe(SubmitSignupCommand.name, () => {
   });
 
   test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
+    expect(submitSignupCommandHandler).toBeDefined();
   });
 
   test('happy path', async () => {
-    const result = await commandHandler.handle(command);
+    const result = await submitSignupCommandHandler.handle(submitSignupCommand);
     expect(result).toBeInstanceOf(AuthenticationResponseDto);
     expect(result.accessToken).toBe(accessToken);
     expect(result.refreshToken).toBe(refreshToken);
@@ -110,10 +109,10 @@ describe(SubmitSignupCommand.name, () => {
     });
   });
 
-  test('when email already used should throw exception', async () => {
-    td.when(userRepository.existsByEmail(Email.from(email))).thenResolve(true);
-    await expect(commandHandler.handle(command)).rejects.toThrowError(
-      EmailAlreadyUsedException,
-    );
+  test('given user exists then user should be activated', async () => {
+    const user: User = td.object();
+    td.when(userRepository.findByEmail(Email.from(email))).thenResolve(user);
+    await submitSignupCommandHandler.handle(submitSignupCommand);
+    td.verify(user.activate(Name.from(firstName, lastName)));
   });
 });

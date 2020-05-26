@@ -4,6 +4,10 @@ import { Environment as NunjucksRenderer, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import mjml2html from 'mjml';
 import { Environment } from 'shared/utility/application/Environment';
+import {
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from 'shared/email/manager/EmailManager';
 
 /**
  * Mjml Email Html Renderer
@@ -32,11 +36,13 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
     return this.render('email-change', { emailChangeMagicLink });
   }
-  public renderNewAssignmentEmailHtml(): string {
-    return this.render('new-assignment', {});
+  public renderNewAssignmentEmailHtml(model: NewAssignmentModel): string {
+    return this.render('new-assignment', model);
   }
-  public renderUnregisteredUserNewAssignmentEmailHtml(): string {
-    return this.render('invited-new-assignment', {});
+  public renderInvitedUserNewAssignmentEmailHtml(
+    model: InvitedUserNewAssignmentModel,
+  ): string {
+    return this.render('invited-new-assignment', model);
   }
 
   private render(templateName: string, context: object): string {

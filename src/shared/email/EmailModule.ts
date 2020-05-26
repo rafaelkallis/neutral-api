@@ -9,9 +9,6 @@ import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/L
 import { EmailSender } from 'shared/email/sender/EmailSender';
 import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
-import { Environment } from 'shared/utility/application/Environment';
-import { DummyEmailSender } from './sender/DummyEmailSender';
-import { Config } from 'shared/config/application/Config';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 
 /**
@@ -34,13 +31,7 @@ import { UtilityModule } from 'shared/utility/UtilityModule';
     },
     {
       provide: EmailSender,
-      useFactory(environment: Environment, config: Config): EmailSender {
-        if (environment.isTest()) {
-          return new DummyEmailSender();
-        }
-        return new SmtpEmailSender(config);
-      },
-      inject: [Environment, Config],
+      useClass: SmtpEmailSender,
     },
     EmailDomainEventHandlers,
   ],

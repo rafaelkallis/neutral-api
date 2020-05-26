@@ -15,6 +15,7 @@ import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { UnitOfWorkModule } from 'shared/unit-of-work/UnitOfWorkModule';
+import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
 
 /**
  * Shared Module
@@ -36,6 +37,7 @@ import { UnitOfWorkModule } from 'shared/unit-of-work/UnitOfWorkModule';
     AmqpModule,
     ArchiveModule,
     UnitOfWorkModule,
+    MagicLinkModule,
   ],
   providers: [
     // @see https://docs.nestjs.com/techniques/serialization#overview
@@ -60,6 +62,7 @@ import { UnitOfWorkModule } from 'shared/unit-of-work/UnitOfWorkModule';
     AmqpModule,
     ArchiveModule,
     UnitOfWorkModule,
+    MagicLinkModule,
   ],
 })
 export class SharedModule {}

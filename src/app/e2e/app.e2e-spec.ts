@@ -1,4 +1,5 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
+import { HttpStatus } from '@nestjs/common';
 
 describe('app (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -11,12 +12,13 @@ describe('app (e2e)', () => {
     await scenario.teardown();
   });
 
-  test('should be defined', () => {
-    expect(scenario.app).toBeDefined();
+  test('/ (GET)', async () => {
+    const response = await scenario.session.get('/');
+    expect(response.status).toBe(HttpStatus.OK);
   });
 
   test('/status (GET)', async () => {
     const response = await scenario.session.get('/status');
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(HttpStatus.OK);
   });
 });

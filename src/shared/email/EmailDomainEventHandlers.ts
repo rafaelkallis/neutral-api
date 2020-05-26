@@ -3,17 +3,21 @@ import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequest
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
 import { EmailManager } from 'shared/email/manager/EmailManager';
-import { NewUserAssignedEvent } from 'project/domain/events/NewUserAssignedEvent';
+import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
+import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
+import { Config } from 'shared/config/application/Config';
 
 /**
  * Email Domain Event Handlers
  */
 @Injectable()
 export class EmailDomainEventHandlers {
+  private readonly config: Config;
   private readonly emailManager: EmailManager;
 
-  public constructor(emailManager: EmailManager) {
+  public constructor(config: Config, emailManager: EmailManager) {
+    this.config = config;
     this.emailManager = emailManager;
   }
 
@@ -52,22 +56,34 @@ export class EmailDomainEventHandlers {
     );
   }
 
+  @HandleDomainEvent(ActiveUserAssignedEvent, 'send_assignment_email')
+  public async handleAssignmentEvent(
+    event: ActiveUserAssignedEvent,
+  ): Promise<void> {
+    await this.emailManager.sendNewAssignmentEmail(event.assignee.email.value, {
+      projectTitle: event.project.title.value,
+      roleTitle: event.role.title.value,
+      projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+    });
+  }
+
   /**
    *
    */
   @HandleDomainEvent(
-    NewUserAssignedEvent,
-    'send_invited_user_new_assignment_email',
+    InvitedUserAssignedEvent,
+    'send_invited_user_assigned_email',
   )
-  public async handleNewUserAssignedEvent(
-    event: NewUserAssignedEvent,
+  public async handleInvitedUserAssignedEvent(
+    event: InvitedUserAssignedEvent,
   ): Promise<void> {
     await this.emailManager.sendInvitedUserNewAssignmentEmail(
-      event.assigneeEmail.value,
-      event.project.id.value,
-      event.project.title.value,
-      event.role.title.value,
-      '', // TODO signupMagicLink
+      event.assignee.email.value,
+      {
+        projectTitle: event.project.title.value,
+        roleTitle: event.role.title.value,
+        signupMagicLink: event.signupLink,
+      },
     );
   }
 }

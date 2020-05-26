@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch MailHog in Chrome",
+            "url": "http://localhost:8025",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Backend Swagger Docs in Chrome",
+            "url": "http://localhost:4000/docs",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch RabbitMQ Dashboard in Chrome",
+            "url": "http://localhost:15672/",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch in development mode",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev:debug"
+            ],
+            "env": {"NODE_ENV":"development"},
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "presentation": {
+                "hidden": false,
+            },
+            "protocol": "inspector",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}

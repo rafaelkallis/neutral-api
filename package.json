@@ -1,13 +1,19 @@
 {
   "name": "covee-saas-api",
-  "version": "0.0.1",
   "description": "",
   "author": "",
-  "license": "UNLICENSED",
+  "version": "0.1.0",
+  "license": "COVEE",
+  "private": true,
+  "engines": {
+    "node": "^12",
+    "npm": "^6"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node -r ts-node/register -r tsconfig-paths/register build/main.js",
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
+    "dev:debug": "ts-node-dev --inspect --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
     "type": "tsc --noEmit",
     "type:watch": "tsc --noEmit --watch",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -15,6 +21,7 @@
     "test": "jest --verbose --config jest.config.json",
     "test:watch": "jest --config jest.config.json --watch",
     "test:cov": "jest --config jest.config.json --coverage",
+    "test:ci": "jest --ci --config jest.config.json --coverage",
     "test:e2e": "jest --verbose --config jest.e2e-config.json",
     "test:e2e:watch": "jest --verbose --config jest.e2e-config.json --watch",
     "test:e2e:cov": "jest --config jest.e2e-config.json --coverage"
@@ -56,6 +63,7 @@
     "envalid": "6.0.1",
     "fast-xml-parser": "3.16.0",
     "helmet": "3.22.0",
+    "jest-junit": "10.0.0",
     "lru-cache": "5.1.1",
     "mjml": "~4.6.3",
     "moment": "2.25.3",

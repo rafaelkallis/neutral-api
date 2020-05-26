@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
-import { EmailManager } from 'shared/email/manager/EmailManager';
+import {
+  EmailManager,
+  InvitedUserNewAssignmentModel,
+  NewAssignmentModel,
+} from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 
@@ -65,20 +69,32 @@ export class SelfManagedEmailManager extends EmailManager {
   /**
    * Sends an email to a user that was assigned to a role.
    */
-  public async sendNewAssignmentEmail(to: string): Promise<void> {
+  public async sendNewAssignmentEmail(
+    to: string,
+    model: NewAssignmentModel,
+  ): Promise<void> {
     const subject = '[Covee] new assignment';
-    const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml();
-    const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext();
+    const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml(model);
+    const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
+      model,
+    );
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public async sendInvitedUserNewAssignmentEmail(to: string): Promise<void> {
-    const subject = '[Covee] assignment invitation';
-    const html = this.emailHtmlRenderer.renderUnregisteredUserNewAssignmentEmailHtml();
-    const text = this.emailPlaintextRenderer.renderUnregisteredUserNewAssignmentEmailPlaintext();
+  public async sendInvitedUserNewAssignmentEmail(
+    to: string,
+    model: InvitedUserNewAssignmentModel,
+  ): Promise<void> {
+    const subject = '[Covee] new assignment';
+    const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
+      model,
+    );
+    const text = this.emailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
+      model,
+    );
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 }

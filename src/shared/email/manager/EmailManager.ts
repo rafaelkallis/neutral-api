@@ -29,16 +29,28 @@ export abstract class EmailManager {
   /**
    * Sends an email to a user that was assigned to a role.
    */
-  public abstract async sendNewAssignmentEmail(to: string): Promise<void>;
+  public abstract async sendNewAssignmentEmail(
+    to: string,
+    model: NewAssignmentModel,
+  ): Promise<void>;
 
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
   public abstract async sendInvitedUserNewAssignmentEmail(
     to: string,
-    projectId: string,
-    projectTitle: string,
-    roleTitle: string,
-    signupMagicLink: string,
+    model: InvitedUserNewAssignmentModel,
   ): Promise<void>;
+}
+
+export interface NewAssignmentModel {
+  projectUrl: string;
+  projectTitle: string;
+  roleTitle: string;
+}
+
+export interface InvitedUserNewAssignmentModel {
+  projectTitle: string;
+  roleTitle: string;
+  signupMagicLink: string;
 }

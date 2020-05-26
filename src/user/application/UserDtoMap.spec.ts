@@ -5,8 +5,9 @@ import { UserDtoMap } from 'user/application/UserDtoMap';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { Config } from 'shared/config/application/Config';
+import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
-describe('user map', () => {
+describe(UserDtoMap.name, () => {
   let userMap: UserDtoMap;
   let primitiveFaker: PrimitiveFaker;
   let modelFaker: ModelFaker;
@@ -30,6 +31,7 @@ describe('user map', () => {
       firstName: user.name.first,
       lastName: user.name.last,
       avatarUrl: 'http://example.com/users/' + user.id.value + '/avatar',
+      state: getUserStateValue(user.state),
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
     });
