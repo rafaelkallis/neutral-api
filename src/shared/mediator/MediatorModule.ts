@@ -1,9 +1,9 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { Mediator } from 'shared/mediator/Mediator';
-import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
+// import { ServiceExplorer } from 'shared/utility/application/ServiceExplorer';
 import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
-import { RequestHandler } from 'shared/mediator/RequestHandler';
+// import { RequestHandler } from 'shared/mediator/RequestHandler';
 
 /**
  * Mediator Module
@@ -11,30 +11,30 @@ import { RequestHandler } from 'shared/mediator/RequestHandler';
 @Module({
   imports: [UtilityModule],
   providers: [Mediator, MediatorRegistry],
-  exports: [Mediator],
+  exports: [Mediator, MediatorRegistry], // TODO remove registry export
 })
 export class MediatorModule implements OnModuleInit {
-  private readonly serviceExplorer: ServiceExplorer;
-  private readonly registry: MediatorRegistry;
+  // private readonly serviceExplorer: ServiceExplorer;
+  // private readonly registry: MediatorRegistry;
 
-  public constructor(
-    serviceExplorer: ServiceExplorer,
-    registry: MediatorRegistry,
-  ) {
-    this.serviceExplorer = serviceExplorer;
-    this.registry = registry;
-  }
+  // public constructor(
+  //   serviceExplorer: ServiceExplorer,
+  //   registry: MediatorRegistry,
+  // ) {
+  //   this.serviceExplorer = serviceExplorer;
+  //   this.registry = registry;
+  // }
 
   public onModuleInit(): void {
-    this.registerRequestHandlers();
+    // this.registerRequestHandlers();
   }
 
-  private registerRequestHandlers(): void {
-    for (const service of this.serviceExplorer.exploreServices()) {
-      if (!(service instanceof RequestHandler)) {
-        continue;
-      }
-      this.registry.register(service);
-    }
-  }
+  // private registerRequestHandlers(): void {
+  //   for (const service of this.serviceExplorer.exploreServices()) {
+  //     if (!(service instanceof RequestHandler)) {
+  //       continue;
+  //     }
+  //     this.registry.register(service);
+  //   }
+  // }
 }

@@ -1,32 +1,24 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
-import { RepositoryStrategy } from 'shared/domain/Repository';
-import { Type } from '@nestjs/common';
+import { RepositoryStrategy } from 'shared/domain/RepositoryStrategy';
+import { Type, Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
-export class TypeOrmRepositoryStrategy<
+@Injectable()
+export abstract class TypeOrmRepositoryStrategy<
   TId extends Id,
   TModel extends AggregateRoot<TId>,
   TEntity extends TypeOrmEntity
 > extends RepositoryStrategy<TId, TModel> {
-  protected readonly modelType: Type<TModel>;
-  protected readonly entityType: Type<TEntity>;
   protected readonly entityManager: EntityManager;
   protected readonly objectMapper: ObjectMapper;
 
-  public constructor(
-    modelType: Type<TModel>,
-    entityType: Type<TEntity>,
-    entityManager: EntityManager,
-    modelMapper: ObjectMapper,
-  ) {
+  public constructor(entityManager: EntityManager, objectMapper: ObjectMapper) {
     super();
-    this.modelType = modelType;
-    this.entityType = entityType;
     this.entityManager = entityManager;
-    this.objectMapper = modelMapper;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -34,7 +26,7 @@ export class TypeOrmRepositoryStrategy<
    */
   public async findPage(afterId?: TId): Promise<TModel[]> {
     let builder = this.entityManager
-      .getRepository(this.entityType)
+      .getRepository(this.getEntityType())
       .createQueryBuilder()
       .orderBy('id', 'DESC')
       .take(10);
@@ -43,7 +35,7 @@ export class TypeOrmRepositoryStrategy<
       builder = builder.andWhere('id > :afterId', { afterId: afterId.value });
     }
     const entities = await builder.getMany();
-    const models = this.objectMapper.mapArray(entities, this.modelType);
+    const models = this.objectMapper.mapArray(entities, this.getModelType());
     return models;
   }
 
@@ -52,12 +44,12 @@ export class TypeOrmRepositoryStrategy<
    */
   public async findById(id: TId): Promise<TModel | undefined> {
     const entity = await this.entityManager
-      .getRepository(this.entityType)
+      .getRepository(this.getEntityType())
       .findOne(id.value);
     if (entity === undefined) {
       return undefined;
     }
-    const model = this.objectMapper.map(entity, this.modelType);
+    const model = this.objectMapper.map(entity, this.getModelType());
     return model;
   }
 
@@ -66,9 +58,9 @@ export class TypeOrmRepositoryStrategy<
    */
   public async findByIds(ids: TId[]): Promise<(TModel | undefined)[]> {
     const entities = await this.entityManager
-      .getRepository(this.entityType)
+      .getRepository(this.getEntityType())
       .findByIds(ids);
-    const models = this.objectMapper.mapArray(entities, this.modelType);
+    const models = this.objectMapper.mapArray(entities, this.getModelType());
     return ids.map((id) => models.find((model) => model.id.equals(id)));
   }
 
@@ -77,7 +69,7 @@ export class TypeOrmRepositoryStrategy<
    */
   public async exists(id: TId): Promise<boolean> {
     const entity = await this.entityManager
-      .getRepository(this.entityType)
+      .getRepository(this.getEntityType())
       .findOne(id.value);
     return Boolean(entity);
   }
@@ -86,7 +78,10 @@ export class TypeOrmRepositoryStrategy<
    *
    */
   public async persist(...models: TModel[]): Promise<void> {
-    const entities = this.objectMapper.mapArray(models, this.entityType);
+    const entities = this.objectMapper.mapArray(models, this.getEntityType());
     await this.entityManager.save(entities);
   }
+
+  protected abstract getModelType(): Type<TModel>;
+  protected abstract getEntityType(): Type<TEntity>;
 }

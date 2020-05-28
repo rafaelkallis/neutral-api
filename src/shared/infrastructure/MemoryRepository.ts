@@ -1,5 +1,5 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { RepositoryStrategy } from 'shared/domain/Repository';
+import { RepositoryStrategy } from 'shared/domain/RepositoryStrategy';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 
 export class MemoryRepository<TId extends Id, TModel extends AggregateRoot<TId>>

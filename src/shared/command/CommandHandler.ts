@@ -1,7 +1,8 @@
+import { Type, Injectable } from '@nestjs/common';
 import { Command } from 'shared/command/Command';
 import { RequestHandler } from 'shared/mediator/RequestHandler';
-import { Type } from '@nestjs/common';
 
+@Injectable()
 export abstract class CommandHandler<
   T,
   TCommand extends Command<T>

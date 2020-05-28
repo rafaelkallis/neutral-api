@@ -11,6 +11,7 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Type, Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless login token submit
@@ -40,11 +41,12 @@ export class SubmitLoginCommandHandler extends CommandHandler<
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
   ) {
-    super();
+    super(mediatorRegistry);
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;

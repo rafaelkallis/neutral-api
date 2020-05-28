@@ -1,7 +1,8 @@
 import { RequestHandler } from 'shared/mediator/RequestHandler';
-import { Type } from '@nestjs/common';
+import { Type, Injectable } from '@nestjs/common';
 import { Query } from 'shared/query/Query';
 
+@Injectable()
 export abstract class QueryHandler<
   T,
   TQuery extends Query<T>

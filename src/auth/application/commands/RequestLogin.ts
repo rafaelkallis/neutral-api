@@ -8,6 +8,7 @@ import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundE
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { Type, Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless login
@@ -34,12 +35,13 @@ export class RequestLoginCommandHandler extends CommandHandler<
   private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     tokenManager: TokenManager,
     config: Config,
     domainEventBroker: DomainEventBroker,
   ) {
-    super();
+    super(mediatorRegistry);
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.config = config;

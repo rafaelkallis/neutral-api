@@ -5,6 +5,7 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {}
 
@@ -16,10 +17,11 @@ export abstract class ProjectCommandHandler<
   protected readonly projectRepository: ProjectRepository;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     objectMapper: ObjectMapper,
     projectRepository: ProjectRepository,
   ) {
-    super();
+    super(mediatorRegistry);
     this.objectMapper = objectMapper;
     this.projectRepository = projectRepository;
   }

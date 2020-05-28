@@ -1,29 +1,8 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import {
-  AggregateRoot,
-  ReadonlyAggregateRoot,
-} from 'shared/domain/AggregateRoot';
-import { Subject, Observable } from './Observer';
+import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
 import { Injectable } from '@nestjs/common';
 import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
-
-export interface PersistedListener<
-  TId extends Id,
-  TModel extends AggregateRoot<TId>
-> {
-  handlePersisted(model: TModel): Promise<void>;
-}
-
-export abstract class RepositoryStrategy<
-  TId extends Id,
-  TModel extends ReadonlyAggregateRoot<TId>
-> {
-  public abstract findPage(afterId?: TId): Promise<TModel[]>;
-  public abstract findById(id: TId): Promise<TModel | undefined>;
-  public abstract findByIds(ids: TId[]): Promise<(TModel | undefined)[]>;
-  public abstract exists(id: TId): Promise<boolean>;
-  public abstract persist(...models: TModel[]): Promise<void>;
-}
+import { RepositoryStrategy } from 'shared/domain/RepositoryStrategy';
 
 @Injectable()
 export abstract class Repository<
@@ -31,8 +10,7 @@ export abstract class Repository<
   TModel extends ReadonlyAggregateRoot<TId>
 > extends RepositoryStrategy<TId, TModel> {
   protected readonly unitOfWork: UnitOfWork;
-  private readonly strategy: RepositoryStrategy<TId, TModel>;
-  private readonly persistedModelsSubject: Subject<TModel>;
+  protected readonly strategy: RepositoryStrategy<TId, TModel>;
 
   public constructor(
     unitOfWork: UnitOfWork,
@@ -41,14 +19,6 @@ export abstract class Repository<
     super();
     this.unitOfWork = unitOfWork;
     this.strategy = strategy;
-    this.persistedModelsSubject = new Subject();
-  }
-
-  /**
-   * Observable over models that were persisted.
-   */
-  public get persistedModels(): Observable<TModel> {
-    return this.persistedModelsSubject;
   }
 
   /**
@@ -94,9 +64,6 @@ export abstract class Repository<
    */
   public async persist(...models: TModel[]): Promise<void> {
     await this.strategy.persist(...models);
-    for (const model of models) {
-      await this.persistedModelsSubject.handle(model);
-    }
   }
 
   protected loadedModel(model: TModel): void {

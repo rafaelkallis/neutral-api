@@ -1,36 +1,36 @@
 import td from 'testdouble';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import {
   RefreshCommand,
   RefreshCommandHandler,
 } from 'auth/application/commands/Refresh';
 import { RefreshResponseDto } from '../dto/RefreshResponseDto';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(RefreshCommand.name, () => {
-  let tokenManager: TokenManager;
+  let scenario: UnitTestScenario<RefreshCommandHandler>;
+  let refreshCommand: RefreshCommand;
   let refreshCommandHandler: RefreshCommandHandler;
   let userId: string;
   let refreshToken: string;
   let accessToken: string;
-  let refreshCommand: RefreshCommand;
 
-  beforeEach(() => {
-    tokenManager = td.object<TokenManager>();
-    refreshCommandHandler = new RefreshCommandHandler(tokenManager);
-    const primitiveFaker = new PrimitiveFaker();
-    refreshToken = primitiveFaker.id();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(RefreshCommandHandler)
+      .addProviderMock(MediatorRegistry)
+      .addProviderMock(TokenManager)
+      .build();
+    refreshCommandHandler = scenario.subject;
+    const tokenManager = scenario.module.get(TokenManager);
+    refreshToken = scenario.primitiveFaker.id();
     refreshCommand = new RefreshCommand(refreshToken);
-    userId = primitiveFaker.id();
+    userId = scenario.primitiveFaker.id();
     td.when(tokenManager.validateRefreshToken(refreshToken)).thenReturn({
       sub: userId,
     });
-    accessToken = primitiveFaker.id();
+    accessToken = scenario.primitiveFaker.id();
     td.when(tokenManager.newAccessToken(userId)).thenReturn(accessToken);
-  });
-
-  test('should be defined', () => {
-    expect(refreshCommandHandler).toBeDefined();
   });
 
   test('happy path', () => {

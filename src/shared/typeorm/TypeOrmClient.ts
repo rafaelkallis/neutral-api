@@ -1,18 +1,11 @@
 import { EntityManager, Connection, ConnectionManager } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
-  Type,
   Injectable,
   Logger,
   OnModuleInit,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import { Id } from 'shared/domain/value-objects/Id';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { RepositoryStrategy } from 'shared/domain/Repository';
-import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
-import { TypeOrmRepositoryStrategy } from 'shared/typeorm/TypeOrmRepositoryStrategy';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 
@@ -60,9 +53,8 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   public readonly entityManager: EntityManager;
   private readonly logger: Logger;
   private readonly connection: Connection;
-  private readonly objectMapper: ObjectMapper;
 
-  public constructor(config: Config, objectMapper: ObjectMapper) {
+  public constructor(config: Config) {
     this.logger = new Logger(TypeOrmClient.name);
     const connectionManager = new ConnectionManager();
     const url = config.get('DATABASE_URL');
@@ -114,23 +106,6 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
     });
     this.connection = connection;
     this.entityManager = connection.createEntityManager();
-    this.objectMapper = objectMapper;
-  }
-
-  public createRepositoryStrategy<
-    TId extends Id,
-    TModel extends AggregateRoot<TId>,
-    TEntity extends TypeOrmEntity
-  >(
-    modelType: Type<TModel>,
-    entityType: Type<TEntity>,
-  ): RepositoryStrategy<TId, TModel> {
-    return new TypeOrmRepositoryStrategy(
-      modelType,
-      entityType,
-      this.entityManager,
-      this.objectMapper,
-    );
   }
 
   public async onModuleInit(): Promise<void> {

@@ -6,6 +6,7 @@ import {
 import { Type, Injectable } from '@nestjs/common';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarStore } from 'user/application/AvatarStore';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Update the authenticated user's avatar.
@@ -27,8 +28,11 @@ export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandl
 > {
   private readonly avatarStore: AvatarStore;
 
-  public constructor(avatarStore: AvatarStore) {
-    super();
+  public constructor(
+    mediatorRegistry: MediatorRegistry,
+    avatarStore: AvatarStore,
+  ) {
+    super(mediatorRegistry);
     this.avatarStore = avatarStore;
   }
 

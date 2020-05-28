@@ -2,7 +2,6 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'app/AppModule';
-import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { User } from 'user/domain/User';
@@ -13,12 +12,13 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
 import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
 import { ContextIdFactory } from '@nestjs/core';
+import { UserRepositoryStrategy } from 'user/domain/UserRepositoryStrategy';
 
 type Session = request.SuperTest<request.Test>;
 
 export class IntegrationTestScenario extends TestScenario {
   public readonly app: INestApplication;
-  public readonly userRepository: UserRepository;
+  public readonly userRepository: UserRepositoryStrategy;
   public readonly projectRepository: ProjectRepository;
   public readonly notificationRepository: NotificationRepository;
 
@@ -31,7 +31,7 @@ export class IntegrationTestScenario extends TestScenario {
   public constructor(
     app: INestApplication,
     module: TestingModule,
-    userRepository: UserRepository,
+    userRepository: UserRepositoryStrategy,
     projectRepository: ProjectRepository,
     notificationRepository: NotificationRepository,
     tokenManager: TokenManager,
@@ -59,7 +59,7 @@ export class IntegrationTestScenario extends TestScenario {
     return new IntegrationTestScenario(
       app,
       module,
-      module.get(UserRepository),
+      module.get(UserRepositoryStrategy),
       module.get(ProjectRepository),
       module.get(NotificationRepository),
       module.get(TokenManager),

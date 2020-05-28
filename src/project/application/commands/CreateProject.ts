@@ -18,6 +18,7 @@ import { ProjectDescription } from 'project/domain/project/value-objects/Project
 import { ProjectFactory } from '../ProjectFactory';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
@@ -47,11 +48,12 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
   private readonly projectFactory: ProjectFactory;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     projectFactory: ProjectFactory,
     objectMapper: ObjectMapper,
     projectRepository: ProjectRepository,
   ) {
-    super(objectMapper, projectRepository);
+    super(mediatorRegistry, objectMapper, projectRepository);
     this.projectFactory = projectFactory;
   }
 

@@ -38,6 +38,18 @@ export class MediatorRegistry {
     );
   }
 
+  public unregister<T, TRequest extends Request<T>>(
+    requestHandler: RequestHandler<T, TRequest>,
+  ): void {
+    const requestType = requestHandler.getRequestType();
+    if (this.get(requestType) === undefined) {
+      throw new InternalServerErrorException(
+        `Request handler for ${requestType.name} not registered`,
+      );
+    }
+    this.registry.delete(requestType);
+  }
+
   public get<T, TRequest extends Request<T>>(
     requestType: Type<TRequest>,
   ): RequestHandler<T, TRequest> | undefined {

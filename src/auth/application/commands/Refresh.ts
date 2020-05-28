@@ -3,6 +3,7 @@ import { CommandHandler } from 'shared/command/CommandHandler';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { Type, Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Refresh the session
@@ -26,8 +27,11 @@ export class RefreshCommandHandler extends CommandHandler<
 > {
   private readonly tokenManager: TokenManager;
 
-  public constructor(tokenManager: TokenManager) {
-    super();
+  public constructor(
+    mediatorRegistry: MediatorRegistry,
+    tokenManager: TokenManager,
+  ) {
+    super(mediatorRegistry);
     this.tokenManager = tokenManager;
   }
 

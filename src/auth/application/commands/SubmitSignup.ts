@@ -12,6 +12,7 @@ import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { Type, Injectable } from '@nestjs/common';
 import { UserFactory } from 'user/application/UserFactory';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless signup token submit
@@ -51,13 +52,14 @@ export class SubmitSignupCommandHandler extends CommandHandler<
   private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     userFactory: UserFactory,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
     domainEventBroker: DomainEventBroker,
   ) {
-    super();
+    super(mediatorRegistry);
     this.userRepository = userRepository;
     this.userFactory = userFactory;
     this.tokenManager = tokenManager;

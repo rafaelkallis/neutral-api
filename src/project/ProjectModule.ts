@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { ProjectController } from 'project/presentation/ProjectController';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
-import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
+import { TypeOrmProjectRepositoryStrategy } from 'project/infrastructure/TypeOrmProjectRepositoryStrategy';
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
 import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
@@ -46,6 +46,7 @@ import { UpdateReviewTopicCommandHandler } from 'project/application/commands/Up
 import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
+import { ProjectRepositoryStrategy } from './domain/project/ProjectRepositoryStrategy';
 
 /**
  * Project Module
@@ -54,9 +55,10 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
   imports: [SharedModule, UserModule],
   controllers: [ProjectController, RoleController, ReviewTopicController],
   providers: [
+    ProjectRepository,
     {
-      provide: ProjectRepository,
-      useClass: TypeOrmProjectRepository,
+      provide: ProjectRepositoryStrategy,
+      useClass: TypeOrmProjectRepositoryStrategy,
     },
     {
       provide: ConsensualityComputer,

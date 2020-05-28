@@ -4,6 +4,7 @@ import { QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
 import { Type, Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export class GetAuthUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -21,8 +22,11 @@ export class GetAuthUserQueryHandler extends QueryHandler<
 > {
   private readonly objectMapper: ObjectMapper;
 
-  public constructor(objectMapper: ObjectMapper) {
-    super();
+  public constructor(
+    mediatorRegistry: MediatorRegistry,
+    objectMapper: ObjectMapper,
+  ) {
+    super(mediatorRegistry);
     this.objectMapper = objectMapper;
   }
 

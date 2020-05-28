@@ -9,7 +9,6 @@ import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from 'shared/application/MulterConfigService';
 import { UserDtoMap } from 'user/application/UserDtoMap';
 import { SharedModule } from 'shared/SharedModule';
-import { TypeOrmUserRepository } from 'user/infrastructure/TypeOrmUserRepository';
 import { GetUsersQueryHandler } from 'user/application/queries/GetUsersQuery';
 import { GetUserQueryHandler } from 'user/application/queries/GetUserQuery';
 import { GetAuthUserQueryHandler } from 'user/application/queries/GetAuthUserQuery';
@@ -22,6 +21,8 @@ import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvata
 import { UserFactory } from 'user/application/UserFactory';
 import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuthUserDataZipQuery';
 import { AvatarStore } from 'user/application/AvatarStore';
+import { UserRepositoryStrategy } from './domain/UserRepositoryStrategy';
+import { TypeOrmUserRepositoryStrategy } from './infrastructure/TypeOrmUserRepositoryStrategy';
 
 /**
  * User Module
@@ -36,7 +37,11 @@ import { AvatarStore } from 'user/application/AvatarStore';
     UserDtoMap,
     UserTypeOrmEntityMap,
     ReverseUserTypeOrmEntityMap,
-    { provide: UserRepository, useClass: TypeOrmUserRepository },
+    UserRepository,
+    {
+      provide: UserRepositoryStrategy,
+      useClass: TypeOrmUserRepositoryStrategy,
+    },
     UserFactory,
     AvatarStore,
     // query handlers

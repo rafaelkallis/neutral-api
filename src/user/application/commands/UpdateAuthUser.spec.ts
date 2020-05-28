@@ -14,6 +14,7 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Config } from 'shared/config/application/Config';
 // TODO should be in user module
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(UpdateAuthUserCommand.name, () => {
   let scenario: UnitTestScenario<UpdateAuthUserCommandHandler>;
@@ -28,6 +29,7 @@ describe(UpdateAuthUserCommand.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(UpdateAuthUserCommandHandler)
+      .addProviderMock(MediatorRegistry)
       .addProviderMock(ObjectMapper)
       .addProviderMock(UserRepository)
       .addProviderMock(TokenManager)

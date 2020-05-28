@@ -7,6 +7,7 @@ import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEve
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { Type, Injectable } from '@nestjs/common';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless signup
@@ -32,11 +33,12 @@ export class RequestSignupCommandHandler extends CommandHandler<
   private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     domainEventBroker: DomainEventBroker,
     magicLinkFactory: MagicLinkFactory,
   ) {
-    super();
+    super(mediatorRegistry);
     this.userRepository = userRepository;
     this.domainEventBroker = domainEventBroker;
     this.magicLinkFactory = magicLinkFactory;

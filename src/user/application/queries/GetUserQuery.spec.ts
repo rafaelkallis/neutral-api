@@ -6,36 +6,42 @@ import { User } from 'user/domain/User';
 import { UserDto } from '../dto/UserDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { GetUserQueryHandler, GetUserQuery } from './GetUserQuery';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(GetUsersQuery.name, () => {
-  let query: GetUserQuery;
-  let userRepository: UserRepository;
-  let objectMapper: ObjectMapper;
+  let scenario: UnitTestScenario<GetUserQueryHandler>;
+  let getUserQueryHandler: GetUserQueryHandler;
+  let getUserQuery: GetUserQuery;
   let authUser: User;
   let userId: UserId;
   let user: User;
   let userDto: UserDto;
-  let queryHandler: GetUserQueryHandler;
 
-  beforeEach(() => {
-    userRepository = td.object();
-    objectMapper = td.object();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(GetUserQueryHandler)
+      .addProviderMock(MediatorRegistry)
+      .addProviderMock(UserRepository)
+      .addProviderMock(ObjectMapper)
+      .build();
+    getUserQueryHandler = scenario.subject;
     authUser = td.object();
     userId = UserId.create();
     user = td.object();
     userDto = td.object();
-    query = new GetUserQuery(authUser, userId.value);
-    queryHandler = new GetUserQueryHandler(userRepository, objectMapper);
+    getUserQuery = new GetUserQuery(authUser, userId.value);
+    const userRepository = scenario.module.get(UserRepository);
+    const objectMapper = scenario.module.get(ObjectMapper);
     td.when(userRepository.findById(userId)).thenResolve(user);
     td.when(objectMapper.map(user, UserDto, { authUser })).thenReturn(userDto);
   });
 
   test('should be defined', () => {
-    expect(queryHandler).toBeDefined();
+    expect(getUserQueryHandler).toBeDefined();
   });
 
   test('happy path', async () => {
-    const actualUserDto = await queryHandler.handle(query);
+    const actualUserDto = await getUserQueryHandler.handle(getUserQuery);
     expect(actualUserDto).toBe(userDto);
   });
 });

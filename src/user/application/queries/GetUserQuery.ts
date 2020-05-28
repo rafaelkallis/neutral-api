@@ -7,6 +7,7 @@ import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from '../exceptions/UserNotFoundException';
 import { Type, Injectable } from '@nestjs/common';
+import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export class GetUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -25,10 +26,11 @@ export class GetUserQueryHandler extends QueryHandler<UserDto, GetUserQuery> {
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
+    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     objectMapper: ObjectMapper,
   ) {
-    super();
+    super(mediatorRegistry);
     this.userRepository = userRepository;
     this.objectMapper = objectMapper;
   }

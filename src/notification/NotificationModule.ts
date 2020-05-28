@@ -11,7 +11,8 @@ import {
 } from 'notification/infrastructure/NotificationTypeOrmEntityMap';
 import { NotificationDomainEventHandlers } from 'notification/application/NotificationDomainEventHandlers';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { TypeOrmNotificationRepository } from 'notification/infrastructure/TypeOrmNotificationRepository';
+import { NotificationRepositoryStrategy } from 'notification/domain/NotificationRepositoryStrategy';
+import { TypeOrmNotificationRepositoryStrategy } from 'notification/infrastructure/TypeOrmNotificationRepositoryStrategy';
 
 /**
  * Notification Module
@@ -25,9 +26,10 @@ import { TypeOrmNotificationRepository } from 'notification/infrastructure/TypeO
     NotificationDtoMap,
     NotificationTypeOrmEntityMap,
     ReverseNotificationTypeOrmEntityMap,
+    NotificationRepository,
     {
-      provide: NotificationRepository,
-      useClass: TypeOrmNotificationRepository,
+      provide: NotificationRepositoryStrategy,
+      useClass: TypeOrmNotificationRepositoryStrategy,
     },
     NotificationDomainEventHandlers,
   ],

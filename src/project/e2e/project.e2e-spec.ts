@@ -10,6 +10,7 @@ import { ArchivedProjectState } from 'project/domain/project/value-objects/state
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { HttpStatus } from '@nestjs/common';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -125,7 +126,7 @@ describe('project (e2e)', () => {
         title,
         description,
       });
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toEqual(
         expect.objectContaining({
           id: expect.any(String),
@@ -133,7 +134,10 @@ describe('project (e2e)', () => {
           description,
         }),
       );
-      await scenario.projectRepository.findById(response.body.id);
+      const createdProject = await scenario.projectRepository.findById(
+        response.body.id,
+      );
+      expect(createdProject).not.toBeNull();
     });
   });
 
