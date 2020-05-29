@@ -76,8 +76,9 @@ export class SubmitSignupCommandHandler extends AbstractCommandHandler<
     if (!user) {
       user = this.userFactory.create({ email });
     }
+    user.login();
     const name = Name.from(command.firstName, command.lastName);
-    user.activate(name);
+    user.updateName(name);
     await this.userRepository.persist(user);
     await this.domainEventBroker.publish(new SignupEvent(user));
 

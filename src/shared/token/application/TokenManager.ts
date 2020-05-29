@@ -1,5 +1,5 @@
-import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * Token types used throughout the app.
@@ -74,7 +74,7 @@ export abstract class TokenManager {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  public abstract newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string;
+  public abstract newLoginToken(email: Email, lastLoginAt: LastLoginAt): string;
 
   /**
    * Validate and decrypt a login token.

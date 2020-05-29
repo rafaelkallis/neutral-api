@@ -7,9 +7,10 @@ import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { Config } from 'shared/config/application/Config';
-import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
 
 /**
  * Passwordless login
@@ -51,18 +52,17 @@ export class RequestLoginCommandHandler extends AbstractCommandHandler<
   public async handle(command: RequestLoginCommand): Promise<void> {
     const email = Email.from(command.email);
     const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new UserNotFoundException();
-    }
     const loginToken = this.tokenManager.newLoginToken(
-      user.id,
-      user.lastLoginAt,
+      email,
+      user ? user.lastLoginAt : LastLoginAt.never(),
     );
     const magicLoginLink = `${this.config.get(
       'FRONTEND_URL',
     )}/login/callback?token=${encodeURIComponent(loginToken)}`;
     await this.domainEventBroker.publish(
-      new LoginRequestedEvent(user, magicLoginLink),
+      user
+        ? new LoginRequestedEvent(email, magicLoginLink)
+        : new SignupRequestedEvent(email, magicLoginLink),
     );
   }
 }

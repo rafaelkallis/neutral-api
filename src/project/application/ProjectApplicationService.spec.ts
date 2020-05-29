@@ -22,9 +22,9 @@ import { FinishedProjectState } from 'project/domain/project/value-objects/state
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
-import { InitialState } from 'user/domain/value-objects/states/InitialState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -204,8 +204,7 @@ describe(ProjectApplicationService.name, () => {
     test("happy path, email of user that doesn't exist", async () => {
       const assigneeEmail = scenario.primitiveFaker.email();
       const createdUser = scenario.modelFaker.user();
-      createdUser.state = InitialState.getInstance();
-      jest.spyOn(createdUser, 'invite');
+      createdUser.state = PendingState.getInstance();
       const userFactory = scenario.module.get(UserFactory);
       td.when(
         userFactory.create({ email: Email.from(assigneeEmail) }),
@@ -220,7 +219,6 @@ describe(ProjectApplicationService.name, () => {
         assigneeEmail,
       );
 
-      expect(createdUser.invite).toHaveBeenCalledWith();
       expect(userRepository.persist).toHaveBeenCalledWith(createdUser);
       expect(project.assignUserToRole).toHaveBeenCalledWith(
         createdUser,

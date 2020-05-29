@@ -39,10 +39,7 @@ export class EmailDomainEventHandlers {
    */
   @HandleDomainEvent(LoginRequestedEvent, 'send_login_email')
   public async signinRequested(event: LoginRequestedEvent): Promise<void> {
-    await this.emailManager.sendLoginEmail(
-      event.user.email.value,
-      event.magicSigninLink,
-    );
+    await this.emailManager.sendLoginEmail(event.email.value, event.loginLink);
   }
 
   /**

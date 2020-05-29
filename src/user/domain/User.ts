@@ -11,7 +11,7 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
-import { InvitedState } from 'user/domain/value-objects/states/InvitedState';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -20,8 +20,6 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly state: UserState;
   readonly lastLoginAt: LastLoginAt;
 
-  invite(): void;
-  activate(name: Name): void;
   login(): void;
   changeEmail(email: Email): void;
   updateName(name: Name): void;
@@ -66,7 +64,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const avatar = null;
-    const state = InvitedState.getInstance();
+    const state = PendingState.getInstance();
     const lastLoginAt = LastLoginAt.never();
     const user = new User(
       userId,
@@ -80,14 +78,6 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     );
     user.raise(new UserCreatedEvent(user.id));
     return user;
-  }
-
-  public invite(): void {
-    this.state.invite(this);
-  }
-
-  public activate(name: Name): void {
-    this.state.activate(this, name);
   }
 
   /**

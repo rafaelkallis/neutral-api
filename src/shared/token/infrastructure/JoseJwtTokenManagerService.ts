@@ -20,9 +20,9 @@ import {
 } from 'shared/token/application/TokenManager';
 import ObjectID from 'bson-objectid';
 import { TokenMalformedException } from 'shared/exceptions/token-malformed.exception';
-import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { Config } from 'shared/config/application/Config';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * Jwt Token Service
@@ -41,11 +41,11 @@ export class JoseJwtTokenManagerService extends TokenManager {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  public newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string {
+  public newLoginToken(email: Email, lastLoginAt: LastLoginAt): string {
     const payload: LoginToken = {
       jti: this.createJti(),
       aud: TokenAud.LOGIN,
-      sub: userId.value,
+      sub: email.value,
       iat: moment().unix(),
       exp: moment()
         .add(this.config.get('LOGIN_TOKEN_LIFETIME_MIN'), 'minutes')

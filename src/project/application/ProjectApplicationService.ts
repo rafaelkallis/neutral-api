@@ -142,7 +142,6 @@ export class ProjectApplicationService {
         );
       } else {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
-        userToAssign.invite();
         await this.userRepository.persist(userToAssign);
         const signupLink = this.magicLinkFactory.createSignupLink(
           assigneeEmail,

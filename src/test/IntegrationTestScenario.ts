@@ -73,7 +73,7 @@ export class IntegrationTestScenario extends TestScenario {
 
   public async authenticateUser(user: User): Promise<void> {
     const loginToken = this.tokenManager.newLoginToken(
-      user.id,
+      user.email,
       user.lastLoginAt,
     );
     await this.session.post(`/auth/login/${loginToken}`);

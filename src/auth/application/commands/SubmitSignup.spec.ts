@@ -101,7 +101,8 @@ describe(SubmitSignupCommand.name, () => {
     expect(result.accessToken).toBe(accessToken);
     expect(result.refreshToken).toBe(refreshToken);
     expect(result.user).toBe(userDto);
-    td.verify(createdUser.activate(Name.from(firstName, lastName)));
+    td.verify(createdUser.login());
+    td.verify(createdUser.updateName(Name.from(firstName, lastName)));
     td.verify(userRepository.persist(createdUser));
     td.verify(session.set(sessionToken));
     td.verify(domainEventBroker.publish(td.matchers.isA(SignupEvent)), {
@@ -113,6 +114,7 @@ describe(SubmitSignupCommand.name, () => {
     const user: User = td.object();
     td.when(userRepository.findByEmail(Email.from(email))).thenResolve(user);
     await submitSignupCommandHandler.handle(submitSignupCommand);
-    td.verify(user.activate(Name.from(firstName, lastName)));
+    td.verify(user.login());
+    td.verify(user.updateName(Name.from(firstName, lastName)));
   });
 });

@@ -40,9 +40,9 @@ describe(RequestLoginCommand.name, () => {
     loginToken = primitiveFaker.id();
     td.when(userRepository.findByEmail(user.email)).thenResolve(user);
     td.when(config.get('FRONTEND_URL')).thenReturn('https://example.com');
-    td.when(tokenManager.newLoginToken(user.id, user.lastLoginAt)).thenReturn(
-      loginToken,
-    );
+    td.when(
+      tokenManager.newLoginToken(user.email, user.lastLoginAt),
+    ).thenReturn(loginToken);
   });
 
   test('should be defined', () => {

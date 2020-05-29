@@ -2,7 +2,7 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
-import { InitialState } from 'user/domain/value-objects/states/InitialState';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
 
 describe(UserFactory.name, () => {
   let scenario: UnitTestScenario<UserFactory>;
@@ -18,7 +18,7 @@ describe(UserFactory.name, () => {
 
   test('create user', () => {
     const createdUser = userFactory.create({ email });
-    expect(createdUser.state).toBe(InitialState.getInstance());
+    expect(createdUser.state).toBe(PendingState.getInstance());
     expect(createdUser.domainEvents).toContainEqual(
       expect.any(UserCreatedEvent),
     );

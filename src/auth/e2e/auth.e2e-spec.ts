@@ -2,6 +2,7 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
 import { Email } from 'user/domain/value-objects/Email';
+import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
 describe('auth (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -20,15 +21,28 @@ describe('auth (e2e)', () => {
     beforeEach(() => {
       jest.spyOn(scenario.tokenManager, 'newLoginToken');
       jest.spyOn(scenario.emailManager, 'sendLoginEmail');
+      jest.spyOn(scenario.emailManager, 'sendSignupEmail');
     });
 
-    test('happy path', async () => {
+    test('active user', async () => {
       const response = await scenario.session
         .post('/auth/login')
         .send({ email: user.email.value });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
       expect(scenario.emailManager.sendLoginEmail).toHaveBeenCalledWith(
         user.email.value,
+        expect.any(String),
+      );
+    });
+
+    test('new user', async () => {
+      const email = scenario.valueObjectFaker.user.email();
+      const response = await scenario.session
+        .post('/auth/login')
+        .send({ email: email.value });
+      expect(response.status).toBe(HttpStatus.NO_CONTENT);
+      expect(scenario.emailManager.sendSignupEmail).toHaveBeenCalledWith(
+        email.value,
         expect.any(String),
       );
     });
@@ -39,12 +53,12 @@ describe('auth (e2e)', () => {
 
     beforeEach(() => {
       loginToken = scenario.tokenManager.newLoginToken(
-        user.id,
+        user.email,
         user.lastLoginAt,
       );
     });
 
-    test('happy path', async () => {
+    test('active user', async () => {
       const response = await scenario.session.post(`/auth/login/${loginToken}`);
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -59,6 +73,24 @@ describe('auth (e2e)', () => {
       expect(user.lastLoginAt.value).toBeLessThan(
         updatedUser.lastLoginAt.value,
       );
+    });
+
+    test('new user', async () => {
+      const email = scenario.valueObjectFaker.user.email();
+      const lastLoginAt = LastLoginAt.never();
+      loginToken = scenario.tokenManager.newLoginToken(email, lastLoginAt);
+      const response = await scenario.session.post(`/auth/login/${loginToken}`);
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body).toEqual({
+        accessToken: expect.any(String),
+        refreshToken: expect.any(String),
+        user: expect.objectContaining({ email: email.value }),
+      });
+      const createdUser = await scenario.userRepository.findByEmail(email);
+      if (!createdUser) {
+        throw new Error();
+      }
+      expect(lastLoginAt.value).toBeLessThan(createdUser.lastLoginAt.value);
     });
   });
 
