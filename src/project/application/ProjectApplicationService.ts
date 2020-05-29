@@ -28,6 +28,7 @@ import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBr
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { TokenManager } from 'shared/token/application/TokenManager';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -38,6 +39,7 @@ export class ProjectApplicationService {
   private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
+  private readonly tokenManager: TokenManager;
   private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
@@ -48,6 +50,7 @@ export class ProjectApplicationService {
     objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    tokenManager: TokenManager,
     magicLinkFactory: MagicLinkFactory,
   ) {
     this.projectRepository = projectRepository;
@@ -57,6 +60,7 @@ export class ProjectApplicationService {
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
+    this.tokenManager = tokenManager;
     this.magicLinkFactory = magicLinkFactory;
   }
 
@@ -143,15 +147,21 @@ export class ProjectApplicationService {
       } else {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
         await this.userRepository.persist(userToAssign);
-        const signupLink = this.magicLinkFactory.createSignupLink(
-          assigneeEmail,
+        const loginToken = this.tokenManager.newLoginToken(
+          userToAssign.email,
+          userToAssign.lastLoginAt,
         );
+        const loginLink = this.magicLinkFactory.createLoginLink({
+          loginToken,
+          email: userToAssign.email,
+          isNew: true,
+        });
         await this.domainEventBroker.publish(
           new InvitedUserAssignedEvent(
             project,
             roleToAssign,
             userToAssign,
-            signupLink,
+            loginLink,
           ),
         );
       }

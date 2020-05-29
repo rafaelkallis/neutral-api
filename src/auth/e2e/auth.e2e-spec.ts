@@ -1,7 +1,6 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
-import { Email } from 'user/domain/value-objects/Email';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 
 describe('auth (e2e)', () => {
@@ -111,36 +110,6 @@ describe('auth (e2e)', () => {
         email,
         expect.any(String),
       );
-    });
-  });
-
-  describe('/auth/signup/:token (POST)', () => {
-    let email: string;
-    let signupToken: string;
-    let firstName: string;
-    let lastName: string;
-
-    beforeEach(() => {
-      email = scenario.primitiveFaker.email();
-      signupToken = scenario.tokenManager.newSignupToken(email);
-      firstName = scenario.primitiveFaker.word();
-      lastName = scenario.primitiveFaker.word();
-    });
-
-    test('happy path', async () => {
-      const response = await scenario.session
-        .post(`/auth/signup/${signupToken}`)
-        .send({ firstName, lastName });
-      expect(response.status).toBe(HttpStatus.CREATED);
-      expect(response.body).toEqual({
-        accessToken: expect.any(String),
-        refreshToken: expect.any(String),
-        user: expect.objectContaining({ email, firstName, lastName }),
-      });
-      const createdUser = await scenario.userRepository.findByEmail(
-        Email.from(email),
-      );
-      expect(createdUser).toBeDefined();
     });
   });
 
