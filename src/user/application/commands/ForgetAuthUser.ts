@@ -1,10 +1,10 @@
 import { User } from 'user/domain/User';
 import {
   UserCommand,
-  AbstractUserCommandHandler,
+  UserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Type } from '@nestjs/common';
 import { SessionState } from 'shared/session/session-state';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Forget the authenticated user
@@ -18,16 +18,13 @@ export class ForgetAuthUserCommand extends UserCommand {
   }
 }
 
-export class ForgetAuthUserCommandHandler extends AbstractUserCommandHandler<
+@CommandHandler(ForgetAuthUserCommand)
+export class ForgetAuthUserCommandHandler extends UserCommandHandler<
   ForgetAuthUserCommand
 > {
   protected doHandle(command: ForgetAuthUserCommand): User {
     command.authUser.forget();
     command.session.clear();
     return command.authUser;
-  }
-
-  public getCommandType(): Type<ForgetAuthUserCommand> {
-    return ForgetAuthUserCommand;
   }
 }

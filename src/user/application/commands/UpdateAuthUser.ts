@@ -6,11 +6,13 @@ import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import {
   UserCommand,
-  AbstractUserCommandHandler,
+  UserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject, Type } from '@nestjs/common';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
+import { CommandHandler } from 'shared/command/CommandHandler';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserRepository } from 'user/domain/UserRepository';
 
 /**
  * Update the authenticated user
@@ -36,15 +38,26 @@ export class UpdateAuthUserCommand extends UserCommand {
   }
 }
 
-export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
+@CommandHandler(UpdateAuthUserCommand)
+export class UpdateAuthUserCommandHandler extends UserCommandHandler<
   UpdateAuthUserCommand
 > {
-  @Inject()
-  private readonly tokenManager!: TokenManager;
-  @Inject()
-  private readonly config!: Config;
-  @Inject()
-  private readonly domainEventBroker!: DomainEventBroker;
+  private readonly tokenManager: TokenManager;
+  private readonly config: Config;
+  private readonly domainEventBroker: DomainEventBroker;
+
+  public constructor(
+    objectMapper: ObjectMapper,
+    userRepository: UserRepository,
+    tokenManager: TokenManager,
+    config: Config,
+    domainEventBroker: DomainEventBroker,
+  ) {
+    super(objectMapper, userRepository);
+    this.tokenManager = tokenManager;
+    this.config = config;
+    this.domainEventBroker = domainEventBroker;
+  }
 
   protected async doHandle(command: UpdateAuthUserCommand): Promise<User> {
     const { authUser, email: rawNewEmail } = command;
@@ -81,9 +94,5 @@ export class UpdateAuthUserCommandHandler extends AbstractUserCommandHandler<
       authUser.updateName(newName);
     }
     return authUser;
-  }
-
-  public getCommandType(): Type<UpdateAuthUserCommand> {
-    return UpdateAuthUserCommand;
   }
 }

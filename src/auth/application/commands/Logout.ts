@@ -1,7 +1,9 @@
 import { Command } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import {
+  AbstractCommandHandler,
+  CommandHandler,
+} from 'shared/command/CommandHandler';
 import { SessionState } from 'shared/session';
-import { Type, Injectable } from '@nestjs/common';
 
 /**
  * Logout
@@ -15,13 +17,12 @@ export class LogoutCommand extends Command<void> {
   }
 }
 
-@Injectable()
-export class LogoutCommandHandler extends CommandHandler<void, LogoutCommand> {
+@CommandHandler(LogoutCommand)
+export class LogoutCommandHandler extends AbstractCommandHandler<
+  void,
+  LogoutCommand
+> {
   public handle(command: LogoutCommand): void {
     command.session.clear();
-  }
-
-  public getCommandType(): Type<LogoutCommand> {
-    return LogoutCommand;
   }
 }

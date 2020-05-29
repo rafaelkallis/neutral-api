@@ -1,4 +1,3 @@
-import { Type, Injectable } from '@nestjs/common';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
@@ -9,6 +8,7 @@ import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle'
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class UpdateProjectCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -28,7 +28,7 @@ export class UpdateProjectCommand extends ProjectCommand {
   }
 }
 
-@Injectable()
+@CommandHandler(UpdateProjectCommand)
 export class UpdateProjectCommandHandler extends ProjectCommandHandler<
   UpdateProjectCommand
 > {
@@ -47,9 +47,5 @@ export class UpdateProjectCommandHandler extends ProjectCommandHandler<
       : undefined;
     project.update(title, description);
     return project;
-  }
-
-  public getCommandType(): Type<UpdateProjectCommand> {
-    return UpdateProjectCommand;
   }
 }

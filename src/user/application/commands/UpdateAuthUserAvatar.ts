@@ -1,11 +1,13 @@
 import { User } from 'user/domain/User';
 import {
   UserCommand,
-  AbstractUserCommandHandler,
+  UserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Type, Injectable } from '@nestjs/common';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarStore } from 'user/application/AvatarStore';
+import { CommandHandler } from 'shared/command/CommandHandler';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserRepository } from 'user/domain/UserRepository';
 
 /**
  * Update the authenticated user's avatar.
@@ -21,14 +23,18 @@ export class UpdateAuthUserAvatarCommand extends UserCommand {
   }
 }
 
-@Injectable()
-export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandler<
+@CommandHandler(UpdateAuthUserAvatarCommand)
+export class UpdateAuthUserAvatarCommandHandler extends UserCommandHandler<
   UpdateAuthUserAvatarCommand
 > {
   private readonly avatarStore: AvatarStore;
 
-  public constructor(avatarStore: AvatarStore) {
-    super();
+  public constructor(
+    objectMapper: ObjectMapper,
+    userRepository: UserRepository,
+    avatarStore: AvatarStore,
+  ) {
+    super(objectMapper, userRepository);
     this.avatarStore = avatarStore;
   }
 
@@ -44,9 +50,5 @@ export class UpdateAuthUserAvatarCommandHandler extends AbstractUserCommandHandl
     }
     authUser.updateAvatar(newAvatar);
     return authUser;
-  }
-
-  public getCommandType(): Type<UpdateAuthUserAvatarCommand> {
-    return UpdateAuthUserAvatarCommand;
   }
 }
