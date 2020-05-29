@@ -64,4 +64,8 @@ export class ActiveState extends DefaultUserState {
     user.state = ForgottenState.getInstance();
     user.raise(new UserForgottenEvent(user.id));
   }
+
+  public isActive(): boolean {
+    return true;
+  }
 }

@@ -15,7 +15,7 @@ export interface ReadonlyModelCollection<
   isEmpty(): boolean;
 }
 
-export abstract class ModelCollection<TId extends Id, TModel extends Model<TId>>
+export class ModelCollection<TId extends Id, TModel extends Model<TId>>
   implements ReadonlyModelCollection<TId, TModel> {
   private models: Iterable<TModel>;
   private readonly removedModels: TModel[];

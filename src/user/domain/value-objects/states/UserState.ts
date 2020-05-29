@@ -16,6 +16,7 @@ export abstract class UserState extends ValueObject {
   public abstract updateAvatar(user: User, newAvatar: Avatar): void;
   public abstract removeAvatar(user: User): void;
   public abstract forget(user: User): void;
+  public abstract isActive(): boolean;
 }
 
 export class DefaultUserState extends UserState {
@@ -41,5 +42,9 @@ export class DefaultUserState extends UserState {
 
   public forget(_user: User): void {
     throw new OperationNotSupportedByCurrentUserStateException();
+  }
+
+  public isActive(): boolean {
+    return false;
   }
 }

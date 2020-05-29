@@ -29,6 +29,7 @@ import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { TokenManager } from 'shared/token/application/TokenManager';
+import { UserCollection } from 'user/domain/UserCollection';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -188,7 +189,14 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    project.finishFormation();
+    const assigneeIds = project.roles
+      .toArray()
+      .map((role) => role.assigneeId)
+      .filter(Boolean) as UserId[];
+    const assignees = await this.userRepository.findByIds(assigneeIds);
+    project.finishFormation(
+      new UserCollection(assignees.filter(Boolean) as User[]),
+    );
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

@@ -26,6 +26,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { TokenManager } from 'shared/token/application/TokenManager';
+import { UserCollection } from 'user/domain/UserCollection';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -248,7 +249,9 @@ describe(ProjectApplicationService.name, () => {
     test('happy path', async () => {
       await projectApplication.finishFormation(creatorUser, project.id.value);
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.finishFormation).toHaveBeenCalledWith();
+      expect(project.finishFormation).toHaveBeenCalledWith(
+        new UserCollection(assignees),
+      );
     });
   });
 

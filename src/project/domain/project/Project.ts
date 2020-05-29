@@ -40,6 +40,7 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
+import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -78,7 +79,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   ): void;
   removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
-  finishFormation(): void;
+  finishFormation(assignees: ReadonlyUserCollection): void;
   submitPeerReviews(
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
@@ -210,8 +211,8 @@ export class Project extends AggregateRoot<ProjectId>
   /**
    * Finish project formation
    */
-  public finishFormation(): void {
-    this.state.finishFormation(this);
+  public finishFormation(assignees: ReadonlyUserCollection): void {
+    this.state.finishFormation(this, assignees);
   }
 
   /**

@@ -15,6 +15,7 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
+import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -111,8 +112,9 @@ describe(Project.name, () => {
   });
 
   test('finish formation', () => {
-    project.finishFormation();
-    td.verify(project.state.finishFormation(project));
+    const assignees: ReadonlyUserCollection = td.object();
+    project.finishFormation(assignees);
+    td.verify(project.state.finishFormation(project, assignees));
   });
 
   test('submit peer reviews', () => {

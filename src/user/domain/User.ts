@@ -26,6 +26,7 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   updateAvatar(newAvatar: Avatar): void;
   removeAvatar(): void;
   forget(): void;
+  isActive(): boolean;
 }
 
 export class User extends AggregateRoot<UserId> implements ReadonlyUser {
@@ -117,5 +118,9 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
 
   public forget(): void {
     this.state.forget(this);
+  }
+
+  public isActive(): boolean {
+    return this.state.isActive();
   }
 }
