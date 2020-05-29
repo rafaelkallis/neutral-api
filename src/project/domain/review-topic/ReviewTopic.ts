@@ -4,14 +4,17 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
-import { Consensuality } from '../project/value-objects/Consensuality';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { Cliquism } from 'project/domain/review-topic/value-objects/Cliquism';
 
 export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
   readonly description: ReviewTopicDescription;
   readonly consensuality: Consensuality | null;
+  readonly cliquism: Cliquism | null;
 
   isConsensual(): boolean;
+  isCliquey(): boolean;
 }
 
 export class ReviewTopic extends Model<ReviewTopicId>
@@ -19,6 +22,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
   public title: ReviewTopicTitle;
   public description: ReviewTopicDescription;
   public consensuality: Consensuality | null;
+  public cliquism: Cliquism | null;
 
   public constructor(
     id: ReviewTopicId,
@@ -27,11 +31,13 @@ export class ReviewTopic extends Model<ReviewTopicId>
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
     consensuality: Consensuality | null,
+    cliquism: Cliquism | null,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
     this.consensuality = consensuality;
+    this.cliquism = cliquism;
   }
 
   /**
@@ -45,6 +51,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const consensuality = null;
+    const cliquism = null;
     return new ReviewTopic(
       id,
       createdAt,
@@ -52,10 +59,15 @@ export class ReviewTopic extends Model<ReviewTopicId>
       title,
       description,
       consensuality,
+      cliquism,
     );
   }
 
   public isConsensual(): boolean {
     return this.consensuality !== null && this.consensuality.isConsensual();
+  }
+
+  public isCliquey(): boolean {
+    return this.cliquism !== null && this.cliquism.isCliquey();
   }
 }
