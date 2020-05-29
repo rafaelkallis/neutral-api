@@ -10,7 +10,6 @@ describe(MagicLinkFactory.name, () => {
   let config: Config;
   let loginToken: string;
   let email: Email;
-  let frontendUrl: string;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(MagicLinkFactory)
@@ -20,18 +19,19 @@ describe(MagicLinkFactory.name, () => {
     config = scenario.module.get(Config);
     loginToken = scenario.primitiveFaker.id();
     email = scenario.valueObjectFaker.user.email();
-    frontendUrl = scenario.primitiveFaker.url();
-    td.when(config.get('FRONTEND_URL')).thenReturn(frontendUrl);
+    td.when(config.get('FRONTEND_URL')).thenReturn('http://example.com');
   });
 
-  test('should create signup link', () => {
-    const signupLink = magicLinkFactory.createLoginLink({
+  test('should create login link', () => {
+    const loginLink = magicLinkFactory.createLoginLink({
       loginToken,
       email,
       isNew: true,
     });
-    expect(signupLink).toEqual(
-      `${frontendUrl}/login/callback?token=${loginToken}&email=${email.value}&new=true`,
+    expect(loginLink).toEqual(
+      `http://example.com/login/callback?token=${loginToken}&email=${encodeURIComponent(
+        email.value,
+      )}&new=true`,
     );
   });
 });

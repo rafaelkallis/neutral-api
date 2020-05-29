@@ -5,7 +5,7 @@ import { Email } from 'user/domain/value-objects/Email';
 export interface CreateLoginLinkContext {
   readonly loginToken: string;
   readonly email: Email;
-  readonly isNew?: true;
+  readonly isNew?: boolean;
 }
 
 @Injectable()
@@ -17,13 +17,15 @@ export class MagicLinkFactory {
   }
 
   public createLoginLink(ctx: CreateLoginLinkContext): string {
-    let loginLink = this.config.get('FRONTEND_URL');
-    loginLink += '/login/callback';
-    loginLink += `?token=${ctx.loginToken}`;
-    loginLink += `&email=${ctx.email.value}`;
+    const loginUrl = new URL(
+      '/login/callback',
+      this.config.get('FRONTEND_URL'),
+    );
+    loginUrl.searchParams.append('token', ctx.loginToken);
+    loginUrl.searchParams.append('email', ctx.email.value);
     if (ctx.isNew) {
-      loginLink += `&new=true`;
+      loginUrl.searchParams.append('new', 'true');
     }
-    return encodeURI(loginLink);
+    return loginUrl.href;
   }
 }

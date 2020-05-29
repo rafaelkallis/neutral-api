@@ -6,11 +6,11 @@ import {
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { Config } from 'shared/config/application/Config';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
+import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 
 /**
  * Passwordless login
@@ -33,19 +33,19 @@ export class RequestLoginCommandHandler extends AbstractCommandHandler<
 > {
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
-  private readonly config: Config;
+  private readonly magicLinkFactory: MagicLinkFactory;
   private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
     userRepository: UserRepository,
     tokenManager: TokenManager,
-    config: Config,
+    magicLinkFactory: MagicLinkFactory,
     domainEventBroker: DomainEventBroker,
   ) {
     super();
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
-    this.config = config;
+    this.magicLinkFactory = magicLinkFactory;
     this.domainEventBroker = domainEventBroker;
   }
 
@@ -56,13 +56,15 @@ export class RequestLoginCommandHandler extends AbstractCommandHandler<
       email,
       user ? user.lastLoginAt : LastLoginAt.never(),
     );
-    const magicLoginLink = `${this.config.get(
-      'FRONTEND_URL',
-    )}/login/callback?token=${encodeURIComponent(loginToken)}`;
+    const loginLink = this.magicLinkFactory.createLoginLink({
+      loginToken,
+      email,
+      isNew: !user,
+    });
     await this.domainEventBroker.publish(
       user
-        ? new LoginRequestedEvent(email, magicLoginLink)
-        : new SignupRequestedEvent(email, magicLoginLink),
+        ? new LoginRequestedEvent(email, loginLink)
+        : new SignupRequestedEvent(email, loginLink),
     );
   }
 }
