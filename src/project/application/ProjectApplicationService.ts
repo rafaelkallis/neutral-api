@@ -141,11 +141,7 @@ export class ProjectApplicationService {
     } else if (rawAssigneeEmail) {
       const assigneeEmail = Email.from(rawAssigneeEmail);
       userToAssign = await this.userRepository.findByEmail(assigneeEmail);
-      if (userToAssign) {
-        await this.domainEventBroker.publish(
-          new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
-        );
-      } else {
+      if (!userToAssign) {
         userToAssign = this.userFactory.create({ email: assigneeEmail });
         await this.userRepository.persist(userToAssign);
         const loginToken = this.tokenManager.newLoginToken(
@@ -164,6 +160,28 @@ export class ProjectApplicationService {
             userToAssign,
             loginLink,
           ),
+        );
+      } else if (!userToAssign.isActive()) {
+        const loginToken = this.tokenManager.newLoginToken(
+          userToAssign.email,
+          userToAssign.lastLoginAt,
+        );
+        const loginLink = this.magicLinkFactory.createLoginLink({
+          loginToken,
+          email: userToAssign.email,
+          isNew: true,
+        });
+        await this.domainEventBroker.publish(
+          new InvitedUserAssignedEvent(
+            project,
+            roleToAssign,
+            userToAssign,
+            loginLink,
+          ),
+        );
+      } else {
+        await this.domainEventBroker.publish(
+          new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
         );
       }
     }
