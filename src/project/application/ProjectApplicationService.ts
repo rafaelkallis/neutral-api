@@ -30,6 +30,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 @Injectable()
 export class ProjectApplicationService {
@@ -40,6 +41,7 @@ export class ProjectApplicationService {
   private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
+  private readonly cliquismComputer: CliquismComputer;
   private readonly tokenManager: TokenManager;
   private readonly magicLinkFactory: MagicLinkFactory;
 
@@ -51,6 +53,7 @@ export class ProjectApplicationService {
     objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
     tokenManager: TokenManager,
     magicLinkFactory: MagicLinkFactory,
   ) {
@@ -61,6 +64,7 @@ export class ProjectApplicationService {
     this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
+    this.cliquismComputer = cliquismComputer;
     this.tokenManager = tokenManager;
     this.magicLinkFactory = magicLinkFactory;
   }
@@ -253,6 +257,7 @@ export class ProjectApplicationService {
       peerReviews,
       this.contributionsComputer,
       this.consensualityComputer,
+      this.cliquismComputer,
     );
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });

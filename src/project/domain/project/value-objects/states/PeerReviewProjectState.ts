@@ -19,6 +19,7 @@ import { ManagerReviewProjectState } from 'project/domain/project/value-objects/
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 export class PeerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -36,6 +37,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void {
     const senderRole = project.roles.whereId(senderRoleId);
     project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic(
@@ -63,6 +65,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
         project,
         contributionsComputer,
         consensualityComputer,
+        cliquismComputer,
       );
     }
   }
@@ -107,9 +110,11 @@ export class PeerReviewProjectState extends DefaultProjectState {
     project: Project,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void {
     contributionsComputer.compute(project).applyTo(project);
     consensualityComputer.compute(project).applyTo(project);
+    cliquismComputer.compute(project).applyTo(project);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {
       project.state = FinishedProjectState.INSTANCE;

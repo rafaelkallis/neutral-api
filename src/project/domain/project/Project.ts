@@ -41,6 +41,7 @@ import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopi
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -86,6 +87,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void;
   submitManagerReview(): void;
   archive(): void;
@@ -231,6 +233,7 @@ export class Project extends AggregateRoot<ProjectId>
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void {
     this.state.submitPeerReviews(
       this,
@@ -239,6 +242,7 @@ export class Project extends AggregateRoot<ProjectId>
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
+      cliquismComputer,
     );
   }
 

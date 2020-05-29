@@ -16,6 +16,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 /**
  *
@@ -80,6 +81,7 @@ export abstract class ProjectState extends ValueObject {
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void;
 
   public abstract submitManagerReview(project: Project): void;
@@ -172,6 +174,7 @@ export abstract class DefaultProjectState extends ProjectState {
     _submittedPeerReviews: [RoleId, PeerReviewScore][],
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
+    _cliquismComputer: CliquismComputer,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
