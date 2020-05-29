@@ -1,5 +1,8 @@
 import { Command } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import {
+  AbstractCommandHandler,
+  CommandHandler,
+} from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserDto } from 'user/application/dto/UserDto';
@@ -10,7 +13,6 @@ import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { Type, Injectable } from '@nestjs/common';
 import { UserFactory } from 'user/application/UserFactory';
 import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
@@ -40,8 +42,8 @@ export class SubmitSignupCommand extends Command<AuthenticationResponseDto> {
   }
 }
 
-@Injectable()
-export class SubmitSignupCommandHandler extends CommandHandler<
+@CommandHandler(SubmitSignupCommand)
+export class SubmitSignupCommandHandler extends AbstractCommandHandler<
   AuthenticationResponseDto,
   SubmitSignupCommand
 > {
@@ -89,9 +91,5 @@ export class SubmitSignupCommandHandler extends CommandHandler<
       authUser: user,
     });
     return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
-  }
-
-  public getCommandType(): Type<SubmitSignupCommand> {
-    return SubmitSignupCommand;
   }
 }

@@ -1,15 +1,25 @@
-import { Type, Injectable } from '@nestjs/common';
+import { Type, ScopeOptions } from '@nestjs/common';
 import { Command } from 'shared/command/Command';
-import { RequestHandler } from 'shared/mediator/RequestHandler';
+import {
+  AbstractRequestHandler,
+  RequestHandler,
+} from 'shared/mediator/RequestHandler';
 
-@Injectable()
-export abstract class CommandHandler<
+export function CommandHandler(
+  commandType: Type<Command<unknown>>,
+  scopeOptions?: ScopeOptions,
+): ClassDecorator {
+  return function (target: Function): void {
+    if (!(target.prototype instanceof AbstractCommandHandler)) {
+      throw new Error(
+        `${target.name} is not a command handler, did you extend ${AbstractCommandHandler.name} ?`,
+      );
+    }
+    RequestHandler(commandType, scopeOptions)(target);
+  };
+}
+
+export abstract class AbstractCommandHandler<
   T,
   TCommand extends Command<T>
-> extends RequestHandler<T, TCommand> {
-  public abstract getCommandType(): Type<TCommand>;
-
-  public getRequestType(): Type<TCommand> {
-    return this.getCommandType();
-  }
-}
+> extends AbstractRequestHandler<T, TCommand> {}

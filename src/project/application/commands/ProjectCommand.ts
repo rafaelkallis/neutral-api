@@ -1,5 +1,5 @@
 import { AuthenticatedCommand } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
@@ -12,7 +12,7 @@ export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {}
 @Injectable()
 export abstract class ProjectCommandHandler<
   TCommand extends ProjectCommand
-> extends CommandHandler<ProjectDto, TCommand> {
+> extends AbstractCommandHandler<ProjectDto, TCommand> {
   protected readonly objectMapper: ObjectMapper;
   protected readonly projectRepository: ProjectRepository;
 

@@ -1,31 +1,40 @@
-import {
-  Type,
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
-} from '@nestjs/common';
+import { Type, ScopeOptions, Injectable } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Request Handler
  */
-@Injectable()
-export abstract class RequestHandler<T, TRequest extends Request<T>>
-  implements OnModuleInit, OnModuleDestroy {
-  private readonly mediatorRegistry: MediatorRegistry;
-  public abstract getRequestType(): Type<TRequest>;
+export abstract class AbstractRequestHandler<T, TRequest extends Request<T>> {
   public abstract handle(request: TRequest): T | Promise<T>;
+}
 
-  public constructor(mediatorRegistry: MediatorRegistry) {
-    this.mediatorRegistry = mediatorRegistry;
-  }
+const staticRequestHandlerMap: Map<
+  Type<Request<unknown>>,
+  Type<AbstractRequestHandler<unknown, Request<unknown>>>[]
+> = new Map();
 
-  public onModuleInit(): void {
-    this.mediatorRegistry.register(this);
-  }
+export function RequestHandler(
+  requestType: Type<Request<unknown>>,
+  scopeOptions?: ScopeOptions,
+): ClassDecorator {
+  return (target: Function): void => {
+    if (!(target.prototype instanceof AbstractRequestHandler)) {
+      throw new Error(
+        `${target.name} is not a request handler, did you extend ${AbstractRequestHandler.name} ?`,
+      );
+    }
+    const requestHandlerTypes = staticRequestHandlerMap.get(requestType) || [];
+    staticRequestHandlerMap.set(requestType, [
+      ...requestHandlerTypes,
+      target as Type<AbstractRequestHandler<unknown, Request<unknown>>>,
+    ]);
 
-  public onModuleDestroy(): void {
-    this.mediatorRegistry.unregister(this);
-  }
+    Injectable(scopeOptions)(target);
+  };
+}
+
+export function getRequestHandlerType(
+  requestType: Type<Request<unknown>>,
+): Type<AbstractRequestHandler<unknown, Request<unknown>>>[] {
+  return staticRequestHandlerMap.get(requestType) || [];
 }

@@ -1,11 +1,13 @@
 import { Command } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import {
+  AbstractCommandHandler,
+  CommandHandler,
+} from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { Type, Injectable } from '@nestjs/common';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
@@ -23,8 +25,8 @@ export class RequestSignupCommand extends Command<void> {
   }
 }
 
-@Injectable()
-export class RequestSignupCommandHandler extends CommandHandler<
+@CommandHandler(RequestSignupCommand)
+export class RequestSignupCommandHandler extends AbstractCommandHandler<
   void,
   RequestSignupCommand
 > {
@@ -54,9 +56,5 @@ export class RequestSignupCommandHandler extends CommandHandler<
     await this.domainEventBroker.publish(
       new SignupRequestedEvent(email, magicSignupLink),
     );
-  }
-
-  public getCommandType(): Type<RequestSignupCommand> {
-    return RequestSignupCommand;
   }
 }
