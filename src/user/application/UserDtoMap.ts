@@ -2,7 +2,7 @@ import { Injectable, Type } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
-import { ObjectMapContext, ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 
 @Injectable()
@@ -17,11 +17,10 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
   /**
    *
    */
-  protected doMap(user: User, context: ObjectMapContext): UserDto {
-    const authUser = context.get('authUser', User);
+  protected doMap(user: User): UserDto {
     return new UserDto(
       user.id.value,
-      this.mapEmail(user, authUser),
+      user.email.value,
       user.name.first,
       user.name.last,
       user.createdAt.value,
@@ -29,10 +28,6 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
       user.avatar ? this.createAvatarUrl(user) : null,
       getUserStateValue(user.state),
     );
-  }
-
-  private mapEmail(user: User, authUser: User): string | null {
-    return user.id.equals(authUser.id) ? user.email.value : null;
   }
 
   private createAvatarUrl(user: User): string {
