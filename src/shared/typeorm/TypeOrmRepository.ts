@@ -75,7 +75,7 @@ export class TypeOrmRepository<
   public async findByIds(ids: TId[]): Promise<(TModel | undefined)[]> {
     const entities = await this.entityManager
       .getRepository(this.entityType)
-      .findByIds(ids);
+      .findByIds(ids.map((id) => id.value));
     const models = this.objectMapper.mapArray(entities, this.modelType);
     return ids.map((id) => models.find((model) => model.id.equals(id)));
   }
