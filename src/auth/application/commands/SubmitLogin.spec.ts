@@ -29,7 +29,6 @@ describe(SubmitLoginCommand.name, () => {
     tokenManager = td.object();
     objectMapper = td.object();
     commandHandler = new SubmitLoginCommandHandler(
-      td.object(),
       userRepository,
       tokenManager,
       objectMapper,

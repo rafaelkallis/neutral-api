@@ -6,7 +6,6 @@ import {
 } from 'auth/application/commands/Refresh';
 import { RefreshResponseDto } from '../dto/RefreshResponseDto';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(RefreshCommand.name, () => {
   let scenario: UnitTestScenario<RefreshCommandHandler>;
@@ -18,7 +17,6 @@ describe(RefreshCommand.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(RefreshCommandHandler)
-      .addProviderMock(MediatorRegistry)
       .addProviderMock(TokenManager)
       .build();
     refreshCommandHandler = scenario.subject;

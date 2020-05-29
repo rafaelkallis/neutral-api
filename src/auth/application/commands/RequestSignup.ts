@@ -9,7 +9,6 @@ import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlre
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless signup
@@ -35,12 +34,11 @@ export class RequestSignupCommandHandler extends AbstractCommandHandler<
   private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
-    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     domainEventBroker: DomainEventBroker,
     magicLinkFactory: MagicLinkFactory,
   ) {
-    super(mediatorRegistry);
+    super();
     this.userRepository = userRepository;
     this.domainEventBroker = domainEventBroker;
     this.magicLinkFactory = magicLinkFactory;

@@ -4,7 +4,6 @@ import { User } from 'user/domain/User';
 import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export interface GetAuthUserDataZipQueryResult {
   file: string;
@@ -32,12 +31,11 @@ export class GetAuthUserDataZipQueryHandler extends AbstractQueryHandler<
   private readonly objectStorage: ObjectStorage;
 
   public constructor(
-    mediatorRegistry: MediatorRegistry,
     archiveFactory: ArchiveFactory,
     jsonSerializer: JsonSerializer,
     objectStorage: ObjectStorage,
   ) {
-    super(mediatorRegistry);
+    super();
     this.archiveFactory = archiveFactory;
     this.jsonSerializer = jsonSerializer;
     this.objectStorage = objectStorage;

@@ -14,7 +14,6 @@ import { Name } from 'user/domain/value-objects/Name';
 import { SignupEvent } from '../events/SignupEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 /**
  * Passwordless signup token submit
@@ -54,14 +53,13 @@ export class SubmitSignupCommandHandler extends AbstractCommandHandler<
   private readonly domainEventBroker: DomainEventBroker;
 
   public constructor(
-    mediatorRegistry: MediatorRegistry,
     userRepository: UserRepository,
     userFactory: UserFactory,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
     domainEventBroker: DomainEventBroker,
   ) {
-    super(mediatorRegistry);
+    super();
     this.userRepository = userRepository;
     this.userFactory = userFactory;
     this.tokenManager = tokenManager;

@@ -28,7 +28,6 @@ describe(RequestLoginCommand.name, () => {
     config = td.object();
     domainEventBroker = td.object();
     commandHandler = new RequestLoginCommandHandler(
-      td.object(),
       userRepository,
       tokenManager,
       config,

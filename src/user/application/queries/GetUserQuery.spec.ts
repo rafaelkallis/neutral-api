@@ -7,7 +7,6 @@ import { UserDto } from '../dto/UserDto';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { GetUserQueryHandler, GetUserQuery } from './GetUserQuery';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(GetUsersQuery.name, () => {
   let scenario: UnitTestScenario<GetUserQueryHandler>;
@@ -20,7 +19,6 @@ describe(GetUsersQuery.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(GetUserQueryHandler)
-      .addProviderMock(MediatorRegistry)
       .addProviderMock(UserRepository)
       .addProviderMock(ObjectMapper)
       .build();

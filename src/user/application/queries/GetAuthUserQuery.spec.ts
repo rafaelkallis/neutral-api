@@ -7,7 +7,6 @@ import {
   GetAuthUserQueryHandler,
 } from 'user/application/queries/GetAuthUserQuery';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 describe(GetAuthUserQuery.name, () => {
   let scenario: UnitTestScenario<GetAuthUserQueryHandler>;
@@ -18,7 +17,6 @@ describe(GetAuthUserQuery.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(GetAuthUserQueryHandler)
-      .addProviderMock(MediatorRegistry)
       .addProviderMock(ObjectMapper)
       .build();
     getAuthUserQueryHandler = scenario.subject;

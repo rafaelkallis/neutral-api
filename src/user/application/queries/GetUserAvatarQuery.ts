@@ -6,7 +6,6 @@ import { NotFoundException } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { AvatarStore } from 'user/application/AvatarStore';
-import { MediatorRegistry } from 'shared/mediator/MediatorRegistry';
 
 export class GetUserAvatarQuery extends Query<{
   file: string;
@@ -30,12 +29,8 @@ export class GetUserAvatarQueryHandler extends AbstractQueryHandler<
   private readonly userRepository: UserRepository;
   private readonly avatarStore: AvatarStore;
 
-  public constructor(
-    mediatorRegistry: MediatorRegistry,
-    userRepository: UserRepository,
-    avatarStore: AvatarStore,
-  ) {
-    super(mediatorRegistry);
+  public constructor(userRepository: UserRepository, avatarStore: AvatarStore) {
+    super();
     this.userRepository = userRepository;
     this.avatarStore = avatarStore;
   }

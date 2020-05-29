@@ -13,7 +13,7 @@ describe(LogoutCommand.name, () => {
   beforeEach(() => {
     session = td.object<SessionState>();
     logoutCommand = new LogoutCommand(session);
-    logoutCommandHandler = new LogoutCommandHandler(td.object());
+    logoutCommandHandler = new LogoutCommandHandler();
   });
 
   test('should be defined', () => {
