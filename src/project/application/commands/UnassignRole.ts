@@ -1,4 +1,3 @@
-import { Type, Injectable } from '@nestjs/common';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
@@ -8,6 +7,7 @@ import { User } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class UnassignRoleCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -20,7 +20,7 @@ export class UnassignRoleCommand extends ProjectCommand {
   }
 }
 
-@Injectable()
+@CommandHandler(UnassignRoleCommand)
 export class UnassignRoleCommandHandler extends ProjectCommandHandler<
   UnassignRoleCommand
 > {
@@ -36,9 +36,5 @@ export class UnassignRoleCommandHandler extends ProjectCommandHandler<
     project.assertCreator(command.authUser);
     project.unassignRole(roleId);
     return project;
-  }
-
-  public getCommandType(): Type<UnassignRoleCommand> {
-    return UnassignRoleCommand;
   }
 }

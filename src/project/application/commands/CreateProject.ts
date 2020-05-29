@@ -1,4 +1,3 @@
-import { Type, Injectable } from '@nestjs/common';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
@@ -18,6 +17,7 @@ import { ProjectDescription } from 'project/domain/project/value-objects/Project
 import { ProjectFactory } from '../ProjectFactory';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
@@ -40,7 +40,7 @@ export class CreateProjectCommand extends ProjectCommand {
   }
 }
 
-@Injectable()
+@CommandHandler(CreateProjectCommand)
 export class CreateProjectCommandHandler extends ProjectCommandHandler<
   CreateProjectCommand
 > {
@@ -67,9 +67,5 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
         ? SkipManagerReview.from(command.skipManagerReview)
         : undefined,
     });
-  }
-
-  public getCommandType(): Type<CreateProjectCommand> {
-    return CreateProjectCommand;
   }
 }

@@ -1,8 +1,10 @@
 import { Command } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import {
+  AbstractCommandHandler,
+  CommandHandler,
+} from 'shared/command/CommandHandler';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
-import { Type, Injectable } from '@nestjs/common';
 
 /**
  * Refresh the session
@@ -19,8 +21,8 @@ export class RefreshCommand extends Command<RefreshResponseDto> {
   }
 }
 
-@Injectable()
-export class RefreshCommandHandler extends CommandHandler<
+@CommandHandler(RefreshCommand)
+export class RefreshCommandHandler extends AbstractCommandHandler<
   RefreshResponseDto,
   RefreshCommand
 > {
@@ -37,9 +39,5 @@ export class RefreshCommandHandler extends CommandHandler<
     );
     const accessToken = this.tokenManager.newAccessToken(payload.sub);
     return new RefreshResponseDto(accessToken);
-  }
-
-  public getCommandType(): Type<RefreshCommand> {
-    return RefreshCommand;
   }
 }

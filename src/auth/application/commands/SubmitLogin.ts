@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
@@ -10,7 +10,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { Type, Injectable } from '@nestjs/common';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 
 /**
  * Passwordless login token submit
@@ -30,8 +30,8 @@ export class SubmitLoginCommand extends Command<AuthenticationResponseDto> {
   }
 }
 
-@Injectable()
-export class SubmitLoginCommandHandler extends CommandHandler<
+@RequestHandler(SubmitLoginCommand)
+export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   AuthenticationResponseDto,
   SubmitLoginCommand
 > {
@@ -71,9 +71,5 @@ export class SubmitLoginCommandHandler extends CommandHandler<
     const refreshToken = this.tokenManager.newRefreshToken(user.id.value);
     const userDto = this.objectMapper.map(user, UserDto, { authUser: user });
     return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
-  }
-
-  public getCommandType(): Type<SubmitLoginCommand> {
-    return SubmitLoginCommand;
   }
 }

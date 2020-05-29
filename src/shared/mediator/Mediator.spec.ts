@@ -1,11 +1,14 @@
-import { Test } from '@nestjs/testing';
-import { Type, Injectable } from '@nestjs/common';
 import { Mediator } from 'shared/mediator/Mediator';
 import { Request } from 'shared/mediator/Request';
-import { RequestHandler } from 'shared/mediator/RequestHandler';
-import { MediatorModule } from 'shared/mediator/MediatorModule';
+import {
+  AbstractRequestHandler,
+  RequestHandler,
+} from 'shared/mediator/RequestHandler';
+import { UnitTestScenario } from 'test/UnitTestScenario';
+import { ContextIdFactory } from '@nestjs/core';
 
-describe(MediatorModule.name, () => {
+describe(Mediator.name, () => {
+  let scenario: UnitTestScenario<Mediator>;
   let mediator: Mediator;
 
   class TestRequest extends Request<number> {
@@ -14,37 +17,33 @@ describe(MediatorModule.name, () => {
     }
   }
 
-  @Injectable()
-  class TestRequestHandler extends RequestHandler<number, TestRequest> {
+  @RequestHandler(TestRequest)
+  class TestRequestHandler extends AbstractRequestHandler<number, TestRequest> {
     public handle(request: TestRequest): number {
       return request.input + 1;
-    }
-
-    public getRequestType(): Type<TestRequest> {
-      return TestRequest;
     }
   }
 
   class RejectingRequest extends Request<void> {}
 
-  @Injectable()
-  class RejectingRequestHandler extends RequestHandler<void, RejectingRequest> {
+  @RequestHandler(RejectingRequest)
+  class RejectingRequestHandler extends AbstractRequestHandler<
+    void,
+    RejectingRequest
+  > {
     public handle(request: RejectingRequest): void {
       throw new Error();
-    }
-
-    public getRequestType(): Type<RejectingRequest> {
-      return RejectingRequest;
     }
   }
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      imports: [MediatorModule],
-      providers: [TestRequestHandler, RejectingRequestHandler],
-    }).compile();
-    await module.init();
-    mediator = module.get(Mediator);
+    scenario = await UnitTestScenario.builder(Mediator)
+      .addProvider(TestRequestHandler)
+      .addProvider(RejectingRequestHandler)
+      .build();
+    mediator = scenario.subject;
+    const contextId = ContextIdFactory.create();
+    jest.spyOn(ContextIdFactory, 'getByRequest').mockReturnValue(contextId);
   });
 
   test('happy path', async () => {

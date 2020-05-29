@@ -1,21 +1,33 @@
 import { User } from 'user/domain/User';
 import {
   UserCommand,
-  AbstractUserCommandHandler,
+  UserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { Inject, NotFoundException, Type } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserRepository } from 'user/domain/UserRepository';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Remove the authenticated user's avatar.
  */
 export class RemoveAuthUserAvatarCommand extends UserCommand {}
 
-export class RemoveAuthUserAvatarCommandHandler extends AbstractUserCommandHandler<
+@CommandHandler(RemoveAuthUserAvatarCommand)
+export class RemoveAuthUserAvatarCommandHandler extends UserCommandHandler<
   RemoveAuthUserAvatarCommand
 > {
-  @Inject()
-  private readonly objectStorage!: ObjectStorage;
+  private readonly objectStorage: ObjectStorage;
+
+  public constructor(
+    objectMapper: ObjectMapper,
+    userRepository: UserRepository,
+    objectStorage: ObjectStorage,
+  ) {
+    super(objectMapper, userRepository);
+    this.objectStorage = objectStorage;
+  }
 
   protected async doHandle(
     command: RemoveAuthUserAvatarCommand,
@@ -31,9 +43,5 @@ export class RemoveAuthUserAvatarCommandHandler extends AbstractUserCommandHandl
     });
     authUser.removeAvatar();
     return authUser;
-  }
-
-  public getCommandType(): Type<RemoveAuthUserAvatarCommand> {
-    return RemoveAuthUserAvatarCommand;
   }
 }

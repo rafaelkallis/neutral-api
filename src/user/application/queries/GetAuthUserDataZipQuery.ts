@@ -1,7 +1,6 @@
 import { Query } from 'shared/query/Query';
-import { QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
-import { Type, Injectable } from '@nestjs/common';
 import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
@@ -22,8 +21,8 @@ export class GetAuthUserDataZipQuery extends Query<
   }
 }
 
-@Injectable()
-export class GetAuthUserDataZipQueryHandler extends QueryHandler<
+@QueryHandler(GetAuthUserDataZipQuery)
+export class GetAuthUserDataZipQueryHandler extends AbstractQueryHandler<
   GetAuthUserDataZipQueryResult,
   GetAuthUserDataZipQuery
 > {
@@ -56,9 +55,5 @@ export class GetAuthUserDataZipQueryHandler extends QueryHandler<
       archiveBuilder.addFile('avatar', getResult.file);
     }
     return archiveBuilder.build();
-  }
-
-  public getQueryType(): Type<GetAuthUserDataZipQuery> {
-    return GetAuthUserDataZipQuery;
   }
 }

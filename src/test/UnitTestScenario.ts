@@ -2,12 +2,19 @@ import td from 'testdouble';
 import { Type, Provider, ValueProvider, ClassProvider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TestScenario } from 'test/TestScenario';
+import { ContextId, ContextIdFactory } from '@nestjs/core';
 
 export class UnitTestScenario<TSubject> extends TestScenario {
+  public readonly contextId: ContextId;
   public readonly subject: TSubject;
 
-  public constructor(subject: TSubject, module: TestingModule) {
+  public constructor(
+    module: TestingModule,
+    contextId: ContextId,
+    subject: TSubject,
+  ) {
     super(module);
+    this.contextId = contextId;
     this.subject = subject;
   }
 
@@ -57,7 +64,8 @@ export class UnitTestScenarioBuilder<TSubject> {
     const module = await Test.createTestingModule({
       providers: this.providers,
     }).compile();
-    const subject = module.get(this.subjectType);
-    return new UnitTestScenario(subject, module);
+    const contextId = ContextIdFactory.create();
+    const subject = await module.resolve(this.subjectType, contextId);
+    return new UnitTestScenario(module, contextId, subject);
   }
 }

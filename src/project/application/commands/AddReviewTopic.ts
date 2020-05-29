@@ -1,4 +1,3 @@
-import { Type, Injectable } from '@nestjs/common';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
@@ -9,6 +8,7 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class AddReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -28,7 +28,7 @@ export class AddReviewTopicCommand extends ProjectCommand {
   }
 }
 
-@Injectable()
+@CommandHandler(AddReviewTopicCommand)
 export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
   AddReviewTopicCommand
 > {
@@ -45,9 +45,5 @@ export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
     const description = ReviewTopicDescription.from(command.description);
     project.addReviewTopic(title, description);
     return project;
-  }
-
-  public getCommandType(): Type<AddReviewTopicCommand> {
-    return AddReviewTopicCommand;
   }
 }

@@ -1,9 +1,8 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
-import { Type, Injectable } from '@nestjs/common';
 
 export class GetAuthUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -14,8 +13,8 @@ export class GetAuthUserQuery extends Query<UserDto> {
   }
 }
 
-@Injectable()
-export class GetAuthUserQueryHandler extends QueryHandler<
+@QueryHandler(GetAuthUserQuery)
+export class GetAuthUserQueryHandler extends AbstractQueryHandler<
   UserDto,
   GetAuthUserQuery
 > {
@@ -31,9 +30,5 @@ export class GetAuthUserQueryHandler extends QueryHandler<
       authUser: query.authUser,
     });
     return Promise.resolve(authUserDto);
-  }
-
-  public getQueryType(): Type<GetAuthUserQuery> {
-    return GetAuthUserQuery;
   }
 }

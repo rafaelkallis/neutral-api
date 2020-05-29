@@ -1,12 +1,11 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
 import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from '../exceptions/UserNotFoundException';
-import { Type, Injectable } from '@nestjs/common';
 
 export class GetUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -19,8 +18,11 @@ export class GetUserQuery extends Query<UserDto> {
   }
 }
 
-@Injectable()
-export class GetUserQueryHandler extends QueryHandler<UserDto, GetUserQuery> {
+@QueryHandler(GetUserQuery)
+export class GetUserQueryHandler extends AbstractQueryHandler<
+  UserDto,
+  GetUserQuery
+> {
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
 
@@ -40,9 +42,5 @@ export class GetUserQueryHandler extends QueryHandler<UserDto, GetUserQuery> {
       throw new UserNotFoundException();
     }
     return this.objectMapper.map(user, UserDto, { authUser: query.authUser });
-  }
-
-  public getQueryType(): Type<GetUserQuery> {
-    return GetUserQuery;
   }
 }
