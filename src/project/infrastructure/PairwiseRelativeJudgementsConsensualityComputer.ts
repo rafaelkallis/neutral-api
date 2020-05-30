@@ -19,7 +19,7 @@ function mean(arr: number[]): number {
  * Computes consensuality using pairwise relative judgements.
  */
 @Injectable()
-export class PairwiseRelativeJudgementsConsensualityComputerService extends ConsensualityComputer {
+export class PairwiseRelativeJudgementsConsensualityComputer extends ConsensualityComputer {
   /**
    * Computes a project's consensuality.
    */
