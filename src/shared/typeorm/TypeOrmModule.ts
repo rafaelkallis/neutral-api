@@ -13,6 +13,6 @@ import { CommittedModelTypeOrmPersistConnector } from 'shared/typeorm/CommittedM
     TypeOrmEntityRegistry,
     CommittedModelTypeOrmPersistConnector,
   ],
-  exports: [TypeOrmClient, TypeOrmEntityRegistry],
+  exports: [TypeOrmClient],
 })
 export class TypeOrmModule {}

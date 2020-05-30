@@ -5,7 +5,6 @@ import { TestScenario } from 'test/TestScenario';
 import { ContextId, ContextIdFactory } from '@nestjs/core';
 
 export class UnitTestScenario<TSubject> extends TestScenario {
-  public readonly contextId: ContextId;
   public readonly subject: TSubject;
 
   public constructor(
@@ -13,8 +12,7 @@ export class UnitTestScenario<TSubject> extends TestScenario {
     contextId: ContextId,
     subject: TSubject,
   ) {
-    super(module);
-    this.contextId = contextId;
+    super(module, contextId);
     this.subject = subject;
   }
 

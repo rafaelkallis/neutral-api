@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
 import { NotificationController } from 'notification/presentation/NotificationController';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
 import { UserModule } from 'user/UserModule';
@@ -30,6 +30,7 @@ import { TypeOrmNotificationRepositoryStrategy } from 'notification/infrastructu
     {
       provide: NotificationRepositoryStrategy,
       useClass: TypeOrmNotificationRepositoryStrategy,
+      scope: Scope.DEFAULT,
     },
     NotificationDomainEventHandlers,
   ],

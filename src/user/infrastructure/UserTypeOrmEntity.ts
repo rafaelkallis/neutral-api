@@ -1,13 +1,17 @@
-import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { Column } from 'typeorm';
+import {
+  AbstractTypeOrmEntity,
+  TypeOrmEntity,
+} from 'shared/infrastructure/TypeOrmEntity';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
 import { UserStateValue } from 'user/domain/value-objects/states/UserStateValue';
+import { User } from 'user/domain/User';
 
 /**
  * User TypeOrm Entity
  */
-@Entity('users')
-export class UserTypeOrmEntity extends TypeOrmEntity {
+@TypeOrmEntity(User, 'users')
+export class UserTypeOrmEntity extends AbstractTypeOrmEntity {
   @Column({ name: 'email' })
   public email: string;
 

@@ -4,20 +4,25 @@ import request from 'supertest';
 import { AppModule } from 'app/AppModule';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { User } from 'user/domain/User';
+import { User, ReadonlyUser } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { Project } from 'project/domain/project/Project';
+import { Notification } from 'notification/domain/Notification';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
 import { UnitOfWork } from 'shared/unit-of-work/domain/UnitOfWork';
-import { ContextIdFactory } from '@nestjs/core';
+import { ContextIdFactory, ContextId } from '@nestjs/core';
 import { UserRepositoryStrategy } from 'user/domain/UserRepositoryStrategy';
 
 type Session = request.SuperTest<request.Test>;
 
 export class IntegrationTestScenario extends TestScenario {
   public readonly app: INestApplication;
+  public readonly session: Session;
+
+  public readonly unitOfWork: UnitOfWork;
+
   public readonly userRepository: UserRepositoryStrategy;
   public readonly projectRepository: ProjectRepository;
   public readonly notificationRepository: NotificationRepository;
@@ -26,28 +31,29 @@ export class IntegrationTestScenario extends TestScenario {
   public readonly emailManager: EmailManager;
   public readonly objectStorage: ObjectStorage;
 
-  public readonly session: Session;
-
   public constructor(
-    app: INestApplication,
     module: TestingModule,
+    contextId: ContextId,
+    app: INestApplication,
+    session: Session,
+    unitOfWork: UnitOfWork,
     userRepository: UserRepositoryStrategy,
     projectRepository: ProjectRepository,
     notificationRepository: NotificationRepository,
     tokenManager: TokenManager,
     emailManager: EmailManager,
     objectStorage: ObjectStorage,
-    session: Session,
   ) {
-    super(module);
+    super(module, contextId);
     this.app = app;
+    this.session = session;
+    this.unitOfWork = unitOfWork;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.notificationRepository = notificationRepository;
     this.tokenManager = tokenManager;
     this.emailManager = emailManager;
     this.objectStorage = objectStorage;
-    this.session = session;
   }
 
   public static async create(): Promise<IntegrationTestScenario> {
@@ -56,16 +62,21 @@ export class IntegrationTestScenario extends TestScenario {
     }).compile();
     const app = await module.createNestApplication().init();
     const session = request.agent(app.getHttpServer());
+    const contextId = ContextIdFactory.create();
     return new IntegrationTestScenario(
-      app,
       module,
+      contextId,
+      app,
+      session,
+      await module.resolve(UnitOfWork, contextId, { strict: false }),
       module.get(UserRepositoryStrategy),
       module.get(ProjectRepository),
-      module.get(NotificationRepository),
+      await module.resolve(NotificationRepository, contextId, {
+        strict: false,
+      }),
       module.get(TokenManager),
       module.get(EmailManager),
       module.get(ObjectStorage),
-      session,
     );
   }
 
@@ -93,10 +104,11 @@ export class IntegrationTestScenario extends TestScenario {
     return project;
   }
 
-  public async createUnitOfWork(): Promise<UnitOfWork> {
-    const contextId = ContextIdFactory.create();
-    const unitOfWork = await this.module.resolve(UnitOfWork, contextId);
-    return unitOfWork;
+  public async createNotification(owner: ReadonlyUser): Promise<Notification> {
+    const project = this.modelFaker.notification(owner.id);
+    this.unitOfWork.registerNew(project);
+    await this.unitOfWork.commit();
+    return project;
   }
 
   /**

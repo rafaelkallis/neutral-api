@@ -54,6 +54,7 @@ export class CommittedModelTypeOrmPersistConnector extends Connector {
     }
     const typeOrmEntityType = this.typeOrmEntityRegistry.get(model.getType());
     const typeOrmEntity = this.objectMapper.map(model, typeOrmEntityType);
+    console.log(typeOrmEntity.constructor.name);
     await this.typeOrmClient.entityManager.save(
       typeOrmEntityType,
       typeOrmEntity,

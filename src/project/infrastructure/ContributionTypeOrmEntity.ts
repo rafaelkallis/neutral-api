@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { AbstractTypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 
 @Entity('contributions')
-export class ContributionTypeOrmEntity extends TypeOrmEntity {
+export class ContributionTypeOrmEntity extends AbstractTypeOrmEntity {
   @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.contributions)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;

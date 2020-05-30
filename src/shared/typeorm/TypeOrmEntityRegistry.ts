@@ -4,14 +4,17 @@ import {
   Logger,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { AbstractTypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 
 @Injectable()
 export class TypeOrmEntityRegistry {
   private readonly logger: Logger;
-  private readonly registry: Map<Type<ReadonlyModel<Id>>, Type<TypeOrmEntity>>;
+  private readonly registry: Map<
+    Type<ReadonlyModel<Id>>,
+    Type<AbstractTypeOrmEntity>
+  >;
 
   public constructor() {
     this.logger = new Logger(TypeOrmEntityRegistry.name);
@@ -20,7 +23,7 @@ export class TypeOrmEntityRegistry {
 
   public register(
     modelType: Type<ReadonlyModel<Id>>,
-    typeOrmEntityType: Type<TypeOrmEntity>,
+    typeOrmEntityType: Type<AbstractTypeOrmEntity>,
   ): void {
     if (this.registry.has(modelType)) {
       throw new InternalServerErrorException(
@@ -33,7 +36,7 @@ export class TypeOrmEntityRegistry {
     );
   }
 
-  public get(modelType: Type<ReadonlyModel<Id>>): Type<TypeOrmEntity> {
+  public get(modelType: Type<ReadonlyModel<Id>>): Type<AbstractTypeOrmEntity> {
     const typeOrmEntityType = this.registry.get(modelType);
     if (!typeOrmEntityType) {
       throw new InternalServerErrorException(

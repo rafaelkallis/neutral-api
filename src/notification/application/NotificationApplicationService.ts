@@ -47,7 +47,7 @@ export class NotificationApplicationService {
     }
     notification.assertOwner(authUser);
     notification.markRead();
-    await this.notificationRepository.persist(notification);
+    // await this.notificationRepository.persist(notification);
     return this.objectMapper.map(notification, NotificationDto);
   }
 }

@@ -1,5 +1,5 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { AbstractTypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { RepositoryStrategy } from 'shared/domain/RepositoryStrategy';
 import { Type, Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
@@ -10,7 +10,7 @@ import { AggregateRoot } from 'shared/domain/AggregateRoot';
 export abstract class TypeOrmRepositoryStrategy<
   TId extends Id,
   TModel extends AggregateRoot<TId>,
-  TEntity extends TypeOrmEntity
+  TEntity extends AbstractTypeOrmEntity
 > extends RepositoryStrategy<TId, TModel> {
   protected readonly entityManager: EntityManager;
   protected readonly objectMapper: ObjectMapper;

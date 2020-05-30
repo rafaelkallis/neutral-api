@@ -6,25 +6,28 @@ import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable, Type } from '@nestjs/common';
 import { TypeOrmRepositoryStrategy } from 'shared/typeorm/TypeOrmRepositoryStrategy';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
+import { NotificationRepositoryStrategy } from 'notification/domain/NotificationRepositoryStrategy';
 
 /**
  * TypeOrm Notification Repository
  */
 @Injectable()
-export class TypeOrmNotificationRepositoryStrategy extends TypeOrmRepositoryStrategy<
-  NotificationId,
-  Notification,
-  NotificationTypeOrmEntity
-> {
+export class TypeOrmNotificationRepositoryStrategy
+  extends TypeOrmRepositoryStrategy<
+    NotificationId,
+    Notification,
+    NotificationTypeOrmEntity
+  >
+  implements NotificationRepositoryStrategy {
   public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
     super(typeOrmClient.entityManager, objectMapper);
   }
 
   protected getModelType(): Type<Notification> {
-    throw Notification;
+    return Notification;
   }
   protected getEntityType(): Type<NotificationTypeOrmEntity> {
-    throw NotificationTypeOrmEntity;
+    return NotificationTypeOrmEntity;
   }
 
   /**
