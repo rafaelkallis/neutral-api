@@ -24,6 +24,10 @@ import {
   ConsensualityComputationResult,
 } from 'project/domain/ConsensualityComputer';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import {
+  CliquismComputer,
+  CliquismComputationResult,
+} from 'project/domain/CliquismComputer';
 
 describe(PeerReviewProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -47,12 +51,15 @@ describe(PeerReviewProjectState.name, () => {
     let submittedPeerReviews: [RoleId, PeerReviewScore][];
     let contributionsComputationResult: ContributionsComputationResult;
     let consensualityComputationResult: ConsensualityComputationResult;
+    let cliquismComputationResult: CliquismComputationResult;
     let contributionsComputer: ContributionsComputer;
     let consensualityComputer: ConsensualityComputer;
+    let cliquismComputer: CliquismComputer;
 
     beforeEach(() => {
       contributionsComputer = td.object();
       consensualityComputer = td.object();
+      cliquismComputer = td.object();
       project.state = PeerReviewProjectState.INSTANCE;
       roles = [
         modelFaker.role(creator.id),
@@ -102,6 +109,11 @@ describe(PeerReviewProjectState.name, () => {
         consensualityComputationResult,
       );
 
+      cliquismComputationResult = td.object();
+      td.when(cliquismComputer.compute(project)).thenReturn(
+        cliquismComputationResult,
+      );
+
       contributionsComputationResult = td.object();
       td.when(contributionsComputer.compute(project)).thenReturn(
         contributionsComputationResult,
@@ -121,6 +133,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         ),
       ).toThrow(expect.any(PeerReviewRoleMismatchException));
     });
@@ -139,6 +152,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         ),
       ).toThrow(expect.any(PeerReviewRoleMismatchException));
     });
@@ -156,6 +170,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(project.domainEvents).toContainEqual(
           expect.any(PeerReviewsSubmittedEvent),
@@ -168,6 +183,7 @@ describe(PeerReviewProjectState.name, () => {
         ).toBeTruthy();
         td.verify(contributionsComputationResult.applyTo(project));
         td.verify(consensualityComputationResult.applyTo(project));
+        td.verify(cliquismComputationResult.applyTo(project));
       });
 
       test('should skip manager review if "skipManagerReview" is "yes"', () => {
@@ -179,6 +195,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(project.state).toBe(FinishedProjectState.INSTANCE);
       });
@@ -193,6 +210,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(
           project.state.equals(FinishedProjectState.INSTANCE),
@@ -209,6 +227,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
       });
@@ -222,6 +241,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(
           project.state.equals(ManagerReviewProjectState.INSTANCE),
@@ -242,6 +262,7 @@ describe(PeerReviewProjectState.name, () => {
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
+          cliquismComputer,
         );
         expect(
           project.state.equals(PeerReviewProjectState.INSTANCE),

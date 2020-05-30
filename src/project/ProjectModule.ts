@@ -46,6 +46,8 @@ import { UpdateReviewTopicCommandHandler } from 'project/application/commands/Up
 import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
+import { SumOfPairsCliquismComputer } from 'project/infrastructure/SumOfPairsCliquismComputer';
 
 /**
  * Project Module
@@ -65,6 +67,10 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
     {
       provide: ContributionsComputer,
       useClass: CoveeContributionsComputer,
+    },
+    {
+      provide: CliquismComputer,
+      useClass: SumOfPairsCliquismComputer,
     },
     ProjectApplicationService,
     ProjectFactory,

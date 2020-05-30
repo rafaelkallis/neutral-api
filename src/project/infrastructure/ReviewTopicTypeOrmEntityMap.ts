@@ -56,6 +56,7 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       reviewTopicEntity.consensuality
         ? Consensuality.from(reviewTopicEntity.consensuality)
         : null,
+      null, // TODO
     );
   }
 

@@ -16,6 +16,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from '../CliquismComputer';
 
 describe(Project.name, () => {
   let modelFaker: ModelFaker;
@@ -123,6 +124,7 @@ describe(Project.name, () => {
     const submittedPeerReviews: [RoleId, PeerReviewScore][] = td.object();
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
+    const cliquismComputer: CliquismComputer = td.object();
 
     project.submitPeerReviews(
       senderRoleId,
@@ -130,6 +132,7 @@ describe(Project.name, () => {
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
+      cliquismComputer,
     );
     td.verify(
       project.state.submitPeerReviews(
@@ -139,6 +142,7 @@ describe(Project.name, () => {
         submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,
+        cliquismComputer,
       ),
     );
   });

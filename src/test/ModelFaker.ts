@@ -121,7 +121,15 @@ export class ModelFaker {
     const description = ReviewTopicDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    return new ReviewTopic(id, createdAt, updatedAt, title, description, null);
+    return new ReviewTopic(
+      id,
+      createdAt,
+      updatedAt,
+      title,
+      description,
+      null,
+      null,
+    );
   }
 
   /**

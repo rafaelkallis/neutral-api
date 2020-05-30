@@ -29,6 +29,7 @@ import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
 import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -52,6 +53,7 @@ describe(ProjectApplicationService.name, () => {
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
+      .addProviderMock(CliquismComputer)
       .addProviderMock(TokenManager)
       .addProviderMock(MagicLinkFactory)
       .build();

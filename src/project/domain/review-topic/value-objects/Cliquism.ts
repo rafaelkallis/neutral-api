@@ -1,17 +1,11 @@
-import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject';
 
-/**
- *
- */
-export class Cliquism extends UnitDecimalValueObject {
+export class Cliquism extends NumberValueObject {
   private constructor(value: number) {
     super(value);
   }
 
-  /**
-   *
-   */
   public static from(value: number): Cliquism {
     return new Cliquism(value);
   }

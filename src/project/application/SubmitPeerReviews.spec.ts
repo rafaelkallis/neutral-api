@@ -17,6 +17,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { TokenManager } from 'shared/token/application/TokenManager';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -26,6 +27,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let objectMapper: ObjectMapper;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
+  let cliquismComputer: CliquismComputer;
   let creatorUser: User;
   let projectId: ProjectId;
   let project: Project;
@@ -43,6 +45,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
+      .addProviderMock(CliquismComputer)
       .addProviderMock(TokenManager)
       .addProviderMock(MagicLinkFactory)
       .build();
@@ -52,6 +55,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     objectMapper = scenario.module.get(ObjectMapper);
     contributionsComputer = scenario.module.get(ContributionsComputer);
     consensualityComputer = scenario.module.get(ConsensualityComputer);
+    cliquismComputer = scenario.module.get(CliquismComputer);
 
     creatorUser = scenario.modelFaker.user();
 
@@ -92,6 +96,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
         td.matchers.isA(Array),
         contributionsComputer,
         consensualityComputer,
+        cliquismComputer,
       ),
     );
     td.verify(projectRepository.persist(project));

@@ -15,6 +15,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -96,6 +97,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
     submittedPeerReviews: [RoleId, PeerReviewScore][],
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
+    cliquismComputer: CliquismComputer,
   ): void {
     this.base.submitPeerReviews(
       project,
@@ -104,6 +106,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
+      cliquismComputer,
     );
   }
   public submitManagerReview(project: Project): void {

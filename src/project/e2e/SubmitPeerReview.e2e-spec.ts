@@ -10,6 +10,7 @@ import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserCollection } from 'user/domain/UserCollection';
+import { CliquismComputer } from 'project/domain/CliquismComputer';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -107,6 +108,7 @@ describe('submit peer review (e2e)', () => {
     beforeEach(async () => {
       const contributionsComputer = scenario.module.get(ContributionsComputer);
       const consensualityComputer = scenario.module.get(ConsensualityComputer);
+      const cliquismComputer = scenario.module.get(CliquismComputer);
       for (const reviewTopic of project.reviewTopics) {
         for (const sender of project.roles) {
           if (reviewTopic.equals(reviewTopic1) && sender.equals(role1)) {
@@ -126,6 +128,7 @@ describe('submit peer review (e2e)', () => {
             peerReviews,
             contributionsComputer,
             consensualityComputer,
+            cliquismComputer,
           );
         }
       }
