@@ -1,12 +1,13 @@
-import { Column, Entity } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { Column } from 'typeorm';
+import {
+  AbstractTypeOrmEntity,
+  TypeOrmEntity,
+} from 'shared/infrastructure/TypeOrmEntity';
+import { Notification } from 'notification/domain/Notification';
 import { NotificationTypeValue } from 'notification/domain/value-objects/NotificationType';
 
-/**
- * Notification TypeOrm Entity
- */
-@Entity('notifications')
-export class NotificationTypeOrmEntity extends TypeOrmEntity {
+@TypeOrmEntity(Notification, 'notifications')
+export class NotificationTypeOrmEntity extends AbstractTypeOrmEntity {
   @Column({ name: 'owner_id' })
   public ownerId: string;
 

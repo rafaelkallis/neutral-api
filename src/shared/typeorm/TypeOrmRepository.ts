@@ -1,5 +1,5 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { AbstractTypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { Repository } from 'shared/domain/Repository';
 import { Type, InternalServerErrorException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
@@ -10,7 +10,7 @@ import { Observable } from 'shared/domain/Observer';
 export class TypeOrmRepository<
   TId extends Id,
   TModel extends AggregateRoot<TId>,
-  TEntity extends TypeOrmEntity
+  TEntity extends AbstractTypeOrmEntity
 > extends Repository<TId, TModel> {
   protected readonly modelType: Type<TModel>;
   protected readonly entityType: Type<TEntity>;

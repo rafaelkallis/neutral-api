@@ -1,17 +1,18 @@
-import { Column, Entity, OneToMany } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { Column, OneToMany } from 'typeorm';
+import {
+  AbstractTypeOrmEntity,
+  TypeOrmEntity,
+} from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
+import { Project } from 'project/domain/project/Project';
 
-/**
- * Project TypeOrm Entity
- */
-@Entity('projects')
-export class ProjectTypeOrmEntity extends TypeOrmEntity {
+@TypeOrmEntity(Project, 'projects')
+export class ProjectTypeOrmEntity extends AbstractTypeOrmEntity {
   @Column({ name: 'title' })
   public title: string;
 

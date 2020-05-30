@@ -1,12 +1,13 @@
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  AbstractTypeOrmEntity,
+  TypeOrmEntity,
+} from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
+import { Role } from 'project/domain/role/Role';
 
-/**
- * Role TypeOrm Entity
- */
-@Entity('roles')
-export class RoleTypeOrmEntity extends TypeOrmEntity {
+@TypeOrmEntity(Role, 'roles')
+export class RoleTypeOrmEntity extends AbstractTypeOrmEntity {
   @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.roles)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
