@@ -15,6 +15,7 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 
 /**
  *
@@ -67,7 +68,10 @@ export abstract class ProjectState extends ValueObject {
     reviewTopicId: ReviewTopicId,
   ): void;
 
-  public abstract finishFormation(project: Project): void;
+  public abstract finishFormation(
+    project: Project,
+    assignees: ReadonlyUserCollection,
+  ): void;
 
   public abstract submitPeerReviews(
     project: Project,
@@ -154,7 +158,10 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public finishFormation(_project: Project): void {
+  public finishFormation(
+    _project: Project,
+    _assignees: ReadonlyUserCollection,
+  ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 

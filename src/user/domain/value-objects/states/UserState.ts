@@ -10,25 +10,16 @@ export abstract class UserState extends ValueObject {
     super();
   }
 
-  public abstract invite(user: User): void;
-  public abstract activate(user: User, name: Name): void;
   public abstract login(user: User): void;
   public abstract changeEmail(user: User, email: Email): void;
   public abstract updateName(user: User, name: Name): void;
   public abstract updateAvatar(user: User, newAvatar: Avatar): void;
   public abstract removeAvatar(user: User): void;
   public abstract forget(user: User): void;
+  public abstract isActive(): boolean;
 }
 
-export abstract class DefaultUserState extends UserState {
-  public invite(_user: User): void {
-    throw new OperationNotSupportedByCurrentUserStateException();
-  }
-
-  public activate(_user: User, _name: Name): void {
-    throw new OperationNotSupportedByCurrentUserStateException();
-  }
-
+export class DefaultUserState extends UserState {
   public login(_user: User): void {
     throw new OperationNotSupportedByCurrentUserStateException();
   }
@@ -51,5 +42,9 @@ export abstract class DefaultUserState extends UserState {
 
   public forget(_user: User): void {
     throw new OperationNotSupportedByCurrentUserStateException();
+  }
+
+  public isActive(): boolean {
+    return false;
   }
 }

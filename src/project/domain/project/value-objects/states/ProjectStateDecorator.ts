@@ -14,6 +14,7 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -79,8 +80,11 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): void {
     this.base.removeReviewTopic(project, reviewTopicId);
   }
-  public finishFormation(project: Project): void {
-    this.base.finishFormation(project);
+  public finishFormation(
+    project: Project,
+    assignees: ReadonlyUserCollection,
+  ): void {
+    this.base.finishFormation(project, assignees);
   }
   public cancel(project: Project): void {
     this.base.cancel(project);

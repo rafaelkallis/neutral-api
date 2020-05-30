@@ -8,7 +8,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 import { Name } from 'user/domain/value-objects/Name';
-import { InitialState } from 'user/domain/value-objects/states/InitialState';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
 
 export interface CreateUserOptions {
   email: Email;
@@ -26,7 +26,7 @@ export class UserFactory extends AggregateRootFactory<
     const updatedAt = UpdatedAt.now();
     const name = Name.from('', '');
     const avatar = null;
-    const state = InitialState.getInstance();
+    const state = PendingState.getInstance();
     const lastLoginAt = LastLoginAt.now();
     const user = new User(
       userId,

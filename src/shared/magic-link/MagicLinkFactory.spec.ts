@@ -2,35 +2,36 @@ import td from 'testdouble';
 import { MagicLinkFactory } from './MagicLinkFactory';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Config } from 'shared/config/application/Config';
-import { TokenManager } from 'shared/token/application/TokenManager';
 import { Email } from 'user/domain/value-objects/Email';
 
 describe(MagicLinkFactory.name, () => {
   let scenario: UnitTestScenario<MagicLinkFactory>;
   let magicLinkFactory: MagicLinkFactory;
   let config: Config;
-  let tokenManager: TokenManager;
+  let loginToken: string;
   let email: Email;
-  let frontendUrl: string;
-  let signupToken: string;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(MagicLinkFactory)
       .addProviderMock(Config)
-      .addProviderMock(TokenManager)
       .build();
     magicLinkFactory = scenario.subject;
     config = scenario.module.get(Config);
-    tokenManager = scenario.module.get(TokenManager);
+    loginToken = scenario.primitiveFaker.id();
     email = scenario.valueObjectFaker.user.email();
-    frontendUrl = Math.random().toString();
-    td.when(config.get('FRONTEND_URL')).thenReturn(frontendUrl);
-    signupToken = Math.random().toString();
-    td.when(tokenManager.newSignupToken(email.value)).thenReturn(signupToken);
+    td.when(config.get('FRONTEND_URL')).thenReturn('http://example.com');
   });
 
-  test('should create signup link', () => {
-    const signupLink = magicLinkFactory.createSignupLink(email);
-    expect(signupLink).toEqual(expect.any(String));
+  test('should create login link', () => {
+    const loginLink = magicLinkFactory.createLoginLink({
+      loginToken,
+      email,
+      isNew: true,
+    });
+    expect(loginLink).toEqual(
+      `http://example.com/login/callback?token=${loginToken}&email=${encodeURIComponent(
+        email.value,
+      )}&new=true`,
+    );
   });
 });

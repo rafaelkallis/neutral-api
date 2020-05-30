@@ -12,7 +12,7 @@ export class UserDto extends ModelDto {
     description: 'Email of the user, only shown for the authenticated user',
     example: 'jerry@hungry-for-apples.com',
   })
-  public email: string | null;
+  public email: string;
 
   @ApiProperty({ example: 'Jerry' })
   public firstName: string;
@@ -27,15 +27,12 @@ export class UserDto extends ModelDto {
   })
   public avatarUrl: string | null;
 
-  @ApiProperty({
-    enum: UserStateValue,
-    example: UserStateValue.ACTIVE,
-  })
+  @ApiProperty({ enum: UserStateValue, example: UserStateValue.ACTIVE })
   public state: UserStateValue;
 
   public constructor(
     id: string,
-    email: string | null,
+    email: string,
     firstName: string,
     lastName: string,
     createdAt: number,

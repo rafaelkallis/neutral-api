@@ -2,15 +2,15 @@ import { Command } from 'shared/command/Command';
 import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserDto } from 'user/application/dto/UserDto';
 import { SessionState } from 'shared/session';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { RequestHandler } from 'shared/mediator/RequestHandler';
+import { UserFactory } from 'user/application/UserFactory';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * Passwordless login token submit
@@ -36,16 +36,19 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   SubmitLoginCommand
 > {
   private readonly userRepository: UserRepository;
+  private readonly userFactory: UserFactory;
   private readonly tokenManager: TokenManager;
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
     userRepository: UserRepository,
+    userFactory: UserFactory,
     tokenManager: TokenManager,
     objectMapper: ObjectMapper,
   ) {
     super();
     this.userRepository = userRepository;
+    this.userFactory = userFactory;
     this.tokenManager = tokenManager;
     this.objectMapper = objectMapper;
   }
@@ -54,14 +57,14 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
     command: SubmitLoginCommand,
   ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenManager.validateLoginToken(command.loginToken);
-    const userId = UserId.from(payload.sub);
+    const email = Email.from(payload.sub);
     const lastLoginAt = LastLoginAt.from(payload.lastLoginAt);
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-    if (!user.lastLoginAt.equals(lastLoginAt)) {
+    let user = await this.userRepository.findByEmail(email);
+    if (!lastLoginAt.equals(user ? user.lastLoginAt : LastLoginAt.never())) {
       throw new TokenAlreadyUsedException();
+    }
+    if (!user) {
+      user = this.userFactory.create({ email });
     }
     user.login();
     await this.userRepository.persist(user);
@@ -69,7 +72,7 @@ export class SubmitLoginCommandHandler extends AbstractCommandHandler<
     command.session.set(sessionToken);
     const accessToken = this.tokenManager.newAccessToken(user.id.value);
     const refreshToken = this.tokenManager.newRefreshToken(user.id.value);
-    const userDto = this.objectMapper.map(user, UserDto, { authUser: user });
+    const userDto = this.objectMapper.map(user, UserDto);
     return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
   }
 }

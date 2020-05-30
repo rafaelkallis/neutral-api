@@ -46,14 +46,14 @@ describe('email domain event handlers', () => {
 
   test('login requested', async () => {
     jest.spyOn(emailManager, 'sendLoginEmail');
-    const user = scenario.modelFaker.user();
+    const email = scenario.valueObjectFaker.user.email();
     const signinMagicLink = '';
-    const event = new LoginRequestedEvent(user, signinMagicLink);
+    const event = new LoginRequestedEvent(email, signinMagicLink);
 
     await emailDomainEventHandlers.signinRequested(event);
 
     expect(emailManager.sendLoginEmail).toHaveBeenCalledWith(
-      user.email.value,
+      email.value,
       signinMagicLink,
     );
   });

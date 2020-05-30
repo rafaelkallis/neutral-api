@@ -2,7 +2,7 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
-import { PairwiseRelativeJudgementsConsensualityComputerService } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
+import { PairwiseRelativeJudgementsConsensualityComputer } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { Project } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
@@ -172,9 +172,9 @@ describe(ConsensualityComputer.name, () => {
     });
   });
 
-  describe(PairwiseRelativeJudgementsConsensualityComputerService, () => {
+  describe(PairwiseRelativeJudgementsConsensualityComputer, () => {
     beforeEach(() => {
-      consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputerService();
+      consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputer();
     });
 
     test('cycle', () => {

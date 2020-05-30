@@ -6,7 +6,7 @@ import { TypeOrmProjectRepositoryStrategy } from 'project/infrastructure/TypeOrm
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
 import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
-import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
+import { PairwiseRelativeJudgementsConsensualityComputer } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { SharedModule } from 'shared/SharedModule';
@@ -62,7 +62,7 @@ import { ProjectRepositoryStrategy } from './domain/project/ProjectRepositoryStr
     },
     {
       provide: ConsensualityComputer,
-      useClass: MeanDeviationConsensualityComputerService,
+      useClass: PairwiseRelativeJudgementsConsensualityComputer,
     },
     {
       provide: ContributionsComputer,

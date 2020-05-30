@@ -1,24 +1,20 @@
 import { Singleton } from 'shared/domain/Singleton';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
 import { UserState } from 'user/domain/value-objects/states/UserState';
-import { InitialState } from 'user/domain/value-objects/states/InitialState';
-import { InvitedState } from 'user/domain/value-objects/states/InvitedState';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 import { ForgottenState } from 'user/domain/value-objects/states/ForgottenState';
 import { InvalidUserStateException } from 'user/domain/exceptions/InvalidUserStateException';
 
 export enum UserStateValue {
-  INITIAL = 'initial',
-  INVITED = 'invited',
+  PENDING = 'pending',
   ACTIVE = 'active',
   FORGOTTEN = 'forgotten',
 }
 
 // TODO need a better solution than this
-
 const associations: [UserStateValue, Singleton<UserState>][] = [
-  [UserStateValue.INITIAL, InitialState],
-  [UserStateValue.INVITED, InvitedState],
+  [UserStateValue.PENDING, PendingState],
   [UserStateValue.ACTIVE, ActiveState],
   [UserStateValue.FORGOTTEN, ForgottenState],
 ];

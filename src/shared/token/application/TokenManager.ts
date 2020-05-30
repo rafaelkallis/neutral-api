@@ -1,12 +1,11 @@
-import { Id } from 'shared/domain/value-objects/Id';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { Email } from 'user/domain/value-objects/Email';
 
 /**
  * Token types used throughout the app.
  */
 export enum TokenAud {
   LOGIN = 'login_token',
-  SIGNUP = 'signup_token',
   ACCESS = 'access_token',
   REFRESH = 'refresh_token',
   SESSION = 'session',
@@ -27,13 +26,6 @@ export interface BaseToken {
 export interface LoginToken extends BaseToken {
   aud: TokenAud.LOGIN;
   lastLoginAt: number;
-}
-
-/**
- * SignupToken interface.
- */
-export interface SignupToken extends BaseToken {
-  aud: TokenAud.SIGNUP;
 }
 
 /**
@@ -74,22 +66,12 @@ export abstract class TokenManager {
   /**
    * Create a new login token to be used in a login magic link.
    */
-  public abstract newLoginToken(userId: Id, lastLoginAt: LastLoginAt): string;
+  public abstract newLoginToken(email: Email, lastLoginAt: LastLoginAt): string;
 
   /**
    * Validate and decrypt a login token.
    */
   public abstract validateLoginToken(token: string): LoginToken;
-
-  /**
-   * Create a new signup token to be used in a signup magic link.
-   */
-  public abstract newSignupToken(sub: string): string;
-
-  /**
-   * Validate and decrypt a signup token.
-   */
-  public abstract validateSignupToken(token: string): SignupToken;
 
   /**
    * Create a new access token for identifying user sessions.

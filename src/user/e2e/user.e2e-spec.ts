@@ -51,7 +51,7 @@ describe('user (e2e)', () => {
       for (const queryUser of [user1, user2, user3]) {
         expect(response.body).toContainEqual({
           id: queryUser.id.value,
-          email: null,
+          email: queryUser.email.value,
           firstName: queryUser.name.first,
           lastName: queryUser.name.last,
           avatarUrl: null,

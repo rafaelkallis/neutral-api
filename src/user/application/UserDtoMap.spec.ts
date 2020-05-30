@@ -24,7 +24,7 @@ describe(UserDtoMap.name, () => {
   });
 
   test('general', () => {
-    const userDto = userMap.map(user, { authUser: user });
+    const userDto = userMap.map(user, {});
     expect(userDto).toEqual({
       id: user.id.value,
       email: user.email.value,
@@ -35,11 +35,5 @@ describe(UserDtoMap.name, () => {
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
     });
-  });
-
-  test('should not expose email of another user', () => {
-    const otherUser = modelFaker.user();
-    const userDto = userMap.map(user, { authUser: otherUser });
-    expect(userDto.email).toBeNull();
   });
 });

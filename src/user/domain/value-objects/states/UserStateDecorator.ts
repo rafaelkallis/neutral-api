@@ -12,14 +12,6 @@ export abstract class UserStateDecorator extends UserState {
     this.base = base;
   }
 
-  public invite(user: User): void {
-    this.base.invite(user);
-  }
-
-  public activate(user: User, name: Name): void {
-    this.base.activate(user, name);
-  }
-
   public login(user: User): void {
     this.base.login(user);
   }
@@ -42,5 +34,9 @@ export abstract class UserStateDecorator extends UserState {
 
   public forget(user: User): void {
     this.base.forget(user);
+  }
+
+  public isActive(): boolean {
+    return this.base.isActive();
   }
 }

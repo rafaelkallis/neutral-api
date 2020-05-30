@@ -13,6 +13,8 @@ import { UserState } from 'user/domain/value-objects/states/UserState';
 import { ReadonlyModel } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
 import { Type } from '@nestjs/common';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
+import { UserCreatedEvent } from 'user/domain/events/UserCreatedEvent';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -21,14 +23,13 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly state: UserState;
   readonly lastLoginAt: LastLoginAt;
 
-  invite(): void;
-  activate(name: Name): void;
   login(): void;
   changeEmail(email: Email): void;
   updateName(name: Name): void;
   updateAvatar(newAvatar: Avatar): void;
   removeAvatar(): void;
   forget(): void;
+  isActive(): boolean;
 }
 
 export class User extends AggregateRoot<UserId> implements ReadonlyUser {
@@ -56,12 +57,31 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     this.lastLoginAt = lastLoginAt;
   }
 
-  public invite(): void {
-    this.state.invite(this);
-  }
-
-  public activate(name: Name): void {
-    this.state.activate(this, name);
+  /**
+   *
+   */
+  public static createInvited(email: Email): ReadonlyUser {
+    const first = '';
+    const last = '';
+    const name = Name.from(first, last);
+    const userId = UserId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const avatar = null;
+    const state = PendingState.getInstance();
+    const lastLoginAt = LastLoginAt.never();
+    const user = new User(
+      userId,
+      createdAt,
+      updatedAt,
+      email,
+      name,
+      avatar,
+      state,
+      lastLoginAt,
+    );
+    user.raise(new UserCreatedEvent(user.id));
+    return user;
   }
 
   /**
@@ -108,4 +128,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
   }
 
   public *getRemovedModels(): Iterable<ReadonlyModel<Id>> {}
+  public isActive(): boolean {
+    return this.state.isActive();
+  }
 }

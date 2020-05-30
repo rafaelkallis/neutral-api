@@ -20,9 +20,13 @@ import { FinishedProjectState } from 'project/domain/project/value-objects/state
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
-import { InitialState } from 'user/domain/value-objects/states/InitialState';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
+import { TokenManager } from 'shared/token/application/TokenManager';
+import { UserCollection } from 'user/domain/UserCollection';
+import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
+import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -46,6 +50,7 @@ describe(ProjectApplicationService.name, () => {
       .addProviderMock(DomainEventBroker)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
+      .addProviderMock(TokenManager)
       .addProviderMock(MagicLinkFactory)
       .build();
     projectApplication = scenario.subject;
@@ -190,7 +195,7 @@ describe(ProjectApplicationService.name, () => {
       expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
-    test('happy path, email of user that exists', async () => {
+    test('happy path, email of active user', async () => {
       await projectApplication.assignUserToRole(
         creatorUser,
         project.id.value,
@@ -199,13 +204,17 @@ describe(ProjectApplicationService.name, () => {
         assignee.email.value,
       );
       expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
+      td.verify(
+        scenario.module
+          .get(DomainEventBroker)
+          .publish(td.matchers.isA(ActiveUserAssignedEvent)),
+      );
     });
 
     test("happy path, email of user that doesn't exist", async () => {
       const assigneeEmail = scenario.primitiveFaker.email();
       const createdUser = scenario.modelFaker.user();
-      createdUser.state = InitialState.getInstance();
-      jest.spyOn(createdUser, 'invite');
+      createdUser.state = PendingState.getInstance();
       const userFactory = scenario.module.get(UserFactory);
       td.when(
         userFactory.create({ email: Email.from(assigneeEmail) }),
@@ -220,13 +229,38 @@ describe(ProjectApplicationService.name, () => {
         assigneeEmail,
       );
 
-      expect(createdUser.invite).toHaveBeenCalledWith();
       expect(userRepository.persist).toHaveBeenCalledWith(createdUser);
       expect(project.assignUserToRole).toHaveBeenCalledWith(
         createdUser,
         roleToBeAssigned.id,
       );
-      // TODO check if events emitted
+      td.verify(
+        scenario.module
+          .get(DomainEventBroker)
+          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
+      );
+    });
+
+    test('happy path, email of user that is not active', async () => {
+      assignee.state = PendingState.getInstance();
+
+      await projectApplication.assignUserToRole(
+        creatorUser,
+        project.id.value,
+        roleToBeAssigned.id.value,
+        undefined,
+        assignee.email.value,
+      );
+
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        assignee,
+        roleToBeAssigned.id,
+      );
+      td.verify(
+        scenario.module
+          .get(DomainEventBroker)
+          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
+      );
     });
   });
 
@@ -248,7 +282,9 @@ describe(ProjectApplicationService.name, () => {
     test('happy path', async () => {
       await projectApplication.finishFormation(creatorUser, project.id.value);
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.finishFormation).toHaveBeenCalledWith();
+      expect(project.finishFormation).toHaveBeenCalledWith(
+        new UserCollection(assignees),
+      );
     });
   });
 

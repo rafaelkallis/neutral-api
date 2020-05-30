@@ -21,6 +21,8 @@ import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreate
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
+import { PendingState } from 'user/domain/value-objects/states/PendingState';
+import { UserCollection } from 'user/domain/UserCollection';
 
 describe(FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -233,14 +235,19 @@ describe(FormationProjectState.name, () => {
   });
 
   describe('finish formation', () => {
+    let assignees: UserCollection;
+
     beforeEach(() => {
+      assignees = new UserCollection([]);
       for (const role of project.roles.toArray()) {
-        role.assigneeId = UserId.create();
+        const user = modelFaker.user();
+        assignees.add(user);
+        role.assigneeId = user.id;
       }
     });
 
     test('happy path', () => {
-      state.finishFormation(project);
+      state.finishFormation(project, assignees);
       expect(project.domainEvents).toContainEqual(
         expect.any(ProjectFormationFinishedEvent),
       );
@@ -250,13 +257,20 @@ describe(FormationProjectState.name, () => {
     });
 
     test('should fail if a role has no user assigned', () => {
-      roles[0].assigneeId = null;
-      expect(() => project.finishFormation()).toThrow();
+      project.roles.first().assigneeId = null;
+      assignees.remove(assignees.first());
+      expect(() => project.finishFormation(assignees)).toThrow();
     });
 
     test('should fail if amount of roles is insufficient', () => {
-      project.roles.remove(roles[0]);
-      expect(() => project.finishFormation()).toThrow();
+      project.roles.remove(project.roles.first());
+      assignees.remove(assignees.first());
+      expect(() => project.finishFormation(assignees)).toThrow();
+    });
+
+    test('should fail if there exist inactive assignees', () => {
+      assignees.first().state = PendingState.getInstance();
+      expect(() => project.finishFormation(assignees)).toThrow();
     });
   });
 });

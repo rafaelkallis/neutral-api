@@ -10,6 +10,13 @@ export class PrimitiveFaker {
   }
 
   /**
+   * Creates a fake url
+   */
+  public url(): string {
+    return `http://example.com/${this.id()}`;
+  }
+
+  /**
    * Creates a fake email address
    */
   public email(): string {

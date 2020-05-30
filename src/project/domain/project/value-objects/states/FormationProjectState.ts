@@ -30,6 +30,8 @@ import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreate
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
+import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { UserId } from 'user/domain/value-objects/UserId';
 
 export class FormationProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -155,10 +157,17 @@ export class FormationProjectState extends DefaultProjectState {
     project.raise(new ReviewTopicRemovedEvent(reviewTopicId));
   }
 
-  public finishFormation(project: Project): void {
+  public finishFormation(
+    project: Project,
+    assignees: ReadonlyUserCollection,
+  ): void {
     project.roles.assertSufficientAmount();
     project.roles.assertAllAreAssigned();
+    for (const role of project.roles) {
+      assignees.assertContains(role.assigneeId as UserId);
+    }
     project.reviewTopics.assertSufficientAmount();
+    assignees.assertAllAreActive();
     project.state = PeerReviewProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project));

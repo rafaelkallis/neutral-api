@@ -9,6 +9,7 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { UserCollection } from 'user/domain/UserCollection';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -65,7 +66,7 @@ describe('submit peer review (e2e)', () => {
     project.assignUserToRole(user3, role3.id);
     project.assignUserToRole(user4, role4.id);
 
-    project.finishFormation();
+    project.finishFormation(new UserCollection([user1, user2, user3, user4]));
 
     await scenario.projectRepository.persist(project);
 
