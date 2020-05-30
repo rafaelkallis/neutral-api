@@ -275,6 +275,9 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
+      td.when(userRepository.findByIds(td.matchers.anything())).thenResolve(
+        assignees,
+      );
       project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });
