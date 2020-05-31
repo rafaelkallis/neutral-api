@@ -1,5 +1,5 @@
 import { Query } from 'shared/query/Query';
-import { AbstractQueryHandler } from 'shared/query/QueryHandler';
+import { QueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
 import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
@@ -25,7 +25,7 @@ export class GetAuthUserDataZipQuery extends Query<
 
 @Injectable()
 @AssociatedRequest.d(GetAuthUserDataZipQuery)
-export class GetAuthUserDataZipQueryHandler extends AbstractQueryHandler<
+export class GetAuthUserDataZipQueryHandler extends QueryHandler<
   GetAuthUserDataZipQueryResult,
   GetAuthUserDataZipQuery
 > {

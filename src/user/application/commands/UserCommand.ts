@@ -1,5 +1,5 @@
 import { AuthenticatedCommand } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { UserDto } from 'user/application/dto/UserDto';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
@@ -11,7 +11,7 @@ export abstract class UserCommand extends AuthenticatedCommand<UserDto> {}
 @Injectable()
 export abstract class UserCommandHandler<
   TCommand extends UserCommand
-> extends AbstractCommandHandler<UserDto, TCommand> {
+> extends CommandHandler<UserDto, TCommand> {
   protected readonly objectMapper: ObjectMapper;
   protected readonly userRepository: UserRepository;
 

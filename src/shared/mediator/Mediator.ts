@@ -8,10 +8,9 @@ import { Request } from 'shared/mediator/Request';
 import { Request as HttpRequest } from 'express';
 import { ModuleRef, ContextIdFactory, REQUEST } from '@nestjs/core';
 import {
-  AbstractRequestHandler,
   RequestHandler,
   AssociatedRequest,
-} from './RequestHandler';
+} from 'shared/mediator/RequestHandler';
 
 /**
  *
@@ -40,7 +39,7 @@ export class Mediator {
         `No request handler registered for ${requestType.name}, did you apply @${RequestHandler.name}(${requestType.name}) to your request handler?`,
       );
     }
-    const resolvedRequestHandlers: AbstractRequestHandler<T, TRequest>[] = [];
+    const resolvedRequestHandlers: RequestHandler<T, TRequest>[] = [];
     for (const requestHandlerType of requestHandlerTypes) {
       const resolvedRequestHandler = await this.moduleRef.resolve(
         requestHandlerType as any, // TODO remove any
@@ -48,7 +47,7 @@ export class Mediator {
         { strict: false },
       );
       resolvedRequestHandlers.push(
-        resolvedRequestHandler as AbstractRequestHandler<T, TRequest>,
+        resolvedRequestHandler as RequestHandler<T, TRequest>,
       );
     }
     if (resolvedRequestHandlers.length > 1) {

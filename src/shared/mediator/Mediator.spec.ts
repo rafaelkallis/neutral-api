@@ -1,7 +1,7 @@
 import { Mediator } from 'shared/mediator/Mediator';
 import { Request } from 'shared/mediator/Request';
 import {
-  AbstractRequestHandler,
+  RequestHandler,
   AssociatedRequest,
 } from 'shared/mediator/RequestHandler';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -20,7 +20,7 @@ describe(Mediator.name, () => {
 
   @Injectable()
   @AssociatedRequest.d(TestRequest)
-  class TestRequestHandler extends AbstractRequestHandler<number, TestRequest> {
+  class TestRequestHandler extends RequestHandler<number, TestRequest> {
     public handle(request: TestRequest): number {
       return request.input + 1;
     }
@@ -29,10 +29,7 @@ describe(Mediator.name, () => {
   class RejectingRequest extends Request<void> {}
 
   @AssociatedRequest.d(RejectingRequest)
-  class RejectingRequestHandler extends AbstractRequestHandler<
-    void,
-    RejectingRequest
-  > {
+  class RejectingRequestHandler extends RequestHandler<void, RejectingRequest> {
     public handle(_request: RejectingRequest): void {
       throw new Error();
     }

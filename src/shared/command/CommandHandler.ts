@@ -1,7 +1,7 @@
 import { Command } from 'shared/command/Command';
-import { AbstractRequestHandler } from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 
-export abstract class AbstractCommandHandler<
+export abstract class CommandHandler<
   T,
   TCommand extends Command<T>
-> extends AbstractRequestHandler<T, TCommand> {}
+> extends RequestHandler<T, TCommand> {}

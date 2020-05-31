@@ -1,7 +1,7 @@
-import { AbstractRequestHandler } from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 import { Query } from 'shared/query/Query';
 
-export abstract class AbstractQueryHandler<
+export abstract class QueryHandler<
   T,
   TQuery extends Query<T>
-> extends AbstractRequestHandler<T, TQuery> {}
+> extends RequestHandler<T, TQuery> {}

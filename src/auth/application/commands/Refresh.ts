@@ -1,5 +1,5 @@
 import { Command } from 'shared/command/Command';
-import { AbstractCommandHandler } from 'shared/command/CommandHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { Injectable } from '@nestjs/common';
@@ -22,7 +22,7 @@ export class RefreshCommand extends Command<RefreshResponseDto> {
 
 @Injectable()
 @AssociatedRequest.d(RefreshCommand)
-export class RefreshCommandHandler extends AbstractCommandHandler<
+export class RefreshCommandHandler extends CommandHandler<
   RefreshResponseDto,
   RefreshCommand
 > {
