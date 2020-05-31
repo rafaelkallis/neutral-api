@@ -14,7 +14,7 @@ describe('notification application service', () => {
   let objectMapper: ObjectMapper;
   let notificationApplicationService: NotificationApplicationService;
   let user: User;
-  let mockNotificationDto: unknown;
+  let mockNotificationDto: NotificationDto;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -25,7 +25,7 @@ describe('notification application service', () => {
       objectMapper,
     );
     user = modelFaker.user();
-    mockNotificationDto = {};
+    mockNotificationDto = td.object();
     td.when(
       objectMapper.map(td.matchers.isA(Notification), NotificationDto),
     ).thenResolve(mockNotificationDto);

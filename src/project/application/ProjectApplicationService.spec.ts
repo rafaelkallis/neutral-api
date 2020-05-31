@@ -41,7 +41,7 @@ describe(ProjectApplicationService.name, () => {
   let project: Project;
   let roles: Role[];
   let reviewTopic: ReviewTopic;
-  let expectedProjectDto: unknown;
+  let expectedProjectDto: ProjectDto;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(ProjectApplicationService)

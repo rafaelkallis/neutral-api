@@ -31,7 +31,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let project: Project;
   let authRole: Role;
   let reviewTopic: ReviewTopic;
-  let expectedProjectDto: unknown;
+  let expectedProjectDto: ProjectDto;
   let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
   beforeEach(async () => {

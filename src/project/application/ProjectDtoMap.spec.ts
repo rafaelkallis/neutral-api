@@ -19,7 +19,7 @@ describe('project dto map', () => {
   let project: Project;
 
   let roleDtos: RoleDto[];
-  let peerReviewDtos: RoleDto[];
+  let peerReviewDtos: PeerReviewDto[];
   let reviewTopicDtos: ReviewTopicDto[];
   let contributionDtos: ContributionDto[];
 
