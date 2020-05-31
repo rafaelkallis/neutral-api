@@ -2,10 +2,11 @@ import { Mediator } from 'shared/mediator/Mediator';
 import { Request } from 'shared/mediator/Request';
 import {
   AbstractRequestHandler,
-  RequestHandler,
+  AssociatedRequest,
 } from 'shared/mediator/RequestHandler';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ContextIdFactory } from '@nestjs/core';
+import { Injectable } from '@nestjs/common';
 
 describe(Mediator.name, () => {
   let scenario: UnitTestScenario<Mediator>;
@@ -17,7 +18,8 @@ describe(Mediator.name, () => {
     }
   }
 
-  @RequestHandler(TestRequest)
+  @Injectable()
+  @AssociatedRequest.d(TestRequest)
   class TestRequestHandler extends AbstractRequestHandler<number, TestRequest> {
     public handle(request: TestRequest): number {
       return request.input + 1;
@@ -26,12 +28,12 @@ describe(Mediator.name, () => {
 
   class RejectingRequest extends Request<void> {}
 
-  @RequestHandler(RejectingRequest)
+  @AssociatedRequest.d(RejectingRequest)
   class RejectingRequestHandler extends AbstractRequestHandler<
     void,
     RejectingRequest
   > {
-    public handle(request: RejectingRequest): void {
+    public handle(_request: RejectingRequest): void {
       throw new Error();
     }
   }
