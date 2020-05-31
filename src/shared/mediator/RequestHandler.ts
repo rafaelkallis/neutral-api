@@ -43,12 +43,3 @@ export function RequestHandler(
     Injectable(scopeOptions)(requestHandlerType);
   };
 }
-
-export function getRequestHandlerType(
-  requestType: Type<Request<unknown>>,
-): (
-  | Abstract<AbstractRequestHandler<unknown, Request<unknown>>>
-  | Type<AbstractRequestHandler<unknown, Request<unknown>>>
-)[] {
-  return AssociatedRequest.inverse().get(requestType) || [];
-}
