@@ -1,39 +1,41 @@
-export interface ReadonlyBiMap<T, U> {
-  get(t: T): U | null;
-  getReverse(u: U): T | null;
+/**
+ * A bimap (or "bidirectional map") is a map that preserves the uniqueness of its values as well as that of its keys.
+ */
+export interface ReadonlyBiMap<U, V> {
+  get(t: U): V | null;
+  inverse(): ReadonlyBiMap<V, U>;
 }
 
-export class BiMap<T, U> implements ReadonlyBiMap<T, U> {
-  private readonly values: [T, U][];
+export class BiMap<U, V> implements ReadonlyBiMap<U, V> {
+  private readonly values: [U, V][];
 
-  public constructor() {
-    this.values = [];
+  private constructor(values: [U, V][]) {
+    this.values = values;
   }
 
-  public get(t1: T): U | null {
-    for (const [t2, u2] of this.values) {
-      if (t1 === t2) {
-        return u2;
-      }
-    }
-    return null;
+  public static empty<U, V>(): BiMap<U, V> {
+    return new BiMap([]);
   }
 
-  public getReverse(u1: U): T | null {
-    for (const [t2, u2] of this.values) {
+  public get(u1: U): V | null {
+    for (const [u2, v2] of this.values) {
       if (u1 === u2) {
-        return t2;
+        return v2;
       }
     }
     return null;
   }
 
-  public put(t1: T, u1: U): void {
-    for (const [t2, u2] of this.values) {
-      if (t1 === t2 || u1 === u2) {
-        throw new Error(`Conflicting pairs: {${t1}, ${u1}} and {${t2}, ${u2}}`);
+  public inverse(): ReadonlyBiMap<V, U> {
+    return new BiMap(this.values.map(([u, v]) => [v, u]));
+  }
+
+  public put(u1: U, v1: V): void {
+    for (const [u2, v2] of this.values) {
+      if (u1 === u2 || v1 === v2) {
+        throw new Error(`Conflicting pairs: {${u1}, ${v1}} and {${u2}, ${v2}}`);
       }
     }
-    this.values.push([t1, u1]);
+    this.values.push([u1, v1]);
   }
 }

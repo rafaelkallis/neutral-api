@@ -38,7 +38,7 @@ export class Mediator {
     const resolvedRequestHandlers: AbstractRequestHandler<T, TRequest>[] = [];
     for (const requestHandlerType of requestHandlerTypes) {
       const resolvedRequestHandler = await this.moduleRef.resolve(
-        requestHandlerType,
+        requestHandlerType as any, // TODO remove any
         contextId,
         { strict: false },
       );

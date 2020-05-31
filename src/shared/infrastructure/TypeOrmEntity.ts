@@ -2,9 +2,9 @@ import { PrimaryColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { StaticTypeMap } from 'shared/application/StaticTypeMap';
+import { StaticBiMap } from 'shared/application/StaticBiMap';
 
-export const AssociatedDomainModel = new StaticTypeMap<
+export const AssociatedDomainModel = new StaticBiMap<
   Model<Id>,
   TypeOrmEntity
 >();

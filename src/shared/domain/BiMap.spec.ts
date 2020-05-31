@@ -4,7 +4,7 @@ describe(BiMap, () => {
   let biMap: BiMap<number, string>;
 
   beforeEach(() => {
-    biMap = new BiMap();
+    biMap = BiMap.empty();
   });
 
   test('get', () => {
@@ -15,6 +15,7 @@ describe(BiMap, () => {
     expect(biMap.get(1)).toBe('one');
     expect(biMap.get(2)).toBe('two');
     expect(biMap.get(3)).toBe('three');
+    expect(biMap.get(4)).toBe(null);
   });
 
   test('getReverse', () => {
@@ -22,8 +23,9 @@ describe(BiMap, () => {
     biMap.put(2, 'two');
     biMap.put(3, 'three');
 
-    expect(biMap.getReverse('one')).toBe(1);
-    expect(biMap.getReverse('two')).toBe(2);
-    expect(biMap.getReverse('three')).toBe(3);
+    expect(biMap.inverse().get('one')).toBe(1);
+    expect(biMap.inverse().get('two')).toBe(2);
+    expect(biMap.inverse().get('three')).toBe(3);
+    expect(biMap.inverse().get('four')).toBe(null);
   });
 });
