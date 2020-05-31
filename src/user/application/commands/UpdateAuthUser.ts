@@ -10,9 +10,10 @@ import {
 } from 'user/application/commands/UserCommand';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlreadyUsedException';
-import { CommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Update the authenticated user
@@ -38,7 +39,8 @@ export class UpdateAuthUserCommand extends UserCommand {
   }
 }
 
-@CommandHandler(UpdateAuthUserCommand)
+@Injectable()
+@AssociatedRequest.d(UpdateAuthUserCommand)
 export class UpdateAuthUserCommandHandler extends UserCommandHandler<
   UpdateAuthUserCommand
 > {

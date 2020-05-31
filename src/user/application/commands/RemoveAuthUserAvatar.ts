@@ -3,18 +3,19 @@ import {
   UserCommand,
   UserCommandHandler,
 } from 'user/application/commands/UserCommand';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, Injectable } from '@nestjs/common';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Remove the authenticated user's avatar.
  */
 export class RemoveAuthUserAvatarCommand extends UserCommand {}
 
-@CommandHandler(RemoveAuthUserAvatarCommand)
+@Injectable()
+@AssociatedRequest.d(RemoveAuthUserAvatarCommand)
 export class RemoveAuthUserAvatarCommandHandler extends UserCommandHandler<
   RemoveAuthUserAvatarCommand
 > {

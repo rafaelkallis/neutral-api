@@ -5,9 +5,10 @@ import {
 } from 'user/application/commands/UserCommand';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { AvatarStore } from 'user/application/AvatarStore';
-import { CommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Update the authenticated user's avatar.
@@ -23,7 +24,8 @@ export class UpdateAuthUserAvatarCommand extends UserCommand {
   }
 }
 
-@CommandHandler(UpdateAuthUserAvatarCommand)
+@Injectable()
+@AssociatedRequest.d(UpdateAuthUserAvatarCommand)
 export class UpdateAuthUserAvatarCommandHandler extends UserCommandHandler<
   UpdateAuthUserAvatarCommand
 > {
