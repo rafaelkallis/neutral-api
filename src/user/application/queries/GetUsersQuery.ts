@@ -1,10 +1,12 @@
 import { Query } from 'shared/query/Query';
 import { UserDto } from 'user/application/dto/UserDto';
-import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
 import { User, ReadonlyUser } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { Injectable } from '@nestjs/common';
 
 export class GetUsersQuery extends Query<UserDto[]> {
   public readonly authUser: User;
@@ -19,7 +21,8 @@ export class GetUsersQuery extends Query<UserDto[]> {
   }
 }
 
-@QueryHandler(GetUsersQuery)
+@Injectable()
+@AssociatedRequest.d(GetUsersQuery)
 export class GetUsersQueryHandler extends AbstractQueryHandler<
   UserDto[],
   GetUsersQuery

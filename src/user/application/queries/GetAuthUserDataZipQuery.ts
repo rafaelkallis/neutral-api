@@ -1,9 +1,11 @@
 import { Query } from 'shared/query/Query';
-import { AbstractQueryHandler, QueryHandler } from 'shared/query/QueryHandler';
+import { AbstractQueryHandler } from 'shared/query/QueryHandler';
 import { User } from 'user/domain/User';
 import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 export interface GetAuthUserDataZipQueryResult {
   file: string;
@@ -21,7 +23,8 @@ export class GetAuthUserDataZipQuery extends Query<
   }
 }
 
-@QueryHandler(GetAuthUserDataZipQuery)
+@Injectable()
+@AssociatedRequest.d(GetAuthUserDataZipQuery)
 export class GetAuthUserDataZipQueryHandler extends AbstractQueryHandler<
   GetAuthUserDataZipQueryResult,
   GetAuthUserDataZipQuery
