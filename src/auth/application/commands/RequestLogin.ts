@@ -1,8 +1,5 @@
 import { Command } from 'shared/command/Command';
-import {
-  AbstractCommandHandler,
-  CommandHandler,
-} from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
@@ -11,6 +8,8 @@ import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBr
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Passwordless login
@@ -26,7 +25,8 @@ export class RequestLoginCommand extends Command<void> {
   }
 }
 
-@CommandHandler(RequestLoginCommand)
+@Injectable()
+@AssociatedRequest.d(RequestLoginCommand)
 export class RequestLoginCommandHandler extends AbstractCommandHandler<
   void,
   RequestLoginCommand

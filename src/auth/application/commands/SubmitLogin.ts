@@ -8,9 +8,10 @@ import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { RequestHandler } from 'shared/mediator/RequestHandler';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Passwordless login token submit
@@ -30,7 +31,8 @@ export class SubmitLoginCommand extends Command<AuthenticationResponseDto> {
   }
 }
 
-@RequestHandler(SubmitLoginCommand)
+@Injectable()
+@AssociatedRequest.d(SubmitLoginCommand)
 export class SubmitLoginCommandHandler extends AbstractCommandHandler<
   AuthenticationResponseDto,
   SubmitLoginCommand

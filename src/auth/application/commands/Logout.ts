@@ -1,9 +1,8 @@
 import { Command } from 'shared/command/Command';
-import {
-  AbstractCommandHandler,
-  CommandHandler,
-} from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { SessionState } from 'shared/session';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Logout
@@ -17,7 +16,8 @@ export class LogoutCommand extends Command<void> {
   }
 }
 
-@CommandHandler(LogoutCommand)
+@Injectable()
+@AssociatedRequest.d(LogoutCommand)
 export class LogoutCommandHandler extends AbstractCommandHandler<
   void,
   LogoutCommand

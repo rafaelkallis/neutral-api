@@ -1,10 +1,9 @@
 import { Command } from 'shared/command/Command';
-import {
-  AbstractCommandHandler,
-  CommandHandler,
-} from 'shared/command/CommandHandler';
+import { AbstractCommandHandler } from 'shared/command/CommandHandler';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Refresh the session
@@ -21,7 +20,8 @@ export class RefreshCommand extends Command<RefreshResponseDto> {
   }
 }
 
-@CommandHandler(RefreshCommand)
+@Injectable()
+@AssociatedRequest.d(RefreshCommand)
 export class RefreshCommandHandler extends AbstractCommandHandler<
   RefreshResponseDto,
   RefreshCommand
