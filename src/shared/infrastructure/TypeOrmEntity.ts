@@ -1,36 +1,15 @@
-import {
-  PrimaryColumn,
-  Column,
-  BeforeInsert,
-  BeforeUpdate,
-  Entity,
-} from 'typeorm';
+import { PrimaryColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
-import { BiMap, ReadonlyBiMap } from 'shared/domain/BiMap';
-import { Type, Abstract } from '@nestjs/common';
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
+import { StaticTypeMap } from 'shared/application/StaticTypeMap';
 
-const internalStaticTypeOrmEntityBiMap: BiMap<
-  Type<Model<Id>>,
-  Abstract<AbstractTypeOrmEntity>
-> = new BiMap();
-export const staticTypeOrmEntityBiMap: ReadonlyBiMap<
-  Type<Model<Id>>,
-  Abstract<AbstractTypeOrmEntity>
-> = internalStaticTypeOrmEntityBiMap;
+export const AssociatedDomainModel = new StaticTypeMap<
+  Model<Id>,
+  TypeOrmEntity
+>();
 
-export function TypeOrmEntity(
-  modelType: Type<Model<Id>>,
-  table: string,
-): ClassDecorator {
-  return function (typeOrmEntityType: Abstract<AbstractTypeOrmEntity>): void {
-    internalStaticTypeOrmEntityBiMap.put(modelType, typeOrmEntityType);
-    Entity(table)(typeOrmEntityType);
-  };
-}
-
-export abstract class AbstractTypeOrmEntity {
+export abstract class TypeOrmEntity {
   @PrimaryColumn()
   public id: string;
 

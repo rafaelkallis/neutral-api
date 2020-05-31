@@ -1,16 +1,14 @@
-import { Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, ManyToOne, JoinColumn, Entity } from 'typeorm';
 import {
-  AbstractTypeOrmEntity,
   TypeOrmEntity,
+  AssociatedDomainModel,
 } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
-/**
- * ReviewTopic TypeOrm Entity
- */
-@TypeOrmEntity(ReviewTopic, 'review_topics')
-export class ReviewTopicTypeOrmEntity extends AbstractTypeOrmEntity {
+@Entity('review_topics')
+@AssociatedDomainModel.d(ReviewTopic)
+export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
   @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.reviewTopics)
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;

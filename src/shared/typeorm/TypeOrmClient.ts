@@ -1,5 +1,5 @@
 import { EntityManager, Connection, ConnectionManager } from 'typeorm';
-import { AbstractTypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
   Type,
   Injectable,
@@ -122,7 +122,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   public createRepository<
     TId extends Id,
     TModel extends AggregateRoot<TId>,
-    TEntity extends AbstractTypeOrmEntity
+    TEntity extends TypeOrmEntity
   >(
     modelType: Type<TModel>,
     entityType: Type<TEntity>,
