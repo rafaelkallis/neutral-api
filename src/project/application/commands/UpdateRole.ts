@@ -9,7 +9,8 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { Injectable } from '@nestjs/common';
 
 export class UpdateRoleCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -32,7 +33,8 @@ export class UpdateRoleCommand extends ProjectCommand {
   }
 }
 
-@CommandHandler(UpdateRoleCommand)
+@Injectable()
+@AssociatedRequest.d(UpdateRoleCommand)
 export class UpdateRoleCommandHandler extends ProjectCommandHandler<
   UpdateRoleCommand
 > {

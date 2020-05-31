@@ -8,7 +8,8 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 export class AddReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -28,7 +29,8 @@ export class AddReviewTopicCommand extends ProjectCommand {
   }
 }
 
-@CommandHandler(AddReviewTopicCommand)
+@Injectable()
+@AssociatedRequest.d(AddReviewTopicCommand)
 export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
   AddReviewTopicCommand
 > {

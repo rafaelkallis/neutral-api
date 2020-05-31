@@ -7,7 +7,8 @@ import { User } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { Injectable } from '@nestjs/common';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 export class UnassignRoleCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -20,7 +21,8 @@ export class UnassignRoleCommand extends ProjectCommand {
   }
 }
 
-@CommandHandler(UnassignRoleCommand)
+@Injectable()
+@AssociatedRequest.d(UnassignRoleCommand)
 export class UnassignRoleCommandHandler extends ProjectCommandHandler<
   UnassignRoleCommand
 > {

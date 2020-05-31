@@ -8,7 +8,8 @@ import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle'
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { CommandHandler } from 'shared/command/CommandHandler';
+import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { Injectable } from '@nestjs/common';
 
 export class UpdateProjectCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -28,7 +29,8 @@ export class UpdateProjectCommand extends ProjectCommand {
   }
 }
 
-@CommandHandler(UpdateProjectCommand)
+@Injectable()
+@AssociatedRequest.d(UpdateProjectCommand)
 export class UpdateProjectCommandHandler extends ProjectCommandHandler<
   UpdateProjectCommand
 > {
