@@ -6,11 +6,14 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { DomainError } from 'shared/domain/DomainError';
+import { ValidationException } from 'shared/application/exceptions/ValidationException';
 
-@Catch(DomainError)
-export class DomainErrorFilter implements ExceptionFilter {
-  public catch(domainError: DomainError, ctx: ArgumentsHost): void {
+@Catch(ValidationException)
+export class ValidationExceptionFilter implements ExceptionFilter {
+  public catch(
+    validationException: ValidationException,
+    ctx: ArgumentsHost,
+  ): void {
     if (ctx.getType() !== 'http') {
       throw new InternalServerErrorException();
     }
@@ -18,8 +21,8 @@ export class DomainErrorFilter implements ExceptionFilter {
     const response = httpCtx.getResponse<Response>();
     response.status(HttpStatus.BAD_REQUEST).json({
       statusCode: HttpStatus.BAD_REQUEST,
-      error: domainError.code,
-      message: domainError.message,
+      error: validationException.errorCode,
+      message: validationException.message,
     });
   }
 }

@@ -3,7 +3,7 @@ import {
   ValidationPipe as NestValidationPipe,
 } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
-import { ValidationException } from 'shared/exceptions/validation.exception';
+import { ValidationException } from 'shared/application/exceptions/ValidationException';
 
 /**
  * Validation Pipe with sane defaults.

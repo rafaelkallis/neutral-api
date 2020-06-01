@@ -15,7 +15,8 @@ import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
-import { DomainErrorFilter } from './application/DomainErrorFilter';
+import { DomainExceptionFilter } from 'shared/application/filters/DomainExceptionFilter';
+import { ValidationExceptionFilter } from 'shared/application/filters/ValidationExceptionFilter';
 
 /**
  * Shared Module
@@ -46,7 +47,11 @@ import { DomainErrorFilter } from './application/DomainErrorFilter';
     },
     {
       provide: APP_FILTER,
-      useClass: DomainErrorFilter,
+      useClass: DomainExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ValidationExceptionFilter,
     },
   ],
   exports: [

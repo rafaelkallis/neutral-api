@@ -1,18 +1,19 @@
-import { DomainError } from 'shared/domain/DomainError';
+import { Exception } from 'shared/domain/exceptions/Exception';
+import { DomainException } from './exceptions/DomainException';
 
 export abstract class Result<T> {
   public static success<T>(value: T): Result<T> {
     return new SuccessResult<T>(value);
   }
 
-  public static failure<T>(error: DomainError): Result<T> {
-    return new FailureResult<T>(error);
+  public static failure<T>(exception: Exception): Result<T> {
+    return new FailureResult<T>(exception);
   }
 
   public abstract map<U>(ifSuccess: (value: T) => Result<U>): Result<U>;
   public abstract fold<U>(
     ifSuccess: (value: T) => Result<U>,
-    ifFailure: (error: DomainError) => Result<U>,
+    ifFailure: (exception: Exception) => Result<U>,
   ): Result<U>;
   public abstract getOrThrow(): T;
 }
@@ -31,7 +32,7 @@ export class SuccessResult<T> extends Result<T> {
 
   public fold<U>(
     ifSuccess: (value: T) => Result<U>,
-    _ifFailure: (error: DomainError) => Result<U>,
+    _ifFailure: (exception: DomainException) => Result<U>,
   ): Result<U> {
     return ifSuccess(this.value);
   }
@@ -42,25 +43,25 @@ export class SuccessResult<T> extends Result<T> {
 }
 
 export class FailureResult<T> extends Result<T> {
-  public readonly error: DomainError;
+  public readonly exception: DomainException;
 
-  public constructor(error: DomainError) {
+  public constructor(exception: DomainException) {
     super();
-    this.error = error;
+    this.exception = exception;
   }
 
   public map<U>(_ifSuccess: (value: T) => Result<U>): Result<U> {
-    return new FailureResult<U>(this.error);
+    return new FailureResult<U>(this.exception);
   }
 
   public fold<U>(
     _ifSuccess: (value: T) => Result<U>,
-    ifFailure: (error: DomainError) => Result<U>,
+    ifFailure: (exception: DomainException) => Result<U>,
   ): Result<U> {
-    return ifFailure(this.error);
+    return ifFailure(this.exception);
   }
 
   public getOrThrow(): T {
-    throw this.error;
+    throw this.exception;
   }
 }
