@@ -1,5 +1,5 @@
 import { Module, ClassSerializerInterceptor } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { TelemetryModule } from 'shared/telemetry/TelemetryModule';
 import { ConfigModule } from 'shared/config/ConfigModule';
@@ -15,6 +15,7 @@ import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
+import { DomainErrorFilter } from './application/DomainErrorFilter';
 
 /**
  * Shared Module
@@ -42,6 +43,10 @@ import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: DomainErrorFilter,
     },
   ],
   exports: [

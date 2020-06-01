@@ -20,9 +20,4 @@ export abstract class SingleValueObject<T> extends ValueObject {
     }
     return this.value === other.value;
   }
-
-  /**
-   *
-   */
-  public abstract toString(): string;
 }
