@@ -46,4 +46,8 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
     this.updatedAt = UpdatedAt.now();
     this.#domainEvents.push(domainEvent);
   }
+
+  public clearDomainEvents(): void {
+    this.#domainEvents.splice(0, this.#domainEvents.length);
+  }
 }

@@ -4,6 +4,7 @@ import {
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
+  ManagerReviewRequestedModel,
 } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
@@ -69,6 +70,17 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
       projectUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
+      model,
+    );
+    expect(text).toMatchSnapshot();
+  });
+
+  test('should render manager review requested text', () => {
+    const model: ManagerReviewRequestedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const text = literalEmailPlaintextRenderer.renderManagerReviewRequestedEmailPlaintext(
       model,
     );
     expect(text).toMatchSnapshot();
