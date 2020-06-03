@@ -24,7 +24,8 @@
     "test:ci": "jest --ci --config jest.config.json --coverage",
     "test:e2e": "jest --verbose --config jest.e2e-config.json",
     "test:e2e:watch": "jest --verbose --config jest.e2e-config.json --watch",
-    "test:e2e:cov": "jest --config jest.e2e-config.json --coverage"
+    "test:e2e:cov": "jest --config jest.e2e-config.json --coverage",
+    "test:e2e:ci": "jest --ci --config jest.e2e-config.json --coverage"
   },
   "dependencies": {
     "@azure/storage-blob": "~12.1.2",

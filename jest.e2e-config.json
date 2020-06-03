@@ -4,5 +4,8 @@
   "preset": "ts-jest",
   "testEnvironment": "node",
   "moduleDirectories": ["node_modules", "src"],
-  "testTimeout": 15000
+  "testTimeout": 10000,
+  "reporters": ["default", ["jest-junit", { "outputDirectory": "coverage-e2e" }]],
+  "coverageDirectory": "../coverage-e2e",
+  "coverageReporters": ["text", "cobertura"]
 }
