@@ -47,6 +47,13 @@ steps:
 - script: 'psql postgres://covee-saas:password@localhost:5432/covee-saas --command="CREATE EXTENSION pg_trgm;"'
   displayName: 'postgres: create pg_trgm extension on e2e test postgres'
 
+- task: DockerCompose@0
+  inputs:
+    dockerComposeFile: 'docker-compose.yml'
+    dockerComposeCommand: 'logs'
+  condition: failed()
+  displayName: 'logs of external dependencies of e2e tests'
+
 - script: 'npm run-script test:e2e:ci'
   displayName: 'e2e tests'
 
