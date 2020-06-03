@@ -141,10 +141,10 @@ export class UserController {
     @AuthUser() authUser: User,
     @Res() response: Response,
   ): Promise<void> {
-    const { file, contentType } = await this.mediator.send(
+    const { file } = await this.mediator.send(
       new GetAuthUserDataZipQuery(authUser),
     );
-    response.set('Content-Type', contentType);
+    response.attachment(file);
     response.sendFile(file);
   }
 
