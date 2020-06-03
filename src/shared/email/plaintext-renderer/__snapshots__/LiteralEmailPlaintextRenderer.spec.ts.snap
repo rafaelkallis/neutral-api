@@ -26,6 +26,19 @@ exports[`LiteralEmailPlaintextRenderer should render login text 1`] = `
     "
 `;
 
+exports[`LiteralEmailPlaintextRenderer should render manager review requested text 1`] = `
+"
+      Hi there,
+
+      All peer-reviews have been submitted in My Project and you are requested to submit a manager-review.
+
+      >> Submit Manager Review
+      http://example.com
+
+      - Team Covee
+    "
+`;
+
 exports[`LiteralEmailPlaintextRenderer should render new assignment text 1`] = `
 "
       Hi there,
