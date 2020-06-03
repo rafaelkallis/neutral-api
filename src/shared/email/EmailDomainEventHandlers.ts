@@ -8,6 +8,14 @@ import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHa
 import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { Config } from 'shared/config/application/Config';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
+import { UserRepository } from 'user/domain/UserRepository';
+import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
+import { UserId } from 'user/domain/value-objects/UserId';
+import {
+  ReadonlyUserCollection,
+  UserCollection,
+} from 'user/domain/UserCollection';
+import { User } from 'user/domain/User';
 
 /**
  * Email Domain Event Handlers
@@ -16,10 +24,16 @@ import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeer
 export class EmailDomainEventHandlers {
   private readonly config: Config;
   private readonly emailManager: EmailManager;
+  private readonly userRepository: UserRepository;
 
-  public constructor(config: Config, emailManager: EmailManager) {
+  public constructor(
+    config: Config,
+    emailManager: EmailManager,
+    userRepository: UserRepository,
+  ) {
     this.config = config;
     this.emailManager = emailManager;
+    this.userRepository = userRepository;
   }
 
   /**
@@ -105,6 +119,39 @@ export class EmailDomainEventHandlers {
           projectTitle: event.project.title.value,
         },
       );
+    }
+  }
+
+  @HandleDomainEvent(
+    ProjectFinishedEvent,
+    'on_project_finished_send_project_finished_email',
+  )
+  public async onProjectFinishedSendProjectFinishedEmail(
+    event: ProjectFinishedEvent,
+  ): Promise<void> {
+    const nullableAssigneeIds = event.project.roles
+      .toArray()
+      .map((r) => r.assigneeId);
+    const assigneeIds: UserId[] = nullableAssigneeIds.filter(
+      Boolean,
+    ) as UserId[];
+    if (nullableAssigneeIds.length !== assigneeIds.length) {
+      throw new InternalServerErrorException('some roles have null assigneeId');
+    }
+    const nullableAssignees = await this.userRepository.findByIds(assigneeIds);
+    const assignees: ReadonlyUserCollection = new UserCollection(
+      nullableAssignees.filter(Boolean) as User[],
+    );
+    for (const assignee of assignees) {
+      if (!assignee.isActive()) {
+        throw new InternalServerErrorException(
+          'assignee is not active anymore',
+        );
+      }
+      await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
+        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        projectTitle: event.project.title.value,
+      });
     }
   }
 }

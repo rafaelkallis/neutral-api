@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Environment, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -52,6 +52,10 @@ export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
   }
 
   public renderPeerReviewRequestedEmailHtml(): string {
-    throw new InternalServerErrorException('not implemented');
+    throw new Error('not implemented');
+  }
+
+  public renderProjectFinishedEmailHtml(): string {
+    throw new Error('not implemented');
   }
 }

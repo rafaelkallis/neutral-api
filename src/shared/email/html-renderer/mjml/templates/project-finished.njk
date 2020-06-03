@@ -1,0 +1,31 @@
+{% extends "_base.njk" %}
+
+{% block title %}
+  Project Finished
+{% endblock %}
+
+{% block preview %}
+  Your project is finished.
+{% endblock %}
+
+{% set projectToken %}
+  {% if projectTitle %} 
+    {{ projectTitle }}
+  {% else %}
+    A project you were assigned to
+  {% endif %}
+{% endset %}
+
+{% block content %}
+<mj-section >
+  <mj-column>
+    <mj-text>Hi there,</mj-text>
+    <mj-text>{{ projectToken | trim }} has finshed and the results are ready.</mj-text>
+    <mj-spacer />
+    <mj-button mj-class="primary-button" href="{{ projectUrl }}">Check Results</mj-button>
+    <mj-text mj-class="alt-text">Link not working? Try this: <a href="{{ projectUrl }}">{{ projectUrl }}</a></mj-text>
+    <mj-spacer />
+    <mj-text>- Team Covee</mj-text>
+  </mj-column>
+</mj-section>
+{% endblock %}

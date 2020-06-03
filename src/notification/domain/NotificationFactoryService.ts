@@ -82,7 +82,7 @@ export class NotificationFactoryService {
    *
    */
   public createProjectFinishedNotification(
-    project: Project,
+    project: ReadonlyProject,
     projectMemberId: UserId,
   ): Notification {
     const ownerId = projectMemberId;

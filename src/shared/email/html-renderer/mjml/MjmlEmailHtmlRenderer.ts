@@ -8,6 +8,7 @@ import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -49,6 +50,9 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
     model: PeerReviewRequestedModel,
   ): string {
     return this.render('peer-review-requested', model);
+  }
+  public renderProjectFinishedEmailHtml(model: ProjectFinishedModel): string {
+    return this.render('project-finished', model);
   }
 
   private render(templateName: string, context: object): string {

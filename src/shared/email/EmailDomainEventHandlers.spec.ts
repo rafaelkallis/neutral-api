@@ -6,6 +6,7 @@ import { Email } from 'user/domain/value-objects/Email';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Config } from 'shared/config/application/Config';
+import { UserRepository } from 'user/domain/UserRepository';
 
 describe('email domain event handlers', () => {
   let scenario: UnitTestScenario<EmailDomainEventHandlers>;
@@ -14,6 +15,7 @@ describe('email domain event handlers', () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(EmailDomainEventHandlers)
+      .addProviderMock(UserRepository)
       .addProviderMock(EmailManager)
       .addProviderMock(Config)
       .build();

@@ -4,6 +4,7 @@ import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from '../manager/EmailManager';
 
 /**
@@ -108,6 +109,22 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You are requested to submit a peer-review in ${projectToken}.
 
       >> Submit Peer Review
+      ${model.projectUrl}
+
+      - Team Covee
+    `;
+  }
+
+  public renderProjectFinishedEmailPlaintext(
+    model: ProjectFinishedModel,
+  ): string {
+    const projectToken = model.projectTitle || 'A project you were assigned to';
+    return `
+      Hi there,
+
+      ${projectToken} has finished and the results are ready.
+
+      >> Check Results
       ${model.projectUrl}
 
       - Team Covee
