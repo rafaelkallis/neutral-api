@@ -1,4 +1,4 @@
-import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
+import { AtomicValueObject } from 'shared/domain/value-objects/AtomicValueObject';
 import { InvalidEnumException } from 'shared/domain/exceptions/InvalidEnumException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
@@ -7,7 +7,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
  */
 export abstract class EnumValueObject<
   TValue extends string
-> extends SingleValueObject<TValue> {
+> extends AtomicValueObject<TValue> {
   protected constructor(value: TValue) {
     super(value);
     this.assertEnum(value);

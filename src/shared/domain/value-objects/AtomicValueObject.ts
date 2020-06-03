@@ -3,7 +3,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 /**
  *
  */
-export abstract class SingleValueObject<T> extends ValueObject {
+export abstract class AtomicValueObject<T> extends ValueObject {
   public readonly value: T;
 
   protected constructor(value: T) {
@@ -11,13 +11,7 @@ export abstract class SingleValueObject<T> extends ValueObject {
     this.value = value;
   }
 
-  /**
-   *
-   */
   public equals(other: ValueObject): boolean {
-    if (!(other instanceof SingleValueObject)) {
-      return false;
-    }
-    return this.value === other.value;
+    return other instanceof AtomicValueObject && this.value === other.value;
   }
 }

@@ -1,11 +1,11 @@
-import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
+import { AtomicValueObject } from 'shared/domain/value-objects/AtomicValueObject';
 import { InvalidNumberException } from 'shared/domain/exceptions/InvalidNumberException';
 import { ValueObject } from './ValueObject';
 
 /**
  *
  */
-export abstract class NumberValueObject extends SingleValueObject<number> {
+export abstract class NumberValueObject extends AtomicValueObject<number> {
   protected constructor(value: number) {
     super(value);
     this.assertNumber(value);
