@@ -2,6 +2,7 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe('auth (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -17,33 +18,27 @@ describe('auth (e2e)', () => {
   });
 
   describe('/auth/login (POST)', () => {
-    beforeEach(() => {
-      jest.spyOn(scenario.tokenManager, 'newLoginToken');
-      jest.spyOn(scenario.emailManager, 'sendLoginEmail');
-      jest.spyOn(scenario.emailManager, 'sendSignupEmail');
-    });
-
     test('active user', async () => {
       const response = await scenario.session
         .post('/auth/login')
         .send({ email: user.email.value });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
-      expect(scenario.emailManager.sendLoginEmail).toHaveBeenCalledWith(
-        user.email.value,
-        expect.any(String),
-      );
+
+      const receivedEmails = await scenario.getReceivedEmails(user.email);
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe('[Covee] magic login link');
     });
 
     test('new user', async () => {
-      const email = scenario.valueObjectFaker.user.email();
+      const newUserEmail = scenario.valueObjectFaker.user.email();
       const response = await scenario.session
         .post('/auth/login')
-        .send({ email: email.value });
+        .send({ email: newUserEmail.value });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
-      expect(scenario.emailManager.sendSignupEmail).toHaveBeenCalledWith(
-        email.value,
-        expect.any(String),
-      );
+
+      const receivedEmails = await scenario.getReceivedEmails(newUserEmail);
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe('[Covee] magic signup link');
     });
   });
 
@@ -94,22 +89,21 @@ describe('auth (e2e)', () => {
   });
 
   describe('/auth/signup (POST)', () => {
-    let email: string;
+    let email: Email;
 
     beforeEach(() => {
-      email = scenario.primitiveFaker.email();
-      jest.spyOn(scenario.emailManager, 'sendSignupEmail');
+      email = scenario.valueObjectFaker.user.email();
     });
 
     test('happy path', async () => {
       const response = await scenario.session
         .post('/auth/signup')
-        .send({ email });
+        .send({ email: email.value });
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
-      expect(scenario.emailManager.sendSignupEmail).toHaveBeenCalledWith(
-        email,
-        expect.any(String),
-      );
+
+      const receivedEmails = await scenario.getReceivedEmails(email);
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe('[Covee] magic signup link');
     });
   });
 
