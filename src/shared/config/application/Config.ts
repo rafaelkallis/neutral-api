@@ -43,9 +43,11 @@ export abstract class Config {
   public abstract get<K extends keyof ConfigProps>(key: K): ConfigProps[K];
 
   private computeCommit(): string {
+    let commit: string | null = null;
     try {
-      return execSync('git rev-parse --short HEAD').toString();
+      commit =
+        commit || execSync('git rev-parse --short HEAD').toString().trimEnd();
     } catch (ignored) {}
-    return '0000000';
+    return commit || '0000000';
   }
 }
