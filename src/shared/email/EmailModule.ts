@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from 'shared/config/ConfigModule';
 import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers';
 import { EmailManager } from 'shared/email/manager/EmailManager';
@@ -10,12 +10,13 @@ import { EmailSender } from 'shared/email/sender/EmailSender';
 import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UtilityModule } from 'shared/utility/UtilityModule';
+import { UserModule } from 'user/UserModule';
 
 /**
  * Email Module
  */
 @Module({
-  imports: [ConfigModule, UtilityModule],
+  imports: [ConfigModule, UtilityModule, forwardRef(() => UserModule)],
   providers: [
     {
       provide: EmailManager,

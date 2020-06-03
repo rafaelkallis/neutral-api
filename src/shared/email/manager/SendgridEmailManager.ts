@@ -3,6 +3,7 @@ import { Config } from 'shared/config/application/Config';
 import {
   EmailManager,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from 'shared/email/manager/EmailManager';
 import axios from 'axios';
 
@@ -94,6 +95,13 @@ export class SendgridEmailManager extends EmailManager {
     _model: PeerReviewRequestedModel,
   ): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  public async sendProjectFinishedEmail(
+    _to: string,
+    _model: ProjectFinishedModel,
+  ): Promise<void> {
+    throw new Error('not implemented');
   }
 
   /**

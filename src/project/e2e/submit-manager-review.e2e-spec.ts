@@ -4,21 +4,40 @@ import { User } from 'user/domain/User';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
+import {
+  ReadonlyUserCollection,
+  UserCollection,
+} from 'user/domain/UserCollection';
+import { HttpStatus } from '@nestjs/common';
 
 describe('submit manager review (e2e)', () => {
   let scenario: IntegrationTestScenario;
-  let user: User;
+  let authUser: User;
   let project: Project;
+  let assignees: ReadonlyUserCollection;
 
   beforeEach(async () => {
     scenario = await IntegrationTestScenario.create();
 
-    user = await scenario.createUser();
-    await scenario.authenticateUser(user);
+    authUser = await scenario.createUser();
+    await scenario.authenticateUser(authUser);
 
     /* prepare project */
-    project = scenario.modelFaker.project(user.id);
+    project = await scenario.createProject(authUser);
     project.state = ManagerReviewProjectState.INSTANCE;
+    await scenario.projectRepository.persist(project);
+
+    assignees = new UserCollection([
+      await scenario.createUser(),
+      await scenario.createUser(),
+      await scenario.createUser(),
+      await scenario.createUser(),
+    ]);
+
+    for (const assignee of assignees) {
+      const role = scenario.modelFaker.role(assignee.id);
+      project.roles.add(role);
+    }
     await scenario.projectRepository.persist(project);
   });
 
@@ -28,9 +47,9 @@ describe('submit manager review (e2e)', () => {
 
   test('happy path', async () => {
     const response = await scenario.session.post(
-      `/projects/${project.id}/submit-manager-review`,
+      `/projects/${project.id.value}/submit-manager-review`,
     );
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(HttpStatus.OK);
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );
@@ -38,6 +57,12 @@ describe('submit manager review (e2e)', () => {
       throw new Error();
     }
     expect(updatedProject.state).toBe(FinishedProjectState.INSTANCE);
+
+    for (const assignee of assignees) {
+      const receivedEmails = await scenario.getReceivedEmails(assignee.email);
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe('[Covee] project finished');
+    }
   });
 
   test('should fail if project is not in manager-review state', async () => {
@@ -45,9 +70,9 @@ describe('submit manager review (e2e)', () => {
     await scenario.projectRepository.persist(project);
 
     const response = await scenario.session.post(
-      `/projects/${project.id}/submit-manager-review`,
+      `/projects/${project.id.value}/submit-manager-review`,
     );
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
   test('should fail if authenticated user is not the project creator', async () => {
@@ -56,8 +81,8 @@ describe('submit manager review (e2e)', () => {
     await scenario.authenticateUser(otherUser);
 
     const response = await scenario.session.post(
-      `/projects/${project.id}/submit-manager-review`,
+      `/projects/${project.id.value}/submit-manager-review`,
     );
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
   });
 });

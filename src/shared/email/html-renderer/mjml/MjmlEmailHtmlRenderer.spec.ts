@@ -5,6 +5,7 @@ import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
@@ -69,6 +70,15 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     const html = mjmlEmailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
     );
+    expect(html).toMatchSnapshot();
+  });
+
+  test('should render project finished html', () => {
+    const model: ProjectFinishedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const html = mjmlEmailHtmlRenderer.renderProjectFinishedEmailHtml(model);
     expect(html).toMatchSnapshot();
   });
 });

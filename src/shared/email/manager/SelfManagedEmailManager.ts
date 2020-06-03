@@ -5,6 +5,7 @@ import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -108,6 +109,18 @@ export class SelfManagedEmailManager extends EmailManager {
       model,
     );
     const text = this.emailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
+      model,
+    );
+    await this.emailSender.sendEmail({ to, subject, html, text });
+  }
+
+  public async sendProjectFinishedEmail(
+    to: string,
+    model: ProjectFinishedModel,
+  ): Promise<void> {
+    const subject = '[Covee] project finished';
+    const html = this.emailHtmlRenderer.renderProjectFinishedEmailHtml(model);
+    const text = this.emailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,
     );
     await this.emailSender.sendEmail({ to, subject, html, text });

@@ -3,6 +3,7 @@ import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
+  ProjectFinishedModel,
 } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
@@ -68,6 +69,17 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
       projectUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
+      model,
+    );
+    expect(text).toMatchSnapshot();
+  });
+
+  test('should render project finished text', () => {
+    const model: ProjectFinishedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const text = literalEmailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,
     );
     expect(text).toMatchSnapshot();

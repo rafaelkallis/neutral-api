@@ -52,6 +52,19 @@ exports[`LiteralEmailPlaintextRenderer should render peer review requested text 
     "
 `;
 
+exports[`LiteralEmailPlaintextRenderer should render project finished text 1`] = `
+"
+      Hi there,
+
+      My Project has finished and the results are ready.
+
+      >> Check Results
+      http://example.com
+
+      - Team Covee
+    "
+`;
+
 exports[`LiteralEmailPlaintextRenderer should render signup text 1`] = `
 "
       Hi there,
