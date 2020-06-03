@@ -39,6 +39,19 @@ exports[`LiteralEmailPlaintextRenderer should render new assignment text 1`] = `
     "
 `;
 
+exports[`LiteralEmailPlaintextRenderer should render peer review requested text 1`] = `
+"
+      Hi there,
+
+      You are requested to submit a peer-review in My Project.
+
+      >> Submit Peer Review
+      http://example.com
+
+      - Team Covee
+    "
+`;
+
 exports[`LiteralEmailPlaintextRenderer should render signup text 1`] = `
 "
       Hi there,
