@@ -7,6 +7,7 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
+  PeerReviewRequestedModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -43,6 +44,11 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
     model: InvitedUserNewAssignmentModel,
   ): string {
     return this.render('invited-new-assignment', model);
+  }
+  public renderPeerReviewRequestedEmailHtml(
+    model: PeerReviewRequestedModel,
+  ): string {
+    return this.render('peer-review-requested', model);
   }
 
   private render(templateName: string, context: object): string {

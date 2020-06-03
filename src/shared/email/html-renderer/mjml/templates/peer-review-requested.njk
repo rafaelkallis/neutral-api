@@ -1,0 +1,31 @@
+{% extends "_base.njk" %}
+
+{% block title %}
+  Peer Review Requested
+{% endblock %}
+
+{% block preview %}
+  Your peer-review is needed.
+{% endblock %}
+
+{% set projectToken %}
+  {% if projectTitle %} 
+    {{ projectTitle }}
+  {% else %}
+    a project
+  {% endif %}
+{% endset %}
+
+{% block content %}
+<mj-section >
+  <mj-column>
+    <mj-text>Hi there,</mj-text>
+    <mj-text>You are requested to submit a peer-review in {{ projectToken | trim }}.</mj-text>
+    <mj-spacer />
+    <mj-button mj-class="primary-button" href="{{ projectUrl }}">Submit Peer Review</mj-button>
+    <mj-text mj-class="alt-text">Link not working? Try this: <a href="{{ projectUrl }}">{{ projectUrl }}</a></mj-text>
+    <mj-spacer />
+    <mj-text>- Team Covee</mj-text>
+  </mj-column>
+</mj-section>
+{% endblock %}
