@@ -16,6 +16,7 @@ import {
   UserCollection,
 } from 'user/domain/UserCollection';
 import { User } from 'user/domain/User';
+import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 
 /**
  * Email Domain Event Handlers
@@ -120,6 +121,29 @@ export class EmailDomainEventHandlers {
         },
       );
     }
+  }
+
+  @HandleDomainEvent(
+    ProjectManagerReviewStartedEvent,
+    'on_project_manager_review_started_send_manager_review_requested_email',
+  )
+  public async onProjectManagerReviewStartedSendManagerReviewRequestedEmail(
+    event: ProjectManagerReviewStartedEvent,
+  ): Promise<void> {
+    const manager = await this.userRepository.findById(event.project.creatorId);
+    if (!manager) {
+      throw new InternalServerErrorException('manager does not exist');
+    }
+    if (!manager.isActive()) {
+      throw new InternalServerErrorException('manager is not active anymore');
+    }
+    await this.emailManager.sendManagerReviewRequestedEmail(
+      manager.email.value,
+      {
+        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        projectTitle: event.project.title.value,
+      },
+    );
   }
 
   @HandleDomainEvent(

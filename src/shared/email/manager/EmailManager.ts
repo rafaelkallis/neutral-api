@@ -47,6 +47,11 @@ export abstract class EmailManager {
     model: PeerReviewRequestedModel,
   ): Promise<void>;
 
+  public abstract async sendManagerReviewRequestedEmail(
+    to: string,
+    model: ManagerReviewRequestedModel,
+  ): Promise<void>;
+
   public abstract async sendProjectFinishedEmail(
     to: string,
     model: ProjectFinishedModel,
@@ -66,6 +71,11 @@ export interface InvitedUserNewAssignmentModel {
 }
 
 export interface PeerReviewRequestedModel {
+  projectUrl: string;
+  projectTitle: string;
+}
+
+export interface ManagerReviewRequestedModel {
   projectUrl: string;
   projectTitle: string;
 }

@@ -3,6 +3,7 @@ import {
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
+  ManagerReviewRequestedModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -42,6 +43,10 @@ export abstract class EmailPlaintextRenderer {
 
   public abstract renderPeerReviewRequestedEmailPlaintext(
     model: PeerReviewRequestedModel,
+  ): string;
+
+  public abstract renderManagerReviewRequestedEmailPlaintext(
+    model: ManagerReviewRequestedModel,
   ): string;
 
   public abstract renderProjectFinishedEmailPlaintext(

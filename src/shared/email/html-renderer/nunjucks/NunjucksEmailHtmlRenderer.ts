@@ -55,6 +55,10 @@ export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
     throw new Error('not implemented');
   }
 
+  public renderManagerReviewRequestedEmailHtml(): string {
+    throw new Error('not implemented');
+  }
+
   public renderProjectFinishedEmailHtml(): string {
     throw new Error('not implemented');
   }
