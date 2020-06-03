@@ -15,7 +15,6 @@ describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
 
   let creator: User;
-  let assignee1: User;
   let project: Project;
   let role1: ReadonlyRole;
   let role2: ReadonlyRole;
@@ -29,7 +28,7 @@ describe('submit peer review (e2e)', () => {
 
     creator = await scenario.createUser();
 
-    assignee1 = await scenario.createUser();
+    const assignee1 = await scenario.createUser();
     const assignee2 = await scenario.createUser();
     const assignee3 = await scenario.createUser();
     const assignee4 = await scenario.createUser();
@@ -159,7 +158,7 @@ describe('submit peer review (e2e)', () => {
         .post(`/projects/${project.id.value}/submit-peer-reviews`)
         .send({ peerReviews, reviewTopicId: reviewTopic1.id.value });
       expect(response.status).toBe(HttpStatus.OK);
-      const receivedManagerEmails = await scenario.getReceivedEmails(assignee1);
+      const receivedManagerEmails = await scenario.getReceivedEmails(creator);
       expect(receivedManagerEmails).toHaveLength(1);
       expect(receivedManagerEmails[0].subject).toBe(
         '[Covee] manager-review requested',
