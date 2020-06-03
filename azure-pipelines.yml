@@ -7,6 +7,7 @@ trigger:
 - master
 
 pool:
+  name: 'Azure Pipelines'
   vmImage: 'ubuntu-18.04'
 
 steps:
@@ -43,7 +44,7 @@ steps:
     dockerComposeCommand: 'up --detach'
   displayName: 'start external dependencies of e2e tests'
 
-- script: 'psql postgres://covee-saas:password@localhost:5432/covee-saas --command="CREATE EXTENSION IF NOT EXISTS pg_trgm;"'
+- script: 'psql postgres://covee-saas:password@localhost:5432/covee-saas --command="CREATE EXTENSION pg_trgm;"'
   displayName: 'postgres: create pg_trgm extension on e2e test postgres'
 
 - script: 'npm run-script test:e2e:ci'
@@ -52,7 +53,7 @@ steps:
 - task: DockerCompose@0
   inputs:
     dockerComposeFile: 'docker-compose.yml'
-    dockerComposeCommand: 'down -v --rmi all --remove-orphans'
+    dockerComposeCommand: 'down'
   condition: always()
   displayName: 'remove external dependencies of e2e tests'
 
