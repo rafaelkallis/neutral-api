@@ -14,7 +14,7 @@ import { UserCollection } from 'user/domain/UserCollection';
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
 
-  let user1: User;
+  let creator: User;
   let project: Project;
   let role1: ReadonlyRole;
   let role2: ReadonlyRole;
@@ -26,14 +26,16 @@ describe('submit peer review (e2e)', () => {
   beforeEach(async () => {
     scenario = await IntegrationTestScenario.create();
 
-    user1 = await scenario.createUser();
-    const user2 = await scenario.createUser();
-    const user3 = await scenario.createUser();
-    const user4 = await scenario.createUser();
+    creator = await scenario.createUser();
 
-    await scenario.authenticateUser(user1);
+    const assignee1 = await scenario.createUser();
+    const assignee2 = await scenario.createUser();
+    const assignee3 = await scenario.createUser();
+    const assignee4 = await scenario.createUser();
 
-    project = await scenario.createProject(user1);
+    await scenario.authenticateUser(assignee1);
+
+    project = await scenario.createProject(creator);
 
     role1 = project.addRole(
       scenario.valueObjectFaker.role.title(),
@@ -61,14 +63,17 @@ describe('submit peer review (e2e)', () => {
       scenario.valueObjectFaker.reviewTopic.description(),
     );
 
-    project.assignUserToRole(user1, role1.id);
-    project.assignUserToRole(user2, role2.id);
-    project.assignUserToRole(user3, role3.id);
-    project.assignUserToRole(user4, role4.id);
+    project.assignUserToRole(assignee1, role1.id);
+    project.assignUserToRole(assignee2, role2.id);
+    project.assignUserToRole(assignee3, role3.id);
+    project.assignUserToRole(assignee4, role4.id);
 
-    project.finishFormation(new UserCollection([user1, user2, user3, user4]));
+    project.finishFormation(
+      new UserCollection([assignee1, assignee2, assignee3, assignee4]),
+    );
 
     await scenario.projectRepository.persist(project);
+    project.clearDomainEvents();
 
     peerReviews = {
       [role2.id.value]: 0.3,
@@ -130,6 +135,7 @@ describe('submit peer review (e2e)', () => {
         }
       }
       await scenario.projectRepository.persist(project);
+      project.clearDomainEvents();
     });
 
     test('should advance to project manager state', async () => {
@@ -145,6 +151,18 @@ describe('submit peer review (e2e)', () => {
         throw new Error();
       }
       expect(updatedProject.state).toBe(ManagerReviewProjectState.INSTANCE);
+    });
+
+    test('should send "manager review" email to project creator', async () => {
+      const response = await scenario.session
+        .post(`/projects/${project.id.value}/submit-peer-reviews`)
+        .send({ peerReviews, reviewTopicId: reviewTopic1.id.value });
+      expect(response.status).toBe(HttpStatus.OK);
+      const receivedManagerEmails = await scenario.getReceivedEmails(creator);
+      expect(receivedManagerEmails).toHaveLength(1);
+      expect(receivedManagerEmails[0].subject).toBe(
+        '[Covee] manager-review requested',
+      );
     });
 
     test('should compute contributions', async () => {

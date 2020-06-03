@@ -5,6 +5,7 @@ import {
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
+  ManagerReviewRequestedModel,
 } from '../manager/EmailManager';
 
 /**
@@ -109,6 +110,22 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You are requested to submit a peer-review in ${projectToken}.
 
       >> Submit Peer Review
+      ${model.projectUrl}
+
+      - Team Covee
+    `;
+  }
+
+  public renderManagerReviewRequestedEmailPlaintext(
+    model: ManagerReviewRequestedModel,
+  ): string {
+    const projectToken = model.projectTitle || 'a project you are a manager in';
+    return `
+      Hi there,
+
+      All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.
+
+      >> Submit Manager Review
       ${model.projectUrl}
 
       - Team Covee

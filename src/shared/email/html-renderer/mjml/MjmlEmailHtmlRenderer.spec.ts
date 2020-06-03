@@ -73,6 +73,17 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     expect(html).toMatchSnapshot();
   });
 
+  test('should render manager review requested html', () => {
+    const model: PeerReviewRequestedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const html = mjmlEmailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
+      model,
+    );
+    expect(html).toMatchSnapshot();
+  });
+
   test('should render project finished html', () => {
     const model: ProjectFinishedModel = {
       projectTitle: 'My Project',
