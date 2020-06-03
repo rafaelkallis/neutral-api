@@ -1,3 +1,5 @@
+import { execSync } from 'child_process';
+
 /**
  *
  */
@@ -29,8 +31,21 @@ export interface ConfigProps {
  * Config
  */
 export abstract class Config {
+  public readonly commit: string;
+
+  public constructor() {
+    this.commit = this.computeCommit();
+  }
+
   /**
    * Get a config variable.
    */
   public abstract get<K extends keyof ConfigProps>(key: K): ConfigProps[K];
+
+  private computeCommit(): string {
+    try {
+      return execSync('git rev-parse --short HEAD').toString();
+    } catch (ignored) {}
+    return '0000000';
+  }
 }

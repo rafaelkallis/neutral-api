@@ -20,5 +20,9 @@ describe('app (e2e)', () => {
   test('/status (GET)', async () => {
     const response = await scenario.session.get('/status');
     expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body).toEqual({
+      message: expect.any(String),
+      commit: expect.any(String),
+    });
   });
 });

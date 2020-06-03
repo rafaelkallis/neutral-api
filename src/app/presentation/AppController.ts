@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
 import { StatusDto } from 'app/presentation/dto/StatusDto';
 import { PongDto } from 'app/presentation/dto/PongDto';
+import { Config } from 'shared/config/application/Config';
 
 /**
  * App Controller
@@ -9,6 +10,12 @@ import { PongDto } from 'app/presentation/dto/PongDto';
 @Controller()
 @ApiTags('App')
 export class AppController {
+  private readonly config: Config;
+
+  public constructor(config: Config) {
+    this.config = config;
+  }
+
   /**
    * Ping the app.
    */
@@ -27,6 +34,6 @@ export class AppController {
   @ApiOkResponse({ description: "The App's status", type: StatusDto })
   public getStatus(): StatusDto {
     const message = 'service lives!';
-    return new StatusDto(message);
+    return new StatusDto(message, this.config.commit);
   }
 }
