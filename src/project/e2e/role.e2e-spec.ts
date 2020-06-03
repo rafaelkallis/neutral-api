@@ -120,14 +120,6 @@ describe('roles (e2e)', () => {
         .send({ title });
       expect(response.status).toBe(HttpStatus.FORBIDDEN);
     });
-
-    // TODO: should be tested in e2e tests!
-    test('should fail is project owner is assigned', async () => {
-      const response = await scenario.session
-        .patch(`/projects/${project.id.value}/roles/${role.id.value}`)
-        .send({ assigneeId: project.creatorId });
-      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    });
   });
 
   describe('/projects/:project_id/roles/:roleId (DELETE)', () => {
