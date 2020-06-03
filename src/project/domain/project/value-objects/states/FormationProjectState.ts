@@ -169,6 +169,6 @@ export class FormationProjectState extends DefaultProjectState {
     assignees.assertAllAreActive();
     project.state = PeerReviewProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
-    project.raise(new ProjectPeerReviewStartedEvent(project));
+    project.raise(new ProjectPeerReviewStartedEvent(project, assignees));
   }
 }

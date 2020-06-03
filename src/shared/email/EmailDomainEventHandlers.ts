@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { EmailChangeRequestedEvent } from 'user/domain/events/EmailChangeRequestedEvent';
 import { SignupRequestedEvent } from 'auth/application/events/SignupRequestedEvent';
 import { LoginRequestedEvent } from 'auth/application/events/LoginRequestedEvent';
@@ -7,6 +7,7 @@ import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssig
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
 import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { Config } from 'shared/config/application/Config';
+import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 
 /**
  * Email Domain Event Handlers
@@ -82,5 +83,28 @@ export class EmailDomainEventHandlers {
         signupMagicLink: event.signupLink,
       },
     );
+  }
+
+  @HandleDomainEvent(
+    ProjectPeerReviewStartedEvent,
+    'on_project_peer_review_started_send_peer_review_requested_email',
+  )
+  public async onProjectPeerReviewStartedSendPeerReviewRequestedEmail(
+    event: ProjectPeerReviewStartedEvent,
+  ): Promise<void> {
+    for (const assignee of event.assignees) {
+      if (!assignee.isActive()) {
+        throw new InternalServerErrorException(
+          'assignee is not active anymore',
+        );
+      }
+      await this.emailManager.sendPeerReviewRequestedEmail(
+        assignee.email.value,
+        {
+          projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+          projectTitle: event.project.title.value,
+        },
+      );
+    }
   }
 }

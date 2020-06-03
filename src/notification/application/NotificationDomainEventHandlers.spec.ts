@@ -8,6 +8,7 @@ import { ModelFaker } from 'test/ModelFaker';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
+import { UserCollection } from 'user/domain/UserCollection';
 
 describe('notification sagas', () => {
   let modelFaker: ModelFaker;
@@ -57,7 +58,10 @@ describe('notification sagas', () => {
       modelFaker.role(assignees[1].id),
       modelFaker.role(assignees[2].id),
     ]);
-    const event = new ProjectPeerReviewStartedEvent(project);
+    const event = new ProjectPeerReviewStartedEvent(
+      project,
+      new UserCollection(assignees),
+    );
 
     await notificationDomainEventHandler.onPeerReviewStartedCreatePeerReviewRequestedNotifications(
       event,

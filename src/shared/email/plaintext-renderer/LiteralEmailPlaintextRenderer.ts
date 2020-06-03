@@ -3,6 +3,7 @@ import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPla
 import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
+  PeerReviewRequestedModel,
 } from '../manager/EmailManager';
 
 /**
@@ -92,6 +93,22 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
 
       >> Get Started
       ${model.signupMagicLink}
+
+      - Team Covee
+    `;
+  }
+
+  public renderPeerReviewRequestedEmailPlaintext(
+    model: PeerReviewRequestedModel,
+  ): string {
+    const projectToken = model.projectTitle || 'a project';
+    return `
+      Hi there,
+
+      You are requested to submit a peer-review in ${projectToken}.
+
+      >> Submit Peer Review
+      ${model.projectUrl}
 
       - Team Covee
     `;

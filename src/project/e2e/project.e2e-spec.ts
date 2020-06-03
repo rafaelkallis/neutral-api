@@ -225,6 +225,12 @@ describe('project (e2e)', () => {
         throw new Error();
       }
       expect(updatedProject.state).toEqual(PeerReviewProjectState.INSTANCE);
+
+      for (const assignee of assignees) {
+        const receivedEmails = await scenario.getReceivedEmails(assignee);
+        expect(receivedEmails).toHaveLength(1);
+        expect(receivedEmails[0].subject).toBe('[Covee] peer-review requested');
+      }
     });
 
     test('should fail if authenticated user is not project owner', async () => {

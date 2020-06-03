@@ -1,6 +1,9 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
-import { EmailManager } from 'shared/email/manager/EmailManager';
+import {
+  EmailManager,
+  PeerReviewRequestedModel,
+} from 'shared/email/manager/EmailManager';
 import axios from 'axios';
 
 /**
@@ -84,6 +87,13 @@ export class SendgridEmailManager extends EmailManager {
     const templateId = '';
     const dynamicTemplateData = {};
     await this.sendEmail(to, templateId, dynamicTemplateData);
+  }
+
+  public async sendPeerReviewRequestedEmail(
+    _to: string,
+    _model: PeerReviewRequestedModel,
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   /**

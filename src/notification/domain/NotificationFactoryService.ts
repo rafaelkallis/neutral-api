@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Project } from 'project/domain/project/Project';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
-import { Role } from 'project/domain/role/Role';
+import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { Notification } from 'notification/domain/Notification';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -40,8 +40,8 @@ export class NotificationFactoryService {
    *
    */
   public createPeerReviewRequestedNotification(
-    project: Project,
-    role: Role,
+    project: ReadonlyProject,
+    role: ReadonlyRole,
   ): Notification {
     if (!role.assigneeId) {
       throw new InternalServerErrorException();

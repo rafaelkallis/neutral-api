@@ -41,6 +41,11 @@ export abstract class EmailManager {
     to: string,
     model: InvitedUserNewAssignmentModel,
   ): Promise<void>;
+
+  public abstract async sendPeerReviewRequestedEmail(
+    to: string,
+    model: PeerReviewRequestedModel,
+  ): Promise<void>;
 }
 
 export interface NewAssignmentModel {
@@ -53,4 +58,9 @@ export interface InvitedUserNewAssignmentModel {
   projectTitle: string;
   roleTitle: string;
   signupMagicLink: string;
+}
+
+export interface PeerReviewRequestedModel {
+  projectUrl: string;
+  projectTitle: string;
 }

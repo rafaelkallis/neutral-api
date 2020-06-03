@@ -2,6 +2,7 @@ import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/L
 import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
+  PeerReviewRequestedModel,
 } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
@@ -56,6 +57,17 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
       signupMagicLink: 'http://example.com/signup',
     };
     const text = literalEmailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
+      model,
+    );
+    expect(text).toMatchSnapshot();
+  });
+
+  test('should render peer review requested text', () => {
+    const model: PeerReviewRequestedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
       model,
     );
     expect(text).toMatchSnapshot();

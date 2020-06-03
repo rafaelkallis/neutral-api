@@ -4,6 +4,7 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
+  PeerReviewRequestedModel,
 } from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
@@ -55,6 +56,17 @@ describe(MjmlEmailHtmlRenderer.name, () => {
       signupMagicLink: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
+      model,
+    );
+    expect(html).toMatchSnapshot();
+  });
+
+  test('should render peer review requested html', () => {
+    const model: PeerReviewRequestedModel = {
+      projectTitle: 'My Project',
+      projectUrl: 'http://example.com',
+    };
+    const html = mjmlEmailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
     );
     expect(html).toMatchSnapshot();

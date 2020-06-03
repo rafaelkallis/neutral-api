@@ -4,6 +4,7 @@ import {
   EmailManager,
   InvitedUserNewAssignmentModel,
   NewAssignmentModel,
+  PeerReviewRequestedModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -93,6 +94,20 @@ export class SelfManagedEmailManager extends EmailManager {
       model,
     );
     const text = this.emailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
+      model,
+    );
+    await this.emailSender.sendEmail({ to, subject, html, text });
+  }
+
+  public async sendPeerReviewRequestedEmail(
+    to: string,
+    model: PeerReviewRequestedModel,
+  ): Promise<void> {
+    const subject = '[Covee] peer-review requested';
+    const html = this.emailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
+      model,
+    );
+    const text = this.emailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
       model,
     );
     await this.emailSender.sendEmail({ to, subject, html, text });
