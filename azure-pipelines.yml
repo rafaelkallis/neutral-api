@@ -15,16 +15,13 @@ steps:
   inputs:
     versionSpec: '12.x'
 
-- script: |
-    npm ci
+- script: 'npm ci'
   displayName: 'npm ci'
 
-- script: |
-    npm run-script type
+- script: 'npm run-script type'
   displayName: 'type check'
 
-- script: |
-    npm run-script test:ci
+- script: 'npm run-script test:ci'
   displayName: 'unit tests'
 
 - task: PublishTestResults@2
@@ -40,8 +37,39 @@ steps:
     summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml
   displayName: 'publish unit test coverage'
 
-- script: |
-    npm run-script build
+- task: DockerCompose@0
+  inputs:
+    dockerComposeFile: 'docker-compose.yml'
+    dockerComposeCommand: 'up --detach'
+  displayName: 'start external dependencies of e2e tests'
+
+- script: 'psql postgres://covee-saas:password@localhost:5432/covee-saas --command="CREATE EXTENSION pg_trgm;"'
+  displayName: 'postgres: create pg_trgm extension on e2e test postgres'
+
+- script: 'npm run-script test:e2e:ci'
+  displayName: 'e2e tests'
+
+- task: DockerCompose@0
+  inputs:
+    dockerComposeFile: 'docker-compose.yml'
+    dockerComposeCommand: 'down -v --rmi all --remove-orphans'
+  condition: always()
+  displayName: 'remove external dependencies of e2e tests'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'junit.xml'
+    searchFolder: '$(System.DefaultWorkingDirectory)/coverage-e2e'
+  displayName: 'publish e2e test results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage-e2e/cobertura-coverage.xml
+  displayName: 'publish e2e test coverage'
+
+- script: 'npm run-script build'
   displayName: 'build'
 
 - task: ArchiveFiles@2
