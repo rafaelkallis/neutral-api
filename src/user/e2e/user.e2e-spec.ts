@@ -3,7 +3,6 @@ import { Name } from 'user/domain/value-objects/Name';
 import { User } from 'user/domain/User';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { Email } from 'user/domain/value-objects/Email';
-import { EmailManager } from 'shared/email/manager/EmailManager';
 import { HttpStatus } from '@nestjs/common';
 import { ForgottenState } from 'user/domain/value-objects/states/ForgottenState';
 import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
@@ -73,15 +72,12 @@ describe('user (e2e)', () => {
   });
 
   describe('/users/me (PATCH)', () => {
-    let emailManager: EmailManager;
     let firstName: string;
     let email: string;
 
     beforeEach(() => {
-      emailManager = scenario.module.get(EmailManager);
       firstName = scenario.primitiveFaker.word();
       email = scenario.primitiveFaker.email();
-      jest.spyOn(emailManager, 'sendEmailChangeEmail');
     });
 
     test('happy path', async () => {
@@ -92,7 +88,14 @@ describe('user (e2e)', () => {
       expect(response.body).toBeDefined();
       expect(response.body.firstName).toEqual(firstName);
       expect(response.body.email).not.toEqual(email);
-      expect(emailManager.sendEmailChangeEmail).toHaveBeenCalled();
+
+      const receivedEmails = await scenario.getReceivedEmails(
+        Email.from(email),
+      );
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe(
+        '[Covee] email change confirmation',
+      );
     });
   });
 
