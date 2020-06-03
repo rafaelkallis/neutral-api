@@ -8,9 +8,6 @@ import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHa
 import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { Config } from 'shared/config/application/Config';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { UserRepository } from 'user/domain/UserRepository';
-import { UserId } from 'user/domain/value-objects/UserId';
-import { ReadonlyUser } from 'user/domain/User';
 
 /**
  * Email Domain Event Handlers
@@ -19,16 +16,10 @@ import { ReadonlyUser } from 'user/domain/User';
 export class EmailDomainEventHandlers {
   private readonly config: Config;
   private readonly emailManager: EmailManager;
-  private readonly userRepository: UserRepository;
 
-  public constructor(
-    config: Config,
-    emailManager: EmailManager,
-    userRepository: UserRepository,
-  ) {
+  public constructor(config: Config, emailManager: EmailManager) {
     this.config = config;
     this.emailManager = emailManager;
-    this.userRepository = userRepository;
   }
 
   /**
@@ -101,25 +92,7 @@ export class EmailDomainEventHandlers {
   public async onProjectPeerReviewStartedSendPeerReviewRequestedEmail(
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
-    const optionalAssigneeIds = event.project.roles
-      .toArray()
-      .map((role) => role.assigneeId);
-    const assigneeIds: UserId[] = [];
-    for (const optionalAssigneeId of optionalAssigneeIds) {
-      if (!optionalAssigneeId) {
-        throw new InternalServerErrorException("shouldn't be possible");
-      }
-      assigneeIds.push(optionalAssigneeId);
-    }
-    const optionalAssignees = await this.userRepository.findByIds(assigneeIds);
-    const assignees: ReadonlyUser[] = [];
-    for (const optionalAssignee of optionalAssignees) {
-      if (!optionalAssignee) {
-        throw new InternalServerErrorException('user does not exist anymore');
-      }
-      assignees.push(optionalAssignee);
-    }
-    for (const assignee of assignees) {
+    for (const assignee of event.assignees) {
       if (!assignee.isActive()) {
         throw new InternalServerErrorException(
           'assignee is not active anymore',
