@@ -108,10 +108,8 @@ export class EmailDomainEventHandlers {
     event: ProjectPeerReviewStartedEvent,
   ): Promise<void> {
     for (const assignee of event.assignees) {
-      if (!assignee.isActive()) {
-        throw new InternalServerErrorException(
-          'assignee is not active anymore',
-        );
+      if (!assignee.email.isPresent()) {
+        continue;
       }
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
@@ -167,10 +165,8 @@ export class EmailDomainEventHandlers {
       nullableAssignees.filter(Boolean) as User[],
     );
     for (const assignee of assignees) {
-      if (!assignee.isActive()) {
-        throw new InternalServerErrorException(
-          'assignee is not active anymore',
-        );
+      if (!assignee.email.isPresent()) {
+        continue;
       }
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
         projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?

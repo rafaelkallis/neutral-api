@@ -58,7 +58,7 @@ export class ActiveState extends DefaultUserState {
   }
 
   public forget(user: User): void {
-    user.email = Email.redacted();
+    user.email = Email.REDACTED;
     user.name = Name.redacted();
     user.avatar = Avatar.redacted();
     user.state = ForgottenState.getInstance();

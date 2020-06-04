@@ -49,7 +49,7 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
       UserId.from(entity.id),
       CreatedAt.from(entity.createdAt),
       UpdatedAt.from(entity.updatedAt),
-      Email.from(entity.email),
+      Email.of(entity.email),
       Name.from(entity.firstName, entity.lastName),
       entity.avatar ? Avatar.from(entity.avatar) : null,
       getUserState(entity.state),

@@ -59,7 +59,7 @@ export class SubmitLoginCommandHandler extends CommandHandler<
     command: SubmitLoginCommand,
   ): Promise<AuthenticationResponseDto> {
     const payload = this.tokenManager.validateLoginToken(command.loginToken);
-    const email = Email.from(payload.sub);
+    const email = Email.of(payload.sub);
     const lastLoginAt = LastLoginAt.from(payload.lastLoginAt);
     let user = await this.userRepository.findByEmail(email);
     if (!lastLoginAt.equals(user ? user.lastLoginAt : LastLoginAt.never())) {

@@ -27,7 +27,7 @@ abstract class ModelValueObjectFaker {
 
 class UserValueObjectFaker extends ModelValueObjectFaker {
   public email(): Email {
-    return Email.from(this.primitiveFaker.email());
+    return Email.of(this.primitiveFaker.email());
   }
 }
 

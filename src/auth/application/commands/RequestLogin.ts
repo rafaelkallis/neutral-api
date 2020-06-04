@@ -50,7 +50,7 @@ export class RequestLoginCommandHandler extends CommandHandler<
   }
 
   public async handle(command: RequestLoginCommand): Promise<void> {
-    const email = Email.from(command.email);
+    const email = Email.of(command.email);
     const user = await this.userRepository.findByEmail(email);
     const loginToken = this.tokenManager.newLoginToken(
       email,

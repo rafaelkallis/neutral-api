@@ -89,9 +89,7 @@ describe('user (e2e)', () => {
       expect(response.body.firstName).toEqual(firstName);
       expect(response.body.email).not.toEqual(email);
 
-      const receivedEmails = await scenario.getReceivedEmails(
-        Email.from(email),
-      );
+      const receivedEmails = await scenario.getReceivedEmails(Email.of(email));
       expect(receivedEmails).toHaveLength(1);
       expect(receivedEmails[0].subject).toBe(
         '[Covee] email change confirmation',
@@ -168,7 +166,7 @@ describe('user (e2e)', () => {
       if (!updatedUser) {
         throw new Error();
       }
-      expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
+      expect(updatedUser.email.equals(Email.REDACTED)).toBeTruthy();
       expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
       expect(
         updatedUser.state.equals(ForgottenState.getInstance()),
@@ -184,7 +182,7 @@ describe('user (e2e)', () => {
       if (!updatedUser) {
         throw new Error();
       }
-      expect(updatedUser.email.equals(Email.redacted())).toBeTruthy();
+      expect(updatedUser.email.equals(Email.REDACTED)).toBeTruthy();
       expect(updatedUser.name.equals(Name.redacted())).toBeTruthy();
       expect(
         updatedUser.state.equals(ForgottenState.getInstance()),

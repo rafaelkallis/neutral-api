@@ -30,7 +30,7 @@ describe('email domain event handlers', () => {
   test('email change requested', async () => {
     jest.spyOn(emailManager, 'sendEmailChangeEmail');
     const user = scenario.modelFaker.user();
-    const email = Email.from(scenario.primitiveFaker.email());
+    const email = Email.of(scenario.primitiveFaker.email());
     const emailChangeMagicLink = '';
     const event = new EmailChangeRequestedEvent(
       user,
@@ -64,7 +64,7 @@ describe('email domain event handlers', () => {
     jest.spyOn(emailManager, 'sendSignupEmail');
     const email = scenario.primitiveFaker.email();
     const signupMagicLink = '';
-    const event = new SignupRequestedEvent(Email.from(email), signupMagicLink);
+    const event = new SignupRequestedEvent(Email.of(email), signupMagicLink);
 
     await emailDomainEventHandlers.signupRequested(event);
 

@@ -139,7 +139,7 @@ export class ProjectApplicationService {
         new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
       );
     } else if (rawAssigneeEmail) {
-      const assigneeEmail = Email.from(rawAssigneeEmail);
+      const assigneeEmail = Email.of(rawAssigneeEmail);
       userToAssign = await this.userRepository.findByEmail(assigneeEmail);
       if (!userToAssign) {
         userToAssign = this.userFactory.create({ email: assigneeEmail });

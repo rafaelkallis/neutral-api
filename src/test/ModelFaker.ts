@@ -48,7 +48,7 @@ export class ModelFaker {
     const id = UserId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const email = Email.from(this.primitiveFaker.email());
+    const email = Email.of(this.primitiveFaker.email());
     const name = Name.from(
       this.primitiveFaker.word(),
       this.primitiveFaker.word(),

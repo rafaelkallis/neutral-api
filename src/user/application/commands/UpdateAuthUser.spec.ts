@@ -72,9 +72,7 @@ describe(UpdateAuthUserCommand.name, () => {
   });
 
   test('when email already used should throw exception', async () => {
-    td.when(userRepository.existsByEmail(Email.from(newEmail))).thenResolve(
-      true,
-    );
+    td.when(userRepository.existsByEmail(Email.of(newEmail))).thenResolve(true);
     await expect(commandHandler.handle(command)).rejects.toThrowError(
       EmailAlreadyUsedException,
     );

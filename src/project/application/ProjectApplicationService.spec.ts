@@ -217,7 +217,7 @@ describe(ProjectApplicationService.name, () => {
       createdUser.state = PendingState.getInstance();
       const userFactory = scenario.module.get(UserFactory);
       td.when(
-        userFactory.create({ email: Email.from(assigneeEmail) }),
+        userFactory.create({ email: Email.of(assigneeEmail) }),
       ).thenReturn(createdUser);
       jest.spyOn(userRepository, 'persist');
 

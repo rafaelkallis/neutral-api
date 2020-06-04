@@ -7,7 +7,7 @@ import { ValueObject } from 'shared/domain/value-objects/ValueObject';
  *
  */
 export class Email extends StringValueObject {
-  private constructor(value: string) {
+  protected constructor(value: string) {
     super(value);
     this.assertEmail(value);
     this.assertMaxLength(value, 100);
@@ -16,15 +16,19 @@ export class Email extends StringValueObject {
   /**
    *
    */
-  public static from(email: string): Email {
+  public static of(email: string): Email {
     return new Email(email);
   }
 
   /**
    *
    */
-  public static redacted(): Email {
-    return new Email('[REDACTED]');
+  public static get REDACTED(): Email {
+    return RedactedEmail.INSTANCE;
+  }
+
+  public isPresent(): boolean {
+    return true;
   }
 
   public equals(other: ValueObject): boolean {
@@ -42,5 +46,15 @@ export class Email extends StringValueObject {
 
   protected throwInvalidValueObjectException(): never {
     throw new InvalidEmailException();
+  }
+}
+
+export class RedactedEmail extends Email {
+  public static INSTANCE = new RedactedEmail();
+  protected constructor() {
+    super('[REDACTED]');
+  }
+  public isPresent(): boolean {
+    return false;
   }
 }

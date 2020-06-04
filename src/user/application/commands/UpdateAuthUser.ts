@@ -64,7 +64,7 @@ export class UpdateAuthUserCommandHandler extends UserCommandHandler<
   protected async doHandle(command: UpdateAuthUserCommand): Promise<User> {
     const { authUser, email: rawNewEmail } = command;
     if (rawNewEmail) {
-      const newEmail = Email.from(rawNewEmail);
+      const newEmail = Email.of(rawNewEmail);
       const emailAlreadyUsed = await this.userRepository.existsByEmail(
         newEmail,
       );
@@ -82,7 +82,7 @@ export class UpdateAuthUserCommandHandler extends UserCommandHandler<
       await this.domainEventBroker.publish(
         new EmailChangeRequestedEvent(
           authUser,
-          Email.from(rawNewEmail),
+          Email.of(rawNewEmail),
           emailChangeMagicLink,
         ),
       );

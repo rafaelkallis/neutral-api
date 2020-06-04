@@ -24,7 +24,7 @@ describe(User.name, () => {
     let newEmail: Email;
 
     beforeEach(() => {
-      newEmail = Email.from(primitiveFaker.email());
+      newEmail = Email.of(primitiveFaker.email());
     });
 
     test('happy path', () => {

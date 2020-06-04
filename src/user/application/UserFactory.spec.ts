@@ -13,7 +13,7 @@ describe(UserFactory.name, () => {
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(UserFactory).build();
     userFactory = scenario.subject;
-    email = Email.from(scenario.primitiveFaker.email());
+    email = Email.of(scenario.primitiveFaker.email());
   });
 
   test('create user', () => {

@@ -47,11 +47,11 @@ export class SubmitEmailChangeCommandHandler extends UserCommandHandler<
     if (!userIdFromPayload.equals(command.authUser.id)) {
       throw new UnauthorizedUserException();
     }
-    const emailFromPayload = Email.from(payload.curEmail);
+    const emailFromPayload = Email.of(payload.curEmail);
     if (!emailFromPayload.equals(command.authUser.email)) {
       throw new TokenAlreadyUsedException();
     }
-    const newEmail = Email.from(payload.newEmail);
+    const newEmail = Email.of(payload.newEmail);
     command.authUser.changeEmail(newEmail);
     return command.authUser;
   }
