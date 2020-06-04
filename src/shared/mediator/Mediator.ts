@@ -1,38 +1,26 @@
-import {
-  Injectable,
-  Type,
-  InternalServerErrorException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, Type, InternalServerErrorException } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
-import { Request as HttpRequest } from 'express';
-import { ModuleRef, ContextIdFactory, REQUEST } from '@nestjs/core';
 import {
   RequestHandler,
   AssociatedRequest,
 } from 'shared/mediator/RequestHandler';
+import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
 
 /**
  *
  */
 @Injectable()
 export class Mediator {
-  private readonly moduleRef: ModuleRef;
-  private readonly httpRequest: HttpRequest;
+  private readonly serviceLocator: ServiceLocator;
 
-  public constructor(
-    moduleRef: ModuleRef,
-    @Inject(REQUEST) httpRequest: HttpRequest,
-  ) {
-    this.moduleRef = moduleRef;
-    this.httpRequest = httpRequest;
+  public constructor(serviceLocator: ServiceLocator) {
+    this.serviceLocator = serviceLocator;
   }
 
   public async send<T, TRequest extends Request<T>>(
     request: TRequest,
   ): Promise<T> {
     const requestType = request.constructor as Type<TRequest>;
-    const contextId = ContextIdFactory.getByRequest(this.httpRequest);
     const requestHandlerTypes = AssociatedRequest.inverse().get(requestType);
     if (requestHandlerTypes === null) {
       throw new InternalServerErrorException(
@@ -41,10 +29,8 @@ export class Mediator {
     }
     const resolvedRequestHandlers: RequestHandler<T, TRequest>[] = [];
     for (const requestHandlerType of requestHandlerTypes) {
-      const resolvedRequestHandler = await this.moduleRef.resolve(
-        requestHandlerType as any, // TODO remove any
-        contextId,
-        { strict: false },
+      const resolvedRequestHandler = await this.serviceLocator.getService(
+        requestHandlerType,
       );
       resolvedRequestHandlers.push(
         resolvedRequestHandler as RequestHandler<T, TRequest>,

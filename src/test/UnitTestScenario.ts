@@ -65,7 +65,9 @@ export class UnitTestScenarioBuilder<TSubject> {
       providers: this.providers,
     }).compile();
     const contextId = ContextIdFactory.create();
-    const subject = await module.resolve(this.subjectType, contextId);
+    const subject = await module.resolve(this.subjectType, contextId, {
+      strict: false,
+    });
     return new UnitTestScenario(module, contextId, subject);
   }
 }
