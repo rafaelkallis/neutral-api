@@ -87,11 +87,18 @@ export class CoveeContributionsComputer extends ContributionsComputer {
   }
 
   private computeContributionsFromMatrix(S: number[][]): number[] {
-    if (S.length < 4) {
-      throw new Error('teams of < 4 not supported');
+    if (S.length < 3) {
+      throw new Error('teams of less than 3 not yet supported');
     }
     const S1 = this.computeS1(S);
     const S2 = this.computeS2(S1);
+
+    if (S.length === 3) {
+      const S3_3person = this.computeS3_3person(S2);
+      const S4_3person = this.computeS4_3person(S3_3person);
+      return S4_3person;
+    }
+
     const S3 = this.computeS3(S1);
     const S4 = this.computeS4(S2, S3);
     const S5 = this.computeS5(S4);
@@ -199,6 +206,43 @@ export class CoveeContributionsComputer extends ContributionsComputer {
       S5[i] = f(i);
     }
     return S5;
+  }
+
+  private computeS3_3person(S2: number[][]): number[] {
+    const n = S2.length;
+    if (n !== 3) {
+      throw new Error('only 3 person game allowed');
+    }
+    function h(i: number): number {
+      let y = 1;
+      for (let k = 0; k < n; k++) {
+        if (k !== i) {
+          y += S2[k][i];
+        }
+      }
+      return 1 / y;
+    }
+    const S3_3person = this.createNanVector(n);
+    for (let i = 0; i < n; i++) {
+      S3_3person[i] = h(i);
+    }
+    return S3_3person;
+  }
+
+  private computeS4_3person(S3_3person: number[]): number[] {
+    const n = S3_3person.length;
+    if (n !== 3) {
+      throw new Error('only 3 person game allowed');
+    }
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+      sum += S3_3person[i];
+    }
+    const S4_3person = this.createNanVector(n);
+    for (let i = 0; i < n; i++) {
+      S4_3person[i] = S3_3person[i] / sum;
+    }
+    return S3_3person;
   }
 
   private createNanVector(n: number): number[] {

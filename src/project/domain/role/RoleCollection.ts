@@ -64,7 +64,7 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
   }
 
   public assertSufficientAmount(): void {
-    if (this.count() < 4) {
+    if (this.count() < 3) {
       throw new InsufficientRoleAmountException();
     }
   }

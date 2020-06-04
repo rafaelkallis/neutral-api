@@ -262,8 +262,10 @@ describe(FormationProjectState.name, () => {
       expect(() => project.finishFormation(assignees)).toThrow();
     });
 
-    test('should fail if amount of roles is insufficient', () => {
+    test('should fail if amount of roles is < 3', () => {
       project.roles.remove(project.roles.first());
+      project.roles.remove(project.roles.first());
+      assignees.remove(assignees.first());
       assignees.remove(assignees.first());
       expect(() => project.finishFormation(assignees)).toThrow();
     });

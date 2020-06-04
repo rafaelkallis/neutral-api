@@ -104,7 +104,7 @@ describe('ContributionsModelService', () => {
       ).toBeCloseTo(0.4);
     });
 
-    test.skip('compute contributions for 3 person game', () => {
+    test('compute contributions for 3 person game', () => {
       const contributions = contributionsComputer.compute(project3);
       expect(
         contributions.find((con) => con.roleId.equals(roleA.id))?.amount.value,
