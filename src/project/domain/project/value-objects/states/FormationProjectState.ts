@@ -166,7 +166,8 @@ export class FormationProjectState extends DefaultProjectState {
       assignees.assertContains(role.assigneeId as UserId);
     }
     project.reviewTopics.assertSufficientAmount();
-    assignees.assertAllAreActive();
+    // TODO make configurable
+    // assignees.assertAllAreActive();
     project.state = PeerReviewProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project, assignees));
