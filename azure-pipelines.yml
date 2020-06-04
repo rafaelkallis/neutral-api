@@ -44,6 +44,9 @@ steps:
     dockerComposeCommand: 'up --detach'
   displayName: 'start external dependencies of e2e tests'
 
+- script: 'sleep 5'
+  displayName: 'sleep 5'
+
 - script: 'psql postgres://covee-saas:password@localhost:5432/covee-saas --command="CREATE EXTENSION pg_trgm;"'
   displayName: 'postgres: create pg_trgm extension on e2e test postgres'
 
