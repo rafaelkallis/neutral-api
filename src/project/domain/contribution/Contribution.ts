@@ -5,11 +5,14 @@ import { ContributionAmount } from 'project/domain/role/value-objects/Contributi
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyContribution extends ReadonlyModel<ContributionId> {
   readonly roleId: RoleId;
   readonly reviewTopicId: ReviewTopicId;
   readonly amount: ContributionAmount;
+
+  readonly _type: Type<ReadonlyContribution>;
 }
 
 export class Contribution extends Model<ContributionId>
@@ -30,6 +33,7 @@ export class Contribution extends Model<ContributionId>
     this.roleId = roleId;
     this.reviewTopicId = reviewTopicId;
     this.amount = amount;
+    this._type = Contribution;
   }
 
   public static from(
@@ -49,4 +53,6 @@ export class Contribution extends Model<ContributionId>
       amount,
     );
   }
+
+  public readonly _type: Type<Contribution>;
 }

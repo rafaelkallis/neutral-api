@@ -12,6 +12,7 @@ import { NotificationReadEvent } from 'notification/domain/events/NotificationRe
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyNotification
   extends ReadonlyAggregateRoot<NotificationId> {
@@ -23,6 +24,8 @@ export interface ReadonlyNotification
   markRead(): void;
   assertOwner(user: User): void;
   assertNotRead(): void;
+
+  readonly _type: Type<ReadonlyNotification>;
 }
 
 /**
@@ -51,6 +54,7 @@ export class Notification extends AggregateRoot<NotificationId>
     this.type = type;
     this.isRead = isRead;
     this.payload = payload;
+    this._type = Notification;
   }
 
   /**
@@ -76,4 +80,6 @@ export class Notification extends AggregateRoot<NotificationId>
       throw new NotificationAlreadyReadException();
     }
   }
+
+  public readonly _type: Type<Notification>;
 }

@@ -16,6 +16,8 @@ import {
 } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
 import { Avatar } from 'user/domain/value-objects/Avatar';
+import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
+import { UserDto } from '../dto/UserDto';
 
 describe(GetAuthUserDataZipQuery.name, () => {
   let scenario: UnitTestScenario<GetAuthUserDataZipQueryHandler>;
@@ -31,6 +33,7 @@ describe(GetAuthUserDataZipQuery.name, () => {
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(GetAuthUserDataZipQueryHandler)
       .addProviderMock(ArchiveFactory)
+      .addProviderMock(ObjectMapper)
       .addProviderMock(JsonSerializer)
       .addProviderMock(ObjectStorage)
       .build();
@@ -38,15 +41,19 @@ describe(GetAuthUserDataZipQuery.name, () => {
     archiveFactory = scenario.module.get(ArchiveFactory);
     archiveBuilder = td.object();
     td.when(archiveFactory.createArchiveBuilder()).thenReturn(archiveBuilder);
-    archive = td.object();
-    td.when(archiveBuilder.build()).thenResolve(archive);
 
     authUser = scenario.modelFaker.user();
     authUser.avatar = Avatar.create();
 
+    const objectMapper = scenario.module.get(ObjectMapper);
+    const authUserDto: UserDto = td.object();
+    td.when(objectMapper.map(authUser, UserDto)).thenReturn(authUserDto);
+
     serializedAuthUser = td.object();
     const jsonSerializer = scenario.module.get(JsonSerializer);
-    td.when(jsonSerializer.serialize(authUser)).thenResolve(serializedAuthUser);
+    td.when(jsonSerializer.serialize(authUserDto)).thenResolve(
+      serializedAuthUser,
+    );
 
     avatarResult = { file: td.object(), contentType: '' };
     const objectStorage = scenario.module.get(ObjectStorage);
@@ -56,6 +63,9 @@ describe(GetAuthUserDataZipQuery.name, () => {
         key: authUser.avatar.value,
       }),
     ).thenResolve(avatarResult);
+
+    archive = td.object();
+    td.when(archiveBuilder.build()).thenResolve(archive);
 
     getAuthUserDataZipQuery = new GetAuthUserDataZipQuery(authUser);
   });

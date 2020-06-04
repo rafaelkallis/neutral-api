@@ -5,6 +5,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Consensuality } from '../project/value-objects/Consensuality';
+import { Type } from '@nestjs/common';
 
 export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
@@ -12,6 +13,7 @@ export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly consensuality: Consensuality | null;
 
   isConsensual(): boolean;
+  readonly _type: Type<ReadonlyReviewTopic>;
 }
 
 export class ReviewTopic extends Model<ReviewTopicId>
@@ -32,6 +34,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
     this.title = title;
     this.description = description;
     this.consensuality = consensuality;
+    this._type = ReviewTopic;
   }
 
   /**
@@ -58,4 +61,6 @@ export class ReviewTopic extends Model<ReviewTopicId>
   public isConsensual(): boolean {
     return this.consensuality !== null && this.consensuality.isConsensual();
   }
+
+  public readonly _type: Type<ReviewTopic>;
 }
