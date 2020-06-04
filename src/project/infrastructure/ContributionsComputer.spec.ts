@@ -16,12 +16,15 @@ describe('ContributionsModelService', () => {
   let b: string;
   let c: string;
   let d: string;
-  let project: Project;
+  let project4: Project;
+  let project3: Project;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
-    project = modelFaker.project(UserId.create());
-    project.reviewTopics.add(modelFaker.reviewTopic());
+    project4 = modelFaker.project(UserId.create());
+    project4.reviewTopics.add(modelFaker.reviewTopic());
+    project3 = modelFaker.project(UserId.create());
+    project3.reviewTopics.add(modelFaker.reviewTopic());
     roleA = modelFaker.role();
     roleB = modelFaker.role();
     roleC = modelFaker.role();
@@ -30,7 +33,7 @@ describe('ContributionsModelService', () => {
     b = roleB.id.value;
     c = roleC.id.value;
     d = roleD.id.value;
-    project.peerReviews = PeerReviewCollection.fromMap(
+    project4.peerReviews = PeerReviewCollection.fromMap(
       {
         [a]: {
           [b]: 20 / 90,
@@ -53,7 +56,24 @@ describe('ContributionsModelService', () => {
           [c]: 30 / 60,
         },
       },
-      project.reviewTopics.first().id,
+      project4.reviewTopics.first().id,
+    );
+    project3.peerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: 1 / 2,
+          [c]: 1 / 2,
+        },
+        [b]: {
+          [a]: 1 / 2,
+          [c]: 1 / 2,
+        },
+        [c]: {
+          [a]: 1 / 2,
+          [b]: 1 / 2,
+        },
+      },
+      project3.reviewTopics.first().id,
     );
   });
 
@@ -69,7 +89,7 @@ describe('ContributionsModelService', () => {
     });
 
     test('compute contributions from specifications document example (>=4)', () => {
-      const contributions = contributionsComputer.compute(project);
+      const contributions = contributionsComputer.compute(project4);
       expect(
         contributions.find((con) => con.roleId.equals(roleA.id))?.amount.value,
       ).toBeCloseTo(0.1);
@@ -82,6 +102,19 @@ describe('ContributionsModelService', () => {
       expect(
         contributions.find((con) => con.roleId.equals(roleD.id))?.amount.value,
       ).toBeCloseTo(0.4);
+    });
+
+    test.skip('compute contributions for 3 person game', () => {
+      const contributions = contributionsComputer.compute(project3);
+      expect(
+        contributions.find((con) => con.roleId.equals(roleA.id))?.amount.value,
+      ).toBeCloseTo(1 / 3);
+      expect(
+        contributions.find((con) => con.roleId.equals(roleB.id))?.amount.value,
+      ).toBeCloseTo(1 / 3);
+      expect(
+        contributions.find((con) => con.roleId.equals(roleC.id))?.amount.value,
+      ).toBeCloseTo(1 / 3);
     });
   });
 });
