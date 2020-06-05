@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsEnum } from 'class-validator';
 import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 
@@ -23,30 +23,26 @@ export class CreateProjectDto {
   public description: string;
 
   @IsEnum(ContributionVisibilityValue)
-  @IsOptional()
   @ApiProperty({
     enum: ContributionVisibilityValue,
     example: ContributionVisibilityValue.SELF,
-    required: false,
     description: 'contributions visibility level',
   })
-  public contributionVisibility?: ContributionVisibilityValue;
+  public contributionVisibility: ContributionVisibilityValue;
 
   @IsEnum(SkipManagerReviewValue)
-  @IsOptional()
   @ApiProperty({
     enum: SkipManagerReviewValue,
     example: SkipManagerReviewValue.IF_CONSENSUAL,
-    required: false,
     description: 'option to skip manager review',
   })
-  public skipManagerReview?: SkipManagerReviewValue;
+  public skipManagerReview: SkipManagerReviewValue;
 
   public constructor(
     title: string,
     description: string,
-    contributionVisibility?: ContributionVisibilityValue,
-    skipManagerReview?: SkipManagerReviewValue,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: SkipManagerReviewValue,
   ) {
     this.title = title;
     this.description = description;

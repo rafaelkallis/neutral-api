@@ -23,15 +23,15 @@ import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
   public readonly description: string;
-  public readonly contributionVisibility?: ContributionVisibilityValue;
-  public readonly skipManagerReview?: SkipManagerReviewValue;
+  public readonly contributionVisibility: ContributionVisibilityValue;
+  public readonly skipManagerReview: SkipManagerReviewValue;
 
   public constructor(
     authUser: User,
     title: string,
     description: string,
-    contributionVisibility?: ContributionVisibilityValue,
-    skipManagerReview?: SkipManagerReviewValue,
+    contributionVisibility: ContributionVisibilityValue,
+    skipManagerReview: SkipManagerReviewValue,
   ) {
     super(authUser);
     this.title = title;
@@ -62,12 +62,10 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),
       creator: command.authUser,
-      contributionVisibility: command.contributionVisibility
-        ? ContributionVisibility.from(command.contributionVisibility)
-        : undefined,
-      skipManagerReview: command.skipManagerReview
-        ? SkipManagerReview.from(command.skipManagerReview)
-        : undefined,
+      contributionVisibility: ContributionVisibility.from(
+        command.contributionVisibility,
+      ),
+      skipManagerReview: SkipManagerReview.from(command.skipManagerReview),
     });
   }
 }

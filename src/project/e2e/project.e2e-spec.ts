@@ -10,6 +10,9 @@ import { ArchivedProjectState } from 'project/domain/project/value-objects/state
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { HttpStatus } from '@nestjs/common';
+import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
+import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -114,23 +117,31 @@ describe('project (e2e)', () => {
   describe('/projects (POST)', () => {
     let title: string;
     let description: string;
+    let contributionVisibility: ContributionVisibilityValue;
+    let skipManagerReview: SkipManagerReviewValue;
 
     beforeEach(() => {
       title = scenario.primitiveFaker.words();
       description = scenario.primitiveFaker.paragraph();
+      contributionVisibility = ContributionVisibilityValue.PROJECT;
+      skipManagerReview = SkipManagerReviewValue.NO;
     });
 
     test('happy path', async () => {
       const response = await scenario.session.post('/projects').send({
         title,
         description,
+        contributionVisibility,
+        skipManagerReview,
       });
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toEqual(
         expect.objectContaining({
           id: expect.any(String),
           title,
           description,
+          contributionVisibility,
+          skipManagerReview,
         }),
       );
       await scenario.projectRepository.findById(response.body.id);

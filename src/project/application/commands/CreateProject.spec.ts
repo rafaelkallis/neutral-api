@@ -12,6 +12,14 @@ import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle'
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { ProjectFactory } from '../ProjectFactory';
+import {
+  ContributionVisibilityValue,
+  ContributionVisibility,
+} from 'project/domain/project/value-objects/ContributionVisibility';
+import {
+  SkipManagerReviewValue,
+  SkipManagerReview,
+} from 'project/domain/project/value-objects/SkipManagerReview';
 
 describe(CreateProjectCommand.name, () => {
   let scenario: UnitTestScenario<CreateProjectCommandHandler>;
@@ -20,6 +28,8 @@ describe(CreateProjectCommand.name, () => {
   let authUser: User;
   let title: string;
   let description: string;
+  let contributionVisibility: ContributionVisibilityValue;
+  let skipManagerReview: SkipManagerReviewValue;
   let command: CreateProjectCommand;
   let createdProject: ReadonlyProject;
   let projectDto: ProjectDto;
@@ -35,7 +45,15 @@ describe(CreateProjectCommand.name, () => {
     authUser = td.object(scenario.modelFaker.user());
     title = scenario.primitiveFaker.word();
     description = scenario.primitiveFaker.paragraph();
-    command = new CreateProjectCommand(authUser, title, description);
+    contributionVisibility = ContributionVisibilityValue.PROJECT;
+    skipManagerReview = SkipManagerReviewValue.NO;
+    command = new CreateProjectCommand(
+      authUser,
+      title,
+      description,
+      contributionVisibility,
+      skipManagerReview,
+    );
 
     const projectFactory = scenario.module.get(ProjectFactory);
     createdProject = td.object();
@@ -44,8 +62,10 @@ describe(CreateProjectCommand.name, () => {
         title: td.matchers.isA(ProjectTitle),
         description: td.matchers.isA(ProjectDescription),
         creator: authUser,
-        contributionVisibility: undefined,
-        skipManagerReview: undefined,
+        contributionVisibility: ContributionVisibility.from(
+          contributionVisibility,
+        ),
+        skipManagerReview: SkipManagerReview.from(skipManagerReview),
       }),
     ).thenReturn(createdProject);
 
