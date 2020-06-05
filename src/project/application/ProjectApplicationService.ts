@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import {
@@ -11,8 +11,6 @@ import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
 import { Email } from 'user/domain/value-objects/Email';
-import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
-import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
 import { User, ReadonlyUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -24,11 +22,8 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
-import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
-import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
 
 @Injectable()
@@ -37,32 +32,23 @@ export class ProjectApplicationService {
   private readonly userRepository: UserRepository;
   private readonly userFactory: UserFactory;
   private readonly objectMapper: ObjectMapper;
-  private readonly domainEventBroker: DomainEventBroker;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
-  private readonly tokenManager: TokenManager;
-  private readonly magicLinkFactory: MagicLinkFactory;
 
   public constructor(
     projectRepository: ProjectRepository,
     userRepository: UserRepository,
     userFactory: UserFactory,
-    domainEventBroker: DomainEventBroker,
     objectMapper: ObjectMapper,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-    tokenManager: TokenManager,
-    magicLinkFactory: MagicLinkFactory,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
     this.userFactory = userFactory;
     this.objectMapper = objectMapper;
-    this.domainEventBroker = domainEventBroker;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
-    this.tokenManager = tokenManager;
-    this.magicLinkFactory = magicLinkFactory;
   }
 
   /**
@@ -124,10 +110,8 @@ export class ProjectApplicationService {
     }
     project.assertCreator(authUser);
     const roleToAssign = project.roles.whereId(roleId);
-    if (!rawAssigneeId && !rawAssigneeEmail) {
-      throw new NoAssigneeException();
-    }
     let userToAssign: ReadonlyUser | undefined = undefined;
+    // TODO chain of responsibility
     if (rawAssigneeId) {
       const assigneeId = UserId.from(rawAssigneeId);
       const user = await this.userRepository.findById(assigneeId);
@@ -135,59 +119,16 @@ export class ProjectApplicationService {
         throw new UserNotFoundException();
       }
       userToAssign = user;
-      await this.domainEventBroker.publish(
-        new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
-      );
     } else if (rawAssigneeEmail) {
       const assigneeEmail = Email.of(rawAssigneeEmail);
-      userToAssign = await this.userRepository.findByEmail(assigneeEmail);
-      if (!userToAssign) {
-        userToAssign = this.userFactory.create({ email: assigneeEmail });
-        await this.userRepository.persist(userToAssign);
-        const loginToken = this.tokenManager.newLoginToken(
-          userToAssign.email,
-          userToAssign.lastLoginAt,
-        );
-        const loginLink = this.magicLinkFactory.createLoginLink({
-          loginToken,
-          email: userToAssign.email,
-          isNew: true,
-        });
-        await this.domainEventBroker.publish(
-          new InvitedUserAssignedEvent(
-            project,
-            roleToAssign,
-            userToAssign,
-            loginLink,
-          ),
-        );
-      } else if (!userToAssign.isActive()) {
-        const loginToken = this.tokenManager.newLoginToken(
-          userToAssign.email,
-          userToAssign.lastLoginAt,
-        );
-        const loginLink = this.magicLinkFactory.createLoginLink({
-          loginToken,
-          email: userToAssign.email,
-          isNew: true,
-        });
-        await this.domainEventBroker.publish(
-          new InvitedUserAssignedEvent(
-            project,
-            roleToAssign,
-            userToAssign,
-            loginLink,
-          ),
-        );
-      } else {
-        await this.domainEventBroker.publish(
-          new ActiveUserAssignedEvent(project, roleToAssign, userToAssign),
-        );
+      let user = await this.userRepository.findByEmail(assigneeEmail);
+      if (!user) {
+        user = this.userFactory.create({ email: assigneeEmail });
+        await this.userRepository.persist(user);
       }
-    }
-    if (!userToAssign) {
-      // shouldn't be possible to get here
-      throw new InternalServerErrorException();
+      userToAssign = user;
+    } else {
+      throw new NoAssigneeException();
     }
     project.assignUserToRole(userToAssign, roleToAssign.id);
     await this.projectRepository.persist(project);

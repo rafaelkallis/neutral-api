@@ -13,4 +13,8 @@ export class PendingState extends DefaultUserState {
     }
     return this.instance;
   }
+
+  public isPending(): boolean {
+    return true;
+  }
 }

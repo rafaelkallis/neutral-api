@@ -1,6 +1,6 @@
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -53,7 +53,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   it('should render unregistered user new assignment text', () => {
-    const model: InvitedUserNewAssignmentModel = {
+    const model: PendingUserNewAssignmentModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
       signupMagicLink: 'http://example.com/signup',

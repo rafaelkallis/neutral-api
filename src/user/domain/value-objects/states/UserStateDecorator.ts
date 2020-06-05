@@ -36,6 +36,10 @@ export abstract class UserStateDecorator extends UserState {
     this.base.forget(user);
   }
 
+  public isPending(): boolean {
+    return this.base.isPending();
+  }
+
   public isActive(): boolean {
     return this.base.isActive();
   }

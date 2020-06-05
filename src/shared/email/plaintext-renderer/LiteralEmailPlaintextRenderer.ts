@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -82,7 +82,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
    *
    */
   public renderInvitedUserNewAssignmentEmailPlaintext(
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): string {
     const roleToken = model.roleTitle
       ? `the role of ${model.roleTitle}`
