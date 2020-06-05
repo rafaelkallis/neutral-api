@@ -5,8 +5,8 @@ import {
   AssociatedRequest,
 } from 'shared/mediator/RequestHandler';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { ContextIdFactory } from '@nestjs/core';
 import { Injectable } from '@nestjs/common';
+import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
 
 describe(Mediator.name, () => {
   let scenario: UnitTestScenario<Mediator>;
@@ -37,12 +37,11 @@ describe(Mediator.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(Mediator)
+      .addProvider(ServiceLocator)
       .addProvider(TestRequestHandler)
       .addProvider(RejectingRequestHandler)
       .build();
     mediator = scenario.subject;
-    const contextId = ContextIdFactory.create();
-    jest.spyOn(ContextIdFactory, 'getByRequest').mockReturnValue(contextId);
   });
 
   test('happy path', async () => {
