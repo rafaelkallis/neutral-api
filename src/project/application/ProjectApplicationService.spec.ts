@@ -7,7 +7,7 @@ import {
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
-import { Role, ReadonlyRole } from 'project/domain/role/Role';
+import { Role } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -21,10 +21,8 @@ import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBr
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
-import { Email } from 'user/domain/value-objects/Email';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
-import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
 
@@ -168,90 +166,6 @@ describe(ProjectApplicationService.name, () => {
         project.id.value,
       );
       expect(actualProjectDto).toBe(expectedProjectDto);
-    });
-  });
-
-  describe('assign user to role', () => {
-    let assignee: User;
-    let roleToBeAssigned: ReadonlyRole;
-
-    beforeEach(async () => {
-      assignee = scenario.modelFaker.user();
-      await userRepository.persist(assignee);
-      roleToBeAssigned = roles[0];
-      jest.spyOn(project, 'assignUserToRole');
-    });
-
-    test('happy path', async () => {
-      await projectApplication.assignUserToRole(
-        creatorUser,
-        project.id.value,
-        roleToBeAssigned.id.value,
-        assignee.id.value,
-      );
-      expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.assignUserToRole).toHaveBeenCalledWith(
-        assignee,
-        roleToBeAssigned.id,
-      );
-      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
-    });
-
-    test('happy path, email of active user', async () => {
-      await projectApplication.assignUserToRole(
-        creatorUser,
-        project.id.value,
-        roleToBeAssigned.id.value,
-        undefined,
-        assignee.email.value,
-      );
-      expect(project.assignUserToRole).toHaveBeenCalledWith(
-        assignee,
-        roleToBeAssigned.id,
-      );
-      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
-    });
-
-    test("happy path, email of user that doesn't exist", async () => {
-      const assigneeEmail = scenario.primitiveFaker.email();
-      const createdUser = scenario.modelFaker.user();
-      createdUser.state = PendingState.getInstance();
-      const userFactory = scenario.module.get(UserFactory);
-      td.when(
-        userFactory.create({ email: Email.of(assigneeEmail) }),
-      ).thenReturn(createdUser);
-      jest.spyOn(userRepository, 'persist');
-
-      await projectApplication.assignUserToRole(
-        creatorUser,
-        project.id.value,
-        roleToBeAssigned.id.value,
-        undefined,
-        assigneeEmail,
-      );
-
-      expect(userRepository.persist).toHaveBeenCalledWith(createdUser);
-      expect(project.assignUserToRole).toHaveBeenCalledWith(
-        createdUser,
-        roleToBeAssigned.id,
-      );
-    });
-
-    test('happy path, email of user that is not active', async () => {
-      assignee.state = PendingState.getInstance();
-
-      await projectApplication.assignUserToRole(
-        creatorUser,
-        project.id.value,
-        roleToBeAssigned.id.value,
-        undefined,
-        assignee.email.value,
-      );
-
-      expect(project.assignUserToRole).toHaveBeenCalledWith(
-        assignee,
-        roleToBeAssigned.id,
-      );
     });
   });
 

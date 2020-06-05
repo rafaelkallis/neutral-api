@@ -47,6 +47,7 @@ import { RemoveReviewTopicCommandHandler } from 'project/application/commands/Re
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
 import { ProjectDomainEventHandlers } from 'project/application/ProjectDomainEventHandlers';
+import { AssignRoleCommandHandler } from 'project/application/commands/AssignRole';
 
 /**
  * Project Module
@@ -95,6 +96,7 @@ import { ProjectDomainEventHandlers } from 'project/application/ProjectDomainEve
     UpdateReviewTopicCommandHandler,
     RemoveReviewTopicCommandHandler,
     RemoveRoleCommandHandler,
+    AssignRoleCommandHandler,
     UnassignRoleCommandHandler,
   ],
   exports: [ProjectRepository],

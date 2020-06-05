@@ -9,9 +9,7 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
-import { NoAssigneeException } from 'project/application/exceptions/NoAssigneeException';
-import { Email } from 'user/domain/value-objects/Email';
-import { User, ReadonlyUser } from 'user/domain/User';
+import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
@@ -21,7 +19,6 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { UserCollection } from 'user/domain/UserCollection';
@@ -30,7 +27,6 @@ import { UserCollection } from 'user/domain/UserCollection';
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
-  private readonly userFactory: UserFactory;
   private readonly objectMapper: ObjectMapper;
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -45,7 +41,6 @@ export class ProjectApplicationService {
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
-    this.userFactory = userFactory;
     this.objectMapper = objectMapper;
     this.contributionsComputer = contributionsComputer;
     this.consensualityComputer = consensualityComputer;
@@ -89,49 +84,6 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
-   * Assign user to a role
-   */
-  public async assignUserToRole(
-    authUser: User,
-    rawProjectId: string,
-    rawRoleId: string,
-    rawAssigneeId?: string | null,
-    rawAssigneeEmail?: string | null,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const roleId = RoleId.from(rawRoleId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    project.assertCreator(authUser);
-    const roleToAssign = project.roles.whereId(roleId);
-    let userToAssign: ReadonlyUser | undefined = undefined;
-    // TODO chain of responsibility
-    if (rawAssigneeId) {
-      const assigneeId = UserId.from(rawAssigneeId);
-      const user = await this.userRepository.findById(assigneeId);
-      if (!user) {
-        throw new UserNotFoundException();
-      }
-      userToAssign = user;
-    } else if (rawAssigneeEmail) {
-      const assigneeEmail = Email.of(rawAssigneeEmail);
-      let user = await this.userRepository.findByEmail(assigneeEmail);
-      if (!user) {
-        user = this.userFactory.create({ email: assigneeEmail });
-        await this.userRepository.persist(user);
-      }
-      userToAssign = user;
-    } else {
-      throw new NoAssigneeException();
-    }
-    project.assignUserToRole(userToAssign, roleToAssign.id);
-    await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }
 
