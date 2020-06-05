@@ -2,7 +2,7 @@ import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmail
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Environment } from 'shared/utility/application/Environment';
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -51,7 +51,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render invited user assigned html', () => {
-    const model: InvitedUserNewAssignmentModel = {
+    const model: PendingUserNewAssignmentModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
       signupMagicLink: 'http://example.com',

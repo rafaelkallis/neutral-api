@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
 import {
   EmailManager,
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -87,9 +87,9 @@ export class SelfManagedEmailManager extends EmailManager {
   /**
    * Sends an email to a user that is not registered but was assigned to a new role.
    */
-  public async sendInvitedUserNewAssignmentEmail(
+  public async sendPendingUserNewAssignmentEmail(
     to: string,
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): Promise<void> {
     const subject = '[Covee] new assignment';
     const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(

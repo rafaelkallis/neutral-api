@@ -6,6 +6,7 @@ import { RequestLoginCommandHandler } from 'auth/application/commands/RequestLog
 import { SubmitLoginCommandHandler } from 'auth/application/commands/SubmitLogin';
 import { RefreshCommandHandler } from 'auth/application/commands/Refresh';
 import { LogoutCommandHandler } from 'auth/application/commands/Logout';
+import { AuthDomainEventHandlers } from 'auth/application/AuthDomainEventHandlers';
 
 /**
  * Auth Module
@@ -14,6 +15,8 @@ import { LogoutCommandHandler } from 'auth/application/commands/Logout';
   imports: [SharedModule, UserModule],
   controllers: [AuthController],
   providers: [
+    AuthDomainEventHandlers,
+    // commands
     RequestLoginCommandHandler,
     SubmitLoginCommandHandler,
     RefreshCommandHandler,

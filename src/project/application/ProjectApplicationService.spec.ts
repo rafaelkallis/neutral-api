@@ -27,8 +27,6 @@ import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
-import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
-import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -192,6 +190,10 @@ describe(ProjectApplicationService.name, () => {
         assignee.id.value,
       );
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        assignee,
+        roleToBeAssigned.id,
+      );
       expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
@@ -203,12 +205,11 @@ describe(ProjectApplicationService.name, () => {
         undefined,
         assignee.email.value,
       );
-      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(ActiveUserAssignedEvent)),
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        assignee,
+        roleToBeAssigned.id,
       );
+      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
     test("happy path, email of user that doesn't exist", async () => {
@@ -234,11 +235,6 @@ describe(ProjectApplicationService.name, () => {
         createdUser,
         roleToBeAssigned.id,
       );
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
-      );
     });
 
     test('happy path, email of user that is not active', async () => {
@@ -255,11 +251,6 @@ describe(ProjectApplicationService.name, () => {
       expect(project.assignUserToRole).toHaveBeenCalledWith(
         assignee,
         roleToBeAssigned.id,
-      );
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
       );
     });
   });

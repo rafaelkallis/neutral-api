@@ -1,5 +1,5 @@
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -38,7 +38,7 @@ export abstract class EmailHtmlRenderer {
    *
    */
   public abstract renderInvitedUserNewAssignmentEmailHtml(
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): string;
 
   public abstract renderPeerReviewRequestedEmailHtml(
