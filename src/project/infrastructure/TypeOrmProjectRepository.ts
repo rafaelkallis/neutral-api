@@ -9,7 +9,6 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Repository } from 'shared/domain/Repository';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 
@@ -83,26 +82,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       .find({ creatorId: creatorId.value });
     const projectModels = this.objectMapper.mapArray(projectEntities, Project);
     return projectModels;
-  }
-
-  public async findByRoleId(roleId: RoleId): Promise<Project | undefined> {
-    const projectEntity = await this.createProjectQueryBuilder()
-      .where((builder) => {
-        const subQuery = builder
-          .subQuery()
-          .select('project.id')
-          .from(ProjectTypeOrmEntity, 'project')
-          .leftJoin('project.roles', 'role')
-          .where('role.id = :roleId')
-          .getQuery();
-        return `project.id IN ${subQuery}`;
-      })
-      .setParameter('roleId', roleId.value)
-      .getOne();
-    if (!projectEntity) {
-      return undefined;
-    }
-    return this.objectMapper.map(projectEntity, Project);
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
