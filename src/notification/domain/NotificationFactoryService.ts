@@ -105,7 +105,7 @@ export class NotificationFactoryService {
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const isRead = NotificationIsRead.from(false);
-    return new Notification(
+    return Notification.of(
       id,
       createdAt,
       updatedAt,

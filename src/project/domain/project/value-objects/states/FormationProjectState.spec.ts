@@ -271,7 +271,12 @@ describe(FormationProjectState.name, () => {
     });
 
     test.skip('should fail if there exist inactive assignees', () => {
-      assignees.first().state = PendingState.getInstance();
+      project.roles.remove(project.roles.first());
+      assignees.remove(assignees.first());
+      const pendingAssignee = modelFaker.user();
+      pendingAssignee.state = PendingState.getInstance();
+      assignees.add(pendingAssignee);
+      project.roles.add(modelFaker.role(pendingAssignee.id));
       expect(() => project.finishFormation(assignees)).toThrow();
     });
   });

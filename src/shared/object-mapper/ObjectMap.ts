@@ -35,8 +35,8 @@ export abstract class ObjectMap<TSource, TTarget> {
    * @param model The model to be mapped.
    * @param context
    */
-  public map(o: TSource, context: object): TTarget {
-    return this.doMap(o, new ObjectMapContext(context));
+  public map(source: TSource, context: object): TTarget {
+    return this.doMap(source, new ObjectMapContext(context));
   }
 
   protected abstract doMap(o: TSource, context: ObjectMapContext): TTarget;

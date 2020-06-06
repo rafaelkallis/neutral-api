@@ -13,6 +13,7 @@ import {
   getUserState,
   getUserStateValue,
 } from 'user/domain/value-objects/states/UserStateValue';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
@@ -30,7 +31,7 @@ export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
     );
   }
 
-  public getSourceClass(): Type<User> {
+  public getSourceClass(): Class<User> {
     return User;
   }
 
@@ -45,7 +46,7 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
   User
 > {
   protected doMap(entity: UserTypeOrmEntity): User {
-    return new User(
+    return User.of(
       UserId.from(entity.id),
       CreatedAt.from(entity.createdAt),
       UpdatedAt.from(entity.updatedAt),
@@ -61,7 +62,7 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
     return UserTypeOrmEntity;
   }
 
-  public getTargetClass(): Type<User> {
+  public getTargetClass(): Class<User> {
     return User;
   }
 }

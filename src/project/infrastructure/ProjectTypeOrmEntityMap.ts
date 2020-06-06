@@ -27,6 +27,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
+import { Class } from '../../shared/domain/Class';
 
 @Injectable()
 export class ProjectTypeOrmEntityMap extends ObjectMap<
@@ -92,7 +93,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
     return projectEntity;
   }
 
-  public getSourceClass(): Type<Project> {
+  public getSourceClass(): Class<Project> {
     return Project;
   }
 
@@ -126,7 +127,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     const contributions = new ContributionCollection(
       this.objectMapper.mapArray(projectEntity.contributions, Contribution),
     );
-    return new Project(
+    return Project.of(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),
@@ -147,7 +148,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     return ProjectTypeOrmEntity;
   }
 
-  public getTargetClass(): Type<Project> {
+  public getTargetClass(): Class<Project> {
     return Project;
   }
 }

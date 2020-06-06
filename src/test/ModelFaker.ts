@@ -1,5 +1,5 @@
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { Name } from 'user/domain/value-objects/Name';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
@@ -44,7 +44,8 @@ export class ModelFaker {
   /**
    * Create fake user
    */
-  public user(): User {
+  public user(): InternalUser {
+    // TODO User return type
     const id = UserId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
@@ -58,7 +59,7 @@ export class ModelFaker {
     const lastLoginAt = LastLoginAt.from(
       this.primitiveFaker.timestampUnixMillis(),
     );
-    return new User(
+    return new InternalUser(
       id,
       createdAt,
       updatedAt,
@@ -84,7 +85,7 @@ export class ModelFaker {
     const state = FormationProjectState.INSTANCE;
     const contributionVisibility = ContributionVisibility.SELF;
     const skipManagerReview = SkipManagerReview.NO;
-    return new Project(
+    return Project.of(
       id,
       createdAt,
       updatedAt,
@@ -157,7 +158,7 @@ export class ModelFaker {
     const type = NotificationType.NEW_ASSIGNMENT;
     const isRead = NotificationIsRead.from(false);
     const payload = {};
-    return new Notification(
+    return Notification.of(
       id,
       createdAt,
       updatedAt,

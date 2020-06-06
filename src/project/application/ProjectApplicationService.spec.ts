@@ -1,5 +1,9 @@
 import td from 'testdouble';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import {
+  InternalProject,
+  Project,
+  ReadonlyProject,
+} from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
@@ -8,7 +12,7 @@ import {
 } from 'project/application/dto/GetProjectsQueryDto';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { Role, ReadonlyRole } from 'project/domain/role/Role';
-import { User } from 'user/domain/User';
+import { User, InternalUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
@@ -36,7 +40,7 @@ describe(ProjectApplicationService.name, () => {
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
   let creatorUser: User;
-  let project: Project;
+  let project: InternalProject;
   let roles: Role[];
   let reviewTopic: ReviewTopic;
   let expectedProjectDto: ProjectDto;
@@ -125,7 +129,7 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('get assigned projects', () => {
-    let projects: Project[];
+    let projects: InternalProject[];
     let assigneeUser: User;
     let query: GetProjectsQueryDto;
     let projectDtos: ProjectDto[];
@@ -172,7 +176,7 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('assign user to role', () => {
-    let assignee: User;
+    let assignee: InternalUser;
     let roleToBeAssigned: ReadonlyRole;
 
     beforeEach(async () => {

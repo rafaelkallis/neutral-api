@@ -1,5 +1,5 @@
 import td from 'testdouble';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import {
   GetAuthUserDataZipQuery,
   GetAuthUserDataZipQueryHandler,
@@ -26,7 +26,7 @@ describe(GetAuthUserDataZipQuery.name, () => {
   let archiveFactory: ArchiveFactory;
   let archiveBuilder: ArchiveBuilder;
   let archive: Archive;
-  let authUser: User;
+  let authUser: InternalUser;
   let serializedAuthUser: Buffer;
   let avatarResult: GetReturn;
 

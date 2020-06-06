@@ -1,5 +1,6 @@
-import { Injectable, InternalServerErrorException, Type } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ObjectMapperRegistry } from 'shared/object-mapper/ObjectMapperRegistry';
+import { Class, ClassHierarchyIterable } from 'shared/domain/Class';
 
 /**
  * Maps objects.
@@ -14,38 +15,38 @@ export class ObjectMapper {
 
   /**
    * Maps the given object instance to the specified object type.
-   * @param o Object to map.
-   * @param targetType The type to map to.
+   * @param source Object to map.
+   * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public map<TTarget>(
-    o: object,
-    targetType: Type<TTarget>,
+  public map<TSource extends object, TTarget>(
+    source: TSource,
+    targetClass: Class<TTarget>,
     context: object = {},
   ): TTarget {
-    const objectMap = this.registry.get(
-      o.constructor as Type<object>,
-      targetType,
-    );
-    if (!objectMap) {
-      throw new InternalServerErrorException(
-        `object map for ${o.constructor.name} -> ${targetType.name} not found`,
-      );
+    const sourceClass: Class<TSource> = source.constructor;
+    for (const sourceHierarchyClass of ClassHierarchyIterable.of(sourceClass)) {
+      const objectMap = this.registry.get(sourceHierarchyClass, targetClass);
+      if (objectMap) {
+        return objectMap.map(source, context);
+      }
     }
-    return objectMap.map(o, context);
+    throw new InternalServerErrorException(
+      `object map for ${sourceClass.name} -> ${targetClass.name} not found`,
+    );
   }
 
   /**
    * Maps the given object instances to the specified object type.
    * @param arr Array of objects to map.
-   * @param targetType The type to map to.
+   * @param targetClass The type to map to.
    * @param context Mapping context.
    */
   public mapArray<T>(
     arr: ReadonlyArray<object>,
-    targetType: Type<T>,
+    targetClass: Class<T>,
     context: object = {},
   ): T[] {
-    return arr.map((o) => this.map(o, targetType, context));
+    return arr.map((o) => this.map(o, targetClass, context));
   }
 }
