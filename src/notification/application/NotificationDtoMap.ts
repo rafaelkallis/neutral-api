@@ -2,6 +2,7 @@ import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
 import { Injectable, Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class NotificationDtoMap extends ObjectMap<
@@ -19,7 +20,7 @@ export class NotificationDtoMap extends ObjectMap<
     );
   }
 
-  public getSourceClass(): Type<Notification> {
+  public getSourceClass(): Class<Notification> {
     return Notification;
   }
 

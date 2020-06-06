@@ -10,6 +10,7 @@ import { Injectable, Type } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
@@ -79,7 +80,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     return false;
   }
 
-  public getSourceClass(): Type<Project> {
+  public getSourceClass(): Class<Project> {
     return Project;
   }
 

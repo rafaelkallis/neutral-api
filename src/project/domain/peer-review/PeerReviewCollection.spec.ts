@@ -1,6 +1,6 @@
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { PeerReview } from './PeerReview';
 import { PeerReviewScore } from './value-objects/PeerReviewScore';
@@ -8,7 +8,7 @@ import { RoleId } from '../role/value-objects/RoleId';
 
 describe(PeerReviewCollection.name, () => {
   let peerReviewCollection: PeerReviewCollection;
-  let project: Project;
+  let project: InternalProject;
   let modelFaker: ModelFaker;
 
   beforeEach(() => {

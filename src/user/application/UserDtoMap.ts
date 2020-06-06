@@ -4,6 +4,7 @@ import { User } from 'user/domain/User';
 import { UserDto } from 'user/application/dto/UserDto';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { getUserStateValue } from 'user/domain/value-objects/states/UserStateValue';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class UserDtoMap extends ObjectMap<User, UserDto> {
@@ -35,7 +36,7 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
     return serverUrl + '/users/' + user.id.value + '/avatar';
   }
 
-  public getSourceClass(): Type<User> {
+  public getSourceClass(): Class<User> {
     return User;
   }
 

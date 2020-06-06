@@ -1,4 +1,4 @@
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { UserState } from 'user/domain/value-objects/states/UserState';
 import { Name } from 'user/domain/value-objects/Name';
 import { Email } from 'user/domain/value-objects/Email';
@@ -12,27 +12,27 @@ export abstract class UserStateDecorator extends UserState {
     this.base = base;
   }
 
-  public login(user: User): void {
+  public login(user: InternalUser): void {
     this.base.login(user);
   }
 
-  public changeEmail(user: User, email: Email): void {
+  public changeEmail(user: InternalUser, email: Email): void {
     this.base.changeEmail(user, email);
   }
 
-  public updateName(user: User, name: Name): void {
+  public updateName(user: InternalUser, name: Name): void {
     this.base.updateName(user, name);
   }
 
-  public updateAvatar(user: User, newAvatar: Avatar): void {
+  public updateAvatar(user: InternalUser, newAvatar: Avatar): void {
     this.base.updateAvatar(user, newAvatar);
   }
 
-  public removeAvatar(user: User): void {
+  public removeAvatar(user: InternalUser): void {
     this.base.removeAvatar(user);
   }
 
-  public forget(user: User): void {
+  public forget(user: InternalUser): void {
     this.base.forget(user);
   }
 

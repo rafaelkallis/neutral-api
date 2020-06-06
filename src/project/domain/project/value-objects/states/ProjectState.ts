@@ -1,5 +1,5 @@
 import { OperationNotSupportedByCurrentProjectStateException } from 'project/domain/exceptions/OperationNotSupportedByCurrentProjectStateException';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -22,59 +22,59 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
  */
 export abstract class ProjectState extends ValueObject {
   public abstract update(
-    project: Project,
+    project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
   ): void;
 
   public abstract addRole(
-    project: Project,
+    project: InternalProject,
     title: RoleTitle,
     description: RoleDescription,
   ): ReadonlyRole;
 
   public abstract updateRole(
-    project: Project,
+    project: InternalProject,
     roleId: RoleId,
     title?: RoleTitle,
     description?: RoleDescription,
   ): void;
 
-  public abstract removeRole(project: Project, roleId: RoleId): void;
+  public abstract removeRole(project: InternalProject, roleId: RoleId): void;
 
   public abstract assignUserToRole(
-    project: Project,
+    project: InternalProject,
     userToAssign: ReadonlyUser,
     roleId: RoleId,
   ): void;
 
-  public abstract unassign(project: Project, roleId: RoleId): void;
+  public abstract unassign(project: InternalProject, roleId: RoleId): void;
 
   public abstract addReviewTopic(
-    project: Project,
+    project: InternalProject,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic;
 
   public abstract updateReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
   ): void;
 
   public abstract removeReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
   ): void;
 
   public abstract finishFormation(
-    project: Project,
+    project: InternalProject,
     assignees: ReadonlyUserCollection,
   ): void;
 
   public abstract submitPeerReviews(
-    project: Project,
+    project: InternalProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
@@ -82,11 +82,11 @@ export abstract class ProjectState extends ValueObject {
     consensualityComputer: ConsensualityComputer,
   ): void;
 
-  public abstract submitManagerReview(project: Project): void;
+  public abstract submitManagerReview(project: InternalProject): void;
 
-  public abstract cancel(project: Project): void;
+  public abstract cancel(project: InternalProject): void;
 
-  public abstract archive(project: Project): void;
+  public abstract archive(project: InternalProject): void;
 }
 
 /**
@@ -94,97 +94,97 @@ export abstract class ProjectState extends ValueObject {
  */
 export abstract class DefaultProjectState extends ProjectState {
   public update(
-    _project: Project,
-    _title?: ProjectTitle,
-    _description?: ProjectDescription,
+    project: InternalProject,
+    title?: ProjectTitle,
+    description?: ProjectDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public addRole(
-    _project: Project,
-    _title: RoleTitle,
-    _description: RoleDescription,
+    project: InternalProject,
+    title: RoleTitle,
+    description: RoleDescription,
   ): ReadonlyRole {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public updateRole(
-    _project: Project,
-    _roleId: RoleId,
-    _title?: RoleTitle,
-    _description?: RoleDescription,
+    project: InternalProject,
+    roleId: RoleId,
+    title?: RoleTitle,
+    description?: RoleDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public removeRole(_project: Project, _roleId: RoleId): void {
+  public removeRole(project: InternalProject, roleId: RoleId): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public assignUserToRole(
-    _project: Project,
-    _userToAssign: ReadonlyUser,
-    _roleId: RoleId,
+    project: InternalProject,
+    userToAssign: ReadonlyUser,
+    roleId: RoleId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public unassign(_project: Project, _roleId: RoleId): void {
+  public unassign(project: InternalProject, roleId: RoleId): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public addReviewTopic(
-    _project: Project,
-    _title: ReviewTopicTitle,
-    _description: ReviewTopicDescription,
+    project: InternalProject,
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
   ): ReadonlyReviewTopic {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public updateReviewTopic(
-    _project: Project,
-    _reviewTopicId: ReviewTopicId,
-    _title?: ReviewTopicTitle,
-    _description?: ReviewTopicDescription,
+    project: InternalProject,
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public removeReviewTopic(
-    _project: Project,
-    _reviewTopicId: ReviewTopicId,
+    project: InternalProject,
+    reviewTopicId: ReviewTopicId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public finishFormation(
-    _project: Project,
-    _assignees: ReadonlyUserCollection,
+    project: InternalProject,
+    assignees: ReadonlyUserCollection,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public submitPeerReviews(
-    _project: Project,
-    _senderRoleId: RoleId,
-    _reviewTopicId: ReviewTopicId,
-    _submittedPeerReviews: [RoleId, PeerReviewScore][],
-    _contributionsComputer: ContributionsComputer,
-    _consensualityComputer: ConsensualityComputer,
+    project: InternalProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public submitManagerReview(_project: Project): void {
+  public submitManagerReview(project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public cancel(_project: Project): void {
+  public cancel(project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public archive(_project: Project): void {
+  public archive(project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 }

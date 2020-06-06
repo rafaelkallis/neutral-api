@@ -1,5 +1,5 @@
 import { User } from 'user/domain/User';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject, Project } from 'project/domain/project/Project';
 import { ModelFaker } from 'test/ModelFaker';
 import {
   ProjectState,
@@ -18,7 +18,7 @@ describe(CancellableProjectState.name, () => {
   let project: Project;
 
   class BaseState extends DefaultProjectState {
-    public cancel(_project: Project): void {
+    public cancel(project: InternalProject): void {
       throw new Error();
     }
   }

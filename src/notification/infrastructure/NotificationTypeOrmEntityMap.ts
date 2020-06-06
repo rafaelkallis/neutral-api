@@ -8,6 +8,7 @@ import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable, Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class NotificationTypeOrmEntityMap extends ObjectMap<
@@ -26,7 +27,7 @@ export class NotificationTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceClass(): Type<Notification> {
+  public getSourceClass(): Class<Notification> {
     return Notification;
   }
 
@@ -41,7 +42,7 @@ export class ReverseNotificationTypeOrmEntityMap extends ObjectMap<
   Notification
 > {
   protected doMap(notificationEntity: NotificationTypeOrmEntity): Notification {
-    return new Notification(
+    return Notification.of(
       NotificationId.from(notificationEntity.id),
       CreatedAt.from(notificationEntity.createdAt),
       UpdatedAt.from(notificationEntity.updatedAt),
@@ -56,7 +57,7 @@ export class ReverseNotificationTypeOrmEntityMap extends ObjectMap<
     return NotificationTypeOrmEntity;
   }
 
-  public getTargetClass(): Type<Notification> {
+  public getTargetClass(): Class<Notification> {
     return Notification;
   }
 }

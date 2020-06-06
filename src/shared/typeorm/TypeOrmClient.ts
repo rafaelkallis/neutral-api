@@ -1,7 +1,6 @@
 import { EntityManager, Connection, ConnectionManager } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
-  Type,
   Injectable,
   Logger,
   OnModuleInit,
@@ -55,6 +54,7 @@ import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/mig
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
 import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/158982727800MoveConsensualityFromProjectToReviewTopics';
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -124,12 +124,12 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
     TModel extends AggregateRoot<TId>,
     TEntity extends TypeOrmEntity
   >(
-    modelType: Type<TModel>,
-    entityType: Type<TEntity>,
+    modelClass: Class<TModel>,
+    entityClass: Class<TEntity>,
   ): Repository<TId, TModel> {
     return new TypeOrmRepository(
-      modelType,
-      entityType,
+      modelClass,
+      entityClass,
       this.entityManager,
       this.objectMapper,
     );

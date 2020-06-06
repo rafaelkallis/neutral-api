@@ -2,7 +2,7 @@ import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
@@ -17,7 +17,7 @@ describe('role dto map', () => {
   let users: Record<string, User>;
   let role: Role;
   let reviewTopic: ReviewTopic;
-  let project: Project;
+  let project: InternalProject;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();

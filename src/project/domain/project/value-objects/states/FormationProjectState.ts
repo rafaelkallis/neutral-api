@@ -2,13 +2,13 @@ import {
   ProjectState,
   DefaultProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { Role } from 'project/domain/role/Role';
+import { ReadonlyRole, Role } from 'project/domain/role/Role';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { RoleUpdatedEvent } from 'project/domain/events/RoleUpdatedEvent';
@@ -42,7 +42,7 @@ export class FormationProjectState extends DefaultProjectState {
     super();
   }
   public update(
-    project: Project,
+    project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
   ): void {
@@ -56,10 +56,10 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public addRole(
-    project: Project,
+    project: InternalProject,
     title: RoleTitle,
     description: RoleDescription,
-  ): Role {
+  ): ReadonlyRole {
     const role = Role.from(title, description);
     project.roles.add(role);
     project.raise(new RoleCreatedEvent(project.id, role.id));
@@ -67,7 +67,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public updateRole(
-    project: Project,
+    project: InternalProject,
     roleId: RoleId,
     title?: RoleTitle,
     description?: RoleDescription,
@@ -84,14 +84,14 @@ export class FormationProjectState extends DefaultProjectState {
     }
   }
 
-  public removeRole(project: Project, roleId: RoleId): void {
+  public removeRole(project: InternalProject, roleId: RoleId): void {
     const roleToRemove = project.roles.whereId(roleId);
     project.roles.remove(roleToRemove);
     project.raise(new RoleDeletedEvent(roleToRemove));
   }
 
   public assignUserToRole(
-    project: Project,
+    project: InternalProject,
     userToAssign: ReadonlyUser,
     roleId: RoleId,
   ): void {
@@ -113,7 +113,7 @@ export class FormationProjectState extends DefaultProjectState {
     );
   }
 
-  public unassign(project: Project, roleId: RoleId): void {
+  public unassign(project: InternalProject, roleId: RoleId): void {
     const role = project.roles.whereId(roleId);
     const previousAssigneeId = role.assertAssigned();
     role.assigneeId = null;
@@ -121,7 +121,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public addReviewTopic(
-    project: Project,
+    project: InternalProject,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic {
@@ -132,7 +132,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public updateReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
@@ -148,7 +148,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public removeReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
   ): void {
     const reviewTopicToRemove = project.reviewTopics.whereId(reviewTopicId);
@@ -157,7 +157,7 @@ export class FormationProjectState extends DefaultProjectState {
   }
 
   public finishFormation(
-    project: Project,
+    project: InternalProject,
     assignees: ReadonlyUserCollection,
   ): void {
     project.roles.assertSufficientAmount();

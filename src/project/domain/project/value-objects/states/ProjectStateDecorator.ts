@@ -1,5 +1,5 @@
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -25,49 +25,49 @@ export abstract class ProjectStateDecorator extends ProjectState {
   }
 
   public update(
-    project: Project,
-    title?: ProjectTitle | undefined,
-    description?: ProjectDescription | undefined,
+    project: InternalProject,
+    title?: ProjectTitle,
+    description?: ProjectDescription,
   ): void {
     this.base.update(project, title, description);
   }
   public addRole(
-    project: Project,
+    project: InternalProject,
     title: RoleTitle,
     description: RoleDescription,
   ): ReadonlyRole {
     return this.base.addRole(project, title, description);
   }
   public updateRole(
-    project: Project,
+    project: InternalProject,
     roleId: RoleId,
-    title?: RoleTitle | undefined,
-    description?: RoleDescription | undefined,
+    title?: RoleTitle,
+    description?: RoleDescription,
   ): void {
     this.base.updateRole(project, roleId, title, description);
   }
-  public removeRole(project: Project, roleId: RoleId): void {
+  public removeRole(project: InternalProject, roleId: RoleId): void {
     this.base.removeRole(project, roleId);
   }
   public assignUserToRole(
-    project: Project,
+    project: InternalProject,
     userToAssign: ReadonlyUser,
     roleId: RoleId,
   ): void {
     this.base.assignUserToRole(project, userToAssign, roleId);
   }
-  public unassign(project: Project, roleId: RoleId): void {
+  public unassign(project: InternalProject, roleId: RoleId): void {
     this.base.unassign(project, roleId);
   }
   public addReviewTopic(
-    project: Project,
+    project: InternalProject,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
   ): ReadonlyReviewTopic {
     return this.base.addReviewTopic(project, title, description);
   }
   public updateReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
@@ -75,22 +75,22 @@ export abstract class ProjectStateDecorator extends ProjectState {
     this.base.updateReviewTopic(project, reviewTopicId, title, description);
   }
   public removeReviewTopic(
-    project: Project,
+    project: InternalProject,
     reviewTopicId: ReviewTopicId,
   ): void {
     this.base.removeReviewTopic(project, reviewTopicId);
   }
   public finishFormation(
-    project: Project,
+    project: InternalProject,
     assignees: ReadonlyUserCollection,
   ): void {
     this.base.finishFormation(project, assignees);
   }
-  public cancel(project: Project): void {
+  public cancel(project: InternalProject): void {
     this.base.cancel(project);
   }
   public submitPeerReviews(
-    project: Project,
+    project: InternalProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
@@ -106,10 +106,10 @@ export abstract class ProjectStateDecorator extends ProjectState {
       consensualityComputer,
     );
   }
-  public submitManagerReview(project: Project): void {
+  public submitManagerReview(project: InternalProject): void {
     this.base.submitManagerReview(project);
   }
-  public archive(project: Project): void {
+  public archive(project: InternalProject): void {
     this.base.archive(project);
   }
 }
