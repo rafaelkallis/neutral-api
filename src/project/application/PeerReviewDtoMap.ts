@@ -17,11 +17,11 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
     );
   }
 
-  public getSourceType(): Type<PeerReview> {
+  public getSourceClass(): Type<PeerReview> {
     return PeerReview;
   }
 
-  public getTargetType(): Type<PeerReviewDto> {
+  public getTargetClass(): Type<PeerReviewDto> {
     return PeerReviewDto;
   }
 }

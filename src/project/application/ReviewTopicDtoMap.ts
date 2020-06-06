@@ -36,11 +36,11 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
     return reviewTopic.consensuality.value;
   }
 
-  public getSourceType(): Type<ReviewTopic> {
+  public getSourceClass(): Type<ReviewTopic> {
     return ReviewTopic;
   }
 
-  public getTargetType(): Type<ReviewTopicDto> {
+  public getTargetClass(): Type<ReviewTopicDto> {
     return ReviewTopicDto;
   }
 }

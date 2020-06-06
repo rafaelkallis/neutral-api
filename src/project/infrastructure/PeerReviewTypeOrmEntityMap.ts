@@ -31,11 +31,11 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<PeerReview> {
+  public getSourceClass(): Type<PeerReview> {
     return PeerReview;
   }
 
-  public getTargetType(): Type<PeerReviewTypeOrmEntity> {
+  public getTargetClass(): Type<PeerReviewTypeOrmEntity> {
     return PeerReviewTypeOrmEntity;
   }
 }
@@ -57,11 +57,11 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<PeerReviewTypeOrmEntity> {
+  public getSourceClass(): Type<PeerReviewTypeOrmEntity> {
     return PeerReviewTypeOrmEntity;
   }
 
-  public getTargetType(): Type<PeerReview> {
+  public getTargetClass(): Type<PeerReview> {
     return PeerReview;
   }
 }

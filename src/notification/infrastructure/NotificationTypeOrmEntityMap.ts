@@ -26,11 +26,11 @@ export class NotificationTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<Notification> {
+  public getSourceClass(): Type<Notification> {
     return Notification;
   }
 
-  public getTargetType(): Type<NotificationTypeOrmEntity> {
+  public getTargetClass(): Type<NotificationTypeOrmEntity> {
     return NotificationTypeOrmEntity;
   }
 }
@@ -52,11 +52,11 @@ export class ReverseNotificationTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<NotificationTypeOrmEntity> {
+  public getSourceClass(): Type<NotificationTypeOrmEntity> {
     return NotificationTypeOrmEntity;
   }
 
-  public getTargetType(): Type<Notification> {
+  public getTargetClass(): Type<Notification> {
     return Notification;
   }
 }

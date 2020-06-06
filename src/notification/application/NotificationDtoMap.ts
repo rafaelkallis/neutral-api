@@ -19,11 +19,11 @@ export class NotificationDtoMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<Notification> {
+  public getSourceClass(): Type<Notification> {
     return Notification;
   }
 
-  public getTargetType(): Type<NotificationDto> {
+  public getTargetClass(): Type<NotificationDto> {
     return NotificationDto;
   }
 }

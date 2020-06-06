@@ -79,11 +79,11 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     return false;
   }
 
-  public getSourceType(): Type<Project> {
+  public getSourceClass(): Type<Project> {
     return Project;
   }
 
-  public getTargetType(): Type<ProjectDto> {
+  public getTargetClass(): Type<ProjectDto> {
     return ProjectDto;
   }
 }

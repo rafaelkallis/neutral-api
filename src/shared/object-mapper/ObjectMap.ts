@@ -1,4 +1,5 @@
-import { Type, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 /**
  * Context for object mapping.
@@ -9,19 +10,19 @@ export class ObjectMapContext {
     this.props = props;
   }
 
-  public get<T>(key: string, type: Type<T>): T {
+  public get<T>(key: string, clazz: Class<T>): T {
     const value = (this.props as Record<string, unknown>)[key];
     if (!value) {
       throw new InternalServerErrorException(
         `property "${key}" no found in model map context`,
       );
     }
-    if (!(value instanceof type)) {
+    if (!(value instanceof clazz)) {
       throw new InternalServerErrorException(
-        `property "${key}" is not instance of ${type.name}`,
+        `property "${key}" is not instance of ${clazz.name}`,
       );
     }
-    return value;
+    return value as T;
   }
 }
 
@@ -40,6 +41,6 @@ export abstract class ObjectMap<TSource, TTarget> {
 
   protected abstract doMap(o: TSource, context: ObjectMapContext): TTarget;
 
-  public abstract getSourceType(): Type<TSource>;
-  public abstract getTargetType(): Type<TTarget>;
+  public abstract getSourceClass(): Class<TSource>;
+  public abstract getTargetClass(): Class<TTarget>;
 }

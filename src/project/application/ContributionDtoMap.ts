@@ -19,11 +19,11 @@ export class ContributionDtoMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<Contribution> {
+  public getSourceClass(): Type<Contribution> {
     return Contribution;
   }
 
-  public getTargetType(): Type<ContributionDto> {
+  public getTargetClass(): Type<ContributionDto> {
     return ContributionDto;
   }
 }

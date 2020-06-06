@@ -24,11 +24,11 @@ export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
     );
   }
 
-  public getSourceType(): Type<Role> {
+  public getSourceClass(): Type<Role> {
     return Role;
   }
 
-  public getTargetType(): Type<RoleTypeOrmEntity> {
+  public getTargetClass(): Type<RoleTypeOrmEntity> {
     return RoleTypeOrmEntity;
   }
 }
@@ -49,11 +49,11 @@ export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<RoleTypeOrmEntity> {
+  public getSourceClass(): Type<RoleTypeOrmEntity> {
     return RoleTypeOrmEntity;
   }
 
-  public getTargetType(): Type<Role> {
+  public getTargetClass(): Type<Role> {
     return Role;
   }
 }

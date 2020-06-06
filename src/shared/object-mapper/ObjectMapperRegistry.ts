@@ -1,10 +1,10 @@
 import {
   Injectable,
-  Type,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
+import { Class } from 'shared/domain/Class';
 
 /**
  * Registry of Object Maps.
@@ -22,24 +22,24 @@ export class ObjectMapperRegistry {
   public register<TSource, TTarget>(
     objectMap: ObjectMap<TSource, TTarget>,
   ): void {
-    const sourceType = objectMap.getSourceType();
-    const targetType = objectMap.getTargetType();
-    const objectMapKey = this.computeObjectMapKey(sourceType, targetType);
+    const sourceClass = objectMap.getSourceClass();
+    const targetClass = objectMap.getTargetClass();
+    const objectMapKey = this.computeObjectMapKey(sourceClass, targetClass);
     const conflictingObjectMap = this.registry.get(objectMapKey);
     if (conflictingObjectMap) {
       throw new InternalServerErrorException(
-        `Conflicting object maps: ${objectMap.constructor.name} and ${conflictingObjectMap.constructor.name} are model maps for ${sourceType.name} -> ${targetType.name}, remove one.`,
+        `Conflicting object maps: ${objectMap.constructor.name} and ${conflictingObjectMap.constructor.name} are model maps for ${sourceClass.name} -> ${targetClass.name}, remove one.`,
       );
     }
     this.logger.log(
-      `Registered {${sourceType.name} -> ${targetType.name}, ${objectMap.constructor.name}} object map`,
+      `Registered {${sourceClass.name} -> ${targetClass.name}, ${objectMap.constructor.name}} object map`,
     );
     this.registry.set(objectMapKey, objectMap);
   }
 
   public get<TSource, TTarget>(
-    sourceType: Type<TSource>,
-    targetType: Type<TTarget>,
+    sourceType: Class<TSource>,
+    targetType: Class<TTarget>,
   ): ObjectMap<TSource, TTarget> | undefined {
     const objectMapKey = this.computeObjectMapKey(sourceType, targetType);
     return this.registry.get(objectMapKey) as
@@ -48,8 +48,8 @@ export class ObjectMapperRegistry {
   }
 
   private computeObjectMapKey<TSource, TTarget>(
-    sourceType: Type<TSource>,
-    targetType: Type<TTarget>,
+    sourceType: Class<TSource>,
+    targetType: Class<TTarget>,
   ): string {
     const sourceName = sourceType.name;
     const targetName = targetType.name;

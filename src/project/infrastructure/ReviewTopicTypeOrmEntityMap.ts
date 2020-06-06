@@ -32,11 +32,11 @@ export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<ReviewTopic> {
+  public getSourceClass(): Type<ReviewTopic> {
     return ReviewTopic;
   }
 
-  public getTargetType(): Type<ReviewTopicTypeOrmEntity> {
+  public getTargetClass(): Type<ReviewTopicTypeOrmEntity> {
     return ReviewTopicTypeOrmEntity;
   }
 }
@@ -59,11 +59,11 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<ReviewTopicTypeOrmEntity> {
+  public getSourceClass(): Type<ReviewTopicTypeOrmEntity> {
     return ReviewTopicTypeOrmEntity;
   }
 
-  public getTargetType(): Type<ReviewTopic> {
+  public getTargetClass(): Type<ReviewTopic> {
     return ReviewTopic;
   }
 }

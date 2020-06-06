@@ -35,11 +35,11 @@ export class UserDtoMap extends ObjectMap<User, UserDto> {
     return serverUrl + '/users/' + user.id.value + '/avatar';
   }
 
-  public getSourceType(): Type<User> {
+  public getSourceClass(): Type<User> {
     return User;
   }
 
-  public getTargetType(): Type<UserDto> {
+  public getTargetClass(): Type<UserDto> {
     return UserDto;
   }
 }

@@ -92,11 +92,11 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
     return projectEntity;
   }
 
-  public getSourceType(): Type<Project> {
+  public getSourceClass(): Type<Project> {
     return Project;
   }
 
-  public getTargetType(): Type<ProjectTypeOrmEntity> {
+  public getTargetClass(): Type<ProjectTypeOrmEntity> {
     return ProjectTypeOrmEntity;
   }
 }
@@ -143,11 +143,11 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<ProjectTypeOrmEntity> {
+  public getSourceClass(): Type<ProjectTypeOrmEntity> {
     return ProjectTypeOrmEntity;
   }
 
-  public getTargetType(): Type<Project> {
+  public getTargetClass(): Type<Project> {
     return Project;
   }
 }

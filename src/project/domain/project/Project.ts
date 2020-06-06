@@ -41,7 +41,7 @@ import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopi
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -93,8 +93,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
-
-  readonly _type: Type<ReadonlyProject>;
 }
 
 /**
@@ -139,7 +137,6 @@ export class Project extends AggregateRoot<ProjectId>
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
-    this._type = Project;
   }
 
   public isConsensual(): boolean {
@@ -270,5 +267,7 @@ export class Project extends AggregateRoot<ProjectId>
     }
   }
 
-  public readonly _type: Type<Project>;
+  public getClass(): Class<Project> {
+    return Project;
+  }
 }

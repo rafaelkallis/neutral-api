@@ -7,7 +7,7 @@ import { SelfPeerReviewException } from 'project/domain/exceptions/SelfPeerRevie
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly senderRoleId: RoleId;
@@ -17,8 +17,6 @@ export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
 
   isSenderRole(roleOrRoleId: Role | RoleId): boolean;
   isReceiverRole(roleOrRoleId: Role | RoleId): boolean;
-
-  readonly _type: Type<ReadonlyPeerReview>;
 }
 
 /**
@@ -45,7 +43,6 @@ export class PeerReview extends Model<PeerReviewId>
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;
     this.score = score;
-    this._type = PeerReview;
     this.assertNoSelfReview();
   }
 
@@ -87,5 +84,7 @@ export class PeerReview extends Model<PeerReviewId>
     }
   }
 
-  public readonly _type: Type<PeerReview>;
+  public getClass(): Class<PeerReview> {
+    return PeerReview;
+  }
 }

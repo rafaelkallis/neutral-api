@@ -75,11 +75,11 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     return shouldExpose ? contribution.amount.value : null;
   }
 
-  public getSourceType(): Type<Role> {
+  public getSourceClass(): Type<Role> {
     return Role;
   }
 
-  public getTargetType(): Type<RoleDto> {
+  public getTargetClass(): Type<RoleDto> {
     return RoleDto;
   }
 }

@@ -12,7 +12,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -30,7 +30,7 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   isPending(): boolean;
   isActive(): boolean;
 
-  readonly _type: Type<ReadonlyUser>;
+  getClass(): Class<ReadonlyUser>;
 }
 
 export class User extends AggregateRoot<UserId> implements ReadonlyUser {
@@ -56,7 +56,6 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     this.avatar = avatar;
     this.state = state;
     this.lastLoginAt = lastLoginAt;
-    this._type = User;
   }
 
   /**
@@ -133,5 +132,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     return this.state.isActive();
   }
 
-  public readonly _type: Type<User>;
+  public getClass(): Class<User> {
+    return User;
+  }
 }

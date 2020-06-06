@@ -30,11 +30,11 @@ export class ContributionTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<Contribution> {
+  public getSourceClass(): Type<Contribution> {
     return Contribution;
   }
 
-  public getTargetType(): Type<ContributionTypeOrmEntity> {
+  public getTargetClass(): Type<ContributionTypeOrmEntity> {
     return ContributionTypeOrmEntity;
   }
 }
@@ -55,11 +55,11 @@ export class ReverseContributionTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<ContributionTypeOrmEntity> {
+  public getSourceClass(): Type<ContributionTypeOrmEntity> {
     return ContributionTypeOrmEntity;
   }
 
-  public getTargetType(): Type<Contribution> {
+  public getTargetClass(): Type<Contribution> {
     return Contribution;
   }
 }

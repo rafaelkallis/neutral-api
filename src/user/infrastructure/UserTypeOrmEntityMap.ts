@@ -30,11 +30,11 @@ export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
     );
   }
 
-  public getSourceType(): Type<User> {
+  public getSourceClass(): Type<User> {
     return User;
   }
 
-  public getTargetType(): Type<UserTypeOrmEntity> {
+  public getTargetClass(): Type<UserTypeOrmEntity> {
     return UserTypeOrmEntity;
   }
 }
@@ -57,11 +57,11 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
     );
   }
 
-  public getSourceType(): Type<UserTypeOrmEntity> {
+  public getSourceClass(): Type<UserTypeOrmEntity> {
     return UserTypeOrmEntity;
   }
 
-  public getTargetType(): Type<User> {
+  public getTargetClass(): Type<User> {
     return User;
   }
 }
