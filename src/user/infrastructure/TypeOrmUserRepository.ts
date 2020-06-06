@@ -73,15 +73,4 @@ export class TypeOrmUserRepository extends UserRepository {
     }
     return this.objectMapper.map(userEntity, User);
   }
-
-  /**
-   *
-   */
-  // TODO really needed?
-  public async existsByEmail(email: Email): Promise<boolean> {
-    const userEntity = await this.typeOrmClient.entityManager
-      .getRepository(UserTypeOrmEntity)
-      .findOne({ email: email.value });
-    return Boolean(userEntity);
-  }
 }

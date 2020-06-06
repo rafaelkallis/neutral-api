@@ -65,10 +65,8 @@ export class UpdateAuthUserCommandHandler extends UserCommandHandler<
     const { authUser, email: rawNewEmail } = command;
     if (rawNewEmail) {
       const newEmail = Email.of(rawNewEmail);
-      const emailAlreadyUsed = await this.userRepository.existsByEmail(
-        newEmail,
-      );
-      if (emailAlreadyUsed) {
+      const user = await this.userRepository.findByEmail(newEmail);
+      if (user) {
         throw new EmailAlreadyUsedException();
       }
       const token = this.tokenManager.newEmailChangeToken(

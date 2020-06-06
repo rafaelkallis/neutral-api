@@ -16,9 +16,4 @@ export abstract class UserRepository extends Repository<UserId, User> {
    * Find user by email address.
    */
   public abstract findByEmail(email: Email): Promise<User | undefined>;
-
-  /**
-   * Check if a user with the given email exists.
-   */
-  public abstract existsByEmail(email: Email): Promise<boolean>;
 }
