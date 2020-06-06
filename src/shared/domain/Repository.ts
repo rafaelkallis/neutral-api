@@ -50,11 +50,6 @@ export abstract class Repository<
   /**
    *
    */
-  public abstract exists(id: TId): Promise<boolean>;
-
-  /**
-   *
-   */
   public async persist(...models: TModel[]): Promise<void> {
     await this.doPersist(...models);
     for (const model of models) {

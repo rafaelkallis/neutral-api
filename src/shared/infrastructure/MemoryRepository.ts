@@ -61,13 +61,6 @@ export class MemoryRepository<
   /**
    *
    */
-  public async exists(id: Id): Promise<boolean> {
-    return Promise.resolve(this.models.has(id.value));
-  }
-
-  /**
-   *
-   */
   protected async doPersist(...models: TModel[]): Promise<void> {
     for (const model of models) {
       this.models.set(model.id.value, model);

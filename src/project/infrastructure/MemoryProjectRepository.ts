@@ -25,10 +25,6 @@ export class MemoryProjectRepository extends ProjectRepository {
     return this.memoryRepository.findByIds(ids);
   }
 
-  public async exists(id: ProjectId): Promise<boolean> {
-    return this.memoryRepository.exists(id);
-  }
-
   protected async doPersist(...models: Project[]): Promise<void> {
     return this.memoryRepository.persist(...models);
   }

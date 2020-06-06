@@ -45,10 +45,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     return this.typeOrmRepository.findByIds(ids);
   }
 
-  public async exists(id: ProjectId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
-  }
-
   protected async doPersist(...projectModels: Project[]): Promise<void> {
     // TypeOrm does not delete removed one-to-many models, have to manually delete
     const roleIdsToDelete = projectModels

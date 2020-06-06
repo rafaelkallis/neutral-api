@@ -39,10 +39,6 @@ export class TypeOrmUserRepository extends UserRepository {
     return this.typeOrmRepository.findByIds(ids);
   }
 
-  public async exists(id: UserId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
-  }
-
   protected async doPersist(...users: User[]): Promise<void> {
     await this.typeOrmRepository.persist(...users);
   }

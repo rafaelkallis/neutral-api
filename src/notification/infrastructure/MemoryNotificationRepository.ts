@@ -34,10 +34,6 @@ export class MemoryNotificationRepository extends NotificationRepository {
     return this.memoryRepository.findByIds(ids);
   }
 
-  public async exists(id: NotificationId): Promise<boolean> {
-    return this.memoryRepository.exists(id);
-  }
-
   protected async doPersist(...models: Notification[]): Promise<void> {
     return this.memoryRepository.persist(...models);
   }

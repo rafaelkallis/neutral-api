@@ -43,10 +43,6 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     return this.typeOrmRepository.findByIds(ids);
   }
 
-  public async exists(id: NotificationId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
-  }
-
   /**
    *
    */
