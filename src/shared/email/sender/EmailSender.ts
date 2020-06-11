@@ -11,10 +11,18 @@ export interface SendEmailOptions {
  *
  */
 export abstract class EmailSender {
-  protected readonly emailSender: string;
+  protected readonly emailSenderAddress: string;
+  protected readonly emailSenderName: string;
+
+  protected get emailSender(): string {
+    const address = this.emailSenderAddress;
+    const name = this.emailSenderName;
+    return `${address} <${name}>`;
+  }
 
   public constructor(config: Config) {
-    this.emailSender = config.get('EMAIL_SENDER');
+    this.emailSenderAddress = config.get('EMAIL_SENDER_ADDRESS');
+    this.emailSenderName = config.get('EMAIL_SENDER_NAME');
   }
 
   /**

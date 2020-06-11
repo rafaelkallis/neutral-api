@@ -28,9 +28,8 @@ export class EnvalidConfig extends Config {
         devDefault: 'postgres://covee-saas:password@127.0.0.1:5432/covee-saas',
       }),
       SMTP_URL: envalid.url({ devDefault: 'smtp://127.0.0.1:1025' }),
-      EMAIL_SENDER: envalid.str({
-        devDefault: 'Covee Network <welcome@covee.local>',
-      }),
+      EMAIL_SENDER_ADDRESS: envalid.str({ devDefault: 'welcome@covee.local' }),
+      EMAIL_SENDER_NAME: envalid.str({ devDefault: 'Covee Network Local' }),
       // SENDGRID_API_KEY: envalid.str({ devDefault: 'sendgrid-api-key' }),
       // SENDGRID_URL: envalid.url({ devDefault: 'http://localhost:3050' }),
       LOGIN_TOKEN_LIFETIME_MIN: envalid.num({ devDefault: 10 }),
@@ -56,8 +55,12 @@ export class EnvalidConfig extends Config {
       AMQP_CONNECTION: envalid.str({
         devDefault: 'amqp://covee-saas:password@127.0.0.1:5672',
       }),
-      MAILJET_API_PUBLIC_KEY: envalid.str({ devDefault: '' }),
-      MAILJET_API_SECRET_KEY: envalid.str({ devDefault: '' }),
+      MAILJET_API_PUBLIC_KEY: envalid.str({
+        devDefault: 'd050abd4207d669c8e21970d85fd5a4f',
+      }),
+      MAILJET_API_SECRET_KEY: envalid.str({
+        devDefault: 'c9810f57cb8e34a875146e91a31d083c',
+      }),
     });
   }
 
