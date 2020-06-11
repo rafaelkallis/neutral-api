@@ -10,15 +10,13 @@ import axios from 'axios';
 export class SendgridEmailSender extends EmailSender {
   private readonly sendgridApiKey: string;
   private readonly sendgridUrl: string;
-  private readonly emailSender: string;
 
   public constructor(config: Config) {
-    super();
+    super(config);
     // this.sendgridApiKey = config.get('SENDGRID_API_KEY');
     // this.sendgridUrl = config.get('SENDGRID_URL');
     this.sendgridApiKey = '';
     this.sendgridUrl = '';
-    this.emailSender = config.get('EMAIL_SENDER');
     throw new NotImplementedException();
   }
 
