@@ -1,3 +1,5 @@
+import { Config } from 'shared/config/application/Config';
+
 export interface SendEmailOptions {
   to: string;
   subject: string;
@@ -9,6 +11,12 @@ export interface SendEmailOptions {
  *
  */
 export abstract class EmailSender {
+  protected readonly emailSender: string;
+
+  public constructor(config: Config) {
+    this.emailSender = config.get('EMAIL_SENDER');
+  }
+
   /**
    *
    */

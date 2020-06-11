@@ -56,6 +56,8 @@ export class EnvalidConfig extends Config {
       AMQP_CONNECTION: envalid.str({
         devDefault: 'amqp://covee-saas:password@127.0.0.1:5672',
       }),
+      MAILJET_API_PUBLIC_KEY: envalid.str({ devDefault: '' }),
+      MAILJET_API_SECRET_KEY: envalid.str({ devDefault: '' }),
     });
   }
 

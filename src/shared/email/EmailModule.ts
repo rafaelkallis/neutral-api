@@ -9,6 +9,9 @@ import { EmailSender } from 'shared/email/sender/EmailSender';
 import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UtilityModule } from 'shared/utility/UtilityModule';
+import { Environment } from 'shared/utility/application/Environment';
+import { Config } from 'shared/config/application/Config';
+import { MailjetEmailSender } from './sender/MailjetEmailSender';
 
 /**
  * Email Module
@@ -30,7 +33,13 @@ import { UtilityModule } from 'shared/utility/UtilityModule';
     },
     {
       provide: EmailSender,
-      useClass: SmtpEmailSender,
+      useFactory(environment: Environment, config: Config): EmailSender {
+        if (environment.isProduction()) {
+          return new MailjetEmailSender(config);
+        }
+        return new SmtpEmailSender(config);
+      },
+      inject: [Environment, Config],
     },
   ],
   exports: [EmailManager],
