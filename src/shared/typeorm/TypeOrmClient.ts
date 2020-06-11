@@ -1,17 +1,11 @@
 import { EntityManager, Connection, ConnectionManager } from 'typeorm';
-import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import {
   Injectable,
   Logger,
   OnModuleInit,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import { Id } from 'shared/domain/value-objects/Id';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Repository } from 'shared/domain/Repository';
-import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Config } from 'shared/config/application/Config';
-import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
 
@@ -54,22 +48,20 @@ import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/mig
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
 import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/158982727800MoveConsensualityFromProjectToReviewTopics';
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
-import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   public readonly entityManager: EntityManager;
   private readonly logger: Logger;
   private readonly connection: Connection;
-  private readonly objectMapper: ObjectMapper;
 
-  public constructor(config: Config, objectMapper: ObjectMapper) {
+  public constructor(config: Config) {
     this.logger = new Logger(TypeOrmClient.name);
     const connectionManager = new ConnectionManager();
     const url = config.get('DATABASE_URL');
     const connection = connectionManager.create({
       name: 'default',
-      type: 'postgres' as 'postgres',
+      type: 'postgres' as const,
       url,
       entities: [
         UserTypeOrmEntity,
@@ -116,23 +108,6 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
     });
     this.connection = connection;
     this.entityManager = connection.createEntityManager();
-    this.objectMapper = objectMapper;
-  }
-
-  public createRepository<
-    TId extends Id,
-    TModel extends AggregateRoot<TId>,
-    TEntity extends TypeOrmEntity
-  >(
-    modelClass: Class<TModel>,
-    entityClass: Class<TEntity>,
-  ): Repository<TId, TModel> {
-    return new TypeOrmRepository(
-      modelClass,
-      entityClass,
-      this.entityManager,
-      this.objectMapper,
-    );
   }
 
   public async onModuleInit(): Promise<void> {

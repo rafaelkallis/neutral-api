@@ -7,41 +7,54 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
-import { Repository } from 'shared/domain/Repository';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable } from '@nestjs/common';
-import { SelectQueryBuilder } from 'typeorm';
+import { SelectQueryBuilder, EntityManager } from 'typeorm';
+import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 /**
  * TypeOrm Project Repository
  */
 @Injectable()
 export class TypeOrmProjectRepository extends ProjectRepository {
-  private readonly typeOrmClient: TypeOrmClient;
-  private readonly typeOrmRepository: Repository<ProjectId, Project>;
+  private readonly entityManager: EntityManager;
+  private readonly typeOrmRepository: TypeOrmRepository<
+    ProjectTypeOrmEntity,
+    ProjectId,
+    Project
+  >;
   private readonly objectMapper: ObjectMapper;
   /**
    *
    */
-  public constructor(typeOrmClient: TypeOrmClient, objectMapper: ObjectMapper) {
-    super();
-    this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = this.typeOrmClient.createRepository(
-      Project,
+  public constructor(
+    typeOrmClient: TypeOrmClient,
+    objectMapper: ObjectMapper,
+    typeOrmRepository: TypeOrmRepository<
       ProjectTypeOrmEntity,
-    );
+      ProjectId,
+      Project
+    >,
+  ) {
+    super();
+    this.entityManager = typeOrmClient.entityManager;
+    this.typeOrmRepository = typeOrmRepository;
     this.objectMapper = objectMapper;
   }
   public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
-    return this.typeOrmRepository.findPage(afterId);
+    return this.typeOrmRepository.findPage(
+      ProjectTypeOrmEntity,
+      Project,
+      afterId,
+    );
   }
 
   public async findById(id: ProjectId): Promise<Project | undefined> {
-    return this.typeOrmRepository.findById(id);
+    return this.typeOrmRepository.findById(ProjectTypeOrmEntity, Project, id);
   }
 
   public async findByIds(ids: ProjectId[]): Promise<(Project | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ids);
+    return this.typeOrmRepository.findByIds(ProjectTypeOrmEntity, Project, ids);
   }
 
   protected async doPersist(...projectModels: Project[]): Promise<void> {
@@ -50,16 +63,13 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
       .map((projectModel) => projectModel.id.value);
     if (roleIdsToDelete.length > 0) {
-      await this.typeOrmClient.entityManager.delete(
-        RoleTypeOrmEntity,
-        roleIdsToDelete,
-      );
+      await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
     }
     const peerReviewIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.peerReviews.getRemovedModels())
       .map((peerReviewModel) => peerReviewModel.id.value);
     if (peerReviewIdsToDelete.length > 0) {
-      await this.typeOrmClient.entityManager.delete(
+      await this.entityManager.delete(
         PeerReviewTypeOrmEntity,
         peerReviewIdsToDelete,
       );
@@ -68,16 +78,19 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       .flatMap((projectModel) => projectModel.reviewTopics.getRemovedModels())
       .map((reviewTopicModel) => reviewTopicModel.id.value);
     if (reviewTopicIdsToDelete.length > 0) {
-      await this.typeOrmClient.entityManager.delete(
+      await this.entityManager.delete(
         ReviewTopicTypeOrmEntity,
         reviewTopicIdsToDelete,
       );
     }
-    await this.typeOrmRepository.persist(...projectModels);
+    await this.typeOrmRepository.persist(
+      ProjectTypeOrmEntity,
+      ...projectModels,
+    );
   }
 
   public async findByCreatorId(creatorId: UserId): Promise<Project[]> {
-    const projectEntities = await this.typeOrmClient.entityManager
+    const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
     const projectModels = this.objectMapper.mapArray(projectEntities, Project);
@@ -105,7 +118,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   private createProjectQueryBuilder(): SelectQueryBuilder<
     ProjectTypeOrmEntity
   > {
-    return this.typeOrmClient.entityManager
+    return this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.roles', 'role')
