@@ -5,49 +5,68 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
-import { Repository } from 'shared/domain/Repository';
 import { Injectable } from '@nestjs/common';
+import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
+import { EntityManager } from 'typeorm';
 
-/**
- * TypeOrm Notification Repository
- */
 @Injectable()
 export class TypeOrmNotificationRepository extends NotificationRepository {
-  private readonly typeOrmClient: TypeOrmClient;
-  private readonly typeOrmRepository: Repository<NotificationId, Notification>;
+  private readonly entityManager: EntityManager;
+  private readonly typeOrmRepository: TypeOrmRepository<
+    NotificationTypeOrmEntity,
+    NotificationId,
+    Notification
+  >;
   private readonly objectMapper: ObjectMapper;
 
-  public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
-    super();
-    this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = typeOrmClient.createRepository(
-      Notification,
+  public constructor(
+    objectMapper: ObjectMapper,
+    typeOrmClient: TypeOrmClient,
+    typeOrmRepository: TypeOrmRepository<
       NotificationTypeOrmEntity,
-    );
+      NotificationId,
+      Notification
+    >,
+  ) {
+    super();
     this.objectMapper = objectMapper;
+    this.entityManager = typeOrmClient.entityManager;
+    this.typeOrmRepository = typeOrmRepository;
   }
 
   public async findPage(
     afterId?: NotificationId | undefined,
   ): Promise<Notification[]> {
-    return this.typeOrmRepository.findPage(afterId);
+    return this.typeOrmRepository.findPage(
+      NotificationTypeOrmEntity,
+      Notification,
+      afterId,
+    );
   }
 
   public async findById(id: NotificationId): Promise<Notification | undefined> {
-    return this.typeOrmRepository.findById(id);
+    return this.typeOrmRepository.findById(
+      NotificationTypeOrmEntity,
+      Notification,
+      id,
+    );
   }
 
   public async findByIds(
     ids: NotificationId[],
   ): Promise<(Notification | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ids);
+    return this.typeOrmRepository.findByIds(
+      NotificationTypeOrmEntity,
+      Notification,
+      ids,
+    );
   }
 
   /**
    *
    */
   public async findByOwnerId(ownerId: UserId): Promise<Notification[]> {
-    const notificationEntities = await this.typeOrmClient.entityManager
+    const notificationEntities = await this.entityManager
       .getRepository(NotificationTypeOrmEntity)
       .find({ ownerId: ownerId.value });
     const notificationModels = this.objectMapper.mapArray(
@@ -58,6 +77,6 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
   }
 
   protected async doPersist(...models: Notification[]): Promise<void> {
-    return this.typeOrmRepository.persist(...models);
+    return this.typeOrmRepository.persist(NotificationTypeOrmEntity, ...models);
   }
 }

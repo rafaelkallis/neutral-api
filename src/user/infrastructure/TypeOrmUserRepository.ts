@@ -6,7 +6,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable } from '@nestjs/common';
-import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository2';
+import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 /**
  * TypeOrm User Repository
