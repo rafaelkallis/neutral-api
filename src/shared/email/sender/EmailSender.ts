@@ -17,7 +17,7 @@ export abstract class EmailSender {
   protected get emailSender(): string {
     const address = this.emailSenderAddress;
     const name = this.emailSenderName;
-    return `${address} <${name}>`;
+    return `${name} <${address}>`;
   }
 
   public constructor(config: Config) {
