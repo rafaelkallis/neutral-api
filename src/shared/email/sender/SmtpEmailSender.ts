@@ -16,14 +16,12 @@ export class SmtpEmailSender extends EmailSender
   implements OnModuleInit, OnApplicationShutdown {
   private readonly logger: Logger;
   private readonly transporter: Transporter;
-  private readonly emailSender: string;
 
   public constructor(config: Config) {
-    super();
+    super(config);
     this.logger = new Logger(SmtpEmailSender.name, true);
     const smtpUrl = config.get('SMTP_URL');
     this.transporter = createTransport(smtpUrl);
-    this.emailSender = config.get('EMAIL_SENDER');
   }
 
   public async onModuleInit(): Promise<void> {
