@@ -10,8 +10,8 @@ import { UnauthorizedUserException } from 'shared/exceptions/unauthorized-user.e
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { Injectable } from '@nestjs/common';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Submit the email change token to verify a new email address
@@ -26,7 +26,7 @@ export class SubmitEmailChangeCommand extends UserCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(SubmitEmailChangeCommand)
+@CommandHandler.ofCommand(SubmitEmailChangeCommand)
 export class SubmitEmailChangeCommandHandler extends UserCommandHandler<
   SubmitEmailChangeCommand
 > {

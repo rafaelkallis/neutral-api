@@ -1,31 +1,26 @@
 import { BiMap } from './BiMap';
 
-describe(BiMap, () => {
+describe(BiMap.name, () => {
   let biMap: BiMap<number, string>;
 
   beforeEach(() => {
     biMap = BiMap.empty();
+    biMap.set(1, 'one');
+    biMap.set(2, 'two');
+    biMap.set(3, 'three');
+    biMap.set(4, 'two');
   });
 
-  test('get', () => {
-    biMap.put(1, 'one');
-    biMap.put(2, 'two');
-    biMap.put(3, 'three');
-
+  test('.get(key)', () => {
     expect(biMap.get(1)).toBe('one');
     expect(biMap.get(2)).toBe('two');
     expect(biMap.get(3)).toBe('three');
-    expect(biMap.get(4)).toBe(null);
+    expect(biMap.get(4)).toBe('two');
   });
 
-  test('getReverse', () => {
-    biMap.put(1, 'one');
-    biMap.put(2, 'two');
-    biMap.put(3, 'three');
-
+  test('.inverse().get(key)', () => {
     expect(biMap.inverse().get('one')).toBe(1);
     expect(biMap.inverse().get('two')).toBe(2);
     expect(biMap.inverse().get('three')).toBe(3);
-    expect(biMap.inverse().get('four')).toBe(null);
   });
 });

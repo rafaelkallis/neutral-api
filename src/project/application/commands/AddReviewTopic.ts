@@ -9,7 +9,7 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class AddReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -30,7 +30,7 @@ export class AddReviewTopicCommand extends ProjectCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(AddReviewTopicCommand)
+@CommandHandler.ofCommand(AddReviewTopicCommand)
 export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
   AddReviewTopicCommand
 > {

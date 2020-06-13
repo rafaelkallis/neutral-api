@@ -1,8 +1,5 @@
 import { Column, OneToMany, Entity } from 'typeorm';
-import {
-  TypeOrmEntity,
-  AssociatedDomainModel,
-} from 'shared/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
@@ -12,7 +9,7 @@ import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTy
 import { Project } from 'project/domain/project/Project';
 
 @Entity('projects')
-@AssociatedDomainModel.d(Project)
+@TypeOrmEntity.ofDomainModel(Project)
 export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'title' })
   public title: string;

@@ -1,5 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Class } from 'shared/domain/Class';
+import { InversableMap } from 'shared/domain/InversableMap';
+import { Pair } from 'shared/domain/Pair';
 
 /**
  * Context for object mapping.
@@ -26,6 +28,11 @@ export class ObjectMapContext {
   }
 }
 
+const associatedSourceTargets: InversableMap<
+  Class<ObjectMap<unknown, unknown>>,
+  Pair<Class<unknown>, Class<unknown>>
+> = InversableMap.empty();
+
 /**
  *
  */
@@ -43,4 +50,18 @@ export abstract class ObjectMap<TSource, TTarget> {
 
   public abstract getSourceClass(): Class<TSource>;
   public abstract getTargetClass(): Class<TTarget>;
+
+  public static assotiatedSourceTargets = associatedSourceTargets.asReadonly();
+
+  public static fromTo(
+    sourceClass: Class<unknown>,
+    targetClass: Class<unknown>,
+  ): ClassDecorator {
+    return (objectMapClass: Class<ObjectMap<unknown, unknown>>): void => {
+      associatedSourceTargets.set(
+        objectMapClass,
+        Pair.of(sourceClass, targetClass),
+      );
+    };
+  }
 }

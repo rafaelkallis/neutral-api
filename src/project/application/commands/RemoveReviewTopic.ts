@@ -7,8 +7,8 @@ import { User } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { Injectable } from '@nestjs/common';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class RemoveReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -22,7 +22,7 @@ export class RemoveReviewTopicCommand extends ProjectCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(RemoveReviewTopicCommand)
+@CommandHandler.ofCommand(RemoveReviewTopicCommand)
 export class RemoveReviewTopicCommandHandler extends ProjectCommandHandler<
   RemoveReviewTopicCommand
 > {

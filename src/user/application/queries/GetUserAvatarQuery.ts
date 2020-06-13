@@ -6,7 +6,6 @@ import { NotFoundException, Injectable } from '@nestjs/common';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
 import { AvatarStore } from 'user/application/AvatarStore';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 export class GetUserAvatarQuery extends Query<{
   file: string;
@@ -23,7 +22,7 @@ export class GetUserAvatarQuery extends Query<{
 }
 
 @Injectable()
-@AssociatedRequest.d(GetUserAvatarQuery)
+@QueryHandler.ofQuery(GetUserAvatarQuery)
 export class GetUserAvatarQueryHandler extends QueryHandler<
   { file: string; contentType: string },
   GetUserAvatarQuery

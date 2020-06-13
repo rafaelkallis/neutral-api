@@ -1,14 +1,11 @@
 import { Column, Entity } from 'typeorm';
-import {
-  TypeOrmEntity,
-  AssociatedDomainModel,
-} from 'shared/infrastructure/TypeOrmEntity';
+import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
 import { UserStateValue } from 'user/domain/value-objects/states/UserStateValue';
 import { User } from 'user/domain/User';
 
 @Entity('users')
-@AssociatedDomainModel.d(User)
+@TypeOrmEntity.ofDomainModel(User)
 export class UserTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'email' })
   public email: string;

@@ -7,7 +7,7 @@ import { NotFoundException, Injectable } from '@nestjs/common';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Remove the authenticated user's avatar.
@@ -15,7 +15,7 @@ import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 export class RemoveAuthUserAvatarCommand extends UserCommand {}
 
 @Injectable()
-@AssociatedRequest.d(RemoveAuthUserAvatarCommand)
+@CommandHandler.ofCommand(RemoveAuthUserAvatarCommand)
 export class RemoveAuthUserAvatarCommandHandler extends UserCommandHandler<
   RemoveAuthUserAvatarCommand
 > {
