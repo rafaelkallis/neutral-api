@@ -38,17 +38,17 @@ describe(ReviewTopicDtoMap.name, () => {
     });
   });
 
-  test('when auth user is project creator, should expose consensuality', () => {
-    const reviewTopicDto = reviewTopicDtoMap.map(reviewTopic, {
+  test('when auth user is project creator, should expose consensuality', async () => {
+    const reviewTopicDto = await reviewTopicDtoMap.map(reviewTopic, {
       project,
       authUser,
     });
     expect(reviewTopicDto.consensuality).toBeTruthy();
   });
 
-  test('when auth user is not project creator, should not expose consensuality', () => {
+  test('when auth user is not project creator, should not expose consensuality', async () => {
     authUser = scenario.modelFaker.user();
-    const reviewTopicDto = reviewTopicDtoMap.map(reviewTopic, {
+    const reviewTopicDto = await reviewTopicDtoMap.map(reviewTopic, {
       project,
       authUser,
     });

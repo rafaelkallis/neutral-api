@@ -1,6 +1,7 @@
-import { Injectable, Abstract, Type, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ModuleRef, REQUEST, ContextId, ContextIdFactory } from '@nestjs/core';
 import { Request } from 'express';
+import { Class } from 'shared/domain/Class';
 
 @Injectable()
 export class ServiceLocator {
@@ -12,9 +13,19 @@ export class ServiceLocator {
     this.contextId = ContextIdFactory.getByRequest(request);
   }
 
-  public async getService<T>(type: Abstract<T> | Type<T>): Promise<T> {
-    return this.moduleRef.resolve(type as any, this.contextId, {
+  public async getService<T>(serviceClass: Class<T>): Promise<T> {
+    return this.moduleRef.resolve(serviceClass as any, this.contextId, {
       strict: false,
     });
+  }
+
+  public async getServiceOrNull<T>(serviceClass: Class<T>): Promise<T | null> {
+    try {
+      return this.moduleRef.resolve(serviceClass as any, this.contextId, {
+        strict: false,
+      });
+    } catch (e) {
+      return null;
+    }
   }
 }

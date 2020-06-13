@@ -64,7 +64,7 @@ export class TypeOrmRepository<
     const entities = await this.entityManager
       .getRepository(entityClass)
       .findByIds(ids.map((id) => id.value));
-    const models = this.objectMapper.mapArray(entities, modelClass);
+    const models = await this.objectMapper.mapArray(entities, modelClass);
     return ids.map((id) => models.find((model) => model.id.equals(id)));
   }
 

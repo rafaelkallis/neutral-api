@@ -38,7 +38,7 @@ describe('project dto map', () => {
         RoleDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(roleDtos);
+    ).thenResolve(roleDtos);
     peerReviewDtos = [];
     td.when(
       objectMapper.mapArray(
@@ -46,25 +46,25 @@ describe('project dto map', () => {
         PeerReviewDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(peerReviewDtos);
+    ).thenResolve(peerReviewDtos);
     reviewTopicDtos = [];
     td.when(
       objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto, {
         authUser,
         project,
       }),
-    ).thenReturn(reviewTopicDtos);
+    ).thenResolve(reviewTopicDtos);
     contributionDtos = [];
     td.when(
       objectMapper.mapArray(project.contributions.toArray(), ContributionDto, {
         authUser,
         project,
       }),
-    ).thenReturn(contributionDtos);
+    ).thenResolve(contributionDtos);
   });
 
-  test('general', () => {
-    const projectDto = projectDtoMap.map(project, { authUser });
+  test('general', async () => {
+    const projectDto = await projectDtoMap.map(project, { authUser });
     expect(projectDto).toEqual({
       id: project.id.value,
       title: project.title.value,

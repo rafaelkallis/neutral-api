@@ -8,13 +8,7 @@ export class BiMap<U, V> extends Map<U, V> implements ReadonlyBiMap<U, V> {
   }
 
   public inverse(): ReadonlyMap<V, U> {
-    const entries = Array.from(this.entries());
-    return new Map(
-      entries.map(([, v1]) => [
-        v1,
-        entries.filter(([, v2]) => v1 === v2).map(([u2]) => u2)[0],
-      ]),
-    );
+    return new Map(Array.from(this.entries()).map(([u, v]) => [v, u]));
   }
 
   public asReadonly(): ReadonlyBiMap<U, V> {

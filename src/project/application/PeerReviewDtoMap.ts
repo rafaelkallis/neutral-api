@@ -1,9 +1,10 @@
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewDto } from './dto/PeerReviewDto';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
+@ObjectMap.mapFromTo(PeerReview, PeerReviewDto)
 export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
   protected doMap(peerReview: PeerReview): PeerReviewDto {
     return new PeerReviewDto(
@@ -15,13 +16,5 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
       peerReview.createdAt.value,
       peerReview.updatedAt.value,
     );
-  }
-
-  public getSourceClass(): Type<PeerReview> {
-    return PeerReview;
-  }
-
-  public getTargetClass(): Type<PeerReviewDto> {
-    return PeerReviewDto;
   }
 }

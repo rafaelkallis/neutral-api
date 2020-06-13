@@ -8,14 +8,14 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Avatar } from 'user/domain/value-objects/Avatar';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Type, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   getUserState,
   getUserStateValue,
 } from 'user/domain/value-objects/states/UserStateValue';
-import { Class } from 'shared/domain/Class';
 
 @Injectable()
+@ObjectMap.mapFromTo(User, UserTypeOrmEntity)
 export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
   protected doMap(model: User): UserTypeOrmEntity {
     return new UserTypeOrmEntity(
@@ -30,17 +30,10 @@ export class UserTypeOrmEntityMap extends ObjectMap<User, UserTypeOrmEntity> {
       model.lastLoginAt.value,
     );
   }
-
-  public getSourceClass(): Class<User> {
-    return User;
-  }
-
-  public getTargetClass(): Type<UserTypeOrmEntity> {
-    return UserTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.mapFromTo(UserTypeOrmEntity, User)
 export class ReverseUserTypeOrmEntityMap extends ObjectMap<
   UserTypeOrmEntity,
   User
@@ -56,13 +49,5 @@ export class ReverseUserTypeOrmEntityMap extends ObjectMap<
       getUserState(entity.state),
       LastLoginAt.from(entity.lastLoginAt),
     );
-  }
-
-  public getSourceClass(): Type<UserTypeOrmEntity> {
-    return UserTypeOrmEntity;
-  }
-
-  public getTargetClass(): Class<User> {
-    return User;
   }
 }

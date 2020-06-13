@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicDto } from 'project/application/dto/ReviewTopicDto';
@@ -6,6 +6,7 @@ import { User } from 'user/domain/User';
 import { Project } from 'project/domain/project/Project';
 
 @Injectable()
+@ObjectMap.mapFromTo(ReviewTopic, ReviewTopicDto)
 export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
   protected doMap(
     reviewTopic: ReviewTopic,
@@ -34,13 +35,5 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
       return null;
     }
     return reviewTopic.consensuality.value;
-  }
-
-  public getSourceClass(): Type<ReviewTopic> {
-    return ReviewTopic;
-  }
-
-  public getTargetClass(): Type<ReviewTopicDto> {
-    return ReviewTopicDto;
   }
 }

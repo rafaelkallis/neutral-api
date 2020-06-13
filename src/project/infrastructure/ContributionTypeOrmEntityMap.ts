@@ -2,7 +2,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
@@ -11,6 +11,7 @@ import { ContributionAmount } from 'project/domain/role/value-objects/Contributi
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 @Injectable()
+@ObjectMap.mapFromTo(Contribution, ContributionTypeOrmEntity)
 export class ContributionTypeOrmEntityMap extends ObjectMap<
   Contribution,
   ContributionTypeOrmEntity
@@ -29,17 +30,10 @@ export class ContributionTypeOrmEntityMap extends ObjectMap<
       contribution.amount.value,
     );
   }
-
-  public getSourceClass(): Type<Contribution> {
-    return Contribution;
-  }
-
-  public getTargetClass(): Type<ContributionTypeOrmEntity> {
-    return ContributionTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.mapFromTo(ContributionTypeOrmEntity, Contribution)
 export class ReverseContributionTypeOrmEntityMap extends ObjectMap<
   ContributionTypeOrmEntity,
   Contribution
@@ -53,13 +47,5 @@ export class ReverseContributionTypeOrmEntityMap extends ObjectMap<
       ReviewTopicId.from(contribution.reviewTopicId),
       ContributionAmount.from(contribution.amount),
     );
-  }
-
-  public getSourceClass(): Type<ContributionTypeOrmEntity> {
-    return ContributionTypeOrmEntity;
-  }
-
-  public getTargetClass(): Type<Contribution> {
-    return Contribution;
   }
 }

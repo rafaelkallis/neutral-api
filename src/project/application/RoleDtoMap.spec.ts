@@ -64,9 +64,9 @@ describe('role dto map', () => {
 
   test.each(contributionCases)(
     'contributions',
-    (contributionVisibility, authUser, isContributionVisible) => {
+    async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
-      const roleDto = roleDtoMap.map(role, {
+      const roleDto = await roleDtoMap.map(role, {
         project,
         authUser: users[authUser],
       });
@@ -74,10 +74,13 @@ describe('role dto map', () => {
     },
   );
 
-  test('should not show contribution if not project owner and if project not finished', () => {
+  test('should not show contribution if not project owner and if project not finished', async () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = PeerReviewProjectState.INSTANCE;
-    const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
+    const roleDto = await roleDtoMap.map(role, {
+      project,
+      authUser: users.assignee,
+    });
     expect(roleDto.contribution).toBeNull();
   });
 

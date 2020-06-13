@@ -1,13 +1,14 @@
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Project } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
-import { InternalServerErrorException, Injectable, Type } from '@nestjs/common';
+import { InternalServerErrorException, Injectable } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role } from 'project/domain/role/Role';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 
 @Injectable()
+@ObjectMap.mapFromTo(Role, RoleDto)
 export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
   protected doMap(role: Role, context: ObjectMapContext): RoleDto {
     const project = context.get('project', Project);
@@ -73,13 +74,5 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       }
     }
     return shouldExpose ? contribution.amount.value : null;
-  }
-
-  public getSourceClass(): Type<Role> {
-    return Role;
-  }
-
-  public getTargetClass(): Type<RoleDto> {
-    return RoleDto;
   }
 }

@@ -42,22 +42,22 @@ export abstract class ObjectMap<TSource, TTarget> {
    * @param model The model to be mapped.
    * @param context
    */
-  public map(source: TSource, context: object): TTarget {
+  public map(source: TSource, context: object): TTarget | Promise<TTarget> {
     return this.doMap(source, new ObjectMapContext(context));
   }
 
-  protected abstract doMap(o: TSource, context: ObjectMapContext): TTarget;
+  protected abstract doMap(
+    o: TSource,
+    context: ObjectMapContext,
+  ): TTarget | Promise<TTarget>;
 
-  public abstract getSourceClass(): Class<TSource>;
-  public abstract getTargetClass(): Class<TTarget>;
+  public static assotiatedObjectMaps = associatedSourceTargets.asReadonly();
 
-  public static assotiatedSourceTargets = associatedSourceTargets.asReadonly();
-
-  public static fromTo(
-    sourceClass: Class<unknown>,
-    targetClass: Class<unknown>,
+  public static mapFromTo<TSource, TTarget>(
+    sourceClass: Class<TSource>,
+    targetClass: Class<TTarget>,
   ): ClassDecorator {
-    return (objectMapClass: Class<ObjectMap<unknown, unknown>>): void => {
+    return (objectMapClass: Class<ObjectMap<TSource, TTarget>>): void => {
       associatedSourceTargets.set(
         objectMapClass,
         Pair.of(sourceClass, targetClass),

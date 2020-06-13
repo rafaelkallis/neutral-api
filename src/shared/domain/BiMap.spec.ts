@@ -20,7 +20,7 @@ describe(BiMap.name, () => {
 
   test('.inverse().get(key)', () => {
     expect(biMap.inverse().get('one')).toBe(1);
-    expect(biMap.inverse().get('two')).toBe(2);
+    expect(biMap.inverse().get('two')).toBe(4);
     expect(biMap.inverse().get('three')).toBe(3);
   });
 });

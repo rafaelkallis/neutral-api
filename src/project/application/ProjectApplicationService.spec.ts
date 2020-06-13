@@ -88,7 +88,7 @@ describe(ProjectApplicationService.name, () => {
         ProjectDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(expectedProjectDto);
+    ).thenResolve(expectedProjectDto);
   });
 
   test('should be defined', () => {
@@ -116,7 +116,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {
@@ -153,7 +153,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {

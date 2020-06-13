@@ -44,7 +44,7 @@ describe(UpdateProjectCommand.name, () => {
         ProjectDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(projectDto);
+    ).thenResolve(projectDto);
   });
 
   test('should be defined', () => {
