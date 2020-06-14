@@ -39,7 +39,7 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     avatarStore = scenario.module.get(AvatarStore);
 

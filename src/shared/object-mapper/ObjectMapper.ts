@@ -1,16 +1,18 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ObjectMapperRegistry } from 'shared/object-mapper/ObjectMapperRegistry';
 import { Class, ClassHierarchyIterable } from 'shared/domain/Class';
+import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
+import { ObjectMap } from './ObjectMap';
+import { Pair } from 'shared/domain/Pair';
 
 /**
  * Maps objects.
  */
 @Injectable()
 export class ObjectMapper {
-  private readonly registry: ObjectMapperRegistry;
+  private readonly serviceLocator: ServiceLocator;
 
-  public constructor(registry: ObjectMapperRegistry) {
-    this.registry = registry;
+  public constructor(serviceLocator: ServiceLocator) {
+    this.serviceLocator = serviceLocator;
   }
 
   /**
@@ -19,17 +21,28 @@ export class ObjectMapper {
    * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public map<TSource extends object, TTarget>(
+  public async map<TSource extends object, TTarget>(
     source: TSource,
     targetClass: Class<TTarget>,
     context: object = {},
-  ): TTarget {
+  ): Promise<TTarget> {
     const sourceClass: Class<TSource> = source.constructor;
     for (const sourceHierarchyClass of ClassHierarchyIterable.of(sourceClass)) {
-      const objectMap = this.registry.get(sourceHierarchyClass, targetClass);
-      if (objectMap) {
-        return objectMap.map(source, context);
+      const registeredObjectMaps = ObjectMap.registry
+        .inverse()
+        .get(Pair.of(sourceHierarchyClass, targetClass));
+      if (!registeredObjectMaps) {
+        continue;
       }
+      const resolvedObjectMaps = (await this.serviceLocator.getServices(
+        registeredObjectMaps,
+      )) as Array<ObjectMap<TSource, TTarget>>;
+      if (!resolvedObjectMaps) {
+        continue;
+      } else if (resolvedObjectMaps.length > 1) {
+        throw new InternalServerErrorException(`conflicting`);
+      }
+      return await resolvedObjectMaps[0].map(source, context);
     }
     throw new InternalServerErrorException(
       `object map for ${sourceClass.name} -> ${targetClass.name} not found`,
@@ -42,11 +55,16 @@ export class ObjectMapper {
    * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public mapArray<T>(
+  public async mapArray<T>(
     arr: ReadonlyArray<object>,
     targetClass: Class<T>,
     context: object = {},
-  ): T[] {
-    return arr.map((o) => this.map(o, targetClass, context));
+  ): Promise<T[]> {
+    const mappedObjects: T[] = [];
+    for (const source of arr) {
+      const mappedObject = await this.map(source, targetClass, context);
+      mappedObjects.push(mappedObject);
+    }
+    return mappedObjects;
   }
 }

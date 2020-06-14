@@ -73,7 +73,7 @@ export class SubmitLoginCommandHandler extends CommandHandler<
     command.session.set(sessionToken);
     const accessToken = this.tokenManager.newAccessToken(user.id.value);
     const refreshToken = this.tokenManager.newRefreshToken(user.id.value);
-    const userDto = this.objectMapper.map(user, UserDto);
+    const userDto = await this.objectMapper.map(user, UserDto);
     return new AuthenticationResponseDto(accessToken, refreshToken, userDto);
   }
 }

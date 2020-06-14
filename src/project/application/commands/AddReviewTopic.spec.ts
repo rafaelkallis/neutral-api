@@ -47,7 +47,7 @@ describe(AddReviewTopicCommand.name, () => {
 
     const objectMapper = scenario.module.get(ObjectMapper);
     projectDto = td.object();
-    td.when(objectMapper.map(project, ProjectDto, { authUser })).thenReturn(
+    td.when(objectMapper.map(project, ProjectDto, { authUser })).thenResolve(
       projectDto,
     );
   });

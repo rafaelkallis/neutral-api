@@ -47,7 +47,7 @@ describe(GetAuthUserDataZipQuery.name, () => {
 
     const objectMapper = scenario.module.get(ObjectMapper);
     const authUserDto: UserDto = td.object();
-    td.when(objectMapper.map(authUser, UserDto)).thenReturn(authUserDto);
+    td.when(objectMapper.map(authUser, UserDto)).thenResolve(authUserDto);
 
     serializedAuthUser = td.object();
     const jsonSerializer = scenario.module.get(JsonSerializer);

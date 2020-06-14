@@ -20,7 +20,7 @@ describe(GetAuthUserQuery.name, () => {
     userDto = td.object();
     query = new GetAuthUserQuery(authUser);
     queryHandler = new GetAuthUserQueryHandler(objectMapper);
-    td.when(objectMapper.map(authUser, UserDto, { authUser })).thenReturn(
+    td.when(objectMapper.map(authUser, UserDto, { authUser })).thenResolve(
       userDto,
     );
   });

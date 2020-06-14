@@ -34,7 +34,7 @@ describe(SubmitEmailChangeCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     newEmail = scenario.primitiveFaker.email();
     const tokenManager = scenario.module.get(TokenManager);

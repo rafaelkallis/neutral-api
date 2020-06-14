@@ -42,7 +42,7 @@ describe(UpdateAuthUserCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     const tokenManager = scenario.module.get(TokenManager);
     emailChangeToken = td.object();

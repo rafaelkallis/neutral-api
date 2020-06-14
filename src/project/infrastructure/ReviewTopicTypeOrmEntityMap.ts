@@ -2,7 +2,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
@@ -11,6 +11,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 
 @Injectable()
+@ObjectMap.register(ReviewTopic, ReviewTopicTypeOrmEntity)
 export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
   ReviewTopic,
   ReviewTopicTypeOrmEntity
@@ -31,17 +32,10 @@ export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
         : null,
     );
   }
-
-  public getSourceClass(): Type<ReviewTopic> {
-    return ReviewTopic;
-  }
-
-  public getTargetClass(): Type<ReviewTopicTypeOrmEntity> {
-    return ReviewTopicTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.register(ReviewTopicTypeOrmEntity, ReviewTopic)
 export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
   ReviewTopicTypeOrmEntity,
   ReviewTopic
@@ -57,13 +51,5 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
         ? Consensuality.from(reviewTopicEntity.consensuality)
         : null,
     );
-  }
-
-  public getSourceClass(): Type<ReviewTopicTypeOrmEntity> {
-    return ReviewTopicTypeOrmEntity;
-  }
-
-  public getTargetClass(): Type<ReviewTopic> {
-    return ReviewTopic;
   }
 }

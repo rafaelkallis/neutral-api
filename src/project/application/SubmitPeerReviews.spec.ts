@@ -76,7 +76,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     expectedProjectDto = td.object();
     td.when(
       objectMapper.map(project, ProjectDto, td.matchers.anything()),
-    ).thenReturn(expectedProjectDto);
+    ).thenResolve(expectedProjectDto);
   });
 
   test('happy path', async () => {

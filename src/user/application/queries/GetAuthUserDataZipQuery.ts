@@ -52,7 +52,7 @@ export class GetAuthUserDataZipQueryHandler extends QueryHandler<
     query: GetAuthUserDataZipQuery,
   ): Promise<GetAuthUserDataZipQueryResult> {
     const archiveBuilder = this.archiveFactory.createArchiveBuilder();
-    const userDto = this.objectMapper.map(query.authUser, UserDto);
+    const userDto = await this.objectMapper.map(query.authUser, UserDto);
     const serializedUserDto = await this.jsonSerializer.serialize(userDto);
     archiveBuilder.addBuffer('user.json', serializedUserDto);
     if (query.authUser.avatar) {
