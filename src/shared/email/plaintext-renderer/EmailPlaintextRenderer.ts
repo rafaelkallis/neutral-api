@@ -1,5 +1,5 @@
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -38,7 +38,7 @@ export abstract class EmailPlaintextRenderer {
    *
    */
   public abstract renderInvitedUserNewAssignmentEmailPlaintext(
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): string;
 
   public abstract renderPeerReviewRequestedEmailPlaintext(

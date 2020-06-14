@@ -1,6 +1,6 @@
 import td from 'testdouble';
 import { UserRepository } from 'user/domain/UserRepository';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserDto } from 'user/application/dto/UserDto';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -15,7 +15,7 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
   let scenario: UnitTestScenario<UpdateAuthUserAvatarCommandHandler>;
   let commandHandler: UpdateAuthUserAvatarCommandHandler;
   let oldAvatar: Avatar;
-  let authUser: User;
+  let authUser: InternalUser;
   let contentType: string;
   let command: UpdateAuthUserAvatarCommand;
   let userDto: UserDto;
@@ -39,7 +39,7 @@ describe(UpdateAuthUserAvatarCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     avatarStore = scenario.module.get(AvatarStore);
 

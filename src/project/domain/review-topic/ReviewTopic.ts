@@ -4,8 +4,8 @@ import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
-import { Consensuality } from '../project/value-objects/Consensuality';
-import { Type } from '@nestjs/common';
+import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
@@ -13,7 +13,6 @@ export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly consensuality: Consensuality | null;
 
   isConsensual(): boolean;
-  readonly _type: Type<ReadonlyReviewTopic>;
 }
 
 export class ReviewTopic extends Model<ReviewTopicId>
@@ -34,7 +33,6 @@ export class ReviewTopic extends Model<ReviewTopicId>
     this.title = title;
     this.description = description;
     this.consensuality = consensuality;
-    this._type = ReviewTopic;
   }
 
   /**
@@ -62,5 +60,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
     return this.consensuality !== null && this.consensuality.isConsensual();
   }
 
-  public readonly _type: Type<ReviewTopic>;
+  public getClass(): Class<ReviewTopic> {
+    return ReviewTopic;
+  }
 }

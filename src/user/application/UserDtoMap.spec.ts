@@ -23,8 +23,8 @@ describe(UserDtoMap.name, () => {
     user.updateAvatar(Avatar.from(primitiveFaker.id()));
   });
 
-  test('general', () => {
-    const userDto = userMap.map(user, {});
+  test('general', async () => {
+    const userDto = await userMap.map(user, {});
     expect(userDto).toEqual({
       id: user.id.value,
       email: user.email.value,

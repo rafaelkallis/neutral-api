@@ -1,9 +1,6 @@
 import { Injectable, Type, InternalServerErrorException } from '@nestjs/common';
 import { Request } from 'shared/mediator/Request';
-import {
-  RequestHandler,
-  AssociatedRequest,
-} from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
 
 /**
@@ -21,8 +18,10 @@ export class Mediator {
     request: TRequest,
   ): Promise<T> {
     const requestType = request.constructor as Type<TRequest>;
-    const requestHandlerTypes = AssociatedRequest.inverse().get(requestType);
-    if (requestHandlerTypes === null) {
+    const requestHandlerTypes = RequestHandler.registry
+      .inverse()
+      .get(requestType);
+    if (!requestHandlerTypes) {
       throw new InternalServerErrorException(
         `No request handler registered for ${requestType.name}, did you apply @${RequestHandler.name}(${requestType.name}) to your request handler?`,
       );

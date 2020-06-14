@@ -4,7 +4,7 @@ import {
   TokenManager,
   LoginToken,
 } from 'shared/token/application/TokenManager';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { SubmitLoginCommand, SubmitLoginCommandHandler } from './SubmitLogin';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { SessionState } from 'shared/session/session-state';
@@ -23,7 +23,7 @@ describe(SubmitLoginCommand.name, () => {
   let userFactory: UserFactory;
   let tokenManager: TokenManager;
   let objectMapper: ObjectMapper;
-  let user: User;
+  let user: InternalUser;
   let loginToken: string;
   let sessionToken: string;
   let accessToken: string;
@@ -65,7 +65,7 @@ describe(SubmitLoginCommand.name, () => {
       refreshToken,
     );
     userDto = td.object<UserDto>();
-    td.when(objectMapper.map(user, UserDto)).thenReturn(userDto);
+    td.when(objectMapper.map(user, UserDto)).thenResolve(userDto);
   });
 
   async function act(): Promise<AuthenticationResponseDto> {

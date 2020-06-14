@@ -1,6 +1,6 @@
 import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Role } from 'project/domain/role/Role';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -14,7 +14,7 @@ describe(CoveeContributionsComputer.name, () => {
   let a: string;
   let b: string;
   let c: string;
-  let project: Project;
+  let project: InternalProject;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(

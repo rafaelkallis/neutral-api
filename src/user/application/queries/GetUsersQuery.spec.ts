@@ -29,7 +29,7 @@ describe(GetUsersQuery.name, () => {
     userDtos = td.object();
     query = new GetUsersQuery(authUser);
     queryHandler = new GetUsersQueryHandler(userRepository, objectMapper);
-    td.when(objectMapper.mapArray(users, UserDto, { authUser })).thenReturn(
+    td.when(objectMapper.mapArray(users, UserDto, { authUser })).thenResolve(
       userDtos,
     );
   });

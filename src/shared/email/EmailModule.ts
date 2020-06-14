@@ -1,6 +1,5 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from 'shared/config/ConfigModule';
-import { EmailDomainEventHandlers } from 'shared/email/EmailDomainEventHandlers';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { SelfManagedEmailManager } from 'shared/email/manager/SelfManagedEmailManager';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -10,13 +9,15 @@ import { EmailSender } from 'shared/email/sender/EmailSender';
 import { SmtpEmailSender } from 'shared/email/sender/SmtpEmailSender';
 import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmailHtmlRenderer';
 import { UtilityModule } from 'shared/utility/UtilityModule';
-import { UserModule } from 'user/UserModule';
+import { Environment } from 'shared/utility/application/Environment';
+import { Config } from 'shared/config/application/Config';
+import { MailjetEmailSender } from './sender/MailjetEmailSender';
 
 /**
  * Email Module
  */
 @Module({
-  imports: [ConfigModule, UtilityModule, forwardRef(() => UserModule)],
+  imports: [ConfigModule, UtilityModule],
   providers: [
     {
       provide: EmailManager,
@@ -32,9 +33,14 @@ import { UserModule } from 'user/UserModule';
     },
     {
       provide: EmailSender,
-      useClass: SmtpEmailSender,
+      useFactory(environment: Environment, config: Config): EmailSender {
+        if (environment.isProduction()) {
+          return new MailjetEmailSender(config);
+        }
+        return new SmtpEmailSender(config);
+      },
+      inject: [Environment, Config],
     },
-    EmailDomainEventHandlers,
   ],
   exports: [EmailManager],
 })

@@ -2,7 +2,7 @@ import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
@@ -17,7 +17,7 @@ describe('role dto map', () => {
   let users: Record<string, User>;
   let role: Role;
   let reviewTopic: ReviewTopic;
-  let project: Project;
+  let project: InternalProject;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
@@ -64,9 +64,9 @@ describe('role dto map', () => {
 
   test.each(contributionCases)(
     'contributions',
-    (contributionVisibility, authUser, isContributionVisible) => {
+    async (contributionVisibility, authUser, isContributionVisible) => {
       project.contributionVisibility = contributionVisibility;
-      const roleDto = roleDtoMap.map(role, {
+      const roleDto = await roleDtoMap.map(role, {
         project,
         authUser: users[authUser],
       });
@@ -74,10 +74,13 @@ describe('role dto map', () => {
     },
   );
 
-  test('should not show contribution if not project owner and if project not finished', () => {
+  test('should not show contribution if not project owner and if project not finished', async () => {
     project.contributionVisibility = ContributionVisibility.PUBLIC;
     project.state = PeerReviewProjectState.INSTANCE;
-    const roleDto = roleDtoMap.map(role, { project, authUser: users.assignee });
+    const roleDto = await roleDtoMap.map(role, {
+      project,
+      authUser: users.assignee,
+    });
     expect(roleDto.contribution).toBeNull();
   });
 

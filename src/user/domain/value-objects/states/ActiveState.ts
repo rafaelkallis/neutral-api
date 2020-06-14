@@ -2,7 +2,7 @@ import {
   DefaultUserState,
   UserState,
 } from 'user/domain/value-objects/states/UserState';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { LoginEvent } from 'user/domain/events/LoginEvent';
 import { Email } from 'user/domain/value-objects/Email';
@@ -25,22 +25,22 @@ export class ActiveState extends DefaultUserState {
     return this.instance;
   }
 
-  public login(user: User): void {
+  public login(user: InternalUser): void {
     user.lastLoginAt = LastLoginAt.now();
     user.raise(new LoginEvent(user));
   }
 
-  public changeEmail(user: User, email: Email): void {
+  public changeEmail(user: InternalUser, email: Email): void {
     user.email = email;
     user.raise(new EmailChangedEvent(user));
   }
 
-  public updateName(user: User, name: Name): void {
+  public updateName(user: InternalUser, name: Name): void {
     user.name = name;
     user.raise(new UserNameUpdatedEvent(user));
   }
 
-  public updateAvatar(user: User, newAvatar: Avatar): void {
+  public updateAvatar(user: InternalUser, newAvatar: Avatar): void {
     const oldAvatar = user.avatar;
     if (oldAvatar?.equals(newAvatar)) {
       return;
@@ -49,7 +49,7 @@ export class ActiveState extends DefaultUserState {
     user.raise(new UserAvatarUpdatedEvent(user, newAvatar, oldAvatar));
   }
 
-  public removeAvatar(user: User): void {
+  public removeAvatar(user: InternalUser): void {
     const oldAvatar = user.avatar;
     if (oldAvatar) {
       user.avatar = null;
@@ -57,7 +57,7 @@ export class ActiveState extends DefaultUserState {
     }
   }
 
-  public forget(user: User): void {
+  public forget(user: InternalUser): void {
     user.email = Email.REDACTED;
     user.name = Name.redacted();
     user.avatar = Avatar.redacted();

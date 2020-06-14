@@ -1,9 +1,10 @@
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { Notification } from 'notification/domain/Notification';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
+@ObjectMap.register(Notification, NotificationDto)
 export class NotificationDtoMap extends ObjectMap<
   Notification,
   NotificationDto
@@ -17,13 +18,5 @@ export class NotificationDtoMap extends ObjectMap<
       notification.isRead.value,
       notification.payload,
     );
-  }
-
-  public getSourceType(): Type<Notification> {
-    return Notification;
-  }
-
-  public getTargetType(): Type<NotificationDto> {
-    return NotificationDto;
   }
 }

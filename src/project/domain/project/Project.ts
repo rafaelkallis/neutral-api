@@ -41,7 +41,7 @@ import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopi
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -93,15 +93,164 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
-
-  readonly _type: Type<ReadonlyProject>;
 }
 
 /**
  * Project Model
  */
-export class Project extends AggregateRoot<ProjectId>
+export abstract class Project extends AggregateRoot<ProjectId>
   implements ReadonlyProject {
+  public abstract readonly title: ProjectTitle;
+  public abstract readonly description: ProjectDescription;
+  public abstract readonly creatorId: UserId;
+  public abstract readonly state: ProjectState;
+  public abstract readonly contributionVisibility: ContributionVisibility;
+  public abstract readonly skipManagerReview: SkipManagerReview;
+  public abstract readonly roles: RoleCollection;
+  public abstract readonly peerReviews: PeerReviewCollection;
+  public abstract readonly reviewTopics: ReviewTopicCollection;
+  public abstract readonly contributions: ContributionCollection;
+
+  public static of(
+    id: ProjectId,
+    createdAt: CreatedAt,
+    updatedAt: UpdatedAt,
+    title: ProjectTitle,
+    description: ProjectDescription,
+    creatorId: UserId,
+    state: ProjectState,
+    contributionVisibility: ContributionVisibility,
+    skipManagerReview: SkipManagerReview,
+    roles: RoleCollection,
+    peerReviews: PeerReviewCollection,
+    reviewTopics: ReviewTopicCollection,
+    contributions: ContributionCollection,
+  ): Project {
+    return new InternalProject(
+      id,
+      createdAt,
+      updatedAt,
+      title,
+      description,
+      creatorId,
+      state,
+      contributionVisibility,
+      skipManagerReview,
+      roles,
+      peerReviews,
+      reviewTopics,
+      contributions,
+    );
+  }
+
+  public isConsensual(): boolean {
+    return this.reviewTopics.areAll((topic) => topic.isConsensual());
+  }
+
+  /**
+   *
+   */
+  public abstract update(
+    title?: ProjectTitle,
+    description?: ProjectDescription,
+  ): void;
+
+  /**
+   *
+   */
+  public abstract addRole(
+    title: RoleTitle,
+    description: RoleDescription,
+  ): ReadonlyRole;
+
+  /**
+   * Update a role
+   */
+  public abstract updateRole(
+    roleId: RoleId,
+    title?: RoleTitle,
+    description?: RoleDescription,
+  ): void;
+
+  /**
+   * Remove a role
+   */
+  public abstract removeRole(roleId: RoleId): void;
+
+  /**
+   * Assigns a user to a role
+   */
+  public abstract assignUserToRole(
+    userToAssign: ReadonlyUser,
+    roleId: RoleId,
+  ): void;
+
+  /**
+   * Unassign a role.
+   * @param roleId The roleId to unassign.
+   */
+  public abstract unassignRole(roleId: RoleId): void;
+
+  public abstract addReviewTopic(
+    title: ReviewTopicTitle,
+    description: ReviewTopicDescription,
+  ): ReadonlyReviewTopic;
+
+  public abstract updateReviewTopic(
+    reviewTopicId: ReviewTopicId,
+    title?: ReviewTopicTitle,
+    description?: ReviewTopicDescription,
+  ): void;
+
+  public abstract removeReviewTopic(reviewTopicId: ReviewTopicId): void;
+
+  /**
+   * Finish project formation
+   */
+  public abstract finishFormation(assignees: ReadonlyUserCollection): void;
+
+  /**
+   * Cancel the project.
+   */
+  public abstract cancel(): void;
+
+  /**
+   *
+   */
+  public abstract submitPeerReviews(
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+
+  /**
+   *
+   */
+  public abstract archive(): void;
+
+  /**
+   * Submit the manager review.
+   */
+  public abstract submitManagerReview(): void;
+
+  public isCreator(user: ReadonlyUser): boolean {
+    return this.creatorId.equals(user.id);
+  }
+
+  public assertCreator(user: ReadonlyUser): void {
+    if (!this.isCreator(user)) {
+      throw new UserNotProjectCreatorException();
+    }
+  }
+
+  public getClass(): Class<Project> {
+    return Project;
+  }
+}
+
+export class InternalProject extends Project {
   public title: ProjectTitle;
   public description: ProjectDescription;
   public readonly creatorId: UserId;
@@ -139,11 +288,6 @@ export class Project extends AggregateRoot<ProjectId>
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
-    this._type = Project;
-  }
-
-  public isConsensual(): boolean {
-    return this.reviewTopics.areAll((topic) => topic.isConsensual());
   }
 
   /**
@@ -270,5 +414,7 @@ export class Project extends AggregateRoot<ProjectId>
     }
   }
 
-  public readonly _type: Type<Project>;
+  public getClass(): Class<Project> {
+    return Project;
+  }
 }

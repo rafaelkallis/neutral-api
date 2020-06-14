@@ -1,5 +1,5 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { User } from 'user/domain/User';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
@@ -13,7 +13,7 @@ import { HttpStatus } from '@nestjs/common';
 describe('submit manager review (e2e)', () => {
   let scenario: IntegrationTestScenario;
   let authUser: User;
-  let project: Project;
+  let project: InternalProject;
   let assignees: ReadonlyUserCollection;
 
   beforeEach(async () => {

@@ -35,11 +35,11 @@ export abstract class EmailManager {
   ): Promise<void>;
 
   /**
-   * Sends an email to a user that is not registered but was assigned to a new role.
+   * Sends an email to a pending user that was assigned to a role.
    */
-  public abstract async sendInvitedUserNewAssignmentEmail(
+  public abstract async sendPendingUserNewAssignmentEmail(
     to: string,
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): Promise<void>;
 
   public abstract async sendPeerReviewRequestedEmail(
@@ -64,7 +64,7 @@ export interface NewAssignmentModel {
   roleTitle: string;
 }
 
-export interface InvitedUserNewAssignmentModel {
+export interface PendingUserNewAssignmentModel {
   projectTitle: string;
   roleTitle: string;
   signupMagicLink: string;

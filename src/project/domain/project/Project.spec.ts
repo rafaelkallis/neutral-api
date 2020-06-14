@@ -1,6 +1,6 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject, Project } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { Role } from 'project/domain/role/Role';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -22,7 +22,7 @@ describe(Project.name, () => {
   let primitiveFaker: PrimitiveFaker;
 
   let creator: User;
-  let project: Project;
+  let project: InternalProject;
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();

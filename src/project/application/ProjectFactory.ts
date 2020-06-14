@@ -46,7 +46,7 @@ export class ProjectFactory extends AggregateRootFactory<
     const peerReviews = new PeerReviewCollection([]);
     const reviewTopics = new ReviewTopicCollection([]);
     const contributions = new ContributionCollection([]);
-    const project = new Project(
+    const project = Project.of(
       projectId,
       createdAt,
       updatedAt,

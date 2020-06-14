@@ -2,7 +2,10 @@ import {
   ProjectState,
   DefaultProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import {
+  InternalProject,
+  ReadonlyProject,
+} from 'project/domain/project/Project';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -30,7 +33,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
   }
 
   public submitPeerReviews(
-    project: Project,
+    project: InternalProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
     submittedPeerReviews: [RoleId, PeerReviewScore][],
@@ -104,7 +107,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
    * Gets called when final peer review is submitted for a team.
    */
   private finishPeerReview(
-    project: Project,
+    project: InternalProject,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {

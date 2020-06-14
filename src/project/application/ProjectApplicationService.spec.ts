@@ -1,5 +1,9 @@
 import td from 'testdouble';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import {
+  InternalProject,
+  Project,
+  ReadonlyProject,
+} from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
@@ -8,15 +12,13 @@ import {
 } from 'project/application/dto/GetProjectsQueryDto';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { Role, ReadonlyRole } from 'project/domain/role/Role';
-import { User } from 'user/domain/User';
+import { User, InternalUser } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
-import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -27,8 +29,6 @@ import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
-import { ActiveUserAssignedEvent } from 'project/domain/events/ActiveUserAssignedEvent';
-import { InvitedUserAssignedEvent } from 'project/domain/events/InvitedUserAssignedEvent';
 
 describe(ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -38,15 +38,15 @@ describe(ProjectApplicationService.name, () => {
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
   let creatorUser: User;
-  let project: Project;
+  let project: InternalProject;
   let roles: Role[];
   let reviewTopic: ReviewTopic;
   let expectedProjectDto: ProjectDto;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(ProjectApplicationService)
-      .addProviderValue(ProjectRepository, new MemoryProjectRepository())
-      .addProviderValue(UserRepository, new MemoryUserRepository())
+      .addProviderMock(ProjectRepository)
+      .addProviderMock(UserRepository)
       .addProviderMock(UserFactory)
       .addProviderMock(ObjectMapper)
       .addProviderMock(DomainEventBroker)
@@ -65,6 +65,7 @@ describe(ProjectApplicationService.name, () => {
     await userRepository.persist(creatorUser);
 
     project = scenario.modelFaker.project(creatorUser.id);
+    td.when(projectRepository.findById(project.id)).thenResolve(project);
     jest.spyOn(project, 'assertCreator');
     roles = [
       scenario.modelFaker.role(),
@@ -86,7 +87,7 @@ describe(ProjectApplicationService.name, () => {
         ProjectDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(expectedProjectDto);
+    ).thenResolve(expectedProjectDto);
   });
 
   test('should be defined', () => {
@@ -114,7 +115,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {
@@ -127,7 +128,7 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('get assigned projects', () => {
-    let projects: Project[];
+    let projects: InternalProject[];
     let assigneeUser: User;
     let query: GetProjectsQueryDto;
     let projectDtos: ProjectDto[];
@@ -151,7 +152,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {
@@ -174,12 +175,13 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('assign user to role', () => {
-    let assignee: User;
+    let assignee: InternalUser;
     let roleToBeAssigned: ReadonlyRole;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       assignee = scenario.modelFaker.user();
-      await userRepository.persist(assignee);
+      td.when(userRepository.findById(assignee.id)).thenResolve(assignee);
+      td.when(userRepository.findByEmail(assignee.email)).thenResolve(assignee);
       roleToBeAssigned = roles[0];
       jest.spyOn(project, 'assignUserToRole');
     });
@@ -192,6 +194,10 @@ describe(ProjectApplicationService.name, () => {
         assignee.id.value,
       );
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        assignee,
+        roleToBeAssigned.id,
+      );
       expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
@@ -203,12 +209,11 @@ describe(ProjectApplicationService.name, () => {
         undefined,
         assignee.email.value,
       );
-      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(ActiveUserAssignedEvent)),
+      expect(project.assignUserToRole).toHaveBeenCalledWith(
+        assignee,
+        roleToBeAssigned.id,
       );
+      expect(roleToBeAssigned.assigneeId?.equals(assignee.id)).toBeTruthy();
     });
 
     test("happy path, email of user that doesn't exist", async () => {
@@ -234,11 +239,6 @@ describe(ProjectApplicationService.name, () => {
         createdUser,
         roleToBeAssigned.id,
       );
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
-      );
     });
 
     test('happy path, email of user that is not active', async () => {
@@ -256,25 +256,22 @@ describe(ProjectApplicationService.name, () => {
         assignee,
         roleToBeAssigned.id,
       );
-      td.verify(
-        scenario.module
-          .get(DomainEventBroker)
-          .publish(td.matchers.isA(InvitedUserAssignedEvent)),
-      );
     });
   });
 
   describe('finish formation', () => {
     let assignees: User[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       assignees = [];
       for (const role of roles) {
         const assignee = scenario.modelFaker.user();
         role.assigneeId = assignee.id;
         assignees.push(assignee);
-        await userRepository.persist(assignee);
       }
+      td.when(userRepository.findByIds(td.matchers.anything())).thenResolve(
+        assignees,
+      );
       project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });

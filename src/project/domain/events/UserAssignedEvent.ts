@@ -1,22 +1,23 @@
+import { ReadonlyRole } from 'project/domain/role/Role';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { Role } from 'project/domain/role/Role';
-import { Project } from 'project/domain/project/Project';
-import { ReadonlyUser } from 'user/domain/User';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
+import { ReadonlyUser } from 'user/domain/User';
 
-/**
- *
- */
 @DomainEventKey('project.user_assigned')
 export class UserAssignedEvent extends DomainEvent {
-  public readonly project: Project;
-  public readonly role: Role;
-  public readonly user: ReadonlyUser;
+  public readonly project: ReadonlyProject;
+  public readonly role: ReadonlyRole;
+  public readonly assignee: ReadonlyUser;
 
-  public constructor(project: Project, role: Role, user: ReadonlyUser) {
+  public constructor(
+    project: ReadonlyProject,
+    role: ReadonlyRole,
+    assignee: ReadonlyUser,
+  ) {
     super();
     this.project = project;
     this.role = role;
-    this.user = user;
+    this.assignee = assignee;
   }
 }

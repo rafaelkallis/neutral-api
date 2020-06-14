@@ -5,7 +5,7 @@ import path from 'path';
 import mjml2html from 'mjml';
 import { Environment } from 'shared/utility/application/Environment';
 import {
-  InvitedUserNewAssignmentModel,
+  PendingUserNewAssignmentModel,
   NewAssignmentModel,
   PeerReviewRequestedModel,
   ProjectFinishedModel,
@@ -43,7 +43,7 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
     return this.render('new-assignment', model);
   }
   public renderInvitedUserNewAssignmentEmailHtml(
-    model: InvitedUserNewAssignmentModel,
+    model: PendingUserNewAssignmentModel,
   ): string {
     return this.render('invited-new-assignment', model);
   }

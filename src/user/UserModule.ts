@@ -22,6 +22,7 @@ import { GetUserAvatarQueryHandler } from 'user/application/queries/GetUserAvata
 import { UserFactory } from 'user/application/UserFactory';
 import { GetAuthUserDataZipQueryHandler } from 'user/application/queries/GetAuthUserDataZipQuery';
 import { AvatarStore } from 'user/application/AvatarStore';
+import { UserDomainEventHandlers } from './application/UserDomainEventHandlers';
 
 /**
  * User Module
@@ -39,6 +40,7 @@ import { AvatarStore } from 'user/application/AvatarStore';
     { provide: UserRepository, useClass: TypeOrmUserRepository },
     UserFactory,
     AvatarStore,
+    UserDomainEventHandlers,
     // query handlers
     GetUsersQueryHandler,
     GetUserQueryHandler,

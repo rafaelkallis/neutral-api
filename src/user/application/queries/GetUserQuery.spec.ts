@@ -27,7 +27,7 @@ describe(GetUsersQuery.name, () => {
     query = new GetUserQuery(authUser, userId.value);
     queryHandler = new GetUserQueryHandler(userRepository, objectMapper);
     td.when(userRepository.findById(userId)).thenResolve(user);
-    td.when(objectMapper.map(user, UserDto, { authUser })).thenReturn(userDto);
+    td.when(objectMapper.map(user, UserDto, { authUser })).thenResolve(userDto);
   });
 
   test('should be defined', () => {

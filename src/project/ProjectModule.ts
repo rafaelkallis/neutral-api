@@ -46,6 +46,7 @@ import { UpdateReviewTopicCommandHandler } from 'project/application/commands/Up
 import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
+import { ProjectDomainEventHandlers } from 'project/application/ProjectDomainEventHandlers';
 
 /**
  * Project Module
@@ -68,6 +69,7 @@ import { UnassignRoleCommandHandler } from 'project/application/commands/Unassig
     },
     ProjectApplicationService,
     ProjectFactory,
+    ProjectDomainEventHandlers,
     // maps
     ProjectDtoMap,
     RoleDtoMap,
