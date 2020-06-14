@@ -50,7 +50,7 @@ describe(UpdateRoleCommand.name, () => {
     projectDto = td.object();
     td.when(
       objectMapper.map(project, ProjectDto, td.matchers.anything()),
-    ).thenReturn(projectDto);
+    ).thenResolve(projectDto);
   });
 
   test('should be defined', () => {

@@ -6,13 +6,13 @@ import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
-import { Class } from 'shared/domain/Class';
 
 @Injectable()
+@ObjectMap.register(Project, ProjectDto)
 export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
   private readonly objectMapper: ObjectMapper;
 
@@ -21,7 +21,10 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     this.objectMapper = objectMapper;
   }
 
-  protected doMap(project: Project, context: ObjectMapContext): ProjectDto {
+  protected async doMap(
+    project: Project,
+    context: ObjectMapContext,
+  ): Promise<ProjectDto> {
     const authUser = context.get('authUser', User);
     return new ProjectDto(
       project.id.value,
@@ -34,17 +37,17 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       null, // TODO remove
       project.contributionVisibility.value,
       project.skipManagerReview.value,
-      this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
+      await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
         project,
         authUser,
       }),
-      this.mapPeerReviewDtos(project, authUser),
-      this.objectMapper.mapArray(
+      await this.mapPeerReviewDtos(project, authUser),
+      await this.objectMapper.mapArray(
         project.reviewTopics.toArray(),
         ReviewTopicDto,
         { authUser, project },
       ),
-      this.objectMapper.mapArray(
+      await this.objectMapper.mapArray(
         project.contributions.toArray(),
         ContributionDto,
         { authUser, project },
@@ -52,7 +55,10 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     );
   }
 
-  private mapPeerReviewDtos(project: Project, authUser: User): PeerReviewDto[] {
+  private async mapPeerReviewDtos(
+    project: Project,
+    authUser: User,
+  ): Promise<PeerReviewDto[]> {
     let peerReviews = project.peerReviews.toArray();
     peerReviews = peerReviews.filter((peerReview) =>
       this.shouldExposePeerReview(peerReview, project, authUser),
@@ -78,13 +84,5 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       }
     }
     return false;
-  }
-
-  public getSourceClass(): Class<Project> {
-    return Project;
-  }
-
-  public getTargetClass(): Type<ProjectDto> {
-    return ProjectDto;
   }
 }

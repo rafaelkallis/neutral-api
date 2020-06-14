@@ -65,7 +65,7 @@ describe(SubmitLoginCommand.name, () => {
       refreshToken,
     );
     userDto = td.object<UserDto>();
-    td.when(objectMapper.map(user, UserDto)).thenReturn(userDto);
+    td.when(objectMapper.map(user, UserDto)).thenResolve(userDto);
   });
 
   async function act(): Promise<AuthenticationResponseDto> {

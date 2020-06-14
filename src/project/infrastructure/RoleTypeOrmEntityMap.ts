@@ -2,7 +2,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Role } from 'project/domain/role/Role';
 import { RoleTypeOrmEntity } from './RoleTypeOrmEntity';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -11,6 +11,7 @@ import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 
 @Injectable()
+@ObjectMap.register(Role, RoleTypeOrmEntity)
 export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
   protected doMap(roleModel: Role, ctx: ObjectMapContext): RoleTypeOrmEntity {
     return new RoleTypeOrmEntity(
@@ -23,17 +24,10 @@ export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
       roleModel.description.value,
     );
   }
-
-  public getSourceClass(): Type<Role> {
-    return Role;
-  }
-
-  public getTargetClass(): Type<RoleTypeOrmEntity> {
-    return RoleTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.register(RoleTypeOrmEntity, Role)
 export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
   RoleTypeOrmEntity,
   Role
@@ -47,13 +41,5 @@ export class ReverseRoleTypeOrmEntityMap extends ObjectMap<
       RoleTitle.from(roleEntity.title),
       RoleDescription.from(roleEntity.description),
     );
-  }
-
-  public getSourceClass(): Type<RoleTypeOrmEntity> {
-    return RoleTypeOrmEntity;
-  }
-
-  public getTargetClass(): Type<Role> {
-    return Role;
   }
 }

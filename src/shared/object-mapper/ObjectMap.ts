@@ -1,5 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Class } from 'shared/domain/Class';
+import { InversableMap } from 'shared/domain/InversableMap';
+import { Pair } from 'shared/domain/Pair';
 
 /**
  * Context for object mapping.
@@ -26,21 +28,36 @@ export class ObjectMapContext {
   }
 }
 
+const objectMapRegistry: InversableMap<
+  Class<ObjectMap<unknown, unknown>>,
+  Pair<Class<unknown>, Class<unknown>>
+> = InversableMap.empty();
+
 /**
  *
  */
 export abstract class ObjectMap<TSource, TTarget> {
+  public static register(
+    sourceClass: Class<unknown>,
+    targetClass: Class<unknown>,
+  ): ClassDecorator {
+    return (objectMapClass: Class<ObjectMap<unknown, unknown>>): void => {
+      objectMapRegistry.set(objectMapClass, Pair.of(sourceClass, targetClass));
+    };
+  }
+  public static registry = objectMapRegistry.asReadonly();
+
   /**
    * Maps the given model.
    * @param model The model to be mapped.
    * @param context
    */
-  public map(source: TSource, context: object): TTarget {
+  public async map(source: TSource, context: object): Promise<TTarget> {
     return this.doMap(source, new ObjectMapContext(context));
   }
 
-  protected abstract doMap(o: TSource, context: ObjectMapContext): TTarget;
-
-  public abstract getSourceClass(): Class<TSource>;
-  public abstract getTargetClass(): Class<TTarget>;
+  protected abstract doMap(
+    o: TSource,
+    context: ObjectMapContext,
+  ): TTarget | Promise<TTarget>;
 }

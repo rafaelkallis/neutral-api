@@ -37,7 +37,7 @@ describe(RemoveAuthUserAvatarCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     objectStorage = scenario.module.get(ObjectStorage);
 

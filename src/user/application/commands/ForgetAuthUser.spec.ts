@@ -31,7 +31,7 @@ describe(ForgetAuthUserCommand.name, () => {
     userDto = td.object();
     td.when(
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
-    ).thenReturn(userDto);
+    ).thenResolve(userDto);
 
     command = new ForgetAuthUserCommand(authUser, session);
   });

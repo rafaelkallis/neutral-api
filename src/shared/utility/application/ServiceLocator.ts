@@ -10,7 +10,19 @@ export class ServiceLocator {
     this.moduleRef = moduleRef;
   }
 
-  public async getService<T>(type: Class<T>): Promise<T> {
-    return await this.moduleRef.get(type as any, { strict: false });
+  public async getService<T>(clazz: Class<T>): Promise<T> {
+    return await this.moduleRef.get(clazz as any, { strict: false });
+  }
+
+  public async getServices<T>(classes: Class<T>[]): Promise<T[]> {
+    const resolvedServices: T[] = [];
+    for (const clazz of classes) {
+      const resolvedClass = await this.getService(clazz);
+      if (!resolvedClass) {
+        continue;
+      }
+      resolvedServices.push(resolvedClass);
+    }
+    return resolvedServices;
   }
 }
