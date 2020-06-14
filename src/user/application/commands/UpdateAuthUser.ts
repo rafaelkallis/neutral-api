@@ -13,7 +13,7 @@ import { EmailAlreadyUsedException } from 'auth/application/exceptions/EmailAlre
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { QueryHandler } from 'shared/query/QueryHandler';
 
 /**
  * Update the authenticated user
@@ -40,7 +40,7 @@ export class UpdateAuthUserCommand extends UserCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(UpdateAuthUserCommand)
+@QueryHandler.register(UpdateAuthUserCommand)
 export class UpdateAuthUserCommandHandler extends UserCommandHandler<
   UpdateAuthUserCommand
 > {

@@ -18,7 +18,7 @@ import { ProjectFactory } from '../ProjectFactory';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
@@ -42,7 +42,7 @@ export class CreateProjectCommand extends ProjectCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(CreateProjectCommand)
+@CommandHandler.register(CreateProjectCommand)
 export class CreateProjectCommandHandler extends ProjectCommandHandler<
   CreateProjectCommand
 > {

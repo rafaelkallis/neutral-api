@@ -23,4 +23,8 @@ export class InversableMap<U, V> extends Map<U, V>
     const entries = Array.from(this.entries());
     return new Map(entries.map(([u, v]) => [v, u]));
   }
+
+  public asReadonly(): ReadonlyInversableMap<U, V> {
+    return this;
+  }
 }

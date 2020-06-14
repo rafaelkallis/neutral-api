@@ -5,7 +5,7 @@ import {
 } from 'user/application/commands/UserCommand';
 import { SessionState } from 'shared/session/session-state';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 /**
  * Forget the authenticated user
@@ -20,7 +20,7 @@ export class ForgetAuthUserCommand extends UserCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(ForgetAuthUserCommand)
+@CommandHandler.register(ForgetAuthUserCommand)
 export class ForgetAuthUserCommandHandler extends UserCommandHandler<
   ForgetAuthUserCommand
 > {

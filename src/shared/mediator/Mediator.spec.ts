@@ -1,9 +1,6 @@
 import { Mediator } from 'shared/mediator/Mediator';
 import { Request } from 'shared/mediator/Request';
-import {
-  RequestHandler,
-  AssociatedRequest,
-} from 'shared/mediator/RequestHandler';
+import { RequestHandler } from 'shared/mediator/RequestHandler';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Injectable } from '@nestjs/common';
 import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
@@ -19,7 +16,7 @@ describe(Mediator.name, () => {
   }
 
   @Injectable()
-  @AssociatedRequest.d(TestRequest)
+  @RequestHandler.register(TestRequest)
   class TestRequestHandler extends RequestHandler<number, TestRequest> {
     public handle(request: TestRequest): number {
       return request.input + 1;
@@ -28,7 +25,7 @@ describe(Mediator.name, () => {
 
   class RejectingRequest extends Request<void> {}
 
-  @AssociatedRequest.d(RejectingRequest)
+  @RequestHandler.register(RejectingRequest)
   class RejectingRequestHandler extends RequestHandler<void, RejectingRequest> {
     public handle(_request: RejectingRequest): void {
       throw new Error();

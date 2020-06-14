@@ -8,7 +8,6 @@ import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { UserFactory } from 'user/application/UserFactory';
 import { Email } from 'user/domain/value-objects/Email';
 import { Injectable } from '@nestjs/common';
@@ -32,7 +31,7 @@ export class SubmitLoginCommand extends Command<AuthenticationResponseDto> {
 }
 
 @Injectable()
-@AssociatedRequest.d(SubmitLoginCommand)
+@CommandHandler.register(SubmitLoginCommand)
 export class SubmitLoginCommandHandler extends CommandHandler<
   AuthenticationResponseDto,
   SubmitLoginCommand

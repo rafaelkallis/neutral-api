@@ -9,7 +9,6 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 /**
  * Passwordless login
@@ -26,7 +25,7 @@ export class RequestLoginCommand extends Command<void> {
 }
 
 @Injectable()
-@AssociatedRequest.d(RequestLoginCommand)
+@CommandHandler.register(RequestLoginCommand)
 export class RequestLoginCommandHandler extends CommandHandler<
   void,
   RequestLoginCommand
