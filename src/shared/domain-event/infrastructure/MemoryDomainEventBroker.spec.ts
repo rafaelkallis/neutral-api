@@ -2,12 +2,15 @@ import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { MemoryDomainEventBroker } from './MemoryDomainEventBroker';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
-describe('amqp domain event broker', () => {
+describe(MemoryDomainEventBroker.name, () => {
+  let scenario: UnitTestScenario<MemoryDomainEventBroker>;
   let domainEventBroker: MemoryDomainEventBroker;
 
-  beforeEach(() => {
-    domainEventBroker = new MemoryDomainEventBroker();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(MemoryDomainEventBroker).build();
+    domainEventBroker = scenario.subject;
   });
 
   @DomainEventKey('my_domain_event')

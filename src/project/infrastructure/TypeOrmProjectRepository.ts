@@ -11,6 +11,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder, EntityManager } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * TypeOrm Project Repository
@@ -28,6 +29,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
    *
    */
   public constructor(
+    domainEventBroker: DomainEventBroker,
     typeOrmClient: TypeOrmClient,
     objectMapper: ObjectMapper,
     typeOrmRepository: TypeOrmRepository<
@@ -36,7 +38,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       Project
     >,
   ) {
-    super();
+    super(domainEventBroker);
     this.entityManager = typeOrmClient.entityManager;
     this.typeOrmRepository = typeOrmRepository;
     this.objectMapper = objectMapper;

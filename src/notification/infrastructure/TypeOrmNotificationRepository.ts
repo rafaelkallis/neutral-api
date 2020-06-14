@@ -8,6 +8,7 @@ import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable } from '@nestjs/common';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { EntityManager } from 'typeorm';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 @Injectable()
 export class TypeOrmNotificationRepository extends NotificationRepository {
@@ -20,6 +21,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
+    domainEventBroker: DomainEventBroker,
     objectMapper: ObjectMapper,
     typeOrmClient: TypeOrmClient,
     typeOrmRepository: TypeOrmRepository<
@@ -28,7 +30,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
       Notification
     >,
   ) {
-    super();
+    super(domainEventBroker);
     this.objectMapper = objectMapper;
     this.entityManager = typeOrmClient.entityManager;
     this.typeOrmRepository = typeOrmRepository;

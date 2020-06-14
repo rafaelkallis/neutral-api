@@ -3,12 +3,13 @@ import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 export class MemoryProjectRepository extends ProjectRepository {
   private readonly memoryRepository: MemoryRepository<ProjectId, Project>;
 
-  public constructor() {
-    super();
+  public constructor(domainEventBroker: DomainEventBroker) {
+    super(domainEventBroker);
     this.memoryRepository = MemoryRepository.create();
   }
 

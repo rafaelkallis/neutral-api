@@ -13,11 +13,14 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
 import mailhog from 'mailhog';
 import { Email } from 'user/domain/value-objects/Email';
+import { ContextIdFactory } from '@nestjs/core';
+import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
 
 type Session = request.SuperTest<request.Test>;
 
 export class IntegrationTestScenario extends TestScenario {
   public readonly app: INestApplication;
+  public readonly serviceLocator: ServiceLocator;
   public readonly userRepository: UserRepository;
   public readonly projectRepository: ProjectRepository;
   public readonly notificationRepository: NotificationRepository;
@@ -30,8 +33,9 @@ export class IntegrationTestScenario extends TestScenario {
   public readonly mailhogClient: mailhog.API;
 
   public constructor(
-    app: INestApplication,
     module: TestingModule,
+    app: INestApplication,
+    serviceLocator: ServiceLocator,
     userRepository: UserRepository,
     projectRepository: ProjectRepository,
     notificationRepository: NotificationRepository,
@@ -43,6 +47,7 @@ export class IntegrationTestScenario extends TestScenario {
   ) {
     super(module);
     this.app = app;
+    this.serviceLocator = serviceLocator;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.notificationRepository = notificationRepository;
@@ -57,15 +62,22 @@ export class IntegrationTestScenario extends TestScenario {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    const app = await module.createNestApplication().init();
+    const app = module.createNestApplication();
+    await app.init();
+    const serviceLocator = await module.resolve(
+      ServiceLocator,
+      ContextIdFactory.create(),
+      { strict: false },
+    );
     const session = request.agent(app.getHttpServer());
     const mailhogClient = mailhog();
     return new IntegrationTestScenario(
-      app,
       module,
-      module.get(UserRepository),
-      module.get(ProjectRepository),
-      module.get(NotificationRepository),
+      app,
+      serviceLocator,
+      await serviceLocator.getService(UserRepository),
+      await serviceLocator.getService(ProjectRepository),
+      await serviceLocator.getService(NotificationRepository),
       module.get(TokenManager),
       module.get(EmailManager),
       module.get(ObjectStorage),

@@ -7,6 +7,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { Injectable } from '@nestjs/common';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * TypeOrm User Repository
@@ -22,11 +23,12 @@ export class TypeOrmUserRepository extends UserRepository {
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
+    domainEventBroker: DomainEventBroker,
     objectMapper: ObjectMapper,
     typeOrmClient: TypeOrmClient,
     typeOrmRepository: TypeOrmRepository<UserTypeOrmEntity, UserId, User>,
   ) {
-    super();
+    super(domainEventBroker);
     this.typeOrmClient = typeOrmClient;
     this.typeOrmRepository = typeOrmRepository;
     this.objectMapper = objectMapper;

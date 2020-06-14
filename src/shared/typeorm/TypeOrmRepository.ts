@@ -80,7 +80,7 @@ export class TypeOrmRepository<
     entityClass: Class<TEntity>,
     ...models: TModel[]
   ): Promise<void> {
-    const entities = this.objectMapper.mapArray(models, entityClass);
+    const entities = await this.objectMapper.mapArray(models, entityClass);
     await this.entityManager.save(entities);
   }
 }

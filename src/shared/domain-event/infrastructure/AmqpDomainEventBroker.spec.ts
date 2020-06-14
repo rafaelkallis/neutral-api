@@ -5,14 +5,19 @@ import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { Subscription } from 'shared/domain/Observer';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
-describe('amqp domain event broker', () => {
+describe(AmqpDomainEventBroker.name, () => {
+  let scenario: UnitTestScenario<AmqpDomainEventBroker>;
   let amqpClient: AmqpClient;
   let amqpDomainEventBroker: AmqpDomainEventBroker;
 
-  beforeEach(() => {
-    amqpClient = td.object();
-    amqpDomainEventBroker = new AmqpDomainEventBroker(amqpClient);
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(AmqpDomainEventBroker)
+      .addProviderMock(AmqpClient)
+      .build();
+    amqpDomainEventBroker = scenario.subject;
+    amqpClient = scenario.module.get(AmqpClient);
   });
 
   @DomainEventKey('my_domain_event')

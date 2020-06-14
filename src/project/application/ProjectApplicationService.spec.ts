@@ -19,8 +19,6 @@ import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
-import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -47,8 +45,8 @@ describe(ProjectApplicationService.name, () => {
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(ProjectApplicationService)
-      .addProviderValue(ProjectRepository, new MemoryProjectRepository())
-      .addProviderValue(UserRepository, new MemoryUserRepository())
+      .addProviderMock(ProjectRepository)
+      .addProviderMock(UserRepository)
       .addProviderMock(UserFactory)
       .addProviderMock(ObjectMapper)
       .addProviderMock(DomainEventBroker)
@@ -67,6 +65,7 @@ describe(ProjectApplicationService.name, () => {
     await userRepository.persist(creatorUser);
 
     project = scenario.modelFaker.project(creatorUser.id);
+    td.when(projectRepository.findById(project.id)).thenResolve(project);
     jest.spyOn(project, 'assertCreator');
     roles = [
       scenario.modelFaker.role(),
@@ -179,9 +178,10 @@ describe(ProjectApplicationService.name, () => {
     let assignee: InternalUser;
     let roleToBeAssigned: ReadonlyRole;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       assignee = scenario.modelFaker.user();
-      await userRepository.persist(assignee);
+      td.when(userRepository.findById(assignee.id)).thenResolve(assignee);
+      td.when(userRepository.findByEmail(assignee.email)).thenResolve(assignee);
       roleToBeAssigned = roles[0];
       jest.spyOn(project, 'assignUserToRole');
     });
@@ -270,6 +270,9 @@ describe(ProjectApplicationService.name, () => {
         assignees.push(assignee);
         await userRepository.persist(assignee);
       }
+      td.when(userRepository.findByIds(td.matchers.anything())).thenResolve(
+        assignees,
+      );
       project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });

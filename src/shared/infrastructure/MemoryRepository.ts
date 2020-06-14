@@ -1,5 +1,4 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { Repository } from 'shared/domain/Repository';
 import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Observable } from 'shared/domain/Observer';
@@ -7,11 +6,10 @@ import { Observable } from 'shared/domain/Observer';
 export class MemoryRepository<
   TId extends Id,
   TModel extends AggregateRoot<TId>
-> extends Repository<TId, TModel> {
+> {
   private readonly models: Map<string, TModel>;
 
   private constructor() {
-    super();
     this.models = new Map();
   }
 
@@ -61,10 +59,9 @@ export class MemoryRepository<
   /**
    *
    */
-  protected async doPersist(...models: TModel[]): Promise<void> {
+  public persist(...models: TModel[]): void {
     for (const model of models) {
       this.models.set(model.id.value, model);
     }
-    return Promise.resolve();
   }
 }

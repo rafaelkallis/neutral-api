@@ -3,6 +3,7 @@ import { User } from 'user/domain/User';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 
 /**
  * Memory User Repository
@@ -10,8 +11,8 @@ import { MemoryRepository } from 'shared/infrastructure/MemoryRepository';
 export class MemoryUserRepository extends UserRepository {
   private readonly memoryRepository: MemoryRepository<UserId, User>;
 
-  public constructor() {
-    super();
+  public constructor(domainEventBroker: DomainEventBroker) {
+    super(domainEventBroker);
     this.memoryRepository = MemoryRepository.create();
   }
 

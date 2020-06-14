@@ -151,8 +151,8 @@ describe('user (e2e)', () => {
 
   describe('/users/:id (GET)', () => {
     test('happy path', async () => {
-      const response = await scenario.session.get(`/users/${user.id}`);
-      expect(response.status).toBe(200);
+      const response = await scenario.session.get(`/users/${user.id.value}`);
+      expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeDefined();
     });
   });
