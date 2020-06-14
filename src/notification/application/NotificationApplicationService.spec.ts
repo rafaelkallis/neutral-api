@@ -2,29 +2,28 @@ import td from 'testdouble';
 import { Notification } from 'notification/domain/Notification';
 import { User } from 'user/domain/User';
 import { NotificationApplicationService } from 'notification/application/NotificationApplicationService';
-import { ModelFaker } from 'test/ModelFaker';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
-import { MemoryNotificationRepository } from 'notification/infrastructure/MemoryNotificationRepository';
 import { NotificationDto } from 'notification/application/dto/NotificationDto';
+import { UnitTestScenario } from 'test/UnitTestScenario';
 
-describe('notification application service', () => {
-  let modelFaker: ModelFaker;
+describe(NotificationApplicationService.name, () => {
+  let scenario: UnitTestScenario<NotificationApplicationService>;
   let notificationRepository: NotificationRepository;
   let objectMapper: ObjectMapper;
   let notificationApplicationService: NotificationApplicationService;
   let user: User;
   let mockNotificationDto: NotificationDto;
 
-  beforeEach(() => {
-    modelFaker = new ModelFaker();
-    notificationRepository = new MemoryNotificationRepository();
-    objectMapper = td.object();
-    notificationApplicationService = new NotificationApplicationService(
-      notificationRepository,
-      objectMapper,
-    );
-    user = modelFaker.user();
+  beforeEach(async () => {
+    scenario = await UnitTestScenario.builder(NotificationApplicationService)
+      .addProviderMock(NotificationRepository)
+      .addProviderMock(ObjectMapper)
+      .build();
+    notificationApplicationService = scenario.subject;
+    notificationRepository = scenario.module.get(NotificationRepository);
+    objectMapper = scenario.module.get(ObjectMapper);
+    user = scenario.modelFaker.user();
     mockNotificationDto = td.object();
     td.when(
       objectMapper.map(td.matchers.isA(Notification), NotificationDto),
@@ -41,9 +40,9 @@ describe('notification application service', () => {
 
     beforeEach(async () => {
       notifications = [
-        modelFaker.notification(user.id),
-        modelFaker.notification(user.id),
-        modelFaker.notification(user.id),
+        scenario.modelFaker.notification(user.id),
+        scenario.modelFaker.notification(user.id),
+        scenario.modelFaker.notification(user.id),
       ];
       await notificationRepository.persist(...notifications);
       mockNotificationDtos = td.object();
@@ -63,9 +62,11 @@ describe('notification application service', () => {
   describe('mark read', () => {
     let notification: Notification;
 
-    beforeEach(async () => {
-      notification = modelFaker.notification(user.id);
-      await notificationRepository.persist(notification);
+    beforeEach(() => {
+      notification = scenario.modelFaker.notification(user.id);
+      td.when(notificationRepository.findById(notification.id)).thenResolve(
+        notification,
+      );
       jest.spyOn(notification, 'markRead');
     });
 
@@ -79,7 +80,7 @@ describe('notification application service', () => {
     });
 
     test('should fail if authenticated user tries to mark a notification owner by another user as read', async () => {
-      const otherUser = modelFaker.user();
+      const otherUser = scenario.modelFaker.user();
       await expect(
         notificationApplicationService.markRead(
           otherUser,
