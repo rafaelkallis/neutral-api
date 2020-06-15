@@ -1,10 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import {
-  DomainEventBroker,
-  DomainEventHandler,
-} from 'shared/domain-event/application/DomainEventBroker';
-import { Subject, Subscription } from 'shared/domain/Observer';
+import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
+import { Subject, Subscription, Observer } from 'shared/domain/Observer';
 
 /**
  * Memory Domain Event Broker
@@ -38,7 +35,7 @@ export class MemoryDomainEventBroker extends DomainEventBroker {
    */
   public async subscribe<T extends DomainEvent>(
     domainEventType: Type<T>,
-    domainEventHandler: DomainEventHandler<T>,
+    domainEventHandler: Observer<T>,
   ): Promise<Subscription> {
     let domainEventSubject = this.domainEventSubjects.get(domainEventType) as
       | Subject<T>
@@ -49,7 +46,7 @@ export class MemoryDomainEventBroker extends DomainEventBroker {
     }
     return domainEventSubject.subscribe({
       handle: async (domainEvent) => {
-        await domainEventHandler.handleDomainEvent(domainEvent);
+        await domainEventHandler.handle(domainEvent);
       },
     });
   }

@@ -1,8 +1,8 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { MemoryDomainEventBroker } from './MemoryDomainEventBroker';
 import { UnitTestScenario } from 'test/UnitTestScenario';
+import { DomainEventObserver } from '../application/DomainEventBroker';
 
 describe(MemoryDomainEventBroker.name, () => {
   let scenario: UnitTestScenario<MemoryDomainEventBroker>;
@@ -19,9 +19,9 @@ describe(MemoryDomainEventBroker.name, () => {
   test('integration', async () => {
     const domainEvent = new MyDomainEvent();
 
-    const domainEventHandler: DomainEventHandler<MyDomainEvent> = {
+    const domainEventHandler: DomainEventObserver<MyDomainEvent> = {
       key: 'test_handler',
-      async handleDomainEvent(actualDomainEvent: MyDomainEvent): Promise<void> {
+      async handle(actualDomainEvent: MyDomainEvent): Promise<void> {
         // TODO code smell!
         expect(actualDomainEvent).toBe(domainEvent);
         return Promise.resolve();

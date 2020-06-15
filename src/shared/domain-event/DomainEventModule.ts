@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { DomainEventHandlerRegistrar } from 'shared/domain-event/application/DomainEventHandlerRegistrar';
+import { DomainEventHandlerConnector } from 'shared/domain-event/application/DomainEventHandlerConnector';
 import { MemoryDomainEventBroker } from 'shared/domain-event/infrastructure/MemoryDomainEventBroker';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { PersistedModelsDomainEventConnector } from './application/PersistedModelsDomainEventConnector';
@@ -14,7 +14,7 @@ import { PersistedModelsDomainEventConnector } from './application/PersistedMode
   providers: [
     MemoryDomainEventBroker,
     { provide: DomainEventBroker, useExisting: MemoryDomainEventBroker },
-    DomainEventHandlerRegistrar,
+    DomainEventHandlerConnector,
     PersistedModelsDomainEventConnector,
   ],
   exports: [DomainEventBroker],

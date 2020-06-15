@@ -1,8 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import {
   DomainEventBroker,
-  DomainEventSubscription,
-  DomainEventHandler,
+  DomainEventObserver,
 } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { AmqpClient } from 'shared/amqp/AmqpClient';
@@ -10,6 +9,7 @@ import {
   getDomainEventKey,
   DomainEventKey,
 } from 'shared/domain-event/domain/DomainEventKey';
+import { Subscription } from 'shared/domain/Observer';
 
 @Injectable()
 export class AmqpDomainEventBroker extends DomainEventBroker {
@@ -40,8 +40,8 @@ export class AmqpDomainEventBroker extends DomainEventBroker {
 
   public async subscribe<T extends DomainEvent>(
     domainEventType: Type<T>,
-    domainEventHandler: DomainEventHandler<T>,
-  ): Promise<DomainEventSubscription> {
+    domainEventHandler: DomainEventObserver<T>,
+  ): Promise<Subscription> {
     const key = getDomainEventKey(domainEventType);
     if (!key) {
       throw new Error(
@@ -54,7 +54,7 @@ export class AmqpDomainEventBroker extends DomainEventBroker {
       queue: domainEventHandler.key,
       messageType: domainEventType,
       async handleMessage(message: T) {
-        await domainEventHandler.handleDomainEvent(message);
+        await domainEventHandler.handle(message);
       },
     });
   }

@@ -2,11 +2,11 @@ import td from 'testdouble';
 import { AmqpDomainEventBroker } from 'shared/domain-event/infrastructure/AmqpDomainEventBroker';
 import { AmqpClient } from 'shared/amqp/AmqpClient';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { Subscription } from 'shared/domain/Observer';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
+import { DomainEventObserver } from '../application/DomainEventBroker';
 
 describe(AmqpDomainEventBroker.name, () => {
   let scenario: UnitTestScenario<AmqpDomainEventBroker>;
@@ -55,9 +55,9 @@ describe(AmqpDomainEventBroker.name, () => {
     });
 
     test('happy path', async () => {
-      const domainEventHandler: DomainEventHandler<MyDomainEvent> = {
+      const domainEventHandler: DomainEventObserver<MyDomainEvent> = {
         key: 'test_handler',
-        handleDomainEvent: td.function(async () => Promise.resolve()),
+        handle: td.function(async () => Promise.resolve()),
       };
       const actualSubscription = await amqpDomainEventBroker.subscribe(
         MyDomainEvent,

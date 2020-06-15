@@ -1,8 +1,8 @@
 import { AmqpDomainEventBroker } from 'shared/domain-event/infrastructure/AmqpDomainEventBroker';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { DomainEventHandler } from 'shared/domain-event/application/DomainEventBroker';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
+import { DomainEventObserver } from '../application/DomainEventBroker';
 
 describe.skip(AmqpDomainEventBroker.name, () => {
   let scenario: IntegrationTestScenario;
@@ -27,9 +27,9 @@ describe.skip(AmqpDomainEventBroker.name, () => {
   test('happy path', async () => {
     const myDomainEvent = new MyDomainEvent('test');
     let actualDomainEvent: DomainEvent | null = null;
-    const domainEventHandler: DomainEventHandler<MyDomainEvent> = {
+    const domainEventHandler: DomainEventObserver<MyDomainEvent> = {
       key: 'test_my_domain_event_handler',
-      async handleDomainEvent(domainEvent: MyDomainEvent): Promise<void> {
+      async handle(domainEvent: MyDomainEvent): Promise<void> {
         // no assertions in here!
         actualDomainEvent = domainEvent;
         return Promise.resolve();
