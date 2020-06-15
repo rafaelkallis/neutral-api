@@ -4,7 +4,7 @@ import { DomainEventHandler } from 'shared/domain-event/application/DomainEventB
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 
-describe(AmqpDomainEventBroker.name, () => {
+describe.skip(AmqpDomainEventBroker.name, () => {
   let scenario: IntegrationTestScenario;
   let amqpDomainEventBroker: AmqpDomainEventBroker;
 

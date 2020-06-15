@@ -6,6 +6,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 /**
  * User Repository
  */
+@Repository.register(User)
 export abstract class UserRepository extends Repository<UserId, User> {
   /**
    * Full text search on user's first name and last name.

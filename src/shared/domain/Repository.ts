@@ -1,6 +1,16 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import { ReadonlyAggregateRoot } from 'shared/domain/AggregateRoot';
+import {
+  ReadonlyAggregateRoot,
+  AggregateRoot,
+} from 'shared/domain/AggregateRoot';
 import { Subject, Observable } from './Observer';
+import { InversableMap } from './InversableMap';
+import { Class } from './Class';
+
+const repositoryRegistry: InversableMap<
+  Class<Repository<Id, AggregateRoot<Id>>>,
+  Class<AggregateRoot<Id>>
+> = InversableMap.empty();
 
 /**
  * Repository
@@ -9,6 +19,17 @@ export abstract class Repository<
   TId extends Id,
   TModel extends ReadonlyAggregateRoot<TId>
 > {
+  public static register(
+    aggregateRootClass: Class<AggregateRoot<Id>>,
+  ): ClassDecorator {
+    return (
+      repositoryClass: Class<Repository<Id, AggregateRoot<Id>>>,
+    ): void => {
+      repositoryRegistry.set(repositoryClass, aggregateRootClass);
+    };
+  }
+  public static registry = repositoryRegistry.asReadonly();
+
   private readonly persistedModelsSubject: Subject<TModel>;
 
   public constructor() {
