@@ -8,7 +8,7 @@ import { CacheStore } from 'shared/cache/application/CacheStore';
 import { MemoryCacheStore } from 'shared/cache/infrastructure/MemoryCacheStore';
 import { CacheKeyComputer } from 'shared/cache/application/CacheKeyComputer';
 import { Sha1CacheKeyComputer } from 'shared/cache/infrastructure/Sha1CacheKeyComputer';
-import { CacheRegistrar } from 'shared/cache/application/CacheRegistrar';
+import { CacheConnector } from 'shared/cache/application/CacheConnector';
 
 /**
  * Cache Module
@@ -28,7 +28,7 @@ import { CacheRegistrar } from 'shared/cache/application/CacheRegistrar';
       provide: CacheKeyComputer,
       useClass: Sha1CacheKeyComputer,
     },
-    CacheRegistrar,
+    CacheConnector,
     CacheClient,
   ],
   exports: [CacheClient],
