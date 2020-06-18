@@ -28,6 +28,8 @@ describe(ProjectDomainEventHandlers.name, () => {
       .build();
     projectDomainEventHandlers = scenario.subject;
     emailManager = scenario.module.get(EmailManager);
+    const config = scenario.module.get(Config);
+    td.when(config.get('FRONTEND_URL')).thenReturn('');
 
     const creator = scenario.modelFaker.user();
     project = scenario.modelFaker.project(creator.id);
