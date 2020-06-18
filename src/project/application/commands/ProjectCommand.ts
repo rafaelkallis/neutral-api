@@ -6,7 +6,9 @@ import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { Injectable } from '@nestjs/common';
 
-export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {}
+export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {
+  // TODO add projectId
+}
 
 @Injectable()
 export abstract class ProjectCommandHandler<

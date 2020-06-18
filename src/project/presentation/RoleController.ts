@@ -31,6 +31,9 @@ import { AddRoleCommand } from 'project/application/commands/AddRole';
 import { UpdateRoleCommand } from 'project/application/commands/UpdateRole';
 import { RemoveRoleCommand } from 'project/application/commands/RemoveRole';
 import { UnassignRoleCommand } from 'project/application/commands/UnassignRole';
+import { AssignRoleCommand } from 'project/application/commands/AssignRole';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
 
 /**
  * Role Controller
@@ -39,14 +42,12 @@ import { UnassignRoleCommand } from 'project/application/commands/UnassignRole';
 @UseGuards(AuthGuard)
 @ApiTags('Projects')
 export class RoleController {
-  private readonly projectApplication: ProjectApplicationService;
   private readonly mediator: Mediator;
 
   public constructor(
     projectApplication: ProjectApplicationService,
     mediator: Mediator,
   ) {
-    this.projectApplication = projectApplication;
     this.mediator = mediator;
   }
 
@@ -147,14 +148,15 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
-    @Body(ValidationPipe) dto: AssignmentDto,
+    @Body(ValidationPipe) assignmentDto: AssignmentDto,
   ): Promise<ProjectDto> {
-    return this.projectApplication.assignUserToRole(
-      authUser,
-      projectId,
-      roleId,
-      dto.assigneeId,
-      dto.assigneeEmail,
+    return this.mediator.send(
+      new AssignRoleCommand(
+        authUser,
+        ProjectId.from(projectId),
+        RoleId.from(roleId),
+        assignmentDto.asEither(),
+      ),
     );
   }
 
