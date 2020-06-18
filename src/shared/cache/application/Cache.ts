@@ -1,3 +1,5 @@
+import { Class } from 'shared/domain/Class';
+
 export const CACHE_METADATA = Symbol('CACHE_METADATA');
 
 export interface CacheContext {
@@ -44,6 +46,12 @@ export function getCacheMetadataItems(
   return metadataItems;
 }
 
+const cacheRegistry: Set<Class<object>> = new Set();
+
+export function getCacheClasses(): Class<object>[] {
+  return Array.from(cacheRegistry.keys());
+}
+
 /**
  *
  */
@@ -61,5 +69,6 @@ export function Cache(context: CacheContext): PropertyDecorator {
       [...existingMetadataItems, newMetadataItem],
       target.constructor,
     );
+    cacheRegistry.add(target.constructor);
   };
 }

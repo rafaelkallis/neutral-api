@@ -15,7 +15,7 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   getProjectState,
   getProjectStateValue,
@@ -29,6 +29,7 @@ import { ContributionCollection } from 'project/domain/contribution/Contribution
 import { Contribution } from 'project/domain/contribution/Contribution';
 
 @Injectable()
+@ObjectMap.register(Project, ProjectTypeOrmEntity)
 export class ProjectTypeOrmEntityMap extends ObjectMap<
   Project,
   ProjectTypeOrmEntity
@@ -51,7 +52,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
     this.objectMapper = objectMapper;
   }
 
-  protected doMap(projectModel: Project): ProjectTypeOrmEntity {
+  protected async doMap(projectModel: Project): Promise<ProjectTypeOrmEntity> {
     const projectEntity = new ProjectTypeOrmEntity(
       projectModel.id.value,
       projectModel.createdAt.value,
@@ -67,41 +68,34 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTypeOrmEntityMap.reviewTopicsSentinel,
       ProjectTypeOrmEntityMap.contributionsSentinel,
     );
-    projectEntity.roles = this.objectMapper.mapArray(
+    projectEntity.roles = await this.objectMapper.mapArray(
       projectModel.roles.toArray(),
       RoleTypeOrmEntity,
       {
         project: projectEntity,
       },
     );
-    projectEntity.peerReviews = this.objectMapper.mapArray(
+    projectEntity.peerReviews = await this.objectMapper.mapArray(
       projectModel.peerReviews.toArray(),
       PeerReviewTypeOrmEntity,
       { project: projectEntity },
     );
-    projectEntity.reviewTopics = this.objectMapper.mapArray(
+    projectEntity.reviewTopics = await this.objectMapper.mapArray(
       projectModel.reviewTopics.toArray(),
       ReviewTopicTypeOrmEntity,
       { project: projectEntity },
     );
-    projectEntity.contributions = this.objectMapper.mapArray(
+    projectEntity.contributions = await this.objectMapper.mapArray(
       projectModel.contributions.toArray(),
       ContributionTypeOrmEntity,
       { project: projectEntity },
     );
     return projectEntity;
   }
-
-  public getSourceType(): Type<Project> {
-    return Project;
-  }
-
-  public getTargetType(): Type<ProjectTypeOrmEntity> {
-    return ProjectTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.register(ProjectTypeOrmEntity, Project)
 export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
   ProjectTypeOrmEntity,
   Project
@@ -113,20 +107,23 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     this.objectMapper = objectMapper;
   }
 
-  protected doMap(projectEntity: ProjectTypeOrmEntity): Project {
+  protected async doMap(projectEntity: ProjectTypeOrmEntity): Promise<Project> {
     const roles = new RoleCollection(
-      this.objectMapper.mapArray(projectEntity.roles, Role),
+      await this.objectMapper.mapArray(projectEntity.roles, Role),
     );
     const peerReviews = new PeerReviewCollection(
-      this.objectMapper.mapArray(projectEntity.peerReviews, PeerReview),
+      await this.objectMapper.mapArray(projectEntity.peerReviews, PeerReview),
     );
     const reviewTopics = new ReviewTopicCollection(
-      this.objectMapper.mapArray(projectEntity.reviewTopics, ReviewTopic),
+      await this.objectMapper.mapArray(projectEntity.reviewTopics, ReviewTopic),
     );
     const contributions = new ContributionCollection(
-      this.objectMapper.mapArray(projectEntity.contributions, Contribution),
+      await this.objectMapper.mapArray(
+        projectEntity.contributions,
+        Contribution,
+      ),
     );
-    return new Project(
+    return Project.of(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),
@@ -141,13 +138,5 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       reviewTopics,
       contributions,
     );
-  }
-
-  public getSourceType(): Type<ProjectTypeOrmEntity> {
-    return ProjectTypeOrmEntity;
-  }
-
-  public getTargetType(): Type<Project> {
-    return Project;
   }
 }

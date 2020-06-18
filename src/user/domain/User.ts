@@ -12,7 +12,7 @@ import { Avatar } from 'user/domain/value-objects/Avatar';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserState } from 'user/domain/value-objects/states/UserState';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly email: Email;
@@ -20,20 +20,85 @@ export interface ReadonlyUser extends ReadonlyAggregateRoot<UserId> {
   readonly avatar: Avatar | null;
   readonly state: UserState;
   readonly lastLoginAt: LastLoginAt;
-
-  login(): void;
-  changeEmail(email: Email): void;
-  updateName(name: Name): void;
-  updateAvatar(newAvatar: Avatar): void;
-  removeAvatar(): void;
-  forget(): void;
   isPending(): boolean;
   isActive(): boolean;
-
-  readonly _type: Type<ReadonlyUser>;
 }
 
-export class User extends AggregateRoot<UserId> implements ReadonlyUser {
+export abstract class User extends AggregateRoot<UserId>
+  implements ReadonlyUser {
+  public abstract readonly email: Email;
+  public abstract readonly name: Name;
+  public abstract readonly avatar: Avatar | null;
+  public abstract readonly state: UserState;
+  public abstract readonly lastLoginAt: LastLoginAt;
+
+  public constructor(id: UserId, createdAt: CreatedAt, updatedAt: UpdatedAt) {
+    super(id, createdAt, updatedAt);
+  }
+
+  public static of(
+    id: UserId,
+    createdAt: CreatedAt,
+    updatedAt: UpdatedAt,
+    email: Email,
+    name: Name,
+    avatar: Avatar | null,
+    state: UserState,
+    lastLoginAt: LastLoginAt,
+  ): User {
+    return new InternalUser(
+      id,
+      createdAt,
+      updatedAt,
+      email,
+      name,
+      avatar,
+      state,
+      lastLoginAt,
+    );
+  }
+
+  public static createInvited(email: Email): User {
+    const first = '';
+    const last = '';
+    const name = Name.from(first, last);
+    const userId = UserId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const avatar = null;
+    const state = PendingState.getInstance();
+    const lastLoginAt = LastLoginAt.never();
+    const user = User.of(
+      userId,
+      createdAt,
+      updatedAt,
+      email,
+      name,
+      avatar,
+      state,
+      lastLoginAt,
+    );
+    user.raise(new UserCreatedEvent(user.id));
+    return user;
+  }
+
+  public abstract login(): void;
+  public abstract changeEmail(email: Email): void;
+  public abstract updateName(name: Name): void;
+  public abstract updateAvatar(newAvatar: Avatar): void;
+  public abstract removeAvatar(): void;
+  public abstract forget(): void;
+
+  public isPending(): boolean {
+    return this.state.isPending();
+  }
+
+  public isActive(): boolean {
+    return this.state.isActive();
+  }
+}
+
+export class InternalUser extends User {
   public email: Email;
   public name: Name;
   public avatar: Avatar | null;
@@ -56,34 +121,6 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     this.avatar = avatar;
     this.state = state;
     this.lastLoginAt = lastLoginAt;
-    this._type = User;
-  }
-
-  /**
-   *
-   */
-  public static createInvited(email: Email): ReadonlyUser {
-    const first = '';
-    const last = '';
-    const name = Name.from(first, last);
-    const userId = UserId.create();
-    const createdAt = CreatedAt.now();
-    const updatedAt = UpdatedAt.now();
-    const avatar = null;
-    const state = PendingState.getInstance();
-    const lastLoginAt = LastLoginAt.never();
-    const user = new User(
-      userId,
-      createdAt,
-      updatedAt,
-      email,
-      name,
-      avatar,
-      state,
-      lastLoginAt,
-    );
-    user.raise(new UserCreatedEvent(user.id));
-    return user;
   }
 
   /**
@@ -125,13 +162,7 @@ export class User extends AggregateRoot<UserId> implements ReadonlyUser {
     this.state.forget(this);
   }
 
-  public isPending(): boolean {
-    return this.state.isPending();
+  public getClass(): Class<User> {
+    return User;
   }
-
-  public isActive(): boolean {
-    return this.state.isActive();
-  }
-
-  public readonly _type: Type<User>;
 }

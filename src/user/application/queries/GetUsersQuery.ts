@@ -5,7 +5,6 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserRepository } from 'user/domain/UserRepository';
 import { User, ReadonlyUser } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { Injectable } from '@nestjs/common';
 
 export class GetUsersQuery extends Query<UserDto[]> {
@@ -22,7 +21,7 @@ export class GetUsersQuery extends Query<UserDto[]> {
 }
 
 @Injectable()
-@AssociatedRequest.d(GetUsersQuery)
+@QueryHandler.register(GetUsersQuery)
 export class GetUsersQueryHandler extends QueryHandler<
   UserDto[],
   GetUsersQuery

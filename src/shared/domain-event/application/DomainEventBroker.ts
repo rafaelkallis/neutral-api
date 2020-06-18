@@ -1,7 +1,6 @@
 import { Type, Logger } from '@nestjs/common';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { AggregateRoot } from 'shared/domain/AggregateRoot';
-import { Id } from 'shared/domain/value-objects/Id';
+import { Observer, Subscription } from 'shared/domain/Observer';
 
 export abstract class DomainEventBroker {
   protected readonly logger: Logger;
@@ -14,27 +13,14 @@ export abstract class DomainEventBroker {
 
   public abstract subscribe<T extends DomainEvent>(
     domainEvent: Type<T>,
-    domainEventHandler: DomainEventHandler<T>,
-  ): Promise<DomainEventSubscription>;
-
-  public async publishFromAggregateRoot(
-    aggregateRoot: AggregateRoot<Id>,
-  ): Promise<void> {
-    await this.publish(...aggregateRoot.domainEvents);
-  }
+    domainEventHandler: DomainEventObserver<T>,
+  ): Promise<Subscription>;
 }
 
 /**
  * Domain Event Handler
  */
-export interface DomainEventHandler<T extends DomainEvent> {
+export interface DomainEventObserver<T extends DomainEvent>
+  extends Observer<T> {
   key: string;
-  handleDomainEvent(domainEvent: T): Promise<void>;
-}
-
-/**
- * Domain Event Subscription
- */
-export interface DomainEventSubscription {
-  unsubscribe(): Promise<void>;
 }

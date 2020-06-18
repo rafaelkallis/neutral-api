@@ -7,13 +7,12 @@ import { RoleDescription } from 'project/domain/role/value-objects/RoleDescripti
 import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUserAssignedException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { Type } from '@nestjs/common';
+import { Class } from 'shared/domain/Class';
 
 export interface ReadonlyRole extends ReadonlyModel<RoleId> {
   readonly assigneeId: UserId | null;
   readonly title: RoleTitle;
   readonly description: RoleDescription;
-  readonly _type: Type<ReadonlyRole>;
 }
 
 /**
@@ -36,7 +35,6 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
-    this._type = Role;
   }
 
   /**
@@ -67,5 +65,7 @@ export class Role extends Model<RoleId> implements ReadonlyRole {
     return this.assigneeId ? this.assigneeId.equals(userId) : false;
   }
 
-  public readonly _type: Type<Role>;
+  public getClass(): Class<Role> {
+    return Role;
+  }
 }

@@ -5,8 +5,8 @@ import { Email } from 'user/domain/value-objects/Email';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
-import { Repository } from 'shared/domain/Repository';
 import { Injectable } from '@nestjs/common';
+import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 
 /**
  * TypeOrm User Repository
@@ -14,42 +14,40 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   private readonly typeOrmClient: TypeOrmClient;
-  private readonly typeOrmRepository: Repository<UserId, User>;
+  private readonly typeOrmRepository: TypeOrmRepository<
+    UserTypeOrmEntity,
+    UserId,
+    User
+  >;
   private readonly objectMapper: ObjectMapper;
 
-  public constructor(objectMapper: ObjectMapper, typeOrmClient: TypeOrmClient) {
+  public constructor(
+    objectMapper: ObjectMapper,
+    typeOrmClient: TypeOrmClient,
+    typeOrmRepository: TypeOrmRepository<UserTypeOrmEntity, UserId, User>,
+  ) {
     super();
     this.typeOrmClient = typeOrmClient;
-    this.typeOrmRepository = typeOrmClient.createRepository(
-      User,
-      UserTypeOrmEntity,
-    );
+    this.typeOrmRepository = typeOrmRepository;
     this.objectMapper = objectMapper;
   }
 
   public async findPage(afterId?: UserId | undefined): Promise<User[]> {
-    return this.typeOrmRepository.findPage(afterId);
+    return this.typeOrmRepository.findPage(UserTypeOrmEntity, User, afterId);
   }
 
   public async findById(id: UserId): Promise<User | undefined> {
-    return this.typeOrmRepository.findById(id);
+    return this.typeOrmRepository.findById(UserTypeOrmEntity, User, id);
   }
 
   public async findByIds(ids: UserId[]): Promise<(User | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ids);
-  }
-
-  public async exists(id: UserId): Promise<boolean> {
-    return this.typeOrmRepository.exists(id);
+    return this.typeOrmRepository.findByIds(UserTypeOrmEntity, User, ids);
   }
 
   protected async doPersist(...users: User[]): Promise<void> {
-    await this.typeOrmRepository.persist(...users);
+    await this.typeOrmRepository.persist(UserTypeOrmEntity, ...users);
   }
 
-  /**
-   *
-   */
   public async findByName(fullName: string): Promise<User[]> {
     const userEntities = await this.typeOrmClient.entityManager
       .getRepository(UserTypeOrmEntity)
@@ -61,9 +59,6 @@ export class TypeOrmUserRepository extends UserRepository {
     return this.objectMapper.mapArray(userEntities, User);
   }
 
-  /**
-   *
-   */
   public async findByEmail(email: Email): Promise<User | undefined> {
     const userEntity = await this.typeOrmClient.entityManager
       .getRepository(UserTypeOrmEntity)
@@ -72,16 +67,5 @@ export class TypeOrmUserRepository extends UserRepository {
       return undefined;
     }
     return this.objectMapper.map(userEntity, User);
-  }
-
-  /**
-   *
-   */
-  // TODO really needed?
-  public async existsByEmail(email: Email): Promise<boolean> {
-    const userEntity = await this.typeOrmClient.entityManager
-      .getRepository(UserTypeOrmEntity)
-      .findOne({ email: email.value });
-    return Boolean(userEntity);
   }
 }

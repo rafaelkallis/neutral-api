@@ -3,7 +3,6 @@ import { UserDto } from 'user/application/dto/UserDto';
 import { QueryHandler } from 'shared/query/QueryHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { User } from 'user/domain/User';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { Injectable } from '@nestjs/common';
 
 export class GetAuthUserQuery extends Query<UserDto> {
@@ -16,7 +15,7 @@ export class GetAuthUserQuery extends Query<UserDto> {
 }
 
 @Injectable()
-@AssociatedRequest.d(GetAuthUserQuery)
+@QueryHandler.register(GetAuthUserQuery)
 export class GetAuthUserQueryHandler extends QueryHandler<
   UserDto,
   GetAuthUserQuery

@@ -1,4 +1,4 @@
-import { Project } from 'project/domain/project/Project';
+import { InternalProject, Project } from 'project/domain/project/Project';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
@@ -149,7 +149,7 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id (PATCH)', () => {
-    let project: Project;
+    let project: InternalProject;
     let title: string;
 
     beforeEach(async () => {
@@ -195,7 +195,7 @@ describe('project (e2e)', () => {
 
   describe('/projects/:id/finish-formation (POST)', () => {
     let assignees: User[];
-    let project: Project;
+    let project: InternalProject;
     let roles: Role[];
     let reviewTopics: ReviewTopic[];
 
@@ -274,7 +274,7 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id/archive (POST)', () => {
-    let project: Project;
+    let project: InternalProject;
 
     beforeEach(async () => {
       project = scenario.modelFaker.project(user.id);

@@ -1,51 +1,70 @@
-import { Injectable, InternalServerErrorException, Type } from '@nestjs/common';
-import { ObjectMapperRegistry } from 'shared/object-mapper/ObjectMapperRegistry';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Class, ClassHierarchyIterable } from 'shared/domain/Class';
+import { ServiceLocator } from 'shared/utility/application/ServiceLocator';
+import { ObjectMap } from './ObjectMap';
+import { Pair } from 'shared/domain/Pair';
 
 /**
  * Maps objects.
  */
 @Injectable()
 export class ObjectMapper {
-  private readonly registry: ObjectMapperRegistry;
+  private readonly serviceLocator: ServiceLocator;
 
-  public constructor(registry: ObjectMapperRegistry) {
-    this.registry = registry;
+  public constructor(serviceLocator: ServiceLocator) {
+    this.serviceLocator = serviceLocator;
   }
 
   /**
    * Maps the given object instance to the specified object type.
-   * @param o Object to map.
-   * @param targetType The type to map to.
+   * @param source Object to map.
+   * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public map<TTarget>(
-    o: object,
-    targetType: Type<TTarget>,
+  public async map<TSource extends object, TTarget>(
+    source: TSource,
+    targetClass: Class<TTarget>,
     context: object = {},
-  ): TTarget {
-    const objectMap = this.registry.get(
-      o.constructor as Type<object>,
-      targetType,
-    );
-    if (!objectMap) {
-      throw new InternalServerErrorException(
-        `object map for ${o.constructor.name} -> ${targetType.name} not found`,
-      );
+  ): Promise<TTarget> {
+    const sourceClass: Class<TSource> = source.constructor;
+    for (const sourceHierarchyClass of ClassHierarchyIterable.of(sourceClass)) {
+      const registeredObjectMaps = ObjectMap.registry
+        .inverse()
+        .get(Pair.of(sourceHierarchyClass, targetClass));
+      if (!registeredObjectMaps) {
+        continue;
+      }
+      const resolvedObjectMaps = (await this.serviceLocator.getServices(
+        registeredObjectMaps,
+      )) as Array<ObjectMap<TSource, TTarget>>;
+      if (!resolvedObjectMaps) {
+        continue;
+      } else if (resolvedObjectMaps.length > 1) {
+        throw new InternalServerErrorException(`conflicting`);
+      }
+      return await resolvedObjectMaps[0].map(source, context);
     }
-    return objectMap.map(o, context);
+    throw new InternalServerErrorException(
+      `object map for ${sourceClass.name} -> ${targetClass.name} not found`,
+    );
   }
 
   /**
    * Maps the given object instances to the specified object type.
    * @param arr Array of objects to map.
-   * @param targetType The type to map to.
+   * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public mapArray<T>(
+  public async mapArray<T>(
     arr: ReadonlyArray<object>,
-    targetType: Type<T>,
+    targetClass: Class<T>,
     context: object = {},
-  ): T[] {
-    return arr.map((o) => this.map(o, targetType, context));
+  ): Promise<T[]> {
+    const mappedObjects: T[] = [];
+    for (const source of arr) {
+      const mappedObject = await this.map(source, targetClass, context);
+      mappedObjects.push(mappedObject);
+    }
+    return mappedObjects;
   }
 }

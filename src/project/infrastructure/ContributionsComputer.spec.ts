@@ -2,7 +2,7 @@ import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Role } from 'project/domain/role/Role';
 
@@ -16,8 +16,8 @@ describe('ContributionsModelService', () => {
   let b: string;
   let c: string;
   let d: string;
-  let project4: Project;
-  let project3: Project;
+  let project4: InternalProject;
+  let project3: InternalProject;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();

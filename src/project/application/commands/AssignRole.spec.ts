@@ -55,14 +55,16 @@ describe(AssignRoleCommand.name, () => {
     ).thenReturn(projectDto);
   });
 
-  test('assign with id', async () => {
+  test('assign with id of active user', async () => {
     const result = await assignRoleCommandHandler.handle(assignRoleCommand);
     expect(result).toBe(projectDto);
     expect(project.assertCreator).toHaveBeenCalledWith(creator);
     expect(project.assignUserToRole).toHaveBeenCalledWith(assignee, role.id);
   });
 
-  test('assign with email of existing user', async () => {
+  test.todo('assign with id of pending user');
+
+  test('assign with email of existing active user', async () => {
     assignRoleCommand = new AssignRoleCommand(
       creator,
       project.id,
@@ -74,6 +76,8 @@ describe(AssignRoleCommand.name, () => {
     expect(project.assertCreator).toHaveBeenCalledWith(creator);
     expect(project.assignUserToRole).toHaveBeenCalledWith(assignee, role.id);
   });
+
+  test.todo('assign with email of pending user');
 
   test('assign with email of non-existing user', async () => {
     const email = scenario.valueObjectFaker.user.email();

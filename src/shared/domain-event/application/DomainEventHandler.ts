@@ -1,5 +1,6 @@
 import { Type } from '@nestjs/common';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
+import { Class } from 'shared/domain/Class';
 
 const DOMAIN_EVENT_HANDLER_METADATA = Symbol('DOMAIN_EVENT_HANDLER_METADATA');
 
@@ -20,6 +21,12 @@ export class DomainEventHandlerMetadataItem<T extends DomainEvent> {
     this.servicePropertyKey = servicePropertyKey;
     this.handlerKey = handlerKey;
   }
+}
+
+const domainEventHandlerRegistry: Set<Class<object>> = new Set();
+
+export function getDomainEventHandlerClasses(): Array<Class<object>> {
+  return Array.from(domainEventHandlerRegistry.keys());
 }
 
 /**
@@ -67,5 +74,6 @@ export function HandleDomainEvent<T extends DomainEvent>(
       [...existingMetadataItems, newMetadataItem],
       target.constructor,
     );
+    domainEventHandlerRegistry.add(target.constructor);
   };
 }

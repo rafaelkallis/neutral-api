@@ -11,7 +11,8 @@ export interface ConfigProps {
   SECRET_HEX: string;
   DATABASE_URL: string;
   SMTP_URL: string;
-  EMAIL_SENDER: string;
+  EMAIL_SENDER_ADDRESS: string;
+  EMAIL_SENDER_NAME: string;
   // SENDGRID_API_KEY: string;
   // SENDGRID_URL: string;
   LOGIN_TOKEN_LIFETIME_MIN: number;
@@ -25,6 +26,8 @@ export interface ConfigProps {
   AZURE_MONITOR_INSTRUMENTATION_KEY: string;
   AZURE_BLOB_STORAGE_CONNECTION_STRING: string;
   AMQP_CONNECTION: string;
+  MAILJET_API_PUBLIC_KEY: string;
+  MAILJET_API_SECRET_KEY: string;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
@@ -8,7 +8,7 @@ import { PeerReviewProjectState } from 'project/domain/project/value-objects/sta
 describe('roles (e2e)', () => {
   let scenario: IntegrationTestScenario;
   let user: User;
-  let project: Project;
+  let project: InternalProject;
   let role: Role;
 
   beforeEach(async () => {

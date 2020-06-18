@@ -1,5 +1,5 @@
 import td from 'testdouble';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
@@ -28,7 +28,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let consensualityComputer: ConsensualityComputer;
   let creatorUser: User;
   let projectId: ProjectId;
-  let project: Project;
+  let project: InternalProject;
   let authRole: Role;
   let reviewTopic: ReviewTopic;
   let expectedProjectDto: ProjectDto;
@@ -76,7 +76,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     expectedProjectDto = td.object();
     td.when(
       objectMapper.map(project, ProjectDto, td.matchers.anything()),
-    ).thenReturn(expectedProjectDto);
+    ).thenResolve(expectedProjectDto);
   });
 
   test('happy path', async () => {

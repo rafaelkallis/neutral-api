@@ -7,7 +7,6 @@ import { User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { UserNotFoundException } from '../exceptions/UserNotFoundException';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 
 export class GetUserQuery extends Query<UserDto> {
   public readonly authUser: User;
@@ -21,7 +20,7 @@ export class GetUserQuery extends Query<UserDto> {
 }
 
 @Injectable()
-@AssociatedRequest.d(GetUserQuery)
+@QueryHandler.register(GetUserQuery)
 export class GetUserQueryHandler extends QueryHandler<UserDto, GetUserQuery> {
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;

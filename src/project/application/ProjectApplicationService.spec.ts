@@ -1,5 +1,9 @@
 import td from 'testdouble';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import {
+  InternalProject,
+  Project,
+  ReadonlyProject,
+} from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
@@ -15,8 +19,6 @@ import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { MemoryUserRepository } from 'user/infrastructure/MemoryUserRepository';
-import { MemoryProjectRepository } from 'project/infrastructure/MemoryProjectRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -34,15 +36,15 @@ describe(ProjectApplicationService.name, () => {
   let projectRepository: ProjectRepository;
   let objectMapper: ObjectMapper;
   let creatorUser: User;
-  let project: Project;
+  let project: InternalProject;
   let roles: Role[];
   let reviewTopic: ReviewTopic;
   let expectedProjectDto: ProjectDto;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(ProjectApplicationService)
-      .addProviderValue(ProjectRepository, new MemoryProjectRepository())
-      .addProviderValue(UserRepository, new MemoryUserRepository())
+      .addProviderMock(ProjectRepository)
+      .addProviderMock(UserRepository)
       .addProviderMock(UserFactory)
       .addProviderMock(ObjectMapper)
       .addProviderMock(DomainEventBroker)
@@ -61,6 +63,7 @@ describe(ProjectApplicationService.name, () => {
     await userRepository.persist(creatorUser);
 
     project = scenario.modelFaker.project(creatorUser.id);
+    td.when(projectRepository.findById(project.id)).thenResolve(project);
     jest.spyOn(project, 'assertCreator');
     roles = [
       scenario.modelFaker.role(),
@@ -82,7 +85,7 @@ describe(ProjectApplicationService.name, () => {
         ProjectDto,
         td.matchers.anything(),
       ),
-    ).thenReturn(expectedProjectDto);
+    ).thenResolve(expectedProjectDto);
   });
 
   test('should be defined', () => {
@@ -110,7 +113,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {
@@ -123,7 +126,7 @@ describe(ProjectApplicationService.name, () => {
   });
 
   describe('get assigned projects', () => {
-    let projects: Project[];
+    let projects: InternalProject[];
     let assigneeUser: User;
     let query: GetProjectsQueryDto;
     let projectDtos: ProjectDto[];
@@ -147,7 +150,7 @@ describe(ProjectApplicationService.name, () => {
           ProjectDto,
           td.matchers.anything(),
         ),
-      ).thenReturn(projectDtos);
+      ).thenResolve(projectDtos);
     });
 
     test('happy path', async () => {
@@ -172,14 +175,16 @@ describe(ProjectApplicationService.name, () => {
   describe('finish formation', () => {
     let assignees: User[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       assignees = [];
       for (const role of roles) {
         const assignee = scenario.modelFaker.user();
         role.assigneeId = assignee.id;
         assignees.push(assignee);
-        await userRepository.persist(assignee);
       }
+      td.when(userRepository.findByIds(td.matchers.anything())).thenResolve(
+        assignees,
+      );
       project.state = FormationProjectState.INSTANCE;
       jest.spyOn(project, 'finishFormation');
     });

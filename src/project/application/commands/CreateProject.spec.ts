@@ -73,7 +73,7 @@ describe(CreateProjectCommand.name, () => {
     projectDto = td.object();
     td.when(
       objectMapper.map(createdProject, ProjectDto, td.matchers.anything()),
-    ).thenReturn(projectDto);
+    ).thenResolve(projectDto);
   });
 
   test('should be defined', () => {

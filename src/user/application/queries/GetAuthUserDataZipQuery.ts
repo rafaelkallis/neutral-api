@@ -5,7 +5,6 @@ import { ArchiveFactory } from 'shared/archive/application/ArchiveFactory';
 import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
 import { Injectable } from '@nestjs/common';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { UserDto } from '../dto/UserDto';
 
@@ -26,7 +25,7 @@ export class GetAuthUserDataZipQuery extends Query<
 }
 
 @Injectable()
-@AssociatedRequest.d(GetAuthUserDataZipQuery)
+@QueryHandler.register(GetAuthUserDataZipQuery)
 export class GetAuthUserDataZipQueryHandler extends QueryHandler<
   GetAuthUserDataZipQueryResult,
   GetAuthUserDataZipQuery
@@ -53,7 +52,7 @@ export class GetAuthUserDataZipQueryHandler extends QueryHandler<
     query: GetAuthUserDataZipQuery,
   ): Promise<GetAuthUserDataZipQueryResult> {
     const archiveBuilder = this.archiveFactory.createArchiveBuilder();
-    const userDto = this.objectMapper.map(query.authUser, UserDto);
+    const userDto = await this.objectMapper.map(query.authUser, UserDto);
     const serializedUserDto = await this.jsonSerializer.serialize(userDto);
     archiveBuilder.addBuffer('user.json', serializedUserDto);
     if (query.authUser.avatar) {

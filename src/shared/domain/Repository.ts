@@ -1,16 +1,16 @@
 import { Id } from 'shared/domain/value-objects/Id';
 import {
-  AggregateRoot,
   ReadonlyAggregateRoot,
+  AggregateRoot,
 } from 'shared/domain/AggregateRoot';
 import { Subject, Observable } from './Observer';
+import { InversableMap } from './InversableMap';
+import { Class } from './Class';
 
-export interface PersistedListener<
-  TId extends Id,
-  TModel extends AggregateRoot<TId>
-> {
-  handlePersisted(model: TModel): Promise<void>;
-}
+const repositoryRegistry: InversableMap<
+  Class<Repository<Id, AggregateRoot<Id>>>,
+  Class<AggregateRoot<Id>>
+> = InversableMap.empty();
 
 /**
  * Repository
@@ -19,6 +19,17 @@ export abstract class Repository<
   TId extends Id,
   TModel extends ReadonlyAggregateRoot<TId>
 > {
+  public static register(
+    aggregateRootClass: Class<AggregateRoot<Id>>,
+  ): ClassDecorator {
+    return (
+      repositoryClass: Class<Repository<Id, AggregateRoot<Id>>>,
+    ): void => {
+      repositoryRegistry.set(repositoryClass, aggregateRootClass);
+    };
+  }
+  public static registry = repositoryRegistry.asReadonly();
+
   private readonly persistedModelsSubject: Subject<TModel>;
 
   public constructor() {
@@ -46,11 +57,6 @@ export abstract class Repository<
    *
    */
   public abstract findByIds(ids: TId[]): Promise<(TModel | undefined)[]>;
-
-  /**
-   *
-   */
-  public abstract exists(id: TId): Promise<boolean>;
 
   /**
    *

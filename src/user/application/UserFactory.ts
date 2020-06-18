@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReadonlyUser, User } from 'user/domain/User';
+import { User } from 'user/domain/User';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
@@ -18,9 +18,9 @@ export interface CreateUserOptions {
 export class UserFactory extends AggregateRootFactory<
   CreateUserOptions,
   UserId,
-  ReadonlyUser
+  User
 > {
-  protected doCreate({ email }: CreateUserOptions): ReadonlyUser {
+  protected doCreate({ email }: CreateUserOptions): User {
     const userId = UserId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -28,7 +28,7 @@ export class UserFactory extends AggregateRootFactory<
     const avatar = null;
     const state = PendingState.getInstance();
     const lastLoginAt = LastLoginAt.now();
-    const user = new User(
+    const user = User.of(
       userId,
       createdAt,
       updatedAt,

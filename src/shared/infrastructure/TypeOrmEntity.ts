@@ -2,12 +2,13 @@ import { PrimaryColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { BigIntTransformer } from 'shared/infrastructure/BigIntTransformer';
 import { Model } from 'shared/domain/Model';
 import { Id } from 'shared/domain/value-objects/Id';
-import { StaticBiMap } from 'shared/application/StaticBiMap';
+import { InversableMap } from 'shared/domain/InversableMap';
+import { Class } from 'shared/domain/Class';
 
-export const AssociatedDomainModel = new StaticBiMap<
-  Model<Id>,
-  TypeOrmEntity
->();
+const domainModelRegistry: InversableMap<
+  Class<Model<Id>>,
+  Class<TypeOrmEntity>
+> = InversableMap.empty();
 
 export abstract class TypeOrmEntity {
   @PrimaryColumn()
@@ -18,6 +19,14 @@ export abstract class TypeOrmEntity {
 
   @Column({ name: 'updated_at', transformer: new BigIntTransformer() })
   public updatedAt: number;
+
+  public static register(domainModelClass: Class<Model<Id>>): ClassDecorator {
+    return (typeOrmEntityClass: Class<TypeOrmEntity>): void => {
+      domainModelRegistry.set(domainModelClass, typeOrmEntityClass);
+    };
+  }
+
+  public static registry = domainModelRegistry.asReadonly();
 
   public constructor(id: string, createdAt: number, updatedAt: number) {
     this.id = id;

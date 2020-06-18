@@ -4,7 +4,7 @@ import { MeanDeviationConsensualityComputerService } from 'project/infrastructur
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputer } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { ModelFaker } from 'test/ModelFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
@@ -21,9 +21,9 @@ describe(ConsensualityComputer.name, () => {
   let roleD: Role;
   let reviewTopic: ReviewTopic;
 
-  let cycleProject: Project;
-  let clusterProject: Project;
-  let oneDidItAllProject: Project;
+  let cycleProject: InternalProject;
+  let clusterProject: InternalProject;
+  let oneDidItAllProject: InternalProject;
 
   const o = PeerReviewScore.EPSILON;
   const l = 1 - 3 * PeerReviewScore.EPSILON;

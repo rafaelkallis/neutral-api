@@ -2,7 +2,7 @@ import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntit
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
@@ -11,6 +11,7 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 @Injectable()
+@ObjectMap.register(PeerReview, PeerReviewTypeOrmEntity)
 export class PeerReviewTypeOrmEntityMap extends ObjectMap<
   PeerReview,
   PeerReviewTypeOrmEntity
@@ -30,17 +31,10 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
       peerReviewModel.score.value,
     );
   }
-
-  public getSourceType(): Type<PeerReview> {
-    return PeerReview;
-  }
-
-  public getTargetType(): Type<PeerReviewTypeOrmEntity> {
-    return PeerReviewTypeOrmEntity;
-  }
 }
 
 @Injectable()
+@ObjectMap.register(PeerReviewTypeOrmEntity, PeerReview)
 export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
   PeerReviewTypeOrmEntity,
   PeerReview
@@ -55,13 +49,5 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
       ReviewTopicId.from(peerReviewEntity.reviewTopicId),
       PeerReviewScore.from(peerReviewEntity.score),
     );
-  }
-
-  public getSourceType(): Type<PeerReviewTypeOrmEntity> {
-    return PeerReviewTypeOrmEntity;
-  }
-
-  public getTargetType(): Type<PeerReview> {
-    return PeerReview;
   }
 }

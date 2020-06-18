@@ -1,9 +1,10 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ObjectMap } from 'shared/object-mapper/ObjectMap';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ContributionDto } from 'project/application/dto/ContributionDto';
 
 @Injectable()
+@ObjectMap.register(Contribution, ContributionDto)
 export class ContributionDtoMap extends ObjectMap<
   Contribution,
   ContributionDto
@@ -17,13 +18,5 @@ export class ContributionDtoMap extends ObjectMap<
       contribution.reviewTopicId.value,
       contribution.amount.value,
     );
-  }
-
-  public getSourceType(): Type<Contribution> {
-    return Contribution;
-  }
-
-  public getTargetType(): Type<ContributionDto> {
-    return ContributionDto;
   }
 }

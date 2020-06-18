@@ -1,6 +1,6 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
@@ -30,7 +30,7 @@ describe(PeerReviewProjectState.name, () => {
 
   let state: ProjectState;
   let creator: User;
-  let project: Project;
+  let project: InternalProject;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
