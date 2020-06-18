@@ -7,7 +7,6 @@ import { User } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { AssociatedRequest } from 'shared/mediator/RequestHandler';
 import { Injectable } from '@nestjs/common';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Email } from 'user/domain/value-objects/Email';
@@ -17,6 +16,7 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { UserFactory } from 'user/application/UserFactory';
 import { UserNotFoundException } from 'user/application/exceptions/UserNotFoundException';
+import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class AssignRoleCommand extends ProjectCommand {
   public readonly projectId: ProjectId;
@@ -37,7 +37,7 @@ export class AssignRoleCommand extends ProjectCommand {
 }
 
 @Injectable()
-@AssociatedRequest.d(AssignRoleCommand)
+@CommandHandler.register(AssignRoleCommand)
 export class AssignRoleCommandHandler extends ProjectCommandHandler<
   AssignRoleCommand
 > {

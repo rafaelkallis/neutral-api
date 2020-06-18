@@ -1,7 +1,7 @@
 import td from 'testdouble';
 import { Project } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
-import { User } from 'user/domain/User';
+import { InternalUser } from 'user/domain/User';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
@@ -34,7 +34,7 @@ describe(ProjectDomainEventHandlers.name, () => {
   });
 
   describe('on user assigned send assignment email', () => {
-    let assignee: User;
+    let assignee: InternalUser;
     let role: Role;
     let tokenManager: TokenManager;
     let loginToken: string;

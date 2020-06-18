@@ -52,7 +52,7 @@ describe(AssignRoleCommand.name, () => {
     projectDto = td.object();
     td.when(
       objectMapper.map(project, ProjectDto, td.matchers.anything()),
-    ).thenReturn(projectDto);
+    ).thenResolve(projectDto);
   });
 
   test('assign with id of active user', async () => {
