@@ -148,14 +148,14 @@ export class RoleController {
     @AuthUser() authUser: User,
     @Param('project_id') projectId: string,
     @Param('role_id') roleId: string,
-    @Body(ValidationPipe) dto: AssignmentDto,
+    @Body(ValidationPipe) assignmentDto: AssignmentDto,
   ): Promise<ProjectDto> {
     return this.mediator.send(
       new AssignRoleCommand(
         authUser,
         ProjectId.from(projectId),
         RoleId.from(roleId),
-        dto.asEither(),
+        assignmentDto.asEither(),
       ),
     );
   }
