@@ -17,6 +17,7 @@ describe(AssignRoleCommand.name, () => {
   let assignRoleCommandHandler: AssignRoleCommandHandler;
   let assignRoleCommand: AssignRoleCommand;
   let projectRepository: ProjectRepository;
+  let userRepository: UserRepository;
   let creator: User;
   let project: Project;
   let role: Role;
@@ -32,11 +33,14 @@ describe(AssignRoleCommand.name, () => {
       .build();
     assignRoleCommandHandler = scenario.subject;
     projectRepository = scenario.module.get(ProjectRepository);
+    userRepository = scenario.module.get(UserRepository);
     creator = scenario.modelFaker.user();
     project = scenario.modelFaker.project(creator.id);
     role = scenario.modelFaker.role();
     project.roles.add(role);
     assignee = scenario.modelFaker.user();
+    td.when(userRepository.findById(assignee.id)).thenResolve(assignee);
+    td.when(userRepository.findByEmail(assignee.email)).thenResolve(assignee);
     assignRoleCommand = new AssignRoleCommand(
       creator,
       project.id,
