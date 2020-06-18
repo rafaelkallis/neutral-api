@@ -25,56 +25,6 @@ describe('roles (e2e)', () => {
     await scenario.teardown();
   });
 
-  describe('/projects/:project_id/roles (POST)', () => {
-    let title: string;
-    let description: string;
-
-    beforeEach(() => {
-      title = scenario.primitiveFaker.words();
-      description = scenario.primitiveFaker.paragraph();
-    });
-
-    test('happy path', async () => {
-      const response = await scenario.session
-        .post(`/projects/${project.id.value}/roles`)
-        .send({
-          title,
-          description,
-        });
-      expect(response.status).toBe(HttpStatus.CREATED);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          id: project.id.value,
-          roles: expect.arrayContaining([
-            {
-              id: expect.any(String),
-              projectId: project.id.value,
-              assigneeId: null,
-              title,
-              description,
-              contribution: null,
-              createdAt: expect.any(Number),
-              updatedAt: expect.any(Number),
-            },
-          ]),
-        }),
-      );
-    });
-
-    // TODO: should not be part of e2e tests!
-    test('should fail when project is not in formation state', async () => {
-      project.state = PeerReviewProjectState.INSTANCE;
-      await scenario.projectRepository.persist(project);
-      const response = await scenario.session
-        .post(`/projects/${project.id.value}/roles`)
-        .send({
-          title,
-          description,
-        });
-      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    });
-  });
-
   describe('projects/:project_id/roles/:roleId (PATCH)', () => {
     let title: string;
 
