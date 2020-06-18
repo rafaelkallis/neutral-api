@@ -55,8 +55,8 @@ class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
   }
 
   public input(): ReviewTopicInput {
-    const min = this.primitiveFaker.number() * 100;
-    const max = min + this.primitiveFaker.number() * 100;
+    const min = this.primitiveFaker.integer();
+    const max = min + 1 + this.primitiveFaker.integer();
     return ContinuousReviewTopicInput.of(min, max);
   }
 }
