@@ -1,8 +1,6 @@
-export const TELEMETRY_ACTION_METADATA = Symbol('TELEMETRY_ACTION_METADATA');
+import { Class } from 'shared/domain/Class';
+import { DefaultMap } from 'shared/domain/DefaultMap';
 
-/**
- * Telemetry Action Metadata
- */
 export class TelemetryActionMetadataItem {
   public readonly actionName: string;
   public readonly propertyKey: string | symbol;
@@ -13,40 +11,23 @@ export class TelemetryActionMetadataItem {
   }
 }
 
-/**
- *
- */
-export function getTelemetryActionMetadataItems(
-  target: object,
-): ReadonlyArray<TelemetryActionMetadataItem> {
-  let metadataItems:
-    | TelemetryActionMetadataItem[]
-    | undefined = Reflect.getMetadata(
-    TELEMETRY_ACTION_METADATA,
-    target.constructor,
-  );
-  if (!metadataItems?.length) {
-    metadataItems = [];
-  }
-  return metadataItems;
-}
+const telemetryActionRegistry: DefaultMap<
+  Class<object>,
+  TelemetryActionMetadataItem[]
+> = DefaultMap.empty(() => []);
 
-/**
- *
- */
-export function TelemetryAction(actionName?: string): PropertyDecorator {
-  return (target: object, propertyKey: string | symbol): void => {
-    actionName =
-      actionName || `${target.constructor.name}.${propertyKey.toString()}()`;
-    const existingMetadataItems = getTelemetryActionMetadataItems(target);
-    const newMetadataItem = new TelemetryActionMetadataItem(
-      actionName,
-      propertyKey,
-    );
-    Reflect.defineMetadata(
-      TELEMETRY_ACTION_METADATA,
-      [...existingMetadataItems, newMetadataItem],
-      target.constructor,
-    );
-  };
+export class TelemetryAction {
+  public static registry = telemetryActionRegistry.asReadonly();
+
+  public static register(actionName?: string): PropertyDecorator {
+    return (target: object, propertyKey: string | symbol): void => {
+      const targetClass: Class<object> = target.constructor;
+      actionName =
+        actionName || `${targetClass.name}.${propertyKey.toString()}()`;
+      const metadataItems = telemetryActionRegistry.get(targetClass);
+      metadataItems.push(
+        new TelemetryActionMetadataItem(actionName, propertyKey),
+      );
+    };
+  }
 }
