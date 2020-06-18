@@ -75,6 +75,7 @@ export class RoleController {
         projectId,
         addRoleDto.title,
         addRoleDto.description,
+        addRoleDto.assigneeAsEither(),
       ),
     );
   }

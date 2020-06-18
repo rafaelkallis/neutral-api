@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
+import { Either } from 'shared/domain/Either';
+import { UserId } from 'user/domain/value-objects/UserId';
+import { Email } from 'user/domain/value-objects/Email';
+import { ValidationException } from 'shared/application/exceptions/ValidationException';
 
 /**
  * Add role DTO
@@ -13,6 +17,15 @@ export class AddRoleDto {
     example: null,
   })
   public assigneeId?: string | null;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    type: String,
+    description: 'The assignee email of the role',
+    required: false,
+  })
+  public assigneeEmail?: string | null;
 
   @IsString()
   @ApiProperty({
@@ -31,11 +44,28 @@ export class AddRoleDto {
 
   public constructor(
     assigneeId: string | undefined | null,
+    assigneeEmail: string | undefined | null,
     title: string,
     description: string,
   ) {
     this.assigneeId = assigneeId;
+    this.assigneeEmail = assigneeEmail;
     this.title = title;
     this.description = description;
+  }
+
+  public assigneeAsEither(): Either<UserId, Email> | undefined {
+    if (this.assigneeId && this.assigneeEmail) {
+      throw new ValidationException(
+        'Cannot have both "assigneeId" and "assigneeEmail".',
+      );
+    }
+    if (this.assigneeId) {
+      return Either.left(UserId.from(this.assigneeId));
+    }
+    if (this.assigneeEmail) {
+      return Either.right(Email.of(this.assigneeEmail));
+    }
+    return undefined;
   }
 }

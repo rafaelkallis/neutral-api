@@ -12,6 +12,8 @@ export interface ReadonlyModelCollection<
   toArray(): ReadonlyArray<TModel>;
   first(): TModel;
   firstOrNull(): TModel | null;
+  last(): TModel;
+  lastOrNull(): TModel | null;
   isEmpty(): boolean;
 }
 
@@ -47,6 +49,19 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
       throw new Error('collection is empty');
     }
     return first;
+  }
+
+  public lastOrNull(): TModel | null {
+    const arr = this.toArray();
+    return arr[arr.length] || null;
+  }
+
+  public last(): TModel {
+    const last = this.lastOrNull();
+    if (last === null) {
+      throw new Error('collection is empty');
+    }
+    return last;
   }
 
   public add(modelToAdd: TModel): void {
