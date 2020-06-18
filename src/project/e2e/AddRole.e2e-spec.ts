@@ -73,7 +73,7 @@ describe('/projects/:project_id/roles (POST)', () => {
     );
     const receivedEmailsOfAssignee = await scenario.getReceivedEmails(assignee);
     expect(receivedEmailsOfAssignee).toHaveLength(1);
-    expect(receivedEmailsOfAssignee[0]).toBe('[Covee] new assignment');
+    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
   });
 
   test('when "assigneeEmail" is present, should assign user', async () => {
@@ -100,6 +100,30 @@ describe('/projects/:project_id/roles (POST)', () => {
     );
     const receivedEmailsOfAssignee = await scenario.getReceivedEmails(assignee);
     expect(receivedEmailsOfAssignee).toHaveLength(1);
-    expect(receivedEmailsOfAssignee[0]).toBe('[Covee] new assignment');
+    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
+  });
+
+  test('when "assigneeEmail" is present and email is not register should invite user', async () => {
+    const email = scenario.valueObjectFaker.user.email();
+    const response = await scenario.session
+      .post(`/projects/${project.id.value}/roles`)
+      .send({ title, description, assigneeEmail: email.value });
+    expect(response.status).toBe(HttpStatus.CREATED);
+    const createdUser = await scenario.userRepository.findByEmail(email);
+    if (!createdUser) {
+      throw new Error('no user created');
+    }
+    if (
+      !response.body.roles.some(
+        (role: any) => role.assigneeId === createdUser.id.value,
+      )
+    ) {
+      throw new Error('no role created or user was not assigned');
+    }
+    const receivedEmailsOfAssignee = await scenario.getReceivedEmails(
+      createdUser,
+    );
+    expect(receivedEmailsOfAssignee).toHaveLength(1);
+    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
   });
 });
