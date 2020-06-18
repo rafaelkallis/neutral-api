@@ -61,6 +61,7 @@ export class ReviewTopicController {
         projectId,
         addReviewTopicDto.title,
         addReviewTopicDto.description,
+        addReviewTopicDto.input.asReviewTopicInput(),
       ),
     );
   }

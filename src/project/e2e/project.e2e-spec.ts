@@ -162,7 +162,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toEqual(expect.objectContaining({ title }));
       const updatedProject = await scenario.projectRepository.findById(
         project.id,
@@ -180,7 +180,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(HttpStatus.FORBIDDEN);
     });
 
     test('should fail if not in formation state', async () => {
@@ -189,7 +189,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
         .send({ title });
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
@@ -227,7 +227,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeDefined();
       const updatedProject = await scenario.projectRepository.findById(
         project.id,
@@ -251,25 +251,25 @@ describe('project (e2e)', () => {
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
       );
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(HttpStatus.FORBIDDEN);
     });
 
     test('should fail if project is not in formation state', async () => {
       project.state = PeerReviewProjectState.INSTANCE;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
-        `/projects/${project.id}/finish-formation`,
+        `/projects/${project.id.value}/finish-formation`,
       );
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
 
     test('should fail if a role has no user assigned', async () => {
       roles[1].assigneeId = null;
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
-        `/projects/${project.id}/finish-formation`,
+        `/projects/${project.id.value}/finish-formation`,
       );
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
@@ -286,7 +286,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session.post(
         `/projects/${project.id.value}/archive`,
       );
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toEqual(
         expect.objectContaining({
           id: project.id.value,

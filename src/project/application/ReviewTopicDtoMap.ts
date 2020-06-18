@@ -4,6 +4,16 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicDto } from 'project/application/dto/ReviewTopicDto';
 import { User } from 'user/domain/User';
 import { Project } from 'project/domain/project/Project';
+import {
+  ReviewTopicInput,
+  ContinuousReviewTopicInput,
+  DiscreteReviewTopicInput,
+} from 'project/domain/review-topic/ReviewTopicInput';
+import {
+  ReviewTopicInputDto,
+  ContinuousReviewTopicInputDto,
+  DiscreteReviewTopicInputDto,
+} from './dto/ReviewTopicInputDto';
 
 @Injectable()
 @ObjectMap.register(ReviewTopic, ReviewTopicDto)
@@ -18,6 +28,7 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
       reviewTopic.updatedAt.value,
       reviewTopic.title.value,
       reviewTopic.description.value,
+      this.mapInput(reviewTopic.input),
       this.mapConsensuality(reviewTopic, context),
     );
   }
@@ -35,5 +46,24 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
       return null;
     }
     return reviewTopic.consensuality.value;
+  }
+
+  private mapInput(input: ReviewTopicInput): ReviewTopicInputDto {
+    return input.fold({
+      continuous(
+        continuousInput: ContinuousReviewTopicInput,
+      ): ReviewTopicInputDto {
+        return new ContinuousReviewTopicInputDto(
+          continuousInput.min,
+          continuousInput.max,
+        );
+      },
+      discrete(discreteInput: DiscreteReviewTopicInput): ReviewTopicInputDto {
+        return new DiscreteReviewTopicInputDto(
+          discreteInput.labels,
+          discreteInput.values,
+        );
+      },
+    });
   }
 }

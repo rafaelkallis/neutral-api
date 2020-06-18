@@ -9,6 +9,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
+import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 @Injectable()
 @ObjectMap.register(ReviewTopic, ReviewTopicTypeOrmEntity)
@@ -47,6 +48,7 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       UpdatedAt.from(reviewTopicEntity.updatedAt),
       ReviewTopicTitle.from(reviewTopicEntity.title),
       ReviewTopicDescription.from(reviewTopicEntity.description),
+      ContinuousReviewTopicInput.of(0, 1),
       reviewTopicEntity.consensuality
         ? Consensuality.from(reviewTopicEntity.consensuality)
         : null,
