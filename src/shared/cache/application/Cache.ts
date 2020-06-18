@@ -1,6 +1,5 @@
 import { Class } from 'shared/domain/Class';
-
-export const CACHE_METADATA = Symbol('CACHE_METADATA');
+import { DefaultMap } from 'shared/domain/DefaultMap';
 
 export interface CacheContext {
   getKeyArgs<TArgs extends any[]>(...args: TArgs): string[];
@@ -30,45 +29,25 @@ export class CacheMetadataItem implements CacheContext {
   }
 }
 
+const cacheRegistry: DefaultMap<
+  Class<object>,
+  CacheMetadataItem[]
+> = DefaultMap.empty(() => []);
+
 /**
  *
  */
-export function getCacheMetadataItems(
-  target: object,
-): ReadonlyArray<CacheMetadataItem> {
-  let metadataItems: CacheMetadataItem[] | undefined = Reflect.getMetadata(
-    CACHE_METADATA,
-    target.constructor,
-  );
-  if (!metadataItems?.length) {
-    metadataItems = [];
+export class Cache {
+  public static registry = cacheRegistry.asReadonly();
+  public static register(context: CacheContext): PropertyDecorator {
+    return (target: object, propertyKey: string | symbol): void => {
+      const cacheMetadataItem = new CacheMetadataItem(
+        propertyKey,
+        context.getKeyArgs,
+        context.bucket,
+        context.ttl,
+      );
+      cacheRegistry.get(target.constructor).push(cacheMetadataItem);
+    };
   }
-  return metadataItems;
-}
-
-const cacheRegistry: Set<Class<object>> = new Set();
-
-export function getCacheClasses(): Class<object>[] {
-  return Array.from(cacheRegistry.keys());
-}
-
-/**
- *
- */
-export function Cache(context: CacheContext): PropertyDecorator {
-  return (target: object, propertyKey: string | symbol): void => {
-    const existingMetadataItems = getCacheMetadataItems(target);
-    const newMetadataItem = new CacheMetadataItem(
-      propertyKey,
-      context.getKeyArgs,
-      context.bucket,
-      context.ttl,
-    );
-    Reflect.defineMetadata(
-      CACHE_METADATA,
-      [...existingMetadataItems, newMetadataItem],
-      target.constructor,
-    );
-    cacheRegistry.add(target.constructor);
-  };
 }

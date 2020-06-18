@@ -1,19 +1,17 @@
 import {
-  OnModuleInit,
   Injectable,
   InternalServerErrorException,
+  OnModuleDestroy,
 } from '@nestjs/common';
 import { CacheStore } from 'shared/cache/application/CacheStore';
-import {
-  CachePolicy,
-  CacheItemExpiredHandler,
-} from 'shared/cache/application/CachePolicy';
+import { CachePolicy } from 'shared/cache/application/CachePolicy';
 import {
   InvocationProxy,
   Method,
   InvocationHandler,
 } from 'shared/utility/application/InvocationProxy';
 import { CacheKeyComputer } from 'shared/cache/application/CacheKeyComputer';
+import { Unsubscribable } from 'rxjs';
 
 export interface CacheMethodContext {
   target: any;
@@ -27,11 +25,12 @@ export interface CacheMethodContext {
  * Cache Client, a cache facade.
  */
 @Injectable()
-export class CacheClient implements OnModuleInit, CacheItemExpiredHandler {
+export class CacheClient implements OnModuleDestroy {
   private readonly invocationProxy: InvocationProxy;
   private readonly cachePolicy: CachePolicy;
   private readonly cacheStore: CacheStore;
   private readonly cacheKeyComputer: CacheKeyComputer;
+  private readonly cacheItemExpiredSubscription: Unsubscribable;
 
   public constructor(
     invocationProxy: InvocationProxy,
@@ -43,10 +42,13 @@ export class CacheClient implements OnModuleInit, CacheItemExpiredHandler {
     this.cachePolicy = cachePolicy;
     this.cacheStore = cacheStore;
     this.cacheKeyComputer = cacheKeyComputer;
+    this.cacheItemExpiredSubscription = this.cachePolicy.cacheItemExpired$.subscribe(
+      (key) => this.handleCacheItemExpired(key),
+    );
   }
 
-  public onModuleInit(): void {
-    this.cachePolicy.registerCacheItemExpiredHandler(this);
+  public onModuleDestroy(): void {
+    this.cacheItemExpiredSubscription.unsubscribe();
   }
 
   public cacheMethod(context: CacheMethodContext): void {
