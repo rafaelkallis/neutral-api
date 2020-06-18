@@ -6,9 +6,9 @@ import { TelemetryClient } from 'shared/telemetry/application/TelemetryClient';
 import { AzureMonitorTelemetryClient } from 'shared/telemetry/infrastructure/AzureMonitorTelemetryClient';
 import { Config } from 'shared/config/application/Config';
 import { LoggingTelemetryClient } from 'shared/telemetry/infrastructure/LoggingTelemetryClient';
-import { TelemetryActionManager } from 'shared/telemetry/application/TelemetryActionManager';
+import { TelemetryActionConnector } from 'shared/telemetry/application/TelemetryActionConnector';
 import { UtilityModule } from 'shared/utility/UtilityModule';
-import { PerformanceMeasurer } from './application/PerformanceMeasurer';
+import { PerformanceMeasurer } from 'shared/telemetry/application/PerformanceMeasurer';
 import { Environment } from 'shared/utility/application/Environment';
 
 /**
@@ -33,7 +33,7 @@ import { Environment } from 'shared/utility/application/Environment';
       inject: [Environment, Config, PerformanceMeasurer],
     },
     { provide: APP_INTERCEPTOR, useClass: TelemetryInterceptor },
-    TelemetryActionManager,
+    TelemetryActionConnector,
     PerformanceMeasurer,
   ],
   exports: [TelemetryClient],

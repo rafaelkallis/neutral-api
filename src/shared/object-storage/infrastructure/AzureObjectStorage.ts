@@ -28,7 +28,7 @@ export class AzureObjectStorage extends ObjectStorage {
     this.tempFileFactory = tempFileFactory;
   }
 
-  @TelemetryAction()
+  @TelemetryAction.register()
   public async put({
     containerName,
     file,
@@ -43,7 +43,7 @@ export class AzureObjectStorage extends ObjectStorage {
     return { key };
   }
 
-  @TelemetryAction()
+  @TelemetryAction.register()
   public async get({ containerName, key }: GetContext): Promise<GetReturn> {
     const blob = await this.getBlob(containerName, key);
     const file = this.tempFileFactory.createTempFile();

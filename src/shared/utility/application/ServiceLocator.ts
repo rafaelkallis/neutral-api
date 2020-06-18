@@ -14,6 +14,14 @@ export class ServiceLocator {
     return await this.moduleRef.get(clazz as any, { strict: false });
   }
 
+  public async getServiceOrNull<T>(clazz: Class<T>): Promise<T | null> {
+    try {
+      return await this.moduleRef.get(clazz as any, { strict: false });
+    } catch (e) {
+      return null;
+    }
+  }
+
   public async getServices<T>(classes: Iterable<Class<T>>): Promise<T[]> {
     const resolvedServices: T[] = [];
     for (const clazz of classes) {
