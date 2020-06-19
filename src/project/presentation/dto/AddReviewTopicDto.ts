@@ -39,7 +39,8 @@ export class AddReviewTopicDto {
   public constructor(
     title: string,
     description: string,
-    input: ReviewTopicInputDto,
+    // TODO remove default value once frontend catches up
+    input: ReviewTopicInputDto = new ContinuousReviewTopicInputDto(0, 100),
   ) {
     this.title = title;
     this.description = description;

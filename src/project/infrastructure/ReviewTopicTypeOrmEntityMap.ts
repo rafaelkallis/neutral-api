@@ -94,6 +94,7 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
   }
 
   private mapInput(input: ReviewTopicInputTypeOrmEntity): ReviewTopicInput {
+    // TODO more descriptive errors
     switch (input.type) {
       case ReviewTopicInputType.CONTINUOUS: {
         if (input.continuousMin === null) {
