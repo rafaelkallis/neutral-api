@@ -28,10 +28,13 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   ): Consensuality {
     const n = peerReviews.getNumberOfPeers();
     const maxDissent = this.computeDissent(this.createCyclicPeerReviews(n));
+    const absoluteDissent = this.computeDissent(peerReviews);
     if (maxDissent === 0) {
+      if (absoluteDissent !== 0) {
+        throw new Error('invariant violation');
+      }
       return Consensuality.from(1);
     }
-    const absoluteDissent = this.computeDissent(peerReviews);
     const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
     return Consensuality.from(consensuality);
