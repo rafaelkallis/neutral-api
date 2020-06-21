@@ -24,6 +24,7 @@ describe(ConsensualityComputer.name, () => {
   let cycleProject: InternalProject;
   let clusterProject: InternalProject;
   let oneDidItAllProject: InternalProject;
+  let coveeWhitepaper4PersonProject: InternalProject;
 
   const o = PeerReviewScore.EPSILON;
   const l = 1 - 3 * PeerReviewScore.EPSILON;
@@ -128,6 +129,35 @@ describe(ConsensualityComputer.name, () => {
       },
       reviewTopic.id,
     );
+
+    coveeWhitepaper4PersonProject = modelFaker.project(UserId.create());
+    coveeWhitepaper4PersonProject.roles.addAll([roleA, roleB, roleC, roleD]);
+    coveeWhitepaper4PersonProject.reviewTopics.add(reviewTopic);
+    coveeWhitepaper4PersonProject.peerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: 20 / 90,
+          [c]: 30 / 90,
+          [d]: 40 / 90,
+        },
+        [b]: {
+          [a]: 10 / 80,
+          [c]: 30 / 80,
+          [d]: 40 / 80,
+        },
+        [c]: {
+          [a]: 10 / 70,
+          [b]: 20 / 70,
+          [d]: 40 / 70,
+        },
+        [d]: {
+          [a]: 10 / 60,
+          [b]: 20 / 60,
+          [c]: 30 / 60,
+        },
+      },
+      reviewTopic.id,
+    );
   });
 
   describe(MeanDeviationConsensualityComputerService.name, () => {
@@ -148,6 +178,13 @@ describe(ConsensualityComputer.name, () => {
     test('one did everything', () => {
       const result = consensualityComputer.compute(oneDidItAllProject);
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(3 / 4);
+    });
+
+    test('covee whitepaper 4 person', () => {
+      const result = consensualityComputer.compute(
+        coveeWhitepaper4PersonProject,
+      );
+      expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.908);
     });
   });
 
@@ -170,6 +207,13 @@ describe(ConsensualityComputer.name, () => {
       const result = consensualityComputer.compute(oneDidItAllProject);
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.91666);
     });
+
+    test('covee whitepaper 4 person', () => {
+      const result = consensualityComputer.compute(
+        coveeWhitepaper4PersonProject,
+      );
+      expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.988);
+    });
   });
 
   describe(PairwiseRelativeJudgementsConsensualityComputer, () => {
@@ -189,6 +233,13 @@ describe(ConsensualityComputer.name, () => {
 
     test('one did everything', () => {
       const result = consensualityComputer.compute(oneDidItAllProject);
+      expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
+    });
+
+    test('covee whitepaper 4 person', () => {
+      const result = consensualityComputer.compute(
+        coveeWhitepaper4PersonProject,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
     });
   });
