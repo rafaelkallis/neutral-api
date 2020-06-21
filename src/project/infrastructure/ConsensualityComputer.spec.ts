@@ -25,6 +25,7 @@ describe(ConsensualityComputer.name, () => {
   let clusterProject: InternalProject;
   let oneDidItAllProject: InternalProject;
   let coveeWhitepaper4PersonProject: InternalProject;
+  let some3PersonProject: InternalProject;
 
   const o = PeerReviewScore.EPSILON;
   const l = 1 - 3 * PeerReviewScore.EPSILON;
@@ -158,6 +159,27 @@ describe(ConsensualityComputer.name, () => {
       },
       reviewTopic.id,
     );
+
+    some3PersonProject = modelFaker.project(UserId.create());
+    some3PersonProject.roles.addAll([roleA, roleB, roleC]);
+    some3PersonProject.reviewTopics.add(reviewTopic);
+    some3PersonProject.peerReviews = PeerReviewCollection.fromMap(
+      {
+        [a]: {
+          [b]: 20 / 90,
+          [c]: 70 / 90,
+        },
+        [b]: {
+          [a]: 10 / 80,
+          [c]: 70 / 80,
+        },
+        [c]: {
+          [a]: 10 / 70,
+          [b]: 60 / 70,
+        },
+      },
+      reviewTopic.id,
+    );
   });
 
   describe(MeanDeviationConsensualityComputerService.name, () => {
@@ -240,6 +262,11 @@ describe(ConsensualityComputer.name, () => {
       const result = consensualityComputer.compute(
         coveeWhitepaper4PersonProject,
       );
+      expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
+    });
+
+    test('some 3 person', () => {
+      const result = consensualityComputer.compute(some3PersonProject);
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
     });
   });
