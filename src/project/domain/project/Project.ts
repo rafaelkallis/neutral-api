@@ -42,6 +42,7 @@ import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { Class } from 'shared/domain/Class';
+import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -72,6 +73,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   addReviewTopic(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReadonlyReviewTopic;
   updateReviewTopic(
     reviewTopicId: ReviewTopicId,
@@ -194,6 +196,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
   public abstract addReviewTopic(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReadonlyReviewTopic;
 
   public abstract updateReviewTopic(
@@ -340,8 +343,9 @@ export class InternalProject extends Project {
   public addReviewTopic(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReadonlyReviewTopic {
-    return this.state.addReviewTopic(this, title, description);
+    return this.state.addReviewTopic(this, title, description, input);
   }
 
   public updateReviewTopic(

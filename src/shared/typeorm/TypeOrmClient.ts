@@ -48,6 +48,8 @@ import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/mig
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
 import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/158982727800MoveConsensualityFromProjectToReviewTopics';
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
+import { AddReviewTopicInputMigration1592508374000 } from 'shared/typeorm/migration/1592508374000AddReviewTopicInputMigration';
+import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -69,6 +71,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RoleTypeOrmEntity,
         PeerReviewTypeOrmEntity,
         ReviewTopicTypeOrmEntity,
+        ReviewTopicInputTypeOrmEntity,
         ContributionTypeOrmEntity,
         NotificationTypeOrmEntity,
       ],
@@ -104,6 +107,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RemoveHasSubmittedPeerReviewsMigration1589309292000,
         MoveConsensualityFromProjectToReviewTopicsMigration1589827278000,
         RenameInitialAndInvitedUserStateToPendingMigration1590750557000,
+        AddReviewTopicInputMigration1592508374000,
       ],
     });
     this.connection = connection;

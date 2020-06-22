@@ -11,6 +11,7 @@ import {
 } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 describe(AddReviewTopicCommand.name, () => {
   let scenario: UnitTestScenario<AddReviewTopicCommandHandler>;
@@ -20,6 +21,7 @@ describe(AddReviewTopicCommand.name, () => {
   let project: Project;
   let title: string;
   let description: string;
+  let input: ReviewTopicInput;
   let command: AddReviewTopicCommand;
   let projectDto: ProjectDto;
 
@@ -34,11 +36,13 @@ describe(AddReviewTopicCommand.name, () => {
     project = scenario.modelFaker.project(authUser.id);
     title = scenario.primitiveFaker.word();
     description = scenario.primitiveFaker.paragraph();
+    input = scenario.valueObjectFaker.reviewTopic.input();
     command = new AddReviewTopicCommand(
       authUser,
       project.id.value,
       title,
       description,
+      input,
     );
 
     td.when(projectRepository.findById(project.id)).thenResolve(project);
@@ -62,6 +66,7 @@ describe(AddReviewTopicCommand.name, () => {
     expect(project.addReviewTopic).toHaveBeenCalledWith(
       ReviewTopicTitle.from(title),
       ReviewTopicDescription.from(description),
+      input,
     );
   });
 });
