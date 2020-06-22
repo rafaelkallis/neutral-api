@@ -71,4 +71,11 @@ export class PrimitiveFaker {
   public number(): number {
     return Math.random();
   }
+
+  /**
+   * Creates a number [0, 100]
+   */
+  public integer(): number {
+    return Math.floor(this.number() * 100);
+  }
 }

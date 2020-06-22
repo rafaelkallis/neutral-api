@@ -23,6 +23,10 @@ import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdate
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { UserCollection } from 'user/domain/UserCollection';
+import {
+  ReviewTopicInput,
+  ContinuousReviewTopicInput,
+} from 'project/domain/review-topic/ReviewTopicInput';
 
 describe(FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -181,10 +185,12 @@ describe(FormationProjectState.name, () => {
   describe('add review topic', () => {
     let title: ReviewTopicTitle;
     let description: ReviewTopicDescription;
+    let input: ReviewTopicInput;
 
     beforeEach(() => {
       title = ReviewTopicTitle.from(primitiveFaker.words());
       description = ReviewTopicDescription.from(primitiveFaker.paragraph());
+      input = ContinuousReviewTopicInput.of(0, 1);
     });
 
     test('happy path', () => {
@@ -192,6 +198,7 @@ describe(FormationProjectState.name, () => {
         project,
         title,
         description,
+        input,
       );
       expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(

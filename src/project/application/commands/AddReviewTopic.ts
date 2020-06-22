@@ -10,22 +10,26 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
+import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export class AddReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
   public readonly title: string;
   public readonly description: string;
+  public readonly input: ReviewTopicInput;
 
   public constructor(
     authUser: User,
     projectId: string,
     title: string,
     description: string,
+    input: ReviewTopicInput,
   ) {
     super(authUser);
     this.projectId = projectId;
     this.title = title;
     this.description = description;
+    this.input = input;
   }
 }
 
@@ -45,7 +49,7 @@ export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
     project.assertCreator(command.authUser);
     const title = ReviewTopicTitle.from(command.title);
     const description = ReviewTopicDescription.from(command.description);
-    project.addReviewTopic(title, description);
+    project.addReviewTopic(title, description, command.input);
     return project;
   }
 }

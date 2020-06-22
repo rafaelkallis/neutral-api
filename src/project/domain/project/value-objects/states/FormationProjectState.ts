@@ -32,6 +32,7 @@ import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdate
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export class FormationProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -124,8 +125,9 @@ export class FormationProjectState extends DefaultProjectState {
     project: InternalProject,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReadonlyReviewTopic {
-    const reviewTopic = ReviewTopic.from(title, description);
+    const reviewTopic = ReviewTopic.of(title, description, input);
     project.reviewTopics.add(reviewTopic);
     project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
     return reviewTopic;

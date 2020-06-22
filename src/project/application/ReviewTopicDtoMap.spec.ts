@@ -4,6 +4,7 @@ import { Consensuality } from 'project/domain/project/value-objects/Consensualit
 import { ReviewTopicDtoMap } from './ReviewTopicDtoMap';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 describe(ReviewTopicDtoMap.name, () => {
   let scenario: UnitTestScenario<ReviewTopicDtoMap>;
@@ -21,6 +22,7 @@ describe(ReviewTopicDtoMap.name, () => {
     authUser = creator;
     reviewTopic = scenario.modelFaker.reviewTopic();
     reviewTopic.consensuality = Consensuality.from(1);
+    reviewTopic.input = ContinuousReviewTopicInput.of(0, 1);
   });
 
   test('general', async () => {
@@ -32,6 +34,11 @@ describe(ReviewTopicDtoMap.name, () => {
       id: reviewTopic.id.value,
       title: reviewTopic.title.value,
       description: reviewTopic.description.value,
+      input: expect.objectContaining({
+        type: 'continuous',
+        min: 0,
+        max: 1,
+      }),
       consensuality: reviewTopic.consensuality?.value,
       createdAt: reviewTopic.createdAt.value,
       updatedAt: reviewTopic.updatedAt.value,

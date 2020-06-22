@@ -15,6 +15,7 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -63,8 +64,9 @@ export abstract class ProjectStateDecorator extends ProjectState {
     project: InternalProject,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReadonlyReviewTopic {
-    return this.base.addReviewTopic(project, title, description);
+    return this.base.addReviewTopic(project, title, description, input);
   }
   public updateReviewTopic(
     project: InternalProject,
