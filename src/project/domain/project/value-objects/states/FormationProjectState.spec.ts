@@ -209,16 +209,25 @@ describe(FormationProjectState.name, () => {
 
   describe('update review topic', () => {
     let title: ReviewTopicTitle;
+    let input: ReviewTopicInput;
     let reviewTopicToUpdate: ReviewTopic;
 
     beforeEach(() => {
       title = ReviewTopicTitle.from(primitiveFaker.words());
+      input = ContinuousReviewTopicInput.of(0, 1);
       reviewTopicToUpdate = reviewTopics[0];
     });
 
     test('happy path', () => {
-      state.updateReviewTopic(project, reviewTopicToUpdate.id, title);
+      state.updateReviewTopic(
+        project,
+        reviewTopicToUpdate.id,
+        title,
+        undefined,
+        input,
+      );
       expect(reviewTopicToUpdate.title).toEqual(title);
+      expect(reviewTopicToUpdate.input.equals(input)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(
         expect.any(ReviewTopicUpdatedEvent),
       );
