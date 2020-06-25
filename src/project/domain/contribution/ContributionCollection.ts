@@ -14,6 +14,9 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 
 export interface ReadonlyContributionCollection
   extends ReadonlyModelCollection<ContributionId, ReadonlyContribution> {
+  where(
+    predicate: (contribution: ReadonlyContribution) => boolean,
+  ): ReadonlyContributionCollection;
   whereRole(roleOrId: ReadonlyRole | RoleId): ReadonlyContributionCollection;
   whereReviewTopic(
     reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
@@ -23,25 +26,24 @@ export interface ReadonlyContributionCollection
 export class ContributionCollection
   extends ModelCollection<ContributionId, Contribution>
   implements ReadonlyContributionCollection {
+  public where(
+    predicate: (contribution: ReadonlyContribution) => boolean,
+  ): ReadonlyContributionCollection {
+    return new ContributionCollection(this.toArray().filter(predicate));
+  }
   public whereRole(
     roleOrId: ReadonlyRole | RoleId,
   ): ReadonlyContributionCollection {
     const roleId = this.getId(roleOrId);
-    return this.filter((contribution) => contribution.roleId.equals(roleId));
+    return this.where((contribution) => contribution.roleId.equals(roleId));
   }
 
   public whereReviewTopic(
     reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
   ): ReadonlyContributionCollection {
     const reviewTopicId = this.getId(reviewTopicOrId);
-    return this.filter((contribution) =>
+    return this.where((contribution) =>
       contribution.reviewTopicId.equals(reviewTopicId),
     );
-  }
-
-  private filter(
-    predicate: (contribution: Contribution) => boolean,
-  ): ReadonlyContributionCollection {
-    return new ContributionCollection(this.toArray().filter(predicate));
   }
 }

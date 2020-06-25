@@ -34,13 +34,8 @@ export class ProjectDto extends ModelDto {
   })
   public state: ProjectStateValue;
 
-  @ApiProperty({
-    type: Number,
-    required: false,
-    example: 0.5,
-    deprecated: true,
-  })
-  public consensuality: number | null;
+  // TODO remove once frontend does not depend on this anymore
+  public consensuality: null;
 
   @ApiProperty({
     enum: ContributionVisibilityValue,
@@ -74,7 +69,7 @@ export class ProjectDto extends ModelDto {
     description: string,
     creatorId: string,
     state: ProjectStateValue,
-    consensuality: number | null,
+    consensuality: null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[],

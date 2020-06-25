@@ -1,6 +1,6 @@
 import td from 'testdouble';
 import { User } from 'user/domain/User';
-import { Project } from 'project/domain/project/Project';
+import { InternalProject } from 'project/domain/project/Project';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectDtoMap } from 'project/application/ProjectDtoMap';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
@@ -9,14 +9,25 @@ import { PeerReviewDto } from './dto/PeerReviewDto';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
+import {
+  ProjectContributionVisiblity,
+  PublicContributionVisiblity,
+  SelfContributionVisiblity,
+  NoneContributionVisiblity,
+  ContributionVisibility,
+} from 'project/domain/project/value-objects/ContributionVisibility';
+import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
+import { Contribution } from 'project/domain/contribution/Contribution';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 
-describe('project dto map', () => {
+describe(ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
-  let owner: User;
+  let creator: User;
   let authUser: User;
-  let project: Project;
+  let project: InternalProject;
 
   let roleDtos: RoleDto[];
   let peerReviewDtos: PeerReviewDto[];
@@ -27,9 +38,9 @@ describe('project dto map', () => {
     objectMapper = td.object();
     projectDtoMap = new ProjectDtoMap(objectMapper);
     modelFaker = new ModelFaker();
-    owner = modelFaker.user();
+    creator = modelFaker.user();
     authUser = modelFaker.user();
-    project = modelFaker.project(owner.id);
+    project = modelFaker.project(creator.id);
 
     roleDtos = [];
     td.when(
@@ -72,7 +83,7 @@ describe('project dto map', () => {
       creatorId: project.creatorId.value,
       state: getProjectStateValue(project.state),
       consensuality: null,
-      contributionVisibility: project.contributionVisibility.value,
+      contributionVisibility: project.contributionVisibility.asValue(),
       skipManagerReview: project.skipManagerReview.value,
       roles: roleDtos,
       peerReviews: peerReviewDtos,
@@ -81,5 +92,77 @@ describe('project dto map', () => {
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });
+  });
+
+  describe('contribution visibility', () => {
+    const PUBLIC = PublicContributionVisiblity.INSTANCE;
+    const PROJECT = ProjectContributionVisiblity.INSTANCE;
+    const SELF = SelfContributionVisiblity.INSTANCE;
+    const NONE = NoneContributionVisiblity.INSTANCE;
+    const contributionCases: [ContributionVisibility, string, boolean][] = [
+      [PUBLIC, 'creator', true],
+      [PUBLIC, 'assignee', true],
+      [PUBLIC, 'projectUser', true],
+      [PUBLIC, 'publicUser', true],
+      [PROJECT, 'creator', true],
+      [PROJECT, 'assignee', true],
+      [PROJECT, 'projectUser', true],
+      [PROJECT, 'publicUser', false],
+      [SELF, 'creator', true],
+      [SELF, 'assignee', true],
+      [SELF, 'projectUser', false],
+      [SELF, 'publicUser', false],
+      [NONE, 'creator', true],
+      [NONE, 'assignee', false],
+      [NONE, 'projectUser', false],
+      [NONE, 'publicUser', false],
+    ];
+
+    let contribution: Contribution;
+    let users: Record<string, User>;
+
+    beforeEach(() => {
+      users = {
+        creator,
+        assignee: modelFaker.user(),
+        projectUser: modelFaker.user(),
+        publicUser: modelFaker.user(),
+      };
+      project.state = FinishedProjectState.INSTANCE;
+      project.roles.addAll([
+        modelFaker.role(users.assignee.id),
+        modelFaker.role(users.projectUser.id),
+      ]);
+      const role = project.roles.whereAssignee(users.assignee);
+      const reviewTopic = modelFaker.reviewTopic();
+      project.reviewTopics.add(reviewTopic);
+      contribution = Contribution.from(
+        role.id,
+        reviewTopic.id,
+        ContributionAmount.from(1),
+      );
+      project.contributions = new ContributionCollection([contribution]);
+    });
+
+    test.each(contributionCases)(
+      'contributions',
+      async (contributionVisibility, authUserKey, isContributionVisible) => {
+        project.contributionVisibility = contributionVisibility;
+        await projectDtoMap.mapContributions(project, users[authUserKey]);
+        if (isContributionVisible) {
+          td.verify(
+            objectMapper.mapArray(
+              [contribution],
+              ContributionDto,
+              td.matchers.anything(),
+            ),
+          );
+        } else {
+          td.verify(
+            objectMapper.mapArray([], ContributionDto, td.matchers.anything()),
+          );
+        }
+      },
+    );
   });
 });
