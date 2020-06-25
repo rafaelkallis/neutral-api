@@ -110,7 +110,7 @@ export class CoveeContributionsComputer extends ContributionsComputer {
     const n = S.length;
     /* relative contribution ratio */
     function f(i: number, j: number, k: number): number {
-      return S[i][j] / S[i][k];
+      return S[i][j] / Math.max(S[i][k], 1e-16);
     }
     const S1 = this.createNaNCube(n);
     for (let i = 0; i < n; i++) {

@@ -3,7 +3,6 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { MeanDeviationConsensualityComputerService } from 'project/infrastructure/MeanDeviationConsensualityComputer';
 import { VarianceConsensualityComputerService } from 'project/infrastructure/VarianceConsensualityComputer';
 import { PairwiseRelativeJudgementsConsensualityComputer } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { InternalProject } from 'project/domain/project/Project';
 import { Role } from 'project/domain/role/Role';
 import { ModelFaker } from 'test/ModelFaker';
@@ -27,9 +26,6 @@ describe(ConsensualityComputer.name, () => {
   let coveeWhitepaper4PersonProject: InternalProject;
   let some3PersonProject: InternalProject;
 
-  const o = PeerReviewScore.EPSILON;
-  const l = 1 - 3 * PeerReviewScore.EPSILON;
-
   beforeEach(() => {
     modelFaker = new ModelFaker();
 
@@ -50,24 +46,24 @@ describe(ConsensualityComputer.name, () => {
     cycleProject.peerReviews = PeerReviewCollection.fromMap(
       {
         [a]: {
-          [b]: l,
-          [c]: o,
-          [d]: o,
+          [b]: 1,
+          [c]: 0,
+          [d]: 0,
         },
         [b]: {
-          [a]: o,
-          [c]: l,
-          [d]: o,
+          [a]: 0,
+          [c]: 1,
+          [d]: 0,
         },
         [c]: {
-          [a]: o,
-          [b]: o,
-          [d]: l,
+          [a]: 0,
+          [b]: 0,
+          [d]: 1,
         },
         [d]: {
-          [a]: l,
-          [b]: o,
-          [c]: o,
+          [a]: 1,
+          [b]: 0,
+          [c]: 0,
         },
       },
       reviewTopic.id,
@@ -79,24 +75,24 @@ describe(ConsensualityComputer.name, () => {
     clusterProject.peerReviews = PeerReviewCollection.fromMap(
       {
         [a]: {
-          [b]: l,
-          [c]: o,
-          [d]: o,
+          [b]: 1,
+          [c]: 0,
+          [d]: 0,
         },
         [b]: {
-          [a]: l,
-          [c]: o,
-          [d]: o,
+          [a]: 1,
+          [c]: 0,
+          [d]: 0,
         },
         [c]: {
-          [a]: o,
-          [b]: o,
-          [d]: l,
+          [a]: 0,
+          [b]: 0,
+          [d]: 1,
         },
         [d]: {
-          [a]: o,
-          [b]: o,
-          [c]: l,
+          [a]: 0,
+          [b]: 0,
+          [c]: 1,
         },
       },
       reviewTopic.id,
@@ -108,19 +104,19 @@ describe(ConsensualityComputer.name, () => {
     oneDidItAllProject.peerReviews = PeerReviewCollection.fromMap(
       {
         [a]: {
-          [b]: o,
-          [c]: o,
-          [d]: l,
+          [b]: 0,
+          [c]: 0,
+          [d]: 1,
         },
         [b]: {
-          [a]: o,
-          [c]: o,
-          [d]: l,
+          [a]: 0,
+          [c]: 0,
+          [d]: 1,
         },
         [c]: {
-          [a]: o,
-          [b]: o,
-          [d]: l,
+          [a]: 0,
+          [b]: 0,
+          [d]: 1,
         },
         [d]: {
           [a]: 1 / 3,
