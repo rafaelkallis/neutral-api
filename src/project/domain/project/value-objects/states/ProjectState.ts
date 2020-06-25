@@ -63,6 +63,7 @@ export abstract class ProjectState extends ValueObject {
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
+    input?: ReviewTopicInput,
   ): void;
 
   public abstract removeReviewTopic(
@@ -146,10 +147,11 @@ export abstract class DefaultProjectState extends ProjectState {
   }
 
   public updateReviewTopic(
-    project: InternalProject,
-    reviewTopicId: ReviewTopicId,
-    title?: ReviewTopicTitle,
-    description?: ReviewTopicDescription,
+    _project: InternalProject,
+    _reviewTopicId: ReviewTopicId,
+    _title?: ReviewTopicTitle,
+    _description?: ReviewTopicDescription,
+    _input?: ReviewTopicInput,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

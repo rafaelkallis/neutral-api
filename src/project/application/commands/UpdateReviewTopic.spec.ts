@@ -53,10 +53,6 @@ describe(UpdateReviewTopicCommand.name, () => {
     ).thenResolve(projectDto);
   });
 
-  test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
-  });
-
   test('happy path', async () => {
     const actualProjectDto = await commandHandler.handle(command);
     expect(actualProjectDto).toBe(projectDto);
@@ -64,6 +60,7 @@ describe(UpdateReviewTopicCommand.name, () => {
     expect(project.updateReviewTopic).toHaveBeenCalledWith(
       reviewTopic.id,
       ReviewTopicTitle.from(newTitle),
+      undefined,
       undefined,
     );
   });
