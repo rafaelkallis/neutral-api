@@ -6,10 +6,12 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { Class } from 'shared/domain/Class';
+import { ReviewTopicInput } from './ReviewTopicInput';
 
 export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   readonly title: ReviewTopicTitle;
   readonly description: ReviewTopicDescription;
+  readonly input: ReviewTopicInput;
   readonly consensuality: Consensuality | null;
 
   isConsensual(): boolean;
@@ -19,6 +21,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
   implements ReadonlyReviewTopic {
   public title: ReviewTopicTitle;
   public description: ReviewTopicDescription;
+  public input: ReviewTopicInput;
   public consensuality: Consensuality | null;
 
   public constructor(
@@ -27,20 +30,23 @@ export class ReviewTopic extends Model<ReviewTopicId>
     updatedAt: UpdatedAt,
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
     consensuality: Consensuality | null,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
+    this.input = input;
     this.consensuality = consensuality;
   }
 
   /**
    *
    */
-  public static from(
+  public static of(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
+    input: ReviewTopicInput,
   ): ReviewTopic {
     const id = ReviewTopicId.create();
     const createdAt = CreatedAt.now();
@@ -52,6 +58,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
       updatedAt,
       title,
       description,
+      input,
       consensuality,
     );
   }

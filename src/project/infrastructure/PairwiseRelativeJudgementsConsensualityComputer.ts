@@ -27,9 +27,15 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     peerReviews: PeerReviewCollection,
   ): Consensuality {
     const n = peerReviews.getNumberOfPeers();
-    const cyclicPeerReviews = this.createCyclicPeerReviews(n);
-    const normalizedDissent =
-      this.computeDissent(peerReviews) / this.computeDissent(cyclicPeerReviews);
+    const maxDissent = this.computeDissent(this.createCyclicPeerReviews(n));
+    const absoluteDissent = this.computeDissent(peerReviews);
+    if (maxDissent === 0) {
+      if (absoluteDissent !== 0) {
+        throw new Error('invariant violation');
+      }
+      return Consensuality.from(1);
+    }
+    const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
     return Consensuality.from(consensuality);
   }
@@ -37,24 +43,24 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   private computeDissent(peerReviewCollection: PeerReviewCollection): number {
     const peerReviews = peerReviewCollection.toMap();
     const peers = Object.keys(peerReviews);
-    function R_kij(k: string, i: string, j: string): number {
-      return peerReviews[k][i] / peerReviews[k][j];
+    function R_ijk(i: string, j: string, k: string): number {
+      return peerReviews[i][j] / peerReviews[i][k];
     }
-    function mean_ij(i: string, j: string): number {
+    function mu_jk(j: string, k: string): number {
       return mean(
-        peers.filter((k) => k !== i && k !== j).map((k) => R_kij(k, i, j)),
+        peers.filter((i) => i !== j && i !== k).map((i) => R_ijk(i, j, k)),
       );
     }
-    function var_ij(i: string, j: string): number {
+    function sigma_sq_jk(j: string, k: string): number {
       return mean(
         peers
-          .filter((k) => k !== i && k !== j)
-          .map((k) => Math.pow(R_kij(k, i, j) - mean_ij(i, j), 2)),
+          .filter((i) => i !== j && i !== k)
+          .map((i) => Math.pow(R_ijk(i, j, k) - mu_jk(j, k), 2)),
       );
     }
     return sum(
-      peers.flatMap((i) =>
-        peers.filter((j) => j !== i).map((j) => var_ij(i, j)),
+      peers.flatMap((j) =>
+        peers.filter((k) => k !== j).map((k) => sigma_sq_jk(j, k)),
       ),
     );
   }

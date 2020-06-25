@@ -12,21 +12,23 @@ import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
-import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
+import { ValueObjectFaker } from 'test/ValueObjectFaker';
 
 describe(Project.name, () => {
-  let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
+  let valueObjectFaker: ValueObjectFaker;
+  let modelFaker: ModelFaker;
 
   let creator: User;
   let project: InternalProject;
 
   beforeEach(() => {
     primitiveFaker = new PrimitiveFaker();
-    modelFaker = new ModelFaker();
+    valueObjectFaker = new ValueObjectFaker(primitiveFaker);
+    modelFaker = new ModelFaker(primitiveFaker);
 
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
@@ -81,13 +83,14 @@ describe(Project.name, () => {
   });
 
   test('add review topic', () => {
-    const title = ReviewTopicTitle.from(primitiveFaker.words());
-    const description = ReviewTopicDescription.from(primitiveFaker.paragraph());
+    const title = valueObjectFaker.reviewTopic.title();
+    const description = valueObjectFaker.reviewTopic.description();
+    const input = valueObjectFaker.reviewTopic.input();
     const addedReviewTopic: ReadonlyReviewTopic = td.object();
     td.when(
-      project.state.addReviewTopic(project, title, description),
+      project.state.addReviewTopic(project, title, description, input),
     ).thenReturn(addedReviewTopic);
-    const actualRole = project.addReviewTopic(title, description);
+    const actualRole = project.addReviewTopic(title, description, input);
     expect(actualRole).toBe(addedReviewTopic);
   });
 

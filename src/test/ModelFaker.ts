@@ -33,6 +33,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
+import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -122,7 +123,16 @@ export class ModelFaker {
     const description = ReviewTopicDescription.from(
       this.primitiveFaker.paragraph(),
     );
-    return new ReviewTopic(id, createdAt, updatedAt, title, description, null);
+    const input = ContinuousReviewTopicInput.of(1, 10);
+    return new ReviewTopic(
+      id,
+      createdAt,
+      updatedAt,
+      title,
+      description,
+      input,
+      null,
+    );
   }
 
   /**

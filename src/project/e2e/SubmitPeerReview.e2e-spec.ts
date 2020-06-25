@@ -57,10 +57,12 @@ describe('submit peer review (e2e)', () => {
     reviewTopic1 = project.addReviewTopic(
       scenario.valueObjectFaker.reviewTopic.title(),
       scenario.valueObjectFaker.reviewTopic.description(),
+      scenario.valueObjectFaker.reviewTopic.input(),
     );
     project.addReviewTopic(
       scenario.valueObjectFaker.reviewTopic.title(),
       scenario.valueObjectFaker.reviewTopic.description(),
+      scenario.valueObjectFaker.reviewTopic.input(),
     );
 
     project.assignUserToRole(assignee1, role1.id);

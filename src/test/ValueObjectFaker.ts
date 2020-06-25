@@ -4,6 +4,10 @@ import { RoleDescription } from 'project/domain/role/value-objects/RoleDescripti
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Email } from 'user/domain/value-objects/Email';
+import {
+  ReviewTopicInput,
+  ContinuousReviewTopicInput,
+} from 'project/domain/review-topic/ReviewTopicInput';
 
 export class ValueObjectFaker {
   public readonly user: UserValueObjectFaker;
@@ -48,5 +52,11 @@ class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
 
   public description(): ReviewTopicDescription {
     return ReviewTopicDescription.from(this.primitiveFaker.paragraph());
+  }
+
+  public input(): ReviewTopicInput {
+    const min = this.primitiveFaker.integer();
+    const max = min + 1 + this.primitiveFaker.integer();
+    return ContinuousReviewTopicInput.of(min, max);
   }
 }

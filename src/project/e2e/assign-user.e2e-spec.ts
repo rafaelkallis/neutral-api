@@ -3,6 +3,7 @@ import { Role } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { HttpStatus } from '@nestjs/common';
+import { Email } from 'user/domain/value-objects/Email';
 
 describe('assign user to role', () => {
   let scenario: IntegrationTestScenario;
@@ -22,8 +23,7 @@ describe('assign user to role', () => {
     project.roles.add(roleToAssign);
     await scenario.projectRepository.persist(project);
 
-    assignee = scenario.modelFaker.user();
-    await scenario.userRepository.persist(assignee);
+    assignee = await scenario.createUser();
     assigneeId = assignee.id.value;
     assigneeEmail = assignee.email.value;
   });
@@ -62,16 +62,11 @@ describe('assign user to role', () => {
         )
         .send({ assigneeEmail });
       expect(response.status).toBe(HttpStatus.OK);
-      // TODO assert that email was sent/received
-      // expect(
-      //   scenario.emailManager.sendInvitedUserNewAssignmentEmail,
-      // ).toHaveBeenCalledWith(
-      //   assigneeEmail,
-      //   project.id.value,
-      //   project.title.value,
-      //   roleToAssign.title.value,
-      //   expect.any(String),
-      // );
+      const receivedEmails = await scenario.getReceivedEmails(
+        Email.of(assigneeEmail),
+      );
+      expect(receivedEmails).toHaveLength(1);
+      expect(receivedEmails[0].subject).toBe('[Covee] new assignment');
     });
   });
 });
