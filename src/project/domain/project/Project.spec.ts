@@ -104,6 +104,7 @@ describe(Project.name, () => {
         reviewTopicIdToUpdate,
         title,
         undefined,
+        undefined,
       ),
     );
   });
