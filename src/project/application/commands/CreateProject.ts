@@ -62,7 +62,7 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),
       creator: command.authUser,
-      contributionVisibility: ContributionVisibility.from(
+      contributionVisibility: ContributionVisibility.ofValue(
         command.contributionVisibility,
       ),
       skipManagerReview: SkipManagerReview.from(command.skipManagerReview),

@@ -5,7 +5,12 @@ import { InternalServerErrorException, Injectable } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role } from 'project/domain/role/Role';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import {
+  PublicContributionVisiblity,
+  ProjectContributionVisiblity,
+  SelfContributionVisiblity,
+  NoneContributionVisiblity,
+} from 'project/domain/project/value-objects/ContributionVisibility';
 
 @Injectable()
 @ObjectMap.register(Role, RoleDto)
@@ -25,6 +30,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     );
   }
 
+  // TODO remove (contributions are a propoerty of project)
   private mapContribution(
     role: Role,
     project: Project,
@@ -37,12 +43,12 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     let shouldExpose = false;
     // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
-      case ContributionVisibility.PUBLIC: {
+      case PublicContributionVisiblity.INSTANCE: {
         shouldExpose = project.state.equals(FinishedProjectState.INSTANCE);
         break;
       }
 
-      case ContributionVisibility.PROJECT: {
+      case ProjectContributionVisiblity.INSTANCE: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
         } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
@@ -53,7 +59,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         break;
       }
 
-      case ContributionVisibility.SELF: {
+      case SelfContributionVisiblity.INSTANCE: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
         } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
@@ -64,7 +70,7 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
         break;
       }
 
-      case ContributionVisibility.NONE: {
+      case NoneContributionVisiblity.INSTANCE: {
         shouldExpose = project.isCreator(authUser);
         break;
       }

@@ -29,7 +29,7 @@ export class RoleDto extends ModelDto {
   })
   public description: string;
 
-  @ApiProperty({ type: String, required: false, deprecated: true })
+  // TODO remove once frontend does not depend on this anymore
   public contribution: number | null;
 
   public constructor(

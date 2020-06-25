@@ -4,7 +4,10 @@ import { ReadonlyUser } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import {
+  ContributionVisibility,
+  SelfContributionVisiblity,
+} from 'project/domain/project/value-objects/ContributionVisibility';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -56,7 +59,7 @@ export class ProjectFactory extends AggregateRootFactory<
       state,
       contributionVisibility
         ? contributionVisibility
-        : ContributionVisibility.SELF,
+        : SelfContributionVisiblity.INSTANCE,
       skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
       roles,
       peerReviews,

@@ -6,7 +6,7 @@ import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Project } from 'project/domain/project/Project';
-import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import { SelfContributionVisiblity } from 'project/domain/project/value-objects/ContributionVisibility';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
@@ -84,7 +84,7 @@ export class ModelFaker {
       this.primitiveFaker.paragraph(),
     );
     const state = FormationProjectState.INSTANCE;
-    const contributionVisibility = ContributionVisibility.SELF;
+    const contributionVisibility = SelfContributionVisiblity.INSTANCE;
     const skipManagerReview = SkipManagerReview.NO;
     return Project.of(
       id,
