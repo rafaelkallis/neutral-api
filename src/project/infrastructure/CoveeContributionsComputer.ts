@@ -94,9 +94,10 @@ export class CoveeContributionsComputer extends ContributionsComputer {
     const S2 = this.computeS2(S1);
 
     if (S.length === 3) {
-      const S3_3person = this.computeS3_3person(S2);
-      const S4_3person = this.computeS4_3person(S3_3person);
-      return S4_3person;
+      const S4_3person = this.computeS4_3person(S2);
+      const S5_3person = this.computeS5_3person(S4_3person);
+      //const S5_3person = this.computeS5_3person_dvsn(S4_3person);
+      return S5_3person;
     }
 
     const S3 = this.computeS3(S1);
@@ -208,7 +209,7 @@ export class CoveeContributionsComputer extends ContributionsComputer {
     return S5;
   }
 
-  private computeS3_3person(S2: number[][]): number[] {
+  private computeS4_3person(S2: number[][]): number[] {
     const n = S2.length;
     if (n !== 3) {
       throw new Error('only 3 person game allowed');
@@ -222,28 +223,50 @@ export class CoveeContributionsComputer extends ContributionsComputer {
       }
       return 1 / y;
     }
-    const S3_3person = this.createNanVector(n);
+    const S4_3person = this.createNanVector(n);
     for (let i = 0; i < n; i++) {
-      S3_3person[i] = h(i);
+      S4_3person[i] = h(i);
     }
-    return S3_3person;
+    return S4_3person;
   }
 
-  private computeS4_3person(S3_3person: number[]): number[] {
-    const n = S3_3person.length;
+  private computeS5_3person(S4_3person: number[]): number[] {
+    const n = S4_3person.length;
     if (n !== 3) {
       throw new Error('only 3 person game allowed');
     }
     let sum = 0;
     for (let i = 0; i < n; i++) {
-      sum += S3_3person[i];
+      sum += S4_3person[i];
     }
-    const S4_3person = this.createNanVector(n);
+    const S5_3person = this.createNanVector(n);
     for (let i = 0; i < n; i++) {
-      S4_3person[i] = S3_3person[i] / sum;
+      S5_3person[i] = S4_3person[i] / sum;
     }
-    return S3_3person;
+    return S5_3person;
   }
+
+  /*
+  private computeS5_3person_dvsn(S4_3person: number[]): number[] {
+    const n = S4_3person.length;
+    function f(i: number): number {
+      let y = 1;
+      let z = 0;
+      for (let j = 0; j < n; j++) {
+        if (j !== i) {
+          y -= S4_3person[j];
+          z += S4_3person[i];
+        }
+      }
+      return (y + z) / n;
+    }
+    const S5_3person_dvsn = this.createNanVector(n);
+    for (let i = 0; i < n; i++) {
+      S5_3person_dvsn[i] = f(i);
+    }
+    return S5_3person_dvsn;
+  }
+  */
 
   private createNanVector(n: number): number[] {
     const m: number[] = [];
