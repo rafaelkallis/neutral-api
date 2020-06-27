@@ -7,7 +7,6 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ModelFaker } from 'test/ModelFaker';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
@@ -16,6 +15,7 @@ import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ValueObjectFaker } from 'test/ValueObjectFaker';
+import { PeerReviewCollection } from '../peer-review/PeerReviewCollection';
 
 describe(Project.name, () => {
   let primitiveFaker: PrimitiveFaker;
@@ -122,15 +122,11 @@ describe(Project.name, () => {
   });
 
   test('submit peer reviews', () => {
-    const senderRoleId = RoleId.create();
-    const reviewTopicId = ReviewTopicId.create();
-    const submittedPeerReviews: [RoleId, PeerReviewScore][] = td.object();
+    const submittedPeerReviews: PeerReviewCollection = td.object();
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
 
     project.submitPeerReviews(
-      senderRoleId,
-      reviewTopicId,
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -138,8 +134,6 @@ describe(Project.name, () => {
     td.verify(
       project.state.submitPeerReviews(
         project,
-        senderRoleId,
-        reviewTopicId,
         submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,

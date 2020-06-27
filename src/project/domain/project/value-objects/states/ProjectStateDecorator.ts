@@ -7,7 +7,6 @@ import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyUser } from 'user/domain/User';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
@@ -16,6 +15,7 @@ import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 export abstract class ProjectStateDecorator extends ProjectState {
   protected readonly base: ProjectState;
@@ -100,17 +100,13 @@ export abstract class ProjectStateDecorator extends ProjectState {
   }
   public submitPeerReviews(
     project: InternalProject,
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
     this.base.submitPeerReviews(
       project,
-      senderRoleId,
-      reviewTopicId,
-      submittedPeerReviews,
+      peerReviews,
       contributionsComputer,
       consensualityComputer,
     );

@@ -2,18 +2,11 @@ import {
   ProjectState,
   DefaultProjectState,
 } from 'project/domain/project/value-objects/states/ProjectState';
-import {
-  InternalProject,
-  ReadonlyProject,
-} from 'project/domain/project/Project';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { InternalProject } from 'project/domain/project/Project';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
-import { Role } from 'project/domain/role/Role';
-import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ProjectPeerReviewFinishedEvent } from 'project/domain/events/ProjectPeerReviewFinishedEvent';
 import { ProjectManagerReviewSkippedEvent } from 'project/domain/events/ProjectManagerReviewSkippedEvent';
@@ -21,7 +14,8 @@ import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
-import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export class PeerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -34,83 +28,57 @@ export class PeerReviewProjectState extends DefaultProjectState {
 
   public submitPeerReviews(
     project: InternalProject,
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: PeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
-    const senderRole = project.roles.whereId(senderRoleId);
-    project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic(
-      project,
-      senderRoleId,
-      reviewTopicId,
-    );
-    this.assertSubmittedPeerReviewsMatchRoles(
-      project,
-      senderRole,
-      submittedPeerReviews,
-    );
-
-    const addedPeerReviews = project.peerReviews.addForSender(
-      senderRole.id,
-      reviewTopicId,
-      submittedPeerReviews,
-    );
-    project.raise(
-      new PeerReviewsSubmittedEvent(project, senderRole, addedPeerReviews),
-    );
-    if (project.peerReviews.areSubmitted(project)) {
-      project.raise(new FinalPeerReviewSubmittedEvent(project));
-      this.finishPeerReview(
-        project,
-        contributionsComputer,
-        consensualityComputer,
+    for (const peerReview of peerReviews) {
+      project.roles.assertContains(
+        peerReview.senderRoleId,
+        () =>
+          new DomainException(
+            'peer_review_sender_not_found',
+            'The peer-review sender was not found',
+          ),
       );
-    }
-  }
-  /**
-   * Asserts that the submitted peer reviews match the project's roles.
-   * @param senderRole Role of peer review sender.
-   * @param submittedPeerReviews Submitted peer reviews
-   */
-  private assertSubmittedPeerReviewsMatchRoles(
-    project: ReadonlyProject,
-    senderRole: Role,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ): void {
-    const expectedIds: RoleId[] = Array.from(
-      project.roles.whereNot(senderRole),
-    ).map((role) => role.id);
-    const actualIds: RoleId[] = submittedPeerReviews.map(
-      ([receiverRoleId]) => receiverRoleId,
-    );
-    for (const expectedId of expectedIds) {
-      const matchCount = actualIds.filter((actualId) =>
-        actualId.equals(expectedId),
-      ).length;
-      if (matchCount !== 1) {
-        throw new PeerReviewRoleMismatchException();
+      project.roles.assertContains(
+        peerReview.receiverRoleId,
+        () =>
+          new DomainException(
+            'peer_review_receiver_not_found',
+            'The peer-review receiver was not found',
+          ),
+      );
+      project.reviewTopics.assertContains(
+        peerReview.reviewTopicId,
+        () =>
+          new DomainException(
+            'peer_review_review_topic_not_found',
+            'The peer-review review-topic was not found',
+          ),
+      );
+      // cannot update peer-review
+      if (
+        !project.peerReviews
+          .whereSenderRole(peerReview.senderRoleId)
+          .whereReceiverRole(peerReview.receiverRoleId)
+          .whereReviewTopic(peerReview.reviewTopicId)
+          .isEmpty()
+      ) {
+        throw new DomainException(
+          'peer_review_already_submitted',
+          'Peer review already submitted',
+        );
       }
     }
-    for (const actualId of actualIds) {
-      const matchCount = expectedIds.filter((expectedId) =>
-        expectedId.equals(actualId),
-      ).length;
-      if (matchCount !== 1) {
-        throw new PeerReviewRoleMismatchException();
-      }
-    }
-  }
+    project.peerReviews.addAll(peerReviews);
+    project.raise(new PeerReviewsSubmittedEvent(project, peerReviews));
 
-  /**
-   * Gets called when final peer review is submitted for a team.
-   */
-  private finishPeerReview(
-    project: InternalProject,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
-  ): void {
+    if (!project.peerReviews.areComplete(project)) {
+      return;
+    }
+
+    project.raise(new FinalPeerReviewSubmittedEvent(project));
     contributionsComputer.compute(project).applyTo(project);
     consensualityComputer.compute(project).applyTo(project);
 

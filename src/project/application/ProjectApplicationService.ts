@@ -12,15 +12,12 @@ import { InvalidProjectTypeQueryException } from 'project/application/exceptions
 import { User } from 'user/domain/User';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { UserFactory } from 'user/application/UserFactory';
-import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { UserCollection } from 'user/domain/UserCollection';
 
 @Injectable()
@@ -125,25 +122,13 @@ export class ProjectApplicationService {
     if (!project) {
       throw new ProjectNotFoundException();
     }
-
-    const reviewTopic = project.reviewTopics.whereId(
-      ReviewTopicId.from(dto.reviewTopicId),
-    );
-
     if (!project.roles.isAnyAssignedToUser(authUser)) {
       throw new InsufficientPermissionsException();
     }
     const authRole = project.roles.whereAssignee(authUser);
-    const peerReviews: [RoleId, PeerReviewScore][] = Object.entries(
-      dto.peerReviews,
-    ).map(([receiverRoleId, score]) => [
-      RoleId.from(receiverRoleId),
-      PeerReviewScore.from(score),
-    ]); // TODO use dto.toPeerReviewList()
+    const submittedPeerReviews = dto.asPeerReviewCollection(authRole.id);
     project.submitPeerReviews(
-      authRole.id,
-      reviewTopic.id,
-      peerReviews,
+      submittedPeerReviews,
       this.contributionsComputer,
       this.consensualityComputer,
     );

@@ -13,10 +13,10 @@ import { UserRepository } from 'user/domain/UserRepository';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { UserFactory } from 'user/application/UserFactory';
-import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { TokenManager } from 'shared/token/application/TokenManager';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -30,8 +30,8 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
   let projectId: ProjectId;
   let project: InternalProject;
   let authRole: Role;
-  let reviewTopic: ReviewTopic;
   let expectedProjectDto: ProjectDto;
+  let submittedPeerReviews: PeerReviewCollection;
   let submitPeerReviewsDto: SubmitPeerReviewsDto;
 
   beforeEach(async () => {
@@ -59,19 +59,17 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     project = td.object();
     td.when(projectRepository.findById(projectId)).thenResolve(project);
 
-    project.reviewTopics = td.object();
-    reviewTopic = scenario.modelFaker.reviewTopic();
-    td.when(project.reviewTopics.whereId(reviewTopic.id)).thenReturn(
-      reviewTopic,
-    );
-
     project.roles = td.object();
     td.when(project.roles.isAnyAssignedToUser(creatorUser)).thenReturn(true);
 
     authRole = scenario.modelFaker.role();
     td.when(project.roles.whereAssignee(creatorUser)).thenReturn(authRole);
 
-    submitPeerReviewsDto = new SubmitPeerReviewsDto({}, reviewTopic.id.value);
+    submittedPeerReviews = td.object();
+    submitPeerReviewsDto = td.object();
+    td.when(
+      submitPeerReviewsDto.asPeerReviewCollection(authRole.id),
+    ).thenReturn(submittedPeerReviews);
 
     expectedProjectDto = td.object();
     td.when(
@@ -87,9 +85,7 @@ describe(ProjectApplicationService.name + ' submit peer reviews', () => {
     );
     td.verify(
       project.submitPeerReviews(
-        authRole.id,
-        reviewTopic.id,
-        td.matchers.isA(Array),
+        submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,
       ),

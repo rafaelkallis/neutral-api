@@ -40,7 +40,7 @@ describe(PeerReviewCollection.name, () => {
 
     test('when empty should return false', () => {
       expect(
-        project.peerReviews.areSubmittedForSenderRoleAndReviewTopic(
+        project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRoleId,
           reviewTopicId,
@@ -60,7 +60,7 @@ describe(PeerReviewCollection.name, () => {
         project.peerReviews.add(peerReview);
       }
       expect(
-        project.peerReviews.areSubmittedForSenderRoleAndReviewTopic(
+        project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRoleId,
           reviewTopicId,
@@ -74,12 +74,12 @@ describe(PeerReviewCollection.name, () => {
           senderRoleId,
           receiver.id,
           reviewTopicId,
-          PeerReviewScore.from(1 / project.roles.count()),
+          PeerReviewScore.from(1 / (project.roles.count() - 1)),
         );
         project.peerReviews.add(peerReview);
       }
       expect(
-        project.peerReviews.areSubmittedForSenderRoleAndReviewTopic(
+        project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRoleId,
           reviewTopicId,
@@ -90,13 +90,13 @@ describe(PeerReviewCollection.name, () => {
 
   describe('areSubmitted()', () => {
     test('when empty should return false', () => {
-      expect(project.peerReviews.areSubmitted(project)).toBeFalsy();
+      expect(project.peerReviews.areComplete(project)).toBeFalsy();
     });
 
     test('when 1 review topic submitted should return false', () => {
       const [firstReviewTopic] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
-      expect(project.peerReviews.areSubmitted(project)).toBeFalsy();
+      expect(project.peerReviews.areComplete(project)).toBeFalsy();
     });
 
     test('when 2 review topics submitted should return false', () => {
@@ -106,7 +106,7 @@ describe(PeerReviewCollection.name, () => {
       ] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
-      expect(project.peerReviews.areSubmitted(project)).toBeFalsy();
+      expect(project.peerReviews.areComplete(project)).toBeFalsy();
     });
 
     test('when 3 review topics submitted should return true', () => {
@@ -118,7 +118,7 @@ describe(PeerReviewCollection.name, () => {
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
       submitPeerReviewsForReviewTopic(thirdReviewTopic.id);
-      expect(project.peerReviews.areSubmitted(project)).toBeTruthy();
+      expect(project.peerReviews.areComplete(project)).toBeTruthy();
     });
   });
 
@@ -129,7 +129,7 @@ describe(PeerReviewCollection.name, () => {
           sender.id,
           receiver.id,
           reviewTopicId,
-          PeerReviewScore.from(1 / project.roles.count()),
+          PeerReviewScore.from(1 / (project.roles.count() - 1)),
         );
         project.peerReviews.add(peerReview);
       }

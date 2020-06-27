@@ -6,7 +6,7 @@ export interface ReadonlyModelCollection<
   TModel extends ReadonlyModel<TId>
 > extends Iterable<TModel> {
   contains(modelOrId: TModel | TId): boolean;
-  assertContains(modelOrId: TModel | TId): void;
+  assertContains(modelOrId: TModel | TId, errorProducer?: () => Error): void;
   whereId(id: TId): TModel;
   count(): number;
   toArray(): ReadonlyArray<TModel>;
@@ -109,11 +109,17 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.isAny((model) => model.id.equals(id));
   }
 
-  public assertContains(modelOrId: TModel | TId): void {
+  public assertContains(
+    modelOrId: TModel | TId,
+    errorProducer?: () => Error,
+  ): void {
     if (!this.contains(modelOrId)) {
-      throw new Error(
-        'assertion failed: collection does not contain given model',
-      );
+      if (!errorProducer) {
+        throw new Error(
+          'assertion failed: collection does not contain given model',
+        );
+      }
+      throw errorProducer();
     }
   }
 
