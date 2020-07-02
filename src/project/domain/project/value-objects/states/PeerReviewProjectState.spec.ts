@@ -12,8 +12,6 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
-import { Role } from 'project/domain/role/Role';
 import {
   ContributionsComputer,
   ContributionsComputationResult,
@@ -22,131 +20,125 @@ import {
   ConsensualityComputer,
   ConsensualityComputationResult,
 } from 'project/domain/ConsensualityComputer';
-import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { ValueObjectFaker } from 'test/ValueObjectFaker';
+import { UserCollection } from 'user/domain/UserCollection';
 
 describe(PeerReviewProjectState.name, () => {
+  let valueObjectFaker: ValueObjectFaker;
   let modelFaker: ModelFaker;
 
-  let state: ProjectState;
   let creator: User;
   let project: InternalProject;
+  let contributionsComputationResult: ContributionsComputationResult;
+  let consensualityComputationResult: ConsensualityComputationResult;
+  let contributionsComputer: ContributionsComputer;
+  let consensualityComputer: ConsensualityComputer;
 
   beforeEach(() => {
+    valueObjectFaker = new ValueObjectFaker();
     modelFaker = new ModelFaker();
-
-    state = PeerReviewProjectState.INSTANCE;
 
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
+    project.addRole(
+      valueObjectFaker.role.title(),
+      valueObjectFaker.role.description(),
+    );
+    project.addRole(
+      valueObjectFaker.role.title(),
+      valueObjectFaker.role.description(),
+    );
+    project.addRole(
+      valueObjectFaker.role.title(),
+      valueObjectFaker.role.description(),
+    );
+    project.addRole(
+      valueObjectFaker.role.title(),
+      valueObjectFaker.role.description(),
+    );
+
+    project.addReviewTopic(
+      valueObjectFaker.reviewTopic.title(),
+      valueObjectFaker.reviewTopic.description(),
+      valueObjectFaker.reviewTopic.input(),
+    );
+    project.addReviewTopic(
+      valueObjectFaker.reviewTopic.title(),
+      valueObjectFaker.reviewTopic.description(),
+      valueObjectFaker.reviewTopic.input(),
+    );
+
+    const assignees = new UserCollection([]);
+    for (const role of project.roles) {
+      const assignee = modelFaker.user();
+      assignees.add(assignee);
+      project.assignUserToRole(assignee, role.id);
+    }
+    project.finishFormation(assignees);
+
+    contributionsComputer = td.object();
+    contributionsComputationResult = td.object();
+    td.when(contributionsComputer.compute(project)).thenReturn(
+      contributionsComputationResult,
+    );
+    consensualityComputer = td.object();
+    consensualityComputationResult = td.object();
+    td.when(consensualityComputer.compute(project)).thenReturn(
+      consensualityComputationResult,
+    );
+
+    if (!project.state.equals(PeerReviewProjectState.INSTANCE)) {
+      throw new Error(
+        'precondition failed: project is not in peer-review state',
+      );
+    }
   });
 
   describe('submit peer review', () => {
-    let roles: Role[];
-    let reviewTopic: ReviewTopic;
     let submittedPeerReviews: PeerReviewCollection;
-    let contributionsComputationResult: ContributionsComputationResult;
-    let consensualityComputationResult: ConsensualityComputationResult;
-    let contributionsComputer: ContributionsComputer;
-    let consensualityComputer: ConsensualityComputer;
 
     beforeEach(() => {
-      contributionsComputer = td.object();
-      consensualityComputer = td.object();
-      project.state = PeerReviewProjectState.INSTANCE;
-      roles = [
-        modelFaker.role(creator.id),
-        modelFaker.role(),
-        modelFaker.role(),
-        modelFaker.role(),
-      ];
-      project.roles.addAll(roles);
-
-      reviewTopic = modelFaker.reviewTopic();
-      project.reviewTopics.add(reviewTopic);
-
-      project.skipManagerReview = SkipManagerReview.NO;
-
-      const peerReviews: PeerReview[] = [];
-      for (const senderRole of project.roles.toArray()) {
-        for (const receiverRole of project.roles.toArray()) {
-          if (senderRole.equals(receiverRole)) {
-            // no self review
-            continue;
-          }
-          if (senderRole.equals(roles[0])) {
-            continue;
-          }
-          const peerReview = modelFaker.peerReview(
-            senderRole.id,
-            receiverRole.id,
+      const sender = project.roles.first();
+      const reviewTopic = project.reviewTopics.first();
+      submittedPeerReviews = new PeerReviewCollection([]);
+      for (const receiver of project.roles.whereNot(sender)) {
+        submittedPeerReviews.add(
+          PeerReview.from(
+            sender.id,
+            receiver.id,
             reviewTopic.id,
-          );
-          peerReviews.push(peerReview);
-        }
+            PeerReviewScore.equalSplit(project.roles.count()),
+          ),
+        );
       }
-      project.peerReviews = new PeerReviewCollection(peerReviews);
-      jest.spyOn(
-        project.peerReviews,
-        'assertNotCompleteForSenderRoleAndReviewTopic',
-      );
-
-      submittedPeerReviews = new PeerReviewCollection([
-        PeerReview.from(
-          roles[0].id,
-          roles[1].id,
-          reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
-        ),
-        PeerReview.from(
-          roles[0].id,
-          roles[2].id,
-          reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
-        ),
-        PeerReview.from(
-          roles[0].id,
-          roles[3].id,
-          reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
-        ),
-      ]);
-
-      consensualityComputationResult = td.object();
-      td.when(consensualityComputer.compute(project)).thenReturn(
-        consensualityComputationResult,
-      );
-
-      contributionsComputationResult = td.object();
-      td.when(contributionsComputer.compute(project)).thenReturn(
-        contributionsComputationResult,
-      );
     });
 
     test('should fail if a peer review is for non-existing peer', () => {
+      const roles = project.roles.toArray();
+      const reviewTopic = project.reviewTopics.first();
       submittedPeerReviews = new PeerReviewCollection([
         PeerReview.from(
           roles[0].id,
           RoleId.create(),
           reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
+          PeerReviewScore.equalSplit(project.roles.count()),
         ),
         PeerReview.from(
           roles[0].id,
           roles[2].id,
           reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
+          PeerReviewScore.equalSplit(project.roles.count()),
         ),
         PeerReview.from(
           roles[0].id,
           roles[3].id,
           reviewTopic.id,
-          PeerReviewScore.from(1 / 3),
+          PeerReviewScore.equalSplit(project.roles.count()),
         ),
       ]);
       expect(() =>
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -154,14 +146,52 @@ describe(PeerReviewProjectState.name, () => {
       ).toThrow(expect.any(DomainException));
     });
 
+    test('should not compute contributions and consensuality', () => {
+      project.submitPeerReviews(
+        submittedPeerReviews,
+        contributionsComputer,
+        consensualityComputer,
+      );
+      expect(
+        project.state.equals(PeerReviewProjectState.INSTANCE),
+      ).toBeTruthy();
+      expect(project.contributions.isEmpty()).toBeTruthy();
+    });
+
     describe('final peer review', () => {
       beforeEach(() => {
-        jest.spyOn(project.peerReviews, 'areComplete').mockReturnValue(true);
+        // submit all peer reviews except for one
+        for (const reviewTopic of project.reviewTopics) {
+          for (const sender of project.roles) {
+            if (
+              reviewTopic.equals(project.reviewTopics.first()) &&
+              sender.equals(project.roles.first())
+            ) {
+              // skip peer review of first role for first review topic
+              continue;
+            }
+            const submittedPeerReviews = new PeerReviewCollection([]);
+            for (const receiver of project.roles.whereNot(sender)) {
+              submittedPeerReviews.add(
+                PeerReview.from(
+                  sender.id,
+                  receiver.id,
+                  reviewTopic.id,
+                  PeerReviewScore.equalSplit(project.roles.count()),
+                ),
+              );
+            }
+            project.submitPeerReviews(
+              submittedPeerReviews,
+              contributionsComputer,
+              consensualityComputer,
+            );
+          }
+        }
       });
 
       test('should advance state and compute contributions and compute consensuality', () => {
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -173,16 +203,15 @@ describe(PeerReviewProjectState.name, () => {
           expect.any(FinalPeerReviewSubmittedEvent),
         );
         expect(
-          project.state.equals(ManagerReviewProjectState.INSTANCE),
-        ).toBeTruthy();
+          project.state.equals(PeerReviewProjectState.INSTANCE),
+        ).toBeFalsy();
         td.verify(contributionsComputationResult.applyTo(project));
         td.verify(consensualityComputationResult.applyTo(project));
       });
 
       test('should skip manager review if "skipManagerReview" is "yes"', () => {
         project.skipManagerReview = SkipManagerReview.YES;
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -193,8 +222,7 @@ describe(PeerReviewProjectState.name, () => {
       test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(true);
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -207,8 +235,7 @@ describe(PeerReviewProjectState.name, () => {
       test('should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(false);
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -218,8 +245,7 @@ describe(PeerReviewProjectState.name, () => {
 
       test('should not skip manager review if "skipManagerReview" is "no"', () => {
         project.skipManagerReview = SkipManagerReview.NO;
-        state.submitPeerReviews(
-          project,
+        project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -229,24 +255,44 @@ describe(PeerReviewProjectState.name, () => {
         ).toBeTruthy();
       });
     });
+  });
 
-    describe('not final peer review', () => {
-      beforeEach(() => {
-        jest.spyOn(project.peerReviews, 'areComplete').mockReturnValue(false);
-      });
-
-      test('should not compute contributions and consensuality', () => {
-        state.submitPeerReviews(
-          project,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
-        expect(
-          project.state.equals(PeerReviewProjectState.INSTANCE),
-        ).toBeTruthy();
-        expect(project.contributions.isEmpty()).toBeTruthy();
-      });
+  describe('complete', () => {
+    beforeEach(() => {
+      // submit all peer reviews except for some
+      const [, r2, r3, r4] = project.roles;
+      const [rt1, rt2] = project.reviewTopics;
+      for (const reviewTopic of project.reviewTopics) {
+        for (const sender of project.roles) {
+          if (reviewTopic.equals(rt1) && sender.equals(r3)) {
+            continue;
+          }
+          if (reviewTopic.equals(rt2) && sender.equals(r2)) {
+            continue;
+          }
+          if (reviewTopic.equals(rt2) && sender.equals(r4)) {
+            continue;
+          }
+          const submittedPeerReviews = new PeerReviewCollection([]);
+          for (const receiver of project.roles.whereNot(sender)) {
+            submittedPeerReviews.add(
+              PeerReview.from(
+                sender.id,
+                receiver.id,
+                reviewTopic.id,
+                PeerReviewScore.equalSplit(project.roles.count()),
+              ),
+            );
+          }
+          project.submitPeerReviews(
+            submittedPeerReviews,
+            contributionsComputer,
+            consensualityComputer,
+          );
+        }
+      }
     });
+
+    test.todo('should complete missing peer reviews');
   });
 });

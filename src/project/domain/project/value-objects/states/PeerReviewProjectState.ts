@@ -26,6 +26,13 @@ export class PeerReviewProjectState extends DefaultProjectState {
     super();
   }
 
+  /**
+   *
+   * @param project
+   * @param peerReviews
+   * @param contributionsComputer
+   * @param consensualityComputer
+   */
   public submitPeerReviews(
     project: InternalProject,
     peerReviews: PeerReviewCollection,
@@ -92,5 +99,19 @@ export class PeerReviewProjectState extends DefaultProjectState {
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
     }
+  }
+
+  /**
+   *
+   * @param _project
+   * @param _contributionsComputer
+   * @param _consensualityComputer
+   */
+  public complete(
+    _project: InternalProject,
+    _contributionsComputer: ContributionsComputer,
+    _consensualityComputer: ConsensualityComputer,
+  ): void {
+    throw new Error('not implemented');
   }
 }
