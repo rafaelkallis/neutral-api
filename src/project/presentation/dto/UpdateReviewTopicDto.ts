@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ReviewTopicInputDto,
+  ContinuousReviewTopicInputDto,
+  DiscreteReviewTopicInputDto,
+} from 'project/application/dto/ReviewTopicInputDto';
 
 export class UpdateReviewTopicDto {
   @IsString()
@@ -21,8 +27,27 @@ export class UpdateReviewTopicDto {
   })
   public description?: string;
 
-  public constructor(title?: string, description?: string) {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ReviewTopicInputDto, {
+    discriminator: {
+      property: 'type',
+      subTypes: [
+        { name: 'continuous', value: ContinuousReviewTopicInputDto },
+        { name: 'discrete', value: DiscreteReviewTopicInputDto },
+      ],
+    },
+  })
+  @ApiProperty()
+  public readonly input?: ReviewTopicInputDto;
+
+  public constructor(
+    title?: string,
+    description?: string,
+    input?: ReviewTopicInputDto,
+  ) {
     this.title = title;
     this.description = description;
+    this.input = input;
   }
 }

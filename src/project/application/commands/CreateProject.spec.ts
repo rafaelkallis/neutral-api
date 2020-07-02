@@ -62,7 +62,7 @@ describe(CreateProjectCommand.name, () => {
         title: td.matchers.isA(ProjectTitle),
         description: td.matchers.isA(ProjectDescription),
         creator: authUser,
-        contributionVisibility: ContributionVisibility.from(
+        contributionVisibility: ContributionVisibility.ofValue(
           contributionVisibility,
         ),
         skipManagerReview: SkipManagerReview.from(skipManagerReview),

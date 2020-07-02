@@ -11,12 +11,14 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
+import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export class UpdateReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
   public readonly reviewTopicId: string;
   public readonly title?: string;
   public readonly description?: string;
+  public readonly input?: ReviewTopicInput;
 
   public constructor(
     authUser: User,
@@ -24,12 +26,14 @@ export class UpdateReviewTopicCommand extends ProjectCommand {
     reviewTopicId: string,
     title?: string,
     description?: string,
+    input?: ReviewTopicInput,
   ) {
     super(authUser);
     this.projectId = projectId;
     this.reviewTopicId = reviewTopicId;
     this.title = title;
     this.description = description;
+    this.input = input;
   }
 }
 
@@ -54,7 +58,7 @@ export class UpdateReviewTopicCommandHandler extends ProjectCommandHandler<
     const description = command.description
       ? ReviewTopicDescription.from(command.description)
       : undefined;
-    project.updateReviewTopic(reviewTopicId, title, description);
+    project.updateReviewTopic(reviewTopicId, title, description, command.input);
     return project;
   }
 }

@@ -21,7 +21,6 @@ import {
 } from 'project/domain/peer-review/PeerReviewCollection';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNotProjectCreatorException';
@@ -79,14 +78,13 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
+    input?: ReviewTopicInput,
   ): void;
   removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
   finishFormation(assignees: ReadonlyUserCollection): void;
   submitPeerReviews(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void;
@@ -203,6 +201,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
+    input?: ReviewTopicInput,
   ): void;
 
   public abstract removeReviewTopic(reviewTopicId: ReviewTopicId): void;
@@ -221,9 +220,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
    *
    */
   public abstract submitPeerReviews(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void;
@@ -352,8 +349,15 @@ export class InternalProject extends Project {
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
+    input?: ReviewTopicInput,
   ): void {
-    this.state.updateReviewTopic(this, reviewTopicId, title, description);
+    this.state.updateReviewTopic(
+      this,
+      reviewTopicId,
+      title,
+      description,
+      input,
+    );
   }
 
   public removeReviewTopic(reviewTopicId: ReviewTopicId): void {
@@ -378,17 +382,13 @@ export class InternalProject extends Project {
    *
    */
   public submitPeerReviews(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void {
     this.state.submitPeerReviews(
       this,
-      senderRoleId,
-      reviewTopicId,
-      submittedPeerReviews,
+      peerReviews,
       contributionsComputer,
       consensualityComputer,
     );

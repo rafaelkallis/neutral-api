@@ -47,6 +47,7 @@ export class VarianceConsensualityComputerService extends ConsensualityComputer 
   protected computeForReviewTopic(
     peerReviewCollection: PeerReviewCollection,
   ): Consensuality {
+    const EPS = 1e-16;
     const peerReviews = peerReviewCollection.toMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;
@@ -54,7 +55,7 @@ export class VarianceConsensualityComputerService extends ConsensualityComputer 
       const n = arr.length;
       const mean = sum(arr) / n;
       const squaredSum = sum(arr.map((x) => Math.pow(x - mean, 2)));
-      return squaredSum / n;
+      return Math.max(EPS, squaredSum / (n - 1));
     }
     function worstColumn(n: number): number[] {
       const arr = new Array(n);

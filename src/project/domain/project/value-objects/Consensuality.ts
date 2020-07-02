@@ -2,17 +2,11 @@ import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalV
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
-/**
- *
- */
 export class Consensuality extends UnitDecimalValueObject {
   private constructor(value: number) {
     super(value);
   }
 
-  /**
-   *
-   */
   public static from(value: number): Consensuality {
     return new Consensuality(value);
   }

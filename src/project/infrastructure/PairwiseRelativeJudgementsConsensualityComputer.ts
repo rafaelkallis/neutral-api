@@ -37,6 +37,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     }
     const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
+    console.log('maxDissent       : ' + absoluteDissent);
+    console.log('absoluteDissent  : ' + maxDissent);
+    console.log('normalizedDissent: ' + normalizedDissent);
+    console.log('consensuality    : ' + consensuality);
     return Consensuality.from(consensuality);
   }
 
