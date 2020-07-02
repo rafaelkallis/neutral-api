@@ -3,10 +3,11 @@ import { InvalidConsensualityException } from 'project/domain/exceptions/Invalid
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export class Consensuality extends UnitDecimalValueObject {
-  public static EPSILON = 1e-8;
+  private static EPSILON = 1e-8;
 
   private constructor(value: number) {
     super(value);
+    this.assertGreaterEqualThanEpsilon(value);
   }
 
   public static from(value: number): Consensuality {
@@ -19,6 +20,12 @@ export class Consensuality extends UnitDecimalValueObject {
 
   public isConsensual(): boolean {
     return this.value >= 0.8;
+  }
+
+  private assertGreaterEqualThanEpsilon(value: number): void {
+    if (value < Consensuality.EPSILON) {
+      this.throwInvalidValueObjectException();
+    }
   }
 
   public equals(other: ValueObject): boolean {

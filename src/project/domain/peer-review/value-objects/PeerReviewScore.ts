@@ -2,7 +2,7 @@ import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalV
 import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/InvalidPeerReviewScoreException';
 
 export class PeerReviewScore extends UnitDecimalValueObject {
-  public static EPSILON = 1e-16;
+  private static EPSILON = 1e-16;
 
   private constructor(value: number) {
     super(value);
@@ -24,13 +24,13 @@ export class PeerReviewScore extends UnitDecimalValueObject {
 
   private assertGreaterEqualThanEpsilon(value: number): void {
     if (value < PeerReviewScore.EPSILON) {
-      throw new InvalidPeerReviewScoreException();
+      this.throwInvalidValueObjectException();
     }
   }
 
   private assertLessEqualThanOneMinusEpsilon(value: number): void {
     if (value > 1 - PeerReviewScore.EPSILON) {
-      throw new InvalidPeerReviewScoreException();
+      this.throwInvalidValueObjectException();
     }
   }
 
