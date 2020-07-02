@@ -2,7 +2,7 @@ import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalV
 import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/InvalidPeerReviewScoreException';
 
 export class PeerReviewScore extends UnitDecimalValueObject {
-  private static EPSILON = 1e-16;
+  private static EPSILON = 1e-8;
 
   private constructor(value: number) {
     super(value);
