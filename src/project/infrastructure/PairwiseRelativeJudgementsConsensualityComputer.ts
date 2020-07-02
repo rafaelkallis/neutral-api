@@ -7,21 +7,23 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
-//function sum(arr: number[]): number {
-//  return arr.reduce((a, b) => a + b);
-//}
+/*
+function sum(arr: number[]): number {
+  return arr.reduce((a, b) => a + b);
+}
 
-//function mean(arr: number[]): number {
-//  var x = "[";
-//  for (var j = 0; j < arr.length; j++) {
-//    x += arr[j];
-//    if (j < arr.length - 1) {
-//        x += ", ";
-//    }
-//  }
-//  console.log(x + "]");
-//  return sum(arr) / arr.length;
-//}
+function mean(arr: number[]): number {
+  var x = "[";
+  for (var j = 0; j < arr.length; j++) {
+    x += arr[j];
+    if (j < arr.length - 1) {
+        x += ", ";
+    }
+  }
+  console.log(x + "]");
+  return sum(arr) / arr.length;
+}
+*/
 
 function printMatrix(s: string, arr: number[][]): void {
   var x = s + ': [\n';
@@ -103,11 +105,11 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         for (let k = 0; k < n; k++) {
-          S1[j][k][i] = f1(i, j, k);
+          S1[i][j][k] = f1(i, j, k);
         }
       }
     }
-    for (var i = 0; i < D.length; i++) {
+    for (var i = 0; i < n; i++) {
       printMatrix('S1_' + i, S1[i]);
     }
 
@@ -115,10 +117,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
       let y = 0;
       for (let i = 0; i < n; i++) {
         if (i !== j && i !== k) {
-          y += S1[j][k][i];
+          y += S1[i][j][k];
         }
       }
-      return y / (n - 2);
+      return y / (n - 2); // mean factor 1/(n-2)
     }
     const S2 = this.createNaNSquare(n);
     for (let j = 0; j < n; j++) {
@@ -132,10 +134,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
       let y = 0;
       for (let i = 0; i < n; i++) {
         if (i !== j && i !== k) {
-          y += Math.pow(S1[j][k][i] - S2[j][k], 2);
+          y += Math.pow(S1[i][j][k] - S2[j][k], 2);
         }
       }
-      return y / (n - 2);
+      return y / (n - 2); // variance with factor 1/n and not 1/(n-1)
     }
     const S3 = this.createNaNSquare(n);
     for (let j = 0; j < n; j++) {
@@ -148,21 +150,18 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     var dissent = 0;
     for (let j = 0; j < n; j++) {
       for (let k = 0; k < n; k++) {
-        if (j < k) {
+        if (j != k) {
           dissent += S3[j][k];
         }
       }
     }
+    dissent = dissent / (n * n - n); // mean factor 1/(n*n-n)
     console.log('dissent: ' + dissent);
     return dissent;
   }
 
   /*
   private computeDissent(peerReviewCollection: PeerReviewCollection): number {
-    const A = peerReviewCollection.toMatrixArray();
-    for (var i=0; i<A.length; i++) {
-        printMatrix(A[i]);
-    }
     const peerReviews = peerReviewCollection.toMap();
     const peers = Object.keys(peerReviews);
     function R_ijk(i: string, j: string, k: string): number {
@@ -187,6 +186,8 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         peers.filter((k) => k !== j).map((k) => sigma_sq_jk(j, k)),
       ),
     );
+    //const n = peerReviewCollection.getNumberOfPeers();
+    //dissent = dissent / (n * n - n); // mean factor 1/(n*n-n)
     return dissent;
   }
 */
