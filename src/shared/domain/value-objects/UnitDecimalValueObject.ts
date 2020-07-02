@@ -19,7 +19,7 @@ export abstract class UnitDecimalValueObject extends NumberValueObject {
       return false;
     }
     // TODO: not sure if chain of command makes sense here
-    if (this.value.toFixed(1000) === other.value.toFixed(1000)) {
+    if (this.value.toFixed(3) === other.value.toFixed(3)) {
       return true;
     }
     return super.equals(other);
@@ -29,7 +29,7 @@ export abstract class UnitDecimalValueObject extends NumberValueObject {
    *
    */
   public toString(): string {
-    return this.value.toFixed(1000);
+    return this.value.toFixed(3);
   }
 
   private assertUnitDecimal(value: number): void {

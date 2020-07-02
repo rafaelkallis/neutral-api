@@ -138,6 +138,7 @@ export class FormationProjectState extends DefaultProjectState {
     reviewTopicId: ReviewTopicId,
     title?: ReviewTopicTitle,
     description?: ReviewTopicDescription,
+    input?: ReviewTopicInput,
   ): void {
     const reviewTopicToUpdate = project.reviewTopics.whereId(reviewTopicId);
     if (title) {
@@ -145,6 +146,9 @@ export class FormationProjectState extends DefaultProjectState {
     }
     if (description) {
       reviewTopicToUpdate.description = description;
+    }
+    if (input) {
+      reviewTopicToUpdate.input = input;
     }
     project.raise(new ReviewTopicUpdatedEvent(reviewTopicToUpdate.id));
   }

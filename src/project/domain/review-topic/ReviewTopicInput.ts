@@ -1,6 +1,7 @@
 import { ValidationException } from 'shared/application/exceptions/ValidationException';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
-export abstract class ReviewTopicInput {
+export abstract class ReviewTopicInput extends ValueObject {
   public abstract fold<T>(visitor: ReviewTopicInputVisitor<T>): T;
 }
 
@@ -20,6 +21,13 @@ export class ContinuousReviewTopicInput extends ReviewTopicInput {
 
   public fold<T>(visitor: ReviewTopicInputVisitor<T>): T {
     return visitor.continuous(this);
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof ContinuousReviewTopicInput)) {
+      return false;
+    }
+    return this.min === other.min && this.max === other.max;
   }
 
   private constructor(min: number, max: number) {
@@ -45,6 +53,24 @@ export class DiscreteReviewTopicInput extends ReviewTopicInput {
 
   public fold<T>(visitor: ReviewTopicInputVisitor<T>): T {
     return visitor.discrete(this);
+  }
+
+  public equals(other: ValueObject): boolean {
+    if (!(other instanceof DiscreteReviewTopicInput)) {
+      return false;
+    }
+    if (this.labels.length !== other.labels.length) {
+      return false;
+    }
+    for (let i = 0; i < this.values.length; i++) {
+      if (this.labels[i] !== other.labels[i]) {
+        return false;
+      }
+      if (this.values[i] !== other.values[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private constructor(labels: string[], values: number[]) {

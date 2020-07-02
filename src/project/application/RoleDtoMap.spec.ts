@@ -3,7 +3,13 @@ import { Role } from 'project/domain/role/Role';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { InternalProject } from 'project/domain/project/Project';
-import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import {
+  ContributionVisibility,
+  PublicContributionVisiblity,
+  ProjectContributionVisiblity,
+  SelfContributionVisiblity,
+  NoneContributionVisiblity,
+} from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleDtoMap } from 'project/application/RoleDtoMap';
@@ -42,7 +48,10 @@ describe('role dto map', () => {
     ]);
   });
 
-  const { PUBLIC, PROJECT, SELF, NONE } = ContributionVisibility;
+  const PUBLIC = PublicContributionVisiblity.INSTANCE;
+  const PROJECT = ProjectContributionVisiblity.INSTANCE;
+  const SELF = SelfContributionVisiblity.INSTANCE;
+  const NONE = NoneContributionVisiblity.INSTANCE;
   const contributionCases: [ContributionVisibility, string, boolean][] = [
     [PUBLIC, 'owner', true],
     [PUBLIC, 'assignee', true],
@@ -75,7 +84,7 @@ describe('role dto map', () => {
   );
 
   test('should not show contribution if not project owner and if project not finished', async () => {
-    project.contributionVisibility = ContributionVisibility.PUBLIC;
+    project.contributionVisibility = PublicContributionVisiblity.INSTANCE;
     project.state = PeerReviewProjectState.INSTANCE;
     const roleDto = await roleDtoMap.map(role, {
       project,

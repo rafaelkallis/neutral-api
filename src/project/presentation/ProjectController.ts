@@ -34,6 +34,7 @@ import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsD
 import { Mediator } from 'shared/mediator/Mediator';
 import { CreateProjectCommand } from 'project/application/commands/CreateProject';
 import { UpdateProjectCommand } from 'project/application/commands/UpdateProject';
+import { SubmitPeerReviewsCommand } from 'project/application/commands/SubmitPeerReviews';
 
 /**
  * Project Controller
@@ -184,7 +185,7 @@ export class ProjectController {
     @Param('id') id: string,
     @Body() dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
-    return this.projectApplicationService.submitPeerReviews(authUser, id, dto);
+    return this.mediator.send(new SubmitPeerReviewsCommand(authUser, id, dto));
   }
 
   /**

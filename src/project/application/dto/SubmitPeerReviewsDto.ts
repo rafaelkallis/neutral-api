@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPeerReviews } from 'shared/validation/is-peer-reviews';
 import { IsString } from 'class-validator';
+import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /**
  * Submit peer reviews DTO
@@ -28,5 +33,18 @@ export class SubmitPeerReviewsDto {
   ) {
     this.peerReviews = peerReviews;
     this.reviewTopicId = reviewTopicId;
+  }
+
+  public asPeerReviewCollection(senderRoleId: RoleId): PeerReviewCollection {
+    return new PeerReviewCollection(
+      Object.entries(this.peerReviews).map(([receiverRoleId, score]) =>
+        PeerReview.from(
+          senderRoleId,
+          RoleId.from(receiverRoleId),
+          ReviewTopicId.from(this.reviewTopicId),
+          PeerReviewScore.from(score),
+        ),
+      ),
+    );
   }
 }

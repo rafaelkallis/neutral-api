@@ -91,6 +91,7 @@ export class ReviewTopicController {
         reviewTopicId,
         updateReviewTopicDto.title,
         updateReviewTopicDto.description,
+        updateReviewTopicDto.input?.asReviewTopicInput(),
       ),
     );
   }
