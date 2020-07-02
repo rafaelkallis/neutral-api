@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -34,9 +34,7 @@ export class UpdateProjectCommand extends ProjectCommand {
 export class UpdateProjectCommandHandler extends ProjectCommandHandler<
   UpdateProjectCommand
 > {
-  protected async doHandle(
-    command: UpdateProjectCommand,
-  ): Promise<ReadonlyProject> {
+  protected async doHandle(command: UpdateProjectCommand): Promise<Project> {
     const projectId = ProjectId.from(command.projectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {

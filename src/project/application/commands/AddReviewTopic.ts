@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -38,9 +38,7 @@ export class AddReviewTopicCommand extends ProjectCommand {
 export class AddReviewTopicCommandHandler extends ProjectCommandHandler<
   AddReviewTopicCommand
 > {
-  protected async doHandle(
-    command: AddReviewTopicCommand,
-  ): Promise<ReadonlyProject> {
+  protected async doHandle(command: AddReviewTopicCommand): Promise<Project> {
     const projectId = ProjectId.from(command.projectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {

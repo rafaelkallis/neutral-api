@@ -14,7 +14,7 @@ export class ValueObjectFaker {
   public readonly role: RoleValueObjectFaker;
   public readonly reviewTopic: ReviewTopicValueObjectFaker;
 
-  public constructor(primitiveFaker: PrimitiveFaker) {
+  public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.user = new UserValueObjectFaker(primitiveFaker);
     this.role = new RoleValueObjectFaker(primitiveFaker);
     this.reviewTopic = new ReviewTopicValueObjectFaker(primitiveFaker);

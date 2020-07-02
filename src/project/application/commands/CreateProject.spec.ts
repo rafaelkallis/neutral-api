@@ -10,7 +10,7 @@ import { ProjectDto } from '../dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { ProjectFactory } from '../ProjectFactory';
 import {
   ContributionVisibilityValue,
@@ -31,7 +31,7 @@ describe(CreateProjectCommand.name, () => {
   let contributionVisibility: ContributionVisibilityValue;
   let skipManagerReview: SkipManagerReviewValue;
   let command: CreateProjectCommand;
-  let createdProject: ReadonlyProject;
+  let createdProject: Project;
   let projectDto: ProjectDto;
 
   beforeEach(async () => {

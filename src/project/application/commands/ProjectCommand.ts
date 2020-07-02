@@ -3,7 +3,7 @@ import { CommandHandler } from 'shared/command/CommandHandler';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { Injectable } from '@nestjs/common';
 
 export abstract class ProjectCommand extends AuthenticatedCommand<ProjectDto> {
@@ -34,7 +34,5 @@ export abstract class ProjectCommandHandler<
     });
   }
 
-  protected abstract doHandle(
-    command: TCommand,
-  ): ReadonlyProject | Promise<ReadonlyProject>;
+  protected abstract doHandle(command: TCommand): Project | Promise<Project>;
 }

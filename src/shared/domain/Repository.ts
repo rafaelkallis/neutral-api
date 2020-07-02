@@ -1,8 +1,5 @@
 import { Id } from 'shared/domain/value-objects/Id';
-import {
-  ReadonlyAggregateRoot,
-  AggregateRoot,
-} from 'shared/domain/AggregateRoot';
+import { AggregateRoot } from 'shared/domain/AggregateRoot';
 import { Subject, Observable } from './Observer';
 import { InversableMap } from './InversableMap';
 import { Class } from './Class';
@@ -17,7 +14,7 @@ const repositoryRegistry: InversableMap<
  */
 export abstract class Repository<
   TId extends Id,
-  TModel extends ReadonlyAggregateRoot<TId>
+  TModel extends AggregateRoot<TId>
 > {
   public static register(
     aggregateRootClass: Class<AggregateRoot<Id>>,

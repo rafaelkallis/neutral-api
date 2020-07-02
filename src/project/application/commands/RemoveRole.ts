@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -26,9 +26,7 @@ export class RemoveRoleCommand extends ProjectCommand {
 export class RemoveRoleCommandHandler extends ProjectCommandHandler<
   RemoveRoleCommand
 > {
-  protected async doHandle(
-    command: RemoveRoleCommand,
-  ): Promise<ReadonlyProject> {
+  protected async doHandle(command: RemoveRoleCommand): Promise<Project> {
     const projectId = ProjectId.from(command.projectId);
     const roleId = RoleId.from(command.roleId);
     const project = await this.projectRepository.findById(projectId);
