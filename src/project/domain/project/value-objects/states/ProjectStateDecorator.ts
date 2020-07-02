@@ -111,6 +111,17 @@ export abstract class ProjectStateDecorator extends ProjectState {
       consensualityComputer,
     );
   }
+  public completePeerReviews(
+    project: InternalProject,
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void {
+    this.base.completePeerReviews(
+      project,
+      contributionsComputer,
+      consensualityComputer,
+    );
+  }
   public submitManagerReview(project: InternalProject): void {
     this.base.submitManagerReview(project);
   }

@@ -83,6 +83,12 @@ export abstract class ProjectState extends ValueObject {
     consensualityComputer: ConsensualityComputer,
   ): void;
 
+  public abstract completePeerReviews(
+    project: InternalProject,
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+
   public abstract submitManagerReview(project: InternalProject): void;
 
   public abstract cancel(project: InternalProject): void;
@@ -171,6 +177,14 @@ export abstract class DefaultProjectState extends ProjectState {
   public submitPeerReviews(
     _project: InternalProject,
     _peerReviews: ReadonlyPeerReviewCollection,
+    _contributionsComputer: ContributionsComputer,
+    _consensualityComputer: ConsensualityComputer,
+  ): void {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
+  public completePeerReviews(
+    _project: InternalProject,
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
   ): void {

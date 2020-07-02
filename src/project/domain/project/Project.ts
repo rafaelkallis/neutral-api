@@ -225,6 +225,11 @@ export abstract class Project extends AggregateRoot<ProjectId>
     consensualityComputer: ConsensualityComputer,
   ): void;
 
+  public abstract completePeerReviews(
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void;
+
   /**
    *
    */
@@ -389,6 +394,17 @@ export class InternalProject extends Project {
     this.state.submitPeerReviews(
       this,
       peerReviews,
+      contributionsComputer,
+      consensualityComputer,
+    );
+  }
+
+  public completePeerReviews(
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void {
+    this.state.completePeerReviews(
+      this,
       contributionsComputer,
       consensualityComputer,
     );

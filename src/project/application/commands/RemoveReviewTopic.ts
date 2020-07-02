@@ -1,4 +1,3 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -9,6 +8,7 @@ import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFo
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
+import { Project } from 'project/domain/project/Project';
 
 export class RemoveReviewTopicCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -28,7 +28,7 @@ export class RemoveReviewTopicCommandHandler extends ProjectCommandHandler<
 > {
   protected async doHandle(
     command: RemoveReviewTopicCommand,
-  ): Promise<ReadonlyProject> {
+  ): Promise<Project> {
     const projectId = ProjectId.from(command.projectId);
     const reviewTopicId = ReviewTopicId.from(command.reviewTopicId);
     const project = await this.projectRepository.findById(projectId);

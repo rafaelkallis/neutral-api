@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReadonlyProject, Project } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { ReadonlyUser } from 'user/domain/User';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
@@ -32,7 +32,7 @@ export interface CreateProjectOptions {
 export class ProjectFactory extends AggregateRootFactory<
   CreateProjectOptions,
   ProjectId,
-  ReadonlyProject
+  Project
 > {
   protected doCreate({
     title,
@@ -40,7 +40,7 @@ export class ProjectFactory extends AggregateRootFactory<
     creator,
     contributionVisibility,
     skipManagerReview,
-  }: CreateProjectOptions): ReadonlyProject {
+  }: CreateProjectOptions): Project {
     const projectId = ProjectId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();

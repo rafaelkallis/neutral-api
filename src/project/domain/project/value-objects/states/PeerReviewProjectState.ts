@@ -16,6 +16,8 @@ import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectM
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 
 export class PeerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -26,6 +28,13 @@ export class PeerReviewProjectState extends DefaultProjectState {
     super();
   }
 
+  /**
+   *
+   * @param project
+   * @param peerReviews
+   * @param contributionsComputer
+   * @param consensualityComputer
+   */
   public submitPeerReviews(
     project: InternalProject,
     peerReviews: PeerReviewCollection,
@@ -91,6 +100,50 @@ export class PeerReviewProjectState extends DefaultProjectState {
       project.state = ManagerReviewProjectState.INSTANCE;
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
+    }
+  }
+
+  /**
+   *
+   * @param project
+   * @param contributionsComputer
+   * @param consensualityComputer
+   */
+  public completePeerReviews(
+    project: InternalProject,
+    contributionsComputer: ContributionsComputer,
+    consensualityComputer: ConsensualityComputer,
+  ): void {
+    for (const reviewTopic of project.reviewTopics) {
+      for (const sender of project.roles) {
+        if (
+          project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
+            project,
+            sender.id,
+            reviewTopic.id,
+          )
+        ) {
+          continue;
+        }
+        const peerReviews = new PeerReviewCollection(
+          project.roles
+            .whereNot(sender)
+            .toArray()
+            .map((receiver) =>
+              PeerReview.from(
+                sender.id,
+                receiver.id,
+                reviewTopic.id,
+                PeerReviewScore.equalSplit(project.roles.count()),
+              ),
+            ),
+        );
+        project.submitPeerReviews(
+          peerReviews,
+          contributionsComputer,
+          consensualityComputer,
+        );
+      }
     }
   }
 }

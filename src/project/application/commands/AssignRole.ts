@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -55,9 +55,7 @@ export class AssignRoleCommandHandler extends ProjectCommandHandler<
     this.userFactory = userFactory;
   }
 
-  protected async doHandle(
-    command: AssignRoleCommand,
-  ): Promise<ReadonlyProject> {
+  protected async doHandle(command: AssignRoleCommand): Promise<Project> {
     const project = await this.projectRepository.findById(command.projectId);
     if (!project) {
       throw new ProjectNotFoundException();

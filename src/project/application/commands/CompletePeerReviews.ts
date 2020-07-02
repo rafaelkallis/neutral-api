@@ -8,32 +8,24 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
-import { SubmitPeerReviewsDto } from '../dto/SubmitPeerReviewsDto';
-import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 
-export class SubmitPeerReviewsCommand extends ProjectCommand {
-  public readonly projectId: string;
-  public readonly submitPeerReviewsDto: SubmitPeerReviewsDto;
+export class CompletePeerReviewsCommand extends ProjectCommand {
+  public readonly projectId: ProjectId;
 
-  public constructor(
-    authUser: User,
-    projectId: string,
-    submitPeerReviewsDto: SubmitPeerReviewsDto,
-  ) {
+  public constructor(authUser: User, projectId: ProjectId) {
     super(authUser);
     this.projectId = projectId;
-    this.submitPeerReviewsDto = submitPeerReviewsDto;
   }
 }
 
 @Injectable()
-@CommandHandler.register(SubmitPeerReviewsCommand)
-export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<
-  SubmitPeerReviewsCommand
+@CommandHandler.register(CompletePeerReviewsCommand)
+export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<
+  CompletePeerReviewsCommand
 > {
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -50,22 +42,14 @@ export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<
   }
 
   protected async doHandle(
-    command: SubmitPeerReviewsCommand,
+    command: CompletePeerReviewsCommand,
   ): Promise<Project> {
-    const projectId = ProjectId.from(command.projectId);
-    const project = await this.projectRepository.findById(projectId);
+    const project = await this.projectRepository.findById(command.projectId);
     if (!project) {
       throw new ProjectNotFoundException();
     }
-    if (!project.roles.isAnyAssignedToUser(command.authUser)) {
-      throw new InsufficientPermissionsException();
-    }
-    const authRole = project.roles.whereAssignee(command.authUser);
-    const submittedPeerReviews = command.submitPeerReviewsDto.asPeerReviewCollection(
-      authRole.id,
-    );
-    project.submitPeerReviews(
-      submittedPeerReviews,
+    project.assertCreator(command.authUser);
+    project.completePeerReviews(
       this.contributionsComputer,
       this.consensualityComputer,
     );

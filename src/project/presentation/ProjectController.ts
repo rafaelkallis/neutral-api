@@ -35,6 +35,8 @@ import { Mediator } from 'shared/mediator/Mediator';
 import { CreateProjectCommand } from 'project/application/commands/CreateProject';
 import { UpdateProjectCommand } from 'project/application/commands/UpdateProject';
 import { SubmitPeerReviewsCommand } from 'project/application/commands/SubmitPeerReviews';
+import { CompletePeerReviewsCommand } from 'project/application/commands/CompletePeerReviews';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 
 /**
  * Project Controller
@@ -186,6 +188,29 @@ export class ProjectController {
     @Body() dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
     return this.mediator.send(new SubmitPeerReviewsCommand(authUser, id, dto));
+  }
+
+  @Post(':id/complete-peer-reviews')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'completePeerReviews',
+    summary: 'Complete peer reviews',
+  })
+  @ApiOkResponse({
+    description: 'Peer reviews completed successfully',
+    type: ProjectDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Authenticated user is not the project owner',
+  })
+  public async completePeerReviews(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<ProjectDto> {
+    return this.mediator.send(
+      new CompletePeerReviewsCommand(authUser, ProjectId.from(id)),
+    );
   }
 
   /**
