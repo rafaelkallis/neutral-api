@@ -37,6 +37,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     }
     const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
+    console.log('maxDissent       : ' + absoluteDissent);
+    console.log('absoluteDissent  : ' + maxDissent);
+    console.log('normalizedDissent: ' + normalizedDissent);
+    console.log('consensuality    : ' + consensuality);
     return Consensuality.from(consensuality);
   }
 
@@ -44,7 +48,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     const peerReviews = peerReviewCollection.toMap();
     const peers = Object.keys(peerReviews);
     function R_ijk(i: string, j: string, k: string): number {
-      return peerReviews[i][j] / Math.max(1e-16, peerReviews[i][k]);
+      return peerReviews[i][j] / peerReviews[i][k];
     }
     function mu_jk(j: string, k: string): number {
       return mean(
@@ -66,7 +70,6 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
-    const EPSILON = 0;
     const peerReviews = new PeerReviewCollection([]);
     const peers = [];
     for (let i = 0; i < n; i++) {
@@ -79,9 +82,9 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         }
         let score: number;
         if ((i + 1) % n == j) {
-          score = 1 - (n - 2) * EPSILON;
+          score = 1;
         } else {
-          score = EPSILON;
+          score = 0;
         }
         const peerReview = PeerReview.from(
           peers[i],
