@@ -141,7 +141,7 @@ describe(Project.name, () => {
     );
   });
 
-  test('complete', () => {
+  test('complete peer reviews', () => {
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
     project.completePeerReviews(contributionsComputer, consensualityComputer);
