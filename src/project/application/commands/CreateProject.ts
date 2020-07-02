@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -57,7 +57,7 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
     this.projectFactory = projectFactory;
   }
 
-  protected doHandle(command: CreateProjectCommand): ReadonlyProject {
+  protected doHandle(command: CreateProjectCommand): Project {
     return this.projectFactory.create({
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),

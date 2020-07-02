@@ -1,4 +1,4 @@
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
@@ -58,7 +58,7 @@ export class AddRoleCommandHandler extends ProjectCommandHandler<
     this.userRepository = userRepository;
     this.userFactory = userFactory;
   }
-  protected async doHandle(command: AddRoleCommand): Promise<ReadonlyProject> {
+  protected async doHandle(command: AddRoleCommand): Promise<Project> {
     const projectId = ProjectId.from(command.projectId);
     const project = await this.projectRepository.findById(projectId);
     if (!project) {

@@ -141,6 +141,19 @@ describe(Project.name, () => {
     );
   });
 
+  test('complete', () => {
+    const contributionsComputer: ContributionsComputer = td.object();
+    const consensualityComputer: ConsensualityComputer = td.object();
+    project.complete(contributionsComputer, consensualityComputer);
+    td.verify(
+      project.state.complete(
+        project,
+        contributionsComputer,
+        consensualityComputer,
+      ),
+    );
+  });
+
   test('submit manager review', () => {
     project.submitManagerReview();
     td.verify(project.state.submitManagerReview(project));
