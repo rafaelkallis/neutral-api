@@ -5,7 +5,7 @@ updates:
     open-pull-requests-limit: 15
     schedule:
       interval: "daily"
-      time: "00:45
+      time: "00:45"
     reviewers:
       - "rafaelkallis"
     
