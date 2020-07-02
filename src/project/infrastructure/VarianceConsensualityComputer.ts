@@ -68,11 +68,7 @@ export class VarianceConsensualityComputerService extends ConsensualityComputer 
     return Consensuality.from(
       1 -
         mean(
-          peers.map(
-            (j) =>
-              variance(column(j)) /
-              Math.max(1e-16, variance(worstColumn(n - 1))),
-          ),
+          peers.map((j) => variance(column(j)) / variance(worstColumn(n - 1))),
         ),
     );
   }

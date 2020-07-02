@@ -5,23 +5,24 @@ import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/Inval
  *
  */
 export class PeerReviewScore extends UnitDecimalValueObject {
-  public constructor(value: number) {
+  public static EPSILON = 1e-8;
+
+  private constructor(value: number) {
     super(value);
     this.assertGreaterEqualThanEpsilon(value);
   }
 
   public static from(value: number): PeerReviewScore {
+    if (value >= 0 && value < PeerReviewScore.EPSILON) {
+      value = PeerReviewScore.EPSILON;
+    }
     return new PeerReviewScore(value);
   }
 
   private assertGreaterEqualThanEpsilon(value: number): void {
-    if (value < 0) {
+    if (value < PeerReviewScore.EPSILON) {
       throw new InvalidPeerReviewScoreException();
     }
-    // TODO:
-    //if (value > 0) {
-    //  throw new InvalidPeerReviewScoreException();
-    //}
   }
 
   protected throwInvalidValueObjectException(): never {
