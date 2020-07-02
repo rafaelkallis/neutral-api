@@ -1,17 +1,18 @@
 import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export class Consensuality extends UnitDecimalValueObject {
+  public static EPSILON = 1e-8;
+
   private constructor(value: number) {
     super(value);
   }
 
   public static from(value: number): Consensuality {
-    if (value < PeerReviewScore.EPSILON) {
-      //console.log("fixing consensuality score by restricting value " + value + " below to a value close but above 0");
-      value = PeerReviewScore.EPSILON;
+    if (Math.abs(value) < Consensuality.EPSILON) {
+      //console.log("fixing consensuality score by restricting value " + value + " below to a value close to but above 0");
+      value = Consensuality.EPSILON;
     }
     return new Consensuality(value);
   }
