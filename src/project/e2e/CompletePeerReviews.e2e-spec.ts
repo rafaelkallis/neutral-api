@@ -1,5 +1,4 @@
 import { Project } from 'project/domain/project/Project';
-import { ReadonlyRole } from 'project/domain/role/Role';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
@@ -11,43 +10,35 @@ import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 
-describe('complete project (e2e)', () => {
+describe('complete peer reviews (e2e)', () => {
   let scenario: IntegrationTestScenario;
 
   let creator: User;
   let project: Project;
-  let role1: ReadonlyRole;
-  let role2: ReadonlyRole;
-  let role3: ReadonlyRole;
-  let role4: ReadonlyRole;
+  let assignees: UserCollection;
 
   beforeEach(async () => {
     scenario = await IntegrationTestScenario.create();
 
     creator = await scenario.createUser();
 
-    const assignee1 = await scenario.createUser();
-    const assignee2 = await scenario.createUser();
-    const assignee3 = await scenario.createUser();
-    const assignee4 = await scenario.createUser();
-
-    await scenario.authenticateUser(assignee1);
+    await scenario.authenticateUser(creator);
 
     project = await scenario.createProject(creator);
 
-    role1 = project.addRole(
+    project.addRole(
       scenario.valueObjectFaker.role.title(),
       scenario.valueObjectFaker.role.description(),
     );
-    role2 = project.addRole(
+    project.addRole(
       scenario.valueObjectFaker.role.title(),
       scenario.valueObjectFaker.role.description(),
     );
-    role3 = project.addRole(
+    project.addRole(
       scenario.valueObjectFaker.role.title(),
       scenario.valueObjectFaker.role.description(),
     );
-    role4 = project.addRole(
+    project.addRole(
       scenario.valueObjectFaker.role.title(),
       scenario.valueObjectFaker.role.description(),
     );
@@ -63,22 +54,23 @@ describe('complete project (e2e)', () => {
       scenario.valueObjectFaker.reviewTopic.input(),
     );
 
-    project.assignUserToRole(assignee1, role1.id);
-    project.assignUserToRole(assignee2, role2.id);
-    project.assignUserToRole(assignee3, role3.id);
-    project.assignUserToRole(assignee4, role4.id);
-
-    project.finishFormation(
-      new UserCollection([assignee1, assignee2, assignee3, assignee4]),
-    );
+    assignees = new UserCollection([]);
+    for (const role of project.roles) {
+      const assignee = await scenario.createUser();
+      assignees.add(assignee);
+      project.assignUserToRole(assignee, role.id);
+    }
+    project.finishFormation(assignees);
 
     await scenario.projectRepository.persist(project);
 
     const contributionsComputer = scenario.module.get(ContributionsComputer);
     const consensualityComputer = scenario.module.get(ConsensualityComputer);
 
+    // suppose roles 3 + 4 never submitted peer reviews
+    const [, , ro3, ro4] = project.roles;
     for (const reviewTopic of project.reviewTopics) {
-      for (const sender of project.roles.whereNot(role3).whereNot(role4)) {
+      for (const sender of project.roles.whereNot(ro3).whereNot(ro4)) {
         const peerReviews = new PeerReviewCollection(
           project.roles
             .whereNot(sender)
@@ -110,7 +102,7 @@ describe('complete project (e2e)', () => {
 
   test('should advance project to manager-review', async () => {
     const response = await scenario.session.post(
-      `/projects/${project.id.value}/complete`,
+      `/projects/${project.id.value}/complete-peer-reviews`,
     );
     expect(response.status).toBe(HttpStatus.OK);
     expect(response.body.state).toBe('manager-review');
@@ -121,5 +113,13 @@ describe('complete project (e2e)', () => {
       throw new Error();
     }
     expect(updatedProject.state).toBe(ManagerReviewProjectState.INSTANCE);
+  });
+
+  test('should fail if authenticated user is not project creator', async () => {
+    await scenario.authenticateUser(assignees.first());
+    const response = await scenario.session.post(
+      `/projects/${project.id.value}/complete-peer-reviews`,
+    );
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
   });
 });

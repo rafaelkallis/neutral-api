@@ -9,30 +9,30 @@ import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import {
-  CompleteProjectCommand,
-  CompleteProjectCommandHandler,
-} from './CompleteProject';
+  CompletePeerReviewsCommand,
+  CompletePeerReviewsCommandHandler,
+} from 'project/application/commands/CompletePeerReviews';
 
-describe(CompleteProjectCommand.name, () => {
-  let scenario: UnitTestScenario<CompleteProjectCommandHandler>;
-  let completeProjectCommandHandler: CompleteProjectCommandHandler;
+describe(CompletePeerReviewsCommand.name, () => {
+  let scenario: UnitTestScenario<CompletePeerReviewsCommandHandler>;
+  let completePeerReviewsCommandHandler: CompletePeerReviewsCommandHandler;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
   let projectRepository: ProjectRepository;
   let authUser: User;
   let projectId: ProjectId;
   let project: InternalProject;
-  let completeProjectCommand: CompleteProjectCommand;
+  let completePeerReviewsCommand: CompletePeerReviewsCommand;
   let projectDto: ProjectDto;
 
   beforeEach(async () => {
-    scenario = await UnitTestScenario.builder(CompleteProjectCommandHandler)
+    scenario = await UnitTestScenario.builder(CompletePeerReviewsCommandHandler)
       .addProviderMock(ObjectMapper)
       .addProviderMock(ProjectRepository)
       .addProviderMock(ContributionsComputer)
       .addProviderMock(ConsensualityComputer)
       .build();
-    completeProjectCommandHandler = scenario.subject;
+    completePeerReviewsCommandHandler = scenario.subject;
     contributionsComputer = scenario.module.get(ContributionsComputer);
     consensualityComputer = scenario.module.get(ConsensualityComputer);
     projectRepository = scenario.module.get(ProjectRepository);
@@ -40,7 +40,10 @@ describe(CompleteProjectCommand.name, () => {
     projectId = ProjectId.create();
     project = td.object();
     project.roles = td.object();
-    completeProjectCommand = new CompleteProjectCommand(authUser, projectId);
+    completePeerReviewsCommand = new CompletePeerReviewsCommand(
+      authUser,
+      projectId,
+    );
 
     td.when(projectRepository.findById(projectId)).thenResolve(project);
 
@@ -52,12 +55,14 @@ describe(CompleteProjectCommand.name, () => {
   });
 
   test('happy path', async () => {
-    const actualProjectDto = await completeProjectCommandHandler.handle(
-      completeProjectCommand,
+    const actualProjectDto = await completePeerReviewsCommandHandler.handle(
+      completePeerReviewsCommand,
     );
     expect(actualProjectDto).toBe(projectDto);
     td.verify(project.assertCreator(authUser));
-    td.verify(project.complete(contributionsComputer, consensualityComputer));
+    td.verify(
+      project.completePeerReviews(contributionsComputer, consensualityComputer),
+    );
     td.verify(projectRepository.persist(project));
   });
 });

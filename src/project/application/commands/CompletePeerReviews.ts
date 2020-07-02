@@ -13,7 +13,7 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 
-export class CompleteProjectCommand extends ProjectCommand {
+export class CompletePeerReviewsCommand extends ProjectCommand {
   public readonly projectId: ProjectId;
 
   public constructor(authUser: User, projectId: ProjectId) {
@@ -23,9 +23,9 @@ export class CompleteProjectCommand extends ProjectCommand {
 }
 
 @Injectable()
-@CommandHandler.register(CompleteProjectCommand)
-export class CompleteProjectCommandHandler extends ProjectCommandHandler<
-  CompleteProjectCommand
+@CommandHandler.register(CompletePeerReviewsCommand)
+export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<
+  CompletePeerReviewsCommand
 > {
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
@@ -41,13 +41,18 @@ export class CompleteProjectCommandHandler extends ProjectCommandHandler<
     this.consensualityComputer = consensualityComputer;
   }
 
-  protected async doHandle(command: CompleteProjectCommand): Promise<Project> {
+  protected async doHandle(
+    command: CompletePeerReviewsCommand,
+  ): Promise<Project> {
     const project = await this.projectRepository.findById(command.projectId);
     if (!project) {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(command.authUser);
-    project.complete(this.contributionsComputer, this.consensualityComputer);
+    project.completePeerReviews(
+      this.contributionsComputer,
+      this.consensualityComputer,
+    );
     return project;
   }
 }

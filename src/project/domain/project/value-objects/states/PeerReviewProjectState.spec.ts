@@ -298,7 +298,7 @@ describe(PeerReviewProjectState.name, () => {
     });
 
     test('should complete missing peer reviews', () => {
-      project.complete(contributionsComputer, consensualityComputer);
+      project.completePeerReviews(contributionsComputer, consensualityComputer);
       expect(project.peerReviews.count()).toBe(
         project.reviewTopics.count() *
           project.roles.count() *
@@ -324,7 +324,7 @@ describe(PeerReviewProjectState.name, () => {
     });
 
     test('should advance state', () => {
-      project.complete(contributionsComputer, consensualityComputer);
+      project.completePeerReviews(contributionsComputer, consensualityComputer);
       expect(project.state.equals(PeerReviewProjectState.INSTANCE)).toBeFalsy();
     });
   });

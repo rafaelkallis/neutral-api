@@ -144,9 +144,9 @@ describe(Project.name, () => {
   test('complete', () => {
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
-    project.complete(contributionsComputer, consensualityComputer);
+    project.completePeerReviews(contributionsComputer, consensualityComputer);
     td.verify(
-      project.state.complete(
+      project.state.completePeerReviews(
         project,
         contributionsComputer,
         consensualityComputer,
