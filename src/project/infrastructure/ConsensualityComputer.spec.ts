@@ -27,6 +27,7 @@ describe(ConsensualityComputer.name, () => {
   let some3PersonProject: InternalProject;
 
   beforeEach(() => {
+    console.log('-------------------------------------------------');
     modelFaker = new ModelFaker();
 
     roleA = modelFaker.role();

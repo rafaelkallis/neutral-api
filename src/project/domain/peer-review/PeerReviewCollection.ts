@@ -27,6 +27,9 @@ export interface ReadonlyPeerReviewCollection
   whereReviewTopic(
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
   ): ReadonlyPeerReviewCollection;
+  toMatrix(reviewTopic: ReviewTopicId): number[][];
+  toMatrixArray(): number[][][];
+  getNumberOfReviewTopics(): number;
   getNumberOfPeers(): number;
 
   sumScores(): number;
@@ -155,6 +158,54 @@ export class PeerReviewCollection
       map[senderRoleId.value][receiverRoleId.value] = score.value;
     }
     return map;
+  }
+
+  public toMatrix(rId: ReviewTopicId): number[][] {
+    const peers = this.getPeers();
+    const S: number[][] = [];
+    for (const [i, iId] of peers.entries()) {
+      S[i] = [];
+      for (const [j, jId] of peers.entries()) {
+        if (i === j) {
+          continue;
+        }
+        const peerReview = this.whereReviewTopic(rId)
+          .whereSenderRole(iId)
+          .whereReceiverRole(jId)
+          .first();
+        S[i][j] = peerReview.score.value;
+        S[i][i] = 0;
+      }
+    }
+    return S;
+  }
+
+  public toMatrixArray(): number[][][] {
+    const reviewTopics = this.getReviewTopics();
+    const peers = this.getPeers();
+    const S: number[][][] = [];
+    for (const [r, rId] of reviewTopics.entries()) {
+      S[r] = [];
+      for (const [i, iId] of peers.entries()) {
+        S[r][i] = [];
+        for (const [j, jId] of peers.entries()) {
+          if (i === j) {
+            continue;
+          }
+          const peerReview = this.whereReviewTopic(rId)
+            .whereSenderRole(iId)
+            .whereReceiverRole(jId)
+            .first();
+          S[r][i][j] = peerReview.score.value;
+          S[r][i][i] = 0;
+        }
+      }
+    }
+    return S;
+  }
+
+  public getNumberOfReviewTopics(): number {
+    return this.getReviewTopics().length;
   }
 
   public getNumberOfPeers(): number {

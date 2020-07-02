@@ -19,21 +19,7 @@ export class CoveeContributionsComputer extends ContributionsComputer {
   ): Contribution[] {
     const contributions: Contribution[] = [];
     const peers = peerReviews.getPeers();
-    const S: number[][] = [];
-    for (const [i, iId] of peers.entries()) {
-      S[i] = [];
-      for (const [j, jId] of peers.entries()) {
-        if (i === j) {
-          continue;
-        }
-        const peerReview = peerReviews
-          .whereReviewTopic(reviewTopic)
-          .whereSenderRole(iId)
-          .whereReceiverRole(jId)
-          .first();
-        S[i][j] = peerReview.score.value;
-      }
-    }
+    const S = peerReviews.toMatrix(reviewTopic);
     const relContVec: number[] = this.computeContributionsFromMatrix(S);
     for (const [i, iId] of peers.entries()) {
       const contributionAmount = ContributionAmount.from(relContVec[i]);
