@@ -37,7 +37,6 @@ describe(CoveeContributionsComputer.name, () => {
   let project5b: InternalProject;
   let project7: InternalProject;
   let project8: InternalProject;
-  let zero: number;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(
@@ -87,8 +86,6 @@ describe(CoveeContributionsComputer.name, () => {
     f = role6.id.value;
     g = role7.id.value;
     h = role8.id.value;
-
-    zero = 1e-2;
   });
 
   describe('n=3', () => {
@@ -355,15 +352,15 @@ describe(CoveeContributionsComputer.name, () => {
           [b]: {
             [a]: 50.0 / 100,
             [c]: 50.0 / 100,
-            [d]: zero / 100,
+            [d]: 0.0 / 100,
           },
           [c]: {
-            [a]: zero / 100,
+            [a]: 0.0 / 100,
             [b]: 45.9 / 100,
             [d]: 54.1 / 100,
           },
           [d]: {
-            [a]: zero / 100,
+            [a]: 0.0 / 100,
             [b]: 51.0 / 100,
             [c]: 49.0 / 100,
           },
@@ -493,7 +490,7 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 40.0 / 100,
             [c]: 40.0 / 100,
             [d]: 20.0 / 100,
-            [e]: zero / 100,
+            [e]: 0.0 / 100,
           },
           [b]: {
             [a]: 35.0 / 100,
@@ -505,13 +502,13 @@ describe(CoveeContributionsComputer.name, () => {
             [a]: 43.9 / 100,
             [b]: 30.5 / 100,
             [d]: 25.6 / 100,
-            [e]: zero / 100,
+            [e]: 0.0 / 100,
           },
           [d]: {
             [a]: 33.3 / 100,
             [b]: 33.3 / 100,
             [c]: 33.4 / 100,
-            [e]: zero / 100,
+            [e]: 0.0 / 100,
           },
           [e]: {
             [a]: 25.0 / 100,

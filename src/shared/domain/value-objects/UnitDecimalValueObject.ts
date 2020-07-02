@@ -2,18 +2,12 @@ import { NumberValueObject } from 'shared/domain/value-objects/NumberValueObject
 import { InvalidUnitDecimalException } from 'shared/domain/exceptions/InvalidUnitDecimalException';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
-/**
- *
- */
 export abstract class UnitDecimalValueObject extends NumberValueObject {
   protected constructor(value: number) {
     super(value);
     this.assertUnitDecimal(value);
   }
 
-  /**
-   *
-   */
   public equals(other: ValueObject): boolean {
     if (!(other instanceof UnitDecimalValueObject)) {
       return false;
@@ -25,22 +19,21 @@ export abstract class UnitDecimalValueObject extends NumberValueObject {
     return super.equals(other);
   }
 
-  /**
-   *
-   */
   public toString(): string {
     return this.value.toFixed(3);
   }
 
   private assertUnitDecimal(value: number): void {
-    if (value < 0 || value > 1) {
+    if (value < 0) {
+      console.log('value smaller than zero : ' + value);
+      this.throwInvalidValueObjectException();
+    }
+    if (value > 1) {
+      console.log('value greater than zero : ' + value);
       this.throwInvalidValueObjectException();
     }
   }
 
-  /**
-   *
-   */
   protected throwInvalidValueObjectException(): never {
     throw new InvalidUnitDecimalException();
   }

@@ -146,7 +146,7 @@ export class ModelFaker {
     const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const score = PeerReviewScore.from(PeerReviewScore.EPSILON);
+    const score = PeerReviewScore.from(0);
     return new PeerReview(
       id,
       createdAt,

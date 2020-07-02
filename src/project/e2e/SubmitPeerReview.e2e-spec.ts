@@ -93,7 +93,7 @@ describe('submit peer review (e2e)', () => {
     const response = await scenario.session
       .post(`/projects/${project.id.value}/submit-peer-reviews`)
       .send({ peerReviews, reviewTopicId: reviewTopic1.id.value });
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(HttpStatus.OK);
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );
@@ -109,6 +109,30 @@ describe('submit peer review (e2e)', () => {
         peerReviews[sentPeerReview.receiverRoleId.value],
       );
     }
+  });
+
+  test("should submit peer reviews with 1's and 0's", async () => {
+    peerReviews = {
+      [role2.id.value]: 0,
+      [role3.id.value]: 1,
+      [role4.id.value]: 0.0,
+    };
+    const response = await scenario.session
+      .post(`/projects/${project.id.value}/submit-peer-reviews`)
+      .send({
+        peerReviews,
+        reviewTopicId: project.reviewTopics.first().id.value,
+      });
+    expect(response.status).toBe(HttpStatus.OK);
+    const updatedProject = await scenario.projectRepository.findById(
+      project.id,
+    );
+    if (!updatedProject) {
+      throw new Error();
+    }
+    expect(updatedProject.peerReviews.count()).toBe(
+      project.peerReviews.count() + 3,
+    );
   });
 
   describe('when final peer review', () => {

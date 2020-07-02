@@ -37,6 +37,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     }
     const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
+    //console.log('maxDissent       : ' + absoluteDissent);
+    //console.log('absoluteDissent  : ' + maxDissent);
+    //console.log('normalizedDissent: ' + normalizedDissent);
+    //console.log('consensuality    : ' + consensuality);
     return Consensuality.from(consensuality);
   }
 
@@ -58,11 +62,12 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
           .map((i) => Math.pow(R_ijk(i, j, k) - mu_jk(j, k), 2)),
       );
     }
-    return sum(
+    const dissent = sum(
       peers.flatMap((j) =>
         peers.filter((k) => k !== j).map((k) => sigma_sq_jk(j, k)),
       ),
     );
+    return dissent;
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
@@ -78,9 +83,9 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         }
         let score: number;
         if ((i + 1) % n == j) {
-          score = 1 - (n - 2) * PeerReviewScore.EPSILON;
+          score = 1;
         } else {
-          score = PeerReviewScore.EPSILON;
+          score = 0;
         }
         const peerReview = PeerReview.from(
           peers[i],

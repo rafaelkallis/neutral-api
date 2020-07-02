@@ -2,9 +2,6 @@ import { Id } from 'shared/domain/value-objects/Id';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { InvalidPeerReviewIdException } from 'project/domain/exceptions/InvalidPeerReviewIdException';
 
-/**
- *
- */
 export class PeerReviewId extends Id {
   private constructor(value: string) {
     super(value);
