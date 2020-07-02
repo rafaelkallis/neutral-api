@@ -23,6 +23,8 @@ import {
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { ValueObjectFaker } from 'test/ValueObjectFaker';
 import { UserCollection } from 'user/domain/UserCollection';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { Role } from 'project/domain/role/Role';
 
 describe(PeerReviewProjectState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
@@ -259,18 +261,20 @@ describe(PeerReviewProjectState.name, () => {
 
   describe('complete', () => {
     beforeEach(() => {
-      // submit all peer reviews except for some
-      const [, r2, r3, r4] = project.roles;
+      // review topic (rt)
+      // role (ro)
+      // submit all peer reviews except for (rt1, ro3), (rt2, ro2), (rt2, ro4)
+      const [, ro2, ro3, ro4] = project.roles;
       const [rt1, rt2] = project.reviewTopics;
       for (const reviewTopic of project.reviewTopics) {
         for (const sender of project.roles) {
-          if (reviewTopic.equals(rt1) && sender.equals(r3)) {
+          if (reviewTopic.equals(rt1) && sender.equals(ro3)) {
             continue;
           }
-          if (reviewTopic.equals(rt2) && sender.equals(r2)) {
+          if (reviewTopic.equals(rt2) && sender.equals(ro2)) {
             continue;
           }
-          if (reviewTopic.equals(rt2) && sender.equals(r4)) {
+          if (reviewTopic.equals(rt2) && sender.equals(ro4)) {
             continue;
           }
           const submittedPeerReviews = new PeerReviewCollection([]);
@@ -293,6 +297,35 @@ describe(PeerReviewProjectState.name, () => {
       }
     });
 
-    test.todo('should complete missing peer reviews');
+    test('should complete missing peer reviews', () => {
+      project.complete(contributionsComputer, consensualityComputer);
+      expect(project.peerReviews.count()).toBe(
+        project.reviewTopics.count() *
+          project.roles.count() *
+          (project.roles.count() - 1),
+      );
+      const [, ro2, ro3, ro4] = project.roles;
+      const [rt1, rt2] = project.reviewTopics;
+      for (const [rt, ro] of [
+        [rt1, ro3],
+        [rt2, ro2],
+        [rt2, ro4],
+      ] as [ReviewTopic, Role][]) {
+        for (const peerReview of project.peerReviews
+          .whereReviewTopic(rt)
+          .whereSenderRole(ro)) {
+          expect(
+            peerReview.score.equals(
+              PeerReviewScore.equalSplit(project.roles.count()),
+            ),
+          ).toBeTruthy();
+        }
+      }
+    });
+
+    test('should advance state', () => {
+      project.complete(contributionsComputer, consensualityComputer);
+      expect(project.state.equals(PeerReviewProjectState.INSTANCE)).toBeFalsy();
+    });
   });
 });
