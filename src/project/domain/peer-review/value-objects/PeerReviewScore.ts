@@ -12,9 +12,11 @@ export class PeerReviewScore extends UnitDecimalValueObject {
 
   public static from(value: number): PeerReviewScore {
     if (value >= 0 && value < PeerReviewScore.EPSILON) {
+      //console.log("fixing peer-review score by restricting value " + value + " below to a value close but above 0");
       value = PeerReviewScore.EPSILON;
     }
     if (value >= 1 - PeerReviewScore.EPSILON && value <= 1) {
+      //console.log("fixing peer-review score by restricting value " + value + " above to a value close but below 1");
       value = 1 - PeerReviewScore.EPSILON;
     }
     return new PeerReviewScore(value);

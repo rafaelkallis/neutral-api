@@ -25,9 +25,11 @@ export abstract class UnitDecimalValueObject extends NumberValueObject {
 
   private assertUnitDecimal(value: number): void {
     if (value < 0) {
+      console.log('value smaller than zero : ' + value);
       this.throwInvalidValueObjectException();
     }
     if (value > 1) {
+      console.log('value greater than zero : ' + value);
       this.throwInvalidValueObjectException();
     }
   }

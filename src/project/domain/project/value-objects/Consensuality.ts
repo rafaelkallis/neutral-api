@@ -1,5 +1,6 @@
 import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
+import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export class Consensuality extends UnitDecimalValueObject {
@@ -8,6 +9,10 @@ export class Consensuality extends UnitDecimalValueObject {
   }
 
   public static from(value: number): Consensuality {
+    if (value < PeerReviewScore.EPSILON) {
+      //console.log("fixing consensuality score by restricting value " + value + " below to a value close but above 0");
+      value = PeerReviewScore.EPSILON;
+    }
     return new Consensuality(value);
   }
 

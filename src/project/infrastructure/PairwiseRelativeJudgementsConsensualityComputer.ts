@@ -37,10 +37,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     }
     const normalizedDissent = absoluteDissent / maxDissent;
     const consensuality = 1 - normalizedDissent;
-    console.log('maxDissent       : ' + absoluteDissent);
-    console.log('absoluteDissent  : ' + maxDissent);
-    console.log('normalizedDissent: ' + normalizedDissent);
-    console.log('consensuality    : ' + consensuality);
+    //console.log('maxDissent       : ' + absoluteDissent);
+    //console.log('absoluteDissent  : ' + maxDissent);
+    //console.log('normalizedDissent: ' + normalizedDissent);
+    //console.log('consensuality    : ' + consensuality);
     return Consensuality.from(consensuality);
   }
 
@@ -67,9 +67,6 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         peers.filter((k) => k !== j).map((k) => sigma_sq_jk(j, k)),
       ),
     );
-    if (Math.abs(dissent) < PeerReviewScore.EPSILON) {
-      return PeerReviewScore.EPSILON;
-    }
     return dissent;
   }
 
