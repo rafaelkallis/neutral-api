@@ -33,7 +33,9 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
     throw new RoleNotFoundException();
   }
 
-  public whereNot(roleOrIdToExclude: Role | RoleId): ReadonlyRoleCollection {
+  public whereNot(
+    roleOrIdToExclude: ReadonlyRole | RoleId,
+  ): ReadonlyRoleCollection {
     const roleIdToExclude = this.getId(roleOrIdToExclude);
     const roleToExclude = this.whereId(roleIdToExclude);
     this.assertContains(roleToExclude);
