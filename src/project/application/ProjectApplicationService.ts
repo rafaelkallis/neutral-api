@@ -6,18 +6,13 @@ import {
   GetProjectsType,
 } from 'project/application/dto/GetProjectsQueryDto';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
-import { SubmitPeerReviewsDto } from 'project/application/dto/SubmitPeerReviewsDto';
 import { ReadonlyProject } from 'project/domain/project/Project';
 import { InvalidProjectTypeQueryException } from 'project/application/exceptions/InvalidProjectTypeQueryException';
 import { User } from 'user/domain/User';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { UserFactory } from 'user/application/UserFactory';
 import { UserCollection } from 'user/domain/UserCollection';
 
 @Injectable()
@@ -25,22 +20,15 @@ export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
   private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
-  private readonly contributionsComputer: ContributionsComputer;
-  private readonly consensualityComputer: ConsensualityComputer;
 
   public constructor(
     projectRepository: ProjectRepository,
     userRepository: UserRepository,
-    userFactory: UserFactory,
     objectMapper: ObjectMapper,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
   ) {
     this.projectRepository = projectRepository;
     this.userRepository = userRepository;
     this.objectMapper = objectMapper;
-    this.contributionsComputer = contributionsComputer;
-    this.consensualityComputer = consensualityComputer;
   }
 
   /**
@@ -104,33 +92,6 @@ export class ProjectApplicationService {
     const assignees = await this.userRepository.findByIds(assigneeIds);
     project.finishFormation(
       new UserCollection(assignees.filter(Boolean) as User[]),
-    );
-    await this.projectRepository.persist(project);
-    return this.objectMapper.map(project, ProjectDto, { authUser });
-  }
-
-  /**
-   * Call to submit reviews over one's project peers.
-   */
-  public async submitPeerReviews(
-    authUser: User,
-    rawProjectId: string,
-    dto: SubmitPeerReviewsDto,
-  ): Promise<ProjectDto> {
-    const projectId = ProjectId.from(rawProjectId);
-    const project = await this.projectRepository.findById(projectId);
-    if (!project) {
-      throw new ProjectNotFoundException();
-    }
-    if (!project.roles.isAnyAssignedToUser(authUser)) {
-      throw new InsufficientPermissionsException();
-    }
-    const authRole = project.roles.whereAssignee(authUser);
-    const submittedPeerReviews = dto.asPeerReviewCollection(authRole.id);
-    project.submitPeerReviews(
-      submittedPeerReviews,
-      this.contributionsComputer,
-      this.consensualityComputer,
     );
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });

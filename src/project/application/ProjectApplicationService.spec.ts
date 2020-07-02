@@ -1,9 +1,5 @@
 import td from 'testdouble';
-import {
-  InternalProject,
-  Project,
-  ReadonlyProject,
-} from 'project/domain/project/Project';
+import { InternalProject, Project } from 'project/domain/project/Project';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { ProjectApplicationService } from 'project/application/ProjectApplicationService';
 import {
@@ -13,19 +9,13 @@ import {
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { Role } from 'project/domain/role/Role';
 import { User } from 'user/domain/User';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { UserFactory } from 'user/application/UserFactory';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
-import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserCollection } from 'user/domain/UserCollection';
 
 describe(ProjectApplicationService.name, () => {
@@ -45,13 +35,7 @@ describe(ProjectApplicationService.name, () => {
     scenario = await UnitTestScenario.builder(ProjectApplicationService)
       .addProviderMock(ProjectRepository)
       .addProviderMock(UserRepository)
-      .addProviderMock(UserFactory)
       .addProviderMock(ObjectMapper)
-      .addProviderMock(DomainEventBroker)
-      .addProviderMock(ContributionsComputer)
-      .addProviderMock(ConsensualityComputer)
-      .addProviderMock(TokenManager)
-      .addProviderMock(MagicLinkFactory)
       .build();
     projectApplication = scenario.subject;
 
@@ -60,7 +44,6 @@ describe(ProjectApplicationService.name, () => {
     objectMapper = scenario.module.get(ObjectMapper);
 
     creatorUser = scenario.modelFaker.user();
-    await userRepository.persist(creatorUser);
 
     project = scenario.modelFaker.project(creatorUser.id);
     td.when(projectRepository.findById(project.id)).thenResolve(project);
@@ -75,8 +58,6 @@ describe(ProjectApplicationService.name, () => {
 
     reviewTopic = scenario.modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
-
-    await projectRepository.persist(project);
 
     expectedProjectDto = td.object();
     td.when(
@@ -94,25 +75,21 @@ describe(ProjectApplicationService.name, () => {
 
   describe('get created projects', () => {
     let query: GetProjectsQueryDto;
-    let projects: ReadonlyProject[];
     let projectDtos: ProjectDto[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = new GetProjectsQueryDto(GetProjectsType.CREATED);
-      projects = [
+      const projects = [
         scenario.modelFaker.project(creatorUser.id),
         scenario.modelFaker.project(creatorUser.id),
         scenario.modelFaker.project(creatorUser.id),
       ];
-      await projectRepository.persist(...projects);
-      // td.when(projectRepository.findByCreatorId(ownerUser.id)).thenResolve(projects);
+      td.when(projectRepository.findByCreatorId(creatorUser.id)).thenResolve(
+        projects,
+      );
       projectDtos = td.object();
       td.when(
-        objectMapper.mapArray(
-          td.matchers.anything(),
-          ProjectDto,
-          td.matchers.anything(),
-        ),
+        objectMapper.mapArray(projects, ProjectDto, td.matchers.anything()),
       ).thenResolve(projectDtos);
     });
 
@@ -131,9 +108,8 @@ describe(ProjectApplicationService.name, () => {
     let query: GetProjectsQueryDto;
     let projectDtos: ProjectDto[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       assigneeUser = scenario.modelFaker.user();
-      await userRepository.persist(assigneeUser);
       projects = [];
       for (let i = 0; i < 3; i++) {
         projects[i] = scenario.modelFaker.project(creatorUser.id);
@@ -141,7 +117,6 @@ describe(ProjectApplicationService.name, () => {
           scenario.modelFaker.role(assigneeUser.id),
         ]);
       }
-      await projectRepository.persist(...projects);
       query = new GetProjectsQueryDto(GetProjectsType.ASSIGNED);
       projectDtos = td.object();
       td.when(
