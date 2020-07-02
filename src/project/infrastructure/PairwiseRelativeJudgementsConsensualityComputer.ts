@@ -62,11 +62,15 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
           .map((i) => Math.pow(R_ijk(i, j, k) - mu_jk(j, k), 2)),
       );
     }
-    return sum(
+    const dissent = sum(
       peers.flatMap((j) =>
         peers.filter((k) => k !== j).map((k) => sigma_sq_jk(j, k)),
       ),
     );
+    if (Math.abs(dissent) < PeerReviewScore.EPSILON) {
+      return PeerReviewScore.EPSILON;
+    }
+    return dissent;
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
