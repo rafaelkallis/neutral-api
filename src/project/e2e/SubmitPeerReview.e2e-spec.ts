@@ -8,8 +8,9 @@ import { ManagerReviewProjectState } from 'project/domain/project/value-objects/
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserCollection } from 'user/domain/UserCollection';
+import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { PeerReview } from 'project/domain/peer-review/PeerReview';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -120,22 +121,27 @@ describe('submit peer review (e2e)', () => {
             // skip this one, will be submitted in test
             continue;
           }
-          const peerReviews: [RoleId, PeerReviewScore][] = project.roles
-            .whereNot(sender)
-            .toArray()
-            .map((receiver) => [
-              receiver.id,
-              PeerReviewScore.from(1 / (project.roles.count() - 1)),
-            ]);
+          const peerReviews = new PeerReviewCollection(
+            project.roles
+              .whereNot(sender)
+              .toArray()
+              .map((receiver) =>
+                PeerReview.from(
+                  sender.id,
+                  receiver.id,
+                  reviewTopic.id,
+                  PeerReviewScore.equalSplit(project.roles.count()),
+                ),
+              ),
+          );
           project.submitPeerReviews(
-            sender.id,
-            reviewTopic.id,
             peerReviews,
             contributionsComputer,
             consensualityComputer,
           );
         }
       }
+
       await scenario.projectRepository.persist(project);
       project.clearDomainEvents();
     });
@@ -143,7 +149,10 @@ describe('submit peer review (e2e)', () => {
     test('should advance to project manager state', async () => {
       const response = await scenario.session
         .post(`/projects/${project.id.value}/submit-peer-reviews`)
-        .send({ peerReviews, reviewTopicId: reviewTopic1.id.value });
+        .send({
+          peerReviews,
+          reviewTopicId: project.reviewTopics.first().id.value,
+        });
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body.state).toBe('manager-review');
       const updatedProject = await scenario.projectRepository.findById(

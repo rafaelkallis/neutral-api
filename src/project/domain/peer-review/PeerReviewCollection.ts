@@ -14,6 +14,7 @@ import { ReadonlyProject } from 'project/domain/project/Project';
 import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsAlreadySubmittedException';
 import { Role } from 'project/domain/role/Role';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -28,23 +29,30 @@ export interface ReadonlyPeerReviewCollection
   ): ReadonlyPeerReviewCollection;
   getNumberOfPeers(): number;
 
+  sumScores(): number;
+
   // TODO make project private readonly
-  areSubmitted(project: ReadonlyProject): boolean;
-  assertSubmitted(project: ReadonlyProject): void;
-  areSubmittedForReviewTopic(
+  areComplete(project: ReadonlyProject): boolean;
+  assertComplete(project: ReadonlyProject): void;
+  areCompleteForReviewTopic(
     project: ReadonlyProject,
     reviewTopicId: ReviewTopicId,
   ): boolean;
-  areSubmittedForSenderRole(
+  areCompleteForSenderRole(
     project: ReadonlyProject,
     senderRoleId: RoleId,
   ): boolean;
-  areSubmittedForSenderRoleAndReviewTopic(
+  areCompleteForSenderRoleAndReviewTopic(
     project: ReadonlyProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): boolean;
-  assertNotSubmittedForSenderRoleAndReviewTopic(
+  assertCompleteForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): void;
+  assertNotCompleteForSenderRoleAndReviewTopic(
     project: ReadonlyProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
@@ -153,11 +161,11 @@ export class PeerReviewCollection
     return this.getPeers().length;
   }
 
-  public areSubmitted(project: ReadonlyProject): boolean {
+  public areComplete(project: ReadonlyProject): boolean {
     for (const reviewTopic of project.reviewTopics) {
       for (const senderRole of project.roles) {
         if (
-          !this.areSubmittedForSenderRoleAndReviewTopic(
+          !this.areCompleteForSenderRoleAndReviewTopic(
             project,
             senderRole.id,
             reviewTopic.id,
@@ -170,20 +178,20 @@ export class PeerReviewCollection
     return true;
   }
 
-  public assertSubmitted(project: ReadonlyProject): void {
-    if (!this.areSubmitted(project)) {
+  public assertComplete(project: ReadonlyProject): void {
+    if (!this.areComplete(project)) {
       throw new Error('peer reviews not complete');
     }
   }
 
-  public areSubmittedForReviewTopic(
+  public areCompleteForReviewTopic(
     project: ReadonlyProject,
     reviewTopicId: ReviewTopicId,
   ): boolean {
     project.reviewTopics.assertContains(reviewTopicId);
     for (const senderRole of project.roles) {
       if (
-        !this.areSubmittedForSenderRoleAndReviewTopic(
+        !this.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRole.id,
           reviewTopicId,
@@ -195,14 +203,14 @@ export class PeerReviewCollection
     return true;
   }
 
-  public areSubmittedForSenderRole(
+  public areCompleteForSenderRole(
     project: ReadonlyProject,
     senderRoleId: RoleId,
   ): boolean {
     project.roles.assertContains(senderRoleId);
     for (const reviewTopic of project.reviewTopics) {
       if (
-        !this.areSubmittedForSenderRoleAndReviewTopic(
+        !this.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRoleId,
           reviewTopic.id,
@@ -214,33 +222,71 @@ export class PeerReviewCollection
     return true;
   }
 
-  public areSubmittedForSenderRoleAndReviewTopic(
+  public areCompleteForSenderRoleAndReviewTopic(
     project: ReadonlyProject,
     senderRole: RoleId,
     reviewTopic: ReviewTopicId,
   ): boolean {
-    project.roles.assertContains(senderRole);
-    project.reviewTopics.assertContains(reviewTopic);
+    project.roles.assertContains(
+      senderRole,
+      () =>
+        new DomainException(
+          'peer_review_sender_not_found',
+          'The peer-review sender is not found',
+        ),
+    );
+    project.reviewTopics.assertContains(
+      reviewTopic,
+      () =>
+        new DomainException(
+          'peer_review_review_topic_not_found',
+          'The peer-review review-topic was not found',
+        ),
+    );
+    const submittedPeerReviews = this.whereSenderRole(
+      senderRole,
+    ).whereReviewTopic(reviewTopic);
     for (const receiverRole of project.roles.whereNot(senderRole)) {
-      if (
-        this.whereReviewTopic(reviewTopic)
-          .whereSenderRole(senderRole)
-          .whereReceiverRole(receiverRole.id)
-          .isEmpty()
-      ) {
+      if (submittedPeerReviews.whereReceiverRole(receiverRole.id).isEmpty()) {
         return false;
       }
+    }
+    // TODO work out numerics of 0.95
+    if (submittedPeerReviews.sumScores() < 0.95) {
+      return false;
+    }
+    if (submittedPeerReviews.sumScores() > 1) {
+      return false;
     }
     return true;
   }
 
-  public assertNotSubmittedForSenderRoleAndReviewTopic(
+  public assertCompleteForSenderRoleAndReviewTopic(
     project: ReadonlyProject,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): void {
     if (
-      this.areSubmittedForSenderRoleAndReviewTopic(
+      !this.areCompleteForSenderRoleAndReviewTopic(
+        project,
+        senderRoleId,
+        reviewTopicId,
+      )
+    ) {
+      throw new DomainException(
+        'incomplete_peer_reviews',
+        'Peer reviews are incomplete for given sender and review topic.',
+      );
+    }
+  }
+
+  public assertNotCompleteForSenderRoleAndReviewTopic(
+    project: ReadonlyProject,
+    senderRoleId: RoleId,
+    reviewTopicId: ReviewTopicId,
+  ): void {
+    if (
+      this.areCompleteForSenderRoleAndReviewTopic(
         project,
         senderRoleId,
         reviewTopicId,
@@ -254,5 +300,12 @@ export class PeerReviewCollection
     predicate: (peerReview: PeerReview) => boolean,
   ): ReadonlyPeerReviewCollection {
     return new PeerReviewCollection(this.toArray().filter(predicate));
+  }
+
+  public sumScores(): number {
+    return this.toArray().reduce(
+      (sum, peerReview) => sum + peerReview.score.value,
+      0,
+    );
   }
 }

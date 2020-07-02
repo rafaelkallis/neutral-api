@@ -7,7 +7,6 @@ import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyUser } from 'user/domain/User';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
@@ -17,6 +16,7 @@ import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 /**
  *
@@ -78,9 +78,7 @@ export abstract class ProjectState extends ValueObject {
 
   public abstract submitPeerReviews(
     project: InternalProject,
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
+    peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): void;
@@ -171,12 +169,10 @@ export abstract class DefaultProjectState extends ProjectState {
   }
 
   public submitPeerReviews(
-    project: InternalProject,
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    _project: InternalProject,
+    _peerReviews: ReadonlyPeerReviewCollection,
+    _contributionsComputer: ContributionsComputer,
+    _consensualityComputer: ConsensualityComputer,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

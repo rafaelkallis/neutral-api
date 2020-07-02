@@ -48,6 +48,7 @@ import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRol
 import { UnassignRoleCommandHandler } from 'project/application/commands/UnassignRole';
 import { ProjectDomainEventHandlers } from 'project/application/ProjectDomainEventHandlers';
 import { AssignRoleCommandHandler } from 'project/application/commands/AssignRole';
+import { SubmitPeerReviewsCommandHandler } from './application/commands/SubmitPeerReviews';
 
 /**
  * Project Module
@@ -98,6 +99,7 @@ import { AssignRoleCommandHandler } from 'project/application/commands/AssignRol
     RemoveRoleCommandHandler,
     AssignRoleCommandHandler,
     UnassignRoleCommandHandler,
+    SubmitPeerReviewsCommandHandler,
   ],
   exports: [ProjectRepository],
 })

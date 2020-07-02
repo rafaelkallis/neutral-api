@@ -8,7 +8,6 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
-import { PeerReviewRoleMismatchException } from 'project/domain/exceptions/PeerReviewRoleMismatchException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
@@ -24,6 +23,7 @@ import {
   ConsensualityComputationResult,
 } from 'project/domain/ConsensualityComputer';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 describe(PeerReviewProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -44,7 +44,7 @@ describe(PeerReviewProjectState.name, () => {
   describe('submit peer review', () => {
     let roles: Role[];
     let reviewTopic: ReviewTopic;
-    let submittedPeerReviews: [RoleId, PeerReviewScore][];
+    let submittedPeerReviews: PeerReviewCollection;
     let contributionsComputationResult: ContributionsComputationResult;
     let consensualityComputationResult: ConsensualityComputationResult;
     let contributionsComputer: ContributionsComputer;
@@ -88,14 +88,29 @@ describe(PeerReviewProjectState.name, () => {
       project.peerReviews = new PeerReviewCollection(peerReviews);
       jest.spyOn(
         project.peerReviews,
-        'assertNotSubmittedForSenderRoleAndReviewTopic',
+        'assertNotCompleteForSenderRoleAndReviewTopic',
       );
 
-      submittedPeerReviews = [
-        [roles[1].id, PeerReviewScore.from(1 / 3)],
-        [roles[2].id, PeerReviewScore.from(1 / 3)],
-        [roles[3].id, PeerReviewScore.from(1 / 3)],
-      ];
+      submittedPeerReviews = new PeerReviewCollection([
+        PeerReview.from(
+          roles[0].id,
+          roles[1].id,
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+        PeerReview.from(
+          roles[0].id,
+          roles[2].id,
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+        PeerReview.from(
+          roles[0].id,
+          roles[3].id,
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+      ]);
 
       consensualityComputationResult = td.object();
       td.when(consensualityComputer.compute(project)).thenReturn(
@@ -108,51 +123,45 @@ describe(PeerReviewProjectState.name, () => {
       );
     });
 
-    test('should fail if a peer review miss a peer', () => {
-      submittedPeerReviews = [
-        [roles[1].id, PeerReviewScore.from(1 / 2)],
-        [roles[3].id, PeerReviewScore.from(1 / 2)],
-      ];
-      expect(() =>
-        state.submitPeerReviews(
-          project,
-          roles[0].id,
-          reviewTopic.id,
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        ),
-      ).toThrow(expect.any(PeerReviewRoleMismatchException));
-    });
-
     test('should fail if a peer review is for non-existing peer', () => {
-      submittedPeerReviews = [
-        [RoleId.create(), PeerReviewScore.from(1 / 3)],
-        [roles[2].id, PeerReviewScore.from(1 / 3)],
-        [roles[3].id, PeerReviewScore.from(1 / 3)],
-      ];
+      submittedPeerReviews = new PeerReviewCollection([
+        PeerReview.from(
+          roles[0].id,
+          RoleId.create(),
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+        PeerReview.from(
+          roles[0].id,
+          roles[2].id,
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+        PeerReview.from(
+          roles[0].id,
+          roles[3].id,
+          reviewTopic.id,
+          PeerReviewScore.from(1 / 3),
+        ),
+      ]);
       expect(() =>
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         ),
-      ).toThrow(expect.any(PeerReviewRoleMismatchException));
+      ).toThrow(expect.any(DomainException));
     });
 
     describe('final peer review', () => {
       beforeEach(() => {
-        jest.spyOn(project.peerReviews, 'areSubmitted').mockReturnValue(true);
+        jest.spyOn(project.peerReviews, 'areComplete').mockReturnValue(true);
       });
 
       test('should advance state and compute contributions and compute consensuality', () => {
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -174,8 +183,6 @@ describe(PeerReviewProjectState.name, () => {
         project.skipManagerReview = SkipManagerReview.YES;
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -188,8 +195,6 @@ describe(PeerReviewProjectState.name, () => {
         jest.spyOn(project, 'isConsensual').mockReturnValue(true);
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -204,8 +209,6 @@ describe(PeerReviewProjectState.name, () => {
         jest.spyOn(project, 'isConsensual').mockReturnValue(false);
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -217,8 +220,6 @@ describe(PeerReviewProjectState.name, () => {
         project.skipManagerReview = SkipManagerReview.NO;
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -231,14 +232,12 @@ describe(PeerReviewProjectState.name, () => {
 
     describe('not final peer review', () => {
       beforeEach(() => {
-        jest.spyOn(project.peerReviews, 'areSubmitted').mockReturnValue(false);
+        jest.spyOn(project.peerReviews, 'areComplete').mockReturnValue(false);
       });
 
       test('should not compute contributions and consensuality', () => {
         state.submitPeerReviews(
           project,
-          roles[0].id,
-          reviewTopic.id,
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -247,9 +246,6 @@ describe(PeerReviewProjectState.name, () => {
           project.state.equals(PeerReviewProjectState.INSTANCE),
         ).toBeTruthy();
         expect(project.contributions.isEmpty()).toBeTruthy();
-        expect(
-          project.peerReviews.assertNotSubmittedForSenderRoleAndReviewTopic,
-        ).toHaveBeenCalledWith(project, roles[0].id, reviewTopic.id);
       });
     });
   });

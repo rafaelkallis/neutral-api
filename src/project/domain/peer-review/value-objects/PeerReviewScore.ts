@@ -7,7 +7,7 @@ import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/Inval
 export class PeerReviewScore extends UnitDecimalValueObject {
   public static readonly EPSILON = 1e-4;
 
-  public constructor(value: number) {
+  private constructor(value: number) {
     super(value);
     this.assertGreaterEqualThanEpsilon(value);
   }
@@ -17,6 +17,10 @@ export class PeerReviewScore extends UnitDecimalValueObject {
    */
   public static from(value: number): PeerReviewScore {
     return new PeerReviewScore(value);
+  }
+
+  public static equalSplit(n: number): PeerReviewScore {
+    return PeerReviewScore.from(1 / (n - 1));
   }
 
   private assertGreaterEqualThanEpsilon(value: number): void {
