@@ -65,7 +65,7 @@
     "envalid": "~6.0.2",
     "fast-xml-parser": "~3.17.4",
     "helmet": "3.22.0",
-    "jest-junit": "10.0.0",
+    "jest-junit": "11.0.1",
     "lru-cache": "5.1.1",
     "mjml": "~4.6.3",
     "moment": "~2.27.0",
