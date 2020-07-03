@@ -74,7 +74,7 @@
     "nunjucks": "3.2.1",
     "pg": "~8.2.1",
     "reflect-metadata": "0.1.13",
-    "rxjs": "6.5.5",
+    "rxjs": "6.6.0",
     "stream-to-array": "2.3.0",
     "swagger-ui-express": "4.1.4",
     "ts-node": "~8.10.2",
