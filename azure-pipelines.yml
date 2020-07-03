@@ -6,9 +6,7 @@
 trigger:
 - master
 
-pool:
-  name: 'Azure Pipelines'
-  vmImage: 'ubuntu-18.04'
+pool: 'Default'
 
 steps:
 - task: NodeTool@0
