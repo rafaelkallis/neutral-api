@@ -30,7 +30,7 @@
   "dependencies": {
     "@azure/storage-blob": "~12.1.2",
     "@nestjs/common": "~7.1.1",
-    "@nestjs/core": "~7.1.1",
+    "@nestjs/core": "~7.3.1",
     "@nestjs/platform-express": "~7.3.1",
     "@nestjs/swagger": "~4.5.12",
     "@panva/jose": "1.9.3",
