@@ -2,8 +2,6 @@ import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalV
 import { InvalidPeerReviewScoreException } from 'project/domain/exceptions/InvalidPeerReviewScoreException';
 
 export class PeerReviewScore extends UnitDecimalValueObject {
-  private static EPSILON = 1e-8;
-
   private constructor(value: number) {
     super(value);
     this.assertGreaterEqualThanEpsilon(value);
@@ -11,25 +9,25 @@ export class PeerReviewScore extends UnitDecimalValueObject {
   }
 
   public static from(value: number): PeerReviewScore {
-    if (Math.abs(value) < PeerReviewScore.EPSILON) {
-      //console.log("fixing peer-review score by restricting value " + value + " below to a value close to but above 0");
-      value = PeerReviewScore.EPSILON;
+    // if value in [0, eps) then value = eps
+    if (Math.abs(value) < Number.EPSILON) {
+      value = Number.EPSILON;
     }
-    if (Math.abs(value - 1) < PeerReviewScore.EPSILON) {
-      //console.log("fixing peer-review score by restricting value " + value + " above to a value close to but below 1");
-      value = 1 - PeerReviewScore.EPSILON;
+    // if value in (1-eps, 1] then value = 1-eps
+    if (Math.abs(1 - value) < Number.EPSILON) {
+      value = 1 - Number.EPSILON;
     }
     return new PeerReviewScore(value);
   }
 
   private assertGreaterEqualThanEpsilon(value: number): void {
-    if (value < PeerReviewScore.EPSILON) {
+    if (value < Number.EPSILON) {
       this.throwInvalidValueObjectException();
     }
   }
 
   private assertLessEqualThanOneMinusEpsilon(value: number): void {
-    if (value > 1 - PeerReviewScore.EPSILON) {
+    if (value > 1 - Number.EPSILON) {
       this.throwInvalidValueObjectException();
     }
   }
