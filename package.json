@@ -68,7 +68,7 @@
     "jest-junit": "10.0.0",
     "lru-cache": "5.1.1",
     "mjml": "~4.6.3",
-    "moment": "~2.26.0",
+    "moment": "~2.27.0",
     "node-mailjet": "~3.3.1",
     "nodemailer": "~6.4.8",
     "nunjucks": "3.2.1",
