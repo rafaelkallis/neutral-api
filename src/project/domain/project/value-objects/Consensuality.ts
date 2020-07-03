@@ -3,7 +3,7 @@ import { InvalidConsensualityException } from 'project/domain/exceptions/Invalid
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export class Consensuality extends UnitDecimalValueObject {
-  private static EPSILON = 1e-8;
+  private static readonly EPSILON = 1e-8;
 
   private constructor(value: number) {
     super(value);
