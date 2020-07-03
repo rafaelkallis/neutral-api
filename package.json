@@ -63,7 +63,7 @@
     "cookie-parser": "1.4.5",
     "elastic-apm-node": "~3.6.1",
     "envalid": "~6.0.2",
-    "fast-xml-parser": "~3.17.3",
+    "fast-xml-parser": "~3.17.4",
     "helmet": "3.22.0",
     "jest-junit": "10.0.0",
     "lru-cache": "5.1.1",
