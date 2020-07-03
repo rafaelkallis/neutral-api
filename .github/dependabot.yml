@@ -6,6 +6,3 @@ updates:
     schedule:
       interval: "daily"
       time: "00:45"
-    reviewers:
-      - "rafaelkallis"
-    
