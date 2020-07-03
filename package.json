@@ -92,7 +92,7 @@
     "eslint-plugin-promise": "4.2.1",
     "faker": "4.1.0",
     "husky": "4.2.5",
-    "jest": "~26.0.1",
+    "jest": "~26.1.0",
     "lint-staged": "~10.2.7",
     "mailhog": "~4.13.0",
     "prettier": "2.0.5",
