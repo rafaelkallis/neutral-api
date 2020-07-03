@@ -9,12 +9,12 @@ export class PeerReviewScore extends UnitDecimalValueObject {
   }
 
   public static from(value: number): PeerReviewScore {
-    // if value in [0, eps) then value = eps
-    if (Math.abs(value) < Number.EPSILON) {
+    // if value in [-eps, eps] then value = eps
+    if (Math.abs(value) <= Number.EPSILON) {
       value = Number.EPSILON;
     }
-    // if value in (1-eps, 1] then value = 1-eps
-    if (Math.abs(1 - value) < Number.EPSILON) {
+    // if value in [1-eps, 1+eps] then value = 1-eps
+    if (Math.abs(1 - value) <= Number.EPSILON) {
       value = 1 - Number.EPSILON;
     }
     return new PeerReviewScore(value);
