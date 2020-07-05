@@ -89,7 +89,7 @@ export class ProjectDomainEventHandlers {
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
         {
-          projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+          ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
           projectTitle: event.project.title.value,
         },
       );
@@ -113,7 +113,7 @@ export class ProjectDomainEventHandlers {
     await this.emailManager.sendManagerReviewRequestedEmail(
       manager.email.value,
       {
-        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       },
     );

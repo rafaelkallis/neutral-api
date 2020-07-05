@@ -3,10 +3,10 @@ import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPla
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  PeerReviewRequestedModel,
   ProjectFinishedModel,
-  ManagerReviewRequestedModel,
-} from '../manager/EmailManager';
+  CtaModel,
+  ProjectCtaModel,
+} from 'shared/email/manager/EmailManager';
 
 /**
  * Literal Email Plaintext Renderer
@@ -101,35 +101,27 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   }
 
   public renderPeerReviewRequestedEmailPlaintext(
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string {
     const projectToken = model.projectTitle || 'a project';
-    return `
-      Hi there,
-
-      You are requested to submit a peer-review in ${projectToken}.
-
-      >> Submit Peer Review
-      ${model.projectUrl}
-
-      - Team Covee
-    `;
+    const ctaContent = `You are requested to submit a peer-review in ${projectToken}.`;
+    return this.renderCtaPlaintext({
+      ctaContent,
+      ctaActionLabel: 'Submit Peer Review',
+      model,
+    });
   }
 
   public renderManagerReviewRequestedEmailPlaintext(
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string {
     const projectToken = model.projectTitle || 'a project you are a manager in';
-    return `
-      Hi there,
-
-      All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.
-
-      >> Submit Manager Review
-      ${model.projectUrl}
-
-      - Team Covee
-    `;
+    const ctaContent = `All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.`;
+    return this.renderCtaPlaintext({
+      ctaContent,
+      ctaActionLabel: 'Submit Manager Review',
+      model,
+    });
   }
 
   public renderProjectFinishedEmailPlaintext(
@@ -147,4 +139,24 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       - Team Covee
     `;
   }
+
+  private renderCtaPlaintext(context: RenderCtaPlaintextContext): string {
+    const nameToken = context.model.firstName || 'there';
+    return `
+      Hi ${nameToken},
+
+      ${context.ctaContent}
+
+      >> ${context.ctaActionLabel}
+      ${context.model.ctaActionUrl}
+
+      - Team Covee
+    `;
+  }
+}
+
+interface RenderCtaPlaintextContext {
+  ctaContent: string;
+  ctaActionLabel: string;
+  model: CtaModel;
 }

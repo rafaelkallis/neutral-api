@@ -4,9 +4,8 @@ import {
   EmailManager,
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  PeerReviewRequestedModel,
   ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -103,7 +102,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendPeerReviewRequestedEmail(
     to: string,
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] peer-review requested';
     const html = this.emailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
@@ -117,7 +116,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendManagerReviewRequestedEmail(
     to: string,
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] manager-review requested';
     const html = this.emailHtmlRenderer.renderManagerReviewRequestedEmailHtml(

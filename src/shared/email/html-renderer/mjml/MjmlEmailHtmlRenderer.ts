@@ -7,9 +7,8 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  PeerReviewRequestedModel,
   ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -47,14 +46,10 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   ): string {
     return this.render('invited-new-assignment', model);
   }
-  public renderPeerReviewRequestedEmailHtml(
-    model: PeerReviewRequestedModel,
-  ): string {
+  public renderPeerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('peer-review-requested', model);
   }
-  public renderManagerReviewRequestedEmailHtml(
-    model: ManagerReviewRequestedModel,
-  ): string {
+  public renderManagerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('manager-review-requested', model);
   }
   public renderProjectFinishedEmailHtml(model: ProjectFinishedModel): string {

@@ -4,8 +4,8 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  PeerReviewRequestedModel,
   ProjectFinishedModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
@@ -63,9 +63,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render peer review requested html', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
@@ -74,9 +74,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render manager review requested html', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
       model,

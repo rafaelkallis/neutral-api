@@ -2,9 +2,8 @@ import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/L
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  PeerReviewRequestedModel,
   ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  ProjectCtaModel,
 } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
@@ -65,9 +64,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render peer review requested text', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
       model,
@@ -76,9 +75,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render manager review requested text', () => {
-    const model: ManagerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderManagerReviewRequestedEmailPlaintext(
       model,
