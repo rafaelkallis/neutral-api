@@ -4,7 +4,7 @@ import { Role } from 'project/domain/role/Role';
 import { InternalUser } from 'user/domain/User';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { MagicLinkFactory } from 'shared/urls/MagicLinkFactory';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { ProjectDomainEventHandlers } from './ProjectDomainEventHandlers';

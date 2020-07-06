@@ -14,7 +14,8 @@ import { User } from 'user/domain/User';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { TokenManager } from 'shared/token/application/TokenManager';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { MagicLinkFactory } from 'shared/urls/MagicLinkFactory';
+import { CtaUrlFactory } from 'shared/urls/CtaUrlFactory';
 
 @Injectable()
 export class ProjectDomainEventHandlers {
@@ -23,6 +24,7 @@ export class ProjectDomainEventHandlers {
   private readonly userRepository: UserRepository;
   private readonly tokenManager: TokenManager;
   private readonly magicLinkFactory: MagicLinkFactory;
+  private readonly ctaUrlFactory: CtaUrlFactory;
 
   public constructor(
     config: Config,
@@ -30,12 +32,14 @@ export class ProjectDomainEventHandlers {
     userRepository: UserRepository,
     tokenManager: TokenManager,
     magicLinkFactory: MagicLinkFactory,
+    ctaUrlFactory: CtaUrlFactory,
   ) {
     this.config = config;
     this.emailManager = emailManager;
     this.userRepository = userRepository;
     this.tokenManager = tokenManager;
     this.magicLinkFactory = magicLinkFactory;
+    this.ctaUrlFactory = ctaUrlFactory;
   }
 
   @HandleDomainEvent(
@@ -86,10 +90,13 @@ export class ProjectDomainEventHandlers {
       if (!assignee.email.isPresent()) {
         continue;
       }
+      const peerReviewRequestedCtaUrl = this.ctaUrlFactory.createPeerReviewRequestedUrl(
+        { user: assignee, projectId: event.project.id },
+      );
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
         {
-          projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+          projectUrl: peerReviewRequestedCtaUrl,
           projectTitle: event.project.title.value,
         },
       );

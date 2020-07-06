@@ -7,7 +7,7 @@ import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { MagicLinkFactory } from 'shared/urls/MagicLinkFactory';
 import { Injectable } from '@nestjs/common';
 
 /**

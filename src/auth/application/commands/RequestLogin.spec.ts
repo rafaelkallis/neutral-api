@@ -10,7 +10,7 @@ import { ModelFaker } from 'test/ModelFaker';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { PrimitiveFaker } from 'test/PrimitiveFaker';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { MagicLinkFactory } from 'shared/urls/MagicLinkFactory';
 
 describe(RequestLoginCommand.name, () => {
   let userRepository: UserRepository;
