@@ -93,7 +93,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You were assigned ${roleToken} in ${projectToken}.
 
       >> Get Started
-      ${model.signupMagicLink}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;

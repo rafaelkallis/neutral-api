@@ -54,7 +54,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
     const model: PendingUserNewAssignmentModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
-      signupMagicLink: 'http://example.com/signup',
+      ctaActionUrl: 'http://example.com/signup',
     };
     const text = literalEmailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
       model,

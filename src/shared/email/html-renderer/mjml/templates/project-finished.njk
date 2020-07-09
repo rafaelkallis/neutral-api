@@ -13,5 +13,5 @@
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>{{ projectTitle or "A project you were assigned to" }} has finshed and the results are ready.</mj-text>
+  <mj-text>{{ projectTitle or "A project you were assigned to" | trim }} has finshed and the results are ready.</mj-text>
 {% endblock %}

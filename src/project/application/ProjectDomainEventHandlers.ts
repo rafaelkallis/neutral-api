@@ -60,7 +60,7 @@ export class ProjectDomainEventHandlers {
         {
           projectTitle: event.project.title.value,
           roleTitle: event.role.title.value,
-          signupMagicLink: loginLink,
+          ctaActionUrl: loginLink,
         },
       );
     } else if (event.assignee.isActive()) {

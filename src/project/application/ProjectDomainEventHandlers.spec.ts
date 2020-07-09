@@ -71,7 +71,7 @@ describe(ProjectDomainEventHandlers.name, () => {
         emailManager.sendPendingUserNewAssignmentEmail(assignee.email.value, {
           projectTitle: project.title.value,
           roleTitle: role.title.value,
-          signupMagicLink: loginLink,
+          ctaActionUrl: loginLink,
         }),
       );
     });

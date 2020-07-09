@@ -73,8 +73,6 @@ export interface NewAssignmentModel {
   roleTitle: string;
 }
 
-export interface PendingUserNewAssignmentModel {
-  projectTitle: string;
+export interface PendingUserNewAssignmentModel extends ProjectCtaModel {
   roleTitle: string;
-  signupMagicLink: string;
 }

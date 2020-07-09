@@ -53,7 +53,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     const model: PendingUserNewAssignmentModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
-      signupMagicLink: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
       model,

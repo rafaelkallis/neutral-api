@@ -13,5 +13,5 @@
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>You are requested to submit a peer-review in {{ projectTitle or "a project" }}.</mj-text>
+  <mj-text>You are requested to submit a peer-review in {{ projectTitle or "a project" | trim }}.</mj-text>
 {% endblock %}
