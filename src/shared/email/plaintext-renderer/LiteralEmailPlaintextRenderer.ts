@@ -3,7 +3,6 @@ import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPla
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   CtaModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
@@ -124,9 +123,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
     });
   }
 
-  public renderProjectFinishedEmailPlaintext(
-    model: ProjectFinishedModel,
-  ): string {
+  public renderProjectFinishedEmailPlaintext(model: ProjectCtaModel): string {
     const projectToken = model.projectTitle || 'A project you were assigned to';
     return `
       Hi there,
@@ -134,7 +131,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       ${projectToken} has finished and the results are ready.
 
       >> Check Results
-      ${model.projectUrl}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;

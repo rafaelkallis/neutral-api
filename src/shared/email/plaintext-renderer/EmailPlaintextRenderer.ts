@@ -1,7 +1,6 @@
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
@@ -49,6 +48,6 @@ export abstract class EmailPlaintextRenderer {
   ): string;
 
   public abstract renderProjectFinishedEmailPlaintext(
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): string;
 }

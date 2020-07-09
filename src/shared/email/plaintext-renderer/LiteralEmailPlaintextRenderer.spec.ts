@@ -2,7 +2,6 @@ import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/L
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
@@ -86,9 +85,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render project finished text', () => {
-    const model: ProjectFinishedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,

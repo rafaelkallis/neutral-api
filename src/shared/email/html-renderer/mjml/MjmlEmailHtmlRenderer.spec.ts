@@ -4,7 +4,6 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
@@ -85,9 +84,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render project finished html', () => {
-    const model: ProjectFinishedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderProjectFinishedEmailHtml(model);
     expect(html).toMatchSnapshot();

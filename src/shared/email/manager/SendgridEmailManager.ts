@@ -2,7 +2,6 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { Config } from 'shared/config/application/Config';
 import {
   EmailManager,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 import axios from 'axios';
@@ -106,7 +105,7 @@ export class SendgridEmailManager extends EmailManager {
 
   public async sendProjectFinishedEmail(
     _to: string,
-    _model: ProjectFinishedModel,
+    _model: ProjectCtaModel,
   ): Promise<void> {
     throw new Error('not implemented');
   }

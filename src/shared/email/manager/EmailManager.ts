@@ -54,7 +54,7 @@ export abstract class EmailManager {
 
   public abstract async sendProjectFinishedEmail(
     to: string,
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): Promise<void>;
 }
 
@@ -77,9 +77,4 @@ export interface PendingUserNewAssignmentModel {
   projectTitle: string;
   roleTitle: string;
   signupMagicLink: string;
-}
-
-export interface ProjectFinishedModel {
-  projectUrl: string;
-  projectTitle: string;
 }

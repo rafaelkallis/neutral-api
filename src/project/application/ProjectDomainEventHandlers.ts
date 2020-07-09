@@ -144,7 +144,7 @@ export class ProjectDomainEventHandlers {
         continue;
       }
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
-        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       });
     }

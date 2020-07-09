@@ -4,7 +4,6 @@ import {
   EmailManager,
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
@@ -130,7 +129,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendProjectFinishedEmail(
     to: string,
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] project finished';
     const html = this.emailHtmlRenderer.renderProjectFinishedEmailHtml(model);

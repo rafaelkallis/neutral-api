@@ -7,7 +7,6 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   PendingUserNewAssignmentModel,
   NewAssignmentModel,
-  ProjectFinishedModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
@@ -52,7 +51,7 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   public renderManagerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('manager-review-requested', model);
   }
-  public renderProjectFinishedEmailHtml(model: ProjectFinishedModel): string {
+  public renderProjectFinishedEmailHtml(model: ProjectCtaModel): string {
     return this.render('project-finished', model);
   }
 
