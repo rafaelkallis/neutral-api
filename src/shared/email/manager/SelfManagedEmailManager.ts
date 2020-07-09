@@ -2,11 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
 import {
   EmailManager,
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  RoleCtaModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -74,7 +71,7 @@ export class SelfManagedEmailManager extends EmailManager {
    */
   public async sendNewAssignmentEmail(
     to: string,
-    model: NewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void> {
     const subject = '[Covee] new assignment';
     const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml(model);
@@ -89,7 +86,7 @@ export class SelfManagedEmailManager extends EmailManager {
    */
   public async sendPendingUserNewAssignmentEmail(
     to: string,
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void> {
     const subject = '[Covee] new assignment';
     const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
@@ -103,7 +100,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendPeerReviewRequestedEmail(
     to: string,
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] peer-review requested';
     const html = this.emailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
@@ -117,7 +114,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendManagerReviewRequestedEmail(
     to: string,
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] manager-review requested';
     const html = this.emailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
@@ -131,7 +128,7 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendProjectFinishedEmail(
     to: string,
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): Promise<void> {
     const subject = '[Covee] project finished';
     const html = this.emailHtmlRenderer.renderProjectFinishedEmailHtml(model);

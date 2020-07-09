@@ -1,11 +1,5 @@
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
-import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
-  ManagerReviewRequestedModel,
-} from '../manager/EmailManager';
+import { RoleCtaModel, ProjectCtaModel } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe(LiteralEmailPlaintextRenderer.name, () => {
@@ -41,10 +35,10 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   it('should render new assignment text', () => {
-    const model: NewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
       model,
@@ -53,10 +47,10 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   it('should render unregistered user new assignment text', () => {
-    const model: PendingUserNewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
-      signupMagicLink: 'http://example.com/signup',
+      ctaActionUrl: 'http://example.com/signup',
     };
     const text = literalEmailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
       model,
@@ -65,9 +59,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render peer review requested text', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
       model,
@@ -76,9 +70,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render manager review requested text', () => {
-    const model: ManagerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderManagerReviewRequestedEmailPlaintext(
       model,
@@ -87,9 +81,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   test('should render project finished text', () => {
-    const model: ProjectFinishedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,

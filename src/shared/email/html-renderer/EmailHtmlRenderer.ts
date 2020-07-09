@@ -1,9 +1,6 @@
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  RoleCtaModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -30,26 +27,24 @@ export abstract class EmailHtmlRenderer {
   /**
    *
    */
-  public abstract renderNewAssignmentEmailHtml(
-    model: NewAssignmentModel,
-  ): string;
+  public abstract renderNewAssignmentEmailHtml(model: RoleCtaModel): string;
 
   /**
    *
    */
   public abstract renderInvitedUserNewAssignmentEmailHtml(
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): string;
 
   public abstract renderPeerReviewRequestedEmailHtml(
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string;
 
   public abstract renderManagerReviewRequestedEmailHtml(
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string;
 
   public abstract renderProjectFinishedEmailHtml(
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): string;
 }

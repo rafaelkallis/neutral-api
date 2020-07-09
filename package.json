@@ -10,7 +10,7 @@
     "npm": "^6"
   },
   "scripts": {
-    "start": "node -r ts-node/register -r tsconfig-paths/register build/main.js",	    
+    "start": "node -r ts-node/register -r tsconfig-paths/register build/main.js",
     "build": "tsc",
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",
     "dev:debug": "ts-node-dev --inspect --no-notify --respawn --transpileOnly -r tsconfig-paths/register src/main.ts",

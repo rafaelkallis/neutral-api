@@ -2,10 +2,8 @@ import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmail
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Environment } from 'shared/utility/application/Environment';
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
+  RoleCtaModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 describe(MjmlEmailHtmlRenderer.name, () => {
@@ -41,20 +39,20 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render user assigned html', () => {
-    const model: NewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml(model);
     expect(html).toMatchSnapshot();
   });
 
   test('should render invited user assigned html', () => {
-    const model: PendingUserNewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
-      signupMagicLink: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
       model,
@@ -63,9 +61,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render peer review requested html', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
@@ -74,9 +72,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render manager review requested html', () => {
-    const model: PeerReviewRequestedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
       model,
@@ -85,9 +83,9 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render project finished html', () => {
-    const model: ProjectFinishedModel = {
+    const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderProjectFinishedEmailHtml(model);
     expect(html).toMatchSnapshot();
