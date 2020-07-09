@@ -251,11 +251,11 @@ export class PeerReviewCollection
         return false;
       }
     }
-    // TODO work out numerics of 0.95
+    // TODO work out numerics
     if (submittedPeerReviews.sumScores() < 0.95) {
       return false;
     }
-    if (submittedPeerReviews.sumScores() > 1) {
+    if (submittedPeerReviews.sumScores() > 1.05) {
       return false;
     }
     return true;

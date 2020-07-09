@@ -5,11 +5,8 @@ import path from 'path';
 import mjml2html from 'mjml';
 import { Environment } from 'shared/utility/application/Environment';
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
-  ManagerReviewRequestedModel,
+  RoleCtaModel,
+  ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -39,25 +36,19 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
     return this.render('email-change', { emailChangeMagicLink });
   }
-  public renderNewAssignmentEmailHtml(model: NewAssignmentModel): string {
+  public renderNewAssignmentEmailHtml(model: RoleCtaModel): string {
     return this.render('new-assignment', model);
   }
-  public renderInvitedUserNewAssignmentEmailHtml(
-    model: PendingUserNewAssignmentModel,
-  ): string {
+  public renderInvitedUserNewAssignmentEmailHtml(model: RoleCtaModel): string {
     return this.render('invited-new-assignment', model);
   }
-  public renderPeerReviewRequestedEmailHtml(
-    model: PeerReviewRequestedModel,
-  ): string {
+  public renderPeerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('peer-review-requested', model);
   }
-  public renderManagerReviewRequestedEmailHtml(
-    model: ManagerReviewRequestedModel,
-  ): string {
+  public renderManagerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('manager-review-requested', model);
   }
-  public renderProjectFinishedEmailHtml(model: ProjectFinishedModel): string {
+  public renderProjectFinishedEmailHtml(model: ProjectCtaModel): string {
     return this.render('project-finished', model);
   }
 

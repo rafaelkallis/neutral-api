@@ -64,7 +64,7 @@ export class ProjectDomainEventHandlers {
         {
           projectTitle: event.project.title.value,
           roleTitle: event.role.title.value,
-          signupMagicLink: loginLink,
+          ctaActionUrl: loginLink,
         },
       );
     } else if (event.assignee.isActive()) {
@@ -73,7 +73,7 @@ export class ProjectDomainEventHandlers {
         {
           projectTitle: event.project.title.value,
           roleTitle: event.role.title.value,
-          projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+          ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         },
       );
     }
@@ -96,7 +96,7 @@ export class ProjectDomainEventHandlers {
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
         {
-          projectUrl: peerReviewRequestedCtaUrl,
+          ctaActionUrl: peerReviewRequestedCtaUrl,
           projectTitle: event.project.title.value,
         },
       );
@@ -120,7 +120,7 @@ export class ProjectDomainEventHandlers {
     await this.emailManager.sendManagerReviewRequestedEmail(
       manager.email.value,
       {
-        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       },
     );
@@ -151,7 +151,7 @@ export class ProjectDomainEventHandlers {
         continue;
       }
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
-        projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       });
     }

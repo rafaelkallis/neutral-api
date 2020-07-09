@@ -31,7 +31,7 @@ export abstract class EmailManager {
    */
   public abstract async sendNewAssignmentEmail(
     to: string,
-    model: NewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void>;
 
   /**
@@ -39,48 +39,34 @@ export abstract class EmailManager {
    */
   public abstract async sendPendingUserNewAssignmentEmail(
     to: string,
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void>;
 
   public abstract async sendPeerReviewRequestedEmail(
     to: string,
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void>;
 
   public abstract async sendManagerReviewRequestedEmail(
     to: string,
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): Promise<void>;
 
   public abstract async sendProjectFinishedEmail(
     to: string,
-    model: ProjectFinishedModel,
+    model: ProjectCtaModel,
   ): Promise<void>;
 }
 
-export interface NewAssignmentModel {
-  projectUrl: string;
-  projectTitle: string;
-  roleTitle: string;
+export interface CtaModel {
+  readonly firstName?: string;
+  readonly ctaActionUrl: string;
 }
 
-export interface PendingUserNewAssignmentModel {
-  projectTitle: string;
-  roleTitle: string;
-  signupMagicLink: string;
+export interface ProjectCtaModel extends CtaModel {
+  readonly projectTitle: string;
 }
 
-export interface PeerReviewRequestedModel {
-  projectUrl: string;
-  projectTitle: string;
-}
-
-export interface ManagerReviewRequestedModel {
-  projectUrl: string;
-  projectTitle: string;
-}
-
-export interface ProjectFinishedModel {
-  projectUrl: string;
-  projectTitle: string;
+export interface RoleCtaModel extends ProjectCtaModel {
+  readonly roleTitle: string;
 }

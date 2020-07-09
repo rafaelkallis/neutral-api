@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  PeerReviewRequestedModel,
-  ProjectFinishedModel,
-  ManagerReviewRequestedModel,
-} from '../manager/EmailManager';
+  CtaModel,
+  ProjectCtaModel,
+  RoleCtaModel,
+} from 'shared/email/manager/EmailManager';
 
 /**
  * Literal Email Plaintext Renderer
@@ -61,7 +59,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   /**
    *
    */
-  public renderNewAssignmentEmailPlaintext(model: NewAssignmentModel): string {
+  public renderNewAssignmentEmailPlaintext(model: RoleCtaModel): string {
     const roleToken = model.roleTitle
       ? `the role of ${model.roleTitle}`
       : `a role`;
@@ -72,7 +70,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You were assigned ${roleToken} in ${projectToken}.
 
       >> See Assignment
-      ${model.projectUrl}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;
@@ -82,7 +80,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
    *
    */
   public renderInvitedUserNewAssignmentEmailPlaintext(
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): string {
     const roleToken = model.roleTitle
       ? `the role of ${model.roleTitle}`
@@ -94,47 +92,37 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You were assigned ${roleToken} in ${projectToken}.
 
       >> Get Started
-      ${model.signupMagicLink}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;
   }
 
   public renderPeerReviewRequestedEmailPlaintext(
-    model: PeerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string {
     const projectToken = model.projectTitle || 'a project';
-    return `
-      Hi there,
-
-      You are requested to submit a peer-review in ${projectToken}.
-
-      >> Submit Peer Review
-      ${model.projectUrl}
-
-      - Team Covee
-    `;
+    const ctaContent = `You are requested to submit a peer-review in ${projectToken}.`;
+    return this.renderCtaPlaintext({
+      ctaContent,
+      ctaActionLabel: 'Submit Peer Review',
+      model,
+    });
   }
 
   public renderManagerReviewRequestedEmailPlaintext(
-    model: ManagerReviewRequestedModel,
+    model: ProjectCtaModel,
   ): string {
     const projectToken = model.projectTitle || 'a project you are a manager in';
-    return `
-      Hi there,
-
-      All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.
-
-      >> Submit Manager Review
-      ${model.projectUrl}
-
-      - Team Covee
-    `;
+    const ctaContent = `All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.`;
+    return this.renderCtaPlaintext({
+      ctaContent,
+      ctaActionLabel: 'Submit Manager Review',
+      model,
+    });
   }
 
-  public renderProjectFinishedEmailPlaintext(
-    model: ProjectFinishedModel,
-  ): string {
+  public renderProjectFinishedEmailPlaintext(model: ProjectCtaModel): string {
     const projectToken = model.projectTitle || 'A project you were assigned to';
     return `
       Hi there,
@@ -142,9 +130,29 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       ${projectToken} has finished and the results are ready.
 
       >> Check Results
-      ${model.projectUrl}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;
   }
+
+  private renderCtaPlaintext(context: RenderCtaPlaintextContext): string {
+    const nameToken = context.model.firstName || 'there';
+    return `
+      Hi ${nameToken},
+
+      ${context.ctaContent}
+
+      >> ${context.ctaActionLabel}
+      ${context.model.ctaActionUrl}
+
+      - Team Covee
+    `;
+  }
+}
+
+interface RenderCtaPlaintextContext {
+  ctaContent: string;
+  ctaActionLabel: string;
+  model: CtaModel;
 }

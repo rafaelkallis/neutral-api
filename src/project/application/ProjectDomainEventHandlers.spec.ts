@@ -71,7 +71,7 @@ describe(ProjectDomainEventHandlers.name, () => {
         emailManager.sendPendingUserNewAssignmentEmail(assignee.email.value, {
           projectTitle: project.title.value,
           roleTitle: role.title.value,
-          signupMagicLink: loginLink,
+          ctaActionUrl: loginLink,
         }),
       );
     });
@@ -83,7 +83,7 @@ describe(ProjectDomainEventHandlers.name, () => {
         emailManager.sendNewAssignmentEmail(assignee.email.value, {
           projectTitle: project.title.value,
           roleTitle: role.title.value,
-          projectUrl: td.matchers.isA(String),
+          ctaActionUrl: td.matchers.isA(String),
         }),
       );
     });
