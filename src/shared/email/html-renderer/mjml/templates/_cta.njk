@@ -8,18 +8,10 @@
   Your peer-review is needed.
 {% endblock %}
 
-{% set nameToken %}
-  {% if firstName %} 
-    {{ firstName }}
-  {% else %}
-    there
-  {% endif %}
-{% endset %}
-
 {% block content %}
-<mj-section >
+<mj-section>
   <mj-column>
-    <mj-text>Hi {{ nameToken | trim }},</mj-text>
+    <mj-text>Hi {{ firstName or "there" }},</mj-text>
     {% block ctaContent %}{% endblock %}
     <mj-spacer />
     <mj-button mj-class="primary-button" href="{{ ctaActionUrl }}">{{ ctaActionLabel }}</mj-button>
