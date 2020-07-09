@@ -70,29 +70,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You were assigned ${roleToken} in ${projectToken}.
 
       >> See Assignment
-      ${model.ctaActionUrl}
-
-      - Team Covee
-    `;
-  }
-
-  /**
-   *
-   */
-  public renderInvitedUserNewAssignmentEmailPlaintext(
-    model: RoleCtaModel,
-  ): string {
-    const roleToken = model.roleTitle
-      ? `the role of ${model.roleTitle}`
-      : `a role`;
-    const projectToken = model.projectTitle || 'a project';
-    return `
-      Hi there,
-
-      You were assigned ${roleToken} in ${projectToken}.
-
-      >> Get Started
-      ${model.ctaActionUrl}
+      ${model.ctaUrl}
 
       - Team Covee
     `;
@@ -130,7 +108,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       ${projectToken} has finished and the results are ready.
 
       >> Check Results
-      ${model.ctaActionUrl}
+      ${model.ctaUrl}
 
       - Team Covee
     `;
@@ -144,7 +122,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       ${context.ctaContent}
 
       >> ${context.ctaActionLabel}
-      ${context.model.ctaActionUrl}
+      ${context.model.ctaUrl}
 
       - Team Covee
     `;

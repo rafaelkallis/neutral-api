@@ -8,7 +8,7 @@ export interface CreateCtaUrlContext {
   readonly user: ReadonlyUser;
 }
 
-export interface CreateProjectCtaUrlContext extends CreateCtaUrlContext {
+export interface ProjectCtaUrlContext extends CreateCtaUrlContext {
   readonly projectId: ProjectId;
 }
 
@@ -22,10 +22,31 @@ export class CtaUrlFactory {
     this.tokenManager = tokenManager;
   }
 
-  public createPeerReviewRequestedUrl(ctx: CreateProjectCtaUrlContext): string {
+  public createnewAssignmentCtaUrl(ctx: ProjectCtaUrlContext): string {
     return this.createCtaUrl(
       ctx.user,
-      `/projects/${ctx.projectId.value}/submit-peer-review`,
+      `/project-detail/${ctx.projectId.value}/formation`,
+    );
+  }
+
+  public createPeerReviewRequestedCtaUrl(ctx: ProjectCtaUrlContext): string {
+    return this.createCtaUrl(
+      ctx.user,
+      `/project-detail/${ctx.projectId.value}/peer-review`,
+    );
+  }
+
+  public createManagerReviewRequestedCtaUrl(ctx: ProjectCtaUrlContext): string {
+    return this.createCtaUrl(
+      ctx.user,
+      `/project-detail/${ctx.projectId.value}/manager-review`,
+    );
+  }
+
+  public createProjectFinishedCtaUrl(ctx: ProjectCtaUrlContext): string {
+    return this.createCtaUrl(
+      ctx.user,
+      `/project-detail/${ctx.projectId.value}/finished`,
     );
   }
 

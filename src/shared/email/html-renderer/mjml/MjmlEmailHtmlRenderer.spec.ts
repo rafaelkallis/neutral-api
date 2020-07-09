@@ -42,28 +42,16 @@ describe(MjmlEmailHtmlRenderer.name, () => {
     const model: RoleCtaModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml(model);
-    expect(html).toMatchSnapshot();
-  });
-
-  test('should render invited user assigned html', () => {
-    const model: RoleCtaModel = {
-      projectTitle: 'My Project',
-      roleTitle: 'Lead Engineer',
-      ctaActionUrl: 'http://example.com',
-    };
-    const html = mjmlEmailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
-      model,
-    );
     expect(html).toMatchSnapshot();
   });
 
   test('should render peer review requested html', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
@@ -74,7 +62,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   test('should render manager review requested html', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
       model,
@@ -85,7 +73,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   test('should render project finished html', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderProjectFinishedEmailHtml(model);
     expect(html).toMatchSnapshot();

@@ -38,21 +38,9 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
     const model: RoleCtaModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
-      model,
-    );
-    expect(text).toMatchSnapshot();
-  });
-
-  it('should render unregistered user new assignment text', () => {
-    const model: RoleCtaModel = {
-      projectTitle: 'Neutron Collider',
-      roleTitle: 'Particle Scientist',
-      ctaActionUrl: 'http://example.com/signup',
-    };
-    const text = literalEmailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
       model,
     );
     expect(text).toMatchSnapshot();
@@ -61,7 +49,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   test('should render peer review requested text', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderPeerReviewRequestedEmailPlaintext(
       model,
@@ -72,7 +60,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   test('should render manager review requested text', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderManagerReviewRequestedEmailPlaintext(
       model,
@@ -83,7 +71,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   test('should render project finished text', () => {
     const model: ProjectCtaModel = {
       projectTitle: 'My Project',
-      ctaActionUrl: 'http://example.com',
+      ctaUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,

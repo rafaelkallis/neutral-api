@@ -31,13 +31,6 @@ export abstract class EmailPlaintextRenderer {
     model: RoleCtaModel,
   ): string;
 
-  /**
-   *
-   */
-  public abstract renderInvitedUserNewAssignmentEmailPlaintext(
-    model: RoleCtaModel,
-  ): string;
-
   public abstract renderPeerReviewRequestedEmailPlaintext(
     model: ProjectCtaModel,
   ): string;
