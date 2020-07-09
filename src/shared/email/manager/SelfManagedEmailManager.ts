@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EmailSender } from 'shared/email/sender/EmailSender';
 import {
   EmailManager,
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
+  RoleCtaModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
@@ -72,7 +71,7 @@ export class SelfManagedEmailManager extends EmailManager {
    */
   public async sendNewAssignmentEmail(
     to: string,
-    model: NewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void> {
     const subject = '[Covee] new assignment';
     const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml(model);
@@ -87,7 +86,7 @@ export class SelfManagedEmailManager extends EmailManager {
    */
   public async sendPendingUserNewAssignmentEmail(
     to: string,
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): Promise<void> {
     const subject = '[Covee] new assignment';
     const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(

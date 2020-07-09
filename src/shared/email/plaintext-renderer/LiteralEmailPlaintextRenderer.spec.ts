@@ -1,9 +1,5 @@
 import { LiteralEmailPlaintextRenderer } from 'shared/email/plaintext-renderer/LiteralEmailPlaintextRenderer';
-import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
-  ProjectCtaModel,
-} from '../manager/EmailManager';
+import { RoleCtaModel, ProjectCtaModel } from '../manager/EmailManager';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 
 describe(LiteralEmailPlaintextRenderer.name, () => {
@@ -39,10 +35,10 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   it('should render new assignment text', () => {
-    const model: NewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const text = literalEmailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
       model,
@@ -51,7 +47,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   });
 
   it('should render unregistered user new assignment text', () => {
-    const model: PendingUserNewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'Neutron Collider',
       roleTitle: 'Particle Scientist',
       ctaActionUrl: 'http://example.com/signup',

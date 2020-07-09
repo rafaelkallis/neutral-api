@@ -2,8 +2,7 @@ import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmail
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { Environment } from 'shared/utility/application/Environment';
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
+  RoleCtaModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
@@ -40,17 +39,17 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render user assigned html', () => {
-    const model: NewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
-      projectUrl: 'http://example.com',
+      ctaActionUrl: 'http://example.com',
     };
     const html = mjmlEmailHtmlRenderer.renderNewAssignmentEmailHtml(model);
     expect(html).toMatchSnapshot();
   });
 
   test('should render invited user assigned html', () => {
-    const model: PendingUserNewAssignmentModel = {
+    const model: RoleCtaModel = {
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
       ctaActionUrl: 'http://example.com',

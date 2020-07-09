@@ -1,6 +1,5 @@
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
+  RoleCtaModel,
   ProjectCtaModel,
 } from 'shared/email/manager/EmailManager';
 
@@ -28,15 +27,13 @@ export abstract class EmailHtmlRenderer {
   /**
    *
    */
-  public abstract renderNewAssignmentEmailHtml(
-    model: NewAssignmentModel,
-  ): string;
+  public abstract renderNewAssignmentEmailHtml(model: RoleCtaModel): string;
 
   /**
    *
    */
   public abstract renderInvitedUserNewAssignmentEmailHtml(
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): string;
 
   public abstract renderPeerReviewRequestedEmailHtml(

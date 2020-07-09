@@ -69,7 +69,7 @@ export class ProjectDomainEventHandlers {
         {
           projectTitle: event.project.title.value,
           roleTitle: event.role.title.value,
-          projectUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
+          ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         },
       );
     }

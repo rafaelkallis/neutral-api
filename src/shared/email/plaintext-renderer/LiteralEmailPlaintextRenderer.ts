@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import {
-  PendingUserNewAssignmentModel,
-  NewAssignmentModel,
   CtaModel,
   ProjectCtaModel,
+  RoleCtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -60,7 +59,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   /**
    *
    */
-  public renderNewAssignmentEmailPlaintext(model: NewAssignmentModel): string {
+  public renderNewAssignmentEmailPlaintext(model: RoleCtaModel): string {
     const roleToken = model.roleTitle
       ? `the role of ${model.roleTitle}`
       : `a role`;
@@ -71,7 +70,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       You were assigned ${roleToken} in ${projectToken}.
 
       >> See Assignment
-      ${model.projectUrl}
+      ${model.ctaActionUrl}
 
       - Team Covee
     `;
@@ -81,7 +80,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
    *
    */
   public renderInvitedUserNewAssignmentEmailPlaintext(
-    model: PendingUserNewAssignmentModel,
+    model: RoleCtaModel,
   ): string {
     const roleToken = model.roleTitle
       ? `the role of ${model.roleTitle}`
