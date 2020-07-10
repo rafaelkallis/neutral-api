@@ -50,17 +50,20 @@ export class CtaUrlFactory {
     );
   }
 
-  private createCtaUrl(user: ReadonlyUser, redirectUrl: string): string {
-    const ctaUrl = new URL('/callback', this.config.get('FRONTEND_URL'));
+  private createCtaUrl(user: ReadonlyUser, relativeUrl: string): string {
+    const url = new URL(relativeUrl, this.config.get('FRONTEND_URL'));
     const loginToken = this.tokenManager.newLoginToken(
       user.email,
       user.lastLoginAt,
     );
-    ctaUrl.searchParams.append('token', loginToken);
-    ctaUrl.searchParams.append('redirectUrl', redirectUrl);
-    if (user.isPending()) {
-      ctaUrl.searchParams.append('new', 'true');
+    url.searchParams.append('token', loginToken);
+    if (!user.email.isPresent()) {
+      throw new Error('No email found');
     }
-    return ctaUrl.href;
+    url.searchParams.append('email', user.email.value);
+    if (user.isPending()) {
+      url.searchParams.append('new', 'true');
+    }
+    return url.href;
   }
 }
