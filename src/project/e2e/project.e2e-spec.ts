@@ -101,6 +101,7 @@ describe('project (e2e)', () => {
         updatedAt: expect.any(Number),
         title: project.title.value,
         description: project.description.value,
+        meta: {},
         creatorId: project.creatorId.value,
         state: getProjectStateValue(project.state),
         skipManagerReview: project.skipManagerReview.value,
@@ -117,12 +118,14 @@ describe('project (e2e)', () => {
   describe('/projects (POST)', () => {
     let title: string;
     let description: string;
+    let meta: Record<string, unknown>;
     let contributionVisibility: ContributionVisibilityValue;
     let skipManagerReview: SkipManagerReviewValue;
 
     beforeEach(() => {
       title = scenario.primitiveFaker.words();
       description = scenario.primitiveFaker.paragraph();
+      meta = { custom1: 'custom1', custom2: 'custom2' };
       contributionVisibility = ContributionVisibilityValue.PROJECT;
       skipManagerReview = SkipManagerReviewValue.NO;
     });
@@ -131,6 +134,7 @@ describe('project (e2e)', () => {
       const response = await scenario.session.post('/projects').send({
         title,
         description,
+        meta,
         contributionVisibility,
         skipManagerReview,
       });
@@ -140,6 +144,7 @@ describe('project (e2e)', () => {
           id: expect.any(String),
           title,
           description,
+          meta: expect.objectContaining(meta),
           contributionVisibility,
           skipManagerReview,
         }),

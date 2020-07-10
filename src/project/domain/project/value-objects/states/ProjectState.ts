@@ -26,6 +26,7 @@ export abstract class ProjectState extends ValueObject {
     project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
+    meta?: Record<string, unknown>,
   ): void;
 
   public abstract addRole(
@@ -101,9 +102,10 @@ export abstract class ProjectState extends ValueObject {
  */
 export abstract class DefaultProjectState extends ProjectState {
   public update(
-    project: InternalProject,
-    title?: ProjectTitle,
-    description?: ProjectDescription,
+    _project: InternalProject,
+    _title?: ProjectTitle,
+    _description?: ProjectDescription,
+    _meta?: Record<string, unknown>,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
