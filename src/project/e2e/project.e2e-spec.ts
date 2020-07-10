@@ -151,6 +151,27 @@ describe('project (e2e)', () => {
       );
       await scenario.projectRepository.findById(response.body.id);
     });
+
+    test('meta is optional', async () => {
+      const response = await scenario.session.post('/projects').send({
+        title,
+        description,
+        contributionVisibility,
+        skipManagerReview,
+      });
+      expect(response.status).toBe(HttpStatus.CREATED);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          title,
+          description,
+          meta: expect.objectContaining({}),
+          contributionVisibility,
+          skipManagerReview,
+        }),
+      );
+      await scenario.projectRepository.findById(response.body.id);
+    });
   });
 
   describe('/projects/:id (PATCH)', () => {
