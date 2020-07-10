@@ -29,8 +29,9 @@ export abstract class ProjectStateDecorator extends ProjectState {
     project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
+    meta?: Record<string, unknown>,
   ): void {
-    this.base.update(project, title, description);
+    this.base.update(project, title, description, meta);
   }
   public addRole(
     project: InternalProject,

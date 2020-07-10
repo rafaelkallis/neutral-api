@@ -25,6 +25,13 @@ export class ProjectDto extends ModelDto {
   })
   public description: string;
 
+  @ApiProperty({
+    type: Object,
+    example: { custom1: 'foo', custom2: {} },
+    description: 'Additional project metadata',
+  })
+  public meta: Record<string, unknown>;
+
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
   public creatorId: string;
 
@@ -67,6 +74,7 @@ export class ProjectDto extends ModelDto {
     updatedAt: number,
     title: string,
     description: string,
+    meta: Record<string, unknown>,
     creatorId: string,
     state: ProjectStateValue,
     consensuality: null,
@@ -80,6 +88,7 @@ export class ProjectDto extends ModelDto {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
+    this.meta = meta;
     this.creatorId = creatorId;
     this.state = state;
     this.consensuality = consensuality;

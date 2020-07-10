@@ -80,6 +80,7 @@ describe(ProjectDtoMap.name, () => {
       id: project.id.value,
       title: project.title.value,
       description: project.description.value,
+      meta: project.meta,
       creatorId: project.creatorId.value,
       state: getProjectStateValue(project.state),
       consensuality: null,
