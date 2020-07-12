@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum } from 'class-validator';
+import { IsString, IsEnum, IsObject, IsOptional } from 'class-validator';
 import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 
@@ -22,6 +22,16 @@ export class CreateProjectDto {
   })
   public description: string;
 
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    type: Object,
+    example: { custom1: 'foo', custom2: {} },
+    description: 'Arbitrary project metadata',
+    required: false,
+  })
+  public meta?: Record<string, unknown>;
+
   @IsEnum(ContributionVisibilityValue)
   @ApiProperty({
     enum: ContributionVisibilityValue,
@@ -41,11 +51,13 @@ export class CreateProjectDto {
   public constructor(
     title: string,
     description: string,
+    meta: Record<string, unknown> | undefined,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
   ) {
     this.title = title;
     this.description = description;
+    this.meta = meta;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
   }

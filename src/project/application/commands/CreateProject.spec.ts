@@ -28,6 +28,7 @@ describe(CreateProjectCommand.name, () => {
   let authUser: User;
   let title: string;
   let description: string;
+  let meta: Record<string, unknown>;
   let contributionVisibility: ContributionVisibilityValue;
   let skipManagerReview: SkipManagerReviewValue;
   let command: CreateProjectCommand;
@@ -45,12 +46,14 @@ describe(CreateProjectCommand.name, () => {
     authUser = td.object(scenario.modelFaker.user());
     title = scenario.primitiveFaker.word();
     description = scenario.primitiveFaker.paragraph();
+    meta = {};
     contributionVisibility = ContributionVisibilityValue.PROJECT;
     skipManagerReview = SkipManagerReviewValue.NO;
     command = new CreateProjectCommand(
       authUser,
       title,
       description,
+      meta,
       contributionVisibility,
       skipManagerReview,
     );
@@ -61,6 +64,7 @@ describe(CreateProjectCommand.name, () => {
       projectFactory.create({
         title: td.matchers.isA(ProjectTitle),
         description: td.matchers.isA(ProjectDescription),
+        meta,
         creator: authUser,
         contributionVisibility: ContributionVisibility.ofValue(
           contributionVisibility,

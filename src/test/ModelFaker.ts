@@ -92,6 +92,7 @@ export class ModelFaker {
       updatedAt,
       title,
       description,
+      {},
       creatorId,
       state,
       contributionVisibility,

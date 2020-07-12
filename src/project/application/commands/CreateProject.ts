@@ -23,6 +23,7 @@ import { CommandHandler } from 'shared/command/CommandHandler';
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
   public readonly description: string;
+  public readonly meta?: Record<string, unknown>;
   public readonly contributionVisibility: ContributionVisibilityValue;
   public readonly skipManagerReview: SkipManagerReviewValue;
 
@@ -30,12 +31,14 @@ export class CreateProjectCommand extends ProjectCommand {
     authUser: User,
     title: string,
     description: string,
+    meta: Record<string, unknown> | undefined,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
   ) {
     super(authUser);
     this.title = title;
     this.description = description;
+    this.meta = meta;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
   }
@@ -61,6 +64,7 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
     return this.projectFactory.create({
       title: ProjectTitle.from(command.title),
       description: ProjectDescription.from(command.description),
+      meta: command.meta || {},
       creator: command.authUser,
       contributionVisibility: ContributionVisibility.ofValue(
         command.contributionVisibility,
