@@ -101,43 +101,43 @@ export abstract class ProjectState extends ValueObject {
  */
 export abstract class DefaultProjectState extends ProjectState {
   public update(
-    project: InternalProject,
-    title?: ProjectTitle,
-    description?: ProjectDescription,
+    _project: InternalProject,
+    _title?: ProjectTitle,
+    _description?: ProjectDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public addRole(
-    project: InternalProject,
-    title: RoleTitle,
-    description: RoleDescription,
+    _project: InternalProject,
+    _title: RoleTitle,
+    _description: RoleDescription,
   ): ReadonlyRole {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public updateRole(
-    project: InternalProject,
-    roleId: RoleId,
-    title?: RoleTitle,
-    description?: RoleDescription,
+    _project: InternalProject,
+    _roleId: RoleId,
+    _title?: RoleTitle,
+    _description?: RoleDescription,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public removeRole(project: InternalProject, roleId: RoleId): void {
+  public removeRole(_project: InternalProject, _roleId: RoleId): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public assignUserToRole(
-    project: InternalProject,
-    userToAssign: ReadonlyUser,
-    roleId: RoleId,
+    _project: InternalProject,
+    _userToAssign: ReadonlyUser,
+    _roleId: RoleId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public unassign(project: InternalProject, roleId: RoleId): void {
+  public unassign(_project: InternalProject, _roleId: RoleId): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
@@ -161,15 +161,15 @@ export abstract class DefaultProjectState extends ProjectState {
   }
 
   public removeReviewTopic(
-    project: InternalProject,
-    reviewTopicId: ReviewTopicId,
+    _project: InternalProject,
+    _reviewTopicId: ReviewTopicId,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
   public finishFormation(
-    project: InternalProject,
-    assignees: ReadonlyUserCollection,
+    _project: InternalProject,
+    _assignees: ReadonlyUserCollection,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
@@ -191,15 +191,15 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public submitManagerReview(project: InternalProject): void {
+  public submitManagerReview(_project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public cancel(project: InternalProject): void {
+  public cancel(_project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public archive(project: InternalProject): void {
+  public archive(_project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 }
