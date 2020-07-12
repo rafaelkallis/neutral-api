@@ -4,10 +4,13 @@ import { InternalProject } from 'project/domain/project/Project';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Role } from 'project/domain/role/Role';
 import { UnitTestScenario } from 'test/UnitTestScenario';
+import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 
 describe(CoveeContributionsComputer.name, () => {
   let scenario: UnitTestScenario<CoveeContributionsComputer>;
   let contributionsComputer: CoveeContributionsComputer;
+  let project: InternalProject;
+  let reviewTopic: ReviewTopic;
   let role1: Role;
   let role2: Role;
   let role3: Role;
@@ -24,19 +27,6 @@ describe(CoveeContributionsComputer.name, () => {
   let f: string;
   let g: string;
   let h: string;
-  let project3: InternalProject;
-  let project3a: InternalProject;
-  let project3b: InternalProject;
-  let project3c: InternalProject;
-  let project3d: InternalProject;
-  let project4: InternalProject;
-  let project4a: InternalProject;
-  let project4b: InternalProject;
-  let project4c: InternalProject;
-  let project5a: InternalProject;
-  let project5b: InternalProject;
-  let project7: InternalProject;
-  let project8: InternalProject;
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(
@@ -44,32 +34,11 @@ describe(CoveeContributionsComputer.name, () => {
     ).build();
     contributionsComputer = scenario.subject;
 
-    project3 = scenario.modelFaker.project(UserId.create());
-    project3a = scenario.modelFaker.project(UserId.create());
-    project3b = scenario.modelFaker.project(UserId.create());
-    project3c = scenario.modelFaker.project(UserId.create());
-    project3d = scenario.modelFaker.project(UserId.create());
-    project4 = scenario.modelFaker.project(UserId.create());
-    project4a = scenario.modelFaker.project(UserId.create());
-    project4b = scenario.modelFaker.project(UserId.create());
-    project4c = scenario.modelFaker.project(UserId.create());
-    project5a = scenario.modelFaker.project(UserId.create());
-    project5b = scenario.modelFaker.project(UserId.create());
-    project7 = scenario.modelFaker.project(UserId.create());
-    project8 = scenario.modelFaker.project(UserId.create());
-    project3.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project3a.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project3b.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project3c.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project3d.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project4.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project4a.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project4b.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project4c.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project5a.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project5b.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project7.reviewTopics.add(scenario.modelFaker.reviewTopic());
-    project8.reviewTopics.add(scenario.modelFaker.reviewTopic());
+    project = scenario.modelFaker.project(UserId.create());
+
+    reviewTopic = scenario.modelFaker.reviewTopic();
+    project.reviewTopics.add(reviewTopic);
+
     role1 = scenario.modelFaker.role();
     role2 = scenario.modelFaker.role();
     role3 = scenario.modelFaker.role();
@@ -90,7 +59,7 @@ describe(CoveeContributionsComputer.name, () => {
 
   describe('n=3', () => {
     test('equal split', () => {
-      project3.peerReviews = PeerReviewCollection.fromMap(
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 1 / 2,
@@ -105,24 +74,22 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 1 / 2,
           },
         },
-        project3.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project3);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(1 / 3);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(1 / 3);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(1 / 3);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        1 / 3,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        1 / 3,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        1 / 3,
+      );
     });
-  });
 
-  describe('n=3', () => {
-    test('example 3a', () => {
-      project3a.peerReviews = PeerReviewCollection.fromMap(
+    test('3a', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 70.0 / 100,
@@ -137,24 +104,22 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 50.0 / 100,
           },
         },
-        project3a.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project3a);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.404305502203859);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.41189347583111);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.183801021965031);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.404305502203859,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.41189347583111,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.183801021965031,
+      );
     });
-  });
 
-  describe('n=3', () => {
-    test('example 3b', () => {
-      project3b.peerReviews = PeerReviewCollection.fromMap(
+    test('3b', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 50.0 / 100,
@@ -169,27 +134,25 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 41.3 / 100,
           },
         },
-        project3b.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project3b);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.371552438944085);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.293607288140377);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.334840272915538);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.371552438944085,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.293607288140377,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.334840272915538,
+      );
     });
-  });
 
-  // NOTE: results significantly differ from DVSN app
-  //       since we are using a different formula
-  //       for calculating matrix S5, compare Matlab code
-  describe('n=3', () => {
-    test('example 3c', () => {
-      project3c.peerReviews = PeerReviewCollection.fromMap(
+    // NOTE: results significantly differ from DVSN app
+    //       since we are using a different formula
+    //       for calculating matrix S5, compare Matlab code
+    test('3c', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 12.0 / 100,
@@ -204,27 +167,25 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 59.2 / 100,
           },
         },
-        project3c.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project3c);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.3782262990133);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.133984674653792);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.487789026332909);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.3782262990133,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.133984674653792,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.487789026332909,
+      );
     });
-  });
 
-  // NOTE: results significantly differ from DVSN app
-  //       since we are using a different formula
-  //       for calculating matrix S5, compare Matlab code
-  describe('n=3', () => {
-    test('example 3d', () => {
-      project3d.peerReviews = PeerReviewCollection.fromMap(
+    // NOTE: results significantly differ from DVSN app
+    //       since we are using a different formula
+    //       for calculating matrix S5, compare Matlab code
+    test('3d', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 45.2 / 100,
@@ -239,24 +200,24 @@ describe(CoveeContributionsComputer.name, () => {
             [b]: 21.8 / 100,
           },
         },
-        project3d.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project3d);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.296296665603337);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.194771131762688);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.508932202633975);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.296296665603337,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.194771131762688,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.508932202633975,
+      );
     });
   });
 
   describe('n=4', () => {
     test('whitepaper example', () => {
-      project4.peerReviews = PeerReviewCollection.fromMap(
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 20 / 90,
@@ -279,27 +240,25 @@ describe(CoveeContributionsComputer.name, () => {
             [c]: 30 / 60,
           },
         },
-        project4.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project4);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.1);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.2);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.3);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.4);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.1,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.2,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.3,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.4,
+      );
     });
-  });
 
-  describe('n=4', () => {
-    test('example 4a', () => {
-      project4a.peerReviews = PeerReviewCollection.fromMap(
+    test('4a', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [c]: {
             [a]: 32.5 / 100,
@@ -322,27 +281,25 @@ describe(CoveeContributionsComputer.name, () => {
             [c]: 32.1 / 100,
           },
         },
-        project4a.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project4a);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.249985782136071);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.245605602838321);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.246498973926039);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.25790964109957);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.249985782136071,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.245605602838321,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.246498973926039,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.25790964109957,
+      );
     });
-  });
 
-  describe('n=4', () => {
-    test('example 4b', () => {
-      project4b.peerReviews = PeerReviewCollection.fromMap(
+    test('4b', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 33.3 / 100,
@@ -365,27 +322,25 @@ describe(CoveeContributionsComputer.name, () => {
             [c]: 49.0 / 100,
           },
         },
-        project4b.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project4b);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.071974230896154);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.327948241927373);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.419282649048772);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.180794878127702);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.071974230896154,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.327948241927373,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.419282649048772,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.180794878127702,
+      );
     });
-  });
 
-  describe('n=4', () => {
-    test('example 4c', () => {
-      project4c.peerReviews = PeerReviewCollection.fromMap(
+    test('4c', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [d]: {
             [a]: 21.0 / 100,
@@ -408,27 +363,27 @@ describe(CoveeContributionsComputer.name, () => {
             [d]: 28.0 / 100,
           },
         },
-        project4c.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project4c);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.20133325281712);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.292719262778615);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.285300789544696);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.22064669485957);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.20133325281712,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.292719262778615,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.285300789544696,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.22064669485957,
+      );
     });
   });
 
   describe('n=5', () => {
-    test('example 5a', () => {
-      project5a.peerReviews = PeerReviewCollection.fromMap(
+    test('5a', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 20.0 / 100,
@@ -461,30 +416,28 @@ describe(CoveeContributionsComputer.name, () => {
             [e]: 22.0 / 100,
           },
         },
-        project5a.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project5a);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.229976858084333);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.173493919035586);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.216264975211579);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.189085366606353);
-      expect(
-        contributions.find((con) => con.roleId.equals(role5.id))?.amount.value,
-      ).toBeCloseTo(0.19117888106215);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.229976858084333,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.173493919035586,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.216264975211579,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.189085366606353,
+      );
+      expect(contributions.whereRole(role5).first().amount.value).toBeCloseTo(
+        0.19117888106215,
+      );
     });
-  });
 
-  describe('n=5', () => {
-    test('example 5b', () => {
-      project5b.peerReviews = PeerReviewCollection.fromMap(
+    test('5b', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [a]: {
             [b]: 40.0 / 100,
@@ -517,30 +470,30 @@ describe(CoveeContributionsComputer.name, () => {
             [d]: 25.0 / 100,
           },
         },
-        project5b.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project5b);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.275094933116376);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.258285318151162);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.278703022635355);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.184462175160944);
-      expect(
-        contributions.find((con) => con.roleId.equals(role5.id))?.amount.value,
-      ).toBeCloseTo(0.00345455093616235);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.275094933116376,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.258285318151162,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.278703022635355,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.184462175160944,
+      );
+      expect(contributions.whereRole(role5).first().amount.value).toBeCloseTo(
+        0.00345455093616235,
+      );
     });
   });
 
   describe('n=7', () => {
-    test('example 7', () => {
-      project7.peerReviews = PeerReviewCollection.fromMap(
+    test('7a', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [g]: {
             [a]: 18.8 / 100,
@@ -599,36 +552,34 @@ describe(CoveeContributionsComputer.name, () => {
             [g]: 16.0 / 96,
           },
         },
-        project7.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project7);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.175554568961258);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.186336537644647);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.132977443251899);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.147541175675117);
-      expect(
-        contributions.find((con) => con.roleId.equals(role5.id))?.amount.value,
-      ).toBeCloseTo(0.138486341447312);
-      expect(
-        contributions.find((con) => con.roleId.equals(role6.id))?.amount.value,
-      ).toBeCloseTo(0.0849053679415465);
-      expect(
-        contributions.find((con) => con.roleId.equals(role7.id))?.amount.value,
-      ).toBeCloseTo(0.134198565078221);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.175554568961258,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.186336537644647,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.132977443251899,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.147541175675117,
+      );
+      expect(contributions.whereRole(role5).first().amount.value).toBeCloseTo(
+        0.138486341447312,
+      );
+      expect(contributions.whereRole(role6).first().amount.value).toBeCloseTo(
+        0.0849053679415465,
+      );
+      expect(contributions.whereRole(role7).first().amount.value).toBeCloseTo(
+        0.134198565078221,
+      );
     });
-  });
 
-  describe('n=7', () => {
-    test('example 7', () => {
-      project8.peerReviews = PeerReviewCollection.fromMap(
+    test('7b', () => {
+      project.peerReviews = PeerReviewCollection.fromMap(
         {
           [e]: {
             [a]: 14.3 / 100,
@@ -703,33 +654,33 @@ describe(CoveeContributionsComputer.name, () => {
             [h]: 14.0 / 98,
           },
         },
-        project8.reviewTopics.first().id,
+        reviewTopic.id,
       );
-      const contributions = contributionsComputer.compute(project8);
-      expect(
-        contributions.find((con) => con.roleId.equals(role1.id))?.amount.value,
-      ).toBeCloseTo(0.134368884210153);
-      expect(
-        contributions.find((con) => con.roleId.equals(role2.id))?.amount.value,
-      ).toBeCloseTo(0.124806151901986);
-      expect(
-        contributions.find((con) => con.roleId.equals(role3.id))?.amount.value,
-      ).toBeCloseTo(0.125499383465628);
-      expect(
-        contributions.find((con) => con.roleId.equals(role4.id))?.amount.value,
-      ).toBeCloseTo(0.122756343375474);
-      expect(
-        contributions.find((con) => con.roleId.equals(role5.id))?.amount.value,
-      ).toBeCloseTo(0.12751680941521);
-      expect(
-        contributions.find((con) => con.roleId.equals(role6.id))?.amount.value,
-      ).toBeCloseTo(0.125327647462686);
-      expect(
-        contributions.find((con) => con.roleId.equals(role7.id))?.amount.value,
-      ).toBeCloseTo(0.117560941100933);
-      expect(
-        contributions.find((con) => con.roleId.equals(role8.id))?.amount.value,
-      ).toBeCloseTo(0.12216383906793);
+      const contributions = contributionsComputer.compute(project);
+      expect(contributions.whereRole(role1).first().amount.value).toBeCloseTo(
+        0.134368884210153,
+      );
+      expect(contributions.whereRole(role2).first().amount.value).toBeCloseTo(
+        0.124806151901986,
+      );
+      expect(contributions.whereRole(role3).first().amount.value).toBeCloseTo(
+        0.125499383465628,
+      );
+      expect(contributions.whereRole(role4).first().amount.value).toBeCloseTo(
+        0.122756343375474,
+      );
+      expect(contributions.whereRole(role5).first().amount.value).toBeCloseTo(
+        0.12751680941521,
+      );
+      expect(contributions.whereRole(role6).first().amount.value).toBeCloseTo(
+        0.125327647462686,
+      );
+      expect(contributions.whereRole(role7).first().amount.value).toBeCloseTo(
+        0.117560941100933,
+      );
+      expect(contributions.whereRole(role8).first().amount.value).toBeCloseTo(
+        0.12216383906793,
+      );
     });
   });
 });
