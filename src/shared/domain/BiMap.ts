@@ -33,7 +33,11 @@ export class BiMap<U, V> implements ReadonlyBiMap<U, V> {
   public put(u1: U, v1: V): void {
     for (const [u2, v2] of this.values) {
       if (u1 === u2 || v1 === v2) {
-        throw new Error(`Conflicting pairs: {${u1}, ${v1}} and {${u2}, ${v2}}`);
+        throw new Error(
+          `Conflicting pairs: {${JSON.stringify(u1)}, ${JSON.stringify(
+            v1,
+          )}} and {${JSON.stringify(u2)}, ${JSON.stringify(v2)}}`,
+        );
       }
     }
     this.values.push([u1, v1]);
