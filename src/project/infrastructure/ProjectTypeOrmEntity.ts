@@ -17,6 +17,9 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'description' })
   public description: string;
 
+  @Column({ name: 'meta', type: 'jsonb' })
+  public meta: Record<string, unknown>;
+
   @Column({ name: 'creator_id' })
   public creatorId: string;
 
@@ -75,6 +78,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     updatedAt: number,
     title: string,
     description: string,
+    meta: Record<string, unknown>,
     creatorId: string,
     state: ProjectStateValue,
     contributionVisibility: ContributionVisibilityValue,
@@ -87,6 +91,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
+    this.meta = meta;
     this.creatorId = creatorId;
     this.state = state;
     this.contributionVisibility = contributionVisibility;

@@ -21,18 +21,21 @@ describe(ProjectFactory.name, () => {
   describe('create project', () => {
     let title: ProjectTitle;
     let description: ProjectDescription;
+    let meta: Record<string, unknown>;
 
     beforeEach(() => {
       title = ProjectTitle.from(scenario.primitiveFaker.words());
       description = ProjectDescription.from(
         scenario.primitiveFaker.paragraph(),
       );
+      meta = {};
     });
 
     test('happy path', () => {
       const createdProject = projectFactory.create({
         title,
         description,
+        meta,
         creator,
       });
       expect(createdProject.domainEvents).toEqual([

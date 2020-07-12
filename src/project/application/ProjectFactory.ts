@@ -23,6 +23,7 @@ import { ContributionCollection } from 'project/domain/contribution/Contribution
 export interface CreateProjectOptions {
   title: ProjectTitle;
   description: ProjectDescription;
+  meta: Record<string, unknown>;
   creator: ReadonlyUser;
   contributionVisibility?: ContributionVisibility;
   skipManagerReview?: SkipManagerReview;
@@ -37,6 +38,7 @@ export class ProjectFactory extends AggregateRootFactory<
   protected doCreate({
     title,
     description,
+    meta,
     creator,
     contributionVisibility,
     skipManagerReview,
@@ -55,6 +57,7 @@ export class ProjectFactory extends AggregateRootFactory<
       updatedAt,
       title,
       description,
+      meta,
       creator.id,
       state,
       contributionVisibility

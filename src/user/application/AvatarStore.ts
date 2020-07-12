@@ -17,7 +17,7 @@ export class AvatarStore {
     this.objectStorage = objectStorage;
   }
 
-  public get(avatar: Avatar): Promise<GetReturn> {
+  public async get(avatar: Avatar): Promise<GetReturn> {
     return this.objectStorage.get({
       containerName: AvatarStore.AVATAR_CONTAINER,
       key: avatar.value,
@@ -40,7 +40,7 @@ export class AvatarStore {
     });
   }
 
-  public delete(avatar: Avatar): Promise<void> {
+  public async delete(avatar: Avatar): Promise<void> {
     return this.objectStorage.delete({
       containerName: AvatarStore.AVATAR_CONTAINER,
       key: avatar.value,

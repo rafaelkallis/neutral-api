@@ -14,6 +14,7 @@ import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOr
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
+import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
 
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 
@@ -49,7 +50,7 @@ import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/type
 import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/158982727800MoveConsensualityFromProjectToReviewTopics';
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
 import { AddReviewTopicInputMigration1592508374000 } from 'shared/typeorm/migration/1592508374000AddReviewTopicInputMigration';
-import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
+import { AddProjectMetaMigration1594370335000 } from 'shared/typeorm/migration/1594370335000AddProjectMetaMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -108,6 +109,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         MoveConsensualityFromProjectToReviewTopicsMigration1589827278000,
         RenameInitialAndInvitedUserStateToPendingMigration1590750557000,
         AddReviewTopicInputMigration1592508374000,
+        AddProjectMetaMigration1594370335000,
       ],
     });
     this.connection = connection;

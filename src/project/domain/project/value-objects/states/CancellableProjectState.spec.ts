@@ -18,7 +18,7 @@ describe(CancellableProjectState.name, () => {
   let project: Project;
 
   class BaseState extends DefaultProjectState {
-    public cancel(project: InternalProject): void {
+    public cancel(_project: InternalProject): void {
       throw new Error();
     }
   }

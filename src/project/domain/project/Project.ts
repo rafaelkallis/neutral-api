@@ -46,6 +46,7 @@ import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
   readonly description: ProjectDescription;
+  readonly meta: Record<string, unknown>;
   readonly creatorId: UserId;
   readonly state: ProjectState;
   readonly contributionVisibility: ContributionVisibility;
@@ -57,7 +58,11 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
 
   isConsensual(): boolean;
 
-  update(title?: ProjectTitle, description?: ProjectDescription): void;
+  update(
+    title?: ProjectTitle,
+    description?: ProjectDescription,
+    meta?: Record<string, unknown>,
+  ): void;
 
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
   updateRole(
@@ -102,6 +107,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
   implements ReadonlyProject {
   public abstract readonly title: ProjectTitle;
   public abstract readonly description: ProjectDescription;
+  public abstract readonly meta: Record<string, unknown>;
   public abstract readonly creatorId: UserId;
   public abstract readonly state: ProjectState;
   public abstract readonly contributionVisibility: ContributionVisibility;
@@ -117,6 +123,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
     updatedAt: UpdatedAt,
     title: ProjectTitle,
     description: ProjectDescription,
+    meta: Record<string, unknown>,
     creatorId: UserId,
     state: ProjectState,
     contributionVisibility: ContributionVisibility,
@@ -132,6 +139,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
       updatedAt,
       title,
       description,
+      meta,
       creatorId,
       state,
       contributionVisibility,
@@ -258,6 +266,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
 export class InternalProject extends Project {
   public title: ProjectTitle;
   public description: ProjectDescription;
+  public meta: Record<string, unknown>;
   public readonly creatorId: UserId;
   public state: ProjectState;
   public contributionVisibility: ContributionVisibility;
@@ -273,6 +282,7 @@ export class InternalProject extends Project {
     updatedAt: UpdatedAt,
     title: ProjectTitle,
     description: ProjectDescription,
+    meta: Record<string, unknown>,
     creatorId: UserId,
     state: ProjectState,
     contributionVisibility: ContributionVisibility,
@@ -293,13 +303,18 @@ export class InternalProject extends Project {
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
+    this.meta = meta;
   }
 
   /**
    *
    */
-  public update(title?: ProjectTitle, description?: ProjectDescription): void {
-    this.state.update(this, title, description);
+  public update(
+    title?: ProjectTitle,
+    description?: ProjectDescription,
+    meta?: Record<string, unknown>,
+  ): void {
+    this.state.update(this, title, description, meta);
   }
 
   /**
