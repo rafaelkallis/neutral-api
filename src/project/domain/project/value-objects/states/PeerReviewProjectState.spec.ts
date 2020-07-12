@@ -12,10 +12,7 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import {
-  ContributionsComputer,
-  ContributionsComputationResult,
-} from 'project/domain/ContributionsComputer';
+import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import {
   ConsensualityComputer,
   ConsensualityComputationResult,
@@ -25,6 +22,7 @@ import { ValueObjectFaker } from 'test/ValueObjectFaker';
 import { UserCollection } from 'user/domain/UserCollection';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { Role } from 'project/domain/role/Role';
+import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 
 describe(PeerReviewProjectState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
@@ -32,7 +30,7 @@ describe(PeerReviewProjectState.name, () => {
 
   let creator: User;
   let project: InternalProject;
-  let contributionsComputationResult: ContributionsComputationResult;
+  let computedContributions: ContributionCollection;
   let consensualityComputationResult: ConsensualityComputationResult;
   let contributionsComputer: ContributionsComputer;
   let consensualityComputer: ConsensualityComputer;
@@ -80,9 +78,9 @@ describe(PeerReviewProjectState.name, () => {
     project.finishFormation(assignees);
 
     contributionsComputer = td.object();
-    contributionsComputationResult = td.object();
+    computedContributions = new ContributionCollection([]);
     td.when(contributionsComputer.compute(project)).thenReturn(
-      contributionsComputationResult,
+      computedContributions,
     );
     consensualityComputer = td.object();
     consensualityComputationResult = td.object();
@@ -193,6 +191,7 @@ describe(PeerReviewProjectState.name, () => {
       });
 
       test('should advance state and compute contributions and compute consensuality', () => {
+        jest.spyOn(project.contributions, 'addAll');
         project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
@@ -207,7 +206,9 @@ describe(PeerReviewProjectState.name, () => {
         expect(
           project.state.equals(PeerReviewProjectState.INSTANCE),
         ).toBeFalsy();
-        td.verify(contributionsComputationResult.applyTo(project));
+        expect(project.contributions.addAll).toHaveBeenCalledWith(
+          computedContributions,
+        );
         td.verify(consensualityComputationResult.applyTo(project));
       });
 

@@ -1,6 +1,6 @@
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ContributionCollection } from './contribution/ContributionCollection';
 
@@ -11,8 +11,8 @@ export abstract class ContributionsComputer {
   /**
    * Computes the relative contributions.
    */
-  public compute(project: ReadonlyProject): ContributionsComputationResult {
-    const result = new ContributionsComputationResult([]);
+  public compute(project: ReadonlyProject): ContributionCollection {
+    const result = new ContributionCollection([]);
     for (const reviewTopic of project.reviewTopics) {
       const contributions = this.computeForReviewTopic(
         reviewTopic.id,
@@ -27,10 +27,4 @@ export abstract class ContributionsComputer {
     reviewTopic: ReviewTopicId,
     peerReviews: ReadonlyPeerReviewCollection,
   ): ReadonlyArray<Contribution>;
-}
-
-export class ContributionsComputationResult extends ContributionCollection {
-  public applyTo(project: Project): void {
-    project.contributions.addAll(this);
-  }
 }
