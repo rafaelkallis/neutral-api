@@ -42,7 +42,7 @@ export class ReviewTopicDto extends ModelDto {
       { $ref: getSchemaPath(DiscreteReviewTopicInputDto) },
     ],
   })
-  public readonly input: ReviewTopicInputDto;
+  public input: ReviewTopicInputDto;
 
   @ApiProperty({ type: Number, example: 0.6, required: false })
   public consensuality: number | null;
