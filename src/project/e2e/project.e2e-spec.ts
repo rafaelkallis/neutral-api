@@ -104,7 +104,6 @@ describe('project (e2e)', () => {
         creatorId: project.creatorId.value,
         state: getProjectStateValue(project.state),
         skipManagerReview: project.skipManagerReview.value,
-        consensuality: null,
         contributionVisibility: project.contributionVisibility.asValue(),
         roles: [],
         peerReviews: [],

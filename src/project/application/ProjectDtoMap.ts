@@ -36,7 +36,6 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.description.value,
       project.creatorId.value,
       getProjectStateValue(project.state),
-      null, // TODO remove
       project.contributionVisibility.asValue(),
       project.skipManagerReview.value,
       await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {

@@ -7,6 +7,15 @@ import { ContributionVisibilityValue } from 'project/domain/project/value-object
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 import { ReviewTopicDto } from './ReviewTopicDto';
 import { ContributionDto } from './ContributionDto';
+import {
+  IsString,
+  MaxLength,
+  IsEnum,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
+import { IsIdentifier } from 'shared/validation/IsIdentifier';
+import { Type } from 'class-transformer';
 
 /**
  * Project DTO
@@ -16,6 +25,8 @@ export class ProjectDto extends ModelDto {
     example: 'Mars Shuttle',
     description: 'Title of the project',
   })
+  @IsString()
+  @MaxLength(100)
   public title: string;
 
   @ApiProperty({
@@ -23,42 +34,53 @@ export class ProjectDto extends ModelDto {
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui.',
     description: 'Description of the project',
   })
+  @MaxLength(1024)
   public description: string;
 
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
+  @IsIdentifier()
   public creatorId: string;
 
   @ApiProperty({
     enum: ProjectStateValue,
     example: ProjectStateValue.FORMATION,
   })
+  @IsEnum(ProjectStateValue)
   public state: ProjectStateValue;
-
-  // TODO remove once frontend does not depend on this anymore
-  public consensuality: null;
 
   @ApiProperty({
     enum: ContributionVisibilityValue,
     example: ContributionVisibilityValue.SELF,
   })
+  @IsEnum(ContributionVisibilityValue)
   public contributionVisibility: ContributionVisibilityValue;
 
   @ApiProperty({
     enum: SkipManagerReviewValue,
     example: SkipManagerReviewValue.IF_CONSENSUAL,
   })
+  @IsEnum(SkipManagerReviewValue)
   public skipManagerReview: SkipManagerReviewValue;
 
   @ApiProperty({ type: [RoleDto] })
+  @ValidateNested({ each: true })
+  @Type(() => RoleDto)
   public roles: RoleDto[];
 
   @ApiProperty({ type: [PeerReviewDto], required: false })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => PeerReviewDto)
   public peerReviews: PeerReviewDto[] | null;
 
   @ApiProperty({ type: [ReviewTopicDto] })
+  @ValidateNested({ each: true })
+  @Type(() => ReviewTopicDto)
   public reviewTopics: ReviewTopicDto[];
 
   @ApiProperty({ type: [ContributionDto] })
+  @ValidateNested({ each: true })
+  @Type(() => ContributionDto)
   public contributions: ContributionDto[];
 
   public constructor(
@@ -69,7 +91,6 @@ export class ProjectDto extends ModelDto {
     description: string,
     creatorId: string,
     state: ProjectStateValue,
-    consensuality: null,
     contributionVisibility: ContributionVisibilityValue,
     skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[],
@@ -82,7 +103,6 @@ export class ProjectDto extends ModelDto {
     this.description = description;
     this.creatorId = creatorId;
     this.state = state;
-    this.consensuality = consensuality;
     this.contributionVisibility = contributionVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;

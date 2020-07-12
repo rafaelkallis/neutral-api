@@ -82,7 +82,6 @@ describe(ProjectDtoMap.name, () => {
       description: project.description.value,
       creatorId: project.creatorId.value,
       state: getProjectStateValue(project.state),
-      consensuality: null,
       contributionVisibility: project.contributionVisibility.asValue(),
       skipManagerReview: project.skipManagerReview.value,
       roles: roleDtos,
