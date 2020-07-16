@@ -2,8 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": { "*": ["src/*"] },
+    "baseUrl": "src",
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -20,6 +19,5 @@
       { "transform": "@zerollup/ts-transform-paths" }
     ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }

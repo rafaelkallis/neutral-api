@@ -12,9 +12,9 @@
   "scripts": {
     "start": "node build/main.js",
     "build": "ttsc",
-    "dev": "NODE_ENV=\"development\" ts-node --transpile-only --compiler ttypescipt src/main.ts",
-    "type": "tsc --noEmit",
-    "type:watch": "tsc --noEmit --watch",
+    "dev": "NODE_ENV=development TS_NODE_COMPILER=ttypescript node --inspect --require ts-node/register src/main.ts",
+    "type": "ttsc --noEmit",
+    "type:watch": "ttsc --noEmit --watch",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint --ext .ts src",
     "test": "jest --verbose --config jest.config.json",
