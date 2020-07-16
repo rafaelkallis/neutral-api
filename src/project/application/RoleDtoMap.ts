@@ -11,6 +11,7 @@ import {
   SelfContributionVisiblity,
   NoneContributionVisiblity,
 } from 'project/domain/project/value-objects/ContributionVisibility';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 
 @Injectable()
 @ObjectMap.register(Role, RoleDto)
@@ -44,14 +45,22 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     // TODO: move knowledge to ContributionVisiblity?
     switch (project.contributionVisibility) {
       case PublicContributionVisiblity.INSTANCE: {
-        shouldExpose = project.state.equals(FinishedProjectState.INSTANCE);
+        shouldExpose = project.state.equalsAny([
+          FinishedProjectState.INSTANCE,
+          ArchivedProjectState.INSTANCE,
+        ]);
         break;
       }
 
       case ProjectContributionVisiblity.INSTANCE: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
+        } else if (
+          !project.state.equalsAny([
+            FinishedProjectState.INSTANCE,
+            ArchivedProjectState.INSTANCE,
+          ])
+        ) {
           shouldExpose = false;
         } else {
           shouldExpose = project.roles.isAnyAssignedToUser(authUser);
@@ -62,7 +71,12 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
       case SelfContributionVisiblity.INSTANCE: {
         if (project.isCreator(authUser)) {
           shouldExpose = true;
-        } else if (!project.state.equals(FinishedProjectState.INSTANCE)) {
+        } else if (
+          !project.state.equalsAny([
+            FinishedProjectState.INSTANCE,
+            ArchivedProjectState.INSTANCE,
+          ])
+        ) {
           shouldExpose = false;
         } else {
           shouldExpose = role.isAssignedToUser(authUser);
