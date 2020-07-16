@@ -37,7 +37,7 @@
     "@nestjs/platform-express": "~7.3.2",
     "@nestjs/swagger": "~4.5.12",
     "@panva/jose": "1.9.3",
-    "amqplib": "~0.5.6",
+    "amqplib": "~0.6.0",
     "applicationinsights": "1.8.2",
     "archiver": "4.0.2",
     "axios": "0.19.2",
