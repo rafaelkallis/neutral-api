@@ -7,6 +7,8 @@ import { Environment } from 'shared/utility/application/Environment';
 import {
   RoleCtaModel,
   ProjectCtaModel,
+  CtaModelWithFirstName,
+  CtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -26,15 +28,15 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
     this.nunjucksRenderer = new NunjucksRenderer(fileSystemLoader);
   }
 
-  public renderLoginEmailHtml(loginMagicLink: string): string {
-    return this.render('login', { loginMagicLink });
+  public renderLoginEmailHtml(model: CtaModelWithFirstName): string {
+    return this.render('login', model);
   }
 
-  public renderSignupEmailHtml(signupMagicLink: string): string {
-    return this.render('signup', { signupMagicLink });
+  public renderSignupEmailHtml(model: CtaModel): string {
+    return this.render('signup', model);
   }
-  public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
-    return this.render('email-change', { emailChangeMagicLink });
+  public renderEmailChangeEmailHtml(model: CtaModelWithFirstName): string {
+    return this.render('email-change', model);
   }
   public renderNewAssignmentEmailHtml(model: RoleCtaModel): string {
     return this.render('new-assignment', model);

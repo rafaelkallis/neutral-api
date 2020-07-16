@@ -73,7 +73,9 @@ describe('/projects/:project_id/roles (POST)', () => {
     );
     const receivedEmailsOfAssignee = await scenario.getReceivedEmails(assignee);
     expect(receivedEmailsOfAssignee).toHaveLength(1);
-    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
+    expect(receivedEmailsOfAssignee[0].subject).toBe(
+      `[Covee] new assignment in "${project.title.toString()}"`,
+    );
   });
 
   test('when "assigneeEmail" is present, should assign user', async () => {
@@ -100,7 +102,9 @@ describe('/projects/:project_id/roles (POST)', () => {
     );
     const receivedEmailsOfAssignee = await scenario.getReceivedEmails(assignee);
     expect(receivedEmailsOfAssignee).toHaveLength(1);
-    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
+    expect(receivedEmailsOfAssignee[0].subject).toBe(
+      `[Covee] new assignment in "${project.title.toString()}"`,
+    );
   });
 
   test('when "assigneeEmail" is present and email is not register should invite user', async () => {
@@ -124,6 +128,8 @@ describe('/projects/:project_id/roles (POST)', () => {
       createdUser,
     );
     expect(receivedEmailsOfAssignee).toHaveLength(1);
-    expect(receivedEmailsOfAssignee[0].subject).toBe('[Covee] new assignment');
+    expect(receivedEmailsOfAssignee[0].subject).toBe(
+      `[Covee] new assignment in "${project.title.toString()}"`,
+    );
   });
 });

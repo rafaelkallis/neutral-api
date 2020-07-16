@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Environment, FileSystemLoader } from 'nunjucks';
 import path from 'path';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
+import {
+  CtaModelWithFirstName,
+  CtaModel,
+} from 'shared/email/manager/EmailManager';
 
 /**
  * Nunjucks Email Html Renderer
@@ -17,24 +21,22 @@ export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
     this.environment = new Environment(fileSystemLoader);
   }
 
-  public renderLoginEmailHtml(loginMagicLink: string): string {
-    return this.environment.render('login.njk', { loginMagicLink });
+  public renderLoginEmailHtml(model: CtaModelWithFirstName): string {
+    return this.environment.render('login.njk', model);
   }
 
   /**
    *
    */
-  public renderSignupEmailHtml(signupMagicLink: string): string {
-    return this.environment.render('signup.njk', { signupMagicLink });
+  public renderSignupEmailHtml(model: CtaModel): string {
+    return this.environment.render('signup.njk', model);
   }
 
   /**
    *
    */
-  public renderEmailChangeEmailHtml(emailChangeMagicLink: string): string {
-    return this.environment.render('email-change.njk', {
-      emailChangeMagicLink,
-    });
+  public renderEmailChangeEmailHtml(model: CtaModelWithFirstName): string {
+    return this.environment.render('email-change.njk', model);
   }
 
   /**

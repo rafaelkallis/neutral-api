@@ -61,7 +61,9 @@ describe('submit manager review (e2e)', () => {
     for (const assignee of assignees) {
       const receivedEmails = await scenario.getReceivedEmails(assignee.email);
       expect(receivedEmails).toHaveLength(1);
-      expect(receivedEmails[0].subject).toBe('[Covee] project finished');
+      expect(receivedEmails[0].subject).toBe(
+        `[Covee] project "${project.title.toString()}" finished`,
+      );
     }
   });
 

@@ -7,7 +7,7 @@ export abstract class EmailManager {
    */
   public abstract async sendLoginEmail(
     to: string,
-    loginMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void>;
 
   /**
@@ -15,7 +15,7 @@ export abstract class EmailManager {
    */
   public abstract async sendSignupEmail(
     to: string,
-    signupMagicLink: string,
+    model: CtaModel,
   ): Promise<void>;
 
   /**
@@ -23,7 +23,7 @@ export abstract class EmailManager {
    */
   public abstract async sendEmailChangeEmail(
     to: string,
-    emailChangeMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void>;
 
   /**
@@ -59,11 +59,14 @@ export abstract class EmailManager {
 }
 
 export interface CtaModel {
-  readonly firstName?: string;
   readonly ctaActionUrl: string;
 }
 
-export interface ProjectCtaModel extends CtaModel {
+export interface CtaModelWithFirstName extends CtaModel {
+  readonly firstName: string;
+}
+
+export interface ProjectCtaModel extends CtaModelWithFirstName {
   readonly projectTitle: string;
 }
 

@@ -4,6 +4,7 @@ import {
   CtaModel,
   ProjectCtaModel,
   RoleCtaModel,
+  CtaModelWithFirstName,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -11,49 +12,34 @@ import {
  */
 @Injectable()
 export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
-  public renderLoginEmailPlaintext(loginMagicLink: string): string {
-    return `
-      Hi there,
-
-      You have requested a login.
-
-      >> Login
-      ${loginMagicLink}
-
-      - Team Covee
-    `;
+  public renderLoginEmailPlaintext(model: CtaModelWithFirstName): string {
+    return this.renderCtaPlaintext({
+      ctaContent: `You have requested a login.`,
+      ctaActionLabel: 'Login',
+      model,
+    });
   }
 
   /**
    *
    */
-  public renderSignupEmailPlaintext(signupMagicLink: string): string {
-    return `
-      Hi there,
-
-      You have requested a signup.
-
-      >> Signup
-      ${signupMagicLink}
-
-      - Team Covee
-    `;
+  public renderSignupEmailPlaintext(model: CtaModel): string {
+    return this.renderCtaPlaintext({
+      ctaContent: `You have requested a signup.`,
+      ctaActionLabel: 'Signup',
+      model: { ...model, firstName: 'there' },
+    });
   }
 
   /**
    *
    */
-  public renderEmailChangeEmailPlaintext(emailChangeMagicLink: string): string {
-    return `
-      Hi there,
-
-      You have requested an email change.
-
-      >> Confirm Email
-      ${emailChangeMagicLink}
-
-      - Team Covee
-    `;
+  public renderEmailChangeEmailPlaintext(model: CtaModelWithFirstName): string {
+    return this.renderCtaPlaintext({
+      ctaContent: `You have requested an email change.`,
+      ctaActionLabel: 'Confirm Email',
+      model,
+    });
   }
 
   /**
@@ -61,19 +47,13 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
    */
   public renderNewAssignmentEmailPlaintext(model: RoleCtaModel): string {
     const roleToken = model.roleTitle
-      ? `the role of ${model.roleTitle}`
+      ? `the role of "${model.roleTitle}"`
       : `a role`;
-    const projectToken = model.projectTitle || 'a project';
-    return `
-      Hi there,
-
-      You were assigned ${roleToken} in ${projectToken}.
-
-      >> See Assignment
-      ${model.ctaActionUrl}
-
-      - Team Covee
-    `;
+    return this.renderCtaPlaintext({
+      ctaContent: `You are assigned ${roleToken} in "${model.projectTitle}".`,
+      ctaActionLabel: 'See Assignment',
+      model,
+    });
   }
 
   /**
@@ -83,28 +63,20 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
     model: RoleCtaModel,
   ): string {
     const roleToken = model.roleTitle
-      ? `the role of ${model.roleTitle}`
+      ? `the role of "${model.roleTitle}"`
       : `a role`;
-    const projectToken = model.projectTitle || 'a project';
-    return `
-      Hi there,
-
-      You were assigned ${roleToken} in ${projectToken}.
-
-      >> Get Started
-      ${model.ctaActionUrl}
-
-      - Team Covee
-    `;
+    return this.renderCtaPlaintext({
+      ctaContent: `You are assigned ${roleToken} in "${model.projectTitle}".`,
+      ctaActionLabel: 'Get Started',
+      model,
+    });
   }
 
   public renderPeerReviewRequestedEmailPlaintext(
     model: ProjectCtaModel,
   ): string {
-    const projectToken = model.projectTitle || 'a project';
-    const ctaContent = `You are requested to submit a peer-review in ${projectToken}.`;
     return this.renderCtaPlaintext({
-      ctaContent,
+      ctaContent: `You are requested to submit a peer-review in "${model.projectTitle}".`,
       ctaActionLabel: 'Submit Peer Review',
       model,
     });
@@ -113,33 +85,24 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderManagerReviewRequestedEmailPlaintext(
     model: ProjectCtaModel,
   ): string {
-    const projectToken = model.projectTitle || 'a project you are a manager in';
-    const ctaContent = `All peer-reviews have been submitted in ${projectToken} and you are requested to submit a manager-review.`;
     return this.renderCtaPlaintext({
-      ctaContent,
+      ctaContent: `All peer-reviews have been submitted in "${model.projectTitle}" and you are requested to submit a manager-review.`,
       ctaActionLabel: 'Submit Manager Review',
       model,
     });
   }
 
   public renderProjectFinishedEmailPlaintext(model: ProjectCtaModel): string {
-    const projectToken = model.projectTitle || 'A project you were assigned to';
-    return `
-      Hi there,
-
-      ${projectToken} has finished and the results are ready.
-
-      >> Check Results
-      ${model.ctaActionUrl}
-
-      - Team Covee
-    `;
+    return this.renderCtaPlaintext({
+      ctaContent: `Project "${model.projectTitle}" is finished and the results are ready.`,
+      ctaActionLabel: 'Check Results',
+      model,
+    });
   }
 
   private renderCtaPlaintext(context: RenderCtaPlaintextContext): string {
-    const nameToken = context.model.firstName || 'there';
     return `
-      Hi ${nameToken},
+      Hi ${context.model.firstName},
 
       ${context.ctaContent}
 
@@ -154,5 +117,5 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
 interface RenderCtaPlaintextContext {
   ctaContent: string;
   ctaActionLabel: string;
-  model: CtaModel;
+  model: CtaModelWithFirstName;
 }

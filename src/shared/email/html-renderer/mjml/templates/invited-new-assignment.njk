@@ -1,16 +1,16 @@
 {% extends "_cta.njk" %}
 
-{% block title %}
+{% set title %}
   Covee New Assignment
-{% endblock %}
+{% endset %}
 
-{% block preview %}
+{% set preview %}
   You have a new assignment waiting for you.
-{% endblock %}
+{% endset %}
 
 {% set roleToken %}
   {% if roleTitle %} 
-    the role of {{ roleTitle }}
+    the role of {{ roleTitle | trim }}
   {% else %}
     a role
   {% endif %}
@@ -21,5 +21,5 @@
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>You were assigned {{ roleToken | trim }} in {{ projectTitle or "a project" | trim }}.</mj-text>
+  <mj-text>You were assigned "{{ roleToken | trim }}" in "{{ projectTitle | trim }}".</mj-text>
 {% endblock %}

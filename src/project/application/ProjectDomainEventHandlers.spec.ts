@@ -69,6 +69,7 @@ describe(ProjectDomainEventHandlers.name, () => {
       await projectDomainEventHandlers.onUserAssignedSendAssignmentEmail(event);
       td.verify(
         emailManager.sendPendingUserNewAssignmentEmail(assignee.email.value, {
+          firstName: assignee.name.first,
           projectTitle: project.title.value,
           roleTitle: role.title.value,
           ctaActionUrl: loginLink,
@@ -81,6 +82,7 @@ describe(ProjectDomainEventHandlers.name, () => {
       await projectDomainEventHandlers.onUserAssignedSendAssignmentEmail(event);
       td.verify(
         emailManager.sendNewAssignmentEmail(assignee.email.value, {
+          firstName: assignee.name.first,
           projectTitle: project.title.value,
           roleTitle: role.title.value,
           ctaActionUrl: td.matchers.isA(String),

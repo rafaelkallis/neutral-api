@@ -21,9 +21,9 @@ export class UserDomainEventHandlers {
   public async onEmailChangeRequestedSendEmailChangeEmail(
     event: EmailChangeRequestedEvent,
   ): Promise<void> {
-    await this.emailManager.sendEmailChangeEmail(
-      event.email.value,
-      event.magicEmailChangeLink,
-    );
+    await this.emailManager.sendEmailChangeEmail(event.email.value, {
+      firstName: event.user.name.first,
+      ctaActionUrl: event.magicEmailChangeLink,
+    });
   }
 }

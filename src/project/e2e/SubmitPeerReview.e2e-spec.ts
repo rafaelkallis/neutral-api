@@ -201,7 +201,7 @@ describe('submit peer review (e2e)', () => {
       const receivedManagerEmails = await scenario.getReceivedEmails(creator);
       expect(receivedManagerEmails).toHaveLength(1);
       expect(receivedManagerEmails[0].subject).toBe(
-        '[Covee] manager-review requested',
+        `[Covee] manager-review requested in "${project.title.toString()}"`,
       );
     });
 

@@ -62,7 +62,7 @@ export class RequestLoginCommandHandler extends CommandHandler<
     });
     await this.domainEventBroker.publish(
       user
-        ? new LoginRequestedEvent(email, loginLink)
+        ? new LoginRequestedEvent(user, loginLink)
         : new SignupRequestedEvent(email, loginLink),
     );
   }
