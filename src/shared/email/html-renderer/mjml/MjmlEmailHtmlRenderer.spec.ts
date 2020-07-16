@@ -18,28 +18,31 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   });
 
   test('should render login html', () => {
-    const html = mjmlEmailHtmlRenderer.renderLoginEmailHtml(
-      'https://example.com/login',
-    );
+    const html = mjmlEmailHtmlRenderer.renderLoginEmailHtml({
+      firstName: 'Bubbles',
+      ctaActionUrl: 'https://example.com/login',
+    });
     expect(html).toMatchSnapshot();
   });
 
   test('should render signup html', () => {
-    const html = mjmlEmailHtmlRenderer.renderSignupEmailHtml(
-      'https://example.com/signup',
-    );
+    const html = mjmlEmailHtmlRenderer.renderSignupEmailHtml({
+      ctaActionUrl: 'https://example.com/signup',
+    });
     expect(html).toMatchSnapshot();
   });
 
   test('should render email change html', () => {
-    const html = mjmlEmailHtmlRenderer.renderEmailChangeEmailHtml(
-      'https://example.com/email-change',
-    );
+    const html = mjmlEmailHtmlRenderer.renderEmailChangeEmailHtml({
+      firstName: 'Mike',
+      ctaActionUrl: 'https://example.com/email-change',
+    });
     expect(html).toEqual(expect.any(String));
   });
 
   test('should render user assigned html', () => {
     const model: RoleCtaModel = {
+      firstName: 'Julian',
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
       ctaActionUrl: 'http://example.com',
@@ -50,6 +53,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
 
   test('should render invited user assigned html', () => {
     const model: RoleCtaModel = {
+      firstName: 'Jamie',
       projectTitle: 'My Project',
       roleTitle: 'Lead Engineer',
       ctaActionUrl: 'http://example.com',
@@ -62,6 +66,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
 
   test('should render peer review requested html', () => {
     const model: ProjectCtaModel = {
+      firstName: 'Jeff',
       projectTitle: 'My Project',
       ctaActionUrl: 'http://example.com',
     };
@@ -73,6 +78,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
 
   test('should render manager review requested html', () => {
     const model: ProjectCtaModel = {
+      firstName: 'George',
       projectTitle: 'My Project',
       ctaActionUrl: 'http://example.com',
     };
@@ -84,6 +90,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
 
   test('should render project finished html', () => {
     const model: ProjectCtaModel = {
+      firstName: 'Randy',
       projectTitle: 'My Project',
       ctaActionUrl: 'http://example.com',
     };

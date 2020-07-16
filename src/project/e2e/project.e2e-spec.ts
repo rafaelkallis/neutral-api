@@ -265,7 +265,9 @@ describe('project (e2e)', () => {
       for (const assignee of assignees) {
         const receivedEmails = await scenario.getReceivedEmails(assignee);
         expect(receivedEmails).toHaveLength(1);
-        expect(receivedEmails[0].subject).toBe('[Covee] peer-review requested');
+        expect(receivedEmails[0].subject).toBe(
+          `[Covee] peer-review requested in "${project.title.toString()}"`,
+        );
       }
     });
 

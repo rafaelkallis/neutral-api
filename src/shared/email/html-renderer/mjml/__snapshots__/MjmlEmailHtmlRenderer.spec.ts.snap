@@ -235,7 +235,7 @@ exports[`MjmlEmailHtmlRenderer should render invited user assigned html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi Jamie,</div>
     
               </td>
             </tr>
@@ -247,7 +247,7 @@ exports[`MjmlEmailHtmlRenderer should render invited user assigned html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >You were assigned the role of Lead Engineer in My Project.</div>
+      >You were assigned \\"the role of Lead Engineer\\" in \\"My Project\\".</div>
     
               </td>
             </tr>
@@ -726,7 +726,7 @@ exports[`MjmlEmailHtmlRenderer should render login html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi Bubbles,</div>
     
               </td>
             </tr>
@@ -1048,7 +1048,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
       <body style=\\"background-color:#F9F9F9;\\">
         
     <div style=\\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\\">
-      We need your approval to publish results.
+      We need your approval in &quot;My Project&quot; to publish results.
     </div>
   
         
@@ -1217,7 +1217,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi George,</div>
     
               </td>
             </tr>
@@ -1229,7 +1229,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >All peer-reviews have been submitted in My Project and you are requested to submit a manager-review.</div>
+      >All peer-reviews have been submitted in \\"My Project\\" and you are requested to submit a manager-review.</div>
     
               </td>
             </tr>
@@ -1539,7 +1539,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
       <body style=\\"background-color:#F9F9F9;\\">
         
     <div style=\\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\\">
-      Your peer-review is needed.
+      Your peer-review is needed in &quot;My Project&quot;.
     </div>
   
         
@@ -1708,7 +1708,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi Jeff,</div>
     
               </td>
             </tr>
@@ -1720,7 +1720,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >You are requested to submit a peer-review in My Project.</div>
+      >You are requested to submit a peer-review in \\"My Project\\".</div>
     
               </td>
             </tr>
@@ -2030,7 +2030,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
       <body style=\\"background-color:#F9F9F9;\\">
         
     <div style=\\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\\">
-      Your project is finished.
+      Your project &quot;My Project&quot; is finished.
     </div>
   
         
@@ -2199,7 +2199,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi Randy,</div>
     
               </td>
             </tr>
@@ -2211,7 +2211,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >My Project has finshed and the results are ready.</div>
+      >Project \\"My Project\\" is finshed and the results are ready.</div>
     
               </td>
             </tr>
@@ -3012,7 +3012,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
       <body style=\\"background-color:#F9F9F9;\\">
         
     <div style=\\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\\">
-      You have a new assignment waiting for you.
+      You have a new assignment waiting for you in &quot;My Project&quot;.
     </div>
   
         
@@ -3181,7 +3181,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >Hi there,</div>
+      >Hi Julian,</div>
     
               </td>
             </tr>
@@ -3193,7 +3193,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
                 
       <div
          style=\\"font-family:Rubik, sans-serif;font-size:17px;line-height:1;text-align:left;color:#000000;\\"
-      >You were assigned the role of Lead Engineer in My Project.</div>
+      >You were assigned the role of &quot;Lead Engineer&quot; in \\"My Project\\".</div>
     
               </td>
             </tr>
