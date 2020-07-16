@@ -128,7 +128,7 @@ describe(ProjectDtoMap.name, () => {
         projectUser: modelFaker.user(),
         publicUser: modelFaker.user(),
       };
-      project.state = FinishedProjectState.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE; // TODO or archived?
       project.roles.addAll([
         modelFaker.role(users.assignee.id),
         modelFaker.role(users.projectUser.id),
