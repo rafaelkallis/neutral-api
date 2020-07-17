@@ -3,20 +3,14 @@ import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export class PeerReviewScore extends NumberValueObject {
   public static of(value: number): PeerReviewScore {
-    // if value in [-eps, eps] then value = eps
-    if (Math.abs(value) <= Number.EPSILON) {
-      value = Number.EPSILON;
-    }
-    // if value in [1-eps, 1+eps] then value = 1-eps
-    if (Math.abs(1 - value) <= Number.EPSILON) {
-      value = 1 - Number.EPSILON;
-    }
-    if (value < Number.EPSILON || value >= Number.MAX_SAFE_INTEGER / 1e3) {
+    if (value < -Number.EPSILON) {
       throw new DomainException(
         'invalid_peer_review_score',
-        'Invalid peer-review score',
+        'Invalid peer-review score.',
       );
     }
+    value = Math.max(value, Number.EPSILON);
+    value = Math.min(value, Number.MAX_SAFE_INTEGER);
     return new PeerReviewScore(value);
   }
 
