@@ -20,14 +20,14 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   test('should render login html', () => {
     const html = mjmlEmailHtmlRenderer.renderLoginEmailHtml({
       firstName: 'Bubbles',
-      ctaActionUrl: 'https://example.com/login',
+      ctaUrl: 'https://example.com/login',
     });
     expect(html).toMatchSnapshot();
   });
 
   test('should render signup html', () => {
     const html = mjmlEmailHtmlRenderer.renderSignupEmailHtml({
-      ctaActionUrl: 'https://example.com/signup',
+      ctaUrl: 'https://example.com/signup',
     });
     expect(html).toMatchSnapshot();
   });
@@ -35,7 +35,7 @@ describe(MjmlEmailHtmlRenderer.name, () => {
   test('should render email change html', () => {
     const html = mjmlEmailHtmlRenderer.renderEmailChangeEmailHtml({
       firstName: 'Mike',
-      ctaActionUrl: 'https://example.com/email-change',
+      ctaUrl: 'https://example.com/email-change',
     });
     expect(html).toEqual(expect.any(String));
   });

@@ -23,7 +23,7 @@ export class UserDomainEventHandlers {
   ): Promise<void> {
     await this.emailManager.sendEmailChangeEmail(event.email.value, {
       firstName: event.user.name.first,
-      ctaActionUrl: event.magicEmailChangeLink,
+      ctaUrl: event.magicEmailChangeLink,
     });
   }
 }

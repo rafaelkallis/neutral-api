@@ -16,14 +16,14 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   it('should render login text', () => {
     const text = literalEmailPlaintextRenderer.renderLoginEmailPlaintext({
       firstName: 'Julian',
-      ctaActionUrl: 'https://example.com/login',
+      ctaUrl: 'https://example.com/login',
     });
     expect(text).toMatchSnapshot();
   });
 
   it('should render signup text', () => {
     const text = literalEmailPlaintextRenderer.renderSignupEmailPlaintext({
-      ctaActionUrl: 'https://example.com/signup',
+      ctaUrl: 'https://example.com/signup',
     });
     expect(text).toMatchSnapshot();
   });
@@ -31,7 +31,7 @@ describe(LiteralEmailPlaintextRenderer.name, () => {
   it('should render email change text', () => {
     const text = literalEmailPlaintextRenderer.renderEmailChangeEmailPlaintext({
       firstName: 'Ricky',
-      ctaActionUrl: 'https://example.com/email-change',
+      ctaUrl: 'https://example.com/email-change',
     });
     expect(text).toMatchSnapshot();
   });

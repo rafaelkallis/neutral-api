@@ -90,16 +90,3 @@ exports[`LiteralEmailPlaintextRenderer should render signup text 1`] = `
       - Team Covee
     "
 `;
-
-exports[`LiteralEmailPlaintextRenderer should render unregistered user new assignment text 1`] = `
-"
-      Hi Bubbles,
-
-      You are assigned the role of \\"Particle Scientist\\" in \\"Neutron Collider\\".
-
-      >> Get Started
-      http://example.com/signup
-
-      - Team Covee
-    "
-`;

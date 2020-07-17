@@ -33,7 +33,7 @@ export class SendgridEmailManager extends EmailManager {
     model: CtaModelWithFirstName,
   ): Promise<void> {
     const templateId = 'd-3781fe6ff75544bea7a191c029587816';
-    const dynamicTemplateData = { loginMagicLink: model.ctaActionUrl };
+    const dynamicTemplateData = { loginMagicLink: model.ctaUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
@@ -42,7 +42,7 @@ export class SendgridEmailManager extends EmailManager {
    */
   public async sendSignupEmail(to: string, model: CtaModel): Promise<void> {
     const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
-    const dynamicTemplateData = { signupMagicLink: model.ctaActionUrl };
+    const dynamicTemplateData = { signupMagicLink: model.ctaUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
@@ -54,7 +54,7 @@ export class SendgridEmailManager extends EmailManager {
     model: CtaModelWithFirstName,
   ): Promise<void> {
     const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
-    const dynamicTemplateData = { emailChangeMagicLink: model.ctaActionUrl };
+    const dynamicTemplateData = { emailChangeMagicLink: model.ctaUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 

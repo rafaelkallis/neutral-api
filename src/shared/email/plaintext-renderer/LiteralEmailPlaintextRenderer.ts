@@ -15,7 +15,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderLoginEmailPlaintext(model: CtaModelWithFirstName): string {
     return this.renderCtaPlaintext({
       ctaContent: `You have requested a login.`,
-      ctaActionLabel: 'Login',
+      ctaLabel: 'Login',
       model,
     });
   }
@@ -26,7 +26,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderSignupEmailPlaintext(model: CtaModel): string {
     return this.renderCtaPlaintext({
       ctaContent: `You have requested a signup.`,
-      ctaActionLabel: 'Signup',
+      ctaLabel: 'Signup',
       model: { ...model, firstName: 'there' },
     });
   }
@@ -37,7 +37,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderEmailChangeEmailPlaintext(model: CtaModelWithFirstName): string {
     return this.renderCtaPlaintext({
       ctaContent: `You have requested an email change.`,
-      ctaActionLabel: 'Confirm Email',
+      ctaLabel: 'Confirm Email',
       model,
     });
   }
@@ -51,7 +51,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
       : `a role`;
     return this.renderCtaPlaintext({
       ctaContent: `You are assigned ${roleToken} in "${model.projectTitle}".`,
-      ctaActionLabel: 'See Assignment',
+      ctaLabel: 'See Assignment',
       model,
     });
   }
@@ -61,7 +61,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   ): string {
     return this.renderCtaPlaintext({
       ctaContent: `You are requested to submit a peer-review in "${model.projectTitle}".`,
-      ctaActionLabel: 'Submit Peer Review',
+      ctaLabel: 'Submit Peer Review',
       model,
     });
   }
@@ -71,7 +71,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   ): string {
     return this.renderCtaPlaintext({
       ctaContent: `All peer-reviews have been submitted in "${model.projectTitle}" and you are requested to submit a manager-review.`,
-      ctaActionLabel: 'Submit Manager Review',
+      ctaLabel: 'Submit Manager Review',
       model,
     });
   }
@@ -79,7 +79,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
   public renderProjectFinishedEmailPlaintext(model: ProjectCtaModel): string {
     return this.renderCtaPlaintext({
       ctaContent: `Project "${model.projectTitle}" is finished and the results are ready.`,
-      ctaActionLabel: 'Check Results',
+      ctaLabel: 'Check Results',
       model,
     });
   }
@@ -90,7 +90,7 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
 
       ${context.ctaContent}
 
-      >> ${context.ctaActionLabel}
+      >> ${context.ctaLabel}
       ${context.model.ctaUrl}
 
       - Team Covee
@@ -100,6 +100,6 @@ export class LiteralEmailPlaintextRenderer extends EmailPlaintextRenderer {
 
 interface RenderCtaPlaintextContext {
   ctaContent: string;
-  ctaActionLabel: string;
+  ctaLabel: string;
   model: CtaModelWithFirstName;
 }

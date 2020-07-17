@@ -21,7 +21,7 @@ export class AuthDomainEventHandlers {
   ): Promise<void> {
     await this.emailManager.sendLoginEmail(event.user.email.value, {
       firstName: event.user.name.first,
-      ctaActionUrl: event.loginLink,
+      ctaUrl: event.loginLink,
     });
   }
 
@@ -34,7 +34,7 @@ export class AuthDomainEventHandlers {
     event: SignupRequestedEvent,
   ): Promise<void> {
     await this.emailManager.sendSignupEmail(event.email.value, {
-      ctaActionUrl: event.magicSignupLink,
+      ctaUrl: event.magicSignupLink,
     });
   }
 }
