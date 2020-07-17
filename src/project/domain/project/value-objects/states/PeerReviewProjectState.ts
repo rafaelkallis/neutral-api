@@ -126,7 +126,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
         ) {
           continue;
         }
-        const peerReviews = new PeerReviewCollection(
+        const peerReviews = PeerReviewCollection.of(
           project.roles
             .whereNot(sender)
             .toArray()
@@ -135,7 +135,7 @@ export class PeerReviewProjectState extends DefaultProjectState {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.equalSplit(project.roles.count()),
+                PeerReviewScore.of(1), // TODO this will definetely change
               ),
             ),
         );

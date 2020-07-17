@@ -43,7 +43,7 @@ describe(ConsensualityComputer.name, () => {
     cycleProject = modelFaker.project(UserId.create());
     cycleProject.roles.addAll([roleA, roleB, roleC, roleD]);
     cycleProject.reviewTopics.add(reviewTopic);
-    cycleProject.peerReviews = PeerReviewCollection.fromMap(
+    cycleProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
           [b]: 1,
@@ -72,7 +72,7 @@ describe(ConsensualityComputer.name, () => {
     clusterProject = modelFaker.project(UserId.create());
     clusterProject.roles.addAll([roleA, roleB, roleC, roleD]);
     clusterProject.reviewTopics.add(reviewTopic);
-    clusterProject.peerReviews = PeerReviewCollection.fromMap(
+    clusterProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
           [b]: 1,
@@ -101,7 +101,7 @@ describe(ConsensualityComputer.name, () => {
     oneDidItAllProject = modelFaker.project(UserId.create());
     oneDidItAllProject.roles.addAll([roleA, roleB, roleC, roleD]);
     oneDidItAllProject.reviewTopics.add(reviewTopic);
-    oneDidItAllProject.peerReviews = PeerReviewCollection.fromMap(
+    oneDidItAllProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
           [b]: 0,
@@ -130,7 +130,7 @@ describe(ConsensualityComputer.name, () => {
     coveeWhitepaper4PersonProject = modelFaker.project(UserId.create());
     coveeWhitepaper4PersonProject.roles.addAll([roleA, roleB, roleC, roleD]);
     coveeWhitepaper4PersonProject.reviewTopics.add(reviewTopic);
-    coveeWhitepaper4PersonProject.peerReviews = PeerReviewCollection.fromMap(
+    coveeWhitepaper4PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
           [b]: 20 / 90,
@@ -159,7 +159,7 @@ describe(ConsensualityComputer.name, () => {
     some3PersonProject = modelFaker.project(UserId.create());
     some3PersonProject.roles.addAll([roleA, roleB, roleC]);
     some3PersonProject.reviewTopics.add(reviewTopic);
-    some3PersonProject.peerReviews = PeerReviewCollection.fromMap(
+    some3PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
           [b]: 20 / 90,

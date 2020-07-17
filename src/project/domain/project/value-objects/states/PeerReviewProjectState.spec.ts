@@ -101,14 +101,14 @@ describe(PeerReviewProjectState.name, () => {
     beforeEach(() => {
       const sender = project.roles.first();
       const reviewTopic = project.reviewTopics.first();
-      submittedPeerReviews = new PeerReviewCollection([]);
+      submittedPeerReviews = PeerReviewCollection.empty();
       for (const receiver of project.roles.whereNot(sender)) {
         submittedPeerReviews.add(
           PeerReview.from(
             sender.id,
             receiver.id,
             reviewTopic.id,
-            PeerReviewScore.equalSplit(project.roles.count()),
+            PeerReviewScore.of(1),
           ),
         );
       }
@@ -117,24 +117,24 @@ describe(PeerReviewProjectState.name, () => {
     test('should fail if a peer review is for non-existing peer', () => {
       const roles = project.roles.toArray();
       const reviewTopic = project.reviewTopics.first();
-      submittedPeerReviews = new PeerReviewCollection([
+      submittedPeerReviews = PeerReviewCollection.of([
         PeerReview.from(
           roles[0].id,
           RoleId.create(),
           reviewTopic.id,
-          PeerReviewScore.equalSplit(project.roles.count()),
+          PeerReviewScore.of(1),
         ),
         PeerReview.from(
           roles[0].id,
           roles[2].id,
           reviewTopic.id,
-          PeerReviewScore.equalSplit(project.roles.count()),
+          PeerReviewScore.of(1),
         ),
         PeerReview.from(
           roles[0].id,
           roles[3].id,
           reviewTopic.id,
-          PeerReviewScore.equalSplit(project.roles.count()),
+          PeerReviewScore.of(1),
         ),
       ]);
       expect(() =>
@@ -170,14 +170,14 @@ describe(PeerReviewProjectState.name, () => {
               // skip peer review of first role for first review topic
               continue;
             }
-            const submittedPeerReviews = new PeerReviewCollection([]);
+            const submittedPeerReviews = PeerReviewCollection.empty();
             for (const receiver of project.roles.whereNot(sender)) {
               submittedPeerReviews.add(
                 PeerReview.from(
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
-                  PeerReviewScore.equalSplit(project.roles.count()),
+                  PeerReviewScore.of(1),
                 ),
               );
             }
@@ -278,14 +278,14 @@ describe(PeerReviewProjectState.name, () => {
           if (reviewTopic.equals(rt2) && sender.equals(ro4)) {
             continue;
           }
-          const submittedPeerReviews = new PeerReviewCollection([]);
+          const submittedPeerReviews = PeerReviewCollection.empty();
           for (const receiver of project.roles.whereNot(sender)) {
             submittedPeerReviews.add(
               PeerReview.from(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.equalSplit(project.roles.count()),
+                PeerReviewScore.of(1),
               ),
             );
           }
@@ -315,11 +315,7 @@ describe(PeerReviewProjectState.name, () => {
         for (const peerReview of project.peerReviews
           .whereReviewTopic(rt)
           .whereSenderRole(ro)) {
-          expect(
-            peerReview.score.equals(
-              PeerReviewScore.equalSplit(project.roles.count()),
-            ),
-          ).toBeTruthy();
+          expect(peerReview.score.equals(PeerReviewScore.of(1))).toBeTruthy();
         }
       }
     });

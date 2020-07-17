@@ -45,7 +45,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   }
 
   private computeDissent(peerReviewCollection: PeerReviewCollection): number {
-    const peerReviews = peerReviewCollection.toMap();
+    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     function R_ijk(i: string, j: string, k: string): number {
       return peerReviews[i][j] / peerReviews[i][k];
@@ -71,7 +71,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
-    const peerReviews = new PeerReviewCollection([]);
+    const peerReviews = PeerReviewCollection.empty();
     const peers = [];
     for (let i = 0; i < n; i++) {
       peers.push(RoleId.create());
@@ -91,7 +91,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
           peers[i],
           peers[j],
           ReviewTopicId.create(),
-          PeerReviewScore.from(score),
+          PeerReviewScore.of(score),
         );
         peerReviews.add(peerReview);
       }

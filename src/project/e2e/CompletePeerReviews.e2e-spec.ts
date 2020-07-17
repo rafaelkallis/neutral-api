@@ -71,7 +71,7 @@ describe('complete peer reviews (e2e)', () => {
     const [, , ro3, ro4] = project.roles;
     for (const reviewTopic of project.reviewTopics) {
       for (const sender of project.roles.whereNot(ro3).whereNot(ro4)) {
-        const peerReviews = new PeerReviewCollection(
+        const peerReviews = PeerReviewCollection.of(
           project.roles
             .whereNot(sender)
             .toArray()
@@ -80,7 +80,7 @@ describe('complete peer reviews (e2e)', () => {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.equalSplit(project.roles.count()),
+                PeerReviewScore.of(1),
               ),
             ),
         );

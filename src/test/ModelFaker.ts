@@ -98,7 +98,7 @@ export class ModelFaker {
       contributionVisibility,
       skipManagerReview,
       new RoleCollection([]),
-      new PeerReviewCollection([]),
+      PeerReviewCollection.empty(),
       new ReviewTopicCollection([]),
       new ContributionCollection([]),
     );
@@ -147,7 +147,7 @@ export class ModelFaker {
     const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const score = PeerReviewScore.from(0);
+    const score = PeerReviewScore.of(0);
     return new PeerReview(
       id,
       createdAt,

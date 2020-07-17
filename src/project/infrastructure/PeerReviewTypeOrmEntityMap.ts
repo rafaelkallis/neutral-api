@@ -47,7 +47,7 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
       RoleId.from(peerReviewEntity.senderRoleId),
       RoleId.from(peerReviewEntity.receiverRoleId),
       ReviewTopicId.from(peerReviewEntity.reviewTopicId),
-      PeerReviewScore.from(peerReviewEntity.score),
+      PeerReviewScore.of(peerReviewEntity.score),
     );
   }
 }
