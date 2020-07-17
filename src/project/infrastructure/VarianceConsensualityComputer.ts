@@ -48,7 +48,7 @@ export class VarianceConsensualityComputerService extends ConsensualityComputer 
     peerReviewCollection: PeerReviewCollection,
   ): Consensuality {
     const EPS = 1e-16;
-    const peerReviews = peerReviewCollection.toMap();
+    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;
     function variance(arr: number[]): number {

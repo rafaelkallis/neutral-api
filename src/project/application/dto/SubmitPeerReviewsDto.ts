@@ -36,13 +36,13 @@ export class SubmitPeerReviewsDto {
   }
 
   public asPeerReviewCollection(senderRoleId: RoleId): PeerReviewCollection {
-    return new PeerReviewCollection(
+    return PeerReviewCollection.of(
       Object.entries(this.peerReviews).map(([receiverRoleId, score]) =>
         PeerReview.from(
           senderRoleId,
           RoleId.from(receiverRoleId),
           ReviewTopicId.from(this.reviewTopicId),
-          PeerReviewScore.from(score),
+          PeerReviewScore.of(score),
         ),
       ),
     );

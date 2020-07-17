@@ -57,7 +57,7 @@ export class MeanDeviationConsensualityComputerService extends ConsensualityComp
   protected computeForReviewTopic(
     peerReviewCollection: PeerReviewCollection,
   ): Consensuality {
-    const peerReviews = peerReviewCollection.toMap();
+    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;
     function columnMean(j: string): number {

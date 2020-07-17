@@ -535,7 +535,7 @@ describe(CoveeContributionsComputer.name, () => {
           peerReviewMap[sender.id.value][receiver.id.value] = score;
         }
       }
-      project.peerReviews = PeerReviewCollection.fromMap(
+      project.peerReviews = PeerReviewCollection.ofMap(
         peerReviewMap,
         reviewTopic.id,
       );

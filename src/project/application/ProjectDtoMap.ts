@@ -61,7 +61,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     return this.objectMapper.mapArray(
       project.peerReviews.toArray().filter(shouldExpose),
       PeerReviewDto,
-      { project, authUser },
+      { project, authUser, peerReviews: project.peerReviews },
     );
     function shouldExpose(peerReview: ReadonlyPeerReview): boolean {
       if (project.isCreator(authUser)) {

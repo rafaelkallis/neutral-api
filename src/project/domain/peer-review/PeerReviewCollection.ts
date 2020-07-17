@@ -29,6 +29,7 @@ export interface ReadonlyPeerReviewCollection
   ): ReadonlyPeerReviewCollection;
   getNumberOfPeers(): number;
 
+  toNormalizedMap(): Record<string, Record<string, number>>;
   sumScores(): number;
 
   // TODO make project private readonly
@@ -62,7 +63,15 @@ export interface ReadonlyPeerReviewCollection
 export class PeerReviewCollection
   extends ModelCollection<PeerReviewId, PeerReview>
   implements ReadonlyPeerReviewCollection {
-  public static fromMap(
+  public static of(peerReviews: Iterable<PeerReview>): PeerReviewCollection {
+    return new PeerReviewCollection(peerReviews);
+  }
+
+  public static empty(): PeerReviewCollection {
+    return PeerReviewCollection.of([]);
+  }
+
+  public static ofMap(
     peerReviewMap: Record<string, Record<string, number>>,
     reviewTopicId: ReviewTopicId,
   ): PeerReviewCollection {
@@ -74,12 +83,16 @@ export class PeerReviewCollection
             RoleId.from(sender),
             RoleId.from(receiver),
             reviewTopicId,
-            PeerReviewScore.from(score),
+            PeerReviewScore.of(score),
           ),
         );
       }
     }
     return new PeerReviewCollection(peerReviews);
+  }
+
+  private constructor(peerReviews: Iterable<PeerReview>) {
+    super(peerReviews);
   }
 
   public getReviewTopics(): ReadonlyArray<ReviewTopicId> {
@@ -146,13 +159,16 @@ export class PeerReviewCollection
     return addedPeerReviews;
   }
 
-  public toMap(): Record<string, Record<string, number>> {
+  public toNormalizedMap(): Record<string, Record<string, number>> {
     const map: Record<string, Record<string, number>> = {};
-    for (const { senderRoleId, receiverRoleId, score } of this.toArray()) {
-      if (!map[senderRoleId.value]) {
-        map[senderRoleId.value] = {};
+    for (const sender of this.getPeers()) {
+      map[sender.value] = {};
+      const rowsum = this.whereSenderRole(sender).sumScores();
+      for (const peerReview of this.whereSenderRole(sender)) {
+        map[sender.value][
+          peerReview.receiverRoleId.value
+        ] = peerReview.score.normalize(rowsum);
       }
-      map[senderRoleId.value][receiverRoleId.value] = score.value;
     }
     return map;
   }
@@ -250,13 +266,6 @@ export class PeerReviewCollection
       if (submittedPeerReviews.whereReceiverRole(receiverRole.id).isEmpty()) {
         return false;
       }
-    }
-    // TODO work out numerics
-    if (submittedPeerReviews.sumScores() < 0.95) {
-      return false;
-    }
-    if (submittedPeerReviews.sumScores() > 1.05) {
-      return false;
     }
     return true;
   }
