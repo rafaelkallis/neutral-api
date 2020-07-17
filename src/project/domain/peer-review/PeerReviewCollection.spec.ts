@@ -55,7 +55,7 @@ describe(PeerReviewCollection.name, () => {
           senderRoleId,
           receiver.id,
           reviewTopicId,
-          PeerReviewScore.of(1 / project.roles.count()),
+          PeerReviewScore.of(1),
         );
         project.peerReviews.add(peerReview);
       }
@@ -74,7 +74,7 @@ describe(PeerReviewCollection.name, () => {
           senderRoleId,
           receiver.id,
           reviewTopicId,
-          PeerReviewScore.of(1 / (project.roles.count() - 1)),
+          PeerReviewScore.of(1),
         );
         project.peerReviews.add(peerReview);
       }
@@ -129,7 +129,7 @@ describe(PeerReviewCollection.name, () => {
           sender.id,
           receiver.id,
           reviewTopicId,
-          PeerReviewScore.of(1 / (project.roles.count() - 1)),
+          PeerReviewScore.of(1),
         );
         project.peerReviews.add(peerReview);
       }
