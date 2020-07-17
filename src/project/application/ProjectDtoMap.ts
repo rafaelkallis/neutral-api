@@ -12,6 +12,7 @@ import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
+import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -34,9 +35,9 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.updatedAt.value,
       project.title.value,
       project.description.value,
+      project.meta,
       project.creatorId.value,
       getProjectStateValue(project.state),
-      null, // TODO remove
       project.contributionVisibility.asValue(),
       project.skipManagerReview.value,
       await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
@@ -88,13 +89,21 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     function shouldExpose(contribution: ReadonlyContribution): boolean {
       return project.contributionVisibility.accept({
         public(): boolean {
-          return project.state.equals(FinishedProjectState.INSTANCE);
+          return project.state.equalsAny([
+            FinishedProjectState.INSTANCE,
+            ArchivedProjectState.INSTANCE,
+          ]);
         },
         project(): boolean {
           if (project.isCreator(authUser)) {
             return true;
           }
-          if (!project.state.equals(FinishedProjectState.INSTANCE)) {
+          if (
+            !project.state.equalsAny([
+              FinishedProjectState.INSTANCE,
+              ArchivedProjectState.INSTANCE,
+            ])
+          ) {
             return false;
           }
           return project.roles.isAnyAssignedToUser(authUser);
@@ -103,7 +112,12 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
           if (project.isCreator(authUser)) {
             return true;
           }
-          if (!project.state.equals(FinishedProjectState.INSTANCE)) {
+          if (
+            !project.state.equalsAny([
+              FinishedProjectState.INSTANCE,
+              ArchivedProjectState.INSTANCE,
+            ])
+          ) {
             return false;
           }
           if (!project.roles.isAnyAssignedToUser(authUser)) {

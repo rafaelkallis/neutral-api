@@ -1,16 +1,16 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
-import { Email } from 'user/domain/value-objects/Email';
+import { ReadonlyUser } from 'user/domain/User';
 
 /**
  * Login Requested Event
  */
 export class LoginRequestedEvent extends DomainEvent {
-  public readonly email: Email;
+  public readonly user: ReadonlyUser;
   public readonly loginLink: string;
 
-  constructor(email: Email, loginLink: string) {
+  constructor(user: ReadonlyUser, loginLink: string) {
     super();
-    this.email = email;
+    this.user = user;
     this.loginLink = loginLink;
   }
 }

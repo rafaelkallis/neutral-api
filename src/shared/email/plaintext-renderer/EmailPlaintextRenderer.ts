@@ -1,6 +1,8 @@
 import {
   RoleCtaModel,
   ProjectCtaModel,
+  CtaModelWithFirstName,
+  CtaModel,
 } from 'shared/email/manager/EmailManager';
 
 /**
@@ -10,18 +12,20 @@ export abstract class EmailPlaintextRenderer {
   /**
    *
    */
-  public abstract renderLoginEmailPlaintext(loginMagicLink: string): string;
+  public abstract renderLoginEmailPlaintext(
+    model: CtaModelWithFirstName,
+  ): string;
 
   /**
    *
    */
-  public abstract renderSignupEmailPlaintext(signupMagicLink: string): string;
+  public abstract renderSignupEmailPlaintext(model: CtaModel): string;
 
   /**
    *
    */
   public abstract renderEmailChangeEmailPlaintext(
-    emailChangeMagicLink: string,
+    model: CtaModelWithFirstName,
   ): string;
 
   /**

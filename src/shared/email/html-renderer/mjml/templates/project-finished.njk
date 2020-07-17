@@ -1,17 +1,17 @@
 {% extends "_cta.njk" %}
 
-{% block title %}
+{% set title %}
   Project Finished
-{% endblock %}
+{% endset %}
 
-{% block preview %}
-  Your project is finished.
-{% endblock %}
+{% set preview %}
+  Your project "{{ projectTitle }}" is finished.
+{% endset %}
 
 {% set ctaLabel %}
   Check Results
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>{{ projectTitle or "A project you were assigned to" | trim }} has finshed and the results are ready.</mj-text>
+  <mj-text>Project "{{ projectTitle | trim }}" is finshed and the results are ready.</mj-text>
 {% endblock %}

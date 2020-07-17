@@ -80,9 +80,9 @@ describe(ProjectDtoMap.name, () => {
       id: project.id.value,
       title: project.title.value,
       description: project.description.value,
+      meta: project.meta,
       creatorId: project.creatorId.value,
       state: getProjectStateValue(project.state),
-      consensuality: null,
       contributionVisibility: project.contributionVisibility.asValue(),
       skipManagerReview: project.skipManagerReview.value,
       roles: roleDtos,
@@ -128,7 +128,7 @@ describe(ProjectDtoMap.name, () => {
         projectUser: modelFaker.user(),
         publicUser: modelFaker.user(),
       };
-      project.state = FinishedProjectState.INSTANCE;
+      project.state = FinishedProjectState.INSTANCE; // TODO or archived?
       project.roles.addAll([
         modelFaker.role(users.assignee.id),
         modelFaker.role(users.projectUser.id),

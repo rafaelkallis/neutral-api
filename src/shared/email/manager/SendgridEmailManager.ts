@@ -3,6 +3,8 @@ import { Config } from 'shared/config/application/Config';
 import {
   EmailManager,
   ProjectCtaModel,
+  CtaModelWithFirstName,
+  CtaModel,
 } from 'shared/email/manager/EmailManager';
 import axios from 'axios';
 
@@ -28,28 +30,19 @@ export class SendgridEmailManager extends EmailManager {
    */
   public async sendLoginEmail(
     to: string,
-    loginMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void> {
     const templateId = 'd-3781fe6ff75544bea7a191c029587816';
-    const dynamicTemplateData = { loginMagicLink };
+    const dynamicTemplateData = { loginMagicLink: model.ctaActionUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
   /**
    * Sends an email with the signup template.
    */
-  public async sendSignupEmail(
-    to: string,
-    signupMagicLink: string,
-  ): Promise<void> {
+  public async sendSignupEmail(to: string, model: CtaModel): Promise<void> {
     const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
-    const dynamicTemplateData = { signupMagicLink };
-    // await sendgrid.send({
-    //   from: { email: 'no-reply@covee.network' },
-    //   to: { email: to },
-    //   templateId,
-    //   dynamicTemplateData,
-    // });
+    const dynamicTemplateData = { signupMagicLink: model.ctaActionUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 
@@ -58,16 +51,10 @@ export class SendgridEmailManager extends EmailManager {
    */
   public async sendEmailChangeEmail(
     to: string,
-    emailChangeMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void> {
     const templateId = 'd-a578d5b2804847e795e93aea4d40a603';
-    const dynamicTemplateData = { emailChangeMagicLink };
-    // await sendgrid.send({
-    //   from: { email: 'no-reply@covee.network' },
-    //   to: { email: to },
-    //   templateId,
-    //   dynamicTemplateData,
-    // });
+    const dynamicTemplateData = { emailChangeMagicLink: model.ctaActionUrl };
     await this.sendEmail(to, templateId, dynamicTemplateData);
   }
 

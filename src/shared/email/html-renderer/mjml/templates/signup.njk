@@ -1,23 +1,17 @@
-{% extends "_base.njk" %}
+{% extends "_cta.njk" %}
 
-{% block title %}
+{% set title %}
   Covee Magic Signup
-{% endblock %}
+{% endset %}
 
-{% block preview %}
+{% set preview %}
   Your magic signup link has arrived.
-{% endblock %}
+{% endset %}
 
-{% block content %}
-<mj-section>
-  <mj-column>
-    <mj-text>Hi there,</mj-text>
-    <mj-text>You have requested a signup.</mj-text>
-    <mj-spacer />
-    <mj-button mj-class="primary-button" href="{{ signupMagicLink }}">Signup</mj-button>
-    <mj-text mj-class="alt-text">Link not working? Try this: <a href="{{ signupMagicLink }}">{{ signupMagicLink }}</a></mj-text>
-    <mj-spacer />
-    <mj-text>- Team Covee</mj-text>
-  </mj-column>
-</mj-section>
+{% set ctaActionLabel %}
+  Signup
+{% endset %}
+
+{% block ctaContent %}
+  <mj-text>You have requested a signup.</mj-text>
 {% endblock %}

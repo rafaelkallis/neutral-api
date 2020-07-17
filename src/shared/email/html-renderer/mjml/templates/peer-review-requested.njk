@@ -1,17 +1,17 @@
 {% extends "_cta.njk" %}
 
-{% block title %}
+{% set title %}
   Peer Review Requested
-{% endblock %}
+{% endset %}
 
-{% block preview %}
-  Your peer-review is needed.
-{% endblock %}
+{% set preview %}
+  Your peer-review is needed in "{{ projectTitle }}".
+{% endset %}
 
 {% set ctaLabel %}
   Submit Peer Review
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>You are requested to submit a peer-review in {{ projectTitle or "a project" | trim }}.</mj-text>
+  <mj-text>You are requested to submit a peer-review in "{{ projectTitle | trim }}".</mj-text>
 {% endblock %}

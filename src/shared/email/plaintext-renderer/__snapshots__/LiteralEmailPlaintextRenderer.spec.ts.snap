@@ -2,7 +2,7 @@
 
 exports[`LiteralEmailPlaintextRenderer should render email change text 1`] = `
 "
-      Hi there,
+      Hi Ricky,
 
       You have requested an email change.
 
@@ -15,7 +15,7 @@ exports[`LiteralEmailPlaintextRenderer should render email change text 1`] = `
 
 exports[`LiteralEmailPlaintextRenderer should render login text 1`] = `
 "
-      Hi there,
+      Hi Julian,
 
       You have requested a login.
 
@@ -28,9 +28,9 @@ exports[`LiteralEmailPlaintextRenderer should render login text 1`] = `
 
 exports[`LiteralEmailPlaintextRenderer should render manager review requested text 1`] = `
 "
-      Hi there,
+      Hi Julian,
 
-      All peer-reviews have been submitted in My Project and you are requested to submit a manager-review.
+      All peer-reviews have been submitted in \\"My Project\\" and you are requested to submit a manager-review.
 
       >> Submit Manager Review
       http://example.com
@@ -41,9 +41,9 @@ exports[`LiteralEmailPlaintextRenderer should render manager review requested te
 
 exports[`LiteralEmailPlaintextRenderer should render new assignment text 1`] = `
 "
-      Hi there,
+      Hi Randy,
 
-      You were assigned the role of Particle Scientist in Neutron Collider.
+      You are assigned the role of \\"Particle Scientist\\" in \\"Neutron Collider\\".
 
       >> See Assignment
       http://example.com
@@ -54,9 +54,9 @@ exports[`LiteralEmailPlaintextRenderer should render new assignment text 1`] = `
 
 exports[`LiteralEmailPlaintextRenderer should render peer review requested text 1`] = `
 "
-      Hi there,
+      Hi Cyrus,
 
-      You are requested to submit a peer-review in My Project.
+      You are requested to submit a peer-review in \\"My Project\\".
 
       >> Submit Peer Review
       http://example.com
@@ -67,9 +67,9 @@ exports[`LiteralEmailPlaintextRenderer should render peer review requested text 
 
 exports[`LiteralEmailPlaintextRenderer should render project finished text 1`] = `
 "
-      Hi there,
+      Hi Ricky,
 
-      My Project has finished and the results are ready.
+      Project \\"My Project\\" is finished and the results are ready.
 
       >> Check Results
       http://example.com
@@ -86,6 +86,19 @@ exports[`LiteralEmailPlaintextRenderer should render signup text 1`] = `
 
       >> Signup
       https://example.com/signup
+
+      - Team Covee
+    "
+`;
+
+exports[`LiteralEmailPlaintextRenderer should render unregistered user new assignment text 1`] = `
+"
+      Hi Bubbles,
+
+      You are assigned the role of \\"Particle Scientist\\" in \\"Neutron Collider\\".
+
+      >> Get Started
+      http://example.com/signup
 
       - Team Covee
     "

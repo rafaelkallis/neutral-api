@@ -106,6 +106,7 @@ export class ProjectController {
         authUser,
         createProjectDto.title,
         createProjectDto.description,
+        createProjectDto.meta,
         createProjectDto.contributionVisibility,
         createProjectDto.skipManagerReview,
       ),

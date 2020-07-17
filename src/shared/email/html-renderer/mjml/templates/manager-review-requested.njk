@@ -1,17 +1,17 @@
 {% extends "_cta.njk" %}
 
-{% block title %}
+{% set title %}
   Manager Review Requested
-{% endblock %}
+{% endset %}
 
-{% block preview %}
-  We need your approval to publish results.
-{% endblock %}
+{% set preview %}
+  We need your approval in "{{ projectTitle }}" to publish results.
+{% endset %}
 
 {% set ctaLabel %}
   Submit Manager Review
 {% endset %}
 
 {% block ctaContent %}
-  <mj-text>All peer-reviews have been submitted in {{ projectTitle or "a project you are a manager in" | trim }} and you are requested to submit a manager-review.</mj-text>
+  <mj-text>All peer-reviews have been submitted in "{{ projectTitle | trim }}" and you are requested to submit a manager-review.</mj-text>
 {% endblock %}

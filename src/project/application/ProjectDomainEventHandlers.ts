@@ -42,6 +42,7 @@ export class ProjectDomainEventHandlers {
       projectId: event.project.id,
     });
     await this.emailManager.sendNewAssignmentEmail(event.assignee.email.value, {
+      firstName: event.assignee.name.first,
       projectTitle: event.project.title.value,
       roleTitle: event.role.title.value,
       ctaUrl: newAssignmentCtaUrl,
@@ -66,6 +67,7 @@ export class ProjectDomainEventHandlers {
         assignee.email.value,
         {
           ctaUrl: peerReviewRequestedCtaUrl,
+          firstName: assignee.name.first,
           projectTitle: event.project.title.value,
         },
       );
@@ -98,6 +100,7 @@ export class ProjectDomainEventHandlers {
       manager.email.value,
       {
         ctaUrl: managerReviewRequestedCtaUrl,
+        firstName: manager.name.first,
         projectTitle: event.project.title.value,
       },
     );
@@ -135,6 +138,7 @@ export class ProjectDomainEventHandlers {
       );
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
         ctaUrl: projectFinishedCtaUrl,
+        firstName: assignee.name.first,
         projectTitle: event.project.title.value,
       });
     }

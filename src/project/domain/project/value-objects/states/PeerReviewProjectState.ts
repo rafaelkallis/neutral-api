@@ -88,7 +88,8 @@ export class PeerReviewProjectState extends DefaultProjectState {
     }
 
     project.raise(new FinalPeerReviewSubmittedEvent(project));
-    contributionsComputer.compute(project).applyTo(project);
+    const computedContributions = contributionsComputer.compute(project);
+    project.contributions.addAll(computedContributions);
     consensualityComputer.compute(project).applyTo(project);
 
     if (project.skipManagerReview.shouldSkipManagerReview(project)) {

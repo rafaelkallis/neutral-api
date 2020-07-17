@@ -19,7 +19,10 @@ export class AuthDomainEventHandlers {
   public async onLoginRequestedSendLoginEmail(
     event: LoginRequestedEvent,
   ): Promise<void> {
-    await this.emailManager.sendLoginEmail(event.email.value, event.loginLink);
+    await this.emailManager.sendLoginEmail(event.user.email.value, {
+      firstName: event.user.name.first,
+      ctaActionUrl: event.loginLink,
+    });
   }
 
   // TODO consolidate with onLoginRequestedSendLoginEmail
@@ -30,9 +33,8 @@ export class AuthDomainEventHandlers {
   public async onSignupRequestedSendSignupEmail(
     event: SignupRequestedEvent,
   ): Promise<void> {
-    await this.emailManager.sendSignupEmail(
-      event.email.value,
-      event.magicSignupLink,
-    );
+    await this.emailManager.sendSignupEmail(event.email.value, {
+      ctaActionUrl: event.magicSignupLink,
+    });
   }
 }

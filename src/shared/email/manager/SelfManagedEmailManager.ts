@@ -4,6 +4,8 @@ import {
   EmailManager,
   RoleCtaModel,
   ProjectCtaModel,
+  CtaModel,
+  CtaModelWithFirstName,
 } from 'shared/email/manager/EmailManager';
 import { EmailPlaintextRenderer } from 'shared/email/plaintext-renderer/EmailPlaintextRenderer';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
@@ -30,38 +32,29 @@ export class SelfManagedEmailManager extends EmailManager {
 
   public async sendLoginEmail(
     to: string,
-    loginMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void> {
     const subject = '[Covee] magic login link';
-    const html = this.emailHtmlRenderer.renderLoginEmailHtml(loginMagicLink);
-    const text = this.emailPlaintextRenderer.renderLoginEmailPlaintext(
-      loginMagicLink,
-    );
+    const html = this.emailHtmlRenderer.renderLoginEmailHtml(model);
+    const text = this.emailPlaintextRenderer.renderLoginEmailPlaintext(model);
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
-  public async sendSignupEmail(
-    to: string,
-    signupMagicLink: string,
-  ): Promise<void> {
+  public async sendSignupEmail(to: string, model: CtaModel): Promise<void> {
     const subject = '[Covee] magic signup link';
-    const html = this.emailHtmlRenderer.renderSignupEmailHtml(signupMagicLink);
-    const text = this.emailPlaintextRenderer.renderSignupEmailPlaintext(
-      signupMagicLink,
-    );
+    const html = this.emailHtmlRenderer.renderSignupEmailHtml(model);
+    const text = this.emailPlaintextRenderer.renderSignupEmailPlaintext(model);
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
   public async sendEmailChangeEmail(
     to: string,
-    emailChangeMagicLink: string,
+    model: CtaModelWithFirstName,
   ): Promise<void> {
     const subject = '[Covee] email change confirmation';
-    const html = this.emailHtmlRenderer.renderEmailChangeEmailHtml(
-      emailChangeMagicLink,
-    );
+    const html = this.emailHtmlRenderer.renderEmailChangeEmailHtml(model);
     const text = this.emailPlaintextRenderer.renderEmailChangeEmailPlaintext(
-      emailChangeMagicLink,
+      model,
     );
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
@@ -73,7 +66,7 @@ export class SelfManagedEmailManager extends EmailManager {
     to: string,
     model: RoleCtaModel,
   ): Promise<void> {
-    const subject = '[Covee] new assignment';
+    const subject = `[Covee] new assignment in "${model.projectTitle}"`;
     const html = this.emailHtmlRenderer.renderNewAssignmentEmailHtml(model);
     const text = this.emailPlaintextRenderer.renderNewAssignmentEmailPlaintext(
       model,
@@ -85,7 +78,7 @@ export class SelfManagedEmailManager extends EmailManager {
     to: string,
     model: ProjectCtaModel,
   ): Promise<void> {
-    const subject = '[Covee] peer-review requested';
+    const subject = `[Covee] peer-review requested in "${model.projectTitle}"`;
     const html = this.emailHtmlRenderer.renderPeerReviewRequestedEmailHtml(
       model,
     );
@@ -99,7 +92,7 @@ export class SelfManagedEmailManager extends EmailManager {
     to: string,
     model: ProjectCtaModel,
   ): Promise<void> {
-    const subject = '[Covee] manager-review requested';
+    const subject = `[Covee] manager-review requested in "${model.projectTitle}"`;
     const html = this.emailHtmlRenderer.renderManagerReviewRequestedEmailHtml(
       model,
     );
@@ -113,7 +106,7 @@ export class SelfManagedEmailManager extends EmailManager {
     to: string,
     model: ProjectCtaModel,
   ): Promise<void> {
-    const subject = '[Covee] project finished';
+    const subject = `[Covee] project "${model.projectTitle}" finished`;
     const html = this.emailHtmlRenderer.renderProjectFinishedEmailHtml(model);
     const text = this.emailPlaintextRenderer.renderProjectFinishedEmailPlaintext(
       model,
