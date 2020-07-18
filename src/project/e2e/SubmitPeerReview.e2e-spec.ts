@@ -11,6 +11,7 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -155,11 +156,12 @@ describe('submit peer review (e2e)', () => {
               .whereNot(sender)
               .toArray()
               .map((receiver) =>
-                PeerReview.from(
+                PeerReview.of(
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
                   PeerReviewScore.of(1),
+                  PeerReviewFlag.NONE,
                 ),
               ),
           );

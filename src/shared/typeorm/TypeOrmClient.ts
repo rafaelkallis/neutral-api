@@ -51,6 +51,7 @@ import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
 import { AddReviewTopicInputMigration1592508374000 } from 'shared/typeorm/migration/1592508374000AddReviewTopicInputMigration';
 import { AddProjectMetaMigration1594370335000 } from 'shared/typeorm/migration/1594370335000AddProjectMetaMigration';
+import { AddPeerReviewFlagMigration1595059121000 } from 'shared/typeorm/migration/1595059121000AddPeerReviewFlagMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -110,6 +111,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         RenameInitialAndInvitedUserStateToPendingMigration1590750557000,
         AddReviewTopicInputMigration1592508374000,
         AddProjectMetaMigration1594370335000,
+        AddPeerReviewFlagMigration1595059121000,
       ],
     });
     this.connection = connection;

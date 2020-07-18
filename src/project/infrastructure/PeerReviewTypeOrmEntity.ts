@@ -22,6 +22,9 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'score' })
   public score: number;
 
+  @Column({ name: 'flag' })
+  public flag: string;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -31,6 +34,7 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     receiverRoleId: string,
     reviewTopicId: string,
     score: number,
+    flag: string,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
@@ -38,5 +42,6 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;
     this.score = score;
+    this.flag = flag;
   }
 }

@@ -23,6 +23,7 @@ import { UserCollection } from 'user/domain/UserCollection';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { Role } from 'project/domain/role/Role';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 describe(PeerReviewProjectState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
@@ -104,11 +105,12 @@ describe(PeerReviewProjectState.name, () => {
       submittedPeerReviews = PeerReviewCollection.empty();
       for (const receiver of project.roles.whereNot(sender)) {
         submittedPeerReviews.add(
-          PeerReview.from(
+          PeerReview.of(
             sender.id,
             receiver.id,
             reviewTopic.id,
             PeerReviewScore.of(1),
+            PeerReviewFlag.NONE,
           ),
         );
       }
@@ -118,23 +120,26 @@ describe(PeerReviewProjectState.name, () => {
       const roles = project.roles.toArray();
       const reviewTopic = project.reviewTopics.first();
       submittedPeerReviews = PeerReviewCollection.of([
-        PeerReview.from(
+        PeerReview.of(
           roles[0].id,
           RoleId.create(),
           reviewTopic.id,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         ),
-        PeerReview.from(
+        PeerReview.of(
           roles[0].id,
           roles[2].id,
           reviewTopic.id,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         ),
-        PeerReview.from(
+        PeerReview.of(
           roles[0].id,
           roles[3].id,
           reviewTopic.id,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         ),
       ]);
       expect(() =>
@@ -173,11 +178,12 @@ describe(PeerReviewProjectState.name, () => {
             const submittedPeerReviews = PeerReviewCollection.empty();
             for (const receiver of project.roles.whereNot(sender)) {
               submittedPeerReviews.add(
-                PeerReview.from(
+                PeerReview.of(
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
                   PeerReviewScore.of(1),
+                  PeerReviewFlag.NONE,
                 ),
               );
             }
@@ -281,11 +287,12 @@ describe(PeerReviewProjectState.name, () => {
           const submittedPeerReviews = PeerReviewCollection.empty();
           for (const receiver of project.roles.whereNot(sender)) {
             submittedPeerReviews.add(
-              PeerReview.from(
+              PeerReview.of(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
                 PeerReviewScore.of(1),
+                PeerReviewFlag.NONE,
               ),
             );
           }

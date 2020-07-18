@@ -34,6 +34,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -156,6 +157,7 @@ export class ModelFaker {
       receiverRoleId,
       reviewTopicId,
       score,
+      PeerReviewFlag.NONE,
     );
   }
 

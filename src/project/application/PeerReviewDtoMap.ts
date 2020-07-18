@@ -24,6 +24,7 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
       peerReview.reviewTopicId.value,
       peerReview.score.value,
       peerReview.score.normalize(rowsum),
+      peerReview.flag,
     );
   }
 }
