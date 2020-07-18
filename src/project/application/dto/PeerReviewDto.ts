@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 /**
  * Peer Review DTO
@@ -20,6 +21,13 @@ export class PeerReviewDto extends ModelDto {
   @ApiProperty({ type: Number, example: 0.4 })
   public normalizedScore: number;
 
+  @ApiProperty({
+    type: String,
+    enum: PeerReviewFlag,
+    example: PeerReviewFlag.ASBENT,
+  })
+  public flag: PeerReviewFlag;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -29,6 +37,7 @@ export class PeerReviewDto extends ModelDto {
     reviewTopicId: string,
     score: number,
     normalizedScore: number,
+    flag: PeerReviewFlag,
   ) {
     super(id, createdAt, updatedAt);
     this.senderRoleId = senderRoleId;
@@ -36,5 +45,6 @@ export class PeerReviewDto extends ModelDto {
     this.reviewTopicId = reviewTopicId;
     this.score = score;
     this.normalizedScore = normalizedScore;
+    this.flag = flag;
   }
 }

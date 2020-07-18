@@ -15,6 +15,7 @@ import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsA
 import { Role } from 'project/domain/role/Role';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -79,11 +80,12 @@ export class PeerReviewCollection
     for (const sender of Object.keys(peerReviewMap)) {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {
         peerReviews.push(
-          PeerReview.from(
+          PeerReview.of(
             RoleId.from(sender),
             RoleId.from(receiver),
             reviewTopicId,
             PeerReviewScore.of(score),
+            PeerReviewFlag.NONE,
           ),
         );
       }
@@ -138,25 +140,6 @@ export class PeerReviewCollection
     return this.filter((peerReview) =>
       peerReview.isReceiverRole(receiverRoleId),
     );
-  }
-
-  public addForSender(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ): PeerReview[] {
-    const addedPeerReviews: PeerReview[] = [];
-    for (const [receiverRoleId, score] of submittedPeerReviews) {
-      const peerReview = PeerReview.from(
-        senderRoleId,
-        receiverRoleId,
-        reviewTopicId,
-        score,
-      );
-      addedPeerReviews.push(peerReview);
-      this.add(peerReview);
-    }
-    return addedPeerReviews;
   }
 
   public toNormalizedMap(): Record<string, Record<string, number>> {

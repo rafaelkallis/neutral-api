@@ -5,6 +5,7 @@ import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { PeerReview } from './PeerReview';
 import { PeerReviewScore } from './value-objects/PeerReviewScore';
 import { RoleId } from '../role/value-objects/RoleId';
+import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 
 describe(PeerReviewCollection.name, () => {
   let peerReviewCollection: PeerReviewCollection;
@@ -51,11 +52,12 @@ describe(PeerReviewCollection.name, () => {
     test('when partially submitted should return false', () => {
       const [, secondRole, thirdRole] = project.roles.toArray();
       for (const receiver of [secondRole, thirdRole]) {
-        const peerReview = PeerReview.from(
+        const peerReview = PeerReview.of(
           senderRoleId,
           receiver.id,
           reviewTopicId,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         );
         project.peerReviews.add(peerReview);
       }
@@ -70,11 +72,12 @@ describe(PeerReviewCollection.name, () => {
 
     test('when all submitted should return true', () => {
       for (const receiver of project.roles.whereNot(senderRoleId)) {
-        const peerReview = PeerReview.from(
+        const peerReview = PeerReview.of(
           senderRoleId,
           receiver.id,
           reviewTopicId,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         );
         project.peerReviews.add(peerReview);
       }
@@ -125,11 +128,12 @@ describe(PeerReviewCollection.name, () => {
   function submitPeerReviewsForReviewTopic(reviewTopicId: ReviewTopicId): void {
     for (const sender of project.roles) {
       for (const receiver of project.roles.whereNot(sender)) {
-        const peerReview = PeerReview.from(
+        const peerReview = PeerReview.of(
           sender.id,
           receiver.id,
           reviewTopicId,
           PeerReviewScore.of(1),
+          PeerReviewFlag.NONE,
         );
         project.peerReviews.add(peerReview);
       }

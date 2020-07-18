@@ -6,6 +6,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -87,11 +88,12 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         } else {
           score = 0;
         }
-        const peerReview = PeerReview.from(
+        const peerReview = PeerReview.of(
           peers[i],
           peers[j],
           ReviewTopicId.create(),
           PeerReviewScore.of(score),
+          PeerReviewFlag.NONE,
         );
         peerReviews.add(peerReview);
       }
