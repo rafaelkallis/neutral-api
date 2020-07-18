@@ -1,14 +1,9 @@
-import { ApiProperty, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
 import { ValidateNested, IsString } from 'class-validator';
+import { ReviewTopicInputDto } from './ReviewTopicInputDto';
 import { Type } from 'class-transformer';
-import {
-  ReviewTopicInputDto,
-  ContinuousReviewTopicInputDto,
-  DiscreteReviewTopicInputDto,
-} from './ReviewTopicInputDto';
 
-@ApiExtraModels(ContinuousReviewTopicInputDto, DiscreteReviewTopicInputDto)
 export class ReviewTopicDto extends ModelDto {
   @IsString()
   @ApiProperty({
@@ -27,20 +22,9 @@ export class ReviewTopicDto extends ModelDto {
   public description: string;
 
   @ValidateNested()
-  @Type(() => ReviewTopicInputDto, {
-    discriminator: {
-      property: 'type',
-      subTypes: [
-        { name: 'continuous', value: ContinuousReviewTopicInputDto },
-        { name: 'discrete', value: DiscreteReviewTopicInputDto },
-      ],
-    },
-  })
+  @Type(() => ReviewTopicInputDto)
   @ApiProperty({
-    oneOf: [
-      { $ref: getSchemaPath(ContinuousReviewTopicInputDto) },
-      { $ref: getSchemaPath(DiscreteReviewTopicInputDto) },
-    ],
+    type: ReviewTopicInputDto,
   })
   public input: ReviewTopicInputDto;
 
