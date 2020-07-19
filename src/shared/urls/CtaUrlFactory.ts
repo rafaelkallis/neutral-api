@@ -4,11 +4,11 @@ import { ReadonlyUser } from 'user/domain/User';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 
-export interface CreateCtaUrlContext {
+export interface CtaUrlContext {
   readonly user: ReadonlyUser;
 }
 
-export interface ProjectCtaUrlContext extends CreateCtaUrlContext {
+export interface ProjectCtaUrlContext extends CtaUrlContext {
   readonly projectId: ProjectId;
 }
 
@@ -22,7 +22,11 @@ export class CtaUrlFactory {
     this.tokenManager = tokenManager;
   }
 
-  public createnewAssignmentCtaUrl(ctx: ProjectCtaUrlContext): string {
+  public createProjectsCtaUrl(ctx: CtaUrlContext): string {
+    return this.createCtaUrl(ctx.user, '/my-projects');
+  }
+
+  public createNewAssignmentCtaUrl(ctx: ProjectCtaUrlContext): string {
     return this.createCtaUrl(
       ctx.user,
       `/project-detail/${ctx.projectId.value}/formation`,

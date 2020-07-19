@@ -12,7 +12,8 @@
   "scripts": {
     "start": "node build/main.js",
     "build": "ttsc",
-    "dev": "NODE_ENV=development TS_NODE_COMPILER=ttypescript ts-node-dev --inspect --no-notify --respawn src/main.ts",
+    "dev": "NODE_ENV=development TS_NODE_COMPILER=ttypescript ts-node-dev --no-notify --respawn src/main.ts",
+    "dev:debug": "NODE_ENV=development TS_NODE_COMPILER=ttypescript ts-node-dev --inspect-brk --no-notify --respawn src/main.ts",
     "type": "ttsc --noEmit",
     "type:watch": "ttsc --noEmit --watch",
     "format": "prettier --write \"src/**/*.ts\"",

@@ -41,7 +41,7 @@ describe(ProjectDomainEventHandlers.name, () => {
       role = scenario.modelFaker.role();
       project.roles.add(role);
       td.when(
-        ctaUrlFactory.createnewAssignmentCtaUrl({
+        ctaUrlFactory.createNewAssignmentCtaUrl({
           user: assignee,
           projectId: project.id,
         }),

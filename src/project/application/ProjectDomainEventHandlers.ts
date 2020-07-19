@@ -37,7 +37,7 @@ export class ProjectDomainEventHandlers {
   public async onUserAssignedSendAssignmentEmail(
     event: UserAssignedEvent,
   ): Promise<void> {
-    const newAssignmentCtaUrl = this.ctaUrlFactory.createnewAssignmentCtaUrl({
+    const newAssignmentCtaUrl = this.ctaUrlFactory.createNewAssignmentCtaUrl({
       user: event.assignee,
       projectId: event.project.id,
     });
