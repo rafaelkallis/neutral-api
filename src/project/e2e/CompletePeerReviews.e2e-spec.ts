@@ -9,6 +9,7 @@ import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 describe('complete peer reviews (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -71,16 +72,17 @@ describe('complete peer reviews (e2e)', () => {
     const [, , ro3, ro4] = project.roles;
     for (const reviewTopic of project.reviewTopics) {
       for (const sender of project.roles.whereNot(ro3).whereNot(ro4)) {
-        const peerReviews = new PeerReviewCollection(
+        const peerReviews = PeerReviewCollection.of(
           project.roles
             .whereNot(sender)
             .toArray()
             .map((receiver) =>
-              PeerReview.from(
+              PeerReview.of(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.equalSplit(project.roles.count()),
+                PeerReviewScore.of(1),
+                PeerReviewFlag.NONE,
               ),
             ),
         );

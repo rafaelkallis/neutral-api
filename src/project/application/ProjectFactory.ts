@@ -48,7 +48,7 @@ export class ProjectFactory extends AggregateRootFactory<
     const updatedAt = UpdatedAt.now();
     const state = FormationProjectState.INSTANCE;
     const roles = new RoleCollection([]);
-    const peerReviews = new PeerReviewCollection([]);
+    const peerReviews = PeerReviewCollection.empty();
     const reviewTopics = new ReviewTopicCollection([]);
     const contributions = new ContributionCollection([]);
     const project = Project.of(

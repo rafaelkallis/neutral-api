@@ -11,8 +11,7 @@ import {
 } from 'project/domain/review-topic/ReviewTopicInput';
 import {
   ReviewTopicInputDto,
-  ContinuousReviewTopicInputDto,
-  DiscreteReviewTopicInputDto,
+  ReviewTopicInputType,
 } from './dto/ReviewTopicInputDto';
 
 @Injectable()
@@ -53,13 +52,19 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
       continuous(
         continuousInput: ContinuousReviewTopicInput,
       ): ReviewTopicInputDto {
-        return new ContinuousReviewTopicInputDto(
+        return new ReviewTopicInputDto(
+          ReviewTopicInputType.CONTINUOUS,
           continuousInput.min,
           continuousInput.max,
+          undefined,
+          undefined,
         );
       },
       discrete(discreteInput: DiscreteReviewTopicInput): ReviewTopicInputDto {
-        return new DiscreteReviewTopicInputDto(
+        return new ReviewTopicInputDto(
+          ReviewTopicInputType.DISCRETE,
+          undefined,
+          undefined,
           discreteInput.labels,
           discreteInput.values,
         );

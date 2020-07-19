@@ -9,6 +9,10 @@ import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOr
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import {
+  stringToPeerReviewFlag,
+  peerReviewFlagToString,
+} from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 @Injectable()
 @ObjectMap.register(PeerReview, PeerReviewTypeOrmEntity)
@@ -29,6 +33,7 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
       peerReviewModel.receiverRoleId.value,
       peerReviewModel.reviewTopicId.value,
       peerReviewModel.score.value,
+      peerReviewFlagToString(peerReviewModel.flag),
     );
   }
 }
@@ -47,7 +52,8 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
       RoleId.from(peerReviewEntity.senderRoleId),
       RoleId.from(peerReviewEntity.receiverRoleId),
       ReviewTopicId.from(peerReviewEntity.reviewTopicId),
-      PeerReviewScore.from(peerReviewEntity.score),
+      PeerReviewScore.of(peerReviewEntity.score),
+      stringToPeerReviewFlag(peerReviewEntity.flag),
     );
   }
 }

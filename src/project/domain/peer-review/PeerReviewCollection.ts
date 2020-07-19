@@ -15,6 +15,7 @@ import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsA
 import { Role } from 'project/domain/role/Role';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -29,6 +30,7 @@ export interface ReadonlyPeerReviewCollection
   ): ReadonlyPeerReviewCollection;
   getNumberOfPeers(): number;
 
+  toNormalizedMap(): Record<string, Record<string, number>>;
   sumScores(): number;
 
   // TODO make project private readonly
@@ -62,7 +64,15 @@ export interface ReadonlyPeerReviewCollection
 export class PeerReviewCollection
   extends ModelCollection<PeerReviewId, PeerReview>
   implements ReadonlyPeerReviewCollection {
-  public static fromMap(
+  public static of(peerReviews: Iterable<PeerReview>): PeerReviewCollection {
+    return new PeerReviewCollection(peerReviews);
+  }
+
+  public static empty(): PeerReviewCollection {
+    return PeerReviewCollection.of([]);
+  }
+
+  public static ofMap(
     peerReviewMap: Record<string, Record<string, number>>,
     reviewTopicId: ReviewTopicId,
   ): PeerReviewCollection {
@@ -70,16 +80,21 @@ export class PeerReviewCollection
     for (const sender of Object.keys(peerReviewMap)) {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {
         peerReviews.push(
-          PeerReview.from(
+          PeerReview.of(
             RoleId.from(sender),
             RoleId.from(receiver),
             reviewTopicId,
-            PeerReviewScore.from(score),
+            PeerReviewScore.of(score),
+            PeerReviewFlag.NONE,
           ),
         );
       }
     }
     return new PeerReviewCollection(peerReviews);
+  }
+
+  private constructor(peerReviews: Iterable<PeerReview>) {
+    super(peerReviews);
   }
 
   public getReviewTopics(): ReadonlyArray<ReviewTopicId> {
@@ -127,32 +142,16 @@ export class PeerReviewCollection
     );
   }
 
-  public addForSender(
-    senderRoleId: RoleId,
-    reviewTopicId: ReviewTopicId,
-    submittedPeerReviews: [RoleId, PeerReviewScore][],
-  ): PeerReview[] {
-    const addedPeerReviews: PeerReview[] = [];
-    for (const [receiverRoleId, score] of submittedPeerReviews) {
-      const peerReview = PeerReview.from(
-        senderRoleId,
-        receiverRoleId,
-        reviewTopicId,
-        score,
-      );
-      addedPeerReviews.push(peerReview);
-      this.add(peerReview);
-    }
-    return addedPeerReviews;
-  }
-
-  public toMap(): Record<string, Record<string, number>> {
+  public toNormalizedMap(): Record<string, Record<string, number>> {
     const map: Record<string, Record<string, number>> = {};
-    for (const { senderRoleId, receiverRoleId, score } of this.toArray()) {
-      if (!map[senderRoleId.value]) {
-        map[senderRoleId.value] = {};
+    for (const sender of this.getPeers()) {
+      map[sender.value] = {};
+      const rowsum = this.whereSenderRole(sender).sumScores();
+      for (const peerReview of this.whereSenderRole(sender)) {
+        map[sender.value][
+          peerReview.receiverRoleId.value
+        ] = peerReview.score.normalize(rowsum);
       }
-      map[senderRoleId.value][receiverRoleId.value] = score.value;
     }
     return map;
   }
@@ -250,13 +249,6 @@ export class PeerReviewCollection
       if (submittedPeerReviews.whereReceiverRole(receiverRole.id).isEmpty()) {
         return false;
       }
-    }
-    // TODO work out numerics
-    if (submittedPeerReviews.sumScores() < 0.95) {
-      return false;
-    }
-    if (submittedPeerReviews.sumScores() > 1.05) {
-      return false;
     }
     return true;
   }

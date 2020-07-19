@@ -18,6 +18,7 @@ import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewColle
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 export class PeerReviewProjectState extends DefaultProjectState {
   public static readonly INSTANCE: ProjectState = new CancellableProjectState(
@@ -126,16 +127,17 @@ export class PeerReviewProjectState extends DefaultProjectState {
         ) {
           continue;
         }
-        const peerReviews = new PeerReviewCollection(
+        const peerReviews = PeerReviewCollection.of(
           project.roles
             .whereNot(sender)
             .toArray()
             .map((receiver) =>
-              PeerReview.from(
+              PeerReview.of(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.equalSplit(project.roles.count()),
+                PeerReviewScore.of(1),
+                PeerReviewFlag.ASBENT,
               ),
             ),
         );

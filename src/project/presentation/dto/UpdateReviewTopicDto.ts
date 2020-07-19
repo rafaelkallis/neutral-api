@@ -1,44 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import {
-  ReviewTopicInputDto,
-  ContinuousReviewTopicInputDto,
-  DiscreteReviewTopicInputDto,
-} from 'project/application/dto/ReviewTopicInputDto';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { ReviewTopicInputDto } from 'project/application/dto/ReviewTopicInputDto';
+import { ReviewTopicDto } from 'project/application/dto/ReviewTopicDto';
 
-export class UpdateReviewTopicDto {
-  @IsString()
+export class UpdateReviewTopicDto extends PartialType(
+  PickType(ReviewTopicDto, ['title', 'description', 'input'] as const),
+) {
   @IsOptional()
-  @ApiProperty({
-    example: 'Punctuality',
-    description: 'Title of the review topic',
-    required: false,
-  })
   public title?: string;
 
-  @IsString()
   @IsOptional()
-  @ApiProperty({
-    example:
-      'Completing a required task or fulfilling an obligation before or at a previously designated time.',
-    description: 'Description of the review topic',
-    required: false,
-  })
   public description?: string;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => ReviewTopicInputDto, {
-    discriminator: {
-      property: 'type',
-      subTypes: [
-        { name: 'continuous', value: ContinuousReviewTopicInputDto },
-        { name: 'discrete', value: DiscreteReviewTopicInputDto },
-      ],
-    },
-  })
-  @ApiProperty()
   public readonly input?: ReviewTopicInputDto;
 
   public constructor(
@@ -46,6 +20,7 @@ export class UpdateReviewTopicDto {
     description?: string,
     input?: ReviewTopicInputDto,
   ) {
+    super();
     this.title = title;
     this.description = description;
     this.input = input;

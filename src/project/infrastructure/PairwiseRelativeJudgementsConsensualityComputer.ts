@@ -6,6 +6,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -45,7 +46,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   }
 
   private computeDissent(peerReviewCollection: PeerReviewCollection): number {
-    const peerReviews = peerReviewCollection.toMap();
+    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     function R_ijk(i: string, j: string, k: string): number {
       return peerReviews[i][j] / peerReviews[i][k];
@@ -71,7 +72,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   }
 
   private createCyclicPeerReviews(n: number): PeerReviewCollection {
-    const peerReviews = new PeerReviewCollection([]);
+    const peerReviews = PeerReviewCollection.empty();
     const peers = [];
     for (let i = 0; i < n; i++) {
       peers.push(RoleId.create());
@@ -87,11 +88,12 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         } else {
           score = 0;
         }
-        const peerReview = PeerReview.from(
+        const peerReview = PeerReview.of(
           peers[i],
           peers[j],
           ReviewTopicId.create(),
-          PeerReviewScore.from(score),
+          PeerReviewScore.of(score),
+          PeerReviewFlag.NONE,
         );
         peerReviews.add(peerReview);
       }

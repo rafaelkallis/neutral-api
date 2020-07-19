@@ -112,7 +112,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
     const roles = new RoleCollection(
       await this.objectMapper.mapArray(projectEntity.roles, Role),
     );
-    const peerReviews = new PeerReviewCollection(
+    const peerReviews = PeerReviewCollection.of(
       await this.objectMapper.mapArray(projectEntity.peerReviews, PeerReview),
     );
     const reviewTopics = new ReviewTopicCollection(

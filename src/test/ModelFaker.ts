@@ -34,6 +34,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -98,7 +99,7 @@ export class ModelFaker {
       contributionVisibility,
       skipManagerReview,
       new RoleCollection([]),
-      new PeerReviewCollection([]),
+      PeerReviewCollection.empty(),
       new ReviewTopicCollection([]),
       new ContributionCollection([]),
     );
@@ -147,7 +148,7 @@ export class ModelFaker {
     const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const score = PeerReviewScore.from(0);
+    const score = PeerReviewScore.of(0);
     return new PeerReview(
       id,
       createdAt,
@@ -156,6 +157,7 @@ export class ModelFaker {
       receiverRoleId,
       reviewTopicId,
       score,
+      PeerReviewFlag.NONE,
     );
   }
 
