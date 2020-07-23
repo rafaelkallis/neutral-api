@@ -1,7 +1,6 @@
 import * as appInsights from 'applicationinsights';
 import {
   Injectable,
-  OnApplicationShutdown,
   OnModuleInit,
   OnModuleDestroy,
   Logger,
@@ -14,7 +13,7 @@ import {
 } from 'shared/telemetry/application/TelemetryClient';
 import { Config } from 'shared/config/application/Config';
 import { User } from 'user/domain/User';
-import { PerformanceMeasurer } from 'shared/telemetry/application/PerformanceMeasurer';
+// import { PerformanceMeasurer } from 'shared/telemetry/application/PerformanceMeasurer';
 
 // @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Schema/PublicSchema/ContextTagKeys.bond
 enum AzureMonitorContextTags {
@@ -28,60 +27,56 @@ enum AzureMonitorContextTags {
 }
 
 // @see https://github.com/microsoft/ApplicationInsights-node.js/blob/48c09992de1e9848db8d3b4140322db0dfbadb49/Declarations/Constants.ts#L28-L40
-enum AzureMonitorPerformanceMetrics {
-  // Memory
-  PRIVATE_BYTES = '\\Process(??APP_WIN32_PROC??)\\Private Bytes',
-  AVAILABLE_BYTES = '\\Memory\\Available Bytes',
+// enum AzureMonitorPerformanceMetrics {
+//   // Memory
+//   PRIVATE_BYTES = '\\Process(??APP_WIN32_PROC??)\\Private Bytes',
+//   AVAILABLE_BYTES = '\\Memory\\Available Bytes',
 
-  // CPU
-  PROCESSOR_TIME = '\\Processor(_Total)\\% Processor Time',
-  PROCESS_TIME = '\\Process(??APP_WIN32_PROC??)\\% Processor Time',
-}
+//   // CPU
+//   PROCESSOR_TIME = '\\Processor(_Total)\\% Processor Time',
+//   PROCESS_TIME = '\\Process(??APP_WIN32_PROC??)\\% Processor Time',
+// }
 
 /**
  * Azure Monitor Telemetry Client
  */
 @Injectable()
 export class AzureMonitorTelemetryClient extends TelemetryClient
-  implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
+  implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
-  private readonly client: appInsights.TelemetryClient;
-  private readonly performanceMeasurer: PerformanceMeasurer;
-  private trackPerformanceTimeout: NodeJS.Timeout;
+  private readonly config: Config;
+  // private readonly performanceMeasurer: PerformanceMeasurer;
+  // private trackPerformanceTimeout: NodeJS.Timeout;
 
-  public constructor(config: Config, performanceMeasurer: PerformanceMeasurer) {
+  public constructor(
+    config: Config /*, performanceMeasurer: PerformanceMeasurer*/,
+  ) {
     super();
     this.logger = new Logger(AzureMonitorTelemetryClient.name);
-    const instrumentationKey = config.get('AZURE_MONITOR_INSTRUMENTATION_KEY');
-    this.client = new appInsights.TelemetryClient(instrumentationKey);
-    this.performanceMeasurer = performanceMeasurer;
-    this.trackPerformanceTimeout = setTimeout(() => {}, 0);
+    this.config = config;
+    // this.performanceMeasurer = performanceMeasurer;
+    // this.trackPerformanceTimeout = setTimeout(() => {}, 0);
   }
 
   public onModuleInit(): void {
-    const trackPerformancePeriod = 1000;
-    this.trackPerformanceTimeout = setInterval(
-      () => this.trackPerformance(),
-      trackPerformancePeriod,
+    const instrumentationKey = this.config.get(
+      'AZURE_MONITOR_INSTRUMENTATION_KEY',
     );
-    this.logger.log('Performance tracking started');
+    appInsights.setup(instrumentationKey).setSendLiveMetrics(true).start();
+
+    // const trackPerformancePeriod = 1000;
+    // this.trackPerformanceTimeout = setInterval(
+    //   () => this.trackPerformance(),
+    //   trackPerformancePeriod,
+    // );
+    this.logger.log('Telemetry started');
   }
 
   public onModuleDestroy(): void {
-    clearInterval(this.trackPerformanceTimeout);
-    this.trackPerformanceTimeout = setTimeout(() => {}, 0);
-    this.logger.log('Performance tracking stopped');
-  }
-
-  public async onApplicationShutdown(): Promise<void> {
-    await new Promise((resolve) =>
-      this.client.flush({
-        callback: () => {
-          resolve();
-          this.logger.log('Client flushed');
-        },
-      }),
-    );
+    appInsights.dispose();
+    // clearInterval(this.trackPerformanceTimeout);
+    // this.trackPerformanceTimeout = setTimeout(() => {}, 0);
+    this.logger.log('Telemetry stopped');
   }
 
   protected doStartHttpTransaction(
@@ -97,21 +92,21 @@ export class AzureMonitorTelemetryClient extends TelemetryClient
       request,
       response,
       user,
-      this.client,
+      appInsights.defaultClient,
     );
   }
 
-  private trackPerformance(): void {
-    const memoryMetrics = this.performanceMeasurer.measureMemory();
-    this.client.trackMetric({
-      name: AzureMonitorPerformanceMetrics.PRIVATE_BYTES,
-      value: memoryMetrics.usedMemoryBytes,
-    });
-    this.client.trackMetric({
-      name: AzureMonitorPerformanceMetrics.AVAILABLE_BYTES,
-      value: memoryMetrics.availableMemoryBytes,
-    });
-  }
+  // private trackPerformance(): void {
+  //   const memoryMetrics = this.performanceMeasurer.measureMemory();
+  //   this.client.trackMetric({
+  //     name: AzureMonitorPerformanceMetrics.PRIVATE_BYTES,
+  //     value: memoryMetrics.usedMemoryBytes,
+  //   });
+  //   this.client.trackMetric({
+  //     name: AzureMonitorPerformanceMetrics.AVAILABLE_BYTES,
+  //     value: memoryMetrics.availableMemoryBytes,
+  //   });
+  // }
 }
 
 class AzureMonitorHttpTelemetryTransaction extends HttpTelemetryTransaction {
