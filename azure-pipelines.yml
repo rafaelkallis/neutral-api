@@ -83,8 +83,8 @@ steps:
 - script: 'npm run-script build'
   displayName: 'build'
 
-# - script: 'npm prune --production'
-#   displayName: 'prune'
+- script: 'npm prune --production'
+  displayName: 'prune'
 
 - task: ArchiveFiles@2
   displayName: 'archive files'

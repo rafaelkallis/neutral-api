@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EmailHtmlRenderer } from 'shared/email/html-renderer/EmailHtmlRenderer';
 import { Environment as NunjucksRenderer, FileSystemLoader } from 'nunjucks';
 import path from 'path';
@@ -17,13 +17,20 @@ import {
  */
 @Injectable()
 export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
+  private readonly logger: Logger;
   private readonly environment: Environment;
   private readonly nunjucksRenderer: NunjucksRenderer;
 
   public constructor(environment: Environment) {
     super();
+    this.logger = new Logger(MjmlEmailHtmlRenderer.name);
     this.environment = environment;
-    const mjmlTemplatesPath = path.resolve(__dirname, 'templates');
+    const mjmlTemplatesPath = path.resolve(
+      __dirname,
+      '../../../../..',
+      'assets/email-templates/mjml',
+    );
+    this.logger.log(`loading templates from "${mjmlTemplatesPath}"`);
     const fileSystemLoader = new FileSystemLoader(mjmlTemplatesPath);
     this.nunjucksRenderer = new NunjucksRenderer(fileSystemLoader);
   }
