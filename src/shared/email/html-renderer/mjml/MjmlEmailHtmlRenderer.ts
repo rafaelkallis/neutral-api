@@ -23,7 +23,11 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   public constructor(environment: Environment) {
     super();
     this.environment = environment;
-    const mjmlTemplatesPath = path.resolve(__dirname, 'templates');
+    const mjmlTemplatesPath = path.resolve(
+      __dirname,
+      '../../../../..',
+      'assets/email-templates/mjml',
+    );
     const fileSystemLoader = new FileSystemLoader(mjmlTemplatesPath);
     this.nunjucksRenderer = new NunjucksRenderer(fileSystemLoader);
   }

@@ -16,7 +16,11 @@ export class NunjucksEmailHtmlRenderer extends EmailHtmlRenderer {
 
   public constructor() {
     super();
-    const templatesPath = path.resolve(__dirname, 'templates');
+    const templatesPath = path.resolve(
+      __dirname,
+      '../../../../..',
+      'assets/email-templates/nunjucks',
+    );
     const fileSystemLoader = new FileSystemLoader(templatesPath);
     this.environment = new Environment(fileSystemLoader);
   }

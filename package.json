@@ -12,6 +12,7 @@
   "scripts": {
     "start": "node build/main.js",
     "build": "ttsc",
+    "build:tsc": "tsc",
     "dev": "NODE_ENV=development TS_NODE_COMPILER=ttypescript ts-node-dev --inspect --no-notify --respawn src/main.ts",
     "type": "ttsc --noEmit",
     "type:watch": "ttsc --noEmit --watch",
