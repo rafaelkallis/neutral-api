@@ -22,15 +22,14 @@ import { Environment } from 'shared/utility/application/Environment';
       useFactory: (
         environment: Environment,
         config: Config,
-        performanceMeasurer: PerformanceMeasurer,
       ): TelemetryClient => {
         if (environment.isProduction()) {
-          return new AzureMonitorTelemetryClient(config, performanceMeasurer);
+          return new AzureMonitorTelemetryClient(config);
         } else {
           return new LoggingTelemetryClient();
         }
       },
-      inject: [Environment, Config, PerformanceMeasurer],
+      inject: [Environment, Config],
     },
     { provide: APP_INTERCEPTOR, useClass: TelemetryInterceptor },
     TelemetryActionConnector,
