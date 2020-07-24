@@ -13,8 +13,7 @@ export interface ConfigProps {
   SMTP_URL: string;
   EMAIL_SENDER_ADDRESS: string;
   EMAIL_SENDER_NAME: string;
-  // SENDGRID_API_KEY: string;
-  // SENDGRID_URL: string;
+  SENDGRID_API_KEY: string;
   LOGIN_TOKEN_LIFETIME_MIN: number;
   SIGNUP_TOKEN_LIFETIME_MIN: number;
   ACCESS_TOKEN_LIFETIME_MIN: number;
@@ -46,11 +45,10 @@ export abstract class Config {
   public abstract get<K extends keyof ConfigProps>(key: K): ConfigProps[K];
 
   private computeCommit(): string {
-    let commit: string | null = null;
     try {
-      commit =
-        commit || execSync('git rev-parse --short HEAD').toString().trimEnd();
-    } catch (ignored) {}
-    return commit || '0000000';
+      return execSync('git rev-parse --short HEAD').toString().trimEnd();
+    } catch (ignored) {
+      return '0000000';
+    }
   }
 }

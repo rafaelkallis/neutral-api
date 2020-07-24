@@ -11,7 +11,7 @@ import { MjmlEmailHtmlRenderer } from 'shared/email/html-renderer/mjml/MjmlEmail
 import { UtilityModule } from 'shared/utility/UtilityModule';
 import { Environment } from 'shared/utility/application/Environment';
 import { Config } from 'shared/config/application/Config';
-import { MailjetEmailSender } from './sender/MailjetEmailSender';
+import { SendgridEmailSender } from 'shared/email/sender/SendgridEmailSender';
 
 /**
  * Email Module
@@ -35,7 +35,7 @@ import { MailjetEmailSender } from './sender/MailjetEmailSender';
       provide: EmailSender,
       useFactory(environment: Environment, config: Config): EmailSender {
         if (environment.isProduction()) {
-          return new MailjetEmailSender(config);
+          return new SendgridEmailSender(config);
         }
         return new SmtpEmailSender(config);
       },
