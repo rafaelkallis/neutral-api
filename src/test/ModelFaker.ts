@@ -35,6 +35,7 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { ManagerPeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -86,6 +87,7 @@ export class ModelFaker {
     );
     const state = FormationProjectState.INSTANCE;
     const contributionVisibility = SelfContributionVisiblity.INSTANCE;
+    const peerReviewVisibility = ManagerPeerReviewVisibility.INSTANCE;
     const skipManagerReview = SkipManagerReview.NO;
     return Project.of(
       id,
@@ -97,6 +99,7 @@ export class ModelFaker {
       creatorId,
       state,
       contributionVisibility,
+      peerReviewVisibility,
       skipManagerReview,
       new RoleCollection([]),
       PeerReviewCollection.empty(),

@@ -19,6 +19,10 @@ import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
+import {
+  PeerReviewVisibility,
+  ManagerPeerReviewVisibility,
+} from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -26,6 +30,8 @@ export interface CreateProjectOptions {
   meta: Record<string, unknown>;
   creator: ReadonlyUser;
   contributionVisibility?: ContributionVisibility;
+  peerReviewVisibility?: PeerReviewVisibility;
+  peerReview?: ContributionVisibility;
   skipManagerReview?: SkipManagerReview;
 }
 
@@ -41,6 +47,7 @@ export class ProjectFactory extends AggregateRootFactory<
     meta,
     creator,
     contributionVisibility,
+    peerReviewVisibility,
     skipManagerReview,
   }: CreateProjectOptions): Project {
     const projectId = ProjectId.create();
@@ -63,6 +70,9 @@ export class ProjectFactory extends AggregateRootFactory<
       contributionVisibility
         ? contributionVisibility
         : SelfContributionVisiblity.INSTANCE,
+      peerReviewVisibility
+        ? peerReviewVisibility
+        : ManagerPeerReviewVisibility.INSTANCE,
       skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
       roles,
       peerReviews,

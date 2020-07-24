@@ -26,7 +26,7 @@ export abstract class TypeOrmEntity {
     };
   }
 
-  public static registry = domainModelRegistry.asReadonly();
+  public static registry = domainModelRegistry.toReadonly();
 
   public constructor(id: string, createdAt: number, updatedAt: number) {
     this.id = id;

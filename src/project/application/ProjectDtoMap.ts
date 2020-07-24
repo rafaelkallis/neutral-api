@@ -13,6 +13,7 @@ import { ContributionDto } from './dto/ContributionDto';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
+import { peerReviewVisibilityMap } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -29,6 +30,12 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     context: ObjectMapContext,
   ): Promise<ProjectDto> {
     const authUser = context.get('authUser', User);
+    const peerReviewVisibilityValue = peerReviewVisibilityMap
+      .inverseDistinct()
+      .get(project.peerReviewVisibility);
+    if (!peerReviewVisibilityValue) {
+      throw new Error();
+    }
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -39,6 +46,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.creatorId.value,
       getProjectStateValue(project.state),
       project.contributionVisibility.asValue(),
+      peerReviewVisibilityValue,
       project.skipManagerReview.value,
       await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
         project,

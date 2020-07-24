@@ -25,7 +25,7 @@ export abstract class Repository<
       repositoryRegistry.set(repositoryClass, aggregateRootClass);
     };
   }
-  public static registry = repositoryRegistry.asReadonly();
+  public static registry = repositoryRegistry.toReadonly();
 
   private readonly persistedModelsSubject: Subject<TModel>;
 
