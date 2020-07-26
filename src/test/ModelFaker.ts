@@ -36,12 +36,20 @@ import { ReviewTopicDescription } from 'project/domain/review-topic/value-object
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { Organization } from 'organization/domain/Organization';
+import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
+import { ValueObjectFaker } from './ValueObjectFaker';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
+  private readonly valueObjectFaker: ValueObjectFaker;
 
-  public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
+  public constructor(
+    primitiveFaker: PrimitiveFaker = new PrimitiveFaker(),
+    valueObjectFaker: ValueObjectFaker = new ValueObjectFaker(),
+  ) {
     this.primitiveFaker = primitiveFaker;
+    this.valueObjectFaker = valueObjectFaker;
   }
 
   /**
@@ -183,5 +191,13 @@ export class ModelFaker {
       isRead,
       payload,
     );
+  }
+
+  public organization(ownerId: UserId): Organization {
+    const organizationId = OrganizationId.of(this.primitiveFaker.id());
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const name = this.valueObjectFaker.organization.name();
+    return Organization.of(organizationId, createdAt, updatedAt, name, ownerId);
   }
 }

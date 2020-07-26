@@ -9,6 +9,7 @@ import { SessionMiddleware } from 'shared/session';
 import { UserModule } from 'user/UserModule';
 import { SharedModule } from 'shared/SharedModule';
 import { AuthModule } from 'auth/AuthModule';
+import { OrganizationModule } from 'organization/OrganizationModule';
 
 /**
  * App Module
@@ -20,6 +21,7 @@ import { AuthModule } from 'auth/AuthModule';
     AuthModule,
     ProjectModule,
     NotificationModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
 })
