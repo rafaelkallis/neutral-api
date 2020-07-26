@@ -9,6 +9,10 @@ import {
   ReverseOrganizationTypeOrmEntityMap,
 } from 'organization/infrastructure/OrganizationTypeOrmEntityMap';
 import { TypeOrmOrganizationRepository } from 'organization/infrastructure/TypeOrmOrganizationRepository';
+import {
+  OrganizationMembershipTypeOrmEntityMap,
+  ReverseOrganizationMembershipTypeOrmEntityMap,
+} from 'organization/infrastructure/OrganizationMembershipTypeOrmEntityMap';
 
 @Module({
   imports: [SharedModule, UserModule],
@@ -21,6 +25,8 @@ import { TypeOrmOrganizationRepository } from 'organization/infrastructure/TypeO
     },
     OrganizationTypeOrmEntityMap,
     ReverseOrganizationTypeOrmEntityMap,
+    OrganizationMembershipTypeOrmEntityMap,
+    ReverseOrganizationMembershipTypeOrmEntityMap,
   ],
   exports: [OrganizationRepository],
 })

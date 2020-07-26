@@ -6,6 +6,7 @@ import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { OrganizationName } from './value-objects/OrganizationName';
 import { OrganizationId } from './value-objects/OrganizationId';
 import { Organization } from './Organization';
+import { OrganizationMembershipCollection } from './OrganizationMemberShipCollection';
 
 export interface CreateOrganizationContext {
   readonly name: OrganizationName;
@@ -25,6 +26,14 @@ export class Organizations extends AggregateRootFactory<
     const organizationId = OrganizationId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
-    return Organization.of(organizationId, createdAt, updatedAt, name, ownerId);
+    const memberships = OrganizationMembershipCollection.empty();
+    return Organization.of(
+      organizationId,
+      createdAt,
+      updatedAt,
+      name,
+      ownerId,
+      memberships,
+    );
   }
 }

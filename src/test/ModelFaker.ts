@@ -39,6 +39,7 @@ import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerR
 import { Organization } from 'organization/domain/Organization';
 import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 import { ValueObjectFaker } from './ValueObjectFaker';
+import { OrganizationMembershipCollection } from 'organization/domain/OrganizationMemberShipCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -198,6 +199,14 @@ export class ModelFaker {
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const name = this.valueObjectFaker.organization.name();
-    return Organization.of(organizationId, createdAt, updatedAt, name, ownerId);
+    const memberships = new OrganizationMembershipCollection([]);
+    return Organization.of(
+      organizationId,
+      createdAt,
+      updatedAt,
+      name,
+      ownerId,
+      memberships,
+    );
   }
 }
