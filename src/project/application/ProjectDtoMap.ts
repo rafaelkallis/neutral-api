@@ -4,7 +4,6 @@ import { ProjectDto } from './dto/ProjectDto';
 import { User } from 'user/domain/User';
 import { RoleDto } from './dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
-import { ReadonlyPeerReview } from 'project/domain/peer-review/PeerReview';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
@@ -13,7 +12,6 @@ import { ContributionDto } from './dto/ContributionDto';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
-import { peerReviewVisibilityMap } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -30,12 +28,6 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     context: ObjectMapContext,
   ): Promise<ProjectDto> {
     const authUser = context.get('authUser', User);
-    const peerReviewVisibilityValue = peerReviewVisibilityMap
-      .inverseDistinct()
-      .get(project.peerReviewVisibility);
-    if (!peerReviewVisibilityValue) {
-      throw new Error();
-    }
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -46,7 +38,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.creatorId.value,
       getProjectStateValue(project.state),
       project.contributionVisibility.asValue(),
-      peerReviewVisibilityValue,
+      project.peerReviewVisibility.label,
       project.skipManagerReview.value,
       await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
         project,
@@ -67,22 +59,10 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     authUser: User,
   ): Promise<PeerReviewDto[]> {
     return this.objectMapper.mapArray(
-      project.peerReviews.toArray().filter(shouldExpose),
+      project.peerReviews.filterVisible(project, authUser).toArray(),
       PeerReviewDto,
       { project, authUser, peerReviews: project.peerReviews },
     );
-    function shouldExpose(peerReview: ReadonlyPeerReview): boolean {
-      if (project.isCreator(authUser)) {
-        return true;
-      }
-      if (project.roles.isAnyAssignedToUser(authUser)) {
-        const authUserRole = project.roles.whereAssignee(authUser);
-        if (peerReview.isSenderRole(authUserRole)) {
-          return true;
-        }
-      }
-      return false;
-    }
   }
 
   public async mapContributions(

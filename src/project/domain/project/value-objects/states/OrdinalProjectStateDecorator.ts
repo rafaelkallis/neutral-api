@@ -1,4 +1,4 @@
-import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
+import { OrdinalProjectState } from 'project/domain/project/value-objects/states/OrdinalProjectState';
 import { InternalProject } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
@@ -17,12 +17,16 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
-export abstract class ProjectStateDecorator extends ProjectState {
-  protected readonly base: ProjectState;
+export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
+  protected readonly base: OrdinalProjectState;
 
-  public constructor(base: ProjectState) {
+  public constructor(base: OrdinalProjectState) {
     super();
     this.base = base;
+  }
+
+  public getOrdinal(): number {
+    return this.base.getOrdinal();
   }
 
   public update(
@@ -33,6 +37,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): void {
     this.base.update(project, title, description, meta);
   }
+
   public addRole(
     project: InternalProject,
     title: RoleTitle,
@@ -40,6 +45,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): ReadonlyRole {
     return this.base.addRole(project, title, description);
   }
+
   public updateRole(
     project: InternalProject,
     roleId: RoleId,
@@ -48,9 +54,11 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): void {
     this.base.updateRole(project, roleId, title, description);
   }
+
   public removeRole(project: InternalProject, roleId: RoleId): void {
     this.base.removeRole(project, roleId);
   }
+
   public assignUserToRole(
     project: InternalProject,
     userToAssign: ReadonlyUser,
@@ -58,9 +66,11 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): void {
     this.base.assignUserToRole(project, userToAssign, roleId);
   }
+
   public unassign(project: InternalProject, roleId: RoleId): void {
     this.base.unassign(project, roleId);
   }
+
   public addReviewTopic(
     project: InternalProject,
     title: ReviewTopicTitle,
@@ -69,6 +79,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
   ): ReadonlyReviewTopic {
     return this.base.addReviewTopic(project, title, description, input);
   }
+
   public updateReviewTopic(
     project: InternalProject,
     reviewTopicId: ReviewTopicId,
@@ -84,21 +95,25 @@ export abstract class ProjectStateDecorator extends ProjectState {
       input,
     );
   }
+
   public removeReviewTopic(
     project: InternalProject,
     reviewTopicId: ReviewTopicId,
   ): void {
     this.base.removeReviewTopic(project, reviewTopicId);
   }
+
   public finishFormation(
     project: InternalProject,
     assignees: ReadonlyUserCollection,
   ): void {
     this.base.finishFormation(project, assignees);
   }
+
   public cancel(project: InternalProject): void {
     this.base.cancel(project);
   }
+
   public submitPeerReviews(
     project: InternalProject,
     peerReviews: ReadonlyPeerReviewCollection,
@@ -112,6 +127,7 @@ export abstract class ProjectStateDecorator extends ProjectState {
       consensualityComputer,
     );
   }
+
   public completePeerReviews(
     project: InternalProject,
     contributionsComputer: ContributionsComputer,
@@ -123,9 +139,11 @@ export abstract class ProjectStateDecorator extends ProjectState {
       consensualityComputer,
     );
   }
+
   public submitManagerReview(project: InternalProject): void {
     this.base.submitManagerReview(project);
   }
+
   public archive(project: InternalProject): void {
     this.base.archive(project);
   }

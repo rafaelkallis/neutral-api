@@ -20,10 +20,7 @@ import {
   SkipManagerReviewValue,
   SkipManagerReview,
 } from 'project/domain/project/value-objects/SkipManagerReview';
-import {
-  PeerReviewVisibility,
-  ManagerPeerReviewVisibility,
-} from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 describe(CreateProjectCommand.name, () => {
   let scenario: UnitTestScenario<CreateProjectCommandHandler>;
@@ -53,7 +50,7 @@ describe(CreateProjectCommand.name, () => {
     description = scenario.primitiveFaker.paragraph();
     meta = {};
     contributionVisibility = ContributionVisibilityValue.PROJECT;
-    peerReviewVisibility = ManagerPeerReviewVisibility.INSTANCE;
+    peerReviewVisibility = PeerReviewVisibility.MANAGER;
     skipManagerReview = SkipManagerReviewValue.NO;
     command = new CreateProjectCommand(
       authUser,

@@ -19,10 +19,7 @@ import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import {
-  PeerReviewVisibility,
-  ManagerPeerReviewVisibility,
-} from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -72,7 +69,7 @@ export class ProjectFactory extends AggregateRootFactory<
         : SelfContributionVisiblity.INSTANCE,
       peerReviewVisibility
         ? peerReviewVisibility
-        : ManagerPeerReviewVisibility.INSTANCE,
+        : PeerReviewVisibility.MANAGER,
       skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
       roles,
       peerReviews,

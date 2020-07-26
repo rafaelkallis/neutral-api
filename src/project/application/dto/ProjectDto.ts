@@ -17,7 +17,7 @@ import {
 } from 'class-validator';
 import { IsIdentifier } from 'shared/validation/IsIdentifier';
 import { Type } from 'class-transformer';
-import { PeerReviewVisibilityValue } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 /**
  * Project DTO
@@ -67,11 +67,11 @@ export class ProjectDto extends ModelDto {
   public contributionVisibility: ContributionVisibilityValue;
 
   @ApiProperty({
-    enum: PeerReviewVisibilityValue,
-    example: PeerReviewVisibilityValue.MANAGER,
+    enum: PeerReviewVisibilityLabel,
+    example: PeerReviewVisibilityLabel.MANAGER,
   })
-  @IsEnum(PeerReviewVisibilityValue)
-  public peerReviewVisibility: PeerReviewVisibilityValue;
+  @IsEnum(PeerReviewVisibilityLabel)
+  public peerReviewVisibility: PeerReviewVisibilityLabel;
 
   @ApiProperty({
     enum: SkipManagerReviewValue,
@@ -111,7 +111,7 @@ export class ProjectDto extends ModelDto {
     creatorId: string,
     state: ProjectStateValue,
     contributionVisibility: ContributionVisibilityValue,
-    peerReviewVisibility: PeerReviewVisibilityValue,
+    peerReviewVisibility: PeerReviewVisibilityLabel,
     skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,

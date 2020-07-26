@@ -37,7 +37,7 @@ import { UpdateProjectCommand } from 'project/application/commands/UpdateProject
 import { SubmitPeerReviewsCommand } from 'project/application/commands/SubmitPeerReviews';
 import { CompletePeerReviewsCommand } from 'project/application/commands/CompletePeerReviews';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
-import { peerReviewVisibilityMap } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 /**
  * Project Controller
@@ -110,7 +110,7 @@ export class ProjectController {
         createProjectDto.meta,
         createProjectDto.contributionVisibility,
         createProjectDto.peerReviewVisibility
-          ? peerReviewVisibilityMap.get(createProjectDto.peerReviewVisibility)
+          ? PeerReviewVisibility.ofLabel(createProjectDto.peerReviewVisibility)
           : undefined,
         createProjectDto.skipManagerReview,
       ),

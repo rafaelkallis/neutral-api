@@ -2,7 +2,7 @@ import { Column, OneToMany, Entity } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
-import { PeerReviewVisibilityValue } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
@@ -37,9 +37,9 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({
     name: 'peer_review_visibility',
     type: 'enum',
-    enum: PeerReviewVisibilityValue,
+    enum: PeerReviewVisibilityLabel,
   })
-  public peerReviewVisibility: PeerReviewVisibilityValue;
+  public peerReviewVisibility: PeerReviewVisibilityLabel;
 
   @Column({ name: 'skip_manager_review' })
   public skipManagerReview: string;
@@ -90,7 +90,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     creatorId: string,
     state: ProjectStateValue,
     contributionVisibility: ContributionVisibilityValue,
-    peerReviewVisibility: PeerReviewVisibilityValue,
+    peerReviewVisibility: PeerReviewVisibilityLabel,
     skipManagerReview: string,
     roles: ReadonlyArray<RoleTypeOrmEntity>,
     peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,

@@ -27,7 +27,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
-import { peerReviewVisibilityMap } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectTypeOrmEntity)
@@ -54,12 +54,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
   }
 
   protected async doMap(projectModel: Project): Promise<ProjectTypeOrmEntity> {
-    const peerReviewVisibilityValue = peerReviewVisibilityMap
-      .inverseDistinct()
-      .get(projectModel.peerReviewVisibility);
-    if (!peerReviewVisibilityValue) {
-      throw new Error();
-    }
     const projectEntity = new ProjectTypeOrmEntity(
       projectModel.id.value,
       projectModel.createdAt.value,
@@ -70,7 +64,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.creatorId.value,
       getProjectStateValue(projectModel.state),
       projectModel.contributionVisibility.asValue(),
-      peerReviewVisibilityValue,
+      projectModel.peerReviewVisibility.label,
       projectModel.skipManagerReview.value,
       ProjectTypeOrmEntityMap.rolesSentinel,
       ProjectTypeOrmEntityMap.peerReviewsSentinel,
@@ -132,14 +126,6 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
         Contribution,
       ),
     );
-    const peerReviewVisibility = peerReviewVisibilityMap.get(
-      projectEntity.peerReviewVisibility,
-    );
-    if (!peerReviewVisibility) {
-      throw new Error(
-        `peer-review visibility with value ${projectEntity.peerReviewVisibility} not found`,
-      );
-    }
     return Project.of(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
@@ -150,7 +136,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       UserId.from(projectEntity.creatorId),
       getProjectState(projectEntity.state),
       ContributionVisibility.ofValue(projectEntity.contributionVisibility),
-      peerReviewVisibility,
+      PeerReviewVisibility.ofLabel(projectEntity.peerReviewVisibility),
       SkipManagerReview.from(projectEntity.skipManagerReview),
       roles,
       peerReviews,
