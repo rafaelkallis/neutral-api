@@ -19,12 +19,14 @@ import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 export class CreateProjectCommand extends ProjectCommand {
   public readonly title: string;
   public readonly description: string;
   public readonly meta?: Record<string, unknown>;
   public readonly contributionVisibility: ContributionVisibilityValue;
+  public readonly peerReviewVisibility?: PeerReviewVisibility;
   public readonly skipManagerReview: SkipManagerReviewValue;
 
   public constructor(
@@ -33,6 +35,7 @@ export class CreateProjectCommand extends ProjectCommand {
     description: string,
     meta: Record<string, unknown> | undefined,
     contributionVisibility: ContributionVisibilityValue,
+    peerReviewVisibility: PeerReviewVisibility | undefined, // TODO make required
     skipManagerReview: SkipManagerReviewValue,
   ) {
     super(authUser);
@@ -40,6 +43,7 @@ export class CreateProjectCommand extends ProjectCommand {
     this.description = description;
     this.meta = meta;
     this.contributionVisibility = contributionVisibility;
+    this.peerReviewVisibility = peerReviewVisibility;
     this.skipManagerReview = skipManagerReview;
   }
 }
@@ -69,6 +73,7 @@ export class CreateProjectCommandHandler extends ProjectCommandHandler<
       contributionVisibility: ContributionVisibility.ofValue(
         command.contributionVisibility,
       ),
+      peerReviewVisibility: command.peerReviewVisibility,
       skipManagerReview: SkipManagerReview.from(command.skipManagerReview),
     });
   }

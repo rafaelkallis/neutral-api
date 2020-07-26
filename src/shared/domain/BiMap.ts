@@ -13,6 +13,10 @@ export class BiMap<U, V> implements ReadonlyBiMap<U, V> {
     this.values = values;
   }
 
+  public static of<U, V>(values: [U, V][]): BiMap<U, V> {
+    return new BiMap(values);
+  }
+
   public static empty<U, V>(): BiMap<U, V> {
     return new BiMap([]);
   }

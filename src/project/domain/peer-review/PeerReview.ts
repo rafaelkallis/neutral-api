@@ -1,5 +1,5 @@
 import { Model, ReadonlyModel } from 'shared/domain/Model';
-import { Role } from 'project/domain/role/Role';
+import { Role, ReadonlyRole } from 'project/domain/role/Role';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
@@ -17,8 +17,8 @@ export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly score: PeerReviewScore;
   readonly flag: PeerReviewFlag;
 
-  isSenderRole(roleOrRoleId: Role | RoleId): boolean;
-  isReceiverRole(roleOrRoleId: Role | RoleId): boolean;
+  isSenderRole(roleOrRoleId: ReadonlyRole | RoleId): boolean;
+  isReceiverRole(roleOrRoleId: ReadonlyRole | RoleId): boolean;
 }
 
 /**

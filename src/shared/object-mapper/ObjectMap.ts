@@ -45,7 +45,7 @@ export abstract class ObjectMap<TSource, TTarget> {
       objectMapRegistry.set(objectMapClass, Pair.of(sourceClass, targetClass));
     };
   }
-  public static registry = objectMapRegistry.asReadonly();
+  public static registry = objectMapRegistry.toReadonly();
 
   /**
    * Maps the given model.

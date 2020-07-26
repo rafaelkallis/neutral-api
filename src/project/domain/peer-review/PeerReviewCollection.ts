@@ -16,11 +16,16 @@ import { Role } from 'project/domain/role/Role';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
+import { ReadonlyUser } from 'user/domain/User';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
   getReviewTopics(): ReadonlyArray<ReviewTopicId>;
   getPeers(): ReadonlyArray<RoleId>;
+  filterVisible(
+    project: ReadonlyProject,
+    user: ReadonlyUser,
+  ): ReadonlyPeerReviewCollection;
   whereSenderRole(senderRoleOrId: Role | RoleId): ReadonlyPeerReviewCollection;
   whereReceiverRole(
     receiverRoleOrId: Role | RoleId,
@@ -115,6 +120,15 @@ export class PeerReviewCollection
       peers.set(peerReview.receiverRoleId.value, peerReview.receiverRoleId);
     }
     return Array.from(peers.values());
+  }
+
+  public filterVisible(
+    project: ReadonlyProject,
+    user: ReadonlyUser,
+  ): ReadonlyPeerReviewCollection {
+    return this.filter((peerReview) =>
+      project.peerReviewVisibility.isVisible(peerReview, project, user),
+    );
   }
 
   public whereReviewTopic(

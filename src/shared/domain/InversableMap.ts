@@ -5,6 +5,10 @@ export interface ReadonlyInversableMap<U, V> extends ReadonlyMap<U, V> {
 
 export class InversableMap<U, V> extends Map<U, V>
   implements ReadonlyInversableMap<U, V> {
+  public static of<U, V>(values: [U, V][]): InversableMap<U, V> {
+    return new InversableMap(values);
+  }
+
   public static empty<U, V>(): InversableMap<U, V> {
     return new InversableMap();
   }
@@ -24,7 +28,7 @@ export class InversableMap<U, V> extends Map<U, V>
     return new Map(entries.map(([u, v]) => [v, u]));
   }
 
-  public asReadonly(): ReadonlyInversableMap<U, V> {
+  public toReadonly(): ReadonlyInversableMap<U, V> {
     return this;
   }
 }

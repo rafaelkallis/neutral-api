@@ -27,6 +27,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectTypeOrmEntity)
@@ -63,6 +64,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.creatorId.value,
       getProjectStateValue(projectModel.state),
       projectModel.contributionVisibility.asValue(),
+      projectModel.peerReviewVisibility.label,
       projectModel.skipManagerReview.value,
       ProjectTypeOrmEntityMap.rolesSentinel,
       ProjectTypeOrmEntityMap.peerReviewsSentinel,
@@ -134,6 +136,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       UserId.from(projectEntity.creatorId),
       getProjectState(projectEntity.state),
       ContributionVisibility.ofValue(projectEntity.contributionVisibility),
+      PeerReviewVisibility.ofLabel(projectEntity.peerReviewVisibility),
       SkipManagerReview.from(projectEntity.skipManagerReview),
       roles,
       peerReviews,
