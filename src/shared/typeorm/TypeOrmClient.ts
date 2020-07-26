@@ -8,15 +8,14 @@ import {
 import { Config } from 'shared/config/application/Config';
 
 import { UserTypeOrmEntity } from 'user/infrastructure/UserTypeOrmEntity';
-
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
-
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
+import { OrganizationTypeOrmEntity } from 'organization/infrastructure/OrganizationTypeOrmEntity';
 
 import { UserMigration1564324478234 } from 'shared/typeorm/migration/1564324478234-UserMigration';
 import { ProjectMigration1564574530189 } from 'shared/typeorm/migration/1564574530189-ProjectMigration';
@@ -53,6 +52,7 @@ import { AddReviewTopicInputMigration1592508374000 } from 'shared/typeorm/migrat
 import { AddProjectMetaMigration1594370335000 } from 'shared/typeorm/migration/1594370335000AddProjectMetaMigration';
 import { AddPeerReviewFlagMigration1595059121000 } from 'shared/typeorm/migration/1595059121000AddPeerReviewFlagMigration';
 import { AddPeerReviewVisibilityMigration1595594629000 } from 'shared/typeorm/migration/1595594629000AddPeerReviewVisibility';
+import { AddOrganizationsMigration1595764704000 } from 'shared/typeorm/migration/1595764704000AddOrganizationsMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -77,6 +77,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ReviewTopicInputTypeOrmEntity,
         ContributionTypeOrmEntity,
         NotificationTypeOrmEntity,
+        OrganizationTypeOrmEntity,
       ],
       migrations: [
         UserMigration1564324478234,
@@ -114,6 +115,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddProjectMetaMigration1594370335000,
         AddPeerReviewFlagMigration1595059121000,
         AddPeerReviewVisibilityMigration1595594629000,
+        AddOrganizationsMigration1595764704000,
       ],
     });
     this.connection = connection;

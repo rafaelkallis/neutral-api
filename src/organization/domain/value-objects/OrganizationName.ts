@@ -15,6 +15,6 @@ export class OrganizationName extends StringValueObject {
 
   private constructor(value: string) {
     super(value);
-    this.assertMaxLength(value, 100);
+    this.assertMaxLength(value, 128);
   }
 }
