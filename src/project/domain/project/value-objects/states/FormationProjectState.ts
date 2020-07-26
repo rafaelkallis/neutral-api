@@ -1,7 +1,3 @@
-import {
-  ProjectState,
-  DefaultProjectState,
-} from 'project/domain/project/value-objects/states/ProjectState';
 import { InternalProject } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
@@ -33,15 +29,20 @@ import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemove
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import {
+  OrdinalProjectState,
+  DefaultOrdinalProjectState,
+} from './OrdinalProjectState';
 
-export class FormationProjectState extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
+export class FormationProjectState extends DefaultOrdinalProjectState {
+  public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
     new FormationProjectState(),
   );
 
-  private constructor() {
-    super();
+  public getOrdinal(): number {
+    return 0;
   }
+
   public update(
     project: InternalProject,
     title?: ProjectTitle,
@@ -177,5 +178,9 @@ export class FormationProjectState extends DefaultProjectState {
     project.state = PeerReviewProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project, assignees));
+  }
+
+  private constructor() {
+    super();
   }
 }

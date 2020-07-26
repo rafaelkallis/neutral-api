@@ -1,5 +1,4 @@
 import {
-  IsNumber,
   IsString,
   Min,
   ArrayMaxSize,
@@ -56,8 +55,8 @@ export class ReviewTopicInputDto {
   // discrete input fields
 
   @ArrayMaxSize(10)
-  @IsString({ each: true })
   @IsOptional()
+  @IsString({ each: true })
   @ApiProperty({
     type: [String],
     required: false,
@@ -67,8 +66,9 @@ export class ReviewTopicInputDto {
   public readonly labels?: string[];
 
   @ArrayMaxSize(10)
-  @IsNumber({}, { each: true })
   @IsOptional()
+  @IsInt({ each: true })
+  @Min(0, { each: true })
   @ApiProperty({
     type: [Number],
     required: false,

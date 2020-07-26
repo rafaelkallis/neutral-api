@@ -13,6 +13,7 @@ import { ObjectStorage } from 'shared/object-storage/application/ObjectStorage';
 import { TestScenario } from 'test/TestScenario';
 import mailhog from 'mailhog';
 import { Email } from 'user/domain/value-objects/Email';
+import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -21,6 +22,7 @@ export class IntegrationTestScenario extends TestScenario {
   public readonly userRepository: UserRepository;
   public readonly projectRepository: ProjectRepository;
   public readonly notificationRepository: NotificationRepository;
+  public readonly organizationRepository: OrganizationRepository;
 
   public readonly tokenManager: TokenManager;
   public readonly emailManager: EmailManager;
@@ -35,6 +37,7 @@ export class IntegrationTestScenario extends TestScenario {
     userRepository: UserRepository,
     projectRepository: ProjectRepository,
     notificationRepository: NotificationRepository,
+    organizationRepository: OrganizationRepository,
     tokenManager: TokenManager,
     emailManager: EmailManager,
     objectStorage: ObjectStorage,
@@ -46,6 +49,7 @@ export class IntegrationTestScenario extends TestScenario {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.notificationRepository = notificationRepository;
+    this.organizationRepository = organizationRepository;
     this.tokenManager = tokenManager;
     this.emailManager = emailManager;
     this.objectStorage = objectStorage;
@@ -66,6 +70,7 @@ export class IntegrationTestScenario extends TestScenario {
       module.get(UserRepository),
       module.get(ProjectRepository),
       module.get(NotificationRepository),
+      module.get(OrganizationRepository),
       module.get(TokenManager),
       module.get(EmailManager),
       module.get(ObjectStorage),

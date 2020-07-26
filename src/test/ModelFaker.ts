@@ -35,12 +35,22 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { Organization } from 'organization/domain/Organization';
+import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
+import { ValueObjectFaker } from './ValueObjectFaker';
+import { OrganizationMembershipCollection } from 'organization/domain/OrganizationMemberShipCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
+  private readonly valueObjectFaker: ValueObjectFaker;
 
-  public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
+  public constructor(
+    primitiveFaker: PrimitiveFaker = new PrimitiveFaker(),
+    valueObjectFaker: ValueObjectFaker = new ValueObjectFaker(),
+  ) {
     this.primitiveFaker = primitiveFaker;
+    this.valueObjectFaker = valueObjectFaker;
   }
 
   /**
@@ -86,6 +96,7 @@ export class ModelFaker {
     );
     const state = FormationProjectState.INSTANCE;
     const contributionVisibility = SelfContributionVisiblity.INSTANCE;
+    const peerReviewVisibility = PeerReviewVisibility.MANAGER;
     const skipManagerReview = SkipManagerReview.NO;
     return Project.of(
       id,
@@ -97,6 +108,7 @@ export class ModelFaker {
       creatorId,
       state,
       contributionVisibility,
+      peerReviewVisibility,
       skipManagerReview,
       new RoleCollection([]),
       PeerReviewCollection.empty(),
@@ -179,6 +191,22 @@ export class ModelFaker {
       type,
       isRead,
       payload,
+    );
+  }
+
+  public organization(ownerId: UserId): Organization {
+    const organizationId = OrganizationId.of(this.primitiveFaker.id());
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const name = this.valueObjectFaker.organization.name();
+    const memberships = new OrganizationMembershipCollection([]);
+    return Organization.of(
+      organizationId,
+      createdAt,
+      updatedAt,
+      name,
+      ownerId,
+      memberships,
     );
   }
 }

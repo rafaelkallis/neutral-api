@@ -106,6 +106,7 @@ describe('project (e2e)', () => {
         state: getProjectStateValue(project.state),
         skipManagerReview: project.skipManagerReview.value,
         contributionVisibility: project.contributionVisibility.asValue(),
+        peerReviewVisibility: 'manager',
         roles: [],
         peerReviews: [],
         reviewTopics: [],
@@ -148,7 +149,10 @@ describe('project (e2e)', () => {
           skipManagerReview,
         }),
       );
-      await scenario.projectRepository.findById(response.body.id);
+      const createdProject = await scenario.projectRepository.findById(
+        response.body.id,
+      );
+      expect(createdProject).toBeDefined();
     });
 
     test('meta is optional', async () => {

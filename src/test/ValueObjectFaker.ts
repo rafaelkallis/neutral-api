@@ -8,16 +8,19 @@ import {
   ReviewTopicInput,
   ContinuousReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
+import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
 
 export class ValueObjectFaker {
   public readonly user: UserValueObjectFaker;
   public readonly role: RoleValueObjectFaker;
   public readonly reviewTopic: ReviewTopicValueObjectFaker;
+  public readonly organization: OrganizationValueObjectFaker;
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.user = new UserValueObjectFaker(primitiveFaker);
     this.role = new RoleValueObjectFaker(primitiveFaker);
     this.reviewTopic = new ReviewTopicValueObjectFaker(primitiveFaker);
+    this.organization = new OrganizationValueObjectFaker(primitiveFaker);
   }
 }
 
@@ -58,5 +61,11 @@ class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
     const min = this.primitiveFaker.integer();
     const max = min + 1 + this.primitiveFaker.integer();
     return ContinuousReviewTopicInput.of(min, max);
+  }
+}
+
+class OrganizationValueObjectFaker extends ModelValueObjectFaker {
+  public name(): OrganizationName {
+    return RoleTitle.from(this.primitiveFaker.words());
   }
 }
