@@ -149,7 +149,10 @@ describe('project (e2e)', () => {
           skipManagerReview,
         }),
       );
-      await scenario.projectRepository.findById(response.body.id);
+      const createdProject = await scenario.projectRepository.findById(
+        response.body.id,
+      );
+      expect(createdProject).toBeDefined();
     });
 
     test('meta is optional', async () => {
