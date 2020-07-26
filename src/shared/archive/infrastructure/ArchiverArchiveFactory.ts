@@ -21,7 +21,7 @@ export class ArchiverArchiveBuilder extends ArchiveBuilder {
     for (const { path, content } of zipContents) {
       archive.append(content, { name: path });
     }
-    archive.finalize();
+    await archive.finalize();
     await promiseResult;
     return { contentType: 'application/zip' };
   }
