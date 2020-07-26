@@ -42,6 +42,7 @@ import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
+import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -50,6 +51,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly creatorId: UserId;
   readonly state: ProjectState;
   readonly contributionVisibility: ContributionVisibility;
+  readonly peerReviewVisibility: PeerReviewVisibility;
   readonly skipManagerReview: SkipManagerReview;
   readonly roles: ReadonlyRoleCollection;
   readonly peerReviews: ReadonlyPeerReviewCollection;
@@ -111,6 +113,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
   public abstract readonly creatorId: UserId;
   public abstract readonly state: ProjectState;
   public abstract readonly contributionVisibility: ContributionVisibility;
+  public abstract readonly peerReviewVisibility: PeerReviewVisibility;
   public abstract readonly skipManagerReview: SkipManagerReview;
   public abstract readonly roles: RoleCollection;
   public abstract readonly peerReviews: PeerReviewCollection;
@@ -127,6 +130,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
     creatorId: UserId,
     state: ProjectState,
     contributionVisibility: ContributionVisibility,
+    peerReviewVisibility: PeerReviewVisibility,
     skipManagerReview: SkipManagerReview,
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
@@ -143,6 +147,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
       creatorId,
       state,
       contributionVisibility,
+      peerReviewVisibility,
       skipManagerReview,
       roles,
       peerReviews,
@@ -270,6 +275,7 @@ export class InternalProject extends Project {
   public readonly creatorId: UserId;
   public state: ProjectState;
   public contributionVisibility: ContributionVisibility;
+  public peerReviewVisibility: PeerReviewVisibility;
   public skipManagerReview: SkipManagerReview;
   public roles: RoleCollection;
   public peerReviews: PeerReviewCollection;
@@ -286,6 +292,7 @@ export class InternalProject extends Project {
     creatorId: UserId,
     state: ProjectState,
     contributionVisibility: ContributionVisibility,
+    peerReviewVisibility: PeerReviewVisibility,
     skipManagerReview: SkipManagerReview,
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
@@ -298,6 +305,7 @@ export class InternalProject extends Project {
     this.creatorId = creatorId;
     this.state = state;
     this.contributionVisibility = contributionVisibility;
+    this.peerReviewVisibility = peerReviewVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;

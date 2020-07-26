@@ -20,6 +20,7 @@ import {
   SkipManagerReviewValue,
   SkipManagerReview,
 } from 'project/domain/project/value-objects/SkipManagerReview';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 describe(CreateProjectCommand.name, () => {
   let scenario: UnitTestScenario<CreateProjectCommandHandler>;
@@ -30,6 +31,7 @@ describe(CreateProjectCommand.name, () => {
   let description: string;
   let meta: Record<string, unknown>;
   let contributionVisibility: ContributionVisibilityValue;
+  let peerReviewVisibility: PeerReviewVisibility;
   let skipManagerReview: SkipManagerReviewValue;
   let command: CreateProjectCommand;
   let createdProject: Project;
@@ -48,6 +50,7 @@ describe(CreateProjectCommand.name, () => {
     description = scenario.primitiveFaker.paragraph();
     meta = {};
     contributionVisibility = ContributionVisibilityValue.PROJECT;
+    peerReviewVisibility = PeerReviewVisibility.MANAGER;
     skipManagerReview = SkipManagerReviewValue.NO;
     command = new CreateProjectCommand(
       authUser,
@@ -55,6 +58,7 @@ describe(CreateProjectCommand.name, () => {
       description,
       meta,
       contributionVisibility,
+      peerReviewVisibility,
       skipManagerReview,
     );
 
@@ -69,6 +73,7 @@ describe(CreateProjectCommand.name, () => {
         contributionVisibility: ContributionVisibility.ofValue(
           contributionVisibility,
         ),
+        peerReviewVisibility,
         skipManagerReview: SkipManagerReview.from(skipManagerReview),
       }),
     ).thenReturn(createdProject);
@@ -78,10 +83,6 @@ describe(CreateProjectCommand.name, () => {
     td.when(
       objectMapper.map(createdProject, ProjectDto, td.matchers.anything()),
     ).thenResolve(projectDto);
-  });
-
-  test('should be defined', () => {
-    expect(commandHandler).toBeDefined();
   });
 
   test('happy path', async () => {

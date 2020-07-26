@@ -106,6 +106,7 @@ describe('project (e2e)', () => {
         state: getProjectStateValue(project.state),
         skipManagerReview: project.skipManagerReview.value,
         contributionVisibility: project.contributionVisibility.asValue(),
+        peerReviewVisibility: 'manager',
         roles: [],
         peerReviews: [],
         reviewTopics: [],

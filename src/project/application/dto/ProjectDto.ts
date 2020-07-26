@@ -13,9 +13,11 @@ import {
   IsEnum,
   ValidateNested,
   IsOptional,
+  IsObject,
 } from 'class-validator';
 import { IsIdentifier } from 'shared/validation/IsIdentifier';
 import { Type } from 'class-transformer';
+import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 /**
  * Project DTO
@@ -34,6 +36,7 @@ export class ProjectDto extends ModelDto {
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui.',
     description: 'Description of the project',
   })
+  @IsString()
   @MaxLength(1024)
   public description: string;
 
@@ -42,6 +45,7 @@ export class ProjectDto extends ModelDto {
     example: { custom1: 'foo', custom2: {} },
     description: 'Additional project metadata',
   })
+  @IsObject()
   public meta: Record<string, unknown>;
 
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
@@ -61,6 +65,13 @@ export class ProjectDto extends ModelDto {
   })
   @IsEnum(ContributionVisibilityValue)
   public contributionVisibility: ContributionVisibilityValue;
+
+  @ApiProperty({
+    enum: PeerReviewVisibilityLabel,
+    example: PeerReviewVisibilityLabel.MANAGER,
+  })
+  @IsEnum(PeerReviewVisibilityLabel)
+  public peerReviewVisibility: PeerReviewVisibilityLabel;
 
   @ApiProperty({
     enum: SkipManagerReviewValue,
@@ -100,6 +111,7 @@ export class ProjectDto extends ModelDto {
     creatorId: string,
     state: ProjectStateValue,
     contributionVisibility: ContributionVisibilityValue,
+    peerReviewVisibility: PeerReviewVisibilityLabel,
     skipManagerReview: SkipManagerReviewValue,
     roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
@@ -113,6 +125,7 @@ export class ProjectDto extends ModelDto {
     this.creatorId = creatorId;
     this.state = state;
     this.contributionVisibility = contributionVisibility;
+    this.peerReviewVisibility = peerReviewVisibility;
     this.skipManagerReview = skipManagerReview;
     this.roles = roles;
     this.peerReviews = peerReviews;

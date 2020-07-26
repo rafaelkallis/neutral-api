@@ -65,9 +65,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public add(modelToAdd: TModel): void {
-    if (this.contains(modelToAdd.id)) {
-      throw new Error('model already exists');
-    }
+    this.assertCanAdd(modelToAdd);
     this.models = this.toArray().concat(modelToAdd);
   }
 
@@ -78,9 +76,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public remove(modelToRemove: TModel): void {
-    if (!this.contains(modelToRemove.id)) {
-      throw new Error('model does not exist');
-    }
+    this.assertCanRemove(modelToRemove);
     this.removedModels.push(modelToRemove);
     this.models = this.toArray().filter(
       (model) => !model.equals(modelToRemove),
@@ -146,5 +142,17 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
     modelOrId: ReadonlyModel<TId2> | TId2,
   ): TId2 {
     return modelOrId instanceof Model ? modelOrId.id : modelOrId;
+  }
+
+  protected assertCanAdd(modelToAdd: TModel): void {
+    if (this.contains(modelToAdd.id)) {
+      throw new Error('model already exists');
+    }
+  }
+
+  protected assertCanRemove(modelToRemove: TModel): void {
+    if (!this.contains(modelToRemove.id)) {
+      throw new Error('model does not exist');
+    }
   }
 }

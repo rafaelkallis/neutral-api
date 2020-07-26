@@ -1,7 +1,3 @@
-import {
-  ProjectState,
-  DefaultProjectState,
-} from 'project/domain/project/value-objects/states/ProjectState';
 import { InternalProject } from 'project/domain/project/Project';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -19,14 +15,18 @@ import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import {
+  DefaultOrdinalProjectState,
+  OrdinalProjectState,
+} from './OrdinalProjectState';
 
-export class PeerReviewProjectState extends DefaultProjectState {
-  public static readonly INSTANCE: ProjectState = new CancellableProjectState(
+export class PeerReviewProjectState extends DefaultOrdinalProjectState {
+  public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
     new PeerReviewProjectState(),
   );
 
-  private constructor() {
-    super();
+  public getOrdinal(): number {
+    return 1;
   }
 
   /**
@@ -148,5 +148,9 @@ export class PeerReviewProjectState extends DefaultProjectState {
         );
       }
     }
+  }
+
+  private constructor() {
+    super();
   }
 }

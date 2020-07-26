@@ -20,7 +20,7 @@ export abstract class RequestHandler<T, TRequest extends Request<T>> {
       requestHandlerRegistry.set(requestHandlerClass, requestClass);
     };
   }
-  public static registry = requestHandlerRegistry.asReadonly();
+  public static registry = requestHandlerRegistry.toReadonly();
 
   public abstract handle(request: TRequest): T | Promise<T>;
 }
