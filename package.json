@@ -86,7 +86,7 @@
     "@zerollup/ts-transform-paths": "~1.7.18",
     "eslint": "~7.5.0",
     "eslint-config-prettier": "~6.11.0",
-    "eslint-plugin-jest": "~23.18.0",
+    "eslint-plugin-jest": "~23.19.0",
     "eslint-plugin-promise": "~4.2.1",
     "faker": "~4.1.0",
     "husky": "~4.2.5",
