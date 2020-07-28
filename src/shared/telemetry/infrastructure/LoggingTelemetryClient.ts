@@ -67,6 +67,7 @@ class LoggingTelemetryTransaction extends HttpTelemetryTransaction {
     if (error) {
       this.logger.error(
         `${logMessage} \n${error.name}: ${error.message}`,
+        error.stack,
         this.transactionName,
       );
     } else {
