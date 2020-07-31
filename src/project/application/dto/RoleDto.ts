@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
-import { IsString } from 'class-validator';
+import { IsString, IsBoolean } from 'class-validator';
 
 /**
  * Role DTO
@@ -29,24 +29,31 @@ export class RoleDto extends ModelDto {
   })
   public description: string;
 
-  // TODO remove once frontend does not depend on this anymore
-  public contribution: number | null;
+  @IsBoolean()
+  @ApiProperty({
+    type: Boolean,
+    example: true,
+    description:
+      'Only visible for manager during peer-review state, determines whether or not the role has submitted peer reviews',
+    required: false,
+  })
+  public hasSubmittedPeerReviews?: boolean;
 
   public constructor(
     id: string,
+    createdAt: number,
+    updatedAt: number,
     projectId: string,
     assigneeId: string | null,
     title: string,
     description: string,
-    contribution: number | null,
-    createdAt: number,
-    updatedAt: number,
+    hasSubmittedPeerReviews: boolean | undefined,
   ) {
     super(id, createdAt, updatedAt);
     this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;
-    this.contribution = contribution;
+    this.hasSubmittedPeerReviews = hasSubmittedPeerReviews;
   }
 }
