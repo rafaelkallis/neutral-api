@@ -16,6 +16,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
   protected readonly base: OrdinalProjectState;
@@ -33,9 +34,10 @@ export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
     project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
+    peerReviewVisibility?: PeerReviewVisibility,
     meta?: Record<string, unknown>,
   ): void {
-    this.base.update(project, title, description, meta);
+    this.base.update(project, title, description, peerReviewVisibility, meta);
   }
 
   public addRole(

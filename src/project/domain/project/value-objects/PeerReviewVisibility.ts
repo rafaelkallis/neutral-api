@@ -6,6 +6,7 @@ import { OrdinalProjectState } from './states/OrdinalProjectState';
 import { PeerReviewProjectState } from './states/PeerReviewProjectState';
 import { ManagerReviewProjectState } from './states/ManagerReviewProjectState';
 import { FinishedProjectState } from './states/FinishedProjectState';
+import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 
 export enum PeerReviewVisibilityLabel {
   PUBLIC = 'public',
@@ -15,30 +16,30 @@ export enum PeerReviewVisibilityLabel {
 }
 
 enum PeerReviewVisibilityContextUserRole {
-  PUBLIC_USER,
-  PROJECT_MEMBER,
-  MANAGER,
-  SENDER,
+  OUTSIDER = 'outsider',
+  PEER = 'peer',
+  MANAGER = 'manager',
+  SENDER = 'sender',
 }
 
 export class PeerReviewVisibility extends ValueObject {
   public readonly label: PeerReviewVisibilityLabel;
   private readonly ordinal: number;
 
-  public static readonly PUBLIC = new PeerReviewVisibility(
-    PeerReviewVisibilityLabel.PUBLIC,
+  public static readonly SELF = new PeerReviewVisibility(
+    PeerReviewVisibilityLabel.SELF,
     1,
-  );
-  public static readonly PROJECT = new PeerReviewVisibility(
-    PeerReviewVisibilityLabel.PROJECT,
-    2,
   );
   public static readonly MANAGER = new PeerReviewVisibility(
     PeerReviewVisibilityLabel.MANAGER,
+    2,
+  );
+  public static readonly PROJECT = new PeerReviewVisibility(
+    PeerReviewVisibilityLabel.PROJECT,
     3,
   );
-  public static readonly SELF = new PeerReviewVisibility(
-    PeerReviewVisibilityLabel.SELF,
+  public static readonly PUBLIC = new PeerReviewVisibility(
+    PeerReviewVisibilityLabel.PUBLIC,
     4,
   );
 
@@ -61,19 +62,24 @@ export class PeerReviewVisibility extends ValueObject {
    * A peer-review is visible to the user if any of the conditions below are satisfied
    * (logical "and" between columns, logical "or" between rows)
    *
-   *  user role       | visibility | project state
-   * -----------------|------------|------------------
-   *  =sender         |  >=self    | >=peer_review
-   *  =manager        |  >=manager | >=manager_review
-   *  =project member |  >=project | >=finished
-   *  =public user    |  >=public  | >=finished
+   *  user role       |  visibility   | project state
+   * -----------------|---------------|------------------
+   *  =sender         | >=self (1)    | >=peer_review (1)
+   *  =manager        | >=manager (2) | >=manager_review (2)
+   *  =project member | >=project (3) | >=finished (3)
+   *  =public user    | >=public (4)  | >=finished (3)
+   *
+   * visibility order: self < manager < project < public
+   * project state order: formation < peer_review < manager_review < finished < archived
    */
   public isVisible(
-    peerReview: ReadonlyPeerReview,
+    peerReviewId: PeerReviewId,
     project: ReadonlyProject,
     user: ReadonlyUser,
   ): boolean {
-    if (project.peerReviewVisibility !== this) {
+    project.peerReviews.assertContains(peerReviewId);
+    const peerReview = project.peerReviews.whereId(peerReviewId);
+    if (!project.peerReviewVisibility.equals(this)) {
       throw new Error(
         'peer-review visibility does not belong to specified project',
       );
@@ -93,22 +99,27 @@ export class PeerReviewVisibility extends ValueObject {
         PeerReviewVisibility.MANAGER,
         ManagerReviewProjectState.INSTANCE,
       ],
-      [PeerReviewVisibilityContextUserRole.PROJECT_MEMBER]: [
+      [PeerReviewVisibilityContextUserRole.PEER]: [
         PeerReviewVisibility.PROJECT,
         FinishedProjectState.INSTANCE,
       ],
-      [PeerReviewVisibilityContextUserRole.PUBLIC_USER]: [
+      [PeerReviewVisibilityContextUserRole.OUTSIDER]: [
         PeerReviewVisibility.PUBLIC,
         FinishedProjectState.INSTANCE,
       ],
     };
+    const userRole = this.computePeerReviewVisibilityContextUserRole(
+      peerReview,
+      user,
+      project,
+    );
     const [minimumPeerReviewVisibility, minimumProjectState] = lookupTable[
-      this.computePeerReviewVisibilityContextUserRole(peerReview, user, project)
+      userRole
     ];
-    if (!this.isGreaterEqualsThan(minimumPeerReviewVisibility)) {
+    if (this.isSmallerThan(minimumPeerReviewVisibility)) {
       return false;
     }
-    if (!project.state.isGreaterEqualsThan(minimumProjectState)) {
+    if (project.state.isSmallerEqualsThan(minimumProjectState)) {
       return false;
     }
     return true;
@@ -129,13 +140,17 @@ export class PeerReviewVisibility extends ValueObject {
       return PeerReviewVisibilityContextUserRole.MANAGER;
     }
     if (project.roles.isAnyAssignedToUser(user)) {
-      return PeerReviewVisibilityContextUserRole.PROJECT_MEMBER;
+      return PeerReviewVisibilityContextUserRole.PEER;
     }
-    return PeerReviewVisibilityContextUserRole.PUBLIC_USER;
+    return PeerReviewVisibilityContextUserRole.OUTSIDER;
   }
 
-  private isGreaterEqualsThan(other: PeerReviewVisibility): boolean {
+  public isGreaterEqualsThan(other: PeerReviewVisibility): boolean {
     return this.ordinal >= other.ordinal;
+  }
+
+  public isSmallerThan(other: PeerReviewVisibility): boolean {
+    return this.ordinal < other.ordinal;
   }
 
   private constructor(label: PeerReviewVisibilityLabel, ordinal: number) {
