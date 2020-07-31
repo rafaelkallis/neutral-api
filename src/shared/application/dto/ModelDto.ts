@@ -4,7 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
  * Model DTO
  */
 export class ModelDto {
-  @ApiProperty({ example: '507f1f77bcf86cd799439011' })
+  @ApiProperty({
+    type: String,
+    example: '507f1f77bcf86cd799439011',
+  })
   public id: string;
 
   @ApiProperty({ example: 779587200 })
