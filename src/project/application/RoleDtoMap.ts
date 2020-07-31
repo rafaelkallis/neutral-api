@@ -1,17 +1,10 @@
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
-import { Project } from 'project/domain/project/Project';
-import { User } from 'user/domain/User';
-import { InternalServerErrorException, Injectable } from '@nestjs/common';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import { User, ReadonlyUser } from 'user/domain/User';
+import { Injectable } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
-import { Role } from 'project/domain/role/Role';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
-import {
-  PublicContributionVisiblity,
-  ProjectContributionVisiblity,
-  SelfContributionVisiblity,
-  NoneContributionVisiblity,
-} from 'project/domain/project/value-objects/ContributionVisibility';
-import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
+import { Role, ReadonlyRole } from 'project/domain/role/Role';
+import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 
 @Injectable()
 @ObjectMap.register(Role, RoleDto)
@@ -21,78 +14,27 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     const authUser = context.get('authUser', User);
     return new RoleDto(
       role.id.value,
+      role.createdAt.value,
+      role.updatedAt.value,
       project.id.value,
       role.assigneeId ? role.assigneeId.value : null,
       role.title.value,
       role.description.value,
-      this.mapContribution(role, project, authUser),
-      role.createdAt.value,
-      role.updatedAt.value,
+      this.mapHasSubmittedPeerReviews(role, project, authUser),
     );
   }
 
-  // TODO remove (contributions are a propoerty of project)
-  private mapContribution(
-    role: Role,
-    project: Project,
-    authUser: User,
-  ): number | null {
-    const [contribution] = project.contributions.whereRole(role).toArray();
-    if (!contribution) {
-      return null;
+  private mapHasSubmittedPeerReviews(
+    senderRole: ReadonlyRole,
+    project: ReadonlyProject,
+    authUser: ReadonlyUser,
+  ): boolean | undefined {
+    if (!project.isCreator(authUser)) {
+      return undefined;
     }
-    let shouldExpose = false;
-    // TODO: move knowledge to ContributionVisiblity?
-    switch (project.contributionVisibility) {
-      case PublicContributionVisiblity.INSTANCE: {
-        shouldExpose = project.state.equalsAny([
-          FinishedProjectState.INSTANCE,
-          ArchivedProjectState.INSTANCE,
-        ]);
-        break;
-      }
-
-      case ProjectContributionVisiblity.INSTANCE: {
-        if (project.isCreator(authUser)) {
-          shouldExpose = true;
-        } else if (
-          !project.state.equalsAny([
-            FinishedProjectState.INSTANCE,
-            ArchivedProjectState.INSTANCE,
-          ])
-        ) {
-          shouldExpose = false;
-        } else {
-          shouldExpose = project.roles.isAnyAssignedToUser(authUser);
-        }
-        break;
-      }
-
-      case SelfContributionVisiblity.INSTANCE: {
-        if (project.isCreator(authUser)) {
-          shouldExpose = true;
-        } else if (
-          !project.state.equalsAny([
-            FinishedProjectState.INSTANCE,
-            ArchivedProjectState.INSTANCE,
-          ])
-        ) {
-          shouldExpose = false;
-        } else {
-          shouldExpose = role.isAssignedToUser(authUser);
-        }
-        break;
-      }
-
-      case NoneContributionVisiblity.INSTANCE: {
-        shouldExpose = project.isCreator(authUser);
-        break;
-      }
-
-      default: {
-        throw new InternalServerErrorException();
-      }
+    if (!project.state.equals(PeerReviewProjectState.INSTANCE)) {
+      return undefined;
     }
-    return shouldExpose ? contribution.amount.value : null;
+    return project.peerReviews.areCompleteForSenderRole(project, senderRole.id);
   }
 }

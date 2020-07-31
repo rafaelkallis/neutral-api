@@ -1,21 +1,13 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { InternalProject } from 'project/domain/project/Project';
-import {
-  ContributionVisibility,
-  PublicContributionVisiblity,
-  ProjectContributionVisiblity,
-  SelfContributionVisiblity,
-  NoneContributionVisiblity,
-} from 'project/domain/project/value-objects/ContributionVisibility';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
-import { RoleDtoMap } from 'project/application/RoleDtoMap';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { RoleDtoMap } from './RoleDtoMap';
 
 describe('role dto map', () => {
   let modelFaker: ModelFaker;
@@ -48,49 +40,20 @@ describe('role dto map', () => {
     ]);
   });
 
-  const PUBLIC = PublicContributionVisiblity.INSTANCE;
-  const PROJECT = ProjectContributionVisiblity.INSTANCE;
-  const SELF = SelfContributionVisiblity.INSTANCE;
-  const NONE = NoneContributionVisiblity.INSTANCE;
-  const contributionCases: [ContributionVisibility, string, boolean][] = [
-    [PUBLIC, 'owner', true],
-    [PUBLIC, 'assignee', true],
-    [PUBLIC, 'projectUser', true],
-    [PUBLIC, 'publicUser', true],
-    [PROJECT, 'owner', true],
-    [PROJECT, 'assignee', true],
-    [PROJECT, 'projectUser', true],
-    [PROJECT, 'publicUser', false],
-    [SELF, 'owner', true],
-    [SELF, 'assignee', true],
-    [SELF, 'projectUser', false],
-    [SELF, 'publicUser', false],
-    [NONE, 'owner', true],
-    [NONE, 'assignee', false],
-    [NONE, 'projectUser', false],
-    [NONE, 'publicUser', false],
-  ];
-
-  test.each(contributionCases)(
-    'contributions',
-    async (contributionVisibility, authUser, isContributionVisible) => {
-      project.contributionVisibility = contributionVisibility;
-      const roleDto = await roleDtoMap.map(role, {
-        project,
-        authUser: users[authUser],
-      });
-      expect(Boolean(roleDto.contribution)).toBe(isContributionVisible);
-    },
-  );
-
-  test('should not show contribution if not project owner and if project not finished', async () => {
-    project.contributionVisibility = PublicContributionVisiblity.INSTANCE;
-    project.state = PeerReviewProjectState.INSTANCE;
+  test('should map', async () => {
     const roleDto = await roleDtoMap.map(role, {
       project,
-      authUser: users.assignee,
+      authUser: users.owner,
     });
-    expect(roleDto.contribution).toBeNull();
+    expect(roleDto).toEqual({
+      id: role.id.value,
+      createdAt: role.createdAt.value,
+      updatedAt: role.updatedAt.value,
+      projectId: project.id.value,
+      title: role.title.value,
+      description: role.description.value,
+      assigneeId: role.assigneeId?.value,
+    });
   });
 
   // const sentPeerReviewsCases: [string, boolean][] = [

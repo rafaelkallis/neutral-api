@@ -68,8 +68,9 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
       : 'skip';
     const { html, errors } = mjml2html(mjmlString, { validationLevel });
     if (errors.length > 0) {
-      // TODO improve error handling
-      throw new Error();
+      throw new Error(
+        `${MjmlEmailHtmlRenderer.name} error: ${errors[0].formattedMessage}`,
+      );
     }
     return html;
   }

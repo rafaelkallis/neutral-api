@@ -17,12 +17,17 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export abstract class OrdinalProjectState extends ProjectState {
   public abstract getOrdinal(): number;
 
-  public isGreaterEqualsThan(otherState: OrdinalProjectState): boolean {
+  public isGreaterEquals(otherState: OrdinalProjectState): boolean {
     return this.getOrdinal() >= otherState.getOrdinal();
+  }
+
+  public isSmallerThan(other: OrdinalProjectState): boolean {
+    return this.getOrdinal() < other.getOrdinal();
   }
 }
 
@@ -31,6 +36,7 @@ export abstract class DefaultOrdinalProjectState extends OrdinalProjectState {
     _project: InternalProject,
     _title?: ProjectTitle,
     _description?: ProjectDescription,
+    _peerReviewVisibility?: PeerReviewVisibility,
     _meta?: Record<string, unknown>,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();

@@ -127,7 +127,7 @@ export class PeerReviewCollection
     user: ReadonlyUser,
   ): ReadonlyPeerReviewCollection {
     return this.filter((peerReview) =>
-      project.peerReviewVisibility.isVisible(peerReview, project, user),
+      project.peerReviewVisibility.isVisible(peerReview.id, project, user),
     );
   }
 

@@ -6,7 +6,6 @@ import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectR
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
 import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
-import { PairwiseRelativeJudgementsConsensualityComputer } from 'project/infrastructure/PairwiseRelativeJudgementsConsensualityComputer';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { SharedModule } from 'shared/SharedModule';
@@ -50,6 +49,7 @@ import { ProjectDomainEventHandlers } from 'project/application/ProjectDomainEve
 import { AssignRoleCommandHandler } from 'project/application/commands/AssignRole';
 import { SubmitPeerReviewsCommandHandler } from 'project/application/commands/SubmitPeerReviews';
 import { CompletePeerReviewsCommandHandler } from 'project/application/commands/CompletePeerReviews';
+import { StaticConsensualityComputer } from './infrastructure/StaticConsensualityComputer';
 
 /**
  * Project Module
@@ -64,7 +64,7 @@ import { CompletePeerReviewsCommandHandler } from 'project/application/commands/
     },
     {
       provide: ConsensualityComputer,
-      useClass: PairwiseRelativeJudgementsConsensualityComputer,
+      useClass: StaticConsensualityComputer,
     },
     {
       provide: ContributionsComputer,

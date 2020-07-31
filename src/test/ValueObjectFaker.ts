@@ -9,15 +9,19 @@ import {
   ContinuousReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 
 export class ValueObjectFaker {
   public readonly user: UserValueObjectFaker;
+  public readonly project: ProjectValueObjectFaker;
   public readonly role: RoleValueObjectFaker;
   public readonly reviewTopic: ReviewTopicValueObjectFaker;
   public readonly organization: OrganizationValueObjectFaker;
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
     this.user = new UserValueObjectFaker(primitiveFaker);
+    this.project = new ProjectValueObjectFaker(primitiveFaker);
     this.role = new RoleValueObjectFaker(primitiveFaker);
     this.reviewTopic = new ReviewTopicValueObjectFaker(primitiveFaker);
     this.organization = new OrganizationValueObjectFaker(primitiveFaker);
@@ -35,6 +39,16 @@ abstract class ModelValueObjectFaker {
 class UserValueObjectFaker extends ModelValueObjectFaker {
   public email(): Email {
     return Email.of(this.primitiveFaker.email());
+  }
+}
+
+class ProjectValueObjectFaker extends ModelValueObjectFaker {
+  public title(): ProjectTitle {
+    return ProjectTitle.from(this.primitiveFaker.words());
+  }
+
+  public description(): ProjectDescription {
+    return ProjectDescription.from(this.primitiveFaker.paragraph());
   }
 }
 

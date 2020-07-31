@@ -60,12 +60,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
 
   isConsensual(): boolean;
 
-  update(
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    meta?: Record<string, unknown>,
-  ): void;
-
   addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
   updateRole(
     roleId: RoleId,
@@ -166,6 +160,8 @@ export abstract class Project extends AggregateRoot<ProjectId>
   public abstract update(
     title?: ProjectTitle,
     description?: ProjectDescription,
+    peerReviewVisibility?: PeerReviewVisibility,
+    meta?: Record<string, unknown>,
   ): void;
 
   /**
@@ -320,9 +316,10 @@ export class InternalProject extends Project {
   public update(
     title?: ProjectTitle,
     description?: ProjectDescription,
+    peerReviewVisibility?: PeerReviewVisibility,
     meta?: Record<string, unknown>,
   ): void {
-    this.state.update(this, title, description, meta);
+    this.state.update(this, title, description, peerReviewVisibility, meta);
   }
 
   /**

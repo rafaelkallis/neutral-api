@@ -19,19 +19,15 @@ export function IsPeerReviews(options?: ValidationOptions) {
           if (!isObject(value)) {
             return false;
           }
-          let sum = 0;
           for (const peerReview of Object.values(value)) {
             if (
               typeof peerReview !== 'number' ||
               isNaN(peerReview) ||
-              peerReview < 0
+              peerReview < 0 ||
+              peerReview > Number.MAX_SAFE_INTEGER
             ) {
               return false;
             }
-            sum += peerReview;
-          }
-          if (sum < 0.99999 || sum > 1) {
-            return false;
           }
           return true;
         },

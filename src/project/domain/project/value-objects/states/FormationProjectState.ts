@@ -33,6 +33,7 @@ import {
   OrdinalProjectState,
   DefaultOrdinalProjectState,
 } from './OrdinalProjectState';
+import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export class FormationProjectState extends DefaultOrdinalProjectState {
   public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
@@ -47,12 +48,20 @@ export class FormationProjectState extends DefaultOrdinalProjectState {
     project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
+    peerReviewVisibility?: PeerReviewVisibility,
+    meta?: Record<string, unknown>,
   ): void {
     if (title) {
       project.title = title;
     }
     if (description) {
       project.description = description;
+    }
+    if (peerReviewVisibility) {
+      project.peerReviewVisibility = peerReviewVisibility;
+    }
+    if (meta) {
+      project.meta;
     }
     project.raise(new ProjectUpdatedEvent(project));
   }

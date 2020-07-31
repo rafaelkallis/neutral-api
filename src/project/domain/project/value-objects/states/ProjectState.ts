@@ -17,6 +17,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 /**
  *
@@ -26,6 +27,7 @@ export abstract class ProjectState extends ValueObject {
     project: InternalProject,
     title?: ProjectTitle,
     description?: ProjectDescription,
+    peerReviewVisibility?: PeerReviewVisibility,
     meta?: Record<string, unknown>,
   ): void;
 
@@ -105,6 +107,7 @@ export abstract class DefaultProjectState extends ProjectState {
     _project: InternalProject,
     _title?: ProjectTitle,
     _description?: ProjectDescription,
+    _peerReviewVisibility?: PeerReviewVisibility,
     _meta?: Record<string, unknown>,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
