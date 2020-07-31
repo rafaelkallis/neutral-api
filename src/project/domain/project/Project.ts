@@ -44,6 +44,15 @@ import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
 
+export interface UpdateProjectContext {
+  readonly title?: ProjectTitle;
+  readonly description?: ProjectDescription;
+  readonly meta?: Record<string, unknown>;
+  readonly contributionVisibility?: ContributionVisibility;
+  readonly peerReviewVisibility?: PeerReviewVisibility;
+  readonly skipManagerReview?: SkipManagerReview;
+}
+
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
   readonly description: ProjectDescription;
@@ -157,12 +166,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
   /**
    *
    */
-  public abstract update(
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    peerReviewVisibility?: PeerReviewVisibility,
-    meta?: Record<string, unknown>,
-  ): void;
+  public abstract update(context: UpdateProjectContext): void;
 
   /**
    *
@@ -313,13 +317,8 @@ export class InternalProject extends Project {
   /**
    *
    */
-  public update(
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    peerReviewVisibility?: PeerReviewVisibility,
-    meta?: Record<string, unknown>,
-  ): void {
-    this.state.update(this, title, description, peerReviewVisibility, meta);
+  public update(context: UpdateProjectContext): void {
+    this.state.update(this, context);
   }
 
   /**

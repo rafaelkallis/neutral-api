@@ -1,36 +1,38 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { ProjectDto } from './ProjectDto';
+import { UpdateProjectContext } from 'project/domain/project/Project';
+import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
+import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { ContributionVisibility } from 'project/domain/project/value-objects/ContributionVisibility';
+import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
 
-interface UpdateProjectDtoProps {
-  title?: string;
-  description?: string;
-}
-
-/**
- * Update project DTO
- */
-export class UpdateProjectDto implements UpdateProjectDtoProps {
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    example: 'Mars Shuttle',
-    description: 'Title of the project',
-    required: false,
-  })
-  public title?: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    example:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida purus, at sodales dui. Fusce ac lobortis ipsum. Praesent vitae pulvinar augue. Phasellus ultricies aliquam ante, efficitur semper ante volutpat sed. In semper turpis ac dui hendrerit, sit amet aliquet velit maximus. Morbi egestas tempor risus, id blandit elit elementum a. Aenean pretium elit a pellentesque mollis. Sed dignissim massa nisi, in consectetur ligula consequat blandit.', // tslint:disable-line:max-line-length
-    description: 'Description of the project',
-    required: false,
-  })
-  public description?: string;
-
-  public constructor(title?: string, description?: string) {
-    this.title = title;
-    this.description = description;
+export class UpdateProjectDto extends PartialType(
+  PickType(ProjectDto, [
+    'title',
+    'description',
+    'meta',
+    'peerReviewVisibility',
+    'contributionVisibility',
+    'skipManagerReview',
+  ] as const),
+) {
+  public toUpdateProjectContext(): UpdateProjectContext {
+    return {
+      title: this.title ? ProjectTitle.from(this.title) : undefined,
+      description: this.description
+        ? ProjectDescription.from(this.description)
+        : undefined,
+      peerReviewVisibility: this.peerReviewVisibility
+        ? PeerReviewVisibility.ofLabel(this.peerReviewVisibility)
+        : undefined,
+      contributionVisibility: this.contributionVisibility
+        ? ContributionVisibility.ofValue(this.contributionVisibility)
+        : undefined,
+      skipManagerReview: this.skipManagerReview
+        ? SkipManagerReview.from(this.skipManagerReview)
+        : undefined,
+      meta: this.meta,
+    };
   }
 }

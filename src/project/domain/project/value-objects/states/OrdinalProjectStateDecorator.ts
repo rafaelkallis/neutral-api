@@ -1,7 +1,8 @@
 import { OrdinalProjectState } from 'project/domain/project/value-objects/states/OrdinalProjectState';
-import { InternalProject } from 'project/domain/project/Project';
-import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import {
+  InternalProject,
+  UpdateProjectContext,
+} from 'project/domain/project/Project';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
@@ -16,7 +17,6 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
   protected readonly base: OrdinalProjectState;
@@ -30,14 +30,8 @@ export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
     return this.base.getOrdinal();
   }
 
-  public update(
-    project: InternalProject,
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    peerReviewVisibility?: PeerReviewVisibility,
-    meta?: Record<string, unknown>,
-  ): void {
-    this.base.update(project, title, description, peerReviewVisibility, meta);
+  public update(project: InternalProject, context: UpdateProjectContext): void {
+    this.base.update(project, context);
   }
 
   public addRole(

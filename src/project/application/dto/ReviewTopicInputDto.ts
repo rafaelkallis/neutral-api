@@ -77,7 +77,7 @@ export class ReviewTopicInputDto {
   })
   public readonly values?: number[];
 
-  public asReviewTopicInput(): ReviewTopicInput {
+  public toReviewTopicInput(): ReviewTopicInput {
     if (this.type === ReviewTopicInputType.CONTINUOUS) {
       if (typeof this.min !== 'number') {
         throw new ValidationException('invalid review topic input');

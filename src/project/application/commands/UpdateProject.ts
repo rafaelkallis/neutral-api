@@ -1,31 +1,26 @@
-import { Project } from 'project/domain/project/Project';
+import { Project, UpdateProjectContext } from 'project/domain/project/Project';
 import {
   ProjectCommand,
   ProjectCommandHandler,
 } from 'project/application/commands/ProjectCommand';
 import { User } from 'user/domain/User';
-import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
 
 export class UpdateProjectCommand extends ProjectCommand {
-  public readonly projectId: string;
-  public readonly title?: string;
-  public readonly description?: string;
+  public readonly projectId: ProjectId;
+  public readonly updateProjectContext: UpdateProjectContext;
 
   public constructor(
     authUser: User,
-    projectId: string,
-    title?: string,
-    description?: string,
+    projectId: ProjectId,
+    updateProjectContext: UpdateProjectContext,
   ) {
     super(authUser);
     this.projectId = projectId;
-    this.title = title;
-    this.description = description;
+    this.updateProjectContext = updateProjectContext;
   }
 }
 
@@ -35,17 +30,12 @@ export class UpdateProjectCommandHandler extends ProjectCommandHandler<
   UpdateProjectCommand
 > {
   protected async doHandle(command: UpdateProjectCommand): Promise<Project> {
-    const projectId = ProjectId.from(command.projectId);
-    const project = await this.projectRepository.findById(projectId);
+    const project = await this.projectRepository.findById(command.projectId);
     if (!project) {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(command.authUser);
-    const title = command.title ? ProjectTitle.from(command.title) : undefined;
-    const description = command.description
-      ? ProjectDescription.from(command.description)
-      : undefined;
-    project.update(title, description);
+    project.update(command.updateProjectContext);
     return project;
   }
 }

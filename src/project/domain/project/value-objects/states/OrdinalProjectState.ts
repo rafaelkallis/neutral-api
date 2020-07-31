@@ -1,7 +1,5 @@
 import { ProjectState } from './ProjectState';
-import { InternalProject } from '../../Project';
-import { ProjectTitle } from '../ProjectTitle';
-import { ProjectDescription } from '../ProjectDescription';
+import { InternalProject, UpdateProjectContext } from '../../Project';
 import { OperationNotSupportedByCurrentProjectStateException } from 'project/domain/exceptions/OperationNotSupportedByCurrentProjectStateException';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
@@ -17,7 +15,6 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export abstract class OrdinalProjectState extends ProjectState {
   public abstract getOrdinal(): number;
@@ -34,10 +31,7 @@ export abstract class OrdinalProjectState extends ProjectState {
 export abstract class DefaultOrdinalProjectState extends OrdinalProjectState {
   public update(
     _project: InternalProject,
-    _title?: ProjectTitle,
-    _description?: ProjectDescription,
-    _peerReviewVisibility?: PeerReviewVisibility,
-    _meta?: Record<string, unknown>,
+    _context: UpdateProjectContext,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

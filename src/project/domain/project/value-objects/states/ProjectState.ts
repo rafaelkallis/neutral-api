@@ -1,7 +1,8 @@
 import { OperationNotSupportedByCurrentProjectStateException } from 'project/domain/exceptions/OperationNotSupportedByCurrentProjectStateException';
-import { InternalProject } from 'project/domain/project/Project';
-import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import {
+  InternalProject,
+  UpdateProjectContext,
+} from 'project/domain/project/Project';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
@@ -17,7 +18,6 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 
 /**
  *
@@ -25,10 +25,7 @@ import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerR
 export abstract class ProjectState extends ValueObject {
   public abstract update(
     project: InternalProject,
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    peerReviewVisibility?: PeerReviewVisibility,
-    meta?: Record<string, unknown>,
+    context: UpdateProjectContext,
   ): void;
 
   public abstract addRole(
@@ -105,10 +102,7 @@ export abstract class ProjectState extends ValueObject {
 export abstract class DefaultProjectState extends ProjectState {
   public update(
     _project: InternalProject,
-    _title?: ProjectTitle,
-    _description?: ProjectDescription,
-    _peerReviewVisibility?: PeerReviewVisibility,
-    _meta?: Record<string, unknown>,
+    _context: UpdateProjectContext,
   ): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

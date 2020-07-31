@@ -17,7 +17,7 @@ describe(UpdateProjectCommand.name, () => {
   let projectRepository: ProjectRepository;
   let authUser: User;
   let project: Project;
-  let newTitle: string;
+  let newTitle: ProjectTitle;
   let command: UpdateProjectCommand;
   let projectDto: ProjectDto;
 
@@ -30,8 +30,10 @@ describe(UpdateProjectCommand.name, () => {
     projectRepository = scenario.module.get(ProjectRepository);
     authUser = td.object(scenario.modelFaker.user());
     project = td.object(scenario.modelFaker.project(authUser.id));
-    newTitle = scenario.primitiveFaker.word();
-    command = new UpdateProjectCommand(authUser, project.id.value, newTitle);
+    newTitle = scenario.valueObjectFaker.project.title();
+    command = new UpdateProjectCommand(authUser, project.id, {
+      title: newTitle,
+    });
 
     td.when(projectRepository.findById(project.id)).thenResolve(project);
     td.when(project.assertCreator(authUser)).thenReturn();
@@ -54,7 +56,7 @@ describe(UpdateProjectCommand.name, () => {
   test('happy path', async () => {
     const result = await commandHandler.handle(command);
     expect(result).toBe(projectDto);
-    td.verify(project.update(ProjectTitle.from(newTitle), undefined));
+    td.verify(project.update({ title: newTitle }));
     td.verify(projectRepository.persist(project));
   });
 

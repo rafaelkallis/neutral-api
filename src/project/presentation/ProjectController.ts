@@ -138,9 +138,8 @@ export class ProjectController {
     return this.mediator.send(
       new UpdateProjectCommand(
         authUser,
-        id,
-        updateProjectDto.title,
-        updateProjectDto.description,
+        ProjectId.from(id),
+        updateProjectDto.toUpdateProjectContext(),
       ),
     );
   }

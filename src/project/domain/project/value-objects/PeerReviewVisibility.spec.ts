@@ -201,7 +201,7 @@ describe(PeerReviewVisibility.name, () => {
   test.each(cases)(
     'isVisible(%s, %s, %s) = %s',
     (peerReviewVisibility, state, role, isVisible) => {
-      project.update(undefined, undefined, peerReviewVisibility);
+      project.update({ peerReviewVisibility });
       project.finishFormation(new UserCollection(peerUsers));
       const [
         peerReview,
@@ -255,8 +255,8 @@ describe(PeerReviewVisibility.name, () => {
 
   test.each(allVisibilities)(
     'manager sender during peer review should be visible',
-    (visibility) => {
-      project.update(undefined, undefined, visibility);
+    (peerReviewVisibility) => {
+      project.update({ peerReviewVisibility });
       project.finishFormation(new UserCollection(peerUsers));
       const [
         peerReview,
