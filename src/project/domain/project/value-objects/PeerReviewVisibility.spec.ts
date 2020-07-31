@@ -76,6 +76,13 @@ describe(PeerReviewVisibility.name, () => {
       false,
     ),
     ...cartesianProduct(
+      // 8 cases
+      [MANAGER],
+      [PEER_REVIEW],
+      [manager],
+      false,
+    ),
+    ...cartesianProduct(
       // 4 cases
       [PROJECT],
       allStates,
@@ -83,10 +90,31 @@ describe(PeerReviewVisibility.name, () => {
       false,
     ),
     ...cartesianProduct(
+      // 2 cases
+      [PROJECT],
+      [PEER_REVIEW, MANAGER_REVIEW],
+      [peer],
+      false,
+    ),
+    ...cartesianProduct(
+      // 1 cases
+      [PROJECT],
+      [PEER_REVIEW],
+      [manager],
+      false,
+    ),
+    ...cartesianProduct(
       // 4 cases
       [PUBLIC],
       [PEER_REVIEW, MANAGER_REVIEW],
       [peer, outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 1 cases
+      [PUBLIC],
+      [PEER_REVIEW],
+      [manager],
       false,
     ),
   ];
