@@ -70,7 +70,7 @@ export class PeerReviewVisibility extends ValueObject {
    *  =public user    | >=public (4)  | >=finished (3)
    *
    * visibility order: self < manager < project < public
-   * project state order: formation < peer_review < manager_review < finished < archived
+   * project state order: peer_review < manager_review < finished < archived
    */
   public isVisible(
     peerReviewId: PeerReviewId,
@@ -119,10 +119,18 @@ export class PeerReviewVisibility extends ValueObject {
     if (this.isSmallerThan(minimumPeerReviewVisibility)) {
       return false;
     }
-    if (project.state.isSmallerEqualsThan(minimumProjectState)) {
+    if (project.state.isSmallerThan(minimumProjectState)) {
       return false;
     }
     return true;
+  }
+
+  public isSmallerThan(other: PeerReviewVisibility): boolean {
+    return this.ordinal < other.ordinal;
+  }
+
+  public toString(): string {
+    return this.label;
   }
 
   private computePeerReviewVisibilityContextUserRole(
@@ -143,14 +151,6 @@ export class PeerReviewVisibility extends ValueObject {
       return PeerReviewVisibilityContextUserRole.PEER;
     }
     return PeerReviewVisibilityContextUserRole.OUTSIDER;
-  }
-
-  public isGreaterEqualsThan(other: PeerReviewVisibility): boolean {
-    return this.ordinal >= other.ordinal;
-  }
-
-  public isSmallerThan(other: PeerReviewVisibility): boolean {
-    return this.ordinal < other.ordinal;
   }
 
   private constructor(label: PeerReviewVisibilityLabel, ordinal: number) {

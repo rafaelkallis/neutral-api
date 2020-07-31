@@ -22,12 +22,12 @@ import { PeerReviewVisibility } from '../PeerReviewVisibility';
 export abstract class OrdinalProjectState extends ProjectState {
   public abstract getOrdinal(): number;
 
-  public isGreaterEqualsThan(otherState: OrdinalProjectState): boolean {
+  public isGreaterEquals(otherState: OrdinalProjectState): boolean {
     return this.getOrdinal() >= otherState.getOrdinal();
   }
 
-  public isSmallerEqualsThan(other: OrdinalProjectState): boolean {
-    return this.getOrdinal() <= other.getOrdinal();
+  public isSmallerThan(other: OrdinalProjectState): boolean {
+    return this.getOrdinal() < other.getOrdinal();
   }
 }
 

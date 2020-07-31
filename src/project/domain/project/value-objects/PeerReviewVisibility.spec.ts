@@ -9,8 +9,11 @@ import { CancelledProjectState } from './states/CancelledProjectState';
 import { ModelFaker } from 'test/ModelFaker';
 import { OrdinalProjectState } from './states/OrdinalProjectState';
 import { ProjectTestHelper } from 'test/ProjectTestHelper';
-import { ReadonlyUser } from 'user/domain/User';
+import { ReadonlyUser, User } from 'user/domain/User';
 import { UserCollection } from 'user/domain/UserCollection';
+import { Project } from '../Project';
+import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ReadonlyRole } from 'project/domain/role/Role';
 
 describe(PeerReviewVisibility.name, () => {
   const modelFaker = new ModelFaker();
@@ -28,7 +31,33 @@ describe(PeerReviewVisibility.name, () => {
   const manager = 'manager';
   const peer = 'peer';
   const outsider = 'outsider';
-  // const allRoles = [sender, manager, peer, outsider];
+
+  let project: Project;
+  let projectHelper: ProjectTestHelper;
+
+  let managerUser: User;
+  let senderUser: User;
+  let receiverUser: User;
+  let outsiderUser: User;
+  let peerUsers: User[];
+  let reviewTopic: ReadonlyReviewTopic;
+
+  let senderRole: ReadonlyRole;
+  let creatorRole: ReadonlyRole;
+
+  beforeEach(() => {
+    managerUser = modelFaker.user();
+    senderUser = modelFaker.user();
+    receiverUser = modelFaker.user();
+    peerUsers = [senderUser, receiverUser, managerUser];
+    projectHelper = ProjectTestHelper.ofCreator(managerUser);
+    project = projectHelper.project;
+    reviewTopic = projectHelper.addReviewTopic();
+    const roles = peerUsers.map((u) => projectHelper.addRoleAndAssign(u));
+    senderRole = roles[0];
+    creatorRole = roles[2];
+    outsiderUser = modelFaker.user();
+  });
 
   const cases: [PeerReviewVisibility, ProjectState, string, boolean][] = [
     // positive tests
@@ -62,99 +91,138 @@ describe(PeerReviewVisibility.name, () => {
     ),
     // negative cases
     ...cartesianProduct(
-      // 12 cases
+      // 4 cases
       [SELF],
       allStates,
-      [manager, peer, outsider],
-      false,
-    ),
-    ...cartesianProduct(
-      // 8 cases
-      [MANAGER],
-      allStates,
-      [peer, outsider],
-      false,
-    ),
-    ...cartesianProduct(
-      // 8 cases
-      [MANAGER],
-      [PEER_REVIEW],
       [manager],
       false,
     ),
     ...cartesianProduct(
       // 4 cases
-      [PROJECT],
-      allStates,
+      allVisibilities,
+      [PEER_REVIEW],
+      [manager],
+      false,
+    ),
+    ...cartesianProduct(
+      // 8 cases
+      allVisibilities,
+      [PEER_REVIEW, MANAGER_REVIEW],
+      [peer],
+      false,
+    ),
+    ...cartesianProduct(
+      // 4 cases
+      [SELF, MANAGER],
+      [FINISHED, ARCHIVED],
+      [peer],
+      false,
+    ),
+    ...cartesianProduct(
+      // 8 cases
+      allVisibilities,
+      [PEER_REVIEW, MANAGER_REVIEW],
+      [outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 4 cases
+      [SELF, MANAGER],
+      [FINISHED, ARCHIVED],
       [outsider],
       false,
     ),
     ...cartesianProduct(
       // 2 cases
       [PROJECT],
-      [PEER_REVIEW, MANAGER_REVIEW],
-      [peer],
+      [FINISHED, ARCHIVED],
+      [outsider],
       false,
     ),
-    ...cartesianProduct(
-      // 1 cases
-      [PROJECT],
-      [PEER_REVIEW],
-      [manager],
-      false,
-    ),
-    ...cartesianProduct(
-      // 4 cases
-      [PUBLIC],
-      [PEER_REVIEW, MANAGER_REVIEW],
-      [peer, outsider],
-      false,
-    ),
-    ...cartesianProduct(
-      // 1 cases
-      [PUBLIC],
-      [PEER_REVIEW],
-      [manager],
-      false,
-    ),
+
+    // ...cartesianProduct(
+    //   // 12 cases
+    //   [SELF],
+    //   allStates,
+    //   [manager, peer, outsider],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 8 cases
+    //   [MANAGER],
+    //   allStates,
+    //   [peer, outsider],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 8 cases
+    //   [MANAGER],
+    //   [PEER_REVIEW],
+    //   [manager],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 4 cases
+    //   [PROJECT],
+    //   allStates,
+    //   [outsider],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 2 cases
+    //   [PROJECT],
+    //   [PEER_REVIEW, MANAGER_REVIEW],
+    //   [peer],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 1 cases
+    //   [PROJECT],
+    //   [PEER_REVIEW],
+    //   [manager],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 4 cases
+    //   [PUBLIC],
+    //   [PEER_REVIEW, MANAGER_REVIEW],
+    //   [peer, outsider],
+    //   false,
+    // ),
+    // ...cartesianProduct(
+    //   // 1 cases
+    //   [PUBLIC],
+    //   [PEER_REVIEW],
+    //   [manager],
+    //   false,
+    // ),
   ];
 
   test.each(cases)(
     'isVisible(%s, %s, %s) = %s',
     (peerReviewVisibility, state, role, isVisible) => {
-      const managerUser = modelFaker.user();
-      const senderUser = modelFaker.user();
-      const receiverUser = modelFaker.user();
-      const peerUsers = [senderUser, receiverUser, managerUser];
-      const helper = ProjectTestHelper.ofCreator(managerUser);
-      const reviewTopic = helper.addReviewTopic();
-      const roles = peerUsers.map((u) => helper.addRoleAndAssign(u));
-      const [senderRole] = roles;
-      const outsiderUser = modelFaker.user();
-      const { project } = helper;
       project.update(undefined, undefined, peerReviewVisibility);
       project.finishFormation(new UserCollection(peerUsers));
-      const [peerReview] = helper.submitPeerReviewsForSenderAndReviewTopic(
+      const [
+        peerReview,
+      ] = projectHelper.submitPeerReviewsForSenderAndReviewTopic(
         senderRole,
         reviewTopic,
       );
       if (state instanceof OrdinalProjectState) {
         if (
-          state.isGreaterEqualsThan(PEER_REVIEW) &&
+          state.isGreaterEquals(MANAGER_REVIEW) &&
           project.state.equals(PEER_REVIEW)
         ) {
-          helper.completePeerReviews();
+          projectHelper.completePeerReviews();
         }
         if (
-          state.isGreaterEqualsThan(MANAGER_REVIEW) &&
+          state.isGreaterEquals(FINISHED) &&
           project.state.equals(MANAGER_REVIEW)
         ) {
           project.submitManagerReview();
         }
-        if (
-          state.isGreaterEqualsThan(FINISHED) &&
-          project.state.equals(FINISHED)
-        ) {
+        if (state.isGreaterEquals(ARCHIVED) && project.state.equals(FINISHED)) {
           project.archive();
         }
       } else if (state.equals(CANCELLED)) {
@@ -182,6 +250,27 @@ describe(PeerReviewVisibility.name, () => {
             throw new Error();
         }
       }
+    },
+  );
+
+  test.each(allVisibilities)(
+    'manager sender during peer review should be visible',
+    (visibility) => {
+      project.update(undefined, undefined, visibility);
+      project.finishFormation(new UserCollection(peerUsers));
+      const [
+        peerReview,
+      ] = projectHelper.submitPeerReviewsForSenderAndReviewTopic(
+        creatorRole,
+        reviewTopic,
+      );
+      expect(
+        project.peerReviewVisibility.isVisible(
+          peerReview.id,
+          project,
+          managerUser,
+        ),
+      ).toEqual(true);
     },
   );
 });
