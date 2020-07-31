@@ -37,10 +37,8 @@ describe(Project.name, () => {
 
   test('update project', () => {
     const title = ProjectTitle.from(primitiveFaker.words());
-    project.update(title);
-    td.verify(
-      project.state.update(project, title, undefined, undefined, undefined),
-    );
+    project.update({ title });
+    td.verify(project.state.update(project, { title }));
   });
 
   test('add role', () => {

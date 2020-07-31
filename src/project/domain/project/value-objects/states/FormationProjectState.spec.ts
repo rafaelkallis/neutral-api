@@ -68,7 +68,7 @@ describe(FormationProjectState.name, () => {
     });
 
     test('happy path', () => {
-      state.update(project, title);
+      state.update(project, { title });
       expect(project.domainEvents).toContainEqual(
         expect.any(ProjectUpdatedEvent),
       );

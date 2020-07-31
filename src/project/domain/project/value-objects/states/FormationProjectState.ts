@@ -1,6 +1,7 @@
-import { InternalProject } from 'project/domain/project/Project';
-import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
-import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import {
+  InternalProject,
+  UpdateProjectContext,
+} from 'project/domain/project/Project';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
@@ -33,7 +34,6 @@ import {
   OrdinalProjectState,
   DefaultOrdinalProjectState,
 } from './OrdinalProjectState';
-import { PeerReviewVisibility } from '../PeerReviewVisibility';
 
 export class FormationProjectState extends DefaultOrdinalProjectState {
   public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
@@ -44,24 +44,24 @@ export class FormationProjectState extends DefaultOrdinalProjectState {
     return 0;
   }
 
-  public update(
-    project: InternalProject,
-    title?: ProjectTitle,
-    description?: ProjectDescription,
-    peerReviewVisibility?: PeerReviewVisibility,
-    meta?: Record<string, unknown>,
-  ): void {
-    if (title) {
-      project.title = title;
+  public update(project: InternalProject, context: UpdateProjectContext): void {
+    if (context.title) {
+      project.title = context.title;
     }
-    if (description) {
-      project.description = description;
+    if (context.description) {
+      project.description = context.description;
     }
-    if (peerReviewVisibility) {
-      project.peerReviewVisibility = peerReviewVisibility;
+    if (context.peerReviewVisibility) {
+      project.peerReviewVisibility = context.peerReviewVisibility;
     }
-    if (meta) {
-      project.meta;
+    if (context.contributionVisibility) {
+      project.contributionVisibility = context.contributionVisibility;
+    }
+    if (context.skipManagerReview) {
+      project.skipManagerReview = context.skipManagerReview;
+    }
+    if (context.meta) {
+      project.meta = context.meta;
     }
     project.raise(new ProjectUpdatedEvent(project));
   }

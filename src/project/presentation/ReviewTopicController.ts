@@ -61,7 +61,7 @@ export class ReviewTopicController {
         projectId,
         addReviewTopicDto.title,
         addReviewTopicDto.description,
-        addReviewTopicDto.input.asReviewTopicInput(),
+        addReviewTopicDto.input.toReviewTopicInput(),
       ),
     );
   }
@@ -91,7 +91,7 @@ export class ReviewTopicController {
         reviewTopicId,
         updateReviewTopicDto.title,
         updateReviewTopicDto.description,
-        updateReviewTopicDto.input?.asReviewTopicInput(),
+        updateReviewTopicDto.input?.toReviewTopicInput(),
       ),
     );
   }
