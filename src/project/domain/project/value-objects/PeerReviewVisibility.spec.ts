@@ -31,24 +31,63 @@ describe(PeerReviewVisibility.name, () => {
   // const allRoles = [sender, manager, peer, outsider];
 
   const cases: [PeerReviewVisibility, ProjectState, string, boolean][] = [
-    ...cartesianProduct(allVisibilities, allStates, [sender], true),
+    // positive tests
     ...cartesianProduct(
-      allVisibilities.filter(notEq(SELF)),
-      allStates.filter(notEq(PEER_REVIEW)),
+      // 16 cases
+      allVisibilities,
+      allStates,
+      [sender],
+      true,
+    ),
+    ...cartesianProduct(
+      // 9 cases
+      [MANAGER, PROJECT, PUBLIC],
+      [MANAGER_REVIEW, FINISHED, ARCHIVED],
       [manager],
       true,
     ),
     ...cartesianProduct(
-      allVisibilities.filter(notEq(SELF, MANAGER)),
-      allStates.filter(notEq(PEER_REVIEW, MANAGER_REVIEW)),
+      // 4 cases
+      [PROJECT, PUBLIC],
+      [FINISHED, ARCHIVED],
       [peer],
       true,
     ),
     ...cartesianProduct(
-      allVisibilities.filter(notEq(SELF, MANAGER, PROJECT)),
-      allStates.filter(notEq(PEER_REVIEW, MANAGER_REVIEW)),
+      // 2 cases
+      [PUBLIC],
+      [FINISHED, ARCHIVED],
       [outsider],
       true,
+    ),
+    // negative cases
+    ...cartesianProduct(
+      // 12 cases
+      [SELF],
+      allStates,
+      [manager, peer, outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 8 cases
+      [MANAGER],
+      allStates,
+      [peer, outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 4 cases
+      [PROJECT],
+      allStates,
+      [outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 4 cases
+      [PUBLIC],
+      [PEER_REVIEW, MANAGER_REVIEW],
+      [peer, outsider],
+      false,
     ),
   ];
 
@@ -136,6 +175,6 @@ function cartesianProduct(
   return result;
 }
 
-function notEq<T>(...as: T[]) {
-  return (b: T): boolean => as.every((a) => a !== b);
-}
+// function notEq<T>(...as: T[]) {
+//   return (b: T): boolean => as.every((a) => a !== b);
+// }
