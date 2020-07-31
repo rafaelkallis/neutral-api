@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
-import { Config } from 'shared/config/application/Config';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
@@ -13,29 +12,22 @@ import {
 import { User } from 'user/domain/User';
 import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
-import { TokenManager } from 'shared/token/application/TokenManager';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
+import { CtaUrlFactory } from 'shared/urls/CtaUrlFactory';
 
 @Injectable()
 export class ProjectDomainEventHandlers {
-  private readonly config: Config;
   private readonly emailManager: EmailManager;
   private readonly userRepository: UserRepository;
-  private readonly tokenManager: TokenManager;
-  private readonly magicLinkFactory: MagicLinkFactory;
+  private readonly ctaUrlFactory: CtaUrlFactory;
 
   public constructor(
-    config: Config,
     emailManager: EmailManager,
     userRepository: UserRepository,
-    tokenManager: TokenManager,
-    magicLinkFactory: MagicLinkFactory,
+    ctaUrlFactory: CtaUrlFactory,
   ) {
-    this.config = config;
     this.emailManager = emailManager;
     this.userRepository = userRepository;
-    this.tokenManager = tokenManager;
-    this.magicLinkFactory = magicLinkFactory;
+    this.ctaUrlFactory = ctaUrlFactory;
   }
 
   @HandleDomainEvent(
@@ -45,36 +37,16 @@ export class ProjectDomainEventHandlers {
   public async onUserAssignedSendAssignmentEmail(
     event: UserAssignedEvent,
   ): Promise<void> {
-    if (event.assignee.isPending()) {
-      const loginToken = this.tokenManager.newLoginToken(
-        event.assignee.email,
-        event.assignee.lastLoginAt,
-      );
-      const loginLink = this.magicLinkFactory.createLoginLink({
-        loginToken,
-        email: event.assignee.email,
-        isNew: true,
-      });
-      await this.emailManager.sendPendingUserNewAssignmentEmail(
-        event.assignee.email.value,
-        {
-          firstName: event.assignee.name.first,
-          projectTitle: event.project.title.value,
-          roleTitle: event.role.title.value,
-          ctaActionUrl: loginLink,
-        },
-      );
-    } else if (event.assignee.isActive()) {
-      await this.emailManager.sendNewAssignmentEmail(
-        event.assignee.email.value,
-        {
-          firstName: event.assignee.name.first,
-          projectTitle: event.project.title.value,
-          roleTitle: event.role.title.value,
-          ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
-        },
-      );
-    }
+    const newAssignmentCtaUrl = this.ctaUrlFactory.createNewAssignmentCtaUrl({
+      user: event.assignee,
+      projectId: event.project.id,
+    });
+    await this.emailManager.sendNewAssignmentEmail(event.assignee.email.value, {
+      firstName: event.assignee.name.first,
+      projectTitle: event.project.title.value,
+      roleTitle: event.role.title.value,
+      ctaUrl: newAssignmentCtaUrl,
+    });
   }
 
   @HandleDomainEvent(
@@ -88,11 +60,14 @@ export class ProjectDomainEventHandlers {
       if (!assignee.email.isPresent()) {
         continue;
       }
+      const peerReviewRequestedCtaUrl = this.ctaUrlFactory.createPeerReviewRequestedCtaUrl(
+        { user: assignee, projectId: event.project.id },
+      );
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
         {
+          ctaUrl: peerReviewRequestedCtaUrl,
           firstName: assignee.name.first,
-          ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
           projectTitle: event.project.title.value,
         },
       );
@@ -108,16 +83,24 @@ export class ProjectDomainEventHandlers {
   ): Promise<void> {
     const manager = await this.userRepository.findById(event.project.creatorId);
     if (!manager) {
+      // TODO handle
       throw new InternalServerErrorException('manager does not exist');
     }
     if (!manager.isActive()) {
+      // TODO handle
       throw new InternalServerErrorException('manager is not active anymore');
     }
+    const managerReviewRequestedCtaUrl = this.ctaUrlFactory.createManagerReviewRequestedCtaUrl(
+      {
+        user: manager,
+        projectId: event.project.id,
+      },
+    );
     await this.emailManager.sendManagerReviewRequestedEmail(
       manager.email.value,
       {
+        ctaUrl: managerReviewRequestedCtaUrl,
         firstName: manager.name.first,
-        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       },
     );
@@ -147,9 +130,15 @@ export class ProjectDomainEventHandlers {
       if (!assignee.email.isPresent()) {
         continue;
       }
+      const projectFinishedCtaUrl = this.ctaUrlFactory.createProjectFinishedCtaUrl(
+        {
+          user: assignee,
+          projectId: event.project.id,
+        },
+      );
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
+        ctaUrl: projectFinishedCtaUrl,
         firstName: assignee.name.first,
-        ctaActionUrl: this.config.get('FRONTEND_URL'), // TODO any better ideas?
         projectTitle: event.project.title.value,
       });
     }

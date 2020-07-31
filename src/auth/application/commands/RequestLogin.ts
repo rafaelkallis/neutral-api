@@ -2,13 +2,12 @@ import { Command } from 'shared/command/Command';
 import { CommandHandler } from 'shared/command/CommandHandler';
 import { Email } from 'user/domain/value-objects/Email';
 import { UserRepository } from 'user/domain/UserRepository';
-import { TokenManager } from 'shared/token/application/TokenManager';
 import { LoginRequestedEvent } from '../events/LoginRequestedEvent';
 import { DomainEventBroker } from 'shared/domain-event/application/DomainEventBroker';
-import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { SignupRequestedEvent } from '../events/SignupRequestedEvent';
-import { MagicLinkFactory } from 'shared/magic-link/MagicLinkFactory';
 import { Injectable } from '@nestjs/common';
+import { CtaUrlFactory } from 'shared/urls/CtaUrlFactory';
+import { User } from 'user/domain/User';
 
 /**
  * Passwordless login
@@ -31,39 +30,31 @@ export class RequestLoginCommandHandler extends CommandHandler<
   RequestLoginCommand
 > {
   private readonly userRepository: UserRepository;
-  private readonly tokenManager: TokenManager;
-  private readonly magicLinkFactory: MagicLinkFactory;
   private readonly domainEventBroker: DomainEventBroker;
+  private readonly ctaUrlFactory: CtaUrlFactory;
 
   public constructor(
     userRepository: UserRepository,
-    tokenManager: TokenManager,
-    magicLinkFactory: MagicLinkFactory,
     domainEventBroker: DomainEventBroker,
+    ctaUrlFactory: CtaUrlFactory,
   ) {
     super();
     this.userRepository = userRepository;
-    this.tokenManager = tokenManager;
-    this.magicLinkFactory = magicLinkFactory;
     this.domainEventBroker = domainEventBroker;
+    this.ctaUrlFactory = ctaUrlFactory;
   }
 
   public async handle(command: RequestLoginCommand): Promise<void> {
     const email = Email.of(command.email);
-    const user = await this.userRepository.findByEmail(email);
-    const loginToken = this.tokenManager.newLoginToken(
-      email,
-      user ? user.lastLoginAt : LastLoginAt.never(),
-    );
-    const loginLink = this.magicLinkFactory.createLoginLink({
-      loginToken,
-      email,
-      isNew: !user,
-    });
+    let user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      user = User.ofPending(email);
+    }
+    const ctaUrl = this.ctaUrlFactory.createProjectsCtaUrl({ user });
     await this.domainEventBroker.publish(
       user
-        ? new LoginRequestedEvent(user, loginLink)
-        : new SignupRequestedEvent(email, loginLink),
+        ? new LoginRequestedEvent(user, ctaUrl)
+        : new SignupRequestedEvent(email, ctaUrl),
     );
   }
 }

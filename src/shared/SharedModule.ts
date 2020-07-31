@@ -14,7 +14,7 @@ import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
-import { MagicLinkModule } from 'shared/magic-link/MagicLinkModule';
+import { UrlsModule } from 'shared/urls/UrlsModule';
 import { DomainExceptionFilter } from 'shared/application/filters/DomainExceptionFilter';
 import { ValidationExceptionFilter } from 'shared/application/filters/ValidationExceptionFilter';
 
@@ -37,7 +37,7 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     DomainEventModule,
     AmqpModule,
     ArchiveModule,
-    MagicLinkModule,
+    UrlsModule,
   ],
   providers: [
     // @see https://docs.nestjs.com/techniques/serialization#overview
@@ -69,7 +69,7 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     DomainEventModule,
     AmqpModule,
     ArchiveModule,
-    MagicLinkModule,
+    UrlsModule,
   ],
 })
 export class SharedModule {}

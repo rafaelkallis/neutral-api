@@ -38,7 +38,7 @@ describe('auth (e2e)', () => {
 
       const receivedEmails = await scenario.getReceivedEmails(newUserEmail);
       expect(receivedEmails).toHaveLength(1);
-      expect(receivedEmails[0].subject).toBe('[Covee] magic signup link');
+      expect(receivedEmails[0].subject).toBe('[Covee] magic login link');
     });
   });
 
@@ -103,7 +103,7 @@ describe('auth (e2e)', () => {
 
       const receivedEmails = await scenario.getReceivedEmails(email);
       expect(receivedEmails).toHaveLength(1);
-      expect(receivedEmails[0].subject).toBe('[Covee] magic signup link');
+      expect(receivedEmails[0].subject).toBe('[Covee] magic login link');
     });
   });
 

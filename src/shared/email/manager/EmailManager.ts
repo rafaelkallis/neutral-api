@@ -34,14 +34,6 @@ export abstract class EmailManager {
     model: RoleCtaModel,
   ): Promise<void>;
 
-  /**
-   * Sends an email to a pending user that was assigned to a role.
-   */
-  public abstract async sendPendingUserNewAssignmentEmail(
-    to: string,
-    model: RoleCtaModel,
-  ): Promise<void>;
-
   public abstract async sendPeerReviewRequestedEmail(
     to: string,
     model: ProjectCtaModel,
@@ -59,7 +51,7 @@ export abstract class EmailManager {
 }
 
 export interface CtaModel {
-  readonly ctaActionUrl: string;
+  readonly ctaUrl: string;
 }
 
 export interface CtaModelWithFirstName extends CtaModel {

@@ -48,9 +48,6 @@ export class MjmlEmailHtmlRenderer extends EmailHtmlRenderer {
   public renderNewAssignmentEmailHtml(model: RoleCtaModel): string {
     return this.render('new-assignment', model);
   }
-  public renderInvitedUserNewAssignmentEmailHtml(model: RoleCtaModel): string {
-    return this.render('invited-new-assignment', model);
-  }
   public renderPeerReviewRequestedEmailHtml(model: ProjectCtaModel): string {
     return this.render('peer-review-requested', model);
   }

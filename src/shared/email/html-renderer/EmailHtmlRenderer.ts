@@ -31,13 +31,6 @@ export abstract class EmailHtmlRenderer {
    */
   public abstract renderNewAssignmentEmailHtml(model: RoleCtaModel): string;
 
-  /**
-   *
-   */
-  public abstract renderInvitedUserNewAssignmentEmailHtml(
-    model: RoleCtaModel,
-  ): string;
-
   public abstract renderPeerReviewRequestedEmailHtml(
     model: ProjectCtaModel,
   ): string;

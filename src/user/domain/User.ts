@@ -58,7 +58,7 @@ export abstract class User extends AggregateRoot<UserId>
     );
   }
 
-  public static createInvited(email: Email): User {
+  public static ofPending(email: Email): User {
     const first = '';
     const last = '';
     const name = Name.from(first, last);

@@ -74,23 +74,6 @@ export class SelfManagedEmailManager extends EmailManager {
     await this.emailSender.sendEmail({ to, subject, html, text });
   }
 
-  /**
-   * Sends an email to a user that is not registered but was assigned to a new role.
-   */
-  public async sendPendingUserNewAssignmentEmail(
-    to: string,
-    model: RoleCtaModel,
-  ): Promise<void> {
-    const subject = `[Covee] new assignment in "${model.projectTitle}"`;
-    const html = this.emailHtmlRenderer.renderInvitedUserNewAssignmentEmailHtml(
-      model,
-    );
-    const text = this.emailPlaintextRenderer.renderInvitedUserNewAssignmentEmailPlaintext(
-      model,
-    );
-    await this.emailSender.sendEmail({ to, subject, html, text });
-  }
-
   public async sendPeerReviewRequestedEmail(
     to: string,
     model: ProjectCtaModel,
