@@ -1,17 +1,18 @@
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
-import { HttpStatus } from '@nestjs/common';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
+import { HttpStatus } from '@nestjs/common';
+import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 
 describe('/organizations (POST)', () => {
   let scenario: IntegrationTestScenario;
-  let user: User;
+  let owner: User;
   let name: OrganizationName;
 
   beforeEach(async () => {
     scenario = await IntegrationTestScenario.create();
-    user = await scenario.createUser();
-    await scenario.authenticateUser(user);
+    owner = await scenario.createUser();
+    await scenario.authenticateUser(owner);
     name = scenario.valueObjectFaker.organization.name();
   });
 
@@ -28,12 +29,13 @@ describe('/organizations (POST)', () => {
       expect.objectContaining({
         id: expect.any(String),
         name: name.value,
-        ownerId: user.id.value,
+        ownerId: owner.id.value,
       }),
     );
     const createdOrganization = await scenario.organizationRepository.findById(
-      response.body.id,
+      OrganizationId.of(response.body.id),
     );
     expect(createdOrganization).toBeDefined();
+    expect(createdOrganization?.memberships.isAnyMember(owner)).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'user/UserModule';
 import { SharedModule } from 'shared/SharedModule';
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
-import { Organizations } from 'organization/domain/Organizations';
+import { OrganizationFactory } from 'organization/domain/OrganizationFactory';
 import { OrganizationController } from 'organization/presentation/OrganizationController';
 import {
   OrganizationTypeOrmEntityMap,
@@ -15,18 +15,23 @@ import {
 } from 'organization/infrastructure/OrganizationMembershipTypeOrmEntityMap';
 import { CreateOrganizationCommandHandler } from './application/commands/CreateOgranization';
 import { OrganizationDtoMap } from './presentation/OrganizationDtoMap';
+import { OrganizationMembershipController } from './presentation/OrganizationMembershipController';
+import { AddMembershipCommandHandler } from './application/commands/AddMembership';
+import { OrganizationMembershipDtoMap } from './presentation/OrganizationMembershipDtoMap';
 
 @Module({
   imports: [SharedModule, UserModule],
-  controllers: [OrganizationController],
+  controllers: [OrganizationController, OrganizationMembershipController],
   providers: [
-    Organizations,
+    OrganizationFactory,
     {
       provide: OrganizationRepository,
       useClass: TypeOrmOrganizationRepository,
     },
     CreateOrganizationCommandHandler,
+    AddMembershipCommandHandler,
     OrganizationDtoMap,
+    OrganizationMembershipDtoMap,
     OrganizationTypeOrmEntityMap,
     ReverseOrganizationTypeOrmEntityMap,
     OrganizationMembershipTypeOrmEntityMap,

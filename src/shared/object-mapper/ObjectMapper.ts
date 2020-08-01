@@ -51,17 +51,17 @@ export class ObjectMapper {
 
   /**
    * Maps the given object instances to the specified object type.
-   * @param arr Array of objects to map.
+   * @param iterable Array of objects to map.
    * @param targetClass The type to map to.
    * @param context Mapping context.
    */
-  public async mapArray<T>(
-    arr: ReadonlyArray<object>,
+  public async mapIterable<T>(
+    iterable: Iterable<object>,
     targetClass: Class<T>,
     context: object = {},
   ): Promise<T[]> {
     const mappedObjects: T[] = [];
-    for (const source of arr) {
+    for (const source of iterable) {
       const mappedObject = await this.map(source, targetClass, context);
       mappedObjects.push(mappedObject);
     }

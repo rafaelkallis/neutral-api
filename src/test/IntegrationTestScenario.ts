@@ -14,6 +14,7 @@ import { TestScenario } from 'test/TestScenario';
 import mailhog from 'mailhog';
 import { Email } from 'user/domain/value-objects/Email';
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
+import { Organization } from 'organization/domain/Organization';
 
 type Session = request.SuperTest<request.Test>;
 
@@ -101,6 +102,12 @@ export class IntegrationTestScenario extends TestScenario {
     const project = this.modelFaker.project(creator.id);
     await this.projectRepository.persist(project);
     return project;
+  }
+
+  public async createOrganization(owner: User): Promise<Organization> {
+    const organization = this.modelFaker.organization(owner.id);
+    await this.organizationRepository.persist(organization);
+    return organization;
   }
 
   /**

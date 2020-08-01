@@ -9,7 +9,7 @@ import {
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
 import { Organization } from 'organization/domain/Organization';
 import { OrganizationDto } from 'organization/presentation/OrganizationDto';
-import { Organizations } from 'organization/domain/Organizations';
+import { OrganizationFactory } from 'organization/domain/OrganizationFactory';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
 
 describe(CreateOrganizationCommand.name, () => {
@@ -26,7 +26,7 @@ describe(CreateOrganizationCommand.name, () => {
     scenario = await UnitTestScenario.builder(CreateOrganizationCommandHandler)
       .addProviderMock(ObjectMapper)
       .addProviderMock(OrganizationRepository)
-      .addProviderMock(Organizations)
+      .addProviderMock(OrganizationFactory)
       .build();
     commandHandler = scenario.subject;
     organizationRepository = scenario.module.get(OrganizationRepository);
@@ -34,7 +34,7 @@ describe(CreateOrganizationCommand.name, () => {
     name = scenario.valueObjectFaker.organization.name();
     command = new CreateOrganizationCommand(authUser, name);
 
-    const organizations = scenario.module.get(Organizations);
+    const organizations = scenario.module.get(OrganizationFactory);
     createdOrganization = td.object();
     td.when(
       organizations.create({

@@ -15,6 +15,7 @@ export interface ReadonlyModelCollection<
   last(): TModel;
   lastOrNull(): TModel | null;
   isEmpty(): boolean;
+  getRemovedModels(): ReadonlyArray<TModel>;
 }
 
 export class ModelCollection<TId extends Id, TModel extends Model<TId>>
