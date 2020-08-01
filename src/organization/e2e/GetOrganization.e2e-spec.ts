@@ -33,6 +33,10 @@ describe('/organizations/:id (GET)', () => {
   });
 
   test('when auth user is member should get organization', async () => {
+    const member = await scenario.createUser();
+    organization.addMember(member.id);
+    await scenario.organizationRepository.persist(organization);
+    await scenario.authenticateUser(member);
     const response = await scenario.session.get(
       `/organizations/${organization.id.value}`,
     );
@@ -46,6 +50,8 @@ describe('/organizations/:id (GET)', () => {
   });
 
   test('when auth user is not member should respond not found', async () => {
+    const user = await scenario.createUser();
+    await scenario.authenticateUser(user);
     const response = await scenario.session.get(
       `/organizations/${organization.id.value}`,
     );
