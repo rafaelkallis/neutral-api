@@ -13,6 +13,7 @@ import {
   ReadonlyOrganizationMembershipCollection,
   OrganizationMembershipCollection,
 } from 'organization/domain/OrganizationMemberShipCollection';
+import { ReadonlyUser } from 'user/domain/User';
 
 export interface ReadonlyOrganization
   extends ReadonlyAggregateRoot<OrganizationId> {
@@ -20,7 +21,10 @@ export interface ReadonlyOrganization
   readonly ownerId: UserId;
   readonly memberships: ReadonlyOrganizationMembershipCollection;
 
-  assertOwner(userId: UserId): void;
+  isOwner(userOrId: ReadonlyUser | UserId): boolean;
+  assertOwner(userOrId: ReadonlyUser | UserId): void;
+
+  isMember(userOrId: ReadonlyUser | UserId): boolean;
 }
 
 export abstract class Organization extends AggregateRoot<OrganizationId>
@@ -47,8 +51,23 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
     );
   }
 
-  public assertOwner(userId: UserId): void {
-    if (!this.ownerId.equals(userId)) {
+  public isOwner(userOrId: ReadonlyUser | UserId): boolean {
+    const id = userOrId instanceof UserId ? userOrId : userOrId.id;
+    return this.ownerId.equals(id);
+  }
+
+  public assertOwner(userOrId: ReadonlyUser | UserId): void {
+    if (!this.isOwner(userOrId)) {
+      throw new InsufficientPermissionsException();
+    }
+  }
+
+  public isMember(userOrId: ReadonlyUser | UserId): boolean {
+    return this.memberships.isAnyMember(userOrId);
+  }
+
+  public assertMember(userIdOr: ReadonlyUser | UserId): void {
+    if (!this.isMember(userIdOr)) {
       throw new InsufficientPermissionsException();
     }
   }

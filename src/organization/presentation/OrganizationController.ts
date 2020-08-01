@@ -1,9 +1,12 @@
-import { Controller, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Get, Param } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiTags,
   ApiOperation,
   ApiCreatedResponse,
+  ApiParam,
+  ApiOkResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { Mediator } from 'shared/mediator/Mediator';
@@ -12,6 +15,8 @@ import { OrganizationDto } from './OrganizationDto';
 import { CreateOrganizationCommand } from 'organization/application/commands/CreateOgranization';
 import { CreateOrganizationDto } from './CreateOrganizationDto';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
+import { GetOrganizationQuery } from 'organization/application/queries/GetOrganizationQuery';
+import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 
 @Controller('organizations')
 @ApiTags('Organizations')
@@ -22,6 +27,26 @@ export class OrganizationController {
 
   public constructor(mediator: Mediator) {
     this.mediator = mediator;
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({
+    operationId: 'getOrganization',
+    summary: 'Get an organization',
+  })
+  @ApiParam({ name: 'id' })
+  @ApiOkResponse({ type: OrganizationDto })
+  @ApiNotFoundResponse({
+    description: 'Organization not found or not a member of organization',
+  })
+  public async getOrganization(
+    @AuthUser() authUser: User,
+    @Param('id') id: string,
+  ): Promise<OrganizationDto> {
+    return this.mediator.send(
+      new GetOrganizationQuery(authUser, OrganizationId.of(id)),
+    );
   }
 
   @Post()
