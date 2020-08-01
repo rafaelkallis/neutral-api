@@ -2,16 +2,15 @@ import { User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
-import {
-  OrganizationCommand,
-  OrganizationCommandHandler,
-} from './OrganizationCommand';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
-import { Organizations } from 'organization/domain/Organizations';
+import { OrganizationFactory } from 'organization/domain/OrganizationFactory';
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
-import { Organization } from 'organization/domain/Organization';
+import { OrganizationDto } from 'organization/presentation/OrganizationDto';
+import { AuthenticatedCommand } from 'shared/command/Command';
 
-export class CreateOrganizationCommand extends OrganizationCommand {
+export class CreateOrganizationCommand extends AuthenticatedCommand<
+  OrganizationDto
+> {
   public readonly name: OrganizationName;
 
   public constructor(authUser: User, name: OrganizationName) {
@@ -22,24 +21,35 @@ export class CreateOrganizationCommand extends OrganizationCommand {
 
 @Injectable()
 @CommandHandler.register(CreateOrganizationCommand)
-export class CreateOrganizationCommandHandler extends OrganizationCommandHandler<
+export class CreateOrganizationCommandHandler extends CommandHandler<
+  OrganizationDto,
   CreateOrganizationCommand
 > {
-  private readonly organizations: Organizations;
+  private readonly objectMapper: ObjectMapper;
+  private readonly organizationRepository: OrganizationRepository;
+  private readonly organizationFactory: OrganizationFactory;
 
   public constructor(
     objectMapper: ObjectMapper,
     organizationRepository: OrganizationRepository,
-    organizations: Organizations,
+    organizationFactory: OrganizationFactory,
   ) {
-    super(objectMapper, organizationRepository);
-    this.organizations = organizations;
+    super();
+    this.objectMapper = objectMapper;
+    this.organizationRepository = organizationRepository;
+    this.organizationFactory = organizationFactory;
   }
 
-  protected doHandle(command: CreateOrganizationCommand): Organization {
-    return this.organizations.create({
+  public async handle(
+    command: CreateOrganizationCommand,
+  ): Promise<OrganizationDto> {
+    const organization = this.organizationFactory.create({
       name: command.name,
       ownerId: command.authUser.id,
+    });
+    await this.organizationRepository.persist(organization);
+    return this.objectMapper.map(organization, OrganizationDto, {
+      authUser: command.authUser,
     });
   }
 }

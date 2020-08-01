@@ -89,7 +89,7 @@ describe(ProjectApplicationService.name, () => {
       );
       projectDtos = td.object();
       td.when(
-        objectMapper.mapArray(projects, ProjectDto, td.matchers.anything()),
+        objectMapper.mapIterable(projects, ProjectDto, td.matchers.anything()),
       ).thenResolve(projectDtos);
     });
 
@@ -120,7 +120,7 @@ describe(ProjectApplicationService.name, () => {
       query = new GetProjectsQueryDto(GetProjectsType.ASSIGNED);
       projectDtos = td.object();
       td.when(
-        objectMapper.mapArray(
+        objectMapper.mapIterable(
           td.matchers.anything(),
           ProjectDto,
           td.matchers.anything(),

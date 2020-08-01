@@ -56,7 +56,7 @@ export class TypeOrmUserRepository extends UserRepository {
       .orderBy('id', 'DESC')
       .take(10)
       .getMany();
-    return this.objectMapper.mapArray(userEntities, User);
+    return this.objectMapper.mapIterable(userEntities, User);
   }
 
   public async findByEmail(email: Email): Promise<User | undefined> {

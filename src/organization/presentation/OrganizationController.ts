@@ -12,6 +12,7 @@ import { OrganizationDto } from './OrganizationDto';
 import { CreateOrganizationCommand } from 'organization/application/commands/CreateOgranization';
 import { CreateOrganizationDto } from './CreateOrganizationDto';
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
+import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 
 @Controller('organizations')
 @ApiTags('Organizations')
@@ -33,7 +34,7 @@ export class OrganizationController {
   @ApiCreatedResponse({ type: OrganizationDto })
   public async createOrganization(
     @AuthUser() authUser: User,
-    @Body() createOrganizationDto: CreateOrganizationDto,
+    @Body(ValidationPipe) createOrganizationDto: CreateOrganizationDto,
   ): Promise<OrganizationDto> {
     return this.mediator.send(
       new CreateOrganizationCommand(

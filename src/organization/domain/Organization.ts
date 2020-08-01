@@ -13,6 +13,8 @@ import {
   ReadonlyOrganizationMembershipCollection,
   OrganizationMembershipCollection,
 } from 'organization/domain/OrganizationMemberShipCollection';
+import { OrganizationMembership } from './OrganizationMembership';
+import { OrganizationMembershipId } from './value-objects/OrganizationMembershipId';
 
 export interface ReadonlyOrganization
   extends ReadonlyAggregateRoot<OrganizationId> {
@@ -47,6 +49,8 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
     );
   }
 
+  public abstract addMember(memberId: UserId): void;
+
   public assertOwner(userId: UserId): void {
     if (!this.ownerId.equals(userId)) {
       throw new InsufficientPermissionsException();
@@ -58,7 +62,7 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
   }
 }
 
-export class InternalOrganization extends Organization {
+class InternalOrganization extends Organization {
   public name: OrganizationName;
   public ownerId: UserId;
   public memberships: OrganizationMembershipCollection;
@@ -75,5 +79,18 @@ export class InternalOrganization extends Organization {
     this.name = name;
     this.ownerId = ownerId;
     this.memberships = memberships;
+  }
+
+  public addMember(memberId: UserId): void {
+    const membershipId = OrganizationMembershipId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const membership = OrganizationMembership.of(
+      membershipId,
+      createdAt,
+      updatedAt,
+      memberId,
+    );
+    this.memberships.add(membership);
   }
 }

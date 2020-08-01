@@ -100,7 +100,7 @@ export class ProjectController {
   @ApiCreatedResponse({ type: ProjectDto })
   public async createProject(
     @AuthUser() authUser: User,
-    @Body() createProjectDto: CreateProjectDto,
+    @Body(ValidationPipe) createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto> {
     return this.mediator.send(
       new CreateProjectCommand(
@@ -133,7 +133,7 @@ export class ProjectController {
   public async updateProject(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
+    @Body(ValidationPipe) updateProjectDto: UpdateProjectDto,
   ): Promise<ProjectDto> {
     return this.mediator.send(
       new UpdateProjectCommand(
@@ -189,7 +189,7 @@ export class ProjectController {
   public async submitPeerReviews(
     @AuthUser() authUser: User,
     @Param('id') id: string,
-    @Body() dto: SubmitPeerReviewsDto,
+    @Body(ValidationPipe) dto: SubmitPeerReviewsDto,
   ): Promise<ProjectDto> {
     return this.mediator.send(new SubmitPeerReviewsCommand(authUser, id, dto));
   }

@@ -69,7 +69,7 @@ export class TypeOrmNotificationRepository extends NotificationRepository {
     const notificationEntities = await this.entityManager
       .getRepository(NotificationTypeOrmEntity)
       .find({ ownerId: ownerId.value });
-    const notificationModels = this.objectMapper.mapArray(
+    const notificationModels = this.objectMapper.mapIterable(
       notificationEntities,
       Notification,
     );

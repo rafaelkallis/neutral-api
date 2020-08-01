@@ -48,7 +48,7 @@ export class GetUsersQueryHandler extends QueryHandler<
     } else {
       users = await this.userRepository.findPage();
     }
-    return this.objectMapper.mapArray(users, UserDto, {
+    return this.objectMapper.mapIterable(users, UserDto, {
       authUser: query.authUser,
     });
   }

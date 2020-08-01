@@ -40,12 +40,12 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.contributionVisibility.asValue(),
       project.peerReviewVisibility.label,
       project.skipManagerReview.value,
-      await this.objectMapper.mapArray(project.roles.toArray(), RoleDto, {
+      await this.objectMapper.mapIterable(project.roles.toArray(), RoleDto, {
         project,
         authUser,
       }),
       await this.mapPeerReviewDtos(project, authUser),
-      await this.objectMapper.mapArray(
+      await this.objectMapper.mapIterable(
         project.reviewTopics.toArray(),
         ReviewTopicDto,
         { authUser, project },
@@ -58,7 +58,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     project: Project,
     authUser: User,
   ): Promise<PeerReviewDto[]> {
-    return this.objectMapper.mapArray(
+    return this.objectMapper.mapIterable(
       project.peerReviews.filterVisible(project, authUser).toArray(),
       PeerReviewDto,
       { project, authUser, peerReviews: project.peerReviews },
@@ -69,7 +69,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     project: Project,
     authUser: User,
   ): Promise<Array<ContributionDto>> {
-    return this.objectMapper.mapArray(
+    return this.objectMapper.mapIterable(
       project.contributions.where(shouldExpose).toArray(),
       ContributionDto,
       { authUser, project },

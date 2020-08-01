@@ -156,7 +156,7 @@ export class RoleController {
         authUser,
         ProjectId.from(projectId),
         RoleId.from(roleId),
-        assignmentDto.asEither(),
+        assignmentDto.toEither(),
       ),
     );
   }

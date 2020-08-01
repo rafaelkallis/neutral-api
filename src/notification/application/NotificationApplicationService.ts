@@ -28,7 +28,7 @@ export class NotificationApplicationService {
     const notifications = await this.notificationRepository.findByOwnerId(
       authUser.id,
     );
-    return this.objectMapper.mapArray(notifications, NotificationDto);
+    return this.objectMapper.mapIterable(notifications, NotificationDto);
   }
 
   /**

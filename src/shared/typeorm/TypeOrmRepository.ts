@@ -36,7 +36,7 @@ export class TypeOrmRepository<
       builder = builder.andWhere('id > :afterId', { afterId: afterId.value });
     }
     const entities = await builder.getMany();
-    return this.objectMapper.mapArray(entities, modelClass);
+    return this.objectMapper.mapIterable(entities, modelClass);
   }
 
   public async findById(
@@ -64,7 +64,7 @@ export class TypeOrmRepository<
     const entities = await this.entityManager
       .getRepository(entityClass)
       .findByIds(ids.map((id) => id.value));
-    const models = await this.objectMapper.mapArray(entities, modelClass);
+    const models = await this.objectMapper.mapIterable(entities, modelClass);
     return ids.map((id) => models.find((model) => model.id.equals(id)));
   }
 
@@ -80,7 +80,7 @@ export class TypeOrmRepository<
     entityClass: Class<TEntity>,
     ...models: TModel[]
   ): Promise<void> {
-    const entities = await this.objectMapper.mapArray(models, entityClass);
+    const entities = await this.objectMapper.mapIterable(models, entityClass);
     await this.entityManager.save(entities);
   }
 }

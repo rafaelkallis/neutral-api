@@ -40,7 +40,7 @@ export class OrganizationTypeOrmEntityMap extends ObjectMap<
       organization.ownerId.value,
       OrganizationTypeOrmEntityMap.MEMBERSHIPS_SENTINEL,
     );
-    organizationEntity.memberships = await this.objectMapper.mapArray(
+    organizationEntity.memberships = await this.objectMapper.mapIterable(
       organization.memberships.toArray(),
       OrganizationMembershipTypeOrmEntity,
       { organization: organizationEntity },
@@ -66,7 +66,7 @@ export class ReverseOrganizationTypeOrmEntityMap extends ObjectMap<
     organization: OrganizationTypeOrmEntity,
   ): Promise<Organization> {
     const memberships = new OrganizationMembershipCollection(
-      await this.objectMapper.mapArray(
+      await this.objectMapper.mapIterable(
         organization.memberships,
         OrganizationMembership,
       ),

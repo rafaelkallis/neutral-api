@@ -14,7 +14,7 @@ export interface CreateOrganizationContext {
 }
 
 @Injectable()
-export class Organizations extends AggregateRootFactory<
+export class OrganizationFactory extends AggregateRootFactory<
   CreateOrganizationContext,
   OrganizationId,
   Organization
@@ -27,7 +27,7 @@ export class Organizations extends AggregateRootFactory<
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const memberships = OrganizationMembershipCollection.empty();
-    return Organization.of(
+    const organization = Organization.of(
       organizationId,
       createdAt,
       updatedAt,
@@ -35,5 +35,7 @@ export class Organizations extends AggregateRootFactory<
       ownerId,
       memberships,
     );
+    organization.addMember(ownerId);
+    return organization;
   }
 }

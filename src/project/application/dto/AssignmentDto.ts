@@ -35,7 +35,7 @@ export class AssignmentDto {
     this.assigneeEmail = assigneeEmail;
   }
 
-  public asEither(): Either<UserId, Email> {
+  public toEither(): Either<UserId, Email> {
     if (this.assigneeId) {
       return Either.left(UserId.from(this.assigneeId));
     }
