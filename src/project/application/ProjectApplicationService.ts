@@ -54,7 +54,7 @@ export class ProjectApplicationService {
         throw new InvalidProjectTypeQueryException();
       }
     }
-    return this.objectMapper.mapArray(projects, ProjectDto, { authUser });
+    return this.objectMapper.mapIterable(projects, ProjectDto, { authUser });
   }
 
   /**

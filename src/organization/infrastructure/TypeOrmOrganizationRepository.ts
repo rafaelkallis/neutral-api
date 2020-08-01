@@ -8,6 +8,7 @@ import { OrganizationRepository } from 'organization/domain/OrganizationReposito
 import { OrganizationTypeOrmEntity } from './OrganizationTypeOrmEntity';
 import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 import { Organization } from 'organization/domain/Organization';
+import { OrganizationMembership } from 'organization/domain/OrganizationMembership';
 
 @Injectable()
 export class TypeOrmOrganizationRepository extends OrganizationRepository {
@@ -64,14 +65,27 @@ export class TypeOrmOrganizationRepository extends OrganizationRepository {
     const typeOrmEntities = await this.entityManager
       .getRepository(OrganizationTypeOrmEntity)
       .find({ ownerId: ownerId.value });
-    const domainEntities = this.objectMapper.mapArray(
+    const domainEntities = this.objectMapper.mapIterable(
       typeOrmEntities,
       Organization,
     );
     return domainEntities;
   }
 
-  protected async doPersist(...models: Organization[]): Promise<void> {
-    return this.typeOrmRepository.persist(OrganizationTypeOrmEntity, ...models);
+  protected async doPersist(...organizations: Organization[]): Promise<void> {
+    // TypeOrm does not delete removed one-to-many models, have to manually delete
+    const membershipIdsToDelete = organizations
+      .flatMap((organization) => organization.memberships.getRemovedModels())
+      .map((membership) => membership.id.value);
+    if (membershipIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        OrganizationMembership,
+        membershipIdsToDelete,
+      );
+    }
+    await this.typeOrmRepository.persist(
+      OrganizationTypeOrmEntity,
+      ...organizations,
+    );
   }
 }

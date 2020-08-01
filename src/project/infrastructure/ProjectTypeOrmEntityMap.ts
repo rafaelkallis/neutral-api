@@ -71,24 +71,24 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       ProjectTypeOrmEntityMap.reviewTopicsSentinel,
       ProjectTypeOrmEntityMap.contributionsSentinel,
     );
-    projectEntity.roles = await this.objectMapper.mapArray(
+    projectEntity.roles = await this.objectMapper.mapIterable(
       projectModel.roles.toArray(),
       RoleTypeOrmEntity,
       {
         project: projectEntity,
       },
     );
-    projectEntity.peerReviews = await this.objectMapper.mapArray(
+    projectEntity.peerReviews = await this.objectMapper.mapIterable(
       projectModel.peerReviews.toArray(),
       PeerReviewTypeOrmEntity,
       { project: projectEntity },
     );
-    projectEntity.reviewTopics = await this.objectMapper.mapArray(
+    projectEntity.reviewTopics = await this.objectMapper.mapIterable(
       projectModel.reviewTopics.toArray(),
       ReviewTopicTypeOrmEntity,
       { project: projectEntity },
     );
-    projectEntity.contributions = await this.objectMapper.mapArray(
+    projectEntity.contributions = await this.objectMapper.mapIterable(
       projectModel.contributions.toArray(),
       ContributionTypeOrmEntity,
       { project: projectEntity },
@@ -112,16 +112,22 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
 
   protected async doMap(projectEntity: ProjectTypeOrmEntity): Promise<Project> {
     const roles = new RoleCollection(
-      await this.objectMapper.mapArray(projectEntity.roles, Role),
+      await this.objectMapper.mapIterable(projectEntity.roles, Role),
     );
     const peerReviews = PeerReviewCollection.of(
-      await this.objectMapper.mapArray(projectEntity.peerReviews, PeerReview),
+      await this.objectMapper.mapIterable(
+        projectEntity.peerReviews,
+        PeerReview,
+      ),
     );
     const reviewTopics = new ReviewTopicCollection(
-      await this.objectMapper.mapArray(projectEntity.reviewTopics, ReviewTopic),
+      await this.objectMapper.mapIterable(
+        projectEntity.reviewTopics,
+        ReviewTopic,
+      ),
     );
     const contributions = new ContributionCollection(
-      await this.objectMapper.mapArray(
+      await this.objectMapper.mapIterable(
         projectEntity.contributions,
         Contribution,
       ),

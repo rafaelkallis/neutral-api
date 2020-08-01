@@ -5,10 +5,20 @@ import { Injectable } from '@nestjs/common';
 import { OrganizationDto } from 'organization/presentation/OrganizationDto';
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
 import { Organization } from 'organization/domain/Organization';
+import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
+import { User } from 'user/domain/User';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export abstract class OrganizationCommand extends AuthenticatedCommand<
   OrganizationDto
-> {}
+> {
+  public readonly organizationId: OrganizationId;
+
+  public constructor(authUser: User, organizationId: OrganizationId) {
+    super(authUser);
+    this.organizationId = organizationId;
+  }
+}
 
 @Injectable()
 export abstract class OrganizationCommandHandler<
@@ -27,7 +37,17 @@ export abstract class OrganizationCommandHandler<
   }
 
   public async handle(command: TCommand): Promise<OrganizationDto> {
-    const organization = await this.doHandle(command);
+    const organization = await this.organizationRepository.findById(
+      command.organizationId,
+    );
+    if (!organization) {
+      // TODO replace with OrganizationNotFound
+      throw new DomainException(
+        'organization_not_found',
+        'Organization not found',
+      );
+    }
+    await this.doHandle(organization, command);
     await this.organizationRepository.persist(organization);
     return this.objectMapper.map(organization, OrganizationDto, {
       authUser: command.authUser,
@@ -35,6 +55,7 @@ export abstract class OrganizationCommandHandler<
   }
 
   protected abstract doHandle(
+    organization: Organization,
     command: TCommand,
-  ): Organization | Promise<Organization>;
+  ): void | Promise<void>;
 }

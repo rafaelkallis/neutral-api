@@ -47,7 +47,7 @@ describe(NotificationApplicationService.name, () => {
       await notificationRepository.persist(...notifications);
       mockNotificationDtos = td.object();
       td.when(
-        objectMapper.mapArray(td.matchers.anything(), NotificationDto),
+        objectMapper.mapIterable(td.matchers.anything(), NotificationDto),
       ).thenResolve(mockNotificationDtos);
     });
 

@@ -93,7 +93,10 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
       .find({ creatorId: creatorId.value });
-    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
+    const projectModels = this.objectMapper.mapIterable(
+      projectEntities,
+      Project,
+    );
     return projectModels;
   }
 
@@ -111,7 +114,10 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       })
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
-    const projectModels = this.objectMapper.mapArray(projectEntities, Project);
+    const projectModels = this.objectMapper.mapIterable(
+      projectEntities,
+      Project,
+    );
     return projectModels;
   }
 

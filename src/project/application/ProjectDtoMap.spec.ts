@@ -44,7 +44,7 @@ describe(ProjectDtoMap.name, () => {
 
     roleDtos = [];
     td.when(
-      objectMapper.mapArray(
+      objectMapper.mapIterable(
         project.roles.toArray(),
         RoleDto,
         td.matchers.anything(),
@@ -52,7 +52,7 @@ describe(ProjectDtoMap.name, () => {
     ).thenResolve(roleDtos);
     peerReviewDtos = [];
     td.when(
-      objectMapper.mapArray(
+      objectMapper.mapIterable(
         project.peerReviews.toArray(),
         PeerReviewDto,
         td.matchers.anything(),
@@ -60,17 +60,21 @@ describe(ProjectDtoMap.name, () => {
     ).thenResolve(peerReviewDtos);
     reviewTopicDtos = [];
     td.when(
-      objectMapper.mapArray(project.reviewTopics.toArray(), ReviewTopicDto, {
+      objectMapper.mapIterable(project.reviewTopics.toArray(), ReviewTopicDto, {
         authUser,
         project,
       }),
     ).thenResolve(reviewTopicDtos);
     contributionDtos = [];
     td.when(
-      objectMapper.mapArray(project.contributions.toArray(), ContributionDto, {
-        authUser,
-        project,
-      }),
+      objectMapper.mapIterable(
+        project.contributions.toArray(),
+        ContributionDto,
+        {
+          authUser,
+          project,
+        },
+      ),
     ).thenResolve(contributionDtos);
   });
 
@@ -152,7 +156,7 @@ describe(ProjectDtoMap.name, () => {
         await projectDtoMap.mapContributions(project, users[authUserKey]);
         if (isContributionVisible) {
           td.verify(
-            objectMapper.mapArray(
+            objectMapper.mapIterable(
               [contribution],
               ContributionDto,
               td.matchers.anything(),
@@ -160,7 +164,11 @@ describe(ProjectDtoMap.name, () => {
           );
         } else {
           td.verify(
-            objectMapper.mapArray([], ContributionDto, td.matchers.anything()),
+            objectMapper.mapIterable(
+              [],
+              ContributionDto,
+              td.matchers.anything(),
+            ),
           );
         }
       },
