@@ -13,8 +13,9 @@ import {
   OrganizationMembershipTypeOrmEntityMap,
   ReverseOrganizationMembershipTypeOrmEntityMap,
 } from 'organization/infrastructure/OrganizationMembershipTypeOrmEntityMap';
-import { CreateOrganizationCommandHandler } from './application/commands/CreateOgranization';
-import { OrganizationDtoMap } from './presentation/OrganizationDtoMap';
+import { CreateOrganizationCommandHandler } from 'organization/application/commands/CreateOgranization';
+import { OrganizationDtoMap } from 'organization/presentation/OrganizationDtoMap';
+import { GetOrganizationQueryHandler } from 'organization/application/queries/GetOrganizationQuery';
 import { OrganizationMembershipController } from './presentation/OrganizationMembershipController';
 import { AddMembershipCommandHandler } from './application/commands/AddMembership';
 import { OrganizationMembershipDtoMap } from './presentation/OrganizationMembershipDtoMap';
@@ -28,8 +29,12 @@ import { OrganizationMembershipDtoMap } from './presentation/OrganizationMembers
       provide: OrganizationRepository,
       useClass: TypeOrmOrganizationRepository,
     },
+    // query handlers
+    GetOrganizationQueryHandler,
+    // command handlers
     CreateOrganizationCommandHandler,
     AddMembershipCommandHandler,
+    // maps
     OrganizationDtoMap,
     OrganizationMembershipDtoMap,
     OrganizationTypeOrmEntityMap,

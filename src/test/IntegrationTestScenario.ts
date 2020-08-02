@@ -104,7 +104,7 @@ export class IntegrationTestScenario extends TestScenario {
     return project;
   }
 
-  public async createOrganization(owner: User): Promise<Organization> {
+  public async createOrganization(owner: ReadonlyUser): Promise<Organization> {
     const organization = this.modelFaker.organization(owner.id);
     await this.organizationRepository.persist(organization);
     return organization;

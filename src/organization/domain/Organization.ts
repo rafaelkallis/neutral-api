@@ -13,6 +13,7 @@ import {
   ReadonlyOrganizationMembershipCollection,
   OrganizationMembershipCollection,
 } from 'organization/domain/OrganizationMemberShipCollection';
+import { ReadonlyUser } from 'user/domain/User';
 import { OrganizationMembership } from './OrganizationMembership';
 import { OrganizationMembershipId } from './value-objects/OrganizationMembershipId';
 
@@ -22,7 +23,10 @@ export interface ReadonlyOrganization
   readonly ownerId: UserId;
   readonly memberships: ReadonlyOrganizationMembershipCollection;
 
-  assertOwner(userId: UserId): void;
+  isOwner(userOrId: ReadonlyUser | UserId): boolean;
+  assertOwner(userOrId: ReadonlyUser | UserId): void;
+
+  isMember(userOrId: ReadonlyUser | UserId): boolean;
 }
 
 export abstract class Organization extends AggregateRoot<OrganizationId>
@@ -30,6 +34,23 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
   public abstract name: OrganizationName;
   public abstract ownerId: UserId;
   public abstract memberships: ReadonlyOrganizationMembershipCollection;
+
+  public static create(context: CreateOrganizationContext): Organization {
+    const organizationId = OrganizationId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const memberships = OrganizationMembershipCollection.empty();
+    const organization = Organization.of(
+      organizationId,
+      createdAt,
+      updatedAt,
+      context.name,
+      context.ownerId,
+      memberships,
+    );
+    organization.addMember(context.ownerId);
+    return organization;
+  }
 
   public static of(
     id: OrganizationId,
@@ -51,8 +72,23 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
 
   public abstract addMember(memberId: UserId): void;
 
-  public assertOwner(userId: UserId): void {
-    if (!this.ownerId.equals(userId)) {
+  public isOwner(userOrId: ReadonlyUser | UserId): boolean {
+    const id = userOrId instanceof UserId ? userOrId : userOrId.id;
+    return this.ownerId.equals(id);
+  }
+
+  public assertOwner(userOrId: ReadonlyUser | UserId): void {
+    if (!this.isOwner(userOrId)) {
+      throw new InsufficientPermissionsException();
+    }
+  }
+
+  public isMember(userOrId: ReadonlyUser | UserId): boolean {
+    return this.memberships.isAnyMember(userOrId);
+  }
+
+  public assertMember(userIdOr: ReadonlyUser | UserId): void {
+    if (!this.isMember(userIdOr)) {
       throw new InsufficientPermissionsException();
     }
   }
@@ -60,6 +96,11 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
   public getClass(): Class<Organization> {
     return Organization;
   }
+}
+
+export interface CreateOrganizationContext {
+  readonly name: OrganizationName;
+  readonly ownerId: UserId;
 }
 
 class InternalOrganization extends Organization {
