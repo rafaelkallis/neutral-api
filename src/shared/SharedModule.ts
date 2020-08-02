@@ -9,7 +9,6 @@ import { TypeOrmModule } from 'shared/typeorm/TypeOrmModule';
 import { EmailModule } from 'shared/email/EmailModule';
 import { ObjectMapperModule } from 'shared/object-mapper/ObjectMapperModule';
 import { SerializationModule } from 'shared/serialization/SerializationModule';
-import { CacheModule } from 'shared/cache/CacheModule';
 import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
 import { AmqpModule } from 'shared/amqp/AmqpModule';
@@ -17,6 +16,7 @@ import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { UrlsModule } from 'shared/urls/UrlsModule';
 import { DomainExceptionFilter } from 'shared/application/filters/DomainExceptionFilter';
 import { ValidationExceptionFilter } from 'shared/application/filters/ValidationExceptionFilter';
+import { CacheModule } from 'shared/cache/CacheModule';
 
 /**
  * Shared Module
@@ -32,15 +32,14 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     EmailModule,
     ObjectMapperModule,
     SerializationModule,
-    CacheModule,
     MediatorModule,
     DomainEventModule,
     AmqpModule,
     ArchiveModule,
     UrlsModule,
+    CacheModule,
   ],
   providers: [
-    // @see https://docs.nestjs.com/techniques/serialization#overview
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,

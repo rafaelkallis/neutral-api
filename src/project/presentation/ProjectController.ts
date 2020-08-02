@@ -38,6 +38,7 @@ import { SubmitPeerReviewsCommand } from 'project/application/commands/SubmitPee
 import { CompletePeerReviewsCommand } from 'project/application/commands/CompletePeerReviews';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { SharedCache } from 'shared/cache/application/CacheDecorator';
 
 /**
  * Project Controller
@@ -68,10 +69,12 @@ export class ProjectController {
     summary: 'Get a list of projects',
   })
   @ApiOkResponse({ description: 'A list of projects', type: [ProjectDto] })
+  @SharedCache()
   public async getProjects(
     @AuthUser() authUser: User,
     @Query() query: GetProjectsQueryDto,
   ): Promise<ProjectDto[]> {
+    console.log('LOL');
     return this.projectApplicationService.getProjects(authUser, query);
   }
 

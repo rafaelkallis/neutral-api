@@ -3,13 +3,14 @@ import {
   createParamDecorator,
   ExecutionContext,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
 import { SessionState } from 'shared/session';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserRepository } from 'user/domain/UserRepository';
-import { ReadonlyUser } from 'user/domain/User';
+import { ReadonlyUser, User } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
 
 /**
@@ -89,9 +90,22 @@ export class AuthGuard implements CanActivate {
   }
 }
 
+export function getAuthUser(ctx: ExecutionContext): ReadonlyUser {
+  const contextType = ctx.getType();
+  if (contextType !== 'http') {
+    throw new InternalServerErrorException('context type is not http');
+  }
+  const httpContext = ctx.switchToHttp();
+  const request = httpContext.getRequest<Request & { user?: User }>();
+  if (!request.user) {
+    throw new InternalServerErrorException('no authenticated user found');
+  }
+  if (!(request.user instanceof User)) {
+    throw new InternalServerErrorException('no authenticated user found');
+  }
+  return request.user;
+}
+
 export const AuthUser = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): ReadonlyUser => {
-    const request = ctx.switchToHttp().getRequest();
-    return request.user;
-  },
+  (_data: unknown, ctx: ExecutionContext): ReadonlyUser => getAuthUser(ctx),
 );

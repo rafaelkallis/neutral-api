@@ -49,6 +49,10 @@ import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAut
 import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 import { SessionState } from 'shared/session/session-state';
 import { GetAuthUserDataZipQuery } from 'user/application/queries/GetAuthUserDataZipQuery';
+import {
+  UserCache,
+  SharedCache,
+} from 'shared/cache/application/CacheDecorator';
 
 /**
  * User Controller
@@ -85,6 +89,7 @@ export class UserController {
     summary: 'Get the authenticated user',
   })
   @ApiOkResponse({ description: 'The authenticated user', type: UserDto })
+  @UserCache()
   public async getAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
     return this.mediator.send(new GetAuthUserQuery(authUser));
   }
@@ -96,6 +101,7 @@ export class UserController {
   @ApiOperation({ operationId: 'getUser', summary: 'Get a user' })
   @ApiOkResponse({ description: 'The requested user', type: UserDto })
   @ApiNotFoundResponse({ description: 'User not found' })
+  @SharedCache()
   public async getUser(
     @AuthUser() authUser: User,
     @Param('id') id: string,
