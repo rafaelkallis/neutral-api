@@ -35,6 +35,23 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
   public abstract ownerId: UserId;
   public abstract memberships: ReadonlyOrganizationMembershipCollection;
 
+  public static create(context: CreateOrganizationContext): Organization {
+    const organizationId = OrganizationId.create();
+    const createdAt = CreatedAt.now();
+    const updatedAt = UpdatedAt.now();
+    const memberships = OrganizationMembershipCollection.empty();
+    const organization = Organization.of(
+      organizationId,
+      createdAt,
+      updatedAt,
+      context.name,
+      context.ownerId,
+      memberships,
+    );
+    organization.addMember(context.ownerId);
+    return organization;
+  }
+
   public static of(
     id: OrganizationId,
     createdAt: CreatedAt,
@@ -79,6 +96,11 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
   public getClass(): Class<Organization> {
     return Organization;
   }
+}
+
+export interface CreateOrganizationContext {
+  readonly name: OrganizationName;
+  readonly ownerId: UserId;
 }
 
 class InternalOrganization extends Organization {

@@ -56,6 +56,5 @@ describe('/organizations/:id (GET)', () => {
       `/organizations/${organization.id.value}`,
     );
     expect(response.status).toBe(HttpStatus.NOT_FOUND);
-    expect(response.body).toEqual({});
   });
 });

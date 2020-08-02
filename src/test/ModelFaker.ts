@@ -37,9 +37,7 @@ import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTo
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { Organization } from 'organization/domain/Organization';
-import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 import { ValueObjectFaker } from './ValueObjectFaker';
-import { OrganizationMembershipCollection } from 'organization/domain/OrganizationMemberShipCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -195,18 +193,10 @@ export class ModelFaker {
   }
 
   public organization(ownerId: UserId): Organization {
-    const organizationId = OrganizationId.of(this.primitiveFaker.id());
-    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
-    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const name = this.valueObjectFaker.organization.name();
-    const memberships = new OrganizationMembershipCollection([]);
-    return Organization.of(
-      organizationId,
-      createdAt,
-      updatedAt,
+    return Organization.create({
       name,
       ownerId,
-      memberships,
-    );
+    });
   }
 }
