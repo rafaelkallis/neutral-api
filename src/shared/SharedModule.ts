@@ -17,6 +17,7 @@ import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { UrlsModule } from 'shared/urls/UrlsModule';
 import { DomainExceptionFilter } from 'shared/application/filters/DomainExceptionFilter';
 import { ValidationExceptionFilter } from 'shared/application/filters/ValidationExceptionFilter';
+import { RateLimitModule } from 'shared/rate-limit/RateLimitModule';
 
 /**
  * Shared Module
@@ -38,6 +39,7 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     AmqpModule,
     ArchiveModule,
     UrlsModule,
+    RateLimitModule,
   ],
   providers: [
     // @see https://docs.nestjs.com/techniques/serialization#overview
@@ -70,6 +72,7 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     AmqpModule,
     ArchiveModule,
     UrlsModule,
+    RateLimitModule,
   ],
 })
 export class SharedModule {}
