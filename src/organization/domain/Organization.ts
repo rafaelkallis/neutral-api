@@ -160,5 +160,6 @@ class InternalOrganization extends Organization {
         "The organization owner's membership cannot be removed",
       );
     }
+    this.memberships.remove(membershipToRemove);
   }
 }

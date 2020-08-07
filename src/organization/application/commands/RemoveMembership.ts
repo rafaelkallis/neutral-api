@@ -31,6 +31,7 @@ export class RemoveMembershipCommandHandler extends OrganizationCommandHandler<
     organization: Organization,
     command: RemoveMembershipCommand,
   ): Promise<void> {
+    organization.assertMember(command.authUser);
     const membershipToRemove = organization.memberships.whereId(
       command.membershipId,
     );
