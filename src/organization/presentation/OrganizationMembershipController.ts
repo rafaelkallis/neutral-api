@@ -24,9 +24,7 @@ import { AddOrganizationMembershipDto } from './AddOrganizationMembershipDto';
 import { AddMembershipCommand } from 'organization/application/commands/AddMembership';
 import { OrganizationId } from 'organization/domain/value-objects/OrganizationId';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
-import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { RemoveMembershipCommand } from 'organization/application/commands/RemoveMembership';
-import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { OrganizationMembershipId } from 'organization/domain/value-objects/OrganizationMembershipId';
 
 @Controller('organizations/:organization_id/memberships')
@@ -53,7 +51,6 @@ export class OrganizationMembershipController {
     @Body(ValidationPipe)
     addOrganizationMembershipDto: AddOrganizationMembershipDto,
   ): Promise<OrganizationDto> {
-    console.log(addOrganizationMembershipDto);
     return this.mediator.send(
       new AddMembershipCommand(
         authUser,
@@ -63,7 +60,7 @@ export class OrganizationMembershipController {
     );
   }
 
-  @Delete(':role_id')
+  @Delete(':membership_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({
@@ -72,19 +69,19 @@ export class OrganizationMembershipController {
   })
   @ApiOkResponse({
     description: 'Organization membership removed succesfully',
-    type: ProjectDto,
+    type: OrganizationDto,
   })
   @ApiForbiddenResponse({})
   public async removeOrganizationMembership(
     @AuthUser() authUser: User,
-    @Param('project_id') projectId: string,
+    @Param('organization_id') organizationId: string,
     @Param('membership_id') membershipId: string,
-  ): Promise<ProjectDto> {
-    const removeRoleCommand = new RemoveMembershipCommand(
+  ): Promise<OrganizationDto> {
+    const command = new RemoveMembershipCommand(
       authUser,
-      ProjectId.from(projectId),
+      OrganizationId.of(organizationId),
       OrganizationMembershipId.of(membershipId),
     );
-    return this.mediator.send(removeRoleCommand);
+    return this.mediator.send(command);
   }
 }
