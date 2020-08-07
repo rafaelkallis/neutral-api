@@ -48,7 +48,7 @@
     "elastic-apm-node": "~3.6.1",
     "envalid": "~6.0.2",
     "fast-xml-parser": "~3.17.4",
-    "helmet": "3.23.3",
+    "helmet": "4.0.0",
     "lru-cache": "6.0.0",
     "mjml": "~4.6.3",
     "moment": "~2.27.0",
