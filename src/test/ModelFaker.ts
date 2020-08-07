@@ -38,6 +38,7 @@ import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerRev
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { Organization } from 'organization/domain/Organization';
 import { ValueObjectFaker } from './ValueObjectFaker';
+import { OrganizationMembership } from 'organization/domain/OrganizationMembership';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;

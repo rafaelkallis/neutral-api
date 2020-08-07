@@ -14,7 +14,10 @@ import {
   OrganizationMembershipCollection,
 } from 'organization/domain/OrganizationMemberShipCollection';
 import { ReadonlyUser } from 'user/domain/User';
-import { OrganizationMembership } from './OrganizationMembership';
+import {
+  OrganizationMembership,
+  ReadonlyOrganizationMembership,
+} from './OrganizationMembership';
 import { OrganizationMembershipId } from './value-objects/OrganizationMembershipId';
 
 export interface ReadonlyOrganization
@@ -70,7 +73,7 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
     );
   }
 
-  public abstract addMember(memberId: UserId): void;
+  public abstract addMember(memberId: UserId): ReadonlyOrganizationMembership;
 
   public isOwner(userOrId: ReadonlyUser | UserId): boolean {
     const id = userOrId instanceof UserId ? userOrId : userOrId.id;
@@ -122,7 +125,7 @@ class InternalOrganization extends Organization {
     this.memberships = memberships;
   }
 
-  public addMember(memberId: UserId): void {
+  public addMember(memberId: UserId): ReadonlyOrganizationMembership {
     const membershipId = OrganizationMembershipId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -133,5 +136,6 @@ class InternalOrganization extends Organization {
       memberId,
     );
     this.memberships.add(membership);
+    return membership;
   }
 }
