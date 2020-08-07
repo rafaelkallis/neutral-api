@@ -34,7 +34,7 @@ describe('/organizations/:id (GET)', () => {
 
   test('when auth user is member should get organization', async () => {
     const member = await scenario.createUser();
-    organization.addMember(member.id);
+    organization.addMembership(member.id);
     await scenario.organizationRepository.persist(organization);
     await scenario.authenticateUser(member);
     const response = await scenario.session.get(

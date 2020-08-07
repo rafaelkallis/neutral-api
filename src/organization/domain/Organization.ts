@@ -19,6 +19,7 @@ import {
   ReadonlyOrganizationMembership,
 } from './OrganizationMembership';
 import { OrganizationMembershipId } from './value-objects/OrganizationMembershipId';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyOrganization
   extends ReadonlyAggregateRoot<OrganizationId> {
@@ -51,7 +52,7 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
       context.ownerId,
       memberships,
     );
-    organization.addMember(context.ownerId);
+    organization.addMembership(context.ownerId);
     return organization;
   }
 
@@ -73,7 +74,12 @@ export abstract class Organization extends AggregateRoot<OrganizationId>
     );
   }
 
-  public abstract addMember(memberId: UserId): ReadonlyOrganizationMembership;
+  public abstract addMembership(
+    memberId: UserId,
+  ): ReadonlyOrganizationMembership;
+  public abstract removeMembership(
+    membershipOrId: ReadonlyOrganizationMembership | OrganizationMembershipId,
+  ): void;
 
   public isOwner(userOrId: ReadonlyUser | UserId): boolean {
     const id = userOrId instanceof UserId ? userOrId : userOrId.id;
@@ -125,7 +131,7 @@ class InternalOrganization extends Organization {
     this.memberships = memberships;
   }
 
-  public addMember(memberId: UserId): ReadonlyOrganizationMembership {
+  public addMembership(memberId: UserId): ReadonlyOrganizationMembership {
     const membershipId = OrganizationMembershipId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
@@ -137,5 +143,22 @@ class InternalOrganization extends Organization {
     );
     this.memberships.add(membership);
     return membership;
+  }
+
+  public removeMembership(
+    membershipOrId: ReadonlyOrganizationMembership | OrganizationMembershipId,
+  ): void {
+    const membershipId =
+      membershipOrId instanceof OrganizationMembershipId
+        ? membershipOrId
+        : membershipOrId.id;
+    const membershipToRemove = this.memberships.whereId(membershipId);
+    const ownerMembership = this.memberships.whereMember(this.ownerId);
+    if (ownerMembership.equals(membershipToRemove)) {
+      throw new DomainException(
+        'organization_owner_membership_cannot_be_remove',
+        "The organization owner's membership cannot be removed",
+      );
+    }
   }
 }

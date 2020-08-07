@@ -21,8 +21,8 @@ describe('/organizations/:org_id/memberships/:membership_id (DELETE)', () => {
     ownerMembership = organization.memberships.whereMember(owner);
     member1 = await scenario.createUser();
     member2 = await scenario.createUser();
-    membership1 = organization.addMember(member1.id);
-    membership2 = organization.addMember(member2.id);
+    membership1 = organization.addMembership(member1.id);
+    membership2 = organization.addMembership(member2.id);
   });
 
   afterEach(async () => {

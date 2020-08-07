@@ -19,6 +19,7 @@ import { GetOrganizationQueryHandler } from 'organization/application/queries/Ge
 import { OrganizationMembershipController } from './presentation/OrganizationMembershipController';
 import { AddMembershipCommandHandler } from './application/commands/AddMembership';
 import { OrganizationMembershipDtoMap } from './presentation/OrganizationMembershipDtoMap';
+import { RemoveMembershipCommandHandler } from './application/commands/RemoveMembership';
 
 @Module({
   imports: [SharedModule, UserModule],
@@ -34,6 +35,7 @@ import { OrganizationMembershipDtoMap } from './presentation/OrganizationMembers
     // command handlers
     CreateOrganizationCommandHandler,
     AddMembershipCommandHandler,
+    RemoveMembershipCommandHandler,
     // maps
     OrganizationDtoMap,
     OrganizationMembershipDtoMap,
