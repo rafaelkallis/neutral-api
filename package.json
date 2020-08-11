@@ -45,7 +45,7 @@
     "class-validator": "0.12.2",
     "compression": "1.7.4",
     "cookie-parser": "1.4.5",
-    "elastic-apm-node": "~3.6.1",
+    "elastic-apm-node": "~3.7.0",
     "envalid": "~6.0.2",
     "fast-xml-parser": "~3.17.4",
     "helmet": "3.23.3",
