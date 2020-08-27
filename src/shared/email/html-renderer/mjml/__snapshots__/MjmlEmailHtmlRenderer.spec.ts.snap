@@ -125,11 +125,11 @@ exports[`MjmlEmailHtmlRenderer should render login html 1`] = `
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -303,19 +303,7 @@ exports[`MjmlEmailHtmlRenderer should render login html 1`] = `
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"https://example.com/login\\">https://example.com/login</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"https://example.com/login\\">https://example.com/login</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
@@ -616,11 +604,11 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -794,19 +782,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
@@ -1107,11 +1083,11 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -1285,19 +1261,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
@@ -1598,11 +1562,11 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -1776,19 +1740,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
@@ -2089,11 +2041,11 @@ exports[`MjmlEmailHtmlRenderer should render signup html 1`] = `
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -2267,19 +2219,7 @@ exports[`MjmlEmailHtmlRenderer should render signup html 1`] = `
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"https://example.com/signup\\">https://example.com/signup</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"https://example.com/signup\\">https://example.com/signup</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
@@ -2580,11 +2520,11 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
             <td  style=\\"width:120px;\\">
               
         <a
-           href=\\"https://covee.network\\" target=\\"_blank\\"
+           href=\\"https://neutral.covee.network\\" target=\\"_blank\\"
         >
           
       <img
-         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveesaasapi1.blob.core.windows.net/public/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
+         alt=\\"covee\\" height=\\"auto\\" src=\\"https://coveestatic.blob.core.windows.net/emails/covee-logo-dark-small.png\\" style=\\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\\" width=\\"120\\"
       />
     
         </a>
@@ -2758,19 +2698,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
     
               </td>
             </tr>
-          
-            <tr>
-              <td
-                 align=\\"center\\" style=\\"font-size:0px;padding:10px 25px;word-break:break-word;\\"
-              >
-                
-      <div
-         style=\\"font-family:Rubik, sans-serif;font-size:12px;line-height:1;text-align:center;color:#AAAAAA;\\"
-      >Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></div>
-    
-              </td>
-            </tr>
-          
+          <!-- <mj-text mj-class=\\"alt-text\\">Link not working? Try this: <a href=\\"http://example.com\\">http://example.com</a></mj-text> -->
             <tr>
               <td
                  style=\\"font-size:0px;word-break:break-word;\\"
