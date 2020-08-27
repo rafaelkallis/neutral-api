@@ -63,11 +63,13 @@ describe(PeerReviewProjectState.name, () => {
       valueObjectFaker.reviewTopic.title(),
       valueObjectFaker.reviewTopic.description(),
       valueObjectFaker.reviewTopic.input(),
+      valueObjectFaker.reviewTopic.subjectType(),
     );
     project.addReviewTopic(
       valueObjectFaker.reviewTopic.title(),
       valueObjectFaker.reviewTopic.description(),
       valueObjectFaker.reviewTopic.input(),
+      valueObjectFaker.reviewTopic.subjectType(),
     );
 
     const assignees = new UserCollection([]);

@@ -86,11 +86,23 @@ describe(Project.name, () => {
     const title = valueObjectFaker.reviewTopic.title();
     const description = valueObjectFaker.reviewTopic.description();
     const input = valueObjectFaker.reviewTopic.input();
+    const subjectType = valueObjectFaker.reviewTopic.subjectType();
     const addedReviewTopic: ReadonlyReviewTopic = td.object();
     td.when(
-      project.state.addReviewTopic(project, title, description, input),
+      project.state.addReviewTopic(
+        project,
+        title,
+        description,
+        input,
+        subjectType,
+      ),
     ).thenReturn(addedReviewTopic);
-    const actualRole = project.addReviewTopic(title, description, input);
+    const actualRole = project.addReviewTopic(
+      title,
+      description,
+      input,
+      subjectType,
+    );
     expect(actualRole).toBe(addedReviewTopic);
   });
 

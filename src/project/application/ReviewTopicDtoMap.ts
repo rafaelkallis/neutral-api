@@ -13,6 +13,8 @@ import {
   ReviewTopicInputDto,
   ReviewTopicInputType,
 } from './dto/ReviewTopicInputDto';
+import { ExtrinsicReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
+import { ExtrinsicReviewSubjectDto } from './dto/ExtrinsicReviewSubjectDto';
 
 @Injectable()
 @ObjectMap.register(ReviewTopic, ReviewTopicDto)
@@ -28,6 +30,12 @@ export class ReviewTopicDtoMap extends ObjectMap<ReviewTopic, ReviewTopicDto> {
       reviewTopic.title.value,
       reviewTopic.description.value,
       this.mapInput(reviewTopic.input),
+      reviewTopic.subjectType.getLabel(),
+      reviewTopic.subjectType instanceof ExtrinsicReviewSubjectType
+        ? reviewTopic.subjectType.subjects.map((s) =>
+            ExtrinsicReviewSubjectDto.ofExtrinsicReviewSubject(s),
+          )
+        : [],
       this.mapConsensuality(reviewTopic, context),
     );
   }

@@ -27,6 +27,10 @@ import {
   ReviewTopicInput,
   ContinuousReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
+import {
+  ReviewSubjectType,
+  IntrinsicReviewSubjectType,
+} from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 describe(FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -186,11 +190,13 @@ describe(FormationProjectState.name, () => {
     let title: ReviewTopicTitle;
     let description: ReviewTopicDescription;
     let input: ReviewTopicInput;
+    let subjectType: ReviewSubjectType;
 
     beforeEach(() => {
       title = ReviewTopicTitle.from(primitiveFaker.words());
       description = ReviewTopicDescription.from(primitiveFaker.paragraph());
       input = ContinuousReviewTopicInput.of(0, 1);
+      subjectType = new IntrinsicReviewSubjectType();
     });
 
     test('happy path', () => {
@@ -199,6 +205,7 @@ describe(FormationProjectState.name, () => {
         title,
         description,
         input,
+        subjectType,
       );
       expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(

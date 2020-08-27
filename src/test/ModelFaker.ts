@@ -136,6 +136,7 @@ export class ModelFaker {
       this.primitiveFaker.paragraph(),
     );
     const input = ContinuousReviewTopicInput.of(1, 10);
+    const subjectType = this.valueObjectFaker.reviewTopic.subjectType();
     return new ReviewTopic(
       id,
       createdAt,
@@ -143,6 +144,7 @@ export class ModelFaker {
       title,
       description,
       input,
+      subjectType,
       null,
     );
   }

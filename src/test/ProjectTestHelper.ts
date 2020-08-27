@@ -55,6 +55,7 @@ export class ProjectTestHelper {
       reviewTopic.title,
       reviewTopic.description,
       reviewTopic.input,
+      reviewTopic.subjectType,
     );
   }
 

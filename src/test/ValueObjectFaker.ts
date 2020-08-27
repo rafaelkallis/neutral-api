@@ -11,6 +11,10 @@ import {
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import {
+  ReviewSubjectType,
+  IntrinsicReviewSubjectType,
+} from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 export class ValueObjectFaker {
   public readonly user: UserValueObjectFaker;
@@ -75,6 +79,10 @@ class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
     const min = this.primitiveFaker.integer();
     const max = min + 1 + this.primitiveFaker.integer();
     return ContinuousReviewTopicInput.of(min, max);
+  }
+
+  public subjectType(): ReviewSubjectType {
+    return new IntrinsicReviewSubjectType();
   }
 }
 
