@@ -15,6 +15,7 @@ import {
   ReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReviewTopicInputTypeOrmEntity } from './ReviewTopicInputTypeOrmEntity';
+import { IntrinsicReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 export enum ReviewTopicInputType {
   CONTINUOUS = 'continuous',
@@ -87,6 +88,7 @@ export class ReverseReviewTopicTypeOrmEntityMap extends ObjectMap<
       ReviewTopicTitle.from(reviewTopicEntity.title),
       ReviewTopicDescription.from(reviewTopicEntity.description),
       this.mapInput(reviewTopicEntity.input),
+      new IntrinsicReviewSubjectType(), // TODO
       reviewTopicEntity.consensuality
         ? Consensuality.from(reviewTopicEntity.consensuality)
         : null,

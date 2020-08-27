@@ -12,6 +12,7 @@ import {
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import { ReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 describe(AddReviewTopicCommand.name, () => {
   let scenario: UnitTestScenario<AddReviewTopicCommandHandler>;
@@ -22,6 +23,7 @@ describe(AddReviewTopicCommand.name, () => {
   let title: string;
   let description: string;
   let input: ReviewTopicInput;
+  let subjectType: ReviewSubjectType;
   let command: AddReviewTopicCommand;
   let projectDto: ProjectDto;
 
@@ -37,12 +39,14 @@ describe(AddReviewTopicCommand.name, () => {
     title = scenario.primitiveFaker.word();
     description = scenario.primitiveFaker.paragraph();
     input = scenario.valueObjectFaker.reviewTopic.input();
+    subjectType = scenario.valueObjectFaker.reviewTopic.subjectType();
     command = new AddReviewTopicCommand(
       authUser,
       project.id.value,
       title,
       description,
       input,
+      subjectType,
     );
 
     td.when(projectRepository.findById(project.id)).thenResolve(project);

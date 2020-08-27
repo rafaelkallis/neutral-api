@@ -34,6 +34,7 @@ import {
   OrdinalProjectState,
   DefaultOrdinalProjectState,
 } from './OrdinalProjectState';
+import { ReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 export class FormationProjectState extends DefaultOrdinalProjectState {
   public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
@@ -136,8 +137,9 @@ export class FormationProjectState extends DefaultOrdinalProjectState {
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
     input: ReviewTopicInput,
+    subjectType: ReviewSubjectType,
   ): ReadonlyReviewTopic {
-    const reviewTopic = ReviewTopic.of(title, description, input);
+    const reviewTopic = ReviewTopic.of(title, description, input, subjectType);
     project.reviewTopics.add(reviewTopic);
     project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
     return reviewTopic;

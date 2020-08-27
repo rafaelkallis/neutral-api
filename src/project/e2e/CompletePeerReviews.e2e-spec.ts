@@ -48,11 +48,13 @@ describe('complete peer reviews (e2e)', () => {
       scenario.valueObjectFaker.reviewTopic.title(),
       scenario.valueObjectFaker.reviewTopic.description(),
       scenario.valueObjectFaker.reviewTopic.input(),
+      scenario.valueObjectFaker.reviewTopic.subjectType(),
     );
     project.addReviewTopic(
       scenario.valueObjectFaker.reviewTopic.title(),
       scenario.valueObjectFaker.reviewTopic.description(),
       scenario.valueObjectFaker.reviewTopic.input(),
+      scenario.valueObjectFaker.reviewTopic.subjectType(),
     );
 
     assignees = new UserCollection([]);

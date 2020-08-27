@@ -15,6 +15,7 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
+import { ReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 export abstract class OrdinalProjectState extends ProjectState {
   public abstract getOrdinal(): number;
@@ -74,6 +75,7 @@ export abstract class DefaultOrdinalProjectState extends OrdinalProjectState {
     _title: ReviewTopicTitle,
     _description: ReviewTopicDescription,
     _input: ReviewTopicInput,
+    _subjectType: ReviewSubjectType,
   ): ReadonlyReviewTopic {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }

@@ -18,6 +18,7 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { ReviewSubjectType } from 'project/domain/review-topic/value-objects/ReviewSubjectType';
 
 /**
  *
@@ -56,6 +57,7 @@ export abstract class ProjectState extends ValueObject {
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
     input: ReviewTopicInput,
+    subjectType: ReviewSubjectType,
   ): ReadonlyReviewTopic;
 
   public abstract updateReviewTopic(
@@ -145,6 +147,7 @@ export abstract class DefaultProjectState extends ProjectState {
     _title: ReviewTopicTitle,
     _description: ReviewTopicDescription,
     _input: ReviewTopicInput,
+    _subjectType: ReviewSubjectType,
   ): ReadonlyReviewTopic {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
