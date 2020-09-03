@@ -7,7 +7,8 @@ trigger:
 - master
 
 pool:
-  name: 'Azure Pipelines'
+#  name: 'Azure Pipelines'
+  name: 'Default'
   vmImage: 'ubuntu-18.04'
 
 steps:
@@ -15,6 +16,10 @@ steps:
   displayName: 'Install Node.js'
   inputs:
     versionSpec: '12.x'
+
+- task: DockerInstaller@0
+  inputs:
+    dockerVersion: '17.09.0-ce'
 
 - script: 'npm ci'
   displayName: 'npm ci'
