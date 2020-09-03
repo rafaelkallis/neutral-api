@@ -8,6 +8,7 @@ trigger:
 
 pool:
 #  name: 'Azure Pipelines'
+  name: 'Defaut'
   vmImage: 'ubuntu-18.04'
 
 steps:
