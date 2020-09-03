@@ -20,10 +20,8 @@ describe(GetAuthUserDataZipQuery.name, () => {
   test('happy path', async () => {
     const response = await scenario.session.get(`/users/me/zip`);
     expect(response.status).toBe(HttpStatus.OK);
-    expect(response.type).toBe('application/octet-stream');
+    expect(response.type).toBe('application/zip');
     // it's hard to check if the content is correct
-    expect(Number(response.get('Content-Length'))).toBeGreaterThan(
-      HttpStatus.OK,
-    );
+    expect(Number(response.get('Content-Length'))).toBeGreaterThan(200);
   });
 });
