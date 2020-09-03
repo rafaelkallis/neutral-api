@@ -131,7 +131,18 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
   public async onModuleInit(): Promise<void> {
     await this.connection.connect();
     this.logger.log('Database connected');
-    await this.connection.runMigrations({ transaction: 'all' });
+    while (true) {
+      try {
+        await this.connection.query(
+          'CREATE TABLE _migration_lock (id INT PRIMARY KEY)',
+        );
+        await this.connection.runMigrations({ transaction: 'all' });
+        await this.connection.query('DROP TABLE _migration_lock');
+        break;
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
     this.logger.log('Migrations up-to-date');
   }
 
