@@ -17,6 +17,10 @@ steps:
   inputs:
     versionSpec: '12.x'
 
+- task: DockerInstaller@0
+  inputs:
+    dockerVersion: '17.09.0-ce'
+
 - script: 'npm ci'
   displayName: 'npm ci'
 
