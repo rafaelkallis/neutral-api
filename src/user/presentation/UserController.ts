@@ -30,6 +30,7 @@ import {
   ApiBody,
   ApiNoContentResponse,
 } from '@nestjs/swagger';
+import Mime from 'mime-types';
 import { AuthGuard, AuthUser } from 'auth/application/guards/AuthGuard';
 import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { GetUsersQueryDto } from 'user/application/dto/GetUsersQueryDto';
@@ -48,7 +49,10 @@ import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAut
 import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
 import { SessionState } from 'shared/session/session-state';
-import { GetAuthUserDataZipQuery } from 'user/application/queries/GetAuthUserDataZipQuery';
+import {
+  GetAuthUserDataZipQuery,
+  GetAuthUserDataZipQueryResult,
+} from 'user/application/queries/GetAuthUserDataZipQuery';
 
 /**
  * User Controller
@@ -141,10 +145,13 @@ export class UserController {
     @AuthUser() authUser: User,
     @Res() response: Response,
   ): Promise<void> {
-    const { file } = await this.mediator.send(
+    const {
+      file,
+      contentType,
+    }: GetAuthUserDataZipQueryResult = await this.mediator.send(
       new GetAuthUserDataZipQuery(authUser),
     );
-    response.attachment(file);
+    response.attachment(`covee-neutral-user.${Mime.extension(contentType)}`);
     response.sendFile(file);
   }
 
