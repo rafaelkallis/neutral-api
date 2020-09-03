@@ -18,7 +18,7 @@ export class EnvalidConfig extends Config {
     return envalid.cleanEnv<ConfigProps>(process.env, {
       NODE_ENV: envalid.str({ choices: ['production', 'test', 'development'] }),
       PORT: envalid.port({ devDefault: 4000 }),
-      FRONTEND_URL: envalid.url({ devDefault: 'http://127.0.0.1:3000' }),
+      FRONTEND_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
       SERVER_URL: envalid.url({ devDefault: 'http://127.0.0.1:4000' }),
       SECRET_HEX: this.strHex64({
         devDefault:

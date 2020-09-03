@@ -51,7 +51,7 @@ export class ExpressCookieSessionState implements SessionState {
     const options: CookieOptions = {
       secure,
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: this.getSessionTokenLifetimeMin() * 60 * 1000,
     };
     this.response.cookie(this.getSessionHeaderName(), state, options);
