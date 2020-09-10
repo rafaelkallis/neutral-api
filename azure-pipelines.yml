@@ -7,8 +7,8 @@ trigger:
 - master
 
 pool:
-#  name: 'Azure Pipelines'
-  name: 'Default'
+  name: 'Azure Pipelines'
+  # name: 'Default'
   vmImage: 'ubuntu-18.04'
 
 steps:
