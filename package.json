@@ -56,12 +56,12 @@
     "node-mailjet": "~3.3.1",
     "nodemailer": "~6.4.11",
     "nunjucks": "3.2.2",
-    "pg": "~8.3.0",
+    "pg": "~8.3.3",
     "reflect-metadata": "0.1.13",
     "rxjs": "6.6.2",
     "stream-to-array": "2.3.0",
     "swagger-ui-express": "4.1.4",
-    "typeorm": "0.2.25"
+    "typeorm": "0.2.26"
   },
   "devDependencies": {
     "@nestjs/testing": "~7.4.2",

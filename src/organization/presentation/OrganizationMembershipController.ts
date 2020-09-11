@@ -38,7 +38,6 @@ export class OrganizationMembershipController {
     @Body(ValidationPipe)
     addOrganizationMembershipDto: AddOrganizationMembershipDto,
   ): Promise<OrganizationDto> {
-    console.log(addOrganizationMembershipDto);
     return this.mediator.send(
       new AddMembershipCommand(
         authUser,
