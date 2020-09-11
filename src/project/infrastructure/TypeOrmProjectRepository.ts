@@ -11,6 +11,7 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable } from '@nestjs/common';
 import { SelectQueryBuilder, EntityManager } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
+import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
 
 /**
  * TypeOrm Project Repository
@@ -81,6 +82,15 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       await this.entityManager.delete(
         ReviewTopicTypeOrmEntity,
         reviewTopicIdsToDelete,
+      );
+    }
+    const contributionIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.contributions.getRemovedModels())
+      .map((contributionModel) => contributionModel.id.value);
+    if (contributionIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        ContributionTypeOrmEntity,
+        contributionIdsToDelete,
       );
     }
     await this.typeOrmRepository.persist(
