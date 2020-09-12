@@ -114,7 +114,10 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   public async findByCreatorId(creatorId: UserId): Promise<Project[]> {
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
-      .find({ creatorId: creatorId.toString() });
+      .createQueryBuilder('project')
+      .where('project.creatorId = :creatorId')
+      .setParameter('creatorId', creatorId.toString())
+      .getMany();
     await this.loadRelations(projectEntities);
     const projectModels = this.objectMapper.mapIterable(
       projectEntities,
