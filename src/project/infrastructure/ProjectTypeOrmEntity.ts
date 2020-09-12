@@ -44,39 +44,27 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'skip_manager_review' })
   public skipManagerReview: string;
 
-  @OneToMany(() => RoleTypeOrmEntity, (role) => role.project, {
-    eager: true,
-    cascade: true,
-  })
+  @OneToMany(() => RoleTypeOrmEntity, (role) => role.project, { cascade: true })
   public roles: ReadonlyArray<RoleTypeOrmEntity>;
 
   @OneToMany(
     () => PeerReviewTypeOrmEntity,
     (peerReview) => peerReview.project,
-    {
-      eager: true,
-      cascade: true,
-    },
+    { cascade: true },
   )
   public peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>;
 
   @OneToMany(
     () => ReviewTopicTypeOrmEntity,
     (reviewTopic) => reviewTopic.project,
-    {
-      eager: true,
-      cascade: true,
-    },
+    { cascade: true },
   )
   public reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>;
 
   @OneToMany(
     () => ContributionTypeOrmEntity,
     (contribution) => contribution.project,
-    {
-      eager: true,
-      cascade: true,
-    },
+    { cascade: true },
   )
   public contributions: ReadonlyArray<ContributionTypeOrmEntity>;
 

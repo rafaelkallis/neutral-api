@@ -10,6 +10,9 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 
+  @Column({ name: 'project_id' })
+  public projectId: string;
+
   @Column({ name: 'sender_role_id' })
   public senderRoleId: string;
 
@@ -30,6 +33,7 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     createdAt: number,
     updatedAt: number,
     project: ProjectTypeOrmEntity,
+    projectId: string,
     senderRoleId: string,
     receiverRoleId: string,
     reviewTopicId: string,
@@ -38,6 +42,7 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
+    this.projectId = projectId;
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;

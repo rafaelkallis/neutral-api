@@ -10,6 +10,9 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 
+  @Column({ name: 'project_id' })
+  public projectId: string;
+
   @Column({ name: 'assignee_id', type: 'varchar', length: 20, nullable: true })
   public assigneeId: string | null;
 
@@ -24,12 +27,14 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     createdAt: number,
     updatedAt: number,
     project: ProjectTypeOrmEntity,
+    projectId: string,
     assigneeId: string | null,
     title: string,
     description: string,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
+    this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;
     this.description = description;

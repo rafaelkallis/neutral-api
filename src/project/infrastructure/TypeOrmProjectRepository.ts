@@ -9,7 +9,7 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { TypeOrmClient } from 'shared/typeorm/TypeOrmClient';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable } from '@nestjs/common';
-import { SelectQueryBuilder, EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
 
@@ -42,6 +42,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     this.typeOrmRepository = typeOrmRepository;
     this.objectMapper = objectMapper;
   }
+
   public async findPage(afterId?: ProjectId | undefined): Promise<Project[]> {
     return this.typeOrmRepository.findPage(
       ProjectTypeOrmEntity,
@@ -51,11 +52,22 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   }
 
   public async findById(id: ProjectId): Promise<Project | undefined> {
-    return this.typeOrmRepository.findById(ProjectTypeOrmEntity, Project, id);
+    const [project] = await this.findByIds([id]);
+    return project;
   }
 
   public async findByIds(ids: ProjectId[]): Promise<(Project | undefined)[]> {
-    return this.typeOrmRepository.findByIds(ProjectTypeOrmEntity, Project, ids);
+    const projectEntities = await this.entityManager
+      .getRepository(ProjectTypeOrmEntity)
+      .find({ id: In(ids.map((id) => id.toString())) });
+    await this.loadRelations(projectEntities);
+    const projectModels = await this.objectMapper.mapIterable(
+      projectEntities,
+      Project,
+    );
+    return ids.map((id) =>
+      projectModels.find((projectModel) => projectModel.id.equals(id)),
+    );
   }
 
   protected async doPersist(...projectModels: Project[]): Promise<void> {
@@ -102,7 +114,8 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   public async findByCreatorId(creatorId: UserId): Promise<Project[]> {
     const projectEntities = await this.entityManager
       .getRepository(ProjectTypeOrmEntity)
-      .find({ creatorId: creatorId.value });
+      .find({ creatorId: creatorId.toString() });
+    await this.loadRelations(projectEntities);
     const projectModels = this.objectMapper.mapIterable(
       projectEntities,
       Project,
@@ -111,19 +124,14 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   }
 
   public async findByRoleAssigneeId(assigneeId: UserId): Promise<Project[]> {
-    const projectEntities = await this.createProjectQueryBuilder()
-      .where((builder) => {
-        const subQuery = builder
-          .subQuery()
-          .select('project.id')
-          .from(ProjectTypeOrmEntity, 'project')
-          .leftJoin('project.roles', 'role')
-          .where('role.assigneeId = :assigneeId')
-          .getQuery();
-        return `project.id IN ${subQuery}`;
-      })
+    const projectEntities = await this.entityManager
+      .getRepository(ProjectTypeOrmEntity)
+      .createQueryBuilder('project')
+      .leftJoin('project.roles', 'role')
+      .where('role.assigneeId = :assigneeId')
       .setParameter('assigneeId', assigneeId.value)
       .getMany();
+    await this.loadRelations(projectEntities);
     const projectModels = this.objectMapper.mapIterable(
       projectEntities,
       Project,
@@ -131,15 +139,45 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     return projectModels;
   }
 
-  private createProjectQueryBuilder(): SelectQueryBuilder<
-    ProjectTypeOrmEntity
-  > {
-    return this.entityManager
-      .getRepository(ProjectTypeOrmEntity)
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.roles', 'role')
-      .leftJoinAndSelect('project.peerReviews', 'peerReview')
-      .leftJoinAndSelect('project.reviewTopics', 'reviewTopic')
-      .leftJoinAndSelect('project.contributions', 'contribution');
+  private async loadRelations(
+    projectEntities: readonly ProjectTypeOrmEntity[],
+  ): Promise<void> {
+    const ids = projectEntities.map((projectEntity) =>
+      projectEntity.id.toString(),
+    );
+    const [
+      roleEntities,
+      reviewTopicEntities,
+      peerReviewEntities,
+      contributionEntities,
+    ] = await Promise.all([
+      this.entityManager
+        .getRepository(RoleTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
+        .getRepository(ReviewTopicTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
+        .getRepository(PeerReviewTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
+        .getRepository(ContributionTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+    ]);
+    for (const projectEntity of projectEntities) {
+      projectEntity.roles = roleEntities.filter(
+        (roleEntity) => projectEntity.id === roleEntity.projectId,
+      );
+      projectEntity.reviewTopics = reviewTopicEntities.filter(
+        (reviewTopicEntity) => projectEntity.id === reviewTopicEntity.projectId,
+      );
+      projectEntity.peerReviews = peerReviewEntities.filter(
+        (peerReviewEntity) => projectEntity.id === peerReviewEntity.projectId,
+      );
+      projectEntity.contributions = contributionEntities.filter(
+        (contributionEntity) =>
+          projectEntity.id === contributionEntity.projectId,
+      );
+    }
   }
 }

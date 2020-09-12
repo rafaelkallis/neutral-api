@@ -24,11 +24,13 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
     peerReviewModel: PeerReview,
     ctx: ObjectMapContext,
   ): PeerReviewTypeOrmEntity {
+    const project = ctx.get('project', ProjectTypeOrmEntity);
     return new PeerReviewTypeOrmEntity(
       peerReviewModel.id.value,
       peerReviewModel.createdAt.value,
       peerReviewModel.updatedAt.value,
-      ctx.get('project', ProjectTypeOrmEntity),
+      project,
+      project.id,
       peerReviewModel.senderRoleId.value,
       peerReviewModel.receiverRoleId.value,
       peerReviewModel.reviewTopicId.value,
