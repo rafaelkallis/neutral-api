@@ -13,6 +13,7 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { HttpStatus } from '@nestjs/common';
 import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
+import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -150,7 +151,7 @@ describe('project (e2e)', () => {
         }),
       );
       const createdProject = await scenario.projectRepository.findById(
-        response.body.id,
+        ProjectId.from(response.body.id),
       );
       expect(createdProject).toBeDefined();
     });

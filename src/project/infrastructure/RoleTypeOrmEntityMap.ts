@@ -14,11 +14,13 @@ import { RoleDescription } from 'project/domain/role/value-objects/RoleDescripti
 @ObjectMap.register(Role, RoleTypeOrmEntity)
 export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
   protected doMap(roleModel: Role, ctx: ObjectMapContext): RoleTypeOrmEntity {
+    const project = ctx.get('project', ProjectTypeOrmEntity);
     return new RoleTypeOrmEntity(
       roleModel.id.value,
       roleModel.createdAt.value,
       roleModel.updatedAt.value,
-      ctx.get('project', ProjectTypeOrmEntity),
+      project,
+      project.id,
       roleModel.assigneeId ? roleModel.assigneeId.value : null,
       roleModel.title.value,
       roleModel.description.value,

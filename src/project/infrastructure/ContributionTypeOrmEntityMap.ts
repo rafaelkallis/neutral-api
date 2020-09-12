@@ -20,11 +20,13 @@ export class ContributionTypeOrmEntityMap extends ObjectMap<
     contribution: Contribution,
     ctx: ObjectMapContext,
   ): ContributionTypeOrmEntity {
+    const project = ctx.get('project', ProjectTypeOrmEntity);
     return new ContributionTypeOrmEntity(
       contribution.id.value,
       contribution.createdAt.value,
       contribution.updatedAt.value,
-      ctx.get('project', ProjectTypeOrmEntity),
+      project,
+      project.id,
       contribution.roleId.value,
       contribution.reviewTopicId.value,
       contribution.amount.value,

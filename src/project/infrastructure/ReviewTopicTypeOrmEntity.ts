@@ -11,6 +11,9 @@ export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
   @JoinColumn({ name: 'project_id' })
   public project: ProjectTypeOrmEntity;
 
+  @Column({ name: 'project_id' })
+  public projectId: string;
+
   @Column({ name: 'title' })
   public title: string;
 
@@ -28,6 +31,7 @@ export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
     createdAt: number,
     updatedAt: number,
     project: ProjectTypeOrmEntity,
+    projectId: string,
     title: string,
     description: string,
     input: ReviewTopicInputTypeOrmEntity,
@@ -35,6 +39,7 @@ export class ReviewTopicTypeOrmEntity extends TypeOrmEntity {
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
+    this.projectId = projectId;
     this.title = title;
     this.description = description;
     this.input = input;

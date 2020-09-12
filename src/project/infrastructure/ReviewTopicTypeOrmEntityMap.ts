@@ -31,11 +31,13 @@ export class ReviewTopicTypeOrmEntityMap extends ObjectMap<
     reviewTopicModel: ReviewTopic,
     ctx: ObjectMapContext,
   ): ReviewTopicTypeOrmEntity {
+    const project = ctx.get('project', ProjectTypeOrmEntity);
     return new ReviewTopicTypeOrmEntity(
       reviewTopicModel.id.value,
       reviewTopicModel.createdAt.value,
       reviewTopicModel.updatedAt.value,
-      ctx.get('project', ProjectTypeOrmEntity),
+      project,
+      project.id,
       reviewTopicModel.title.value,
       reviewTopicModel.description.value,
       this.mapReviewTopicInput(reviewTopicModel),
