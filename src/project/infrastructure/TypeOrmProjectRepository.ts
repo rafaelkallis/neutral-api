@@ -145,6 +145,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
   private async loadRelations(
     projectEntities: readonly ProjectTypeOrmEntity[],
   ): Promise<void> {
+    if (projectEntities.length === 0) {
+      return;
+    }
     const ids = projectEntities.map((projectEntity) =>
       projectEntity.id.toString(),
     );
