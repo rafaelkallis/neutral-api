@@ -44,15 +44,6 @@ import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
 
-export interface UpdateProjectContext {
-  readonly title?: ProjectTitle;
-  readonly description?: ProjectDescription;
-  readonly meta?: Record<string, unknown>;
-  readonly contributionVisibility?: ContributionVisibility;
-  readonly peerReviewVisibility?: PeerReviewVisibility;
-  readonly skipManagerReview?: SkipManagerReview;
-}
-
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
   readonly description: ProjectDescription;
@@ -68,41 +59,17 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly contributions: ReadonlyContributionCollection;
 
   isConsensual(): boolean;
-
-  addRole(title: RoleTitle, description: RoleDescription): ReadonlyRole;
-  updateRole(
-    roleId: RoleId,
-    title?: RoleTitle,
-    description?: RoleDescription,
-  ): void;
-  removeRole(roleId: RoleId): void;
-  assignUserToRole(userToAssign: ReadonlyUser, roleId: RoleId): void;
-  unassignRole(roleId: RoleId): void;
-
-  addReviewTopic(
-    title: ReviewTopicTitle,
-    description: ReviewTopicDescription,
-    input: ReviewTopicInput,
-  ): ReadonlyReviewTopic;
-  updateReviewTopic(
-    reviewTopicId: ReviewTopicId,
-    title?: ReviewTopicTitle,
-    description?: ReviewTopicDescription,
-    input?: ReviewTopicInput,
-  ): void;
-  removeReviewTopic(reviewTopicId: ReviewTopicId): void;
-
-  finishFormation(assignees: ReadonlyUserCollection): void;
-  submitPeerReviews(
-    peerReviews: ReadonlyPeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
-  ): void;
-  submitManagerReview(): void;
-  archive(): void;
-  cancel(): void;
   isCreator(user: ReadonlyUser): boolean;
   assertCreator(user: ReadonlyUser): void;
+}
+
+export interface UpdateProjectContext {
+  readonly title?: ProjectTitle;
+  readonly description?: ProjectDescription;
+  readonly meta?: Record<string, unknown>;
+  readonly contributionVisibility?: ContributionVisibility;
+  readonly peerReviewVisibility?: PeerReviewVisibility;
+  readonly skipManagerReview?: SkipManagerReview;
 }
 
 /**
