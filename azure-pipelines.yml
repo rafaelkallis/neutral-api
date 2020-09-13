@@ -27,6 +27,9 @@ steps:
 - script: 'npm run-script type'
   displayName: 'type check'
 
+- script: 'npm run-script lint'
+  displayName: 'lint check'
+
 - script: 'npm run-script test:ci'
   displayName: 'unit tests'
 

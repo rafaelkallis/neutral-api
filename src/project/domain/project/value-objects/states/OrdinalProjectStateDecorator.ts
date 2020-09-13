@@ -110,13 +110,13 @@ export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
     this.base.cancel(project);
   }
 
-  public submitPeerReviews(
+  public async submitPeerReviews(
     project: InternalProject,
     peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
-    this.base.submitPeerReviews(
+  ): Promise<void> {
+    return this.base.submitPeerReviews(
       project,
       peerReviews,
       contributionsComputer,
@@ -124,12 +124,12 @@ export abstract class OrdinalProjectStateDecorator extends OrdinalProjectState {
     );
   }
 
-  public completePeerReviews(
+  public async completePeerReviews(
     project: InternalProject,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
-    this.base.completePeerReviews(
+  ): Promise<void> {
+    return this.base.completePeerReviews(
       project,
       contributionsComputer,
       consensualityComputer,

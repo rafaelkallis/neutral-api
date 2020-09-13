@@ -116,7 +116,7 @@ describe(PeerReviewProjectState.name, () => {
       }
     });
 
-    test('should fail if a peer review is for non-existing peer', () => {
+    test('should fail if a peer review is for non-existing peer', async () => {
       const roles = project.roles.toArray();
       const reviewTopic = project.reviewTopics.first();
       submittedPeerReviews = PeerReviewCollection.of([
@@ -142,17 +142,17 @@ describe(PeerReviewProjectState.name, () => {
           PeerReviewFlag.NONE,
         ),
       ]);
-      expect(() =>
+      await expect(
         project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
         ),
-      ).toThrow(expect.any(DomainException));
+      ).rejects.toThrow(expect.any(DomainException));
     });
 
-    test('should not compute contributions and consensuality', () => {
-      project.submitPeerReviews(
+    test('should not compute contributions and consensuality', async () => {
+      await project.submitPeerReviews(
         submittedPeerReviews,
         contributionsComputer,
         consensualityComputer,
@@ -164,7 +164,7 @@ describe(PeerReviewProjectState.name, () => {
     });
 
     describe('final peer review', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         // submit all peer reviews except for one
         for (const reviewTopic of project.reviewTopics) {
           for (const sender of project.roles) {
@@ -187,7 +187,7 @@ describe(PeerReviewProjectState.name, () => {
                 ),
               );
             }
-            project.submitPeerReviews(
+            await project.submitPeerReviews(
               submittedPeerReviews,
               contributionsComputer,
               consensualityComputer,
@@ -196,9 +196,9 @@ describe(PeerReviewProjectState.name, () => {
         }
       });
 
-      test('should advance state and compute contributions and compute consensuality', () => {
+      test('should advance state and compute contributions and compute consensuality', async () => {
         jest.spyOn(project.contributions, 'addAll');
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -218,9 +218,9 @@ describe(PeerReviewProjectState.name, () => {
         td.verify(consensualityComputationResult.applyTo(project));
       });
 
-      test('should skip manager review if "skipManagerReview" is "yes"', () => {
+      test('should skip manager review if "skipManagerReview" is "yes"', async () => {
         project.skipManagerReview = SkipManagerReview.YES;
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -228,10 +228,10 @@ describe(PeerReviewProjectState.name, () => {
         expect(project.state).toBe(FinishedProjectState.INSTANCE);
       });
 
-      test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', () => {
+      test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', async () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(true);
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -241,10 +241,10 @@ describe(PeerReviewProjectState.name, () => {
         ).toBeTruthy();
       });
 
-      test('should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', () => {
+      test('should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', async () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(false);
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -252,9 +252,9 @@ describe(PeerReviewProjectState.name, () => {
         expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
       });
 
-      test('should not skip manager review if "skipManagerReview" is "no"', () => {
+      test('should not skip manager review if "skipManagerReview" is "no"', async () => {
         project.skipManagerReview = SkipManagerReview.NO;
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           submittedPeerReviews,
           contributionsComputer,
           consensualityComputer,
@@ -267,7 +267,7 @@ describe(PeerReviewProjectState.name, () => {
   });
 
   describe('complete', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       // review topic (rt)
       // role (ro)
       // submit all peer reviews except for (rt1, ro3), (rt2, ro2), (rt2, ro4)
@@ -296,7 +296,7 @@ describe(PeerReviewProjectState.name, () => {
               ),
             );
           }
-          project.submitPeerReviews(
+          await project.submitPeerReviews(
             submittedPeerReviews,
             contributionsComputer,
             consensualityComputer,
@@ -305,8 +305,11 @@ describe(PeerReviewProjectState.name, () => {
       }
     });
 
-    test('should complete missing peer reviews', () => {
-      project.completePeerReviews(contributionsComputer, consensualityComputer);
+    test('should complete missing peer reviews', async () => {
+      await project.completePeerReviews(
+        contributionsComputer,
+        consensualityComputer,
+      );
       expect(project.peerReviews.count()).toBe(
         project.reviewTopics.count() *
           project.roles.count() *
@@ -327,8 +330,11 @@ describe(PeerReviewProjectState.name, () => {
       }
     });
 
-    test('should advance state', () => {
-      project.completePeerReviews(contributionsComputer, consensualityComputer);
+    test('should advance state', async () => {
+      await project.completePeerReviews(
+        contributionsComputer,
+        consensualityComputer,
+      );
       expect(project.state.equals(PeerReviewProjectState.INSTANCE)).toBeFalsy();
     });
   });

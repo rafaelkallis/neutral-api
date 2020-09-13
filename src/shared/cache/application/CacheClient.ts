@@ -54,7 +54,9 @@ export class CacheClient implements OnModuleDestroy {
   public cacheMethod(context: CacheMethodContext): void {
     const bucket =
       context.bucket ||
-      `method ${context.target.constructor.name} ${context.method.toString()}`;
+      `method ${JSON.stringify(
+        context.target.constructor.name,
+      )} ${context.method.toString()}`;
     const ttl = context.ttl || 1000;
     const invocationHandler: InvocationHandler = {
       handleInvocation: (method: Method, args: unknown[]): unknown => {

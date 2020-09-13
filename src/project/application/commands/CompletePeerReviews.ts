@@ -49,7 +49,7 @@ export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<
       throw new ProjectNotFoundException();
     }
     project.assertCreator(command.authUser);
-    project.completePeerReviews(
+    await project.completePeerReviews(
       this.contributionsComputer,
       this.consensualityComputer,
     );

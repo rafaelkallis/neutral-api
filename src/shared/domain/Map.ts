@@ -35,7 +35,11 @@ export class Map<U, V> implements ReadonlyMap<U, V> {
   public put(t1: U, u1: V): void {
     for (const [t2, u2] of this.values) {
       if (t1 === t2) {
-        throw new Error(`Conflicting pairs: {${t1}, ${u1}} and {${t2}, ${u2}}`);
+        throw new Error(
+          `Conflicting pairs: {${JSON.stringify(t1)}, ${JSON.stringify(
+            u1,
+          )}} and {${JSON.stringify(t2)}, ${JSON.stringify(u2)}}`,
+        );
       }
     }
     this.values.push([t1, u1]);

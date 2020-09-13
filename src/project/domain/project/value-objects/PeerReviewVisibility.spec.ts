@@ -200,12 +200,12 @@ describe(PeerReviewVisibility.name, () => {
 
   test.each(cases)(
     'isVisible(%s, %s, %s) = %s',
-    (peerReviewVisibility, state, role, isVisible) => {
+    async (peerReviewVisibility, state, role, isVisible) => {
       project.update({ peerReviewVisibility });
       project.finishFormation(new UserCollection(peerUsers));
       const [
         peerReview,
-      ] = projectHelper.submitPeerReviewsForSenderAndReviewTopic(
+      ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
         senderRole,
         reviewTopic,
       );
@@ -214,7 +214,7 @@ describe(PeerReviewVisibility.name, () => {
           state.isGreaterEquals(MANAGER_REVIEW) &&
           project.state.equals(PEER_REVIEW)
         ) {
-          projectHelper.completePeerReviews();
+          await projectHelper.completePeerReviews();
         }
         if (
           state.isGreaterEquals(FINISHED) &&
@@ -255,12 +255,12 @@ describe(PeerReviewVisibility.name, () => {
 
   test.each(allVisibilities)(
     'manager sender during peer review should be visible',
-    (peerReviewVisibility) => {
+    async (peerReviewVisibility) => {
       project.update({ peerReviewVisibility });
       project.finishFormation(new UserCollection(peerUsers));
       const [
         peerReview,
-      ] = projectHelper.submitPeerReviewsForSenderAndReviewTopic(
+      ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
         creatorRole,
         reviewTopic,
       );

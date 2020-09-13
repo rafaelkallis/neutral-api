@@ -45,7 +45,7 @@ export abstract class TelemetryClient {
   ): HttpTelemetryTransaction;
 
   protected computeHttpTransactionName(request: Request): string {
-    return `${request.method} ${request.route.path}`;
+    return `${request.method} ${String(request.route.path)}`;
   }
 
   protected computeHttpTransactionId(_request: Request): string {

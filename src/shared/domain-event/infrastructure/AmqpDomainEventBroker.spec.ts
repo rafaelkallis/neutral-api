@@ -40,7 +40,9 @@ describe(AmqpDomainEventBroker.name, () => {
     });
 
     test('happy path', async () => {
-      await amqpDomainEventBroker.publish(myDomainEvent);
+      await expect(
+        amqpDomainEventBroker.publish(myDomainEvent),
+      ).resolves.not.toThrow();
     });
   });
 

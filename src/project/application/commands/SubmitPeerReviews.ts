@@ -64,7 +64,7 @@ export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<
     const submittedPeerReviews = command.submitPeerReviewsDto.asPeerReviewCollection(
       authRole.id,
     );
-    project.submitPeerReviews(
+    await project.submitPeerReviews(
       submittedPeerReviews,
       this.contributionsComputer,
       this.consensualityComputer,

@@ -24,11 +24,11 @@ export class TempFile {
 
   public async cleanup(): Promise<void> {
     if (this.isCleaned) {
-      return Promise.resolve();
+      return;
     }
     this.isCleaned = true;
     // TODO what if file doesn't exist anymore?
-    // TOFO what if file is used by another process?
+    // TODO what if file is used by another process?
     await fs.unlink(this.path);
   }
 }
@@ -55,7 +55,7 @@ export class TempFileFactory implements OnApplicationShutdown {
   }
 
   private async garbageCollection(): Promise<void> {
-    while (true) {
+    while (this.createdFiles.length > 0) {
       const file = this.createdFiles.pop();
       if (!file) {
         break;

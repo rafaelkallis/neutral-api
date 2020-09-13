@@ -81,13 +81,13 @@ export abstract class ProjectState extends ValueObject {
     peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void;
+  ): Promise<void>;
 
   public abstract completePeerReviews(
     project: InternalProject,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void;
+  ): Promise<void>;
 
   public abstract submitManagerReview(project: InternalProject): void;
 
@@ -173,20 +173,22 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public submitPeerReviews(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async submitPeerReviews(
     _project: InternalProject,
     _peerReviews: ReadonlyPeerReviewCollection,
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
-  ): void {
+  ): Promise<void> {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public completePeerReviews(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async completePeerReviews(
     _project: InternalProject,
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
-  ): void {
+  ): Promise<void> {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 

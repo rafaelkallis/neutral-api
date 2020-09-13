@@ -102,21 +102,25 @@ export abstract class DefaultOrdinalProjectState extends OrdinalProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public submitPeerReviews(
+  public async submitPeerReviews(
     _project: InternalProject,
     _peerReviews: ReadonlyPeerReviewCollection,
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
-  ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+  ): Promise<void> {
+    return Promise.reject(
+      new OperationNotSupportedByCurrentProjectStateException(),
+    );
   }
 
-  public completePeerReviews(
+  public async completePeerReviews(
     _project: InternalProject,
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
-  ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+  ): Promise<void> {
+    return Promise.reject(
+      new OperationNotSupportedByCurrentProjectStateException(),
+    );
   }
 
   public submitManagerReview(_project: InternalProject): void {

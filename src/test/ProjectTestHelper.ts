@@ -58,10 +58,10 @@ export class ProjectTestHelper {
     );
   }
 
-  public submitPeerReviewsForSenderAndReviewTopic(
+  public async submitPeerReviewsForSenderAndReviewTopic(
     sender: ReadonlyRole,
     reviewTopic: ReadonlyReviewTopic,
-  ): ReadonlyPeerReviewCollection {
+  ): Promise<ReadonlyPeerReviewCollection> {
     const contributionsComputer: ContributionsComputer = td.object();
     const computedContributions = new ContributionCollection([]);
     td.when(contributionsComputer.compute(this.project)).thenReturn(
@@ -86,7 +86,7 @@ export class ProjectTestHelper {
           ),
         ),
     );
-    this.project.submitPeerReviews(
+    await this.project.submitPeerReviews(
       peerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -94,7 +94,7 @@ export class ProjectTestHelper {
     return peerReviews;
   }
 
-  public completePeerReviews(): void {
+  public async completePeerReviews(): Promise<void> {
     const contributionsComputer: ContributionsComputer = td.object();
     const computedContributions = new ContributionCollection([]);
     td.when(contributionsComputer.compute(this.project)).thenReturn(
@@ -105,7 +105,7 @@ export class ProjectTestHelper {
     td.when(consensualityComputer.compute(this.project)).thenReturn(
       consensualityComputationResult,
     );
-    this.project.completePeerReviews(
+    await this.project.completePeerReviews(
       contributionsComputer,
       consensualityComputer,
     );

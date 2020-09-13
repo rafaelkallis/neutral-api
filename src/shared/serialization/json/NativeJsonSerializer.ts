@@ -12,7 +12,7 @@ export class NativeJsonSerializer extends JsonSerializer {
     } catch (error) {
       if (error instanceof RangeError) {
         throw new InternalServerErrorException(
-          `circular dependency in ${(obj as any).constructor.name}`,
+          `circular dependency in ${String((obj as any).constructor.name)}`,
         );
       }
       throw error;

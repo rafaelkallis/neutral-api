@@ -16,6 +16,7 @@ import {
   HttpStatus,
   Inject,
   Session,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -151,7 +152,13 @@ export class UserController {
     }: GetAuthUserDataZipQueryResult = await this.mediator.send(
       new GetAuthUserDataZipQuery(authUser),
     );
-    response.attachment(`covee-neutral-user.${Mime.extension(contentType)}`);
+    const extension = Mime.extension(contentType);
+    if (!extension) {
+      throw new InternalServerErrorException(
+        `No extension found for "${contentType}"`,
+      );
+    }
+    response.attachment(`covee-neutral-user.${extension}`);
     response.sendFile(file);
   }
 

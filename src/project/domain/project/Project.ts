@@ -203,12 +203,12 @@ export abstract class Project extends AggregateRoot<ProjectId>
     peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void;
+  ): Promise<void>;
 
   public abstract completePeerReviews(
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void;
+  ): Promise<void>;
 
   /**
    *
@@ -372,12 +372,12 @@ export class InternalProject extends Project {
   /**
    *
    */
-  public submitPeerReviews(
+  public async submitPeerReviews(
     peerReviews: ReadonlyPeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
-    this.state.submitPeerReviews(
+  ): Promise<void> {
+    return this.state.submitPeerReviews(
       this,
       peerReviews,
       contributionsComputer,
@@ -385,11 +385,11 @@ export class InternalProject extends Project {
     );
   }
 
-  public completePeerReviews(
+  public async completePeerReviews(
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
-    this.state.completePeerReviews(
+  ): Promise<void> {
+    return this.state.completePeerReviews(
       this,
       contributionsComputer,
       consensualityComputer,

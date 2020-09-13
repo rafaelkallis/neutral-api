@@ -47,5 +47,12 @@ module.exports = {
     '@typescript-eslint/promise-function-async': ['error'],
     '@typescript-eslint/prefer-readonly': ['error'],
     'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'td.verify']}],
+
+    '@typescript-eslint/ban-types': ['warn'],
+    '@typescript-eslint/no-unsafe-assignment': ['warn'],
+    '@typescript-eslint/no-unsafe-member-access': ['warn'],
+    '@typescript-eslint/no-unsafe-return': ['warn'],
+    '@typescript-eslint/no-unsafe-call': ['warn'],
+    '@typescript-eslint/unbound-method': ['warn'],
   },
 };

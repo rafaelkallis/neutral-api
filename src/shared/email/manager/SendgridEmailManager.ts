@@ -80,21 +80,21 @@ export class SendgridEmailManager extends EmailManager {
     _to: string,
     _model: ProjectCtaModel,
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    return Promise.reject(new Error('Method not implemented.'));
   }
 
   public async sendManagerReviewRequestedEmail(
     _to: string,
     _model: ProjectCtaModel,
   ): Promise<void> {
-    throw new Error('not implemented');
+    return Promise.reject(new Error('not implemented'));
   }
 
   public async sendProjectFinishedEmail(
     _to: string,
     _model: ProjectCtaModel,
   ): Promise<void> {
-    throw new Error('not implemented');
+    return Promise.reject(new Error('not implemented'));
   }
 
   /**
@@ -110,12 +110,10 @@ export class SendgridEmailManager extends EmailManager {
       personalizations: [
         {
           to: { email: to },
-          // eslint-disable-next-line @typescript-eslint/camelcase
           dynamic_template_data: dynamicTemplateData,
         },
       ],
       from: { email: 'no-reply@covee.network' },
-      // eslint-disable-next-line @typescript-eslint/camelcase
       template_id: templateId,
     };
     const config = {

@@ -165,7 +165,7 @@ describe('submit peer review (e2e)', () => {
                 ),
               ),
           );
-          project.submitPeerReviews(
+          await project.submitPeerReviews(
             peerReviews,
             contributionsComputer,
             consensualityComputer,

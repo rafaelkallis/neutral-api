@@ -121,12 +121,12 @@ describe(Project.name, () => {
     td.verify(project.state.finishFormation(project, assignees));
   });
 
-  test('submit peer reviews', () => {
+  test('submit peer reviews', async () => {
     const submittedPeerReviews: PeerReviewCollection = td.object();
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
 
-    project.submitPeerReviews(
+    await project.submitPeerReviews(
       submittedPeerReviews,
       contributionsComputer,
       consensualityComputer,
@@ -141,10 +141,13 @@ describe(Project.name, () => {
     );
   });
 
-  test('complete peer reviews', () => {
+  test('complete peer reviews', async () => {
     const contributionsComputer: ContributionsComputer = td.object();
     const consensualityComputer: ConsensualityComputer = td.object();
-    project.completePeerReviews(contributionsComputer, consensualityComputer);
+    await project.completePeerReviews(
+      contributionsComputer,
+      consensualityComputer,
+    );
     td.verify(
       project.state.completePeerReviews(
         project,

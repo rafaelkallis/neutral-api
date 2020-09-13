@@ -56,7 +56,7 @@ describe('notifications (e2e)', () => {
 
     test('happy path', async () => {
       const response = await scenario.session.post(
-        `/notifications/${notification.id}/read`,
+        `/notifications/${notification.id.toString()}/read`,
       );
       expect(response.status).toBe(200);
       const updatedNotification = await scenario.notificationRepository.findById(

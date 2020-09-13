@@ -36,12 +36,12 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
    * @param contributionsComputer
    * @param consensualityComputer
    */
-  public submitPeerReviews(
+  public async submitPeerReviews(
     project: InternalProject,
     peerReviews: PeerReviewCollection,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
+  ): Promise<void> {
     for (const peerReview of peerReviews) {
       project.roles.assertContains(
         peerReview.senderRoleId,
@@ -103,6 +103,8 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
       project.raise(new ProjectPeerReviewFinishedEvent(project.id));
       project.raise(new ProjectManagerReviewStartedEvent(project));
     }
+    // because eslint is stupid
+    await Promise.resolve();
   }
 
   /**
@@ -111,11 +113,11 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
    * @param contributionsComputer
    * @param consensualityComputer
    */
-  public completePeerReviews(
+  public async completePeerReviews(
     project: InternalProject,
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
-  ): void {
+  ): Promise<void> {
     for (const reviewTopic of project.reviewTopics) {
       for (const sender of project.roles) {
         if (
@@ -141,7 +143,7 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
               ),
             ),
         );
-        project.submitPeerReviews(
+        await project.submitPeerReviews(
           peerReviews,
           contributionsComputer,
           consensualityComputer,

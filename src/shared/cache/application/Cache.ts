@@ -43,7 +43,7 @@ export class Cache {
     return (target: object, propertyKey: string | symbol): void => {
       const cacheMetadataItem = new CacheMetadataItem(
         propertyKey,
-        context.getKeyArgs,
+        context.getKeyArgs.bind(context),
         context.bucket,
         context.ttl,
       );
