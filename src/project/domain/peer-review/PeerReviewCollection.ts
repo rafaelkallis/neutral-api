@@ -317,6 +317,9 @@ export class PeerReviewCollection
   }
 
   public meanScore(): number {
+    if (this.count() === 0) {
+      return 1;
+    }
     return this.sumScores() / this.count();
   }
 }
