@@ -15,7 +15,8 @@ import { Config } from 'shared/config/application/Config';
 import { JsonSerializer } from 'shared/serialization/json/JsonSerializer';
 
 @Injectable()
-export class AmqplibAmqpClient extends AmqpClient
+export class AmqplibAmqpClient
+  extends AmqpClient
   implements OnModuleInit, OnApplicationShutdown {
   private readonly config: Config;
   private readonly jsonSerializer: JsonSerializer;
@@ -31,7 +32,9 @@ export class AmqplibAmqpClient extends AmqpClient
   }
 
   public async onModuleInit(): Promise<void> {
-    const connectionString = this.config.get('AMQP_CONNECTION');
+    // const connectionString = this.config.get('AMQP_CONNECTION');
+    this.config; // dummy statement to suppress unused variable warning
+    const connectionString = '';
     this.connection = await connect(connectionString);
     this.channel = await this.connection.createConfirmChannel();
     this.logger.log('Amqp connected');
