@@ -25,7 +25,7 @@ export interface ConfigProps {
   SESSION_MAX_AGE_MIN: number;
   AZURE_MONITOR_INSTRUMENTATION_KEY: string;
   AZURE_BLOB_STORAGE_CONNECTION_STRING: string;
-  AMQP_CONNECTION: string;
+  // AMQP_CONNECTION: string;
   MAILJET_API_PUBLIC_KEY: string;
   MAILJET_API_SECRET_KEY: string;
 }

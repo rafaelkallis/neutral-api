@@ -2,7 +2,7 @@ import { AmqplibAmqpClient } from 'shared/amqp/AmqplibAmqpClient';
 import { AmqpClient } from 'shared/amqp/AmqpClient';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 
-describe('amqplib amqp client', () => {
+describe.skip('amqplib amqp client', () => {
   let scenario: IntegrationTestScenario;
   let amqpClient: AmqplibAmqpClient;
 
