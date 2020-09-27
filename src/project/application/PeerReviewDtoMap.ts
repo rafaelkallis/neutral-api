@@ -14,6 +14,7 @@ export class PeerReviewDtoMap extends ObjectMap<PeerReview, PeerReviewDto> {
     const peerReviews = context.get('peerReviews', PeerReviewCollection);
     const rowsum = peerReviews
       .whereSenderRole(peerReview.senderRoleId)
+      .whereReviewTopic(peerReview.reviewTopicId)
       .sumScores();
     return new PeerReviewDto(
       peerReview.id.value,
