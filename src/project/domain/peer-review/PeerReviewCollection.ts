@@ -37,6 +37,7 @@ export interface ReadonlyPeerReviewCollection
 
   toNormalizedMap(): Record<string, Record<string, number>>;
   sumScores(): number;
+  meanScore(): number;
 
   // TODO make project private readonly
   areComplete(project: ReadonlyProject): boolean;
@@ -313,5 +314,12 @@ export class PeerReviewCollection
       (sum, peerReview) => sum + peerReview.score.value,
       0,
     );
+  }
+
+  public meanScore(): number {
+    if (this.count() === 0) {
+      return 1;
+    }
+    return this.sumScores() / this.count();
   }
 }

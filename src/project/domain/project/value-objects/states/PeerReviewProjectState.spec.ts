@@ -291,7 +291,7 @@ describe(PeerReviewProjectState.name, () => {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.of(1),
+                PeerReviewScore.of(Math.random() * 100),
                 PeerReviewFlag.NONE,
               ),
             );
@@ -322,10 +322,14 @@ describe(PeerReviewProjectState.name, () => {
         [rt2, ro2],
         [rt2, ro4],
       ] as [ReviewTopic, Role][]) {
+        const meanScore = PeerReviewScore.of(
+          project.peerReviews.whereReviewTopic(rt).meanScore(),
+        );
         for (const peerReview of project.peerReviews
           .whereReviewTopic(rt)
           .whereSenderRole(ro)) {
-          expect(peerReview.score.equals(PeerReviewScore.of(1))).toBeTruthy();
+          expect(peerReview.score.value).toBeCloseTo(meanScore.value);
+          expect(peerReview.flag).toBe(PeerReviewFlag.ASBENT);
         }
       }
     });
