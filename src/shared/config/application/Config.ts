@@ -50,7 +50,7 @@ export abstract class Config {
     try {
       commit =
         commit || execSync('git rev-parse --short HEAD').toString().trimEnd();
-    } finally {
+    } catch (e) {
       /* no-op */
     }
     return commit || '0000000';
