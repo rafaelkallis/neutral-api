@@ -76,7 +76,7 @@
     "@types/lru-cache": "5.1.0",
     "@types/mime-types": "~2.1.0",
     "@types/mjml": "4.0.4",
-    "@types/multer": "1.4.3",
+    "@types/multer": "1.4.4",
     "@types/node": "^12.12.62",
     "@types/node-mailjet": "~3.3.3",
     "@types/nodemailer": "6.4.0",
