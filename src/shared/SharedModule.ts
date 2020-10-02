@@ -12,7 +12,6 @@ import { SerializationModule } from 'shared/serialization/SerializationModule';
 import { CacheModule } from 'shared/cache/CacheModule';
 import { MediatorModule } from 'shared/mediator/MediatorModule';
 import { DomainEventModule } from 'shared/domain-event/DomainEventModule';
-import { AmqpModule } from 'shared/amqp/AmqpModule';
 import { ArchiveModule } from 'shared/archive/ArchiveModule';
 import { UrlsModule } from 'shared/urls/UrlsModule';
 import { DomainExceptionFilter } from 'shared/application/filters/DomainExceptionFilter';
@@ -35,7 +34,6 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     CacheModule,
     MediatorModule,
     DomainEventModule,
-    AmqpModule,
     ArchiveModule,
     UrlsModule,
   ],
@@ -67,7 +65,6 @@ import { ValidationExceptionFilter } from 'shared/application/filters/Validation
     CacheModule,
     MediatorModule,
     DomainEventModule,
-    AmqpModule,
     ArchiveModule,
     UrlsModule,
   ],

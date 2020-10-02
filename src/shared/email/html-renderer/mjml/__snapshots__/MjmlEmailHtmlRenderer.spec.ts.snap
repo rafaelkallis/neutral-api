@@ -260,7 +260,7 @@ exports[`MjmlEmailHtmlRenderer should render login html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -312,7 +312,7 @@ exports[`MjmlEmailHtmlRenderer should render login html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -739,7 +739,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -791,7 +791,7 @@ exports[`MjmlEmailHtmlRenderer should render manager review requested html 1`] =
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -1218,7 +1218,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -1270,7 +1270,7 @@ exports[`MjmlEmailHtmlRenderer should render peer review requested html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -1697,7 +1697,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -1749,7 +1749,7 @@ exports[`MjmlEmailHtmlRenderer should render project finished html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -2176,7 +2176,7 @@ exports[`MjmlEmailHtmlRenderer should render signup html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -2228,7 +2228,7 @@ exports[`MjmlEmailHtmlRenderer should render signup html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -2655,7 +2655,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   
@@ -2707,7 +2707,7 @@ exports[`MjmlEmailHtmlRenderer should render user assigned html 1`] = `
       
     <!--[if mso | IE]>
     
-        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"vertical-align:top;height:20px;\\">
+        <table role=\\"presentation\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr><td height=\\"20\\" style=\\"height:20px;\\">
       
     <![endif]-->
   

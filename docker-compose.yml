@@ -40,13 +40,13 @@ services:
       - "127.0.0.1:8025:8025"
     healthcheck:
       test: echo | telnet 127.0.0.1 25
-  amqp:
-    image: "rabbitmq:3-management-alpine"
-    environment:
-      RABBITMQ_DEFAULT_USER: "covee-saas"
-      RABBITMQ_DEFAULT_PASS: "password"
-    ports:
-      - "127.0.0.1:5672:5672"
-      - "127.0.0.1:15672:15672"
-    healthcheck:
-      test: nc -z 127.0.0.1 5672
+  # amqp:
+  #   image: "rabbitmq:3-management-alpine"
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: "covee-saas"
+  #     RABBITMQ_DEFAULT_PASS: "password"
+  #   ports:
+  #     - "127.0.0.1:5672:5672"
+  #     - "127.0.0.1:15672:15672"
+  #   healthcheck:
+  #     test: nc -z 127.0.0.1 5672

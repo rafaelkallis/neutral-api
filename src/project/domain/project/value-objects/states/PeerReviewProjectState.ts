@@ -119,6 +119,9 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
     consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
     for (const reviewTopic of project.reviewTopics) {
+      const meanReviewTopicScore = project.peerReviews
+        .whereReviewTopic(reviewTopic)
+        .meanScore();
       for (const sender of project.roles) {
         if (
           project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
@@ -138,7 +141,7 @@ export class PeerReviewProjectState extends DefaultOrdinalProjectState {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
-                PeerReviewScore.of(1),
+                PeerReviewScore.of(meanReviewTopicScore),
                 PeerReviewFlag.ASBENT,
               ),
             ),
