@@ -37,16 +37,16 @@ export class ProjectDomainEventHandlers {
   public async onUserAssignedSendAssignmentEmail(
     event: UserAssignedEvent,
   ): Promise<void> {
-    const newAssignmentCtaUrl = this.ctaUrlFactory.createNewAssignmentCtaUrl({
-      user: event.assignee,
-      projectId: event.project.id,
-    });
-    await this.emailManager.sendNewAssignmentEmail(event.assignee.email.value, {
-      firstName: event.assignee.name.first,
-      projectTitle: event.project.title.value,
-      roleTitle: event.role.title.value,
-      ctaUrl: newAssignmentCtaUrl,
-    });
+    // const newAssignmentCtaUrl = this.ctaUrlFactory.createNewAssignmentCtaUrl({
+    //   user: event.assignee,
+    //   projectId: event.project.id,
+    // });
+    // await this.emailManager.sendNewAssignmentEmail(event.assignee.email.value, {
+    //   firstName: event.assignee.name.first,
+    //   projectTitle: event.project.title.value,
+    //   roleTitle: event.role.title.value,
+    //   ctaUrl: newAssignmentCtaUrl,
+    // });
   }
 
   @HandleDomainEvent(

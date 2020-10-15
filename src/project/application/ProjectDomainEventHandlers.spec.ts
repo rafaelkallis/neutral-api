@@ -32,7 +32,7 @@ describe(ProjectDomainEventHandlers.name, () => {
     project = scenario.modelFaker.project(creator.id);
   });
 
-  describe('on user assigned send assignment email', () => {
+  describe.skip('on user assigned send assignment email', () => {
     let assignee: InternalUser;
     let role: Role;
 
