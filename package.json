@@ -77,7 +77,7 @@
     "@types/mime-types": "~2.1.0",
     "@types/mjml": "4.0.4",
     "@types/multer": "1.4.4",
-    "@types/node": "^12.12.68",
+    "@types/node": "^12.12.69",
     "@types/node-mailjet": "~3.3.4",
     "@types/nodemailer": "6.4.0",
     "@types/nunjucks": "3.1.3",
