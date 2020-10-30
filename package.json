@@ -87,7 +87,7 @@
     "@typescript-eslint/parser": "4.6.0",
     "@zerollup/ts-transform-paths": "~1.7.18",
     "eslint": "~7.12.1",
-    "eslint-config-prettier": "~6.14.0",
+    "eslint-config-prettier": "~6.15.0",
     "eslint-plugin-jest": "~24.1.0",
     "eslint-plugin-promise": "~4.2.1",
     "faker": "~5.1.0",
