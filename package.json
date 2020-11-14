@@ -32,7 +32,7 @@
     "@nestjs/common": "~7.5.2",
     "@nestjs/core": "~7.5.1",
     "@nestjs/platform-express": "~7.5.2",
-    "@nestjs/swagger": "~4.7.2",
+    "@nestjs/swagger": "~4.7.3",
     "@panva/jose": "1.9.3",
     "amqplib": "~0.6.0",
     "applicationinsights": "1.8.8",
