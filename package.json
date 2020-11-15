@@ -67,7 +67,6 @@
     "@types/amqplib": "0.5.13",
     "@types/archiver": "3.1.1",
     "@types/compression": "1.7.0",
-    "@types/cookie-parser": "1.4.2",
     "@types/express": "4.17.9",
     "@types/faker": "~5.1.4",
     "@types/helmet": "~4.0.0",
