@@ -8,13 +8,11 @@ import {
   ForgetAuthUserCommand,
   ForgetAuthUserCommandHandler,
 } from 'user/application/commands/ForgetAuthUser';
-import { SessionState } from 'shared/session/session-state';
 
 describe(ForgetAuthUserCommand.name, () => {
   let scenario: UnitTestScenario<ForgetAuthUserCommandHandler>;
   let commandHandler: ForgetAuthUserCommandHandler;
   let authUser: User;
-  let session: SessionState;
   let command: ForgetAuthUserCommand;
   let userDto: UserDto;
 
@@ -25,7 +23,6 @@ describe(ForgetAuthUserCommand.name, () => {
       .build();
     commandHandler = scenario.subject;
     authUser = td.object(scenario.modelFaker.user());
-    session = td.object();
 
     const objectMapper = scenario.module.get(ObjectMapper);
     userDto = td.object();
@@ -33,7 +30,7 @@ describe(ForgetAuthUserCommand.name, () => {
       objectMapper.map(authUser, UserDto, td.matchers.anything()),
     ).thenResolve(userDto);
 
-    command = new ForgetAuthUserCommand(authUser, session);
+    command = new ForgetAuthUserCommand(authUser);
   });
 
   test('should be defined', () => {
@@ -44,6 +41,5 @@ describe(ForgetAuthUserCommand.name, () => {
     const result = await commandHandler.handle(command);
     expect(result).toBe(userDto);
     td.verify(authUser.forget());
-    td.verify(session.clear());
   });
 });

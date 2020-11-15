@@ -13,7 +13,6 @@ import {
   TokenAud,
   AccessToken,
   RefreshToken,
-  SessionToken,
   EmailChangeToken,
   BaseToken,
 } from 'shared/token/application/TokenManager';
@@ -117,43 +116,6 @@ export class JoseJwtTokenManagerService extends TokenManager {
       throw new TokenAudienceIncorrectException();
     }
     return payload as RefreshToken;
-  }
-
-  /**
-   * Create a new session token for identifying user sessions.
-   */
-  public newSessionToken(sub: string, maxAge?: number): string {
-    if (!maxAge) {
-      maxAge = moment()
-        .add(this.config.get('SESSION_MAX_AGE_MIN'), 'minutes')
-        .unix();
-    }
-    const payload: SessionToken = {
-      jti: this.createJti(),
-      aud: TokenAud.SESSION,
-      sub,
-      iat: moment().unix(),
-      exp: moment()
-        .add(this.config.get('SESSION_TOKEN_LIFETIME_MIN'), 'minutes')
-        .unix(),
-      maxAge,
-    };
-    return this.sign(payload);
-  }
-
-  /**
-   * Validate and verify the signature of a session token.
-   */
-  public validateSessionToken(token: string): SessionToken {
-    const payload = this.verify(token);
-    if (payload.aud !== TokenAud.SESSION) {
-      throw new TokenAudienceIncorrectException();
-    }
-    if (moment() > moment.unix((payload as SessionToken).maxAge)) {
-      /* token has expired */
-      throw new TokenExpiredException();
-    }
-    return payload as SessionToken;
   }
 
   /**

@@ -15,7 +15,6 @@ import {
   Put,
   HttpStatus,
   Inject,
-  Session,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -49,7 +48,6 @@ import { SubmitEmailChangeCommand } from 'user/application/commands/SubmitEmailC
 import { UpdateAuthUserAvatarCommand } from 'user/application/commands/UpdateAuthUserAvatar';
 import { RemoveAuthUserAvatarCommand } from 'user/application/commands/RemoveAuthUserAvatar';
 import { GetUserAvatarQuery } from 'user/application/queries/GetUserAvatarQuery';
-import { SessionState } from 'shared/session/session-state';
 import {
   GetAuthUserDataZipQuery,
   GetAuthUserDataZipQueryResult,
@@ -264,11 +262,8 @@ export class UserController {
   @ApiNoContentResponse({
     description: 'Authenticated user deleted succesfully',
   })
-  public async deleteAuthUser(
-    @Session() session: SessionState,
-    @AuthUser() authUser: User,
-  ): Promise<void> {
-    await this.mediator.send(new ForgetAuthUserCommand(authUser, session));
+  public async deleteAuthUser(@AuthUser() authUser: User): Promise<void> {
+    await this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 
   /**
@@ -283,10 +278,7 @@ export class UserController {
   @ApiNoContentResponse({
     description: 'Authenticated user forgotten succesfully',
   })
-  public async forgetAuthUser(
-    @Session() session: SessionState,
-    @AuthUser() authUser: User,
-  ): Promise<UserDto> {
-    return this.mediator.send(new ForgetAuthUserCommand(authUser, session));
+  public async forgetAuthUser(@AuthUser() authUser: User): Promise<UserDto> {
+    return this.mediator.send(new ForgetAuthUserCommand(authUser));
   }
 }

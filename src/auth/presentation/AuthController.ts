@@ -4,7 +4,6 @@ import {
   HttpCode,
   Param,
   Post,
-  Session,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
@@ -22,14 +21,12 @@ import { ValidationPipe } from 'shared/application/pipes/ValidationPipe';
 import { RefreshRequestDto } from 'auth/application/dto/RefreshRequestDto';
 import { RequestLoginDto } from 'auth/application/dto/RequestLoginDto';
 import { RequestSignupDto } from 'auth/application/dto/RequestSignupDto';
-import { SessionState } from 'shared/session/session-state';
 import { AuthenticationResponseDto } from 'auth/application/dto/AuthenticationResponseDto';
 import { RefreshResponseDto } from 'auth/application/dto/RefreshResponseDto';
 import { Mediator } from 'shared/mediator/Mediator';
 import { RequestLoginCommand } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommand } from 'auth/application/commands/SubmitLogin';
 import { RefreshCommand } from 'auth/application/commands/Refresh';
-import { LogoutCommand } from 'auth/application/commands/Logout';
 import { AuthGuard } from 'auth/application/guards/AuthGuard';
 
 /**
@@ -81,9 +78,8 @@ export class AuthController {
   @ApiNotFoundResponse({ description: 'User not found' })
   public async submitLogin(
     @Param('token') loginToken: string,
-    @Session() session: SessionState,
   ): Promise<AuthenticationResponseDto> {
-    return this.mediator.send(new SubmitLoginCommand(loginToken, session));
+    return this.mediator.send(new SubmitLoginCommand(loginToken));
   }
 
   /**
@@ -134,9 +130,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
-  @ApiOperation({ operationId: 'logout', summary: 'Logout' })
+  @ApiOperation({ operationId: 'logout', summary: 'Logout', deprecated: true })
   @ApiNoContentResponse({ description: 'Logout successful' })
-  public async logout(@Session() session: SessionState): Promise<void> {
-    return this.mediator.send(new LogoutCommand(session));
+  public async logout(): Promise<void> {
+    /* no-op */
   }
 }

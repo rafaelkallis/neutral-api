@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 
 import { UnauthorizedUserException } from 'auth/application/exceptions/UnauthorizedUserException';
-import { SessionState } from 'shared/session';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ReadonlyUser } from 'user/domain/User';
@@ -36,43 +35,32 @@ export class AuthGuard implements CanActivate {
   public async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const authHeader: string | undefined = req.header('Authorization');
-    const session: SessionState = req.session;
-    // TODO chain of responsibility pattern
-    if (!session.exists() && !authHeader) {
+    if (!authHeader) {
       /* throw if no authorization scheme is used */
       throw new UnauthorizedUserException();
     }
-    if (session.exists() && authHeader) {
-      /* throw if multiple authorization schemes are used */
-      throw new UnauthorizedUserException();
-    }
-    if (session.exists()) {
-      req.user = await this.handleSessionAuth(session);
-    }
-    if (authHeader) {
-      req.user = await this.handleAuthHeaderAuth(authHeader);
-    }
+    req.user = await this.handleAuthorizationHeaderAuth(authHeader);
     return true;
   }
 
-  private async handleSessionAuth(
-    session: SessionState,
-  ): Promise<ReadonlyUser> {
-    const payload = this.tokenService.validateSessionToken(session.get());
-    const userId = UserId.from(payload.sub);
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new UnauthorizedUserException();
-    }
-    const newSessionToken = this.tokenService.newSessionToken(
-      user.id.value,
-      payload.maxAge,
-    );
-    session.set(newSessionToken);
-    return user;
-  }
+  // private async handleSessionAuth(
+  //   session: SessionState,
+  // ): Promise<ReadonlyUser> {
+  //   const payload = this.tokenService.validateSessionToken(session.get());
+  //   const userId = UserId.from(payload.sub);
+  //   const user = await this.userRepository.findById(userId);
+  //   if (!user) {
+  //     throw new UnauthorizedUserException();
+  //   }
+  //   const newSessionToken = this.tokenService.newSessionToken(
+  //     user.id.value,
+  //     payload.maxAge,
+  //   );
+  //   session.set(newSessionToken);
+  //   return user;
+  // }
 
-  private async handleAuthHeaderAuth(
+  private async handleAuthorizationHeaderAuth(
     authHeader: string,
   ): Promise<ReadonlyUser> {
     const [prefix, content] = authHeader.split(' ');
