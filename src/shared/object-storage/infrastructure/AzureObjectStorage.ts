@@ -79,10 +79,16 @@ export class AzureObjectStorage extends ObjectStorage {
     containerName: string,
     key: string,
   ): Promise<BlockBlobClient> {
+    console.log(1, containerName);
     const container = this.client.getContainerClient(containerName);
-    if (!(await container.exists())) {
-      await container.create();
+    console.log(2, container);
+    try {
+      await container.createIfNotExists();
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
+    console.log(3);
     const blob = container.getBlockBlobClient(key);
     return blob;
   }

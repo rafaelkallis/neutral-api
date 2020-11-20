@@ -13,7 +13,7 @@ describe(AzureObjectStorage.name, () => {
   let scenario: UnitTestScenario<AzureObjectStorage>;
   let azureObjectStorage: AzureObjectStorage;
   let key: string;
-  const containerName = '.tests';
+  const containerName = '_tests';
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(AzureObjectStorage)

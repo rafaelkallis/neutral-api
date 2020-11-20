@@ -28,6 +28,7 @@ import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTy
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectTypeOrmEntity)
@@ -132,6 +133,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
         Contribution,
       ),
     );
+    const milestones = new MilestoneCollection([]);
     return Project.of(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
@@ -148,6 +150,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       peerReviews,
       reviewTopics,
       contributions,
+      milestones,
     );
   }
 }

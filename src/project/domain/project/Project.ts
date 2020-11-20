@@ -43,6 +43,10 @@ import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
+import {
+  MilestoneCollection,
+  ReadonlyMilestoneCollection,
+} from '../milestone/MilestoneCollection';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -57,6 +61,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly peerReviews: ReadonlyPeerReviewCollection;
   readonly reviewTopics: ReadonlyReviewTopicCollection;
   readonly contributions: ReadonlyContributionCollection;
+  readonly milestones: ReadonlyMilestoneCollection;
 
   isConsensual(): boolean;
   isCreator(user: ReadonlyUser): boolean;
@@ -75,7 +80,8 @@ export interface UpdateProjectContext {
 /**
  * Project Model
  */
-export abstract class Project extends AggregateRoot<ProjectId>
+export abstract class Project
+  extends AggregateRoot<ProjectId>
   implements ReadonlyProject {
   public abstract readonly title: ProjectTitle;
   public abstract readonly description: ProjectDescription;
@@ -89,6 +95,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
   public abstract readonly peerReviews: PeerReviewCollection;
   public abstract readonly reviewTopics: ReviewTopicCollection;
   public abstract readonly contributions: ContributionCollection;
+  public abstract readonly milestones: MilestoneCollection;
 
   public static of(
     id: ProjectId,
@@ -106,6 +113,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
     peerReviews: PeerReviewCollection,
     reviewTopics: ReviewTopicCollection,
     contributions: ContributionCollection,
+    milestones: MilestoneCollection,
   ): Project {
     return new InternalProject(
       id,
@@ -123,6 +131,7 @@ export abstract class Project extends AggregateRoot<ProjectId>
       peerReviews,
       reviewTopics,
       contributions,
+      milestones,
     );
   }
 
@@ -248,6 +257,7 @@ export class InternalProject extends Project {
   public peerReviews: PeerReviewCollection;
   public reviewTopics: ReviewTopicCollection;
   public contributions: ContributionCollection;
+  public milestones: MilestoneCollection;
 
   public constructor(
     id: ProjectId,
@@ -265,10 +275,12 @@ export class InternalProject extends Project {
     peerReviews: PeerReviewCollection,
     reviewTopics: ReviewTopicCollection,
     contributions: ContributionCollection,
+    milestones: MilestoneCollection,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
+    this.meta = meta;
     this.creatorId = creatorId;
     this.state = state;
     this.contributionVisibility = contributionVisibility;
@@ -278,7 +290,7 @@ export class InternalProject extends Project {
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
-    this.meta = meta;
+    this.milestones = milestones;
   }
 
   /**
