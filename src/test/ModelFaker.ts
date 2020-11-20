@@ -38,6 +38,7 @@ import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerRev
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { Organization } from 'organization/domain/Organization';
 import { ValueObjectFaker } from './ValueObjectFaker';
+import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -112,6 +113,7 @@ export class ModelFaker {
       PeerReviewCollection.empty(),
       new ReviewTopicCollection([]),
       new ContributionCollection([]),
+      new MilestoneCollection([]),
     );
   }
 

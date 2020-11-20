@@ -12,6 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
+import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 
 /**
  * TypeOrm Project Repository
@@ -105,6 +106,15 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         contributionIdsToDelete,
       );
     }
+    const milestoneIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.milestones.getRemovedModels())
+      .map((milestoneModel) => milestoneModel.id.value);
+    if (milestoneIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        MilestoneTypeOrmEntity,
+        milestoneIdsToDelete,
+      );
+    }
     await this.typeOrmRepository.persist(
       ProjectTypeOrmEntity,
       ...projectModels,
@@ -156,6 +166,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       reviewTopicEntities,
       peerReviewEntities,
       contributionEntities,
+      milestoneEntities,
     ] = await Promise.all([
       this.entityManager
         .getRepository(RoleTypeOrmEntity)
@@ -168,6 +179,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         .find({ projectId: In(ids) }),
       this.entityManager
         .getRepository(ContributionTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
+        .getRepository(MilestoneTypeOrmEntity)
         .find({ projectId: In(ids) }),
     ]);
     for (const projectEntity of projectEntities) {
@@ -183,6 +197,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       projectEntity.contributions = contributionEntities.filter(
         (contributionEntity) =>
           projectEntity.id === contributionEntity.projectId,
+      );
+      projectEntity.milestones = milestoneEntities.filter(
+        (milestoneEntity) => projectEntity.id === milestoneEntity.projectId,
       );
     }
   }

@@ -28,6 +28,9 @@ import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTy
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
+import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
+import { Milestone } from 'project/domain/milestone/Milestone';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectTypeOrmEntity)
@@ -35,17 +38,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
   Project,
   ProjectTypeOrmEntity
 > {
-  private static readonly rolesSentinel: ReadonlyArray<RoleTypeOrmEntity> = [];
-  private static readonly peerReviewsSentinel: ReadonlyArray<
-    PeerReviewTypeOrmEntity
-  > = [];
-  private static readonly reviewTopicsSentinel: ReadonlyArray<
-    ReviewTopicTypeOrmEntity
-  > = [];
-  private static readonly contributionsSentinel: ReadonlyArray<
-    ContributionTypeOrmEntity
-  > = [];
-
   private readonly objectMapper: ObjectMapper;
 
   public constructor(objectMapper: ObjectMapper) {
@@ -66,31 +58,35 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       projectModel.contributionVisibility.asValue(),
       projectModel.peerReviewVisibility.label,
       projectModel.skipManagerReview.value,
-      ProjectTypeOrmEntityMap.rolesSentinel,
-      ProjectTypeOrmEntityMap.peerReviewsSentinel,
-      ProjectTypeOrmEntityMap.reviewTopicsSentinel,
-      ProjectTypeOrmEntityMap.contributionsSentinel,
+      [],
+      [],
+      [],
+      [],
+      [],
     );
     projectEntity.roles = await this.objectMapper.mapIterable(
-      projectModel.roles.toArray(),
+      projectModel.roles,
       RoleTypeOrmEntity,
-      {
-        project: projectEntity,
-      },
+      { project: projectEntity },
     );
     projectEntity.peerReviews = await this.objectMapper.mapIterable(
-      projectModel.peerReviews.toArray(),
+      projectModel.peerReviews,
       PeerReviewTypeOrmEntity,
       { project: projectEntity },
     );
     projectEntity.reviewTopics = await this.objectMapper.mapIterable(
-      projectModel.reviewTopics.toArray(),
+      projectModel.reviewTopics,
       ReviewTopicTypeOrmEntity,
       { project: projectEntity },
     );
     projectEntity.contributions = await this.objectMapper.mapIterable(
-      projectModel.contributions.toArray(),
+      projectModel.contributions,
       ContributionTypeOrmEntity,
+      { project: projectEntity },
+    );
+    projectEntity.milestones = await this.objectMapper.mapIterable(
+      projectModel.milestones,
+      MilestoneTypeOrmEntity,
       { project: projectEntity },
     );
     return projectEntity;
@@ -132,6 +128,9 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
         Contribution,
       ),
     );
+    const milestones = new MilestoneCollection(
+      await this.objectMapper.mapIterable(projectEntity.milestones, Milestone),
+    );
     return Project.of(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
@@ -148,6 +147,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       peerReviews,
       reviewTopics,
       contributions,
+      milestones,
     );
   }
 }

@@ -14,6 +14,7 @@ import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
+import { MilestoneTypeOrmEntity } from 'project/infrastructure/MilestoneTypeOrmEntity';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { OrganizationTypeOrmEntity } from 'organization/infrastructure/OrganizationTypeOrmEntity';
 import { OrganizationMembershipTypeOrmEntity } from 'organization/infrastructure/OrganizationMembershipTypeOrmEntity';
@@ -57,6 +58,7 @@ import { AddOrganizationsMigration1595764704000 } from 'shared/typeorm/migration
 import { AddOrganizationMembershipsMigration1595777246000 } from 'shared/typeorm/migration/1595777246000AddOrganizationMembershipMigration';
 import { AddAddRolesAndPeerReviewsProjectIdIndexesMigration1599128899000 } from 'shared/typeorm/migration/1599128899000AddRolesAndPeerReviewsProjectIdIndexesMigration';
 import { AddAssigneeIdIndexMigration1599745163000 } from 'shared/typeorm/migration/1599745163000AddAssigneeIdIndexMigration';
+import { AddMilestonesMigration1605904211000 } from 'shared/typeorm/migration/1605904211000AddMilestonesMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -80,6 +82,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ReviewTopicTypeOrmEntity,
         ReviewTopicInputTypeOrmEntity,
         ContributionTypeOrmEntity,
+        MilestoneTypeOrmEntity,
         NotificationTypeOrmEntity,
         OrganizationTypeOrmEntity,
         OrganizationMembershipTypeOrmEntity,
@@ -124,6 +127,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddOrganizationMembershipsMigration1595777246000,
         AddAddRolesAndPeerReviewsProjectIdIndexesMigration1599128899000,
         AddAssigneeIdIndexMigration1599745163000,
+        AddMilestonesMigration1605904211000,
       ],
     });
     this.connection = connection;

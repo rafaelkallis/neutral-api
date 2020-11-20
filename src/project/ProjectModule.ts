@@ -38,6 +38,10 @@ import {
   ContributionTypeOrmEntityMap,
   ReverseContributionTypeOrmEntityMap,
 } from 'project/infrastructure/ContributionTypeOrmEntityMap';
+import {
+  MilestoneTypeOrmEntityMap,
+  ReverseMilestoneTypeOrmEntityMap,
+} from 'project/infrastructure/MilestoneTypeOrmEntityMap';
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
 import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
@@ -89,6 +93,8 @@ import { StaticConsensualityComputer } from './infrastructure/StaticConsensualit
     ReverseReviewTopicTypeOrmEntityMap,
     ContributionTypeOrmEntityMap,
     ReverseContributionTypeOrmEntityMap,
+    MilestoneTypeOrmEntityMap,
+    ReverseMilestoneTypeOrmEntityMap,
     // command handlers
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,
