@@ -33,7 +33,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
   }
 
   public toArray(): ReadonlyArray<TModel> {
-    return Array.from(this);
+    return Array.from(this.models);
   }
 
   public count(): number {
