@@ -10,7 +10,7 @@ export class MilestoneId extends Id {
     super(value);
   }
 
-  public static from(id: string): MilestoneId {
+  public static of(id: string): MilestoneId {
     return new MilestoneId(id);
   }
 

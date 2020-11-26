@@ -25,7 +25,6 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
-import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
@@ -39,6 +38,12 @@ import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerR
 import { Organization } from 'organization/domain/Organization';
 import { ValueObjectFaker } from './ValueObjectFaker';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
+import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
+import { Milestone } from 'project/domain/milestone/Milestone';
+import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
+import { MilestoneTitle } from 'project/domain/milestone/value-objects/MilestoneTitle';
+import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
+import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;
@@ -149,6 +154,26 @@ export class ModelFaker {
     );
   }
 
+  public milestone(project: Project): Milestone {
+    const id = MilestoneId.create();
+    const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
+    const title = MilestoneTitle.from(this.primitiveFaker.words());
+    const description = MilestoneDescription.from(
+      this.primitiveFaker.paragraph(),
+    );
+    const state = PeerReviewMilestoneState.INSTANCE;
+    return Milestone.of(
+      id,
+      createdAt,
+      updatedAt,
+      title,
+      description,
+      state,
+      project,
+    );
+  }
+
   /**
    * Create a fake peer review
    */
@@ -156,6 +181,8 @@ export class ModelFaker {
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
+    milestoneId: MilestoneId,
+    project: Project,
   ): PeerReview {
     const id = PeerReviewId.from(this.primitiveFaker.id());
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
@@ -168,8 +195,10 @@ export class ModelFaker {
       senderRoleId,
       receiverRoleId,
       reviewTopicId,
+      milestoneId,
       score,
       PeerReviewFlag.NONE,
+      project,
     );
   }
 

@@ -15,7 +15,6 @@ import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
 import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
@@ -30,17 +29,13 @@ import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemove
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
-import {
-  OrdinalProjectState,
-  DefaultOrdinalProjectState,
-} from './OrdinalProjectState';
+import { ActiveProjectState } from './ActiveProjectState';
+import { ProjectState } from './ProjectState';
 
-export class FormationProjectState extends DefaultOrdinalProjectState {
-  public static readonly INSTANCE: OrdinalProjectState = new CancellableProjectState(
-    new FormationProjectState(),
-  );
+export class FormationProjectState extends CancellableProjectState {
+  public static readonly INSTANCE: ProjectState = new FormationProjectState();
 
-  public getOrdinal(): number {
+  protected getOrdinal(): number {
     return 0;
   }
 
@@ -184,7 +179,7 @@ export class FormationProjectState extends DefaultOrdinalProjectState {
     project.reviewTopics.assertSufficientAmount();
     // TODO make configurable
     // assignees.assertAllAreActive();
-    project.state = PeerReviewProjectState.INSTANCE;
+    project.state = ActiveProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
     project.raise(new ProjectPeerReviewStartedEvent(project, assignees));
   }

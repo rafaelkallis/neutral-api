@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
-import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { PeerReview } from 'project/domain/peer-review/PeerReview';
-import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -24,10 +18,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   /**
    * Computes a project's consensuality.
    */
-  protected computeForReviewTopic(
-    peerReviews: PeerReviewCollection,
+  protected doCompute(
+    peerReviews: Record<string, Record<string, number>>,
   ): Consensuality {
-    const n = peerReviews.getNumberOfPeers();
+    const n = Object.keys(peerReviews).length;
     const maxDissent = this.computeDissent(this.createCyclicPeerReviews(n));
     const absoluteDissent = this.computeDissent(peerReviews);
     if (maxDissent === 0) {
@@ -45,8 +39,9 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     return Consensuality.from(consensuality);
   }
 
-  private computeDissent(peerReviewCollection: PeerReviewCollection): number {
-    const peerReviews = peerReviewCollection.toNormalizedMap();
+  private computeDissent(
+    peerReviews: Record<string, Record<string, number>>,
+  ): number {
     const peers = Object.keys(peerReviews);
     function R_ijk(i: string, j: string, k: string): number {
       return peerReviews[i][j] / peerReviews[i][k];
@@ -71,12 +66,10 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
     return dissent;
   }
 
-  private createCyclicPeerReviews(n: number): PeerReviewCollection {
-    const peerReviews = PeerReviewCollection.empty();
-    const peers = [];
-    for (let i = 0; i < n; i++) {
-      peers.push(RoleId.create());
-    }
+  private createCyclicPeerReviews(
+    n: number,
+  ): Record<string, Record<string, number>> {
+    const peerReviews: Record<string, Record<string, number>> = {};
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         if (i == j) {
@@ -88,14 +81,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
         } else {
           score = 0;
         }
-        const peerReview = PeerReview.of(
-          peers[i],
-          peers[j],
-          ReviewTopicId.create(),
-          PeerReviewScore.of(score),
-          PeerReviewFlag.NONE,
-        );
-        peerReviews.add(peerReview);
+        peerReviews[String(i)][String(j)] = score;
       }
     }
     return peerReviews;

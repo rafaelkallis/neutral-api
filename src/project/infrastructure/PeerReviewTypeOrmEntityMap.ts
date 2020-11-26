@@ -13,6 +13,8 @@ import {
   stringToPeerReviewFlag,
   peerReviewFlagToString,
 } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { Project } from 'project/domain/project/Project';
+import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
 
 @Injectable()
 @ObjectMap.register(PeerReview, PeerReviewTypeOrmEntity)
@@ -34,6 +36,7 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
       peerReviewModel.senderRoleId.value,
       peerReviewModel.receiverRoleId.value,
       peerReviewModel.reviewTopicId.value,
+      peerReviewModel.milestone.id.value,
       peerReviewModel.score.value,
       peerReviewFlagToString(peerReviewModel.flag),
     );
@@ -46,7 +49,11 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
   PeerReviewTypeOrmEntity,
   PeerReview
 > {
-  protected doMap(peerReviewEntity: PeerReviewTypeOrmEntity): PeerReview {
+  protected doMap(
+    peerReviewEntity: PeerReviewTypeOrmEntity,
+    ctx: ObjectMapContext,
+  ): PeerReview {
+    const project = ctx.get('project', Project);
     return new PeerReview(
       PeerReviewId.from(peerReviewEntity.id),
       CreatedAt.from(peerReviewEntity.createdAt),
@@ -54,8 +61,10 @@ export class ReversePeerReviewTypeOrmEntityMap extends ObjectMap<
       RoleId.from(peerReviewEntity.senderRoleId),
       RoleId.from(peerReviewEntity.receiverRoleId),
       ReviewTopicId.from(peerReviewEntity.reviewTopicId),
+      MilestoneId.of(peerReviewEntity.milestoneId),
       PeerReviewScore.of(peerReviewEntity.score),
       stringToPeerReviewFlag(peerReviewEntity.flag),
+      project,
     );
   }
 }

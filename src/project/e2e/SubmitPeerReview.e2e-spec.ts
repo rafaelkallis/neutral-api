@@ -4,7 +4,6 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { HttpStatus } from '@nestjs/common';
-import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -12,6 +11,8 @@ import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
+import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -23,6 +24,7 @@ describe('submit peer review (e2e)', () => {
   let role3: ReadonlyRole;
   let role4: ReadonlyRole;
   let reviewTopic1: ReadonlyReviewTopic;
+  let milestone: ReadonlyMilestone;
   let peerReviews: Record<string, number>;
 
   beforeEach(async () => {
@@ -79,6 +81,11 @@ describe('submit peer review (e2e)', () => {
 
     project.finishFormation(
       new UserCollection([assignee1, assignee2, assignee3, assignee4]),
+    );
+
+    milestone = project.addMilestone(
+      scenario.valueObjectFaker.milestone.title(),
+      scenario.valueObjectFaker.milestone.description(),
     );
 
     await scenario.projectRepository.persist(project);
@@ -156,12 +163,14 @@ describe('submit peer review (e2e)', () => {
               .whereNot(sender)
               .toArray()
               .map((receiver) =>
-                PeerReview.of(
+                PeerReview.create(
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
+                  milestone.id,
                   PeerReviewScore.of(1),
                   PeerReviewFlag.NONE,
+                  project,
                 ),
               ),
           );
@@ -177,7 +186,7 @@ describe('submit peer review (e2e)', () => {
       project.clearDomainEvents();
     });
 
-    test('should advance to project manager state', async () => {
+    test('should advance to manager review state', async () => {
       const response = await scenario.session
         .post(`/projects/${project.id.value}/submit-peer-reviews`)
         .send({
@@ -192,7 +201,9 @@ describe('submit peer review (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toBe(ManagerReviewProjectState.INSTANCE);
+      expect(updatedProject.milestones.whereLatest().state).toBe(
+        ManagerReviewMilestoneState.INSTANCE,
+      );
     });
 
     test('should send "manager review" email to project creator', async () => {

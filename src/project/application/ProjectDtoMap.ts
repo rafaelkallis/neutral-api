@@ -9,7 +9,6 @@ import { Injectable } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 

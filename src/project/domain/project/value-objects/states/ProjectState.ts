@@ -18,88 +18,17 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
+import { MilestoneTitle } from 'project/domain/milestone/value-objects/MilestoneTitle';
+import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
+import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
+import { Comprarable } from 'shared/domain/value-objects/Comparable';
 
 /**
  *
  */
-export abstract class ProjectState extends ValueObject {
-  public abstract update(
-    project: InternalProject,
-    context: UpdateProjectContext,
-  ): void;
-
-  public abstract addRole(
-    project: InternalProject,
-    title: RoleTitle,
-    description: RoleDescription,
-  ): ReadonlyRole;
-
-  public abstract updateRole(
-    project: InternalProject,
-    roleId: RoleId,
-    title?: RoleTitle,
-    description?: RoleDescription,
-  ): void;
-
-  public abstract removeRole(project: InternalProject, roleId: RoleId): void;
-
-  public abstract assignUserToRole(
-    project: InternalProject,
-    userToAssign: ReadonlyUser,
-    roleId: RoleId,
-  ): void;
-
-  public abstract unassign(project: InternalProject, roleId: RoleId): void;
-
-  public abstract addReviewTopic(
-    project: InternalProject,
-    title: ReviewTopicTitle,
-    description: ReviewTopicDescription,
-    input: ReviewTopicInput,
-  ): ReadonlyReviewTopic;
-
-  public abstract updateReviewTopic(
-    project: InternalProject,
-    reviewTopicId: ReviewTopicId,
-    title?: ReviewTopicTitle,
-    description?: ReviewTopicDescription,
-    input?: ReviewTopicInput,
-  ): void;
-
-  public abstract removeReviewTopic(
-    project: InternalProject,
-    reviewTopicId: ReviewTopicId,
-  ): void;
-
-  public abstract finishFormation(
-    project: InternalProject,
-    assignees: ReadonlyUserCollection,
-  ): void;
-
-  public abstract submitPeerReviews(
-    project: InternalProject,
-    peerReviews: ReadonlyPeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
-  ): Promise<void>;
-
-  public abstract completePeerReviews(
-    project: InternalProject,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
-  ): Promise<void>;
-
-  public abstract submitManagerReview(project: InternalProject): void;
-
-  public abstract cancel(project: InternalProject): void;
-
-  public abstract archive(project: InternalProject): void;
-}
-
-/**
- *
- */
-export abstract class DefaultProjectState extends ProjectState {
+export abstract class ProjectState
+  extends ValueObject
+  implements Comprarable<ProjectState> {
   public update(
     _project: InternalProject,
     _context: UpdateProjectContext,
@@ -166,6 +95,14 @@ export abstract class DefaultProjectState extends ProjectState {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
+  public addMilestone(
+    _project: InternalProject,
+    _title: MilestoneTitle,
+    _description: MilestoneDescription,
+  ): ReadonlyMilestone {
+    throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
   public finishFormation(
     _project: InternalProject,
     _assignees: ReadonlyUserCollection,
@@ -202,5 +139,11 @@ export abstract class DefaultProjectState extends ProjectState {
 
   public archive(_project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
+  }
+
+  protected abstract getOrdinal(): number;
+
+  public compareTo(other: ProjectState): number {
+    return this.getOrdinal() - other.getOrdinal();
   }
 }

@@ -22,6 +22,9 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'review_topic_id' })
   public reviewTopicId: string;
 
+  @Column({ name: 'milestone_id' })
+  public milestoneId: string;
+
   @Column({ name: 'score' })
   public score: number;
 
@@ -37,6 +40,7 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     senderRoleId: string,
     receiverRoleId: string,
     reviewTopicId: string,
+    milestoneId: string,
     score: number,
     flag: string,
   ) {
@@ -46,6 +50,7 @@ export class PeerReviewTypeOrmEntity extends TypeOrmEntity {
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;
+    this.milestoneId = milestoneId;
     this.score = score;
     this.flag = flag;
   }

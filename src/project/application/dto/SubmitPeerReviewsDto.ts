@@ -39,7 +39,7 @@ export class SubmitPeerReviewsDto {
   public asPeerReviewCollection(senderRoleId: RoleId): PeerReviewCollection {
     return PeerReviewCollection.of(
       Object.entries(this.peerReviews).map(([receiverRoleId, score]) =>
-        PeerReview.of(
+        PeerReview.create(
           senderRoleId,
           RoleId.from(receiverRoleId),
           ReviewTopicId.from(this.reviewTopicId),

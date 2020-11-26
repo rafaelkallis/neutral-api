@@ -5,12 +5,14 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { Role } from 'project/domain/role/Role';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { Milestone } from 'project/domain/milestone/Milestone';
 
-describe(CoveeContributionsComputer.name, () => {
+describe('' + CoveeContributionsComputer.name, () => {
   let scenario: UnitTestScenario<CoveeContributionsComputer>;
   let contributionsComputer: CoveeContributionsComputer;
   let project: InternalProject;
   let reviewTopic: ReviewTopic;
+  let milestone: Milestone;
   let roles: Role[];
 
   const strToInt = (s: string): number => Buffer.from(s)[0] - 97;
@@ -25,6 +27,8 @@ describe(CoveeContributionsComputer.name, () => {
 
     reviewTopic = scenario.modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
+    milestone = scenario.modelFaker.milestone(project);
+    project.milestones.add(milestone);
     roles = [];
     for (let i = 0; i < 10; i++) {
       roles.push(scenario.modelFaker.role());
@@ -765,8 +769,10 @@ describe(CoveeContributionsComputer.name, () => {
       project.peerReviews = PeerReviewCollection.ofMap(
         peerReviewMap,
         reviewTopic.id,
+        milestone.id,
+        project,
       );
-      const contributions = contributionsComputer.compute(project);
+      const contributions = contributionsComputer.compute(milestone);
       for (const [roleKey, expectedContribution] of Object.entries(
         abcResults,
       )) {

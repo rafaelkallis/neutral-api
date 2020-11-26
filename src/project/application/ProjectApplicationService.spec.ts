@@ -13,12 +13,11 @@ import { RoleCollection } from 'project/domain/role/RoleCollection';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { UserCollection } from 'user/domain/UserCollection';
 
-describe(ProjectApplicationService.name, () => {
+describe('' + ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
   let projectApplication: ProjectApplicationService;
 

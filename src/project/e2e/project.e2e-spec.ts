@@ -1,19 +1,20 @@
-import { InternalProject, Project } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
-import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
-import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
-import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { HttpStatus } from '@nestjs/common';
 import { SkipManagerReviewValue } from 'project/domain/project/value-objects/SkipManagerReview';
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { ProjectTestHelper } from 'test/ProjectTestHelper';
+import {
+  ReadonlyUserCollection,
+  UserCollection,
+} from 'user/domain/UserCollection';
+import { ActiveProjectState } from 'project/domain/project/value-objects/states/ActiveProjectState';
 
 describe('project (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -179,7 +180,7 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id (PATCH)', () => {
-    let project: InternalProject;
+    let project: Project;
     let title: string;
 
     beforeEach(async () => {
@@ -214,7 +215,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if not in formation state', async () => {
-      project.state = PeerReviewProjectState.INSTANCE;
+      project.cancel();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session
         .patch(`/projects/${project.id.value}`)
@@ -224,32 +225,23 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id/finish-formation (POST)', () => {
-    let assignees: User[];
-    let project: InternalProject;
-    let roles: Role[];
-    let reviewTopics: ReviewTopic[];
+    let assignees: ReadonlyUserCollection;
+    let project: Project;
 
     beforeEach(async () => {
-      assignees = [
+      assignees = new UserCollection([
         await scenario.createUser(),
         await scenario.createUser(),
         await scenario.createUser(),
         await scenario.createUser(),
-      ];
+      ]);
       project = await scenario.createProject(user);
-      project.state = FormationProjectState.INSTANCE;
-      roles = [
-        scenario.modelFaker.role(assignees[0].id),
-        scenario.modelFaker.role(assignees[1].id),
-        scenario.modelFaker.role(assignees[2].id),
-        scenario.modelFaker.role(assignees[3].id),
-      ];
-      project.roles.addAll(roles);
-      reviewTopics = [
-        scenario.modelFaker.reviewTopic(),
-        scenario.modelFaker.reviewTopic(),
-      ];
-      project.reviewTopics.addAll(reviewTopics);
+      const projectHelper = ProjectTestHelper.of(project);
+      for (const assignee of assignees) {
+        projectHelper.addRoleAndAssign(assignee);
+      }
+      projectHelper.addReviewTopic();
+      projectHelper.addReviewTopic();
       await scenario.projectRepository.persist(project);
     });
 
@@ -265,7 +257,7 @@ describe('project (e2e)', () => {
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.state).toEqual(PeerReviewProjectState.INSTANCE);
+      expect(updatedProject.state).toEqual(ActiveProjectState.INSTANCE);
 
       for (const assignee of assignees) {
         const receivedEmails = await scenario.getReceivedEmails(assignee);
@@ -287,16 +279,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.state = PeerReviewProjectState.INSTANCE;
-      await scenario.projectRepository.persist(project);
-      const response = await scenario.session.post(
-        `/projects/${project.id.value}/finish-formation`,
-      );
-      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    });
-
-    test('should fail if a role has no user assigned', async () => {
-      roles[1].assigneeId = null;
+      project.finishFormation(assignees);
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
@@ -306,11 +289,22 @@ describe('project (e2e)', () => {
   });
 
   describe('/projects/:id/archive (POST)', () => {
-    let project: InternalProject;
+    let project: Project;
 
     beforeEach(async () => {
-      project = scenario.modelFaker.project(user.id);
-      project.state = FinishedProjectState.INSTANCE;
+      project = await scenario.createProject(user);
+      const projectHelper = ProjectTestHelper.of(project);
+      const assignees = new UserCollection([
+        await scenario.createUser(),
+        await scenario.createUser(),
+        await scenario.createUser(),
+      ]);
+      projectHelper.addRolesAndAssign(assignees);
+      projectHelper.addReviewTopics(2);
+      project.finishFormation(assignees);
+      projectHelper.addMilestone();
+      await projectHelper.completePeerReviews();
+      project.submitManagerReview();
       await scenario.projectRepository.persist(project);
     });
 

@@ -25,6 +25,13 @@ export abstract class NumberValueObject extends SingleValueObject<number> {
     return super.equals(other);
   }
 
+  public greaterThan(other: ValueObject): boolean {
+    if (!(other instanceof NumberValueObject)) {
+      return false;
+    }
+    return this.value > other.value;
+  }
+
   private assertNumber(value: number): void {
     if (typeof value !== 'number') {
       this.throwInvalidValueObjectException();

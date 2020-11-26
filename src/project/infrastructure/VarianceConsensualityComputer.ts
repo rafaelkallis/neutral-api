@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
-import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -44,11 +43,10 @@ function mean(arr: number[]): number {
  */
 @Injectable()
 export class VarianceConsensualityComputerService extends ConsensualityComputer {
-  protected computeForReviewTopic(
-    peerReviewCollection: PeerReviewCollection,
+  protected doCompute(
+    peerReviews: Record<string, Record<string, number>>,
   ): Consensuality {
     const EPS = 1e-16;
-    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;
     function variance(arr: number[]): number {
@@ -58,7 +56,7 @@ export class VarianceConsensualityComputerService extends ConsensualityComputer 
       return Math.max(EPS, squaredSum / (n - 1));
     }
     function worstColumn(n: number): number[] {
-      const arr = new Array(n);
+      const arr = new Array<number>(n);
       arr.fill(0);
       arr[0] = 1;
       return arr;

@@ -10,13 +10,15 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { ReadonlyProject } from 'project/domain/project/Project';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsAlreadySubmittedException';
 import { Role } from 'project/domain/role/Role';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 import { ReadonlyUser } from 'user/domain/User';
+import { ReadonlyMilestone } from '../milestone/Milestone';
+import { MilestoneId } from '../milestone/value-objects/MilestoneId';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -33,35 +35,38 @@ export interface ReadonlyPeerReviewCollection
   whereReviewTopic(
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
   ): ReadonlyPeerReviewCollection;
+  whereMilestone(
+    milestoneOrId: ReadonlyMilestone | MilestoneId,
+  ): ReadonlyPeerReviewCollection;
+
   getNumberOfPeers(): number;
 
   toNormalizedMap(): Record<string, Record<string, number>>;
   sumScores(): number;
   meanScore(): number;
 
-  // TODO make project private readonly
-  areComplete(project: ReadonlyProject): boolean;
-  assertComplete(project: ReadonlyProject): void;
+  areComplete(milestone: ReadonlyMilestone): boolean;
+  assertComplete(milestone: ReadonlyMilestone): void;
   areCompleteForReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     reviewTopicId: ReviewTopicId,
   ): boolean;
   areCompleteForSenderRole(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
   ): boolean;
   areCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): boolean;
   assertCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): void;
   assertNotCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): void;
@@ -81,17 +86,21 @@ export class PeerReviewCollection
   public static ofMap(
     peerReviewMap: Record<string, Record<string, number>>,
     reviewTopicId: ReviewTopicId,
+    milestoneId: MilestoneId,
+    project: Project,
   ): PeerReviewCollection {
     const peerReviews: PeerReview[] = [];
     for (const sender of Object.keys(peerReviewMap)) {
       for (const [receiver, score] of Object.entries(peerReviewMap[sender])) {
         peerReviews.push(
-          PeerReview.of(
+          PeerReview.create(
             RoleId.from(sender),
             RoleId.from(receiver),
             reviewTopicId,
+            milestoneId,
             PeerReviewScore.of(score),
             PeerReviewFlag.NONE,
+            project,
           ),
         );
       }
@@ -157,6 +166,15 @@ export class PeerReviewCollection
     );
   }
 
+  public whereMilestone(
+    milestoneOrId: ReadonlyMilestone | MilestoneId,
+  ): ReadonlyPeerReviewCollection {
+    const milestoneId = this.getId(milestoneOrId);
+    return this.filter((peerReview) =>
+      milestoneId.equals(peerReview.milestone.id),
+    );
+  }
+
   public toNormalizedMap(): Record<string, Record<string, number>> {
     const map: Record<string, Record<string, number>> = {};
     for (const sender of this.getPeers()) {
@@ -175,12 +193,12 @@ export class PeerReviewCollection
     return this.getPeers().length;
   }
 
-  public areComplete(project: ReadonlyProject): boolean {
-    for (const reviewTopic of project.reviewTopics) {
-      for (const senderRole of project.roles) {
+  public areComplete(milestone: ReadonlyMilestone): boolean {
+    for (const reviewTopic of milestone.project.reviewTopics) {
+      for (const senderRole of milestone.project.roles) {
         if (
           !this.areCompleteForSenderRoleAndReviewTopic(
-            project,
+            milestone,
             senderRole.id,
             reviewTopic.id,
           )
@@ -192,21 +210,21 @@ export class PeerReviewCollection
     return true;
   }
 
-  public assertComplete(project: ReadonlyProject): void {
-    if (!this.areComplete(project)) {
+  public assertComplete(milestone: ReadonlyMilestone): void {
+    if (!this.areComplete(milestone)) {
       throw new Error('peer reviews not complete');
     }
   }
 
   public areCompleteForReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     reviewTopicId: ReviewTopicId,
   ): boolean {
-    project.reviewTopics.assertContains(reviewTopicId);
-    for (const senderRole of project.roles) {
+    milestone.project.reviewTopics.assertContains(reviewTopicId);
+    for (const senderRole of milestone.project.roles) {
       if (
         !this.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          milestone,
           senderRole.id,
           reviewTopicId,
         )
@@ -218,14 +236,14 @@ export class PeerReviewCollection
   }
 
   public areCompleteForSenderRole(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
   ): boolean {
-    project.roles.assertContains(senderRoleId);
-    for (const reviewTopic of project.reviewTopics) {
+    milestone.project.roles.assertContains(senderRoleId);
+    for (const reviewTopic of milestone.project.reviewTopics) {
       if (
         !this.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          milestone,
           senderRoleId,
           reviewTopic.id,
         )
@@ -237,11 +255,11 @@ export class PeerReviewCollection
   }
 
   public areCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRole: RoleId,
     reviewTopic: ReviewTopicId,
   ): boolean {
-    project.roles.assertContains(
+    milestone.project.roles.assertContains(
       senderRole,
       () =>
         new DomainException(
@@ -249,7 +267,7 @@ export class PeerReviewCollection
           'The peer-review sender is not found',
         ),
     );
-    project.reviewTopics.assertContains(
+    milestone.project.reviewTopics.assertContains(
       reviewTopic,
       () =>
         new DomainException(
@@ -260,7 +278,7 @@ export class PeerReviewCollection
     const submittedPeerReviews = this.whereSenderRole(
       senderRole,
     ).whereReviewTopic(reviewTopic);
-    for (const receiverRole of project.roles.whereNot(senderRole)) {
+    for (const receiverRole of milestone.project.roles.whereNot(senderRole)) {
       if (submittedPeerReviews.whereReceiverRole(receiverRole.id).isEmpty()) {
         return false;
       }
@@ -269,13 +287,13 @@ export class PeerReviewCollection
   }
 
   public assertCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): void {
     if (
       !this.areCompleteForSenderRoleAndReviewTopic(
-        project,
+        milestone,
         senderRoleId,
         reviewTopicId,
       )
@@ -288,13 +306,13 @@ export class PeerReviewCollection
   }
 
   public assertNotCompleteForSenderRoleAndReviewTopic(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
     senderRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
   ): void {
     if (
       this.areCompleteForSenderRoleAndReviewTopic(
-        project,
+        milestone,
         senderRoleId,
         reviewTopicId,
       )

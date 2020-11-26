@@ -1,30 +1,24 @@
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
-import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
 import { CancelledProjectState } from 'project/domain/project/value-objects/states/CancelledProjectState';
 import { InvalidProjectStateException } from 'project/domain/exceptions/InvalidProjectStateException';
+import { ActiveProjectState } from 'project/domain/project/value-objects/states/ActiveProjectState';
 
 export enum ProjectStateValue {
-  FORMATION = 'formation',
-  PEER_REVIEW = 'peer-review',
-  MANAGER_REVIEW = 'manager-review',
-  FINISHED = 'finished',
-  ARCHIVED = 'archived',
   CANCELLED = 'cancelled',
+  FORMATION = 'formation',
+  ACTIVE = 'active',
+  ARCHIVED = 'archived',
 }
 
 // TODO need a better solution than this
 
 const associations: [ProjectStateValue, ProjectState][] = [
-  [ProjectStateValue.FORMATION, FormationProjectState.INSTANCE],
-  [ProjectStateValue.PEER_REVIEW, PeerReviewProjectState.INSTANCE],
-  [ProjectStateValue.MANAGER_REVIEW, ManagerReviewProjectState.INSTANCE],
-  [ProjectStateValue.FINISHED, FinishedProjectState.INSTANCE],
-  [ProjectStateValue.ARCHIVED, ArchivedProjectState.INSTANCE],
   [ProjectStateValue.CANCELLED, CancelledProjectState.INSTANCE],
+  [ProjectStateValue.FORMATION, FormationProjectState.INSTANCE],
+  [ProjectStateValue.ACTIVE, ActiveProjectState.INSTANCE],
+  [ProjectStateValue.ARCHIVED, ArchivedProjectState.INSTANCE],
 ];
 
 export function getProjectState(targetValue: ProjectStateValue): ProjectState {

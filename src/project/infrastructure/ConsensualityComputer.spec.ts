@@ -8,11 +8,13 @@ import { Role } from 'project/domain/role/Role';
 import { ModelFaker } from 'test/ModelFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import { ValueObjectFaker } from 'test/ValueObjectFaker';
 
-describe(ConsensualityComputer.name, () => {
+describe('' + ConsensualityComputer.name, () => {
   let consensualityComputer: ConsensualityComputer;
 
   let modelFaker: ModelFaker;
+  let valueObjectFaker: ValueObjectFaker;
 
   let roleA: Role;
   let roleB: Role;
@@ -28,6 +30,7 @@ describe(ConsensualityComputer.name, () => {
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
+    valueObjectFaker = new ValueObjectFaker();
 
     roleA = modelFaker.role();
     roleB = modelFaker.role();
@@ -43,6 +46,10 @@ describe(ConsensualityComputer.name, () => {
     cycleProject = modelFaker.project(UserId.create());
     cycleProject.roles.addAll([roleA, roleB, roleC, roleD]);
     cycleProject.reviewTopics.add(reviewTopic);
+    cycleProject.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     cycleProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -67,11 +74,17 @@ describe(ConsensualityComputer.name, () => {
         },
       },
       reviewTopic.id,
+      cycleProject.latestMilestone.id,
+      cycleProject,
     );
 
     clusterProject = modelFaker.project(UserId.create());
     clusterProject.roles.addAll([roleA, roleB, roleC, roleD]);
     clusterProject.reviewTopics.add(reviewTopic);
+    clusterProject.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     clusterProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -96,11 +109,17 @@ describe(ConsensualityComputer.name, () => {
         },
       },
       reviewTopic.id,
+      clusterProject.latestMilestone.id,
+      clusterProject,
     );
 
     oneDidItAllProject = modelFaker.project(UserId.create());
     oneDidItAllProject.roles.addAll([roleA, roleB, roleC, roleD]);
     oneDidItAllProject.reviewTopics.add(reviewTopic);
+    oneDidItAllProject.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     oneDidItAllProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -125,11 +144,17 @@ describe(ConsensualityComputer.name, () => {
         },
       },
       reviewTopic.id,
+      oneDidItAllProject.latestMilestone.id,
+      oneDidItAllProject,
     );
 
     coveeWhitepaper4PersonProject = modelFaker.project(UserId.create());
     coveeWhitepaper4PersonProject.roles.addAll([roleA, roleB, roleC, roleD]);
     coveeWhitepaper4PersonProject.reviewTopics.add(reviewTopic);
+    coveeWhitepaper4PersonProject.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     coveeWhitepaper4PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -154,11 +179,17 @@ describe(ConsensualityComputer.name, () => {
         },
       },
       reviewTopic.id,
+      coveeWhitepaper4PersonProject.latestMilestone.id,
+      coveeWhitepaper4PersonProject,
     );
 
     some3PersonProject = modelFaker.project(UserId.create());
     some3PersonProject.roles.addAll([roleA, roleB, roleC]);
     some3PersonProject.reviewTopics.add(reviewTopic);
+    some3PersonProject.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     some3PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -175,94 +206,116 @@ describe(ConsensualityComputer.name, () => {
         },
       },
       reviewTopic.id,
+      some3PersonProject.latestMilestone.id,
+      some3PersonProject,
     );
   });
 
-  describe(MeanDeviationConsensualityComputerService.name, () => {
+  describe('' + MeanDeviationConsensualityComputerService.name, () => {
     beforeEach(() => {
       consensualityComputer = new MeanDeviationConsensualityComputerService();
     });
 
     test('cycle', () => {
-      const result = consensualityComputer.compute(cycleProject);
+      const result = consensualityComputer.compute(
+        cycleProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const result = consensualityComputer.compute(clusterProject);
+      const result = consensualityComputer.compute(
+        clusterProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const result = consensualityComputer.compute(oneDidItAllProject);
+      const result = consensualityComputer.compute(
+        oneDidItAllProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(3 / 4);
     });
 
     test('covee whitepaper 4 person', () => {
       const result = consensualityComputer.compute(
-        coveeWhitepaper4PersonProject,
+        coveeWhitepaper4PersonProject.latestMilestone,
       );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.908);
     });
   });
 
-  describe(VarianceConsensualityComputerService, () => {
+  describe('' + VarianceConsensualityComputerService.name, () => {
     beforeEach(() => {
       consensualityComputer = new VarianceConsensualityComputerService();
     });
 
     test('cycle', () => {
-      const result = consensualityComputer.compute(cycleProject);
+      const result = consensualityComputer.compute(
+        cycleProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const result = consensualityComputer.compute(clusterProject);
+      const result = consensualityComputer.compute(
+        clusterProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const result = consensualityComputer.compute(oneDidItAllProject);
+      const result = consensualityComputer.compute(
+        oneDidItAllProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.91666);
     });
 
     test('covee whitepaper 4 person', () => {
       const result = consensualityComputer.compute(
-        coveeWhitepaper4PersonProject,
+        coveeWhitepaper4PersonProject.latestMilestone,
       );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0.988);
     });
   });
 
-  describe(PairwiseRelativeJudgementsConsensualityComputer, () => {
+  describe('' + PairwiseRelativeJudgementsConsensualityComputer.name, () => {
     beforeEach(() => {
       consensualityComputer = new PairwiseRelativeJudgementsConsensualityComputer();
     });
 
     test('cycle', () => {
-      const result = consensualityComputer.compute(cycleProject);
+      const result = consensualityComputer.compute(
+        cycleProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('clusters', () => {
-      const result = consensualityComputer.compute(clusterProject);
+      const result = consensualityComputer.compute(
+        clusterProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(0);
     });
 
     test('one did everything', () => {
-      const result = consensualityComputer.compute(oneDidItAllProject);
+      const result = consensualityComputer.compute(
+        oneDidItAllProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
     });
 
     test('covee whitepaper 4 person', () => {
       const result = consensualityComputer.compute(
-        coveeWhitepaper4PersonProject,
+        coveeWhitepaper4PersonProject.latestMilestone,
       );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
     });
 
     test('some 3 person', () => {
-      const result = consensualityComputer.compute(some3PersonProject);
+      const result = consensualityComputer.compute(
+        some3PersonProject.latestMilestone,
+      );
       expect(result.ofReviewTopic(reviewTopic.id).value).toBeCloseTo(1);
     });
   });

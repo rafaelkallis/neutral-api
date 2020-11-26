@@ -9,9 +9,6 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
-import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import {
   ConsensualityComputer,
@@ -24,13 +21,19 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { Role } from 'project/domain/role/Role';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
+import { ActiveProjectState } from 'project/domain/project/value-objects/states/ActiveProjectState';
+import { ReadonlyMilestone } from '../../Milestone';
+import { FinishedMilestoneState } from './FinishedMilestoneState';
+import { ManagerReviewMilestoneState } from './ManagerReviewMilestoneState';
 
-describe(PeerReviewProjectState.name, () => {
+describe('' + PeerReviewMilestoneState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
   let modelFaker: ModelFaker;
 
   let creator: User;
   let project: InternalProject;
+  let milestone: ReadonlyMilestone;
   let computedContributions: ContributionCollection;
   let consensualityComputationResult: ConsensualityComputationResult;
   let contributionsComputer: ContributionsComputer;
@@ -78,6 +81,15 @@ describe(PeerReviewProjectState.name, () => {
     }
     project.finishFormation(assignees);
 
+    if (!project.state.equals(ActiveProjectState.INSTANCE)) {
+      throw new Error('precondition failed: project is not in active state');
+    }
+
+    milestone = project.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
+
     contributionsComputer = td.object();
     computedContributions = new ContributionCollection([]);
     td.when(contributionsComputer.compute(project)).thenReturn(
@@ -89,9 +101,9 @@ describe(PeerReviewProjectState.name, () => {
       consensualityComputationResult,
     );
 
-    if (!project.state.equals(PeerReviewProjectState.INSTANCE)) {
+    if (!milestone.state.equals(PeerReviewMilestoneState.INSTANCE)) {
       throw new Error(
-        'precondition failed: project is not in peer-review state',
+        'precondition failed: milestone is not in peer-review state',
       );
     }
   });
@@ -105,7 +117,7 @@ describe(PeerReviewProjectState.name, () => {
       submittedPeerReviews = PeerReviewCollection.empty();
       for (const receiver of project.roles.whereNot(sender)) {
         submittedPeerReviews.add(
-          PeerReview.of(
+          PeerReview.create(
             sender.id,
             receiver.id,
             reviewTopic.id,
@@ -120,21 +132,21 @@ describe(PeerReviewProjectState.name, () => {
       const roles = project.roles.toArray();
       const reviewTopic = project.reviewTopics.first();
       submittedPeerReviews = PeerReviewCollection.of([
-        PeerReview.of(
+        PeerReview.create(
           roles[0].id,
           RoleId.create(),
           reviewTopic.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
         ),
-        PeerReview.of(
+        PeerReview.create(
           roles[0].id,
           roles[2].id,
           reviewTopic.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
         ),
-        PeerReview.of(
+        PeerReview.create(
           roles[0].id,
           roles[3].id,
           reviewTopic.id,
@@ -158,7 +170,7 @@ describe(PeerReviewProjectState.name, () => {
         consensualityComputer,
       );
       expect(
-        project.state.equals(PeerReviewProjectState.INSTANCE),
+        milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
       ).toBeTruthy();
       expect(project.contributions.isEmpty()).toBeTruthy();
     });
@@ -178,7 +190,7 @@ describe(PeerReviewProjectState.name, () => {
             const submittedPeerReviews = PeerReviewCollection.empty();
             for (const receiver of project.roles.whereNot(sender)) {
               submittedPeerReviews.add(
-                PeerReview.of(
+                PeerReview.create(
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
@@ -210,11 +222,11 @@ describe(PeerReviewProjectState.name, () => {
           expect.any(FinalPeerReviewSubmittedEvent),
         );
         expect(
-          project.state.equals(PeerReviewProjectState.INSTANCE),
+          milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
         ).toBeFalsy();
-        expect(project.contributions.addAll).toHaveBeenCalledWith(
-          computedContributions,
-        );
+        expect(
+          project.contributions.addAll.bind(project.contributions),
+        ).toHaveBeenCalledWith(computedContributions);
         td.verify(consensualityComputationResult.applyTo(project));
       });
 
@@ -225,7 +237,7 @@ describe(PeerReviewProjectState.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(FinishedProjectState.INSTANCE);
+        expect(milestone.state).toBe(FinishedMilestoneState.INSTANCE);
       });
 
       test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', async () => {
@@ -237,7 +249,7 @@ describe(PeerReviewProjectState.name, () => {
           consensualityComputer,
         );
         expect(
-          project.state.equals(FinishedProjectState.INSTANCE),
+          milestone.state.equals(FinishedMilestoneState.INSTANCE),
         ).toBeTruthy();
       });
 
@@ -249,7 +261,7 @@ describe(PeerReviewProjectState.name, () => {
           contributionsComputer,
           consensualityComputer,
         );
-        expect(project.state).toBe(ManagerReviewProjectState.INSTANCE);
+        expect(milestone.state).toBe(ManagerReviewMilestoneState.INSTANCE);
       });
 
       test('should not skip manager review if "skipManagerReview" is "no"', async () => {
@@ -260,7 +272,7 @@ describe(PeerReviewProjectState.name, () => {
           consensualityComputer,
         );
         expect(
-          project.state.equals(ManagerReviewProjectState.INSTANCE),
+          milestone.state.equals(ManagerReviewMilestoneState.INSTANCE),
         ).toBeTruthy();
       });
     });
@@ -287,7 +299,7 @@ describe(PeerReviewProjectState.name, () => {
           const submittedPeerReviews = PeerReviewCollection.empty();
           for (const receiver of project.roles.whereNot(sender)) {
             submittedPeerReviews.add(
-              PeerReview.of(
+              PeerReview.create(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
@@ -339,7 +351,9 @@ describe(PeerReviewProjectState.name, () => {
         contributionsComputer,
         consensualityComputer,
       );
-      expect(project.state.equals(PeerReviewProjectState.INSTANCE)).toBeFalsy();
+      expect(
+        milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
+      ).toBeFalsy();
     });
   });
 });

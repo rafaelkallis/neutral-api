@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
-import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b);
@@ -54,10 +53,9 @@ function mean(arr: number[]): number {
  */
 @Injectable()
 export class MeanDeviationConsensualityComputerService extends ConsensualityComputer {
-  protected computeForReviewTopic(
-    peerReviewCollection: PeerReviewCollection,
+  protected doCompute(
+    peerReviews: Record<string, Record<string, number>>,
   ): Consensuality {
-    const peerReviews = peerReviewCollection.toNormalizedMap();
     const peers = Object.keys(peerReviews);
     const n = peers.length;
     function columnMean(j: string): number {

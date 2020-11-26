@@ -16,12 +16,11 @@ import {
   NoneContributionVisiblity,
   ContributionVisibility,
 } from 'project/domain/project/value-objects/ContributionVisibility';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 
-describe(ProjectDtoMap.name, () => {
+describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
