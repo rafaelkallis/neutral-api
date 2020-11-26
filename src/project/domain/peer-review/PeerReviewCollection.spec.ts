@@ -41,7 +41,7 @@ describe('' + PeerReviewCollection.name, () => {
 
     test('when empty should return false', () => {
       expect(
-        project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
+        project.latestMilestone.peerReviews.areCompleteForSenderRoleAndReviewTopic(
           project,
           senderRoleId,
           reviewTopicId,
