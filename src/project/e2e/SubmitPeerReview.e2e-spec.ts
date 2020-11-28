@@ -7,7 +7,6 @@ import { HttpStatus } from '@nestjs/common';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
@@ -79,9 +78,7 @@ describe('submit peer review (e2e)', () => {
     project.assignUserToRole(assignee3, role3.id);
     project.assignUserToRole(assignee4, role4.id);
 
-    project.finishFormation(
-      new UserCollection([assignee1, assignee2, assignee3, assignee4]),
-    );
+    project.finishFormation();
 
     milestone = project.addMilestone(
       scenario.valueObjectFaker.milestone.title(),

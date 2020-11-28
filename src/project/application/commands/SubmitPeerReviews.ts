@@ -32,9 +32,7 @@ export class SubmitPeerReviewsCommand extends ProjectCommand {
 
 @Injectable()
 @CommandHandler.register(SubmitPeerReviewsCommand)
-export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<
-  SubmitPeerReviewsCommand
-> {
+export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<SubmitPeerReviewsCommand> {
   private readonly contributionsComputer: ContributionsComputer;
   private readonly consensualityComputer: ConsensualityComputer;
 
@@ -63,6 +61,7 @@ export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<
     const authRole = project.roles.whereAssignee(command.authUser);
     const submittedPeerReviews = command.submitPeerReviewsDto.asPeerReviewCollection(
       authRole.id,
+      project.milestones.whereLatest(),
     );
     await project.submitPeerReviews(
       submittedPeerReviews,

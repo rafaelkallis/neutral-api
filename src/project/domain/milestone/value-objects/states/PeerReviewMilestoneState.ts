@@ -1,6 +1,5 @@
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
@@ -14,6 +13,9 @@ import { MilestoneFinishedEvent } from '../../events/MilestoneFinishedEvent';
 import { ManagerReviewMilestoneState } from './ManagerReviewMilestoneState';
 import { PeerReviewsSubmittedEvent } from '../../events/PeerReviewsSubmittedEvent';
 import { InternalMilestone } from '../../Milestone';
+import { ManagerReviewSkippedEvent } from '../../events/ManagerReviewSkippedEvent';
+import { ManagerReviewStartedEvent } from '../../events/ManagerReviewStartedEvent';
+import { FinalPeerReviewSubmittedEvent } from '../../events/FinalPeerReviewSubmittedEvent';
 
 export class PeerReviewMilestoneState extends CancellableMilestoneState {
   public static readonly INSTANCE: MilestoneState = new PeerReviewMilestoneState();
@@ -61,7 +63,7 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
           ),
       );
       milestone.project.milestones.assertContains(
-        peerReview.milestoneId,
+        peerReview.milestone.id,
         () =>
           new DomainException(
             'peer_review_milestone_not_found',
@@ -92,21 +94,22 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
     }
 
     milestone.project.raise(new FinalPeerReviewSubmittedEvent(milestone));
-    const computedContributions = contributionsComputer.compute(
-      milestone.project,
-    ); // TODO
+    const computedContributions = contributionsComputer.compute(milestone); // TODO
     milestone.project.contributions.addAll(computedContributions);
-    consensualityComputer.compute(milestone.project).applyTo(milestone.project);
+    consensualityComputer.compute(milestone).applyTo(milestone.project);
 
-    milestone.state = ManagerReviewMilestoneState.INSTANCE;
     milestone.project.raise(new PeerReviewFinishedEvent(milestone));
 
     if (
-      milestone.project.skipManagerReview.shouldSkipManagerReview(
+      !milestone.project.skipManagerReview.shouldSkipManagerReview(
         milestone.project,
       )
     ) {
+      milestone.state = ManagerReviewMilestoneState.INSTANCE;
+      milestone.project.raise(new ManagerReviewStartedEvent(milestone));
+    } else {
       milestone.state = FinishedMilestoneState.INSTANCE;
+      milestone.project.raise(new ManagerReviewSkippedEvent(milestone));
       milestone.project.raise(new MilestoneFinishedEvent(milestone));
     }
 
@@ -145,8 +148,10 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
+                milestone.id,
                 PeerReviewScore.of(meanReviewTopicScore),
                 PeerReviewFlag.ASBENT,
+                milestone.project,
               ),
             ),
         );

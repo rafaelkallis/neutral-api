@@ -2,11 +2,11 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Notification } from 'notification/domain/Notification';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
+import { ManagerReviewStartedEvent } from 'project/domain/milestone/events/ManagerReviewStartedEvent';
+import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 
 @Injectable()
 export class NotificationDomainEventHandlers {
@@ -36,16 +36,16 @@ export class NotificationDomainEventHandlers {
   }
 
   @HandleDomainEvent(
-    ProjectPeerReviewStartedEvent,
+    PeerReviewStartedEvent,
     'notification.create_peer_review_requested_notification',
   )
   public async onPeerReviewStartedCreatePeerReviewRequestedNotifications(
-    event: ProjectPeerReviewStartedEvent,
+    event: PeerReviewStartedEvent,
   ): Promise<void> {
     const notifications: Notification[] = [];
-    for (const role of event.project.roles.toArray()) {
+    for (const role of event.milestone.project.roles) {
       const notification = this.notificationFactory.createPeerReviewRequestedNotification(
-        event.project,
+        event.milestone.project,
         role,
       );
       notifications.push(notification);
@@ -54,14 +54,14 @@ export class NotificationDomainEventHandlers {
   }
 
   @HandleDomainEvent(
-    ProjectManagerReviewStartedEvent,
+    ManagerReviewStartedEvent,
     'notification.create_manager_review_requested_notification',
   )
   public async onManagerReviewStartedCreateManagerReviewRequestedNotification(
-    event: ProjectManagerReviewStartedEvent,
+    event: ManagerReviewStartedEvent,
   ): Promise<void> {
     const notification = this.notificationFactory.createManagerReviewRequestedNotification(
-      event.project,
+      event.milestone.project,
     );
     await this.notificationRepository.persist(notification);
   }

@@ -5,7 +5,6 @@ import {
   Milestone,
   ReadonlyMilestone,
 } from 'project/domain/milestone/Milestone';
-import { MilestoneCreatedEvent } from 'project/domain/events/MilestoneCreatedEvent';
 import { ArchivedProjectState } from './ArchivedProjectState';
 import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ProjectState } from './ProjectState';
@@ -29,7 +28,6 @@ export class ActiveProjectState extends CancellableProjectState {
   ): ReadonlyMilestone {
     const milestone = Milestone.create(title, description, project);
     project.milestones.add(milestone);
-    project.raise(new MilestoneCreatedEvent(milestone));
     return milestone;
   }
 

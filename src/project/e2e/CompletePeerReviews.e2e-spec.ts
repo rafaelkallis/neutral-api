@@ -61,7 +61,7 @@ describe('complete peer reviews (e2e)', () => {
       assignees.add(assignee);
       project.assignUserToRole(assignee, role.id);
     }
-    project.finishFormation(assignees);
+    project.finishFormation();
 
     const milestone = project.addMilestone(
       scenario.valueObjectFaker.milestone.title(),

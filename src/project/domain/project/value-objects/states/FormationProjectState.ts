@@ -14,7 +14,6 @@ import { ReadonlyUser } from 'user/domain/User';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UserUnassignedEvent } from 'project/domain/events/UserUnassignedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
@@ -26,8 +25,6 @@ import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreate
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
-import { ReadonlyUserCollection } from 'user/domain/UserCollection';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ActiveProjectState } from './ActiveProjectState';
 import { ProjectState } from './ProjectState';
@@ -167,21 +164,14 @@ export class FormationProjectState extends CancellableProjectState {
     project.raise(new ReviewTopicRemovedEvent(reviewTopicId));
   }
 
-  public finishFormation(
-    project: InternalProject,
-    assignees: ReadonlyUserCollection,
-  ): void {
+  public finishFormation(project: InternalProject): void {
     project.roles.assertSufficientAmount();
     project.roles.assertAllAreAssigned();
-    for (const role of project.roles) {
-      assignees.assertContains(role.assigneeId as UserId);
-    }
     project.reviewTopics.assertSufficientAmount();
     // TODO make configurable
     // assignees.assertAllAreActive();
     project.state = ActiveProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
-    project.raise(new ProjectPeerReviewStartedEvent(project, assignees));
   }
 
   private constructor() {

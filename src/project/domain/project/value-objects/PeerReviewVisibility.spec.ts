@@ -3,7 +3,6 @@ import { PeerReviewVisibility } from './PeerReviewVisibility';
 import { ModelFaker } from 'test/ModelFaker';
 import { ProjectTestHelper } from 'test/ProjectTestHelper';
 import { ReadonlyUser, User } from 'user/domain/User';
-import { UserCollection } from 'user/domain/UserCollection';
 import { Project } from '../Project';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReadonlyRole } from 'project/domain/role/Role';
@@ -40,7 +39,7 @@ describe('' + PeerReviewVisibility.name, () => {
   let reviewTopic: ReadonlyReviewTopic;
 
   let senderRole: ReadonlyRole;
-  let creatorRole: ReadonlyRole;
+  let managerRole: ReadonlyRole;
 
   beforeEach(() => {
     managerUser = modelFaker.user();
@@ -52,7 +51,7 @@ describe('' + PeerReviewVisibility.name, () => {
     reviewTopic = projectHelper.addReviewTopic();
     const roles = peerUsers.map((u) => projectHelper.addRoleAndAssign(u));
     senderRole = roles[0];
-    creatorRole = roles[2];
+    managerRole = roles[2];
     outsiderUser = modelFaker.user();
   });
 
@@ -192,7 +191,8 @@ describe('' + PeerReviewVisibility.name, () => {
     'isVisible(%s, %s, %s) = %s',
     async (peerReviewVisibility, state, role, isVisible) => {
       project.update({ peerReviewVisibility });
-      project.finishFormation(new UserCollection(peerUsers));
+      project.finishFormation();
+      projectHelper.addMilestone();
       const [
         peerReview,
       ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
@@ -201,17 +201,17 @@ describe('' + PeerReviewVisibility.name, () => {
       );
 
       if (state.compareTo(CANCELLED) === 0) {
-        project.cancel();
+        project.latestMilestone.cancel();
       }
       if (
         state.compareTo(MANAGER_REVIEW) >= 0 &&
-        project.state.equals(PEER_REVIEW)
+        project.latestMilestone.state.equals(PEER_REVIEW)
       ) {
         await projectHelper.completePeerReviews();
       }
       if (
         state.compareTo(FINISHED) >= 0 &&
-        project.state.equals(MANAGER_REVIEW)
+        project.latestMilestone.state.equals(MANAGER_REVIEW)
       ) {
         project.submitManagerReview();
       }
@@ -244,11 +244,12 @@ describe('' + PeerReviewVisibility.name, () => {
     'manager sender during peer review should be visible',
     async (peerReviewVisibility) => {
       project.update({ peerReviewVisibility });
-      project.finishFormation(new UserCollection(peerUsers));
+      project.finishFormation();
+      projectHelper.addMilestone();
       const [
         peerReview,
       ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
-        creatorRole,
+        managerRole,
         reviewTopic,
       );
       expect(

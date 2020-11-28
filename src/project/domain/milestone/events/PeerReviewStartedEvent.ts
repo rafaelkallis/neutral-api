@@ -1,12 +1,12 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
-import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
+import { ReadonlyMilestone } from '../Milestone';
 
-@DomainEventKey('project.milestone_created')
-export class MilestoneCreatedEvent extends DomainEvent {
+@DomainEventKey('project.peer_review_started')
+export class PeerReviewStartedEvent extends DomainEvent {
   public readonly milestone: ReadonlyMilestone;
 
-  public constructor(milestone: ReadonlyMilestone) {
+  constructor(milestone: ReadonlyMilestone) {
     super();
     this.milestone = milestone;
   }

@@ -39,7 +39,7 @@ import { Organization } from 'organization/domain/Organization';
 import { ValueObjectFaker } from './ValueObjectFaker';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { FormationProjectState } from 'project/domain/project/value-objects/states/FormationProjectState';
-import { Milestone } from 'project/domain/milestone/Milestone';
+import { InternalMilestone } from 'project/domain/milestone/Milestone';
 import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
 import { MilestoneTitle } from 'project/domain/milestone/value-objects/MilestoneTitle';
 import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
@@ -154,7 +154,7 @@ export class ModelFaker {
     );
   }
 
-  public milestone(project: Project): Milestone {
+  public milestone(project: Project): InternalMilestone {
     const id = MilestoneId.create();
     const createdAt = CreatedAt.from(this.primitiveFaker.timestampUnixMillis());
     const updatedAt = UpdatedAt.from(this.primitiveFaker.timestampUnixMillis());
@@ -163,7 +163,7 @@ export class ModelFaker {
       this.primitiveFaker.paragraph(),
     );
     const state = PeerReviewMilestoneState.INSTANCE;
-    return Milestone.of(
+    return new InternalMilestone(
       id,
       createdAt,
       updatedAt,

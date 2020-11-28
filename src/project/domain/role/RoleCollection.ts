@@ -9,7 +9,7 @@ import { RoleNoUserAssignedException } from 'project/domain/exceptions/RoleNoUse
 import { SingleAssignmentPerUserViolationException } from 'project/domain/exceptions/SingleAssignmentPerUserViolationException';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
-import { InsufficientRoleAmountException } from 'project/domain/exceptions/InsufficientRoleAmountException';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyRoleCollection
   extends ReadonlyModelCollection<RoleId, ReadonlyRole> {
@@ -22,7 +22,8 @@ export interface ReadonlyRoleCollection
   whereNot(roleOrIdToExclude: ReadonlyRole | RoleId): ReadonlyRoleCollection;
 }
 
-export class RoleCollection extends ModelCollection<RoleId, Role>
+export class RoleCollection
+  extends ModelCollection<RoleId, Role>
   implements ReadonlyRoleCollection {
   public whereAssignee(assigneeOrAssigneeId: ReadonlyUser | UserId): Role {
     for (const role of this.toArray()) {
@@ -67,7 +68,10 @@ export class RoleCollection extends ModelCollection<RoleId, Role>
 
   public assertSufficientAmount(): void {
     if (this.count() < 3) {
-      throw new InsufficientRoleAmountException();
+      throw new DomainException(
+        'insufficient_role_amount',
+        'Insufficient number of roles, at least 3 are required.',
+      );
     }
   }
 

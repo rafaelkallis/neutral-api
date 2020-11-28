@@ -2,7 +2,7 @@ import { MilestoneState } from 'project/domain/milestone/value-objects/states/Mi
 import { CancellableMilestoneState } from 'project/domain/milestone/value-objects/states/CancellableMilestoneState';
 import { InternalMilestone } from 'project/domain/milestone/Milestone';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
-import { ManagerReviewFinishedEvent } from 'project/domain/milestone/events/ProjectManagerReviewFinishedEvent';
+import { ManagerReviewFinishedEvent } from 'project/domain/milestone/events/ManagerReviewFinishedEvent';
 import { MilestoneFinishedEvent } from 'project/domain/milestone/events/MilestoneFinishedEvent';
 
 export class ManagerReviewMilestoneState extends CancellableMilestoneState {

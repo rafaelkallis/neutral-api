@@ -1,16 +1,13 @@
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
-import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
-import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
+import { ReadonlyMilestone } from '../Milestone';
 
 @DomainEventKey('project.milestone_cancelled')
 export class MilestoneCancelledEvent extends DomainEvent {
-  public readonly projectId: ProjectId;
-  public readonly milestoneId: MilestoneId;
+  public readonly milestone: ReadonlyMilestone;
 
-  public constructor(projectId: ProjectId, milestoneId: MilestoneId) {
+  public constructor(milestone: ReadonlyMilestone) {
     super();
-    this.projectId = projectId;
-    this.milestoneId = milestoneId;
+    this.milestone = milestone;
   }
 }

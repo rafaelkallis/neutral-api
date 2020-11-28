@@ -15,7 +15,6 @@ import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/Revi
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
-import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { MilestoneTitle } from 'project/domain/milestone/value-objects/MilestoneTitle';
@@ -103,10 +102,7 @@ export abstract class ProjectState
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 
-  public finishFormation(
-    _project: InternalProject,
-    _assignees: ReadonlyUserCollection,
-  ): void {
+  public finishFormation(_project: InternalProject): void {
     throw new OperationNotSupportedByCurrentProjectStateException();
   }
 

@@ -15,8 +15,9 @@ import { SubmitPeerReviewsDto } from '../dto/SubmitPeerReviewsDto';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
+import { Milestone } from 'project/domain/milestone/Milestone';
 
-describe(SubmitPeerReviewsCommand.name, () => {
+describe('' + SubmitPeerReviewsCommand.name, () => {
   let scenario: UnitTestScenario<SubmitPeerReviewsCommandHandler>;
   let submitPeerReviewsCommandHandler: SubmitPeerReviewsCommandHandler;
   let contributionsComputer: ContributionsComputer;
@@ -26,6 +27,7 @@ describe(SubmitPeerReviewsCommand.name, () => {
   let authRole: Role;
   let projectId: ProjectId;
   let project: InternalProject;
+  let milestone: Milestone;
   let submitPeerReviewsDto: SubmitPeerReviewsDto;
   let submitPeerReviewsCommand: SubmitPeerReviewsCommand;
   let submittedPeerReviews: PeerReviewCollection;
@@ -46,7 +48,9 @@ describe(SubmitPeerReviewsCommand.name, () => {
     authRole = scenario.modelFaker.role();
     projectId = ProjectId.create();
     project = td.object();
+    milestone = td.object();
     project.roles = td.object();
+    project.milestones = td.object();
     submittedPeerReviews = td.object();
     submitPeerReviewsDto = td.object();
     submitPeerReviewsCommand = new SubmitPeerReviewsCommand(
@@ -58,8 +62,9 @@ describe(SubmitPeerReviewsCommand.name, () => {
     td.when(projectRepository.findById(projectId)).thenResolve(project);
     td.when(project.roles.isAnyAssignedToUser(authUser)).thenReturn(true);
     td.when(project.roles.whereAssignee(authUser)).thenReturn(authRole);
+    td.when(project.milestones.whereLatest()).thenReturn(milestone);
     td.when(
-      submitPeerReviewsDto.asPeerReviewCollection(authRole.id),
+      submitPeerReviewsDto.asPeerReviewCollection(authRole.id, milestone),
     ).thenReturn(submittedPeerReviews);
 
     const objectMapper = scenario.module.get(ObjectMapper);

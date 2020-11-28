@@ -23,6 +23,7 @@ describe('' + PeerReviewCollection.name, () => {
     project.reviewTopics.add(modelFaker.reviewTopic());
     project.reviewTopics.add(modelFaker.reviewTopic());
     project.reviewTopics.add(modelFaker.reviewTopic());
+    project.milestones.add(modelFaker.milestone(project));
     peerReviewCollection = PeerReviewCollection.empty();
     project.peerReviews = peerReviewCollection;
   });
@@ -42,7 +43,7 @@ describe('' + PeerReviewCollection.name, () => {
     test('when empty should return false', () => {
       expect(
         project.latestMilestone.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -56,14 +57,16 @@ describe('' + PeerReviewCollection.name, () => {
           senderRoleId,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }
       expect(
         project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -76,14 +79,16 @@ describe('' + PeerReviewCollection.name, () => {
           senderRoleId,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }
       expect(
         project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -93,13 +98,17 @@ describe('' + PeerReviewCollection.name, () => {
 
   describe('areSubmitted()', () => {
     test('when empty should return false', () => {
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 1 review topic submitted should return false', () => {
       const [firstReviewTopic] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 2 review topics submitted should return false', () => {
@@ -109,7 +118,9 @@ describe('' + PeerReviewCollection.name, () => {
       ] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 3 review topics submitted should return true', () => {
@@ -121,7 +132,9 @@ describe('' + PeerReviewCollection.name, () => {
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
       submitPeerReviewsForReviewTopic(thirdReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeTruthy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeTruthy();
     });
   });
 
@@ -132,8 +145,10 @@ describe('' + PeerReviewCollection.name, () => {
           sender.id,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }

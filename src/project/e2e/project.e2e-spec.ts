@@ -279,7 +279,7 @@ describe('project (e2e)', () => {
     });
 
     test('should fail if project is not in formation state', async () => {
-      project.finishFormation(assignees);
+      project.finishFormation();
       await scenario.projectRepository.persist(project);
       const response = await scenario.session.post(
         `/projects/${project.id.value}/finish-formation`,
@@ -301,7 +301,7 @@ describe('project (e2e)', () => {
       ]);
       projectHelper.addRolesAndAssign(assignees);
       projectHelper.addReviewTopics(2);
-      project.finishFormation(assignees);
+      project.finishFormation();
       projectHelper.addMilestone();
       await projectHelper.completePeerReviews();
       project.submitManagerReview();

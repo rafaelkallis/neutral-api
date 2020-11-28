@@ -15,7 +15,7 @@ import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { UserRepository } from 'user/domain/UserRepository';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { UserCollection } from 'user/domain/UserCollection';
+import { ActiveProjectState } from 'project/domain/project/value-objects/states/ActiveProjectState';
 
 describe('' + ProjectApplicationService.name, () => {
   let scenario: UnitTestScenario<ProjectApplicationService>;
@@ -166,9 +166,7 @@ describe('' + ProjectApplicationService.name, () => {
     test('happy path', async () => {
       await projectApplication.finishFormation(creatorUser, project.id.value);
       expect(project.assertCreator).toHaveBeenCalledWith(creatorUser);
-      expect(project.finishFormation).toHaveBeenCalledWith(
-        new UserCollection(assignees),
-      );
+      expect(project.finishFormation).toHaveBeenCalledWith();
     });
   });
 
@@ -186,7 +184,7 @@ describe('' + ProjectApplicationService.name, () => {
 
   describe('archive project', () => {
     beforeEach(() => {
-      project.state = FinishedProjectState.INSTANCE;
+      project.state = ActiveProjectState.INSTANCE;
       jest.spyOn(project, 'archive');
     });
 

@@ -23,6 +23,7 @@ export abstract class ContributionsComputer {
       )) {
         result.add(
           Contribution.from(
+            milestone,
             RoleId.from(roleId),
             reviewTopic.id,
             ContributionAmount.from(contributionAmount),

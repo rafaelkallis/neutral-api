@@ -3,7 +3,7 @@ import { Project } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
+import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
@@ -28,7 +28,7 @@ import {
   ContinuousReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
 
-describe(FormationProjectState.name, () => {
+describe('' + FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
   let primitiveFaker: PrimitiveFaker;
 
@@ -263,19 +263,19 @@ describe(FormationProjectState.name, () => {
     });
 
     test('happy path', () => {
-      state.finishFormation(project, assignees);
+      state.finishFormation(project);
       expect(project.domainEvents).toContainEqual(
         expect.any(ProjectFormationFinishedEvent),
       );
       expect(project.domainEvents).toContainEqual(
-        expect.any(ProjectPeerReviewStartedEvent),
+        expect.any(PeerReviewStartedEvent),
       );
     });
 
     test('should fail if a role has no user assigned', () => {
       project.roles.first().assigneeId = null;
       assignees.remove(assignees.first());
-      expect(() => project.finishFormation(assignees)).toThrow();
+      expect(() => project.finishFormation()).toThrow();
     });
 
     test('should fail if amount of roles is < 3', () => {
@@ -283,7 +283,7 @@ describe(FormationProjectState.name, () => {
       project.roles.remove(project.roles.first());
       assignees.remove(assignees.first());
       assignees.remove(assignees.first());
-      expect(() => project.finishFormation(assignees)).toThrow();
+      expect(() => project.finishFormation()).toThrow();
     });
 
     test.skip('should fail if there exist inactive assignees', () => {
@@ -293,7 +293,7 @@ describe(FormationProjectState.name, () => {
       pendingAssignee.state = PendingState.getInstance();
       assignees.add(pendingAssignee);
       project.roles.add(modelFaker.role(pendingAssignee.id));
-      expect(() => project.finishFormation(assignees)).toThrow();
+      expect(() => project.finishFormation()).toThrow();
     });
   });
 });

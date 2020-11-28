@@ -5,7 +5,7 @@ import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-obje
 import { MilestoneState } from './MilestoneState';
 import { Milestone } from '../../Milestone';
 import { FinishedMilestoneState } from './FinishedMilestoneState';
-import { ManagerReviewFinishedEvent } from 'project/domain/milestone/events/ProjectManagerReviewFinishedEvent';
+import { ManagerReviewFinishedEvent } from 'project/domain/milestone/events/ManagerReviewFinishedEvent';
 
 describe('' + ManagerReviewMilestoneState.name, () => {
   let modelFaker: ModelFaker;

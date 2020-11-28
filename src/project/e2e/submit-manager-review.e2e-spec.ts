@@ -42,7 +42,7 @@ describe('submit manager review (e2e)', () => {
     projectHelper.addReviewTopic();
     projectHelper.addReviewTopic();
 
-    project.finishFormation(assignees);
+    project.finishFormation();
 
     projectHelper.addMilestone();
 

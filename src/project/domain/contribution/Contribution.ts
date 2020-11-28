@@ -6,15 +6,19 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { Class } from 'shared/domain/Class';
+import { ReadonlyMilestone } from '../milestone/Milestone';
 
 export interface ReadonlyContribution extends ReadonlyModel<ContributionId> {
+  readonly milestone: ReadonlyMilestone;
   readonly roleId: RoleId;
   readonly reviewTopicId: ReviewTopicId;
   readonly amount: ContributionAmount;
 }
 
-export class Contribution extends Model<ContributionId>
+export class Contribution
+  extends Model<ContributionId>
   implements ReadonlyContribution {
+  public readonly milestone: ReadonlyMilestone;
   public readonly roleId: RoleId;
   public readonly reviewTopicId: ReviewTopicId;
   public readonly amount: ContributionAmount;
@@ -23,17 +27,20 @@ export class Contribution extends Model<ContributionId>
     id: ContributionId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
+    milestone: ReadonlyMilestone,
     roleId: RoleId,
     reviewTopicId: ReviewTopicId,
     amount: ContributionAmount,
   ) {
     super(id, createdAt, updatedAt);
+    this.milestone = milestone;
     this.roleId = roleId;
     this.reviewTopicId = reviewTopicId;
     this.amount = amount;
   }
 
   public static from(
+    milestone: ReadonlyMilestone,
     roleId: RoleId,
     reviewTopicId: ReviewTopicId,
     amount: ContributionAmount,
@@ -45,6 +52,7 @@ export class Contribution extends Model<ContributionId>
       id,
       createdAt,
       updatedAt,
+      milestone,
       roleId,
       reviewTopicId,
       amount,

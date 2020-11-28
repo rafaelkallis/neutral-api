@@ -1,6 +1,5 @@
-import { MilestoneStateDecorator } from 'project/domain/milestone/value-objects/states/MilestoneStateDecorator';
-import { MilestoneCancelledEvent } from 'project/domain/events/MilestoneCancelledEvent';
 import { InternalMilestone } from 'project/domain/milestone/Milestone';
+import { MilestoneCancelledEvent } from '../../events/MilestoneCancelledEvent';
 import { CancelledMilestoneState } from './CancelledMilestoneState';
 import { MilestoneState } from './MilestoneState';
 

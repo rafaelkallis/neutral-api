@@ -39,7 +39,6 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
-import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
@@ -212,7 +211,7 @@ export abstract class Project
   /**
    * Finish project formation
    */
-  public abstract finishFormation(assignees: ReadonlyUserCollection): void;
+  public abstract finishFormation(): void;
 
   /**
    * Cancel the project.
@@ -400,8 +399,8 @@ export class InternalProject extends Project {
   /**
    * Finish project formation
    */
-  public finishFormation(assignees: ReadonlyUserCollection): void {
-    this.state.finishFormation(this, assignees);
+  public finishFormation(): void {
+    this.state.finishFormation(this);
   }
 
   /**

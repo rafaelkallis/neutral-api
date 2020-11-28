@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { EmailManager } from 'shared/email/manager/EmailManager';
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
+import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { UserId } from 'user/domain/value-objects/UserId';
@@ -9,10 +9,10 @@ import {
   ReadonlyUserCollection,
   UserCollection,
 } from 'user/domain/UserCollection';
-import { User } from 'user/domain/User';
-import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
+import { ReadonlyUser, User } from 'user/domain/User';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { CtaUrlFactory } from 'shared/urls/CtaUrlFactory';
+import { ManagerReviewStartedEvent } from 'project/domain/milestone/events/ManagerReviewStartedEvent';
 
 @Injectable()
 export class ProjectDomainEventHandlers {
@@ -50,38 +50,52 @@ export class ProjectDomainEventHandlers {
   }
 
   @HandleDomainEvent(
-    ProjectPeerReviewStartedEvent,
+    PeerReviewStartedEvent,
     'on_project_peer_review_started_send_peer_review_requested_email',
   )
   public async onProjectPeerReviewStartedSendPeerReviewRequestedEmail(
-    event: ProjectPeerReviewStartedEvent,
+    event: PeerReviewStartedEvent,
   ): Promise<void> {
-    for (const assignee of event.assignees) {
+    const assigneeIds = event.milestone.project.roles
+      .toArray()
+      .map((role) => role.assigneeId);
+    if (assigneeIds.some((id) => !id)) {
+      throw new Error('Expected all roles to be assigned.');
+    }
+    const assignees = await this.userRepository.findByIds(
+      assigneeIds as UserId[],
+    );
+    if (assignees.some((a) => !a)) {
+      throw new Error('Assignee not found.');
+    }
+    for (const assignee of assignees as ReadonlyUser[]) {
       if (!assignee.email.isPresent()) {
         continue;
       }
       const peerReviewRequestedCtaUrl = this.ctaUrlFactory.createPeerReviewRequestedCtaUrl(
-        { user: assignee, projectId: event.project.id },
+        { user: assignee, projectId: event.milestone.project.id },
       );
       await this.emailManager.sendPeerReviewRequestedEmail(
         assignee.email.value,
         {
           ctaUrl: peerReviewRequestedCtaUrl,
           firstName: assignee.name.first,
-          projectTitle: event.project.title.value,
+          projectTitle: event.milestone.project.title.value,
         },
       );
     }
   }
 
   @HandleDomainEvent(
-    ProjectManagerReviewStartedEvent,
-    'on_project_manager_review_started_send_manager_review_requested_email',
+    ManagerReviewStartedEvent,
+    'on_manager_review_started_send_manager_review_requested_email',
   )
-  public async onProjectManagerReviewStartedSendManagerReviewRequestedEmail(
-    event: ProjectManagerReviewStartedEvent,
+  public async onManagerReviewStartedSendManagerReviewRequestedEmail(
+    event: ManagerReviewStartedEvent,
   ): Promise<void> {
-    const manager = await this.userRepository.findById(event.project.creatorId);
+    const manager = await this.userRepository.findById(
+      event.milestone.project.creatorId,
+    );
     if (!manager) {
       // TODO handle
       throw new InternalServerErrorException('manager does not exist');
@@ -93,7 +107,7 @@ export class ProjectDomainEventHandlers {
     const managerReviewRequestedCtaUrl = this.ctaUrlFactory.createManagerReviewRequestedCtaUrl(
       {
         user: manager,
-        projectId: event.project.id,
+        projectId: event.milestone.project.id,
       },
     );
     await this.emailManager.sendManagerReviewRequestedEmail(
@@ -101,7 +115,7 @@ export class ProjectDomainEventHandlers {
       {
         ctaUrl: managerReviewRequestedCtaUrl,
         firstName: manager.name.first,
-        projectTitle: event.project.title.value,
+        projectTitle: event.milestone.title.value,
       },
     );
   }

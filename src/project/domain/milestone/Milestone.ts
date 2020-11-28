@@ -11,6 +11,8 @@ import { MilestoneState } from './value-objects/states/MilestoneState';
 import { ContributionsComputer } from '../ContributionsComputer';
 import { ConsensualityComputer } from '../ConsensualityComputer';
 import { PeerReviewMilestoneState } from './value-objects/states/PeerReviewMilestoneState';
+import { MilestoneCreatedEvent } from './events/MilestoneCreatedEvent';
+import { PeerReviewStartedEvent } from './events/PeerReviewStartedEvent';
 
 export interface ReadonlyMilestone extends ReadonlyModel<MilestoneId> {
   readonly title: MilestoneTitle;
@@ -68,7 +70,7 @@ export abstract class Milestone
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
     const state = PeerReviewMilestoneState.INSTANCE;
-    return new InternalMilestone(
+    const milestone = new InternalMilestone(
       id,
       createdAt,
       updatedAt,
@@ -77,6 +79,9 @@ export abstract class Milestone
       state,
       project,
     );
+    project.raise(new MilestoneCreatedEvent(milestone));
+    project.raise(new PeerReviewStartedEvent(milestone));
+    return milestone;
   }
 
   /**

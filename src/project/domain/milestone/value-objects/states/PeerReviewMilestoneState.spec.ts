@@ -2,8 +2,6 @@ import td from 'testdouble';
 import { User } from 'user/domain/User';
 import { InternalProject } from 'project/domain/project/Project';
 import { SkipManagerReview } from 'project/domain/project/value-objects/SkipManagerReview';
-import { PeerReviewsSubmittedEvent } from 'project/domain/events/PeerReviewsSubmittedEvent';
-import { FinalPeerReviewSubmittedEvent } from 'project/domain/events/FinalPeerReviewSubmittedEvent';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
@@ -26,6 +24,8 @@ import { ActiveProjectState } from 'project/domain/project/value-objects/states/
 import { ReadonlyMilestone } from '../../Milestone';
 import { FinishedMilestoneState } from './FinishedMilestoneState';
 import { ManagerReviewMilestoneState } from './ManagerReviewMilestoneState';
+import { PeerReviewsSubmittedEvent } from '../../events/PeerReviewsSubmittedEvent';
+import { FinalPeerReviewSubmittedEvent } from '../../events/FinalPeerReviewSubmittedEvent';
 
 describe('' + PeerReviewMilestoneState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
@@ -79,7 +79,7 @@ describe('' + PeerReviewMilestoneState.name, () => {
       assignees.add(assignee);
       project.assignUserToRole(assignee, role.id);
     }
-    project.finishFormation(assignees);
+    project.finishFormation();
 
     if (!project.state.equals(ActiveProjectState.INSTANCE)) {
       throw new Error('precondition failed: project is not in active state');
@@ -92,12 +92,12 @@ describe('' + PeerReviewMilestoneState.name, () => {
 
     contributionsComputer = td.object();
     computedContributions = new ContributionCollection([]);
-    td.when(contributionsComputer.compute(project)).thenReturn(
+    td.when(contributionsComputer.compute(project.latestMilestone)).thenReturn(
       computedContributions,
     );
     consensualityComputer = td.object();
     consensualityComputationResult = td.object();
-    td.when(consensualityComputer.compute(project)).thenReturn(
+    td.when(consensualityComputer.compute(project.latestMilestone)).thenReturn(
       consensualityComputationResult,
     );
 
@@ -121,8 +121,10 @@ describe('' + PeerReviewMilestoneState.name, () => {
             sender.id,
             receiver.id,
             reviewTopic.id,
+            milestone.id,
             PeerReviewScore.of(1),
             PeerReviewFlag.NONE,
+            project,
           ),
         );
       }
@@ -136,22 +138,28 @@ describe('' + PeerReviewMilestoneState.name, () => {
           roles[0].id,
           RoleId.create(),
           reviewTopic.id,
+          milestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         ),
         PeerReview.create(
           roles[0].id,
           roles[2].id,
           reviewTopic.id,
+          milestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         ),
         PeerReview.create(
           roles[0].id,
           roles[3].id,
           reviewTopic.id,
+          milestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         ),
       ]);
       await expect(
@@ -194,8 +202,10 @@ describe('' + PeerReviewMilestoneState.name, () => {
                   sender.id,
                   receiver.id,
                   reviewTopic.id,
+                  milestone.id,
                   PeerReviewScore.of(1),
                   PeerReviewFlag.NONE,
+                  project,
                 ),
               );
             }
@@ -224,9 +234,9 @@ describe('' + PeerReviewMilestoneState.name, () => {
         expect(
           milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
         ).toBeFalsy();
-        expect(
-          project.contributions.addAll.bind(project.contributions),
-        ).toHaveBeenCalledWith(computedContributions);
+        expect(project.contributions.addAll).toHaveBeenCalledWith(
+          computedContributions,
+        );
         td.verify(consensualityComputationResult.applyTo(project));
       });
 
@@ -303,8 +313,10 @@ describe('' + PeerReviewMilestoneState.name, () => {
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
+                milestone.id,
                 PeerReviewScore.of(Math.random() * 100),
                 PeerReviewFlag.NONE,
+                project,
               ),
             );
           }

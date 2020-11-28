@@ -1,6 +1,5 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { InternalProject } from 'project/domain/project/Project';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
@@ -8,17 +7,22 @@ import { ContributionCollection } from 'project/domain/contribution/Contribution
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { RoleDtoMap } from './RoleDtoMap';
+import { ValueObjectFaker } from 'test/ValueObjectFaker';
+import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
 
 describe('role dto map', () => {
   let modelFaker: ModelFaker;
+  let valueObjectFaker: ValueObjectFaker;
   let roleDtoMap: RoleDtoMap;
   let users: Record<string, User>;
   let role: Role;
   let reviewTopic: ReviewTopic;
+  let milestone: ReadonlyMilestone;
   let project: InternalProject;
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
+    valueObjectFaker = new ValueObjectFaker();
     roleDtoMap = new RoleDtoMap();
     users = {
       owner: modelFaker.user(),
@@ -27,7 +31,10 @@ describe('role dto map', () => {
       publicUser: modelFaker.user(),
     };
     project = modelFaker.project(users.owner.id);
-    project.state = FinishedProjectState.INSTANCE;
+    milestone = project.addMilestone(
+      valueObjectFaker.milestone.title(),
+      valueObjectFaker.milestone.description(),
+    );
     project.roles.addAll([
       modelFaker.role(users.assignee.id),
       modelFaker.role(users.projectUser.id),
@@ -36,7 +43,12 @@ describe('role dto map', () => {
     reviewTopic = modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
     project.contributions = new ContributionCollection([
-      Contribution.from(role.id, reviewTopic.id, ContributionAmount.from(1)),
+      Contribution.from(
+        milestone,
+        role.id,
+        reviewTopic.id,
+        ContributionAmount.from(1),
+      ),
     ]);
   });
 

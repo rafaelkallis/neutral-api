@@ -5,9 +5,9 @@ import { ReadonlyProject } from '../Project';
 import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerReviewId';
 import { Comprarable } from 'shared/domain/value-objects/Comparable';
 import { MilestoneState } from 'project/domain/milestone/value-objects/states/MilestoneState';
-import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
 import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
+import { CancelledMilestoneState } from 'project/domain/milestone/value-objects/states/CancelledMilestoneState';
 
 export enum PeerReviewVisibilityLabel {
   PUBLIC = 'public',
@@ -93,7 +93,7 @@ export class PeerReviewVisibility
     > = {
       [PeerReviewVisibilityContextUserRole.SENDER]: [
         PeerReviewVisibility.SELF,
-        PeerReviewMilestoneState.INSTANCE,
+        CancelledMilestoneState.INSTANCE,
       ],
       [PeerReviewVisibilityContextUserRole.MANAGER]: [
         PeerReviewVisibility.MANAGER,
