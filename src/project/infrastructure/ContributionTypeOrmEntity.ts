@@ -19,6 +19,9 @@ export class ContributionTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'review_topic_id' })
   public reviewTopicId: string;
 
+  @Column({ name: 'milestone_id' })
+  public milestoneId: string;
+
   @Column({ name: 'amount', type: 'real' })
   public amount: number;
 
@@ -30,6 +33,7 @@ export class ContributionTypeOrmEntity extends TypeOrmEntity {
     projectId: string,
     roleId: string,
     reviewTopicId: string,
+    milestoneId: string,
     amount: number,
   ) {
     super(id, createdAt, updatedAt);
@@ -37,6 +41,7 @@ export class ContributionTypeOrmEntity extends TypeOrmEntity {
     this.projectId = projectId;
     this.roleId = roleId;
     this.reviewTopicId = reviewTopicId;
+    this.milestoneId = milestoneId;
     this.amount = amount;
   }
 }

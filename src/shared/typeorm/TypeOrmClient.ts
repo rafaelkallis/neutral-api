@@ -61,6 +61,7 @@ import { AddAssigneeIdIndexMigration1599745163000 } from 'shared/typeorm/migrati
 import { AddMilestonesMigration1605904211000 } from 'shared/typeorm/migration/1605904211000AddMilestonesMigration';
 import { AddMilestoneStateMigration1605953746000 } from 'shared/typeorm/migration/1605953746000AddMilestoneStateMigration';
 import { AddPeerReviewMilestoneMigration1606052766000 } from 'shared/typeorm/migration/1606052766000AddPeerReviewMilestoneMigration';
+import { AddContributionMilestoneMigration1606589847000 } from 'shared/typeorm/migration/1606589847000AddContributionMilestoneMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -132,6 +133,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddMilestonesMigration1605904211000,
         AddMilestoneStateMigration1605953746000,
         AddPeerReviewMilestoneMigration1606052766000,
+        AddContributionMilestoneMigration1606589847000,
       ],
     });
     this.connection = connection;

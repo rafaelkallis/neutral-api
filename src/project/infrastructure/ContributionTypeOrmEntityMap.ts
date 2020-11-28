@@ -9,7 +9,8 @@ import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTy
 import { ContributionId } from 'project/domain/contribution/value-objects/ContributionId';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { Milestone } from 'project/domain/milestone/Milestone';
+import { Project } from 'project/domain/project/Project';
+import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
 
 @Injectable()
 @ObjectMap.register(Contribution, ContributionTypeOrmEntity)
@@ -30,6 +31,7 @@ export class ContributionTypeOrmEntityMap extends ObjectMap<
       project.id,
       contribution.roleId.value,
       contribution.reviewTopicId.value,
+      contribution.milestone.id.value,
       contribution.amount.value,
     );
   }
@@ -45,11 +47,12 @@ export class ReverseContributionTypeOrmEntityMap extends ObjectMap<
     contribution: ContributionTypeOrmEntity,
     ctx: ObjectMapContext,
   ): Contribution {
+    const project = ctx.get('project', Project);
     return new Contribution(
       ContributionId.from(contribution.id),
       CreatedAt.from(contribution.createdAt),
       UpdatedAt.from(contribution.updatedAt),
-      ctx.get('milestone', Milestone),
+      project.milestones.whereId(MilestoneId.of(contribution.milestoneId)),
       RoleId.from(contribution.roleId),
       ReviewTopicId.from(contribution.reviewTopicId),
       ContributionAmount.from(contribution.amount),
