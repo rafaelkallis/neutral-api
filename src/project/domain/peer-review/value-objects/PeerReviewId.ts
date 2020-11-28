@@ -12,7 +12,7 @@ export class PeerReviewId extends Id {
   }
 
   public static create(): PeerReviewId {
-    return new PeerReviewId(Id.createObjectId());
+    return new PeerReviewId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

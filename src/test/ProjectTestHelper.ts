@@ -1,8 +1,8 @@
 import td from 'testdouble';
 import { Project } from 'project/domain/project/Project';
 import { ModelFaker } from './ModelFaker';
+import { ValueObjectFaker } from './ValueObjectFaker';
 import { ReadonlyUser } from 'user/domain/User';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
@@ -19,19 +19,14 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
+import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 
 export class ProjectTestHelper {
   public readonly project: Project;
-  private static readonly modelFaker = new ModelFaker();
+  private readonly modelFaker = new ModelFaker();
+  private readonly valueObjectFaker = new ValueObjectFaker();
 
   public static of(project: Project): ProjectTestHelper {
-    return new ProjectTestHelper(project);
-  }
-
-  public static ofCreator(userOrId: ReadonlyUser | UserId): ProjectTestHelper {
-    const project = ProjectTestHelper.modelFaker.project(
-      userOrId instanceof UserId ? userOrId : userOrId.id,
-    );
     return new ProjectTestHelper(project);
   }
 
@@ -40,7 +35,7 @@ export class ProjectTestHelper {
   }
 
   public addRole(): ReadonlyRole {
-    const role = ProjectTestHelper.modelFaker.role();
+    const role = this.modelFaker.role();
     return this.project.addRole(role.title, role.description);
   }
 
@@ -63,20 +58,22 @@ export class ProjectTestHelper {
   }
 
   public addReviewTopic(): ReadonlyReviewTopic {
-    const reviewTopic = ProjectTestHelper.modelFaker.reviewTopic();
-    return this.project.addReviewTopic(
-      reviewTopic.title,
-      reviewTopic.description,
-      reviewTopic.input,
-    );
+    const title = this.valueObjectFaker.reviewTopic.title();
+    const description = this.valueObjectFaker.reviewTopic.description();
+    const input = ContinuousReviewTopicInput.of(1, 10);
+    return this.project.addReviewTopic(title, description, input);
   }
 
   public addReviewTopics(count: number): Iterable<ReadonlyReviewTopic> {
-    return new Array(count).map(() => this.addReviewTopic());
+    const addedReviewTopics = [];
+    for (let i = 0; i < count; i++) {
+      addedReviewTopics.push(this.addReviewTopic());
+    }
+    return addedReviewTopics;
   }
 
   public addMilestone(): ReadonlyMilestone {
-    const milestone = ProjectTestHelper.modelFaker.milestone(this.project);
+    const milestone = this.modelFaker.milestone(this.project);
     return this.project.addMilestone(milestone.title, milestone.description);
   }
 

@@ -5,6 +5,7 @@ import {
 import { MilestoneId } from './value-objects/MilestoneId';
 import { Milestone, ReadonlyMilestone } from './Milestone';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { Model } from 'shared/domain/Model';
 
 export interface ReadonlyMilestoneCollection
   extends ReadonlyModelCollection<MilestoneId, ReadonlyMilestone> {
@@ -18,7 +19,7 @@ export class MilestoneCollection
   public whereLatest(): Milestone {
     let latest = this.first();
     for (const milestone of this) {
-      if (milestone.createdAt.greaterThan(latest.createdAt)) {
+      if (milestone.id.compareTo(latest.id) > 0) {
         latest = milestone;
       }
     }
@@ -26,7 +27,7 @@ export class MilestoneCollection
   }
 
   public assertLatest(milestoneOrId: ReadonlyMilestone | MilestoneId): void {
-    const milestoneId = this.getId(milestoneOrId);
+    const milestoneId = Model.getId(milestoneOrId);
     if (!milestoneId.equals(this.whereLatest().id)) {
       throw new DomainException(
         'not_latest_milestone',

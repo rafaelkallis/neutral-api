@@ -3,7 +3,6 @@ import { Project } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectUpdatedEvent } from 'project/domain/events/ProjectUpdatedEvent';
 import { ProjectFormationFinishedEvent } from 'project/domain/events/ProjectFormationFinishedEvent';
-import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 import { RoleCreatedEvent } from 'project/domain/events/RoleCreatedEvent';
 import { Role } from 'project/domain/role/Role';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
@@ -17,7 +16,7 @@ import { FormationProjectState } from 'project/domain/project/value-objects/stat
 import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
-import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopicAddedEvent } from 'project/domain/events/ReviewTopicAddedEvent';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
@@ -27,6 +26,7 @@ import {
   ReviewTopicInput,
   ContinuousReviewTopicInput,
 } from 'project/domain/review-topic/ReviewTopicInput';
+import { ProjectActivatedEvent } from 'project/domain/events/ProjectActivatedEvent';
 
 describe('' + FormationProjectState.name, () => {
   let modelFaker: ModelFaker;
@@ -202,7 +202,7 @@ describe('' + FormationProjectState.name, () => {
       );
       expect(project.reviewTopics.contains(addedReviewTopic.id)).toBeTruthy();
       expect(project.domainEvents).toContainEqual(
-        expect.any(ReviewTopicCreatedEvent),
+        expect.any(ReviewTopicAddedEvent),
       );
     });
   });
@@ -268,7 +268,7 @@ describe('' + FormationProjectState.name, () => {
         expect.any(ProjectFormationFinishedEvent),
       );
       expect(project.domainEvents).toContainEqual(
-        expect.any(PeerReviewStartedEvent),
+        expect.any(ProjectActivatedEvent),
       );
     });
 

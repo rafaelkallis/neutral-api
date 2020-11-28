@@ -15,7 +15,7 @@ export class MilestoneId extends Id {
   }
 
   public static create(): MilestoneId {
-    return new MilestoneId(Id.createObjectId());
+    return new MilestoneId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

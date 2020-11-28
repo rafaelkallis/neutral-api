@@ -1,11 +1,14 @@
 import { SingleValueObject } from 'shared/domain/value-objects/SingleValueObject';
 import { InvalidNumberException } from 'shared/domain/exceptions/InvalidNumberException';
 import { ValueObject } from './ValueObject';
+import { Comprarable } from './Comparable';
 
 /**
  *
  */
-export abstract class NumberValueObject extends SingleValueObject<number> {
+export abstract class NumberValueObject
+  extends SingleValueObject<number>
+  implements Comprarable<NumberValueObject> {
   protected constructor(value: number) {
     super(value);
     this.assertNumber(value);
@@ -29,7 +32,11 @@ export abstract class NumberValueObject extends SingleValueObject<number> {
     if (!(other instanceof NumberValueObject)) {
       return false;
     }
-    return this.value > other.value;
+    return this.compareTo(other) > 0;
+  }
+
+  public compareTo(other: NumberValueObject): number {
+    return this.value - other.value;
   }
 
   private assertNumber(value: number): void {

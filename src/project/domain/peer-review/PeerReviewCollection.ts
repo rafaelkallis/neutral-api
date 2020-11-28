@@ -19,6 +19,7 @@ import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 import { ReadonlyUser } from 'user/domain/User';
 import { ReadonlyMilestone } from '../milestone/Milestone';
 import { MilestoneId } from '../milestone/value-objects/MilestoneId';
+import { Model } from 'shared/domain/Model';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {
@@ -144,7 +145,7 @@ export class PeerReviewCollection
   public whereReviewTopic(
     reviewTopicOrId: ReviewTopic | ReviewTopicId,
   ): ReadonlyPeerReviewCollection {
-    const reviewTopicId = this.getId(reviewTopicOrId);
+    const reviewTopicId = Model.getId(reviewTopicOrId);
     return this.filter((peerReview) =>
       peerReview.reviewTopicId.equals(reviewTopicId),
     );
@@ -153,14 +154,14 @@ export class PeerReviewCollection
   public whereSenderRole(
     senderRoleOrId: Role | RoleId,
   ): ReadonlyPeerReviewCollection {
-    const senderRoleId = this.getId(senderRoleOrId);
+    const senderRoleId = Model.getId(senderRoleOrId);
     return this.filter((peerReview) => peerReview.isSenderRole(senderRoleId));
   }
 
   public whereReceiverRole(
     receiverRoleOrId: Role | RoleId,
   ): ReadonlyPeerReviewCollection {
-    const receiverRoleId = this.getId(receiverRoleOrId);
+    const receiverRoleId = Model.getId(receiverRoleOrId);
     return this.filter((peerReview) =>
       peerReview.isReceiverRole(receiverRoleId),
     );
@@ -169,7 +170,7 @@ export class PeerReviewCollection
   public whereMilestone(
     milestoneOrId: ReadonlyMilestone | MilestoneId,
   ): ReadonlyPeerReviewCollection {
-    const milestoneId = this.getId(milestoneOrId);
+    const milestoneId = Model.getId(milestoneOrId);
     return this.filter((peerReview) =>
       milestoneId.equals(peerReview.milestone.id),
     );

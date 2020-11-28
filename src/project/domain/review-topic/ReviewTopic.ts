@@ -17,7 +17,8 @@ export interface ReadonlyReviewTopic extends ReadonlyModel<ReviewTopicId> {
   isConsensual(): boolean;
 }
 
-export class ReviewTopic extends Model<ReviewTopicId>
+export class ReviewTopic
+  extends Model<ReviewTopicId>
   implements ReadonlyReviewTopic {
   public title: ReviewTopicTitle;
   public description: ReviewTopicDescription;
@@ -43,7 +44,7 @@ export class ReviewTopic extends Model<ReviewTopicId>
   /**
    *
    */
-  public static of(
+  public static create(
     title: ReviewTopicTitle,
     description: ReviewTopicDescription,
     input: ReviewTopicInput,

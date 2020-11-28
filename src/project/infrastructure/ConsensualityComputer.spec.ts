@@ -8,13 +8,11 @@ import { Role } from 'project/domain/role/Role';
 import { ModelFaker } from 'test/ModelFaker';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { ValueObjectFaker } from 'test/ValueObjectFaker';
 
 describe('' + ConsensualityComputer.name, () => {
   let consensualityComputer: ConsensualityComputer;
 
   let modelFaker: ModelFaker;
-  let valueObjectFaker: ValueObjectFaker;
 
   let roleA: Role;
   let roleB: Role;
@@ -30,7 +28,6 @@ describe('' + ConsensualityComputer.name, () => {
 
   beforeEach(() => {
     modelFaker = new ModelFaker();
-    valueObjectFaker = new ValueObjectFaker();
 
     roleA = modelFaker.role();
     roleB = modelFaker.role();
@@ -46,10 +43,7 @@ describe('' + ConsensualityComputer.name, () => {
     cycleProject = modelFaker.project(UserId.create());
     cycleProject.roles.addAll([roleA, roleB, roleC, roleD]);
     cycleProject.reviewTopics.add(reviewTopic);
-    cycleProject.addMilestone(
-      valueObjectFaker.milestone.title(),
-      valueObjectFaker.milestone.description(),
-    );
+    cycleProject.milestones.add(modelFaker.milestone(cycleProject));
     cycleProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -81,10 +75,7 @@ describe('' + ConsensualityComputer.name, () => {
     clusterProject = modelFaker.project(UserId.create());
     clusterProject.roles.addAll([roleA, roleB, roleC, roleD]);
     clusterProject.reviewTopics.add(reviewTopic);
-    clusterProject.addMilestone(
-      valueObjectFaker.milestone.title(),
-      valueObjectFaker.milestone.description(),
-    );
+    clusterProject.milestones.add(modelFaker.milestone(clusterProject));
     clusterProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -116,10 +107,7 @@ describe('' + ConsensualityComputer.name, () => {
     oneDidItAllProject = modelFaker.project(UserId.create());
     oneDidItAllProject.roles.addAll([roleA, roleB, roleC, roleD]);
     oneDidItAllProject.reviewTopics.add(reviewTopic);
-    oneDidItAllProject.addMilestone(
-      valueObjectFaker.milestone.title(),
-      valueObjectFaker.milestone.description(),
-    );
+    oneDidItAllProject.milestones.add(modelFaker.milestone(oneDidItAllProject));
     oneDidItAllProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {
@@ -151,9 +139,8 @@ describe('' + ConsensualityComputer.name, () => {
     coveeWhitepaper4PersonProject = modelFaker.project(UserId.create());
     coveeWhitepaper4PersonProject.roles.addAll([roleA, roleB, roleC, roleD]);
     coveeWhitepaper4PersonProject.reviewTopics.add(reviewTopic);
-    coveeWhitepaper4PersonProject.addMilestone(
-      valueObjectFaker.milestone.title(),
-      valueObjectFaker.milestone.description(),
+    coveeWhitepaper4PersonProject.milestones.add(
+      modelFaker.milestone(coveeWhitepaper4PersonProject),
     );
     coveeWhitepaper4PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
@@ -186,10 +173,7 @@ describe('' + ConsensualityComputer.name, () => {
     some3PersonProject = modelFaker.project(UserId.create());
     some3PersonProject.roles.addAll([roleA, roleB, roleC]);
     some3PersonProject.reviewTopics.add(reviewTopic);
-    some3PersonProject.addMilestone(
-      valueObjectFaker.milestone.title(),
-      valueObjectFaker.milestone.description(),
-    );
+    some3PersonProject.milestones.add(modelFaker.milestone(some3PersonProject));
     some3PersonProject.peerReviews = PeerReviewCollection.ofMap(
       {
         [a]: {

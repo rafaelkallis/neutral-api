@@ -32,6 +32,9 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     if (!project.isCreator(authUser)) {
       return undefined;
     }
+    if (project.milestones.isEmpty()) {
+      return undefined;
+    }
     if (
       !project.latestMilestone.state.equals(PeerReviewMilestoneState.INSTANCE)
     ) {

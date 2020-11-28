@@ -31,6 +31,7 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
       return Consensuality.from(1);
     }
     const normalizedDissent = absoluteDissent / maxDissent;
+    console.log(absoluteDissent, maxDissent, normalizedDissent);
     const consensuality = 1 - normalizedDissent;
     //console.log('maxDissent       : ' + absoluteDissent);
     //console.log('absoluteDissent  : ' + maxDissent);
@@ -71,12 +72,13 @@ export class PairwiseRelativeJudgementsConsensualityComputer extends Consensuali
   ): Record<string, Record<string, number>> {
     const peerReviews: Record<string, Record<string, number>> = {};
     for (let i = 0; i < n; i++) {
+      peerReviews[String(i)] = {};
       for (let j = 0; j < n; j++) {
-        if (i == j) {
+        if (i === j) {
           continue;
         }
         let score: number;
-        if ((i + 1) % n == j) {
+        if ((i + 1) % n === j) {
           score = 1;
         } else {
           score = 0;

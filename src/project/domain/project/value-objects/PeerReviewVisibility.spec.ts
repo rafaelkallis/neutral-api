@@ -46,8 +46,8 @@ describe('' + PeerReviewVisibility.name, () => {
     senderUser = modelFaker.user();
     receiverUser = modelFaker.user();
     peerUsers = [senderUser, receiverUser, managerUser];
-    projectHelper = ProjectTestHelper.ofCreator(managerUser);
-    project = projectHelper.project;
+    project = modelFaker.project(managerUser.id);
+    projectHelper = ProjectTestHelper.of(project);
     reviewTopic = projectHelper.addReviewTopic();
     const roles = peerUsers.map((u) => projectHelper.addRoleAndAssign(u));
     senderRole = roles[0];

@@ -10,6 +10,7 @@ import { SingleAssignmentPerUserViolationException } from 'project/domain/except
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { UserId } from 'user/domain/value-objects/UserId';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { Model } from 'shared/domain/Model';
 
 export interface ReadonlyRoleCollection
   extends ReadonlyModelCollection<RoleId, ReadonlyRole> {
@@ -37,7 +38,7 @@ export class RoleCollection
   public whereNot(
     roleOrIdToExclude: ReadonlyRole | RoleId,
   ): ReadonlyRoleCollection {
-    const roleIdToExclude = this.getId(roleOrIdToExclude);
+    const roleIdToExclude = Model.getId(roleOrIdToExclude);
     const roleToExclude = this.whereId(roleIdToExclude);
     this.assertContains(roleToExclude);
     return this.filter((role) => !role.equals(roleToExclude));

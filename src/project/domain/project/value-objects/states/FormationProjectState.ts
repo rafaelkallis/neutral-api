@@ -21,13 +21,14 @@ import {
   ReadonlyReviewTopic,
   ReviewTopic,
 } from 'project/domain/review-topic/ReviewTopic';
-import { ReviewTopicCreatedEvent } from 'project/domain/events/ReviewTopicCreatedEvent';
+import { ReviewTopicAddedEvent } from 'project/domain/events/ReviewTopicAddedEvent';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicUpdatedEvent } from 'project/domain/events/ReviewTopicUpdatedEvent';
 import { ReviewTopicRemovedEvent } from 'project/domain/events/ReviewTopicRemovedEvent';
 import { ReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
 import { ActiveProjectState } from './ActiveProjectState';
 import { ProjectState } from './ProjectState';
+import { ProjectActivatedEvent } from 'project/domain/events/ProjectActivatedEvent';
 
 export class FormationProjectState extends CancellableProjectState {
   public static readonly INSTANCE: ProjectState = new FormationProjectState();
@@ -129,9 +130,9 @@ export class FormationProjectState extends CancellableProjectState {
     description: ReviewTopicDescription,
     input: ReviewTopicInput,
   ): ReadonlyReviewTopic {
-    const reviewTopic = ReviewTopic.of(title, description, input);
+    const reviewTopic = ReviewTopic.create(title, description, input);
     project.reviewTopics.add(reviewTopic);
-    project.raise(new ReviewTopicCreatedEvent(project.id, reviewTopic.id));
+    project.raise(new ReviewTopicAddedEvent(project.id, reviewTopic.id));
     return reviewTopic;
   }
 
@@ -172,6 +173,7 @@ export class FormationProjectState extends CancellableProjectState {
     // assignees.assertAllAreActive();
     project.state = ActiveProjectState.INSTANCE;
     project.raise(new ProjectFormationFinishedEvent(project));
+    project.raise(new ProjectActivatedEvent(project));
   }
 
   private constructor() {

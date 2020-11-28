@@ -419,29 +419,30 @@ export class InternalProject extends Project {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    await this.milestones
-      .whereLatest()
-      .submitPeerReviews(
-        peerReviews,
-        contributionsComputer,
-        consensualityComputer,
-      );
+    await this.state.submitPeerReviews(
+      this,
+      peerReviews,
+      contributionsComputer,
+      consensualityComputer,
+    );
   }
 
   public async completePeerReviews(
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    await this.milestones
-      .whereLatest()
-      .completePeerReviews(contributionsComputer, consensualityComputer);
+    await this.state.completePeerReviews(
+      this,
+      contributionsComputer,
+      consensualityComputer,
+    );
   }
 
   /**
    * Submit the manager review.
    */
   public submitManagerReview(): void {
-    this.milestones.whereLatest().submitManagerReview();
+    this.state.submitManagerReview(this);
   }
 
   /**

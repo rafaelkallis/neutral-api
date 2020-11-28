@@ -1,4 +1,3 @@
-import { OperationNotSupportedByCurrentProjectStateException } from 'project/domain/exceptions/OperationNotSupportedByCurrentProjectStateException';
 import {
   InternalProject,
   UpdateProjectContext,
@@ -21,6 +20,7 @@ import { MilestoneTitle } from 'project/domain/milestone/value-objects/Milestone
 import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
 import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
 import { Comprarable } from 'shared/domain/value-objects/Comparable';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 /**
  *
@@ -32,7 +32,7 @@ export abstract class ProjectState
     _project: InternalProject,
     _context: UpdateProjectContext,
   ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public addRole(
@@ -40,7 +40,7 @@ export abstract class ProjectState
     _title: RoleTitle,
     _description: RoleDescription,
   ): ReadonlyRole {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public updateRole(
@@ -49,11 +49,11 @@ export abstract class ProjectState
     _title?: RoleTitle,
     _description?: RoleDescription,
   ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public removeRole(_project: InternalProject, _roleId: RoleId): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public assignUserToRole(
@@ -61,11 +61,11 @@ export abstract class ProjectState
     _userToAssign: ReadonlyUser,
     _roleId: RoleId,
   ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public unassign(_project: InternalProject, _roleId: RoleId): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public addReviewTopic(
@@ -74,7 +74,7 @@ export abstract class ProjectState
     _description: ReviewTopicDescription,
     _input: ReviewTopicInput,
   ): ReadonlyReviewTopic {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public updateReviewTopic(
@@ -84,14 +84,14 @@ export abstract class ProjectState
     _description?: ReviewTopicDescription,
     _input?: ReviewTopicInput,
   ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public removeReviewTopic(
     _project: InternalProject,
     _reviewTopicId: ReviewTopicId,
   ): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public addMilestone(
@@ -99,11 +99,11 @@ export abstract class ProjectState
     _title: MilestoneTitle,
     _description: MilestoneDescription,
   ): ReadonlyMilestone {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public finishFormation(_project: InternalProject): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -113,7 +113,7 @@ export abstract class ProjectState
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -122,24 +122,31 @@ export abstract class ProjectState
     _contributionsComputer: ContributionsComputer,
     _consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public submitManagerReview(_project: InternalProject): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public cancel(_project: InternalProject): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   public archive(_project: InternalProject): void {
-    throw new OperationNotSupportedByCurrentProjectStateException();
+    this.throwOperationNotSupported();
   }
 
   protected abstract getOrdinal(): number;
 
   public compareTo(other: ProjectState): number {
     return this.getOrdinal() - other.getOrdinal();
+  }
+
+  protected throwOperationNotSupported(): never {
+    throw new DomainException(
+      'operation_not_supported_by_current_project_state',
+      'Operation not supported by the current project state.',
+    );
   }
 }
