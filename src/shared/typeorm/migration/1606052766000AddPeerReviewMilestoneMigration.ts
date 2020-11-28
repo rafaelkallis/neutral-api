@@ -10,15 +10,15 @@ export class AddPeerReviewMilestoneMigration1606052766000
       -- projects in states: "peer-review", "manager-review" and "finished"
       -- 1) create milestone in "peer-review", "manager-review" or "finished" state, respectively
       -- 2) update to "active" state
-      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) VALUES (
+      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) (
         SELECT 
           object_id(),
           id,
           'Milestone',
           '',
-          state 
+          state, 
           created_at,
-          updated_at,
+          updated_at
         FROM projects
         WHERE state IN ('peer-review', 'manager-review', 'finished')
       );
@@ -29,7 +29,7 @@ export class AddPeerReviewMilestoneMigration1606052766000
 
       -- projects in "archived" state
       -- 1) create milestone in "finished" state
-      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) VALUES (
+      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) (
         SELECT 
           object_id(),
           id,
@@ -37,14 +37,14 @@ export class AddPeerReviewMilestoneMigration1606052766000
           '',
           'finished', 
           created_at,
-          updated_at,
+          updated_at
         FROM projects
         WHERE state IN ('archived')
       );
 
       -- projects in "cancelled" state
       -- 1) create milestone in "cancelled" state
-      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) VALUES (
+      INSERT INTO milestones (id, project_id, title, description, state, created_at, updated_at) (
         SELECT 
           object_id(),
           id,
@@ -52,7 +52,7 @@ export class AddPeerReviewMilestoneMigration1606052766000
           '',
           'cancelled', 
           created_at,
-          updated_at,
+          updated_at
         FROM projects
         WHERE state IN ('cancelled')
       );
