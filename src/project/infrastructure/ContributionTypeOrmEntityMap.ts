@@ -27,7 +27,6 @@ export class ContributionTypeOrmEntityMap extends ObjectMap<
       contribution.id.value,
       contribution.createdAt.value,
       contribution.updatedAt.value,
-      project,
       project.id,
       contribution.roleId.value,
       contribution.reviewTopicId.value,

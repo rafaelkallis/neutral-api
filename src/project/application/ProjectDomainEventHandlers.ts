@@ -3,7 +3,6 @@ import { EmailManager } from 'shared/email/manager/EmailManager';
 import { HandleDomainEvent } from 'shared/domain-event/application/DomainEventHandler';
 import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 import { UserRepository } from 'user/domain/UserRepository';
-import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { UserId } from 'user/domain/value-objects/UserId';
 import {
   ReadonlyUserCollection,
@@ -13,6 +12,7 @@ import { ReadonlyUser, User } from 'user/domain/User';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { CtaUrlFactory } from 'shared/urls/CtaUrlFactory';
 import { ManagerReviewStartedEvent } from 'project/domain/milestone/events/ManagerReviewStartedEvent';
+import { MilestoneFinishedEvent } from 'project/domain/milestone/events/MilestoneFinishedEvent';
 
 @Injectable()
 export class ProjectDomainEventHandlers {
@@ -115,19 +115,19 @@ export class ProjectDomainEventHandlers {
       {
         ctaUrl: managerReviewRequestedCtaUrl,
         firstName: manager.name.first,
-        projectTitle: event.milestone.title.value,
+        projectTitle: event.milestone.project.title.value,
       },
     );
   }
 
   @HandleDomainEvent(
-    ProjectFinishedEvent,
-    'on_project_finished_send_project_finished_email',
+    MilestoneFinishedEvent,
+    'on_milestone_finished_send_project_finished_email',
   )
-  public async onProjectFinishedSendProjectFinishedEmail(
-    event: ProjectFinishedEvent,
+  public async onMilestoneFinishedSendProjectFinishedEmail(
+    event: MilestoneFinishedEvent,
   ): Promise<void> {
-    const nullableAssigneeIds = event.project.roles
+    const nullableAssigneeIds = event.milestone.project.roles
       .toArray()
       .map((r) => r.assigneeId);
     const assigneeIds: UserId[] = nullableAssigneeIds.filter(
@@ -147,13 +147,13 @@ export class ProjectDomainEventHandlers {
       const projectFinishedCtaUrl = this.ctaUrlFactory.createProjectFinishedCtaUrl(
         {
           user: assignee,
-          projectId: event.project.id,
+          projectId: event.milestone.project.id,
         },
       );
       await this.emailManager.sendProjectFinishedEmail(assignee.email.value, {
         ctaUrl: projectFinishedCtaUrl,
         firstName: assignee.name.first,
-        projectTitle: event.project.title.value,
+        projectTitle: event.milestone.project.title.value,
       });
     }
   }

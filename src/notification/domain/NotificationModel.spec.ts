@@ -18,7 +18,7 @@ describe('notification model', () => {
   describe('create notification', () => {
     test('happy path', () => {
       const project = modelFaker.project(user.id);
-      const notification = notificationFactory.createProjectFinishedNotification(
+      const notification = notificationFactory.createMilestoneFinishedNotification(
         project,
         user.id,
       );

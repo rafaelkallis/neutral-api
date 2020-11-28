@@ -258,14 +258,6 @@ describe('project (e2e)', () => {
         throw new Error();
       }
       expect(updatedProject.state).toEqual(ActiveProjectState.INSTANCE);
-
-      for (const assignee of assignees) {
-        const receivedEmails = await scenario.getReceivedEmails(assignee);
-        expect(receivedEmails).toHaveLength(1);
-        expect(receivedEmails[0].subject).toBe(
-          `[Covee] peer-review requested in "${project.title.toString()}"`,
-        );
-      }
     });
 
     test('should fail if authenticated user is not project owner', async () => {
@@ -305,6 +297,9 @@ describe('project (e2e)', () => {
       projectHelper.addMilestone();
       await projectHelper.completePeerReviews();
       project.submitManagerReview();
+      if (project.state !== ActiveProjectState.INSTANCE) {
+        throw new Error('project should be in active state.');
+      }
       await scenario.projectRepository.persist(project);
     });
 

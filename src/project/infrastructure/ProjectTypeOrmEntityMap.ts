@@ -130,12 +130,10 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
         project,
       }),
     );
-    project.peerReviews = PeerReviewCollection.of(
-      await this.objectMapper.mapIterable(
-        projectEntity.peerReviews,
-        PeerReview,
-        { project },
-      ),
+    project.milestones = new MilestoneCollection(
+      await this.objectMapper.mapIterable(projectEntity.milestones, Milestone, {
+        project,
+      }),
     );
     project.reviewTopics = new ReviewTopicCollection(
       await this.objectMapper.mapIterable(
@@ -144,17 +142,21 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
         { project },
       ),
     );
+    // depends on milestones + reviewTopics
+    project.peerReviews = PeerReviewCollection.of(
+      await this.objectMapper.mapIterable(
+        projectEntity.peerReviews,
+        PeerReview,
+        { project },
+      ),
+    );
+    // depends on milestones
     project.contributions = new ContributionCollection(
       await this.objectMapper.mapIterable(
         projectEntity.contributions,
         Contribution,
         { project },
       ),
-    );
-    project.milestones = new MilestoneCollection(
-      await this.objectMapper.mapIterable(projectEntity.milestones, Milestone, {
-        project,
-      }),
     );
     return project;
   }

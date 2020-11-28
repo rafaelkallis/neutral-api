@@ -43,22 +43,19 @@ describe('submit manager review (e2e)', () => {
     projectHelper.addReviewTopic();
 
     project.finishFormation();
-
     projectHelper.addMilestone();
-
     await projectHelper.completePeerReviews();
-
-    await scenario.projectRepository.persist(project);
-
     if (
-      !project.milestones
-        .whereLatest()
-        .state.equals(ManagerReviewMilestoneState.INSTANCE)
+      !project.latestMilestone.state.equals(
+        ManagerReviewMilestoneState.INSTANCE,
+      )
     ) {
       throw new Error(
         'invariant violation: milestone state should be manager review.',
       );
     }
+    project.clearDomainEvents();
+    await scenario.projectRepository.persist(project);
   });
 
   afterEach(async () => {
@@ -76,8 +73,9 @@ describe('submit manager review (e2e)', () => {
     if (!updatedProject) {
       throw new Error();
     }
-    const milestone = updatedProject.milestones.whereLatest();
-    expect(milestone.state).toBe(FinishedMilestoneState.INSTANCE);
+    expect(updatedProject.latestMilestone.state).toBe(
+      FinishedMilestoneState.INSTANCE,
+    );
 
     for (const assignee of assignees) {
       const receivedEmails = await scenario.getReceivedEmails(assignee.email);
@@ -89,13 +87,8 @@ describe('submit manager review (e2e)', () => {
   });
 
   test('should fail if project is not in manager-review state', async () => {
-    await projectHelper.completePeerReviews();
     project.submitManagerReview();
-    if (
-      !project.milestones
-        .whereLatest()
-        .state.equals(FinishedMilestoneState.INSTANCE)
-    ) {
+    if (project.latestMilestone.state !== FinishedMilestoneState.INSTANCE) {
       throw new Error(
         'invariant violation: milestone should be finished state.',
       );

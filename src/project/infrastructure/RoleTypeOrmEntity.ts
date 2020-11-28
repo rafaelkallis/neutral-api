@@ -8,7 +8,7 @@ import { Role } from 'project/domain/role/Role';
 export class RoleTypeOrmEntity extends TypeOrmEntity {
   @ManyToOne(() => ProjectTypeOrmEntity, (project) => project.roles)
   @JoinColumn({ name: 'project_id' })
-  public project: ProjectTypeOrmEntity;
+  public project!: ProjectTypeOrmEntity;
 
   @Column({ name: 'project_id' })
   public projectId: string;
@@ -26,14 +26,12 @@ export class RoleTypeOrmEntity extends TypeOrmEntity {
     id: string,
     createdAt: number,
     updatedAt: number,
-    project: ProjectTypeOrmEntity,
     projectId: string,
     assigneeId: string | null,
     title: string,
     description: string,
   ) {
     super(id, createdAt, updatedAt);
-    this.project = project;
     this.projectId = projectId;
     this.assigneeId = assigneeId;
     this.title = title;

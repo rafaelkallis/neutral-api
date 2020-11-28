@@ -3,11 +3,11 @@ import { NotificationDomainEventHandlers } from 'notification/application/Notifi
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Notification } from 'notification/domain/Notification';
 import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
-import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ManagerReviewStartedEvent } from 'project/domain/milestone/events/ManagerReviewStartedEvent';
+import { MilestoneFinishedEvent } from 'project/domain/milestone/events/MilestoneFinishedEvent';
 
 describe('' + NotificationDomainEventHandlers.name, () => {
   let scenario: UnitTestScenario<NotificationDomainEventHandlers>;
@@ -93,7 +93,7 @@ describe('' + NotificationDomainEventHandlers.name, () => {
     td.verify(notificationRepository.persist(notification));
   });
 
-  test('project finished', async () => {
+  test('milestone finished', async () => {
     const owner = scenario.modelFaker.user();
     const project = scenario.modelFaker.project(owner.id);
     const assignees = [
@@ -106,16 +106,18 @@ describe('' + NotificationDomainEventHandlers.name, () => {
       scenario.modelFaker.role(assignees[1].id),
       scenario.modelFaker.role(assignees[2].id),
     ]);
-    const event = new ProjectFinishedEvent(project);
+    const milestone = scenario.modelFaker.milestone(project);
+    project.milestones.add(milestone);
+    const event = new MilestoneFinishedEvent(milestone);
 
     td.when(
-      notificationFactory.createProjectFinishedNotification(
-        event.project,
+      notificationFactory.createMilestoneFinishedNotification(
+        event.milestone.project,
         td.matchers.anything(),
       ),
     ).thenReturn(notification);
 
-    await notificationDomainEventHandler.onProjectFinishedCreateProjectFinishedNotification(
+    await notificationDomainEventHandler.onMilestoneFinishedCreateProjectFinishedNotification(
       event,
     );
 

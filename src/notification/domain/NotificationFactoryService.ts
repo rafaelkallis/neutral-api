@@ -81,7 +81,7 @@ export class NotificationFactoryService {
   /**
    *
    */
-  public createProjectFinishedNotification(
+  public createMilestoneFinishedNotification(
     project: ReadonlyProject,
     projectMemberId: UserId,
   ): Notification {

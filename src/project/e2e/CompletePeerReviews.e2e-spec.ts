@@ -11,7 +11,7 @@ import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
 
-describe('complete peer reviews (e2e)', () => {
+describe('/project/:id/complete-peer-reviews (POST)', () => {
   let scenario: IntegrationTestScenario;
 
   let creator: User;
@@ -109,12 +109,11 @@ describe('complete peer reviews (e2e)', () => {
     await scenario.teardown();
   });
 
-  test('should advance project to manager-review', async () => {
+  test('should advance milestone to manager-review', async () => {
     const response = await scenario.session.post(
       `/projects/${project.id.value}/complete-peer-reviews`,
     );
     expect(response.status).toBe(HttpStatus.OK);
-    expect(response.body.state).toBe('manager-review');
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );

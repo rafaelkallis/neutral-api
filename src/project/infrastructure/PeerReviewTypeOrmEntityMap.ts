@@ -31,7 +31,6 @@ export class PeerReviewTypeOrmEntityMap extends ObjectMap<
       peerReviewModel.id.value,
       peerReviewModel.createdAt.value,
       peerReviewModel.updatedAt.value,
-      project,
       project.id,
       peerReviewModel.senderRoleId.value,
       peerReviewModel.receiverRoleId.value,

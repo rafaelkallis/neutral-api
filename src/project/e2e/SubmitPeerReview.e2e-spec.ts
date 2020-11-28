@@ -191,14 +191,13 @@ describe('submit peer review (e2e)', () => {
           reviewTopicId: project.reviewTopics.first().id.value,
         });
       expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body.state).toBe('manager-review');
       const updatedProject = await scenario.projectRepository.findById(
         project.id,
       );
       if (!updatedProject) {
         throw new Error();
       }
-      expect(updatedProject.milestones.whereLatest().state).toBe(
+      expect(updatedProject.latestMilestone.state).toBe(
         ManagerReviewMilestoneState.INSTANCE,
       );
     });
