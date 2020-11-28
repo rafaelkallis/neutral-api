@@ -7,8 +7,9 @@ import {
   ReadonlyUserCollection,
   UserCollection,
 } from 'user/domain/UserCollection';
+import { CancelledMilestoneState } from 'project/domain/milestone/value-objects/states/CancelledMilestoneState';
 
-describe('/projects/:id/milestones (POST)', () => {
+describe('/projects/:id/milestones/latest (DELETE)', () => {
   let scenario: IntegrationTestScenario;
   let user: User;
   let assignees: ReadonlyUserCollection;
@@ -29,8 +30,9 @@ describe('/projects/:id/milestones (POST)', () => {
     projectHelper.addRolesAndAssign(assignees);
     projectHelper.addReviewTopics(2);
     project.finishFormation();
-    await scenario.projectRepository.persist(project);
+    projectHelper.addMilestone();
     project.clearDomainEvents();
+    await scenario.projectRepository.persist(project);
   });
 
   afterEach(async () => {
@@ -38,8 +40,8 @@ describe('/projects/:id/milestones (POST)', () => {
   });
 
   test('happy path', async () => {
-    const response = await scenario.session.post(
-      `/projects/${project.id.value}/milestones`,
+    const response = await scenario.session.delete(
+      `/projects/${project.id.toString()}/milestones/latest`,
     );
     expect(response.status).toBe(HttpStatus.OK);
     expect(response.body).toBeDefined();
@@ -50,21 +52,17 @@ describe('/projects/:id/milestones (POST)', () => {
       throw new Error();
     }
     expect(updatedProject.milestones).toHaveLength(1);
-    for (const assignee of assignees) {
-      const receivedEmails = await scenario.getReceivedEmails(assignee);
-      expect(receivedEmails).toHaveLength(1);
-      expect(receivedEmails[0].subject).toBe(
-        `[Covee] peer-review requested in "${project.title.toString()}"`,
-      );
-    }
+    expect(updatedProject.latestMilestone.state).toBe(
+      CancelledMilestoneState.INSTANCE,
+    );
   });
 
   test('should fail if authenticated user is not project owner', async () => {
     const otherUser = scenario.modelFaker.user();
     await scenario.userRepository.persist(otherUser);
     await scenario.authenticateUser(otherUser);
-    const response = await scenario.session.post(
-      `/projects/${project.id.value}/milestones`,
+    const response = await scenario.session.delete(
+      `/projects/${project.id.toString()}/milestones/latest`,
     );
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
   });
