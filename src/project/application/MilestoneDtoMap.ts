@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ObjectMap, ObjectMapContext } from 'shared/object-mapper/ObjectMap';
 import { Milestone } from 'project/domain/milestone/Milestone';
 import { MilestoneDto } from 'project/application/dto/MilestoneDto';
+import { getMilestoneStateValue } from 'project/domain/milestone/value-objects/states/MilestoneStateValue';
 
 @Injectable()
 @ObjectMap.register(Milestone, MilestoneDto)
@@ -16,6 +17,7 @@ export class MilestoneDtoMap extends ObjectMap<Milestone, MilestoneDto> {
       milestone.updatedAt.value,
       milestone.title.value,
       milestone.description.value,
+      getMilestoneStateValue(milestone.state),
     );
   }
 }

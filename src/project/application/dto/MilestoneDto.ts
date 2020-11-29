@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
-import { IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsString, MaxLength } from 'class-validator';
+import { MilestoneStateValue } from 'project/domain/milestone/value-objects/states/MilestoneStateValue';
 
 export class MilestoneDto extends ModelDto {
   @IsString()
@@ -21,15 +22,24 @@ export class MilestoneDto extends ModelDto {
   })
   public description: string;
 
+  @IsEnum(MilestoneStateValue)
+  @ApiProperty({
+    enum: MilestoneStateValue,
+    example: MilestoneStateValue.PEER_REVIEW,
+  })
+  public state: MilestoneStateValue;
+
   public constructor(
     id: string,
     createdAt: number,
     updatedAt: number,
     title: string,
     description: string,
+    state: MilestoneStateValue,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
     this.description = description;
+    this.state = state;
   }
 }
