@@ -43,6 +43,7 @@ describe('/projects/:id/milestones (POST)', () => {
   });
 
   test('happy path', async () => {
+    console.log(title.length, description.length);
     const response = await scenario.session
       .post(`/projects/${project.id.value}/milestones`)
       .send({ title, description });

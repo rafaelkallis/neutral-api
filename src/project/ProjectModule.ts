@@ -57,6 +57,7 @@ import { StaticConsensualityComputer } from './infrastructure/StaticConsensualit
 import { MilestoneController } from './presentation/MilestoneController';
 import { AddMilestoneCommandHandler } from './application/commands/AddMilestone';
 import { CancelLatestMilestoneCommandHandler } from './application/commands/CancelLatestMilestone';
+import { MilestoneDtoMap } from './application/MilestoneDtoMap';
 
 /**
  * Project Module
@@ -90,6 +91,7 @@ import { CancelLatestMilestoneCommandHandler } from './application/commands/Canc
     RoleDtoMap,
     PeerReviewDtoMap,
     ReviewTopicDtoMap,
+    MilestoneDtoMap,
     ContributionDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,

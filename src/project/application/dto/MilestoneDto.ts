@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ModelDto } from 'shared/application/dto/ModelDto';
-import { IsString } from 'class-validator';
+import { IsString, MaxLength } from 'class-validator';
 
 export class MilestoneDto extends ModelDto {
   @IsString()
+  @MaxLength(100)
   @ApiProperty({
     type: String,
     description: 'Title of the milestone',
@@ -12,6 +13,7 @@ export class MilestoneDto extends ModelDto {
   public title: string;
 
   @IsString()
+  @MaxLength(1024)
   @ApiProperty({
     type: String,
     description: 'Description of the milestone',

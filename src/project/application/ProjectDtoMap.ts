@@ -11,6 +11,7 @@ import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
+import { MilestoneDto } from './dto/MilestoneDto';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -42,6 +43,11 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       ReviewTopicDto,
       { authUser, project },
     );
+    const milestoneDtos = await this.objectMapper.mapIterable(
+      project.milestones,
+      MilestoneDto,
+      { authUser, project },
+    );
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -57,6 +63,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       roleDtos,
       peerReviewDtos,
       reviewTopicDtos,
+      milestoneDtos,
       await this.mapContributions(project, authUser),
     );
   }
