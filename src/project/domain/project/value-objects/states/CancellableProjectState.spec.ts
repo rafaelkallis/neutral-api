@@ -1,28 +1,20 @@
 import { User } from 'user/domain/User';
-import { InternalProject, Project } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { ModelFaker } from 'test/ModelFaker';
-import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 import { CancelledProjectState } from './CancelledProjectState';
 import { ProjectCancelledEvent } from 'project/domain/events/ProjectCancelledEvent';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
-import {
-  DefaultOrdinalProjectState,
-  OrdinalProjectState,
-} from './OrdinalProjectState';
+import { ProjectState } from './ProjectState';
 
-describe(CancellableProjectState.name, () => {
+describe('' + CancellableProjectState.name, () => {
   let modelFaker: ModelFaker;
 
-  let baseState: OrdinalProjectState;
   let cancellableState: ProjectState;
   let creator: User;
   let project: Project;
 
-  class BaseState extends DefaultOrdinalProjectState {
+  class ChildState extends CancellableProjectState {
     public getOrdinal(): number {
-      throw new Error();
-    }
-    public cancel(_project: InternalProject): void {
       throw new Error();
     }
   }
@@ -30,8 +22,7 @@ describe(CancellableProjectState.name, () => {
   beforeEach(() => {
     modelFaker = new ModelFaker();
 
-    baseState = new BaseState();
-    cancellableState = new CancellableProjectState(baseState);
+    cancellableState = new ChildState();
     creator = modelFaker.user();
     project = modelFaker.project(creator.id);
   });

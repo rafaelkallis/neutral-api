@@ -2,6 +2,7 @@ import { Column, ManyToOne, JoinColumn, Entity } from 'typeorm';
 import { TypeOrmEntity } from 'shared/infrastructure/TypeOrmEntity';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { Milestone } from 'project/domain/milestone/Milestone';
+import { MilestoneStateValue } from 'project/domain/milestone/value-objects/states/MilestoneStateValue';
 
 @Entity('milestones')
 @TypeOrmEntity.register(Milestone)
@@ -19,6 +20,9 @@ export class MilestoneTypeOrmEntity extends TypeOrmEntity {
   @Column({ name: 'description' })
   public description: string;
 
+  @Column({ name: 'state', type: 'enum', enum: MilestoneStateValue })
+  public state: MilestoneStateValue;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -27,11 +31,13 @@ export class MilestoneTypeOrmEntity extends TypeOrmEntity {
     projectId: string,
     title: string,
     description: string,
+    state: MilestoneStateValue,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
     this.projectId = projectId;
     this.title = title;
     this.description = description;
+    this.state = state;
   }
 }

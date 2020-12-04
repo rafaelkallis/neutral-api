@@ -1,4 +1,4 @@
-import { Project } from 'project/domain/project/Project';
+import { InternalProject, Project } from 'project/domain/project/Project';
 import { ProjectTypeOrmEntity } from 'project/infrastructure/ProjectTypeOrmEntity';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
@@ -107,31 +107,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
   }
 
   protected async doMap(projectEntity: ProjectTypeOrmEntity): Promise<Project> {
-    const roles = new RoleCollection(
-      await this.objectMapper.mapIterable(projectEntity.roles, Role),
-    );
-    const peerReviews = PeerReviewCollection.of(
-      await this.objectMapper.mapIterable(
-        projectEntity.peerReviews,
-        PeerReview,
-      ),
-    );
-    const reviewTopics = new ReviewTopicCollection(
-      await this.objectMapper.mapIterable(
-        projectEntity.reviewTopics,
-        ReviewTopic,
-      ),
-    );
-    const contributions = new ContributionCollection(
-      await this.objectMapper.mapIterable(
-        projectEntity.contributions,
-        Contribution,
-      ),
-    );
-    const milestones = new MilestoneCollection(
-      await this.objectMapper.mapIterable(projectEntity.milestones, Milestone),
-    );
-    return Project.of(
+    const project = new InternalProject(
       ProjectId.from(projectEntity.id),
       CreatedAt.from(projectEntity.createdAt),
       UpdatedAt.from(projectEntity.updatedAt),
@@ -143,11 +119,45 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       ContributionVisibility.ofValue(projectEntity.contributionVisibility),
       PeerReviewVisibility.ofLabel(projectEntity.peerReviewVisibility),
       SkipManagerReview.from(projectEntity.skipManagerReview),
-      roles,
-      peerReviews,
-      reviewTopics,
-      contributions,
-      milestones,
+      new RoleCollection([]),
+      PeerReviewCollection.empty(),
+      new ReviewTopicCollection([]),
+      new ContributionCollection([]),
+      new MilestoneCollection([]),
     );
+    project.roles = new RoleCollection(
+      await this.objectMapper.mapIterable(projectEntity.roles, Role, {
+        project,
+      }),
+    );
+    project.milestones = new MilestoneCollection(
+      await this.objectMapper.mapIterable(projectEntity.milestones, Milestone, {
+        project,
+      }),
+    );
+    project.reviewTopics = new ReviewTopicCollection(
+      await this.objectMapper.mapIterable(
+        projectEntity.reviewTopics,
+        ReviewTopic,
+        { project },
+      ),
+    );
+    // depends on milestones + reviewTopics
+    project.peerReviews = PeerReviewCollection.of(
+      await this.objectMapper.mapIterable(
+        projectEntity.peerReviews,
+        PeerReview,
+        { project },
+      ),
+    );
+    // depends on milestones
+    project.contributions = new ContributionCollection(
+      await this.objectMapper.mapIterable(
+        projectEntity.contributions,
+        Contribution,
+        { project },
+      ),
+    );
+    return project;
   }
 }

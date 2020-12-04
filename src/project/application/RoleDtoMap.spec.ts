@@ -1,6 +1,5 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { InternalProject } from 'project/domain/project/Project';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
@@ -9,7 +8,7 @@ import { Contribution } from 'project/domain/contribution/Contribution';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { RoleDtoMap } from './RoleDtoMap';
 
-describe('role dto map', () => {
+describe('' + RoleDtoMap.name, () => {
   let modelFaker: ModelFaker;
   let roleDtoMap: RoleDtoMap;
   let users: Record<string, User>;
@@ -27,7 +26,8 @@ describe('role dto map', () => {
       publicUser: modelFaker.user(),
     };
     project = modelFaker.project(users.owner.id);
-    project.state = FinishedProjectState.INSTANCE;
+    const milestone = modelFaker.milestone(project);
+    project.milestones.add(milestone);
     project.roles.addAll([
       modelFaker.role(users.assignee.id),
       modelFaker.role(users.projectUser.id),
@@ -36,7 +36,12 @@ describe('role dto map', () => {
     reviewTopic = modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
     project.contributions = new ContributionCollection([
-      Contribution.from(role.id, reviewTopic.id, ContributionAmount.from(1)),
+      Contribution.from(
+        milestone,
+        role.id,
+        reviewTopic.id,
+        ContributionAmount.from(1),
+      ),
     ]);
   });
 
@@ -53,6 +58,7 @@ describe('role dto map', () => {
       title: role.title.value,
       description: role.description.value,
       assigneeId: role.assigneeId?.value,
+      hasSubmittedPeerReviews: false,
     });
   });
 

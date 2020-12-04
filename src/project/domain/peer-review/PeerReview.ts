@@ -9,13 +9,22 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { Class } from 'shared/domain/Class';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
+import {
+  Milestone,
+  ReadonlyMilestone,
+} from 'project/domain/milestone/Milestone';
+import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
+import { Project, ReadonlyProject } from 'project/domain/project/Project';
 
 export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
   readonly senderRoleId: RoleId;
   readonly receiverRoleId: RoleId;
   readonly reviewTopicId: ReviewTopicId;
+  readonly milestone: ReadonlyMilestone;
   readonly score: PeerReviewScore;
   readonly flag: PeerReviewFlag;
+
+  readonly project: ReadonlyProject;
 
   isSenderRole(roleOrRoleId: ReadonlyRole | RoleId): boolean;
   isReceiverRole(roleOrRoleId: ReadonlyRole | RoleId): boolean;
@@ -24,13 +33,21 @@ export interface ReadonlyPeerReview extends ReadonlyModel<PeerReviewId> {
 /**
  * Peer Review
  */
-export class PeerReview extends Model<PeerReviewId>
+export class PeerReview
+  extends Model<PeerReviewId>
   implements ReadonlyPeerReview {
   public senderRoleId: RoleId;
   public receiverRoleId: RoleId;
   public reviewTopicId: ReviewTopicId;
+  private readonly milestoneId: MilestoneId;
   public score: PeerReviewScore;
   public flag: PeerReviewFlag;
+
+  public get milestone(): Milestone {
+    return this.project.milestones.whereId(this.milestoneId);
+  }
+
+  public readonly project: Project;
 
   public constructor(
     id: PeerReviewId,
@@ -39,24 +56,30 @@ export class PeerReview extends Model<PeerReviewId>
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
+    milestoneId: MilestoneId,
     score: PeerReviewScore,
     flag: PeerReviewFlag,
+    project: Project,
   ) {
     super(id, createdAt, updatedAt);
     this.senderRoleId = senderRoleId;
     this.receiverRoleId = receiverRoleId;
     this.reviewTopicId = reviewTopicId;
+    this.milestoneId = milestoneId;
     this.score = score;
     this.flag = flag;
+    this.project = project;
     this.assertNoSelfReview();
   }
 
-  public static of(
+  public static create(
     senderRoleId: RoleId,
     receiverRoleId: RoleId,
     reviewTopicId: ReviewTopicId,
+    milestoneId: MilestoneId,
     score: PeerReviewScore,
     flag: PeerReviewFlag,
+    project: Project,
   ): PeerReview {
     const peerReviewId = PeerReviewId.create();
     const peerReviewCreatedAt = CreatedAt.now();
@@ -68,8 +91,10 @@ export class PeerReview extends Model<PeerReviewId>
       senderRoleId,
       receiverRoleId,
       reviewTopicId,
+      milestoneId,
       score,
       flag,
+      project,
     );
   }
 

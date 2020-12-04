@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
-import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { Contribution } from 'project/domain/contribution/Contribution';
-import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 
 /**
  * Covee Contributions Computer
@@ -13,34 +9,24 @@ export class CoveeContributionsComputer extends ContributionsComputer {
   /**
    * Computes the relative contributions.
    */
-  protected computeForReviewTopic(
-    reviewTopic: ReviewTopicId,
-    peerReviews: ReadonlyPeerReviewCollection,
-  ): Contribution[] {
-    const contributions: Contribution[] = [];
-    const peers = peerReviews.getPeers();
+  protected doCompute(
+    peerReviews: Record<string, Record<string, number>>,
+  ): Record<string, number> {
+    const contributions: Record<string, number> = {};
+    const peers = Object.keys(peerReviews);
     const S: number[][] = [];
-    const peerReviewMap = peerReviews
-      .whereReviewTopic(reviewTopic)
-      .toNormalizedMap();
     for (const [i, iId] of peers.entries()) {
       S[i] = [];
       for (const [j, jId] of peers.entries()) {
         if (i === j) {
           continue;
         }
-        S[i][j] = peerReviewMap[iId.value][jId.value];
+        S[i][j] = peerReviews[iId][jId];
       }
     }
     const relContVec: number[] = this.computeContributionsFromMatrix(S);
     for (const [i, iId] of peers.entries()) {
-      const contributionAmount = ContributionAmount.from(relContVec[i]);
-      const contribution = Contribution.from(
-        iId,
-        reviewTopic,
-        contributionAmount,
-      );
-      contributions.push(contribution);
+      contributions[iId] = relContVec[i];
     }
     return contributions;
 

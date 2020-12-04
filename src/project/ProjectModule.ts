@@ -54,13 +54,22 @@ import { AssignRoleCommandHandler } from 'project/application/commands/AssignRol
 import { SubmitPeerReviewsCommandHandler } from 'project/application/commands/SubmitPeerReviews';
 import { CompletePeerReviewsCommandHandler } from 'project/application/commands/CompletePeerReviews';
 import { StaticConsensualityComputer } from './infrastructure/StaticConsensualityComputer';
+import { MilestoneController } from './presentation/MilestoneController';
+import { AddMilestoneCommandHandler } from './application/commands/AddMilestone';
+import { CancelLatestMilestoneCommandHandler } from './application/commands/CancelLatestMilestone';
+import { MilestoneDtoMap } from './application/MilestoneDtoMap';
 
 /**
  * Project Module
  */
 @Module({
   imports: [SharedModule, UserModule],
-  controllers: [ProjectController, RoleController, ReviewTopicController],
+  controllers: [
+    ProjectController,
+    RoleController,
+    ReviewTopicController,
+    MilestoneController,
+  ],
   providers: [
     {
       provide: ProjectRepository,
@@ -82,6 +91,7 @@ import { StaticConsensualityComputer } from './infrastructure/StaticConsensualit
     RoleDtoMap,
     PeerReviewDtoMap,
     ReviewTopicDtoMap,
+    MilestoneDtoMap,
     ContributionDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
@@ -108,6 +118,8 @@ import { StaticConsensualityComputer } from './infrastructure/StaticConsensualit
     UnassignRoleCommandHandler,
     SubmitPeerReviewsCommandHandler,
     CompletePeerReviewsCommandHandler,
+    AddMilestoneCommandHandler,
+    CancelLatestMilestoneCommandHandler,
   ],
   exports: [ProjectRepository],
 })

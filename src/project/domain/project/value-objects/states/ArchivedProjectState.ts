@@ -1,13 +1,10 @@
-import {
-  DefaultOrdinalProjectState,
-  OrdinalProjectState,
-} from './OrdinalProjectState';
+import { ProjectState } from 'project/domain/project/value-objects/states/ProjectState';
 
-export class ArchivedProjectState extends DefaultOrdinalProjectState {
-  public static readonly INSTANCE: OrdinalProjectState = new ArchivedProjectState();
+export class ArchivedProjectState extends ProjectState {
+  public static readonly INSTANCE: ProjectState = new ArchivedProjectState();
 
   public getOrdinal(): number {
-    return 4;
+    return 3;
   }
 
   private constructor() {

@@ -2,7 +2,6 @@ import { Project } from 'project/domain/project/Project';
 import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
-import { ManagerReviewProjectState } from 'project/domain/project/value-objects/states/ManagerReviewProjectState';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
@@ -10,8 +9,9 @@ import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
 
-describe('complete peer reviews (e2e)', () => {
+describe('/project/:id/complete-peer-reviews (POST)', () => {
   let scenario: IntegrationTestScenario;
 
   let creator: User;
@@ -61,7 +61,12 @@ describe('complete peer reviews (e2e)', () => {
       assignees.add(assignee);
       project.assignUserToRole(assignee, role.id);
     }
-    project.finishFormation(assignees);
+    project.finishFormation();
+
+    const milestone = project.addMilestone(
+      scenario.valueObjectFaker.milestone.title(),
+      scenario.valueObjectFaker.milestone.description(),
+    );
 
     await scenario.projectRepository.persist(project);
 
@@ -77,12 +82,14 @@ describe('complete peer reviews (e2e)', () => {
             .whereNot(sender)
             .toArray()
             .map((receiver) =>
-              PeerReview.of(
+              PeerReview.create(
                 sender.id,
                 receiver.id,
                 reviewTopic.id,
+                milestone.id,
                 PeerReviewScore.of(1),
                 PeerReviewFlag.NONE,
+                project,
               ),
             ),
         );
@@ -102,19 +109,19 @@ describe('complete peer reviews (e2e)', () => {
     await scenario.teardown();
   });
 
-  test('should advance project to manager-review', async () => {
+  test('should advance milestone to manager-review', async () => {
     const response = await scenario.session.post(
       `/projects/${project.id.value}/complete-peer-reviews`,
     );
     expect(response.status).toBe(HttpStatus.OK);
-    expect(response.body.state).toBe('manager-review');
     const updatedProject = await scenario.projectRepository.findById(
       project.id,
     );
     if (!updatedProject) {
       throw new Error();
     }
-    expect(updatedProject.state).toBe(ManagerReviewProjectState.INSTANCE);
+    const milestone = updatedProject.milestones.whereLatest();
+    expect(milestone.state).toBe(ManagerReviewMilestoneState.INSTANCE);
   });
 
   test('should fail if authenticated user is not project creator', async () => {

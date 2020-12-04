@@ -59,6 +59,9 @@ import { AddOrganizationMembershipsMigration1595777246000 } from 'shared/typeorm
 import { AddAddRolesAndPeerReviewsProjectIdIndexesMigration1599128899000 } from 'shared/typeorm/migration/1599128899000AddRolesAndPeerReviewsProjectIdIndexesMigration';
 import { AddAssigneeIdIndexMigration1599745163000 } from 'shared/typeorm/migration/1599745163000AddAssigneeIdIndexMigration';
 import { AddMilestonesMigration1605904211000 } from 'shared/typeorm/migration/1605904211000AddMilestonesMigration';
+import { AddMilestoneStateMigration1605953746000 } from 'shared/typeorm/migration/1605953746000AddMilestoneStateMigration';
+import { AddPeerReviewMilestoneMigration1606052766000 } from 'shared/typeorm/migration/1606052766000AddPeerReviewMilestoneMigration';
+import { AddContributionMilestoneMigration1606589847000 } from 'shared/typeorm/migration/1606589847000AddContributionMilestoneMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -128,6 +131,9 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddAddRolesAndPeerReviewsProjectIdIndexesMigration1599128899000,
         AddAssigneeIdIndexMigration1599745163000,
         AddMilestonesMigration1605904211000,
+        AddMilestoneStateMigration1605953746000,
+        AddPeerReviewMilestoneMigration1606052766000,
+        AddContributionMilestoneMigration1606589847000,
       ],
     });
     this.connection = connection;

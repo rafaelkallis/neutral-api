@@ -1,8 +1,8 @@
-import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { InternalServerErrorException } from '@nestjs/common';
+import { ReadonlyMilestone } from './milestone/Milestone';
 
 export class ConsensualityComputationResult extends Array<
   [ReviewTopicId, Consensuality]
@@ -30,18 +30,19 @@ export abstract class ConsensualityComputer {
   /**
    * Computes a project's consensuality.
    */
-  public compute(project: ReadonlyProject): ConsensualityComputationResult {
+  public compute(milestone: ReadonlyMilestone): ConsensualityComputationResult {
     const result = new ConsensualityComputationResult();
-    for (const reviewTopic of project.reviewTopics) {
-      const reviewTopicConsensuality = this.computeForReviewTopic(
-        project.peerReviews.whereReviewTopic(reviewTopic.id),
-      );
+    for (const reviewTopic of milestone.project.reviewTopics) {
+      const peerReviews = milestone.peerReviews
+        .whereReviewTopic(reviewTopic.id)
+        .toNormalizedMap();
+      const reviewTopicConsensuality = this.doCompute(peerReviews);
       result.push([reviewTopic.id, reviewTopicConsensuality]);
     }
     return result;
   }
 
-  protected abstract computeForReviewTopic(
-    peerReviews: ReadonlyPeerReviewCollection,
+  protected abstract doCompute(
+    peerReviews: Record<string, Record<string, number>>,
   ): Consensuality;
 }

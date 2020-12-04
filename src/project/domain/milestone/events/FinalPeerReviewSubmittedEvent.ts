@@ -1,13 +1,13 @@
-import { Project } from 'project/domain/project/Project';
 import { DomainEvent } from 'shared/domain-event/domain/DomainEvent';
 import { DomainEventKey } from 'shared/domain-event/domain/DomainEventKey';
+import { ReadonlyMilestone } from '../Milestone';
 
 @DomainEventKey('project.final_peer_review_submitted')
 export class FinalPeerReviewSubmittedEvent extends DomainEvent {
-  public readonly project: Project;
+  public readonly milestone: ReadonlyMilestone;
 
-  constructor(project: Project) {
+  constructor(milestone: ReadonlyMilestone) {
     super();
-    this.project = project;
+    this.milestone = milestone;
   }
 }

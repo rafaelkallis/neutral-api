@@ -15,7 +15,7 @@ export class ProjectId extends Id {
   }
 
   public static create(): ProjectId {
-    return new ProjectId(Id.createObjectId());
+    return new ProjectId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

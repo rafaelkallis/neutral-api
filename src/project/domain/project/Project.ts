@@ -39,7 +39,6 @@ import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
-import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { Class } from 'shared/domain/Class';
 import { ReviewTopicInput } from '../review-topic/ReviewTopicInput';
 import { PeerReviewVisibility } from './value-objects/PeerReviewVisibility';
@@ -47,6 +46,10 @@ import {
   MilestoneCollection,
   ReadonlyMilestoneCollection,
 } from '../milestone/MilestoneCollection';
+import { MilestoneTitle } from '../milestone/value-objects/MilestoneTitle';
+import { MilestoneDescription } from '../milestone/value-objects/MilestoneDescription';
+import { Milestone, ReadonlyMilestone } from '../milestone/Milestone';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -62,6 +65,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly reviewTopics: ReadonlyReviewTopicCollection;
   readonly contributions: ReadonlyContributionCollection;
   readonly milestones: ReadonlyMilestoneCollection;
+  readonly latestMilestone: ReadonlyMilestone;
 
   isConsensual(): boolean;
   isCreator(user: ReadonlyUser): boolean;
@@ -96,6 +100,10 @@ export abstract class Project
   public abstract readonly reviewTopics: ReviewTopicCollection;
   public abstract readonly contributions: ContributionCollection;
   public abstract readonly milestones: MilestoneCollection;
+
+  public get latestMilestone(): Milestone {
+    return this.milestones.whereLatest();
+  }
 
   public static of(
     id: ProjectId,
@@ -195,10 +203,15 @@ export abstract class Project
 
   public abstract removeReviewTopic(reviewTopicId: ReviewTopicId): void;
 
+  public abstract addMilestone(
+    title: MilestoneTitle,
+    description: MilestoneDescription,
+  ): ReadonlyMilestone;
+
   /**
    * Finish project formation
    */
-  public abstract finishFormation(assignees: ReadonlyUserCollection): void;
+  public abstract finishFormation(): void;
 
   /**
    * Cancel the project.
@@ -367,17 +380,34 @@ export class InternalProject extends Project {
     this.state.removeReviewTopic(this, reviewTopicId);
   }
 
+  public addMilestone(
+    title: MilestoneTitle,
+    description: MilestoneDescription,
+  ): ReadonlyMilestone {
+    if (
+      !this.milestones.isEmpty() &&
+      !this.milestones.whereLatest().isTerminal()
+    ) {
+      throw new DomainException(
+        'latest_milestone_not_terminal',
+        'The latest milestone is not in a terminal state, either finish or cancel.',
+      );
+    }
+    return this.state.addMilestone(this, title, description);
+  }
+
   /**
    * Finish project formation
    */
-  public finishFormation(assignees: ReadonlyUserCollection): void {
-    this.state.finishFormation(this, assignees);
+  public finishFormation(): void {
+    this.state.finishFormation(this);
   }
 
   /**
    * Cancel the project.
    */
   public cancel(): void {
+    // TODO cancel milestone?
     this.state.cancel(this);
   }
 
@@ -389,7 +419,7 @@ export class InternalProject extends Project {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    return this.state.submitPeerReviews(
+    await this.state.submitPeerReviews(
       this,
       peerReviews,
       contributionsComputer,
@@ -401,7 +431,7 @@ export class InternalProject extends Project {
     contributionsComputer: ContributionsComputer,
     consensualityComputer: ConsensualityComputer,
   ): Promise<void> {
-    return this.state.completePeerReviews(
+    await this.state.completePeerReviews(
       this,
       contributionsComputer,
       consensualityComputer,
@@ -409,17 +439,17 @@ export class InternalProject extends Project {
   }
 
   /**
-   *
-   */
-  public archive(): void {
-    this.state.archive(this);
-  }
-
-  /**
    * Submit the manager review.
    */
   public submitManagerReview(): void {
     this.state.submitManagerReview(this);
+  }
+
+  /**
+   *
+   */
+  public archive(): void {
+    this.state.archive(this);
   }
 
   public isCreator(user: ReadonlyUser): boolean {
@@ -430,9 +460,5 @@ export class InternalProject extends Project {
     if (!this.isCreator(user)) {
       throw new UserNotProjectCreatorException();
     }
-  }
-
-  public getClass(): Class<Project> {
-    return Project;
   }
 }
