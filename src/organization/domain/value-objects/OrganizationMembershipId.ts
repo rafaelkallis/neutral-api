@@ -7,7 +7,7 @@ export class OrganizationMembershipId extends Id {
   }
 
   public static create(): OrganizationMembershipId {
-    return new OrganizationMembershipId(Id.createObjectId());
+    return new OrganizationMembershipId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

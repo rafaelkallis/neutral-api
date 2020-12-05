@@ -11,6 +11,7 @@ import { ReadonlyRole } from 'project/domain/role/Role';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
+import { Model } from 'shared/domain/Model';
 
 export interface ReadonlyContributionCollection
   extends ReadonlyModelCollection<ContributionId, ReadonlyContribution> {
@@ -34,14 +35,14 @@ export class ContributionCollection
   public whereRole(
     roleOrId: ReadonlyRole | RoleId,
   ): ReadonlyContributionCollection {
-    const roleId = this.getId(roleOrId);
+    const roleId = Model.getId(roleOrId);
     return this.where((contribution) => contribution.roleId.equals(roleId));
   }
 
   public whereReviewTopic(
     reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
   ): ReadonlyContributionCollection {
-    const reviewTopicId = this.getId(reviewTopicOrId);
+    const reviewTopicId = Model.getId(reviewTopicOrId);
     return this.where((contribution) =>
       contribution.reviewTopicId.equals(reviewTopicId),
     );

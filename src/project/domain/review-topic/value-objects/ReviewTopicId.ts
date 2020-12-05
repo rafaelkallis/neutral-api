@@ -15,7 +15,7 @@ export class ReviewTopicId extends Id {
   }
 
   public static create(): ReviewTopicId {
-    return new ReviewTopicId(Id.createObjectId());
+    return new ReviewTopicId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

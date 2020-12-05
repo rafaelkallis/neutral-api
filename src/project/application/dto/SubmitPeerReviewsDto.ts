@@ -7,6 +7,7 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
+import { Milestone } from 'project/domain/milestone/Milestone';
 
 /**
  * Submit peer reviews DTO
@@ -36,15 +37,20 @@ export class SubmitPeerReviewsDto {
     this.reviewTopicId = reviewTopicId;
   }
 
-  public asPeerReviewCollection(senderRoleId: RoleId): PeerReviewCollection {
+  public asPeerReviewCollection(
+    senderRoleId: RoleId,
+    milestone: Milestone,
+  ): PeerReviewCollection {
     return PeerReviewCollection.of(
       Object.entries(this.peerReviews).map(([receiverRoleId, score]) =>
-        PeerReview.of(
+        PeerReview.create(
           senderRoleId,
           RoleId.from(receiverRoleId),
           ReviewTopicId.from(this.reviewTopicId),
+          milestone.id,
           PeerReviewScore.of(score),
           PeerReviewFlag.NONE,
+          milestone.project,
         ),
       ),
     );

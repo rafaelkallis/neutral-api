@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import { ReadonlyProject } from 'project/domain/project/Project';
 import { NotificationType } from 'notification/domain/value-objects/NotificationType';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { Notification } from 'notification/domain/Notification';
@@ -65,7 +65,7 @@ export class NotificationFactoryService {
    *
    */
   public createManagerReviewRequestedNotification(
-    project: Project,
+    project: ReadonlyProject,
   ): Notification {
     const ownerId = project.creatorId;
     const type = NotificationType.MANAGER_REVIEW_REQUESTED;
@@ -81,7 +81,7 @@ export class NotificationFactoryService {
   /**
    *
    */
-  public createProjectFinishedNotification(
+  public createMilestoneFinishedNotification(
     project: ReadonlyProject,
     projectMemberId: UserId,
   ): Notification {

@@ -7,7 +7,7 @@ import {
   ReadonlyReviewTopic,
   ReviewTopic,
 } from 'project/domain/review-topic/ReviewTopic';
-import { InsufficientReviewTopicAmountException } from '../exceptions/InsufficientReviewTopicAmountException';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyReviewTopicCollection
   extends ReadonlyModelCollection<ReviewTopicId, ReadonlyReviewTopic> {
@@ -18,8 +18,11 @@ export class ReviewTopicCollection
   extends ModelCollection<ReviewTopicId, ReviewTopic>
   implements ReadonlyReviewTopicCollection {
   public assertSufficientAmount(): void {
-    if (this.toArray().length < 1) {
-      throw new InsufficientReviewTopicAmountException();
+    if (this.length === 0) {
+      throw new DomainException(
+        'insufficient_review_topic_amount',
+        'The number of review topics is insufficient, at least 1 is needed',
+      );
     }
   }
 }

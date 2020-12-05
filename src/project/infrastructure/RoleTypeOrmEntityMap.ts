@@ -19,7 +19,6 @@ export class RoleTypeOrmEntityMap extends ObjectMap<Role, RoleTypeOrmEntity> {
       roleModel.id.value,
       roleModel.createdAt.value,
       roleModel.updatedAt.value,
-      project,
       project.id,
       roleModel.assigneeId ? roleModel.assigneeId.value : null,
       roleModel.title.value,

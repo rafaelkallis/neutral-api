@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from 'user/domain/UserRepository';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import {
   GetProjectsQueryDto,
@@ -11,23 +10,18 @@ import { InvalidProjectTypeQueryException } from 'project/application/exceptions
 import { User } from 'user/domain/User';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
-import { UserId } from 'user/domain/value-objects/UserId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
-import { UserCollection } from 'user/domain/UserCollection';
 
 @Injectable()
 export class ProjectApplicationService {
   private readonly projectRepository: ProjectRepository;
-  private readonly userRepository: UserRepository;
   private readonly objectMapper: ObjectMapper;
 
   public constructor(
     projectRepository: ProjectRepository,
-    userRepository: UserRepository,
     objectMapper: ObjectMapper,
   ) {
     this.projectRepository = projectRepository;
-    this.userRepository = userRepository;
     this.objectMapper = objectMapper;
   }
 
@@ -85,14 +79,7 @@ export class ProjectApplicationService {
       throw new ProjectNotFoundException();
     }
     project.assertCreator(authUser);
-    const assigneeIds = project.roles
-      .toArray()
-      .map((role) => role.assigneeId)
-      .filter(Boolean) as UserId[];
-    const assignees = await this.userRepository.findByIds(assigneeIds);
-    project.finishFormation(
-      new UserCollection(assignees.filter(Boolean) as User[]),
-    );
+    project.finishFormation();
     await this.projectRepository.persist(project);
     return this.objectMapper.map(project, ProjectDto, { authUser });
   }

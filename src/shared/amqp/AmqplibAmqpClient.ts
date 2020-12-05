@@ -49,7 +49,7 @@ export class AmqplibAmqpClient
     const channel = this.assertChannel();
     await channel.assertExchange(ctx.exchange, 'direct');
     const messageBuf = await this.jsonSerializer.serialize(ctx.message);
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const backpressure = channel.publish(
         ctx.exchange,
         ctx.key,

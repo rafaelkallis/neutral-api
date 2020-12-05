@@ -9,11 +9,11 @@ import { ObjectNotFoundException } from 'shared/object-storage/application/excep
 import { UnitTestScenario } from 'test/UnitTestScenario';
 import { TempFileFactory } from 'shared/utility/application/TempFileFactory';
 
-describe(AzureObjectStorage.name, () => {
+describe('' + AzureObjectStorage.name, () => {
   let scenario: UnitTestScenario<AzureObjectStorage>;
   let azureObjectStorage: AzureObjectStorage;
   let key: string;
-  const containerName = '.tests';
+  const containerName = '_tests';
 
   beforeEach(async () => {
     scenario = await UnitTestScenario.builder(AzureObjectStorage)

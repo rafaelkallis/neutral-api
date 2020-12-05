@@ -15,7 +15,7 @@ export class RoleId extends Id {
   }
 
   public static create(): RoleId {
-    return new RoleId(Id.createObjectId());
+    return new RoleId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

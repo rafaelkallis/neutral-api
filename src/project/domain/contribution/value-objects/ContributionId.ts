@@ -15,7 +15,7 @@ export class ContributionId extends Id {
   }
 
   public static create(): ContributionId {
-    return new ContributionId(Id.createObjectId());
+    return new ContributionId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

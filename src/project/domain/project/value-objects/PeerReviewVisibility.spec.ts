@@ -1,31 +1,27 @@
 /* eslint-disable complexity */
 import { PeerReviewVisibility } from './PeerReviewVisibility';
-import { PeerReviewProjectState } from './states/PeerReviewProjectState';
-import { ManagerReviewProjectState } from './states/ManagerReviewProjectState';
-import { FinishedProjectState } from './states/FinishedProjectState';
-import { ArchivedProjectState } from './states/ArchivedProjectState';
-import { ProjectState } from './states/ProjectState';
-import { CancelledProjectState } from './states/CancelledProjectState';
 import { ModelFaker } from 'test/ModelFaker';
-import { OrdinalProjectState } from './states/OrdinalProjectState';
 import { ProjectTestHelper } from 'test/ProjectTestHelper';
 import { ReadonlyUser, User } from 'user/domain/User';
-import { UserCollection } from 'user/domain/UserCollection';
 import { Project } from '../Project';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReadonlyRole } from 'project/domain/role/Role';
+import { MilestoneState } from 'project/domain/milestone/value-objects/states/MilestoneState';
+import { CancelledMilestoneState } from 'project/domain/milestone/value-objects/states/CancelledMilestoneState';
+import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
+import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
+import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
 
-describe(PeerReviewVisibility.name, () => {
+describe('' + PeerReviewVisibility.name, () => {
   const modelFaker = new ModelFaker();
   const { PUBLIC, PROJECT, MANAGER, SELF } = PeerReviewVisibility;
   const allVisibilities = [PUBLIC, PROJECT, MANAGER, SELF];
 
-  const PEER_REVIEW = PeerReviewProjectState.INSTANCE;
-  const MANAGER_REVIEW = ManagerReviewProjectState.INSTANCE;
-  const FINISHED = FinishedProjectState.INSTANCE;
-  const ARCHIVED = ArchivedProjectState.INSTANCE;
-  const allStates = [PEER_REVIEW, MANAGER_REVIEW, FINISHED, ARCHIVED];
-  const CANCELLED = CancelledProjectState.INSTANCE;
+  const CANCELLED = CancelledMilestoneState.INSTANCE;
+  const PEER_REVIEW = PeerReviewMilestoneState.INSTANCE;
+  const MANAGER_REVIEW = ManagerReviewMilestoneState.INSTANCE;
+  const FINISHED = FinishedMilestoneState.INSTANCE;
+  const allStates = [CANCELLED, PEER_REVIEW, MANAGER_REVIEW, FINISHED];
 
   const sender = 'sender';
   const manager = 'manager';
@@ -43,23 +39,23 @@ describe(PeerReviewVisibility.name, () => {
   let reviewTopic: ReadonlyReviewTopic;
 
   let senderRole: ReadonlyRole;
-  let creatorRole: ReadonlyRole;
+  let managerRole: ReadonlyRole;
 
   beforeEach(() => {
     managerUser = modelFaker.user();
     senderUser = modelFaker.user();
     receiverUser = modelFaker.user();
     peerUsers = [senderUser, receiverUser, managerUser];
-    projectHelper = ProjectTestHelper.ofCreator(managerUser);
-    project = projectHelper.project;
+    project = modelFaker.project(managerUser.id);
+    projectHelper = ProjectTestHelper.of(project);
     reviewTopic = projectHelper.addReviewTopic();
     const roles = peerUsers.map((u) => projectHelper.addRoleAndAssign(u));
     senderRole = roles[0];
-    creatorRole = roles[2];
+    managerRole = roles[2];
     outsiderUser = modelFaker.user();
   });
 
-  const cases: [PeerReviewVisibility, ProjectState, string, boolean][] = [
+  const cases: [PeerReviewVisibility, MilestoneState, string, boolean][] = [
     // positive tests
     ...cartesianProduct(
       // 16 cases
@@ -69,23 +65,23 @@ describe(PeerReviewVisibility.name, () => {
       true,
     ),
     ...cartesianProduct(
-      // 9 cases
+      // 6 cases
       [MANAGER, PROJECT, PUBLIC],
-      [MANAGER_REVIEW, FINISHED, ARCHIVED],
+      [MANAGER_REVIEW, FINISHED],
       [manager],
       true,
     ),
     ...cartesianProduct(
-      // 4 cases
+      // 2 cases
       [PROJECT, PUBLIC],
-      [FINISHED, ARCHIVED],
+      [FINISHED],
       [peer],
       true,
     ),
     ...cartesianProduct(
       // 2 cases
       [PUBLIC],
-      [FINISHED, ARCHIVED],
+      [FINISHED],
       [outsider],
       true,
     ),
@@ -98,44 +94,37 @@ describe(PeerReviewVisibility.name, () => {
       false,
     ),
     ...cartesianProduct(
-      // 4 cases
+      // 8 cases
       allVisibilities,
-      [PEER_REVIEW],
+      [CANCELLED, PEER_REVIEW],
       [manager],
       false,
     ),
     ...cartesianProduct(
-      // 8 cases
+      // 12 cases
       allVisibilities,
-      [PEER_REVIEW, MANAGER_REVIEW],
+      [CANCELLED, PEER_REVIEW, MANAGER_REVIEW],
       [peer],
-      false,
-    ),
-    ...cartesianProduct(
-      // 4 cases
-      [SELF, MANAGER],
-      [FINISHED, ARCHIVED],
-      [peer],
-      false,
-    ),
-    ...cartesianProduct(
-      // 8 cases
-      allVisibilities,
-      [PEER_REVIEW, MANAGER_REVIEW],
-      [outsider],
-      false,
-    ),
-    ...cartesianProduct(
-      // 4 cases
-      [SELF, MANAGER],
-      [FINISHED, ARCHIVED],
-      [outsider],
       false,
     ),
     ...cartesianProduct(
       // 2 cases
-      [PROJECT],
-      [FINISHED, ARCHIVED],
+      [SELF, MANAGER],
+      [FINISHED],
+      [peer],
+      false,
+    ),
+    ...cartesianProduct(
+      // 12 cases
+      allVisibilities,
+      [CANCELLED, PEER_REVIEW, MANAGER_REVIEW],
+      [outsider],
+      false,
+    ),
+    ...cartesianProduct(
+      // 3 cases
+      [SELF, MANAGER, PROJECT],
+      [FINISHED],
       [outsider],
       false,
     ),
@@ -202,31 +191,29 @@ describe(PeerReviewVisibility.name, () => {
     'isVisible(%s, %s, %s) = %s',
     async (peerReviewVisibility, state, role, isVisible) => {
       project.update({ peerReviewVisibility });
-      project.finishFormation(new UserCollection(peerUsers));
+      project.finishFormation();
+      projectHelper.addMilestone();
       const [
         peerReview,
       ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
         senderRole,
         reviewTopic,
       );
-      if (state instanceof OrdinalProjectState) {
-        if (
-          state.isGreaterEquals(MANAGER_REVIEW) &&
-          project.state.equals(PEER_REVIEW)
-        ) {
-          await projectHelper.completePeerReviews();
-        }
-        if (
-          state.isGreaterEquals(FINISHED) &&
-          project.state.equals(MANAGER_REVIEW)
-        ) {
-          project.submitManagerReview();
-        }
-        if (state.isGreaterEquals(ARCHIVED) && project.state.equals(FINISHED)) {
-          project.archive();
-        }
-      } else if (state.equals(CANCELLED)) {
-        project.cancel();
+
+      if (state.compareTo(CANCELLED) === 0) {
+        project.latestMilestone.cancel();
+      }
+      if (
+        state.compareTo(MANAGER_REVIEW) >= 0 &&
+        project.latestMilestone.state.equals(PEER_REVIEW)
+      ) {
+        await projectHelper.completePeerReviews();
+      }
+      if (
+        state.compareTo(FINISHED) >= 0 &&
+        project.latestMilestone.state.equals(MANAGER_REVIEW)
+      ) {
+        project.submitManagerReview();
       }
       expect(
         project.peerReviewVisibility.isVisible(
@@ -257,11 +244,12 @@ describe(PeerReviewVisibility.name, () => {
     'manager sender during peer review should be visible',
     async (peerReviewVisibility) => {
       project.update({ peerReviewVisibility });
-      project.finishFormation(new UserCollection(peerUsers));
+      project.finishFormation();
+      projectHelper.addMilestone();
       const [
         peerReview,
       ] = await projectHelper.submitPeerReviewsForSenderAndReviewTopic(
-        creatorRole,
+        managerRole,
         reviewTopic,
       );
       expect(
@@ -277,11 +265,11 @@ describe(PeerReviewVisibility.name, () => {
 
 function cartesianProduct(
   visibilities: PeerReviewVisibility[],
-  states: ProjectState[],
+  states: MilestoneState[],
   roles: string[],
   isVisible: boolean,
-): [PeerReviewVisibility, ProjectState, string, boolean][] {
-  const result: [PeerReviewVisibility, ProjectState, string, boolean][] = [];
+): [PeerReviewVisibility, MilestoneState, string, boolean][] {
+  const result: [PeerReviewVisibility, MilestoneState, string, boolean][] = [];
   for (const v of visibilities) {
     for (const s of states) {
       for (const r of roles) {

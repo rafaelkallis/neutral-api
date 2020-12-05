@@ -26,6 +26,12 @@ export abstract class Model<TId extends Id> implements ReadonlyModel<TId> {
     this.updatedAt = updatedAt;
   }
 
+  public static getId<TId2 extends Id>(
+    modelOrId: ReadonlyModel<TId2> | TId2,
+  ): TId2 {
+    return modelOrId instanceof Id ? modelOrId : modelOrId.id;
+  }
+
   /**
    *
    */
