@@ -10,6 +10,7 @@ import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserRepository } from 'user/domain/UserRepository';
 import { ReadonlyUser } from 'user/domain/User';
 import { UserId } from 'user/domain/value-objects/UserId';
+import { ForgottenState } from 'user/domain/value-objects/states/ForgottenState';
 
 /**
  * Auth Guard.
@@ -39,41 +40,21 @@ export class AuthGuard implements CanActivate {
       /* throw if no authorization scheme is used */
       throw new UnauthorizedUserException();
     }
-    req.user = await this.handleAuthorizationHeaderAuth(authHeader);
-    return true;
-  }
-
-  // private async handleSessionAuth(
-  //   session: SessionState,
-  // ): Promise<ReadonlyUser> {
-  //   const payload = this.tokenService.validateSessionToken(session.get());
-  //   const userId = UserId.from(payload.sub);
-  //   const user = await this.userRepository.findById(userId);
-  //   if (!user) {
-  //     throw new UnauthorizedUserException();
-  //   }
-  //   const newSessionToken = this.tokenService.newSessionToken(
-  //     user.id.value,
-  //     payload.maxAge,
-  //   );
-  //   session.set(newSessionToken);
-  //   return user;
-  // }
-
-  private async handleAuthorizationHeaderAuth(
-    authHeader: string,
-  ): Promise<ReadonlyUser> {
-    const [prefix, content] = authHeader.split(' ');
-    if (!prefix || prefix.toLowerCase() !== 'bearer') {
+    const [scheme, parameter] = authHeader.split(' ');
+    if (!scheme || scheme.toLowerCase() !== 'bearer') {
       throw new UnauthorizedUserException();
     }
-    const payload = this.tokenService.validateAccessToken(content);
+    const payload = this.tokenService.validateAccessToken(parameter);
     const userId = UserId.from(payload.sub);
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedUserException();
     }
-    return user;
+    if (user.state === ForgottenState.getInstance()) {
+      throw new UnauthorizedUserException();
+    }
+    req.user = user;
+    return true;
   }
 }
 

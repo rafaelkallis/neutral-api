@@ -16,7 +16,7 @@ import { Email } from 'user/domain/value-objects/Email';
 import { OrganizationRepository } from 'organization/domain/OrganizationRepository';
 import { Organization } from 'organization/domain/Organization';
 
-type Session = request.SuperTest<request.Test>;
+type Session = request.SuperAgentTest;
 
 export class IntegrationTestScenario extends TestScenario {
   public readonly app: INestApplication;
@@ -89,7 +89,9 @@ export class IntegrationTestScenario extends TestScenario {
       user.email,
       user.lastLoginAt,
     );
-    await this.session.post(`/auth/login/${loginToken}`);
+    const response = await this.session.post(`/auth/login/${loginToken}`);
+    const { accessToken } = response.body;
+    this.session.set('Authorization', `Bearer ${accessToken}`);
   }
 
   public async createUser(): Promise<User> {

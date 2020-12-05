@@ -131,8 +131,6 @@ describe('auth (e2e)', () => {
     test('happy path', async () => {
       const logoutResponse = await scenario.session.post('/auth/logout');
       expect(logoutResponse.status).toBe(HttpStatus.NO_CONTENT);
-      const meResponse = await scenario.session.get('/users/me');
-      expect(meResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     });
   });
 });
