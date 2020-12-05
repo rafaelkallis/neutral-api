@@ -90,8 +90,8 @@ export class IntegrationTestScenario extends TestScenario {
       user.lastLoginAt,
     );
     const response = await this.session.post(`/auth/login/${loginToken}`);
-    const { accessToken } = response.body;
-    this.session.set('Authorization', `Bearer ${accessToken}`);
+    const { accessToken }: { accessToken: string } = response.body;
+    await this.session.set('Authorization', `Bearer ${accessToken}`);
   }
 
   public async createUser(): Promise<User> {
