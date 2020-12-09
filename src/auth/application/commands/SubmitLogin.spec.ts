@@ -7,7 +7,6 @@ import {
 import { InternalUser } from 'user/domain/User';
 import { SubmitLoginCommand, SubmitLoginCommandHandler } from './SubmitLogin';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
-import { SessionState } from 'shared/session/session-state';
 import { UserDto } from 'user/application/dto/UserDto';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { PendingState } from 'user/domain/value-objects/states/PendingState';
@@ -25,10 +24,8 @@ describe(SubmitLoginCommand.name, () => {
   let objectMapper: ObjectMapper;
   let user: InternalUser;
   let loginToken: string;
-  let sessionToken: string;
   let accessToken: string;
   let refreshToken: string;
-  let session: SessionState;
   let userDto: UserDto;
 
   beforeEach(async () => {
@@ -46,7 +43,6 @@ describe(SubmitLoginCommand.name, () => {
     user = scenario.modelFaker.user();
     jest.spyOn(user, 'login');
     loginToken = scenario.primitiveFaker.id();
-    session = td.object();
     td.when(tokenManager.validateLoginToken(loginToken)).thenReturn<LoginToken>(
       {
         sub: user.email.value,
@@ -54,10 +50,6 @@ describe(SubmitLoginCommand.name, () => {
       },
     );
     td.when(userRepository.findByEmail(user.email)).thenResolve(user);
-    sessionToken = scenario.primitiveFaker.id();
-    td.when(tokenManager.newSessionToken(user.id.value)).thenReturn(
-      sessionToken,
-    );
     accessToken = scenario.primitiveFaker.id();
     td.when(tokenManager.newAccessToken(user.id.value)).thenReturn(accessToken);
     refreshToken = scenario.primitiveFaker.id();
@@ -69,7 +61,7 @@ describe(SubmitLoginCommand.name, () => {
   });
 
   async function act(): Promise<AuthenticationResponseDto> {
-    const submitLoginCommand = new SubmitLoginCommand(loginToken, session);
+    const submitLoginCommand = new SubmitLoginCommand(loginToken);
     return submitLoginCommandHandler.handle(submitLoginCommand);
   }
 
@@ -89,12 +81,6 @@ describe(SubmitLoginCommand.name, () => {
   test('user should be persisted', async () => {
     await act();
     td.verify(userRepository.persist(user));
-    td.verify(session.set(sessionToken));
-  });
-
-  test('session should be set', async () => {
-    await act();
-    td.verify(session.set(sessionToken));
   });
 
   describe('when user is pending', () => {

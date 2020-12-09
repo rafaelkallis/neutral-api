@@ -3,7 +3,6 @@ import { CommandHandler } from 'shared/command/CommandHandler';
 import { UserRepository } from 'user/domain/UserRepository';
 import { TokenManager } from 'shared/token/application/TokenManager';
 import { UserDto } from 'user/application/dto/UserDto';
-import { SessionState } from 'shared/session';
 import { AuthenticationResponseDto } from '../dto/AuthenticationResponseDto';
 import { LastLoginAt } from 'user/domain/value-objects/LastLoginAt';
 import { TokenAlreadyUsedException } from 'shared/exceptions/token-already-used.exception';
@@ -21,12 +20,10 @@ import { Injectable } from '@nestjs/common';
  */
 export class SubmitLoginCommand extends Command<AuthenticationResponseDto> {
   public readonly loginToken: string;
-  public readonly session: SessionState;
 
-  public constructor(loginToken: string, session: SessionState) {
+  public constructor(loginToken: string) {
     super();
     this.loginToken = loginToken;
-    this.session = session;
   }
 }
 
@@ -69,8 +66,6 @@ export class SubmitLoginCommandHandler extends CommandHandler<
     }
     user.login();
     await this.userRepository.persist(user);
-    const sessionToken = this.tokenManager.newSessionToken(user.id.value);
-    command.session.set(sessionToken);
     const accessToken = this.tokenManager.newAccessToken(user.id.value);
     const refreshToken = this.tokenManager.newRefreshToken(user.id.value);
     const userDto = await this.objectMapper.map(user, UserDto);

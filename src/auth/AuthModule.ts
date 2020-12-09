@@ -5,7 +5,6 @@ import { SharedModule } from 'shared/SharedModule';
 import { RequestLoginCommandHandler } from 'auth/application/commands/RequestLogin';
 import { SubmitLoginCommandHandler } from 'auth/application/commands/SubmitLogin';
 import { RefreshCommandHandler } from 'auth/application/commands/Refresh';
-import { LogoutCommandHandler } from 'auth/application/commands/Logout';
 import { AuthDomainEventHandlers } from 'auth/application/AuthDomainEventHandlers';
 
 /**
@@ -20,7 +19,6 @@ import { AuthDomainEventHandlers } from 'auth/application/AuthDomainEventHandler
     RequestLoginCommandHandler,
     SubmitLoginCommandHandler,
     RefreshCommandHandler,
-    LogoutCommandHandler,
   ],
 })
 export class AuthModule {}
