@@ -64,7 +64,7 @@
     "typeorm": "0.2.29"
   },
   "devDependencies": {
-    "@nestjs/testing": "7.5.5",
+    "@nestjs/testing": "7.6.5",
     "@types/amqplib": "0.5.13",
     "@types/archiver": "5.1.0",
     "@types/compression": "1.7.0",
