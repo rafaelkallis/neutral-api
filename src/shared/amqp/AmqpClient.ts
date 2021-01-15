@@ -29,13 +29,15 @@ export abstract class AmqpClient {
    * Publish amqp messages.
    * @param ctx The publish context.
    */
-  public abstract publish<T>(ctx: PublishContext<T>): Promise<void>;
+  public abstract publish<T extends object>(
+    ctx: PublishContext<T>,
+  ): Promise<void>;
 
   /**
    * Subscribe to amqp messages.
    * @param ctx The subscribe context.
    */
-  public abstract subscribe<T>(
+  public abstract subscribe<T extends object>(
     ctx: SubscribeContext<T>,
   ): Promise<AmqpSubscription>;
 
