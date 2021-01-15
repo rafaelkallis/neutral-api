@@ -83,9 +83,7 @@ export class AmqplibAmqpClient
     await channel.bindQueue(ctx.queue, ctx.exchange, ctx.key);
     const { consumerTag } = await channel.consume(
       ctx.queue,
-      async (msg): Promise<void> => {
-        await this.handleConsumeMessage(msg, ctx);
-      },
+      (msg): void => void this.handleConsumeMessage(msg, ctx),
     );
     return new AmqplibAmqpSubscription(channel, consumerTag);
   }
