@@ -45,7 +45,9 @@ export class AmqplibAmqpClient
     this.logger.log('Amqp disconnected');
   }
 
-  public async publish<T>(ctx: PublishContext<T>): Promise<void> {
+  public async publish<T extends object>(
+    ctx: PublishContext<T>,
+  ): Promise<void> {
     const channel = this.assertChannel();
     await channel.assertExchange(ctx.exchange, 'direct');
     const messageBuf = await this.jsonSerializer.serialize(ctx.message);
@@ -72,7 +74,7 @@ export class AmqplibAmqpClient
     });
   }
 
-  public async subscribe<T>(
+  public async subscribe<T extends object>(
     ctx: SubscribeContext<T>,
   ): Promise<AmqpSubscription> {
     const channel = this.assertChannel();
@@ -81,14 +83,12 @@ export class AmqplibAmqpClient
     await channel.bindQueue(ctx.queue, ctx.exchange, ctx.key);
     const { consumerTag } = await channel.consume(
       ctx.queue,
-      async (msg): Promise<void> => {
-        await this.handleConsumeMessage(msg, ctx);
-      },
+      (msg): void => void this.handleConsumeMessage(msg, ctx),
     );
     return new AmqplibAmqpSubscription(channel, consumerTag);
   }
 
-  private async handleConsumeMessage<T>(
+  private async handleConsumeMessage<T extends object>(
     consumeMessage: ConsumeMessage | null,
     ctx: SubscribeContext<T>,
   ): Promise<void> {

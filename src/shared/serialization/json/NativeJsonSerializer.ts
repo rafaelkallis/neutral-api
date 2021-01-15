@@ -4,7 +4,7 @@ import { serialize, deserialize } from 'class-transformer';
 import { validate } from 'class-validator';
 
 export class NativeJsonSerializer extends JsonSerializer {
-  public async serialize<T>(obj: T): Promise<Buffer> {
+  public async serialize<T extends object>(obj: T): Promise<Buffer> {
     await validate(obj);
     let jsonStr: string;
     try {
@@ -21,7 +21,10 @@ export class NativeJsonSerializer extends JsonSerializer {
     return jsonBuf;
   }
 
-  public async deserialize<T>(type: Type<T>, jsonBuf: Buffer): Promise<T> {
+  public async deserialize<T extends object>(
+    type: Type<T>,
+    jsonBuf: Buffer,
+  ): Promise<T> {
     const jsonStr = jsonBuf.toString();
     const obj = deserialize(type, jsonStr);
     await validate(obj);
