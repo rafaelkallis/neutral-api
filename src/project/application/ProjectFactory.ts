@@ -20,6 +20,7 @@ import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectForma
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -55,6 +56,7 @@ export class ProjectFactory extends AggregateRootFactory<
     const peerReviews = PeerReviewCollection.empty();
     const reviewTopics = new ReviewTopicCollection([]);
     const contributions = new ContributionCollection([]);
+    const milestones = new MilestoneCollection([]);
     const project = Project.of(
       projectId,
       createdAt,
@@ -75,6 +77,7 @@ export class ProjectFactory extends AggregateRootFactory<
       peerReviews,
       reviewTopics,
       contributions,
+      milestones,
     );
     project.raise(new ProjectCreatedEvent(project, creator));
     project.raise(new ProjectFormationStartedEvent(project));

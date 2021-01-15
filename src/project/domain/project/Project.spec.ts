@@ -13,11 +13,10 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
-import { ReadonlyUserCollection } from 'user/domain/UserCollection';
 import { ValueObjectFaker } from 'test/ValueObjectFaker';
 import { PeerReviewCollection } from '../peer-review/PeerReviewCollection';
 
-describe(Project.name, () => {
+describe('' + Project.name, () => {
   let primitiveFaker: PrimitiveFaker;
   let valueObjectFaker: ValueObjectFaker;
   let modelFaker: ModelFaker;
@@ -116,9 +115,8 @@ describe(Project.name, () => {
   });
 
   test('finish formation', () => {
-    const assignees: ReadonlyUserCollection = td.object();
-    project.finishFormation(assignees);
-    td.verify(project.state.finishFormation(project, assignees));
+    project.finishFormation();
+    td.verify(project.state.finishFormation(project));
   });
 
   test('submit peer reviews', async () => {

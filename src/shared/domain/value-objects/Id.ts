@@ -2,11 +2,12 @@ import { InvalidIdException } from 'shared/domain/exceptions/InvalidIdException'
 import ObjectID from 'bson-objectid';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import { ValueObject } from './ValueObject';
+import { Comprarable } from './Comparable';
 
 /**
  *
  */
-export abstract class Id extends StringValueObject {
+export abstract class Id extends StringValueObject implements Comprarable<Id> {
   protected constructor(value: string) {
     super(value);
     this.assertObjectId(value);
@@ -15,8 +16,8 @@ export abstract class Id extends StringValueObject {
   /**
    *
    */
-  protected static createObjectId(): string {
-    return new ObjectID().toHexString();
+  protected static createInner(): string {
+    return ObjectID.generate();
   }
 
   public equals(otherValueObject: ValueObject): boolean {
@@ -37,7 +38,11 @@ export abstract class Id extends StringValueObject {
    *
    */
   public getTimestamp(): number {
-    return new ObjectID(this.value).getTimestamp();
+    return ObjectID.createFromHexString(this.value).getTimestamp();
+  }
+
+  public compareTo(other: Id): number {
+    return Number(BigInt('0x' + this.value) - BigInt('0x' + other.value));
   }
 
   private assertObjectId(value: string): void {

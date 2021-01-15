@@ -7,7 +7,7 @@ import { PeerReviewScore } from './value-objects/PeerReviewScore';
 import { RoleId } from '../role/value-objects/RoleId';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 
-describe(PeerReviewCollection.name, () => {
+describe('' + PeerReviewCollection.name, () => {
   let peerReviewCollection: PeerReviewCollection;
   let project: InternalProject;
   let modelFaker: ModelFaker;
@@ -23,6 +23,7 @@ describe(PeerReviewCollection.name, () => {
     project.reviewTopics.add(modelFaker.reviewTopic());
     project.reviewTopics.add(modelFaker.reviewTopic());
     project.reviewTopics.add(modelFaker.reviewTopic());
+    project.milestones.add(modelFaker.milestone(project));
     peerReviewCollection = PeerReviewCollection.empty();
     project.peerReviews = peerReviewCollection;
   });
@@ -41,8 +42,8 @@ describe(PeerReviewCollection.name, () => {
 
     test('when empty should return false', () => {
       expect(
-        project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+        project.latestMilestone.peerReviews.areCompleteForSenderRoleAndReviewTopic(
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -52,18 +53,20 @@ describe(PeerReviewCollection.name, () => {
     test('when partially submitted should return false', () => {
       const [, secondRole, thirdRole] = project.roles.toArray();
       for (const receiver of [secondRole, thirdRole]) {
-        const peerReview = PeerReview.of(
+        const peerReview = PeerReview.create(
           senderRoleId,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }
       expect(
         project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -72,18 +75,20 @@ describe(PeerReviewCollection.name, () => {
 
     test('when all submitted should return true', () => {
       for (const receiver of project.roles.whereNot(senderRoleId)) {
-        const peerReview = PeerReview.of(
+        const peerReview = PeerReview.create(
           senderRoleId,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }
       expect(
         project.peerReviews.areCompleteForSenderRoleAndReviewTopic(
-          project,
+          project.latestMilestone,
           senderRoleId,
           reviewTopicId,
         ),
@@ -93,13 +98,17 @@ describe(PeerReviewCollection.name, () => {
 
   describe('areSubmitted()', () => {
     test('when empty should return false', () => {
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 1 review topic submitted should return false', () => {
       const [firstReviewTopic] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 2 review topics submitted should return false', () => {
@@ -109,7 +118,9 @@ describe(PeerReviewCollection.name, () => {
       ] = project.reviewTopics.toArray();
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeFalsy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeFalsy();
     });
 
     test('when 3 review topics submitted should return true', () => {
@@ -121,19 +132,23 @@ describe(PeerReviewCollection.name, () => {
       submitPeerReviewsForReviewTopic(firstReviewTopic.id);
       submitPeerReviewsForReviewTopic(secondReviewTopic.id);
       submitPeerReviewsForReviewTopic(thirdReviewTopic.id);
-      expect(project.peerReviews.areComplete(project)).toBeTruthy();
+      expect(
+        project.peerReviews.areComplete(project.latestMilestone),
+      ).toBeTruthy();
     });
   });
 
   function submitPeerReviewsForReviewTopic(reviewTopicId: ReviewTopicId): void {
     for (const sender of project.roles) {
       for (const receiver of project.roles.whereNot(sender)) {
-        const peerReview = PeerReview.of(
+        const peerReview = PeerReview.create(
           sender.id,
           receiver.id,
           reviewTopicId,
+          project.latestMilestone.id,
           PeerReviewScore.of(1),
           PeerReviewFlag.NONE,
+          project,
         );
         project.peerReviews.add(peerReview);
       }

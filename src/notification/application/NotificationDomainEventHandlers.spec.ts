@@ -2,15 +2,14 @@ import td from 'testdouble';
 import { NotificationDomainEventHandlers } from 'notification/application/NotificationDomainEventHandlers';
 import { NotificationFactoryService } from 'notification/domain/NotificationFactoryService';
 import { Notification } from 'notification/domain/Notification';
-import { ProjectPeerReviewStartedEvent } from 'project/domain/events/ProjectPeerReviewStartedEvent';
-import { ProjectManagerReviewStartedEvent } from 'project/domain/events/ProjectManagerReviewStartedEvent';
-import { ProjectFinishedEvent } from 'project/domain/events/ProjectFinishedEvent';
+import { PeerReviewStartedEvent } from 'project/domain/milestone/events/PeerReviewStartedEvent';
 import { NotificationRepository } from 'notification/domain/NotificationRepository';
 import { UserAssignedEvent } from 'project/domain/events/UserAssignedEvent';
 import { UnitTestScenario } from 'test/UnitTestScenario';
-import { UserCollection } from 'user/domain/UserCollection';
+import { ManagerReviewStartedEvent } from 'project/domain/milestone/events/ManagerReviewStartedEvent';
+import { MilestoneFinishedEvent } from 'project/domain/milestone/events/MilestoneFinishedEvent';
 
-describe(NotificationDomainEventHandlers.name, () => {
+describe('' + NotificationDomainEventHandlers.name, () => {
   let scenario: UnitTestScenario<NotificationDomainEventHandlers>;
   let notificationDomainEventHandler: NotificationDomainEventHandlers;
   let notificationRepository: NotificationRepository;
@@ -58,10 +57,9 @@ describe(NotificationDomainEventHandlers.name, () => {
       scenario.modelFaker.role(assignees[1].id),
       scenario.modelFaker.role(assignees[2].id),
     ]);
-    const event = new ProjectPeerReviewStartedEvent(
-      project,
-      new UserCollection(assignees),
-    );
+    const milestone = scenario.modelFaker.milestone(project);
+    project.milestones.add(milestone);
+    const event = new PeerReviewStartedEvent(milestone);
     td.when(
       notificationFactory.createPeerReviewRequestedNotification(
         project,
@@ -82,7 +80,8 @@ describe(NotificationDomainEventHandlers.name, () => {
   test('manager review requested', async () => {
     const owner = scenario.modelFaker.user();
     const project = scenario.modelFaker.project(owner.id);
-    const event = new ProjectManagerReviewStartedEvent(project);
+    const milestone = scenario.modelFaker.milestone(project);
+    const event = new ManagerReviewStartedEvent(milestone);
     td.when(
       notificationFactory.createManagerReviewRequestedNotification(project),
     ).thenReturn(notification);
@@ -94,7 +93,7 @@ describe(NotificationDomainEventHandlers.name, () => {
     td.verify(notificationRepository.persist(notification));
   });
 
-  test('project finished', async () => {
+  test('milestone finished', async () => {
     const owner = scenario.modelFaker.user();
     const project = scenario.modelFaker.project(owner.id);
     const assignees = [
@@ -107,16 +106,18 @@ describe(NotificationDomainEventHandlers.name, () => {
       scenario.modelFaker.role(assignees[1].id),
       scenario.modelFaker.role(assignees[2].id),
     ]);
-    const event = new ProjectFinishedEvent(project);
+    const milestone = scenario.modelFaker.milestone(project);
+    project.milestones.add(milestone);
+    const event = new MilestoneFinishedEvent(milestone);
 
     td.when(
-      notificationFactory.createProjectFinishedNotification(
-        event.project,
+      notificationFactory.createMilestoneFinishedNotification(
+        event.milestone.project,
         td.matchers.anything(),
       ),
     ).thenReturn(notification);
 
-    await notificationDomainEventHandler.onProjectFinishedCreateProjectFinishedNotification(
+    await notificationDomainEventHandler.onMilestoneFinishedCreateProjectFinishedNotification(
       event,
     );
 

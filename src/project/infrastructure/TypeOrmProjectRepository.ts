@@ -12,6 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
+import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 
 /**
  * TypeOrm Project Repository
@@ -72,12 +73,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
 
   protected async doPersist(...projectModels: Project[]): Promise<void> {
     // TypeOrm does not delete removed one-to-many models, have to manually delete
-    const roleIdsToDelete = projectModels
-      .flatMap((projectModel) => projectModel.roles.getRemovedModels())
-      .map((projectModel) => projectModel.id.value);
-    if (roleIdsToDelete.length > 0) {
-      await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
-    }
+    // depends on milestones + review topics
     const peerReviewIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.peerReviews.getRemovedModels())
       .map((peerReviewModel) => peerReviewModel.id.value);
@@ -86,6 +82,22 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         PeerReviewTypeOrmEntity,
         peerReviewIdsToDelete,
       );
+    }
+    // depends on milestones + review topics
+    const contributionIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.contributions.getRemovedModels())
+      .map((contributionModel) => contributionModel.id.value);
+    if (contributionIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        ContributionTypeOrmEntity,
+        contributionIdsToDelete,
+      );
+    }
+    const roleIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.roles.getRemovedModels())
+      .map((projectModel) => projectModel.id.value);
+    if (roleIdsToDelete.length > 0) {
+      await this.entityManager.delete(RoleTypeOrmEntity, roleIdsToDelete);
     }
     const reviewTopicIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.reviewTopics.getRemovedModels())
@@ -96,13 +108,13 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         reviewTopicIdsToDelete,
       );
     }
-    const contributionIdsToDelete = projectModels
-      .flatMap((projectModel) => projectModel.contributions.getRemovedModels())
-      .map((contributionModel) => contributionModel.id.value);
-    if (contributionIdsToDelete.length > 0) {
+    const milestoneIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.milestones.getRemovedModels())
+      .map((milestoneModel) => milestoneModel.id.value);
+    if (milestoneIdsToDelete.length > 0) {
       await this.entityManager.delete(
-        ContributionTypeOrmEntity,
-        contributionIdsToDelete,
+        MilestoneTypeOrmEntity,
+        milestoneIdsToDelete,
       );
     }
     await this.typeOrmRepository.persist(
@@ -156,6 +168,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       reviewTopicEntities,
       peerReviewEntities,
       contributionEntities,
+      milestoneEntities,
     ] = await Promise.all([
       this.entityManager
         .getRepository(RoleTypeOrmEntity)
@@ -168,6 +181,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         .find({ projectId: In(ids) }),
       this.entityManager
         .getRepository(ContributionTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
+        .getRepository(MilestoneTypeOrmEntity)
         .find({ projectId: In(ids) }),
     ]);
     for (const projectEntity of projectEntities) {
@@ -183,6 +199,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       projectEntity.contributions = contributionEntities.filter(
         (contributionEntity) =>
           projectEntity.id === contributionEntity.projectId,
+      );
+      projectEntity.milestones = milestoneEntities.filter(
+        (milestoneEntity) => projectEntity.id === milestoneEntity.projectId,
       );
     }
   }

@@ -15,7 +15,7 @@ export class NotificationId extends Id {
   }
 
   public static create(): NotificationId {
-    return new NotificationId(Id.createObjectId());
+    return new NotificationId(Id.createInner());
   }
 
   public equals(other: ValueObject): boolean {

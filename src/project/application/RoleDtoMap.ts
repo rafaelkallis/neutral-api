@@ -4,7 +4,7 @@ import { User, ReadonlyUser } from 'user/domain/User';
 import { Injectable } from '@nestjs/common';
 import { RoleDto } from 'project/application/dto/RoleDto';
 import { Role, ReadonlyRole } from 'project/domain/role/Role';
-import { PeerReviewProjectState } from 'project/domain/project/value-objects/states/PeerReviewProjectState';
+import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
 
 @Injectable()
 @ObjectMap.register(Role, RoleDto)
@@ -32,9 +32,17 @@ export class RoleDtoMap extends ObjectMap<Role, RoleDto> {
     if (!project.isCreator(authUser)) {
       return undefined;
     }
-    if (!project.state.equals(PeerReviewProjectState.INSTANCE)) {
+    if (project.milestones.isEmpty()) {
       return undefined;
     }
-    return project.peerReviews.areCompleteForSenderRole(project, senderRole.id);
+    if (
+      !project.latestMilestone.state.equals(PeerReviewMilestoneState.INSTANCE)
+    ) {
+      return undefined;
+    }
+    return project.peerReviews.areCompleteForSenderRole(
+      project.latestMilestone,
+      senderRole.id,
+    );
   }
 }

@@ -11,12 +11,15 @@ import {
 import { OrganizationName } from 'organization/domain/value-objects/OrganizationName';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { ProjectDescription } from 'project/domain/project/value-objects/ProjectDescription';
+import { MilestoneTitle } from 'project/domain/milestone/value-objects/MilestoneTitle';
+import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
 
 export class ValueObjectFaker {
   public readonly user: UserValueObjectFaker;
   public readonly project: ProjectValueObjectFaker;
   public readonly role: RoleValueObjectFaker;
   public readonly reviewTopic: ReviewTopicValueObjectFaker;
+  public readonly milestone: MilestoneValueObjectFaker;
   public readonly organization: OrganizationValueObjectFaker;
 
   public constructor(primitiveFaker: PrimitiveFaker = new PrimitiveFaker()) {
@@ -24,6 +27,7 @@ export class ValueObjectFaker {
     this.project = new ProjectValueObjectFaker(primitiveFaker);
     this.role = new RoleValueObjectFaker(primitiveFaker);
     this.reviewTopic = new ReviewTopicValueObjectFaker(primitiveFaker);
+    this.milestone = new MilestoneValueObjectFaker(primitiveFaker);
     this.organization = new OrganizationValueObjectFaker(primitiveFaker);
   }
 }
@@ -75,6 +79,16 @@ class ReviewTopicValueObjectFaker extends ModelValueObjectFaker {
     const min = this.primitiveFaker.integer();
     const max = min + 1 + this.primitiveFaker.integer();
     return ContinuousReviewTopicInput.of(min, max);
+  }
+}
+
+class MilestoneValueObjectFaker extends ModelValueObjectFaker {
+  public title(): MilestoneTitle {
+    return MilestoneTitle.from(this.primitiveFaker.words());
+  }
+
+  public description(): MilestoneDescription {
+    return MilestoneDescription.from(this.primitiveFaker.paragraph());
   }
 }
 

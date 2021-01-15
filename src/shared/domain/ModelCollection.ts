@@ -5,6 +5,7 @@ export interface ReadonlyModelCollection<
   TId extends Id,
   TModel extends ReadonlyModel<TId>
 > extends Iterable<TModel> {
+  readonly length: number;
   contains(modelOrId: TModel | TId): boolean;
   assertContains(modelOrId: TModel | TId, errorProducer?: () => Error): void;
   whereId(id: TId): TModel;
@@ -32,8 +33,12 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
     return this.models[Symbol.iterator]();
   }
 
+  public get length(): number {
+    return Array.from(this.models).length;
+  }
+
   public toArray(): ReadonlyArray<TModel> {
-    return Array.from(this);
+    return Array.from(this.models);
   }
 
   public count(): number {
@@ -102,7 +107,7 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
    *
    */
   public contains(modelOrId: TModel | TId): boolean {
-    const id = this.getId(modelOrId);
+    const id = Model.getId(modelOrId);
     return this.isAny((model) => model.id.equals(id));
   }
 
@@ -137,12 +142,6 @@ export class ModelCollection<TId extends Id, TModel extends Model<TId>>
 
   public isEmpty(): boolean {
     return this.count() === 0;
-  }
-
-  protected getId<TId2 extends Id>(
-    modelOrId: ReadonlyModel<TId2> | TId2,
-  ): TId2 {
-    return modelOrId instanceof Model ? modelOrId.id : modelOrId;
   }
 
   protected assertCanAdd(modelToAdd: TModel): void {

@@ -57,7 +57,7 @@ export abstract class ArchiveBuilder {
     return { file: tempFile.path, contentType };
   }
 
-  protected abstract async doBuild(
+  protected abstract doBuild(
     zipContents: ReadonlyArray<ArchiveContent>,
     writable: Writable,
   ): Promise<{ contentType: string }>;

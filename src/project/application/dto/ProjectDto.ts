@@ -18,6 +18,7 @@ import {
 import { IsIdentifier } from 'shared/validation/IsIdentifier';
 import { Type } from 'class-transformer';
 import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/PeerReviewVisibility';
+import { MilestoneDto } from './MilestoneDto';
 
 /**
  * Project DTO
@@ -96,6 +97,11 @@ export class ProjectDto extends ModelDto {
   @Type(() => ReviewTopicDto)
   public reviewTopics: ReviewTopicDto[];
 
+  @ApiProperty({ type: [MilestoneDto] })
+  @ValidateNested({ each: true })
+  @Type(() => MilestoneDto)
+  public milestones: MilestoneDto[];
+
   @ApiProperty({ type: [ContributionDto] })
   @ValidateNested({ each: true })
   @Type(() => ContributionDto)
@@ -116,6 +122,7 @@ export class ProjectDto extends ModelDto {
     roles: RoleDto[],
     peerReviews: PeerReviewDto[] | null,
     reviewTopics: ReviewTopicDto[],
+    milestones: MilestoneDto[],
     contributions: ContributionDto[],
   ) {
     super(id, createdAt, updatedAt);
@@ -130,6 +137,7 @@ export class ProjectDto extends ModelDto {
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
+    this.milestones = milestones;
     this.contributions = contributions;
   }
 }

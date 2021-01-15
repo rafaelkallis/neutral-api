@@ -16,12 +16,12 @@ import {
   NoneContributionVisiblity,
   ContributionVisibility,
 } from 'project/domain/project/value-objects/ContributionVisibility';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { Contribution } from 'project/domain/contribution/Contribution';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
+import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
 
-describe(ProjectDtoMap.name, () => {
+describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
   let projectDtoMap: ProjectDtoMap;
   let modelFaker: ModelFaker;
@@ -44,37 +44,29 @@ describe(ProjectDtoMap.name, () => {
 
     roleDtos = [];
     td.when(
-      objectMapper.mapIterable(
-        project.roles.toArray(),
-        RoleDto,
-        td.matchers.anything(),
-      ),
+      objectMapper.mapIterable(project.roles, RoleDto, td.matchers.anything()),
     ).thenResolve(roleDtos);
     peerReviewDtos = [];
     td.when(
       objectMapper.mapIterable(
-        project.peerReviews.toArray(),
+        project.peerReviews,
         PeerReviewDto,
         td.matchers.anything(),
       ),
     ).thenResolve(peerReviewDtos);
     reviewTopicDtos = [];
     td.when(
-      objectMapper.mapIterable(project.reviewTopics.toArray(), ReviewTopicDto, {
+      objectMapper.mapIterable(project.reviewTopics, ReviewTopicDto, {
         authUser,
         project,
       }),
     ).thenResolve(reviewTopicDtos);
     contributionDtos = [];
     td.when(
-      objectMapper.mapIterable(
-        project.contributions.toArray(),
-        ContributionDto,
-        {
-          authUser,
-          project,
-        },
-      ),
+      objectMapper.mapIterable(project.contributions, ContributionDto, {
+        authUser,
+        project,
+      }),
     ).thenResolve(contributionDtos);
   });
 
@@ -133,7 +125,7 @@ describe(ProjectDtoMap.name, () => {
         projectUser: modelFaker.user(),
         publicUser: modelFaker.user(),
       };
-      project.state = FinishedProjectState.INSTANCE; // TODO or archived?
+      // project.state = FinishedProjectState.INSTANCE; // TODO or archived?
       project.roles.addAll([
         modelFaker.role(users.assignee.id),
         modelFaker.role(users.projectUser.id),
@@ -141,7 +133,11 @@ describe(ProjectDtoMap.name, () => {
       const role = project.roles.whereAssignee(users.assignee);
       const reviewTopic = modelFaker.reviewTopic();
       project.reviewTopics.add(reviewTopic);
+      const milestone = modelFaker.milestone(project);
+      milestone.state = FinishedMilestoneState.INSTANCE;
+      project.milestones.add(milestone);
       contribution = Contribution.from(
+        milestone,
         role.id,
         reviewTopic.id,
         ContributionAmount.from(1),
@@ -151,26 +147,14 @@ describe(ProjectDtoMap.name, () => {
 
     test.each(contributionCases)(
       'contributions',
-      async (contributionVisibility, authUserKey, isContributionVisible) => {
+      (contributionVisibility, authUserKey, expectedIsContributionExposed) => {
         project.contributionVisibility = contributionVisibility;
-        await projectDtoMap.mapContributions(project, users[authUserKey]);
-        if (isContributionVisible) {
-          td.verify(
-            objectMapper.mapIterable(
-              [contribution],
-              ContributionDto,
-              td.matchers.anything(),
-            ),
-          );
-        } else {
-          td.verify(
-            objectMapper.mapIterable(
-              [],
-              ContributionDto,
-              td.matchers.anything(),
-            ),
-          );
-        }
+        const actualIsContributionExposed = projectDtoMap.shouldExposeContribution(
+          project,
+          users[authUserKey],
+          contribution,
+        );
+        expect(actualIsContributionExposed).toBe(expectedIsContributionExposed);
       },
     );
   });

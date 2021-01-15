@@ -33,17 +33,17 @@ export abstract class ObjectStorage {
   /**
    *
    */
-  public abstract async put(context: PutContext): Promise<PutReturn>;
+  public abstract put(context: PutContext): Promise<PutReturn>;
 
   /**
    *
    */
-  public abstract async get(context: GetContext): Promise<GetReturn>;
+  public abstract get(context: GetContext): Promise<GetReturn>;
 
   /**
    *
    */
-  public abstract async delete(context: DeleteContext): Promise<void>;
+  public abstract delete(context: DeleteContext): Promise<void>;
 
   /**
    *

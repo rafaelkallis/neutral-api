@@ -15,7 +15,7 @@ export class UserId extends Id {
   }
 
   public static create(): UserId {
-    return new UserId(Id.createObjectId());
+    return new UserId(this.createInner());
   }
 
   public equals(other: ValueObject): boolean {

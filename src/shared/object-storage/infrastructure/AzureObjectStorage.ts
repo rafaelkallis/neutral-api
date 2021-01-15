@@ -80,9 +80,7 @@ export class AzureObjectStorage extends ObjectStorage {
     key: string,
   ): Promise<BlockBlobClient> {
     const container = this.client.getContainerClient(containerName);
-    if (!(await container.exists())) {
-      await container.create();
-    }
+    await container.createIfNotExists();
     const blob = container.getBlockBlobClient(key);
     return blob;
   }

@@ -9,9 +9,9 @@ import { Injectable } from '@nestjs/common';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
 import { ContributionDto } from './dto/ContributionDto';
-import { FinishedProjectState } from 'project/domain/project/value-objects/states/FinishedProjectState';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
-import { ArchivedProjectState } from 'project/domain/project/value-objects/states/ArchivedProjectState';
+import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
+import { MilestoneDto } from './dto/MilestoneDto';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -28,6 +28,26 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     context: ObjectMapContext,
   ): Promise<ProjectDto> {
     const authUser = context.get('authUser', User);
+    const roleDtos = await this.objectMapper.mapIterable(
+      project.roles,
+      RoleDto,
+      { project, authUser },
+    );
+    const peerReviewDtos = await this.objectMapper.mapIterable(
+      project.peerReviews.filterVisible(project, authUser),
+      PeerReviewDto,
+      { project, authUser, peerReviews: project.peerReviews },
+    );
+    const reviewTopicDtos = await this.objectMapper.mapIterable(
+      project.reviewTopics,
+      ReviewTopicDto,
+      { authUser, project },
+    );
+    const milestoneDtos = await this.objectMapper.mapIterable(
+      project.milestones,
+      MilestoneDto,
+      { authUser, project },
+    );
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -40,28 +60,11 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       project.contributionVisibility.asValue(),
       project.peerReviewVisibility.label,
       project.skipManagerReview.value,
-      await this.objectMapper.mapIterable(project.roles.toArray(), RoleDto, {
-        project,
-        authUser,
-      }),
-      await this.mapPeerReviewDtos(project, authUser),
-      await this.objectMapper.mapIterable(
-        project.reviewTopics.toArray(),
-        ReviewTopicDto,
-        { authUser, project },
-      ),
+      roleDtos,
+      peerReviewDtos,
+      reviewTopicDtos,
+      milestoneDtos,
       await this.mapContributions(project, authUser),
-    );
-  }
-
-  private async mapPeerReviewDtos(
-    project: Project,
-    authUser: User,
-  ): Promise<PeerReviewDto[]> {
-    return this.objectMapper.mapIterable(
-      project.peerReviews.filterVisible(project, authUser).toArray(),
-      PeerReviewDto,
-      { project, authUser, peerReviews: project.peerReviews },
     );
   }
 
@@ -69,55 +72,56 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     project: Project,
     authUser: User,
   ): Promise<Array<ContributionDto>> {
+    const visibleContributions = project.contributions.where((contribution) =>
+      this.shouldExposeContribution(project, authUser, contribution),
+    );
     return this.objectMapper.mapIterable(
-      project.contributions.where(shouldExpose).toArray(),
+      visibleContributions,
       ContributionDto,
       { authUser, project },
     );
-    function shouldExpose(contribution: ReadonlyContribution): boolean {
-      return project.contributionVisibility.accept({
-        public(): boolean {
-          return project.state.equalsAny([
-            FinishedProjectState.INSTANCE,
-            ArchivedProjectState.INSTANCE,
-          ]);
-        },
-        project(): boolean {
-          if (project.isCreator(authUser)) {
-            return true;
-          }
-          if (
-            !project.state.equalsAny([
-              FinishedProjectState.INSTANCE,
-              ArchivedProjectState.INSTANCE,
-            ])
-          ) {
-            return false;
-          }
-          return project.roles.isAnyAssignedToUser(authUser);
-        },
-        self(): boolean {
-          if (project.isCreator(authUser)) {
-            return true;
-          }
-          if (
-            !project.state.equalsAny([
-              FinishedProjectState.INSTANCE,
-              ArchivedProjectState.INSTANCE,
-            ])
-          ) {
-            return false;
-          }
-          if (!project.roles.isAnyAssignedToUser(authUser)) {
-            return false;
-          }
-          const role = project.roles.whereId(contribution.roleId);
-          return role.isAssignedToUser(authUser);
-        },
-        none(): boolean {
-          return project.isCreator(authUser);
-        },
-      });
-    }
+  }
+
+  public shouldExposeContribution(
+    project: Project,
+    authUser: User,
+    contribution: ReadonlyContribution,
+  ): boolean {
+    return project.contributionVisibility.accept({
+      public(): boolean {
+        return contribution.milestone.state.equals(
+          FinishedMilestoneState.INSTANCE,
+        );
+      },
+      project(): boolean {
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (
+          !contribution.milestone.state.equals(FinishedMilestoneState.INSTANCE)
+        ) {
+          return false;
+        }
+        return project.roles.isAnyAssignedToUser(authUser);
+      },
+      self(): boolean {
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (
+          !contribution.milestone.state.equals(FinishedMilestoneState.INSTANCE)
+        ) {
+          return false;
+        }
+        if (!project.roles.isAnyAssignedToUser(authUser)) {
+          return false;
+        }
+        const role = project.roles.whereId(contribution.roleId);
+        return role.isAssignedToUser(authUser);
+      },
+      none(): boolean {
+        return project.isCreator(authUser);
+      },
+    });
   }
 }
