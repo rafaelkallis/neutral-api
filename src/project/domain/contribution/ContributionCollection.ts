@@ -34,19 +34,17 @@ export class ContributionCollection
   implements ReadonlyContributionCollection {
   public where(
     predicate: (contribution: ReadonlyContribution) => boolean,
-  ): ReadonlyContributionCollection {
+  ): ContributionCollection {
     return new ContributionCollection(this.toArray().filter(predicate));
   }
-  public whereRole(
-    roleOrId: ReadonlyRole | RoleId,
-  ): ReadonlyContributionCollection {
+  public whereRole(roleOrId: ReadonlyRole | RoleId): ContributionCollection {
     const roleId = Model.getId(roleOrId);
     return this.where((contribution) => contribution.roleId.equals(roleId));
   }
 
   public whereReviewTopic(
     reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
-  ): ReadonlyContributionCollection {
+  ): ContributionCollection {
     const reviewTopicId = Model.getId(reviewTopicOrId);
     return this.where((contribution) =>
       contribution.reviewTopicId.equals(reviewTopicId),
@@ -55,7 +53,7 @@ export class ContributionCollection
 
   public whereMilestone(
     milestoneOrId: ReadonlyMilestone | MilestoneId,
-  ): ReadonlyContributionCollection {
+  ): ContributionCollection {
     const milestoneId = Model.getId(milestoneOrId);
     return this.where((contribution) =>
       contribution.milestone.id.equals(milestoneId),
