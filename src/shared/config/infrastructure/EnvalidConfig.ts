@@ -56,6 +56,9 @@ export class EnvalidConfig extends Config {
       // }),
       MAILJET_API_PUBLIC_KEY: envalid.str({ devDefault: '' }),
       MAILJET_API_SECRET_KEY: envalid.str({ devDefault: '' }),
+      COVEE_KERNEL_BASE_URL: envalid.url({
+        default: 'https://covee-kernel-api.azurewebsites.net',
+      }),
     });
   }
 

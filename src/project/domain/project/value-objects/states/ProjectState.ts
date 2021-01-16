@@ -7,8 +7,6 @@ import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyUser } from 'user/domain/User';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from 'project/domain/review-topic/value-objects/ReviewTopicDescription';
@@ -21,6 +19,7 @@ import { MilestoneDescription } from 'project/domain/milestone/value-objects/Mil
 import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
 import { Comprarable } from 'shared/domain/value-objects/Comparable';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 /**
  *
@@ -110,8 +109,7 @@ export abstract class ProjectState
   public async submitPeerReviews(
     _project: InternalProject,
     _peerReviews: ReadonlyPeerReviewCollection,
-    _contributionsComputer: ContributionsComputer,
-    _consensualityComputer: ConsensualityComputer,
+    _projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     this.throwOperationNotSupported();
   }
@@ -119,8 +117,7 @@ export abstract class ProjectState
   // eslint-disable-next-line @typescript-eslint/require-await
   public async completePeerReviews(
     _project: InternalProject,
-    _contributionsComputer: ContributionsComputer,
-    _consensualityComputer: ConsensualityComputer,
+    _projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     this.throwOperationNotSupported();
   }

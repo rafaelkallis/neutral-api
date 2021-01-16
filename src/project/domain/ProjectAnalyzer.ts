@@ -1,11 +1,11 @@
-import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { Project, ReadonlyProject } from 'project/domain/project/Project';
+import { Project } from 'project/domain/project/Project';
 import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ReadonlyReviewTopic } from './review-topic/ReviewTopic';
-import { ReadonlyContributionCollection } from './contribution/ContributionCollection';
+import { ContributionCollection } from './contribution/ContributionCollection';
+import { ReadonlyMilestone } from './milestone/Milestone';
 
 export interface ReviewTopicAnalysisResult {
-  contributions: ReadonlyContributionCollection;
+  contributions: ContributionCollection;
   consensuality: Consensuality;
 }
 
@@ -23,6 +23,7 @@ class InternalProjectAnalysisResult
       if (!reviewTopicResult) {
         throw new Error('review topic not found in results');
       }
+      project.contributions.addAll(reviewTopicResult.contributions);
       reviewTopic.consensuality = reviewTopicResult.consensuality;
     }
   }
@@ -30,23 +31,17 @@ class InternalProjectAnalysisResult
 
 export abstract class ProjectAnalyzer {
   public async analyzeProject(
-    project: ReadonlyProject,
+    milestone: ReadonlyMilestone,
   ): Promise<ProjectAnalysisResult> {
     const result = new InternalProjectAnalysisResult();
-    for (const reviewTopic of project.reviewTopics) {
-      const reviewTopicConsensuality = await this.analyzeReviewTopic(
-        project.peerReviews.whereReviewTopic(reviewTopic.id),
-        reviewTopic,
-        project,
-      );
-      result.set(reviewTopic, reviewTopicConsensuality);
+    for (const reviewTopic of milestone.project.reviewTopics) {
+      result.set(reviewTopic, await this.doAnalyze(milestone, reviewTopic));
     }
     return result;
   }
 
-  protected abstract analyzeReviewTopic(
-    peerReviews: ReadonlyPeerReviewCollection,
+  protected abstract doAnalyze(
+    milestone: ReadonlyMilestone,
     reviewTopic: ReadonlyReviewTopic,
-    project: ReadonlyProject,
   ): Promise<ReviewTopicAnalysisResult>;
 }

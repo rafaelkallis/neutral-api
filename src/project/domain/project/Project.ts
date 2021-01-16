@@ -19,8 +19,6 @@ import {
   PeerReviewCollection,
   ReadonlyPeerReviewCollection,
 } from 'project/domain/peer-review/PeerReviewCollection';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { UserNotProjectCreatorException } from 'project/domain/exceptions/UserNotProjectCreatorException';
@@ -50,6 +48,7 @@ import { MilestoneTitle } from '../milestone/value-objects/MilestoneTitle';
 import { MilestoneDescription } from '../milestone/value-objects/MilestoneDescription';
 import { Milestone, ReadonlyMilestone } from '../milestone/Milestone';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { ProjectAnalyzer } from '../ProjectAnalyzer';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -223,13 +222,11 @@ export abstract class Project
    */
   public abstract submitPeerReviews(
     peerReviews: ReadonlyPeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void>;
 
   public abstract completePeerReviews(
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void>;
 
   /**
@@ -416,26 +413,15 @@ export class InternalProject extends Project {
    */
   public async submitPeerReviews(
     peerReviews: ReadonlyPeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
-    await this.state.submitPeerReviews(
-      this,
-      peerReviews,
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await this.state.submitPeerReviews(this, peerReviews, projectAnalyzer);
   }
 
   public async completePeerReviews(
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
-    await this.state.completePeerReviews(
-      this,
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await this.state.completePeerReviews(this, projectAnalyzer);
   }
 
   /**

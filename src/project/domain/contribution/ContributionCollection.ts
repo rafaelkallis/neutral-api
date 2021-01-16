@@ -12,6 +12,8 @@ import { RoleId } from 'project/domain/role/value-objects/RoleId';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { Model } from 'shared/domain/Model';
+import { ReadonlyMilestone } from '../milestone/Milestone';
+import { MilestoneId } from '../milestone/value-objects/MilestoneId';
 
 export interface ReadonlyContributionCollection
   extends ReadonlyModelCollection<ContributionId, ReadonlyContribution> {
@@ -21,6 +23,9 @@ export interface ReadonlyContributionCollection
   whereRole(roleOrId: ReadonlyRole | RoleId): ReadonlyContributionCollection;
   whereReviewTopic(
     reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
+  ): ReadonlyContributionCollection;
+  whereMilestone(
+    milestoneOrId: ReadonlyMilestone | MilestoneId,
   ): ReadonlyContributionCollection;
 }
 
@@ -45,6 +50,15 @@ export class ContributionCollection
     const reviewTopicId = Model.getId(reviewTopicOrId);
     return this.where((contribution) =>
       contribution.reviewTopicId.equals(reviewTopicId),
+    );
+  }
+
+  public whereMilestone(
+    milestoneOrId: ReadonlyMilestone | MilestoneId,
+  ): ReadonlyContributionCollection {
+    const milestoneId = Model.getId(milestoneOrId);
+    return this.where((contribution) =>
+      contribution.milestone.id.equals(milestoneId),
     );
   }
 }

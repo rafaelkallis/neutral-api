@@ -58,6 +58,8 @@ import { MilestoneController } from './presentation/MilestoneController';
 import { AddMilestoneCommandHandler } from './application/commands/AddMilestone';
 import { CancelLatestMilestoneCommandHandler } from './application/commands/CancelLatestMilestone';
 import { MilestoneDtoMap } from './application/MilestoneDtoMap';
+import { ProjectAnalyzer } from './domain/ProjectAnalyzer';
+import { LegacyProjectAnalyzer } from './infrastructure/LegacyProjectAnalyzer';
 
 /**
  * Project Module
@@ -82,6 +84,10 @@ import { MilestoneDtoMap } from './application/MilestoneDtoMap';
     {
       provide: ContributionsComputer,
       useClass: CoveeContributionsComputer,
+    },
+    {
+      provide: ProjectAnalyzer,
+      useClass: LegacyProjectAnalyzer,
     },
     ProjectApplicationService,
     ProjectFactory,

@@ -3,13 +3,12 @@ import { IntegrationTestScenario } from 'test/IntegrationTestScenario';
 import { User } from 'user/domain/User';
 import { HttpStatus } from '@nestjs/common';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { UserCollection } from 'user/domain/UserCollection';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 describe('/project/:id/complete-peer-reviews (POST)', () => {
   let scenario: IntegrationTestScenario;
@@ -70,8 +69,7 @@ describe('/project/:id/complete-peer-reviews (POST)', () => {
 
     await scenario.projectRepository.persist(project);
 
-    const contributionsComputer = scenario.module.get(ContributionsComputer);
-    const consensualityComputer = scenario.module.get(ConsensualityComputer);
+    const projectAnalyzer = scenario.module.get(ProjectAnalyzer);
 
     // suppose roles 3 + 4 never submitted peer reviews
     const [, , ro3, ro4] = project.roles;
@@ -93,11 +91,7 @@ describe('/project/:id/complete-peer-reviews (POST)', () => {
               ),
             ),
         );
-        await project.submitPeerReviews(
-          peerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(peerReviews, projectAnalyzer);
       }
     }
 

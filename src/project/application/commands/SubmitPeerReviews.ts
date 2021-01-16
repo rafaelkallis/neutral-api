@@ -10,10 +10,9 @@ import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
 import { SubmitPeerReviewsDto } from '../dto/SubmitPeerReviewsDto';
 import { InsufficientPermissionsException } from 'shared/exceptions/insufficient-permissions.exception';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 export class SubmitPeerReviewsCommand extends ProjectCommand {
   public readonly projectId: string;
@@ -33,18 +32,15 @@ export class SubmitPeerReviewsCommand extends ProjectCommand {
 @Injectable()
 @CommandHandler.register(SubmitPeerReviewsCommand)
 export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<SubmitPeerReviewsCommand> {
-  private readonly contributionsComputer: ContributionsComputer;
-  private readonly consensualityComputer: ConsensualityComputer;
+  private readonly projectAnalyzer: ProjectAnalyzer;
 
   public constructor(
     objectMapper: ObjectMapper,
     projectRepository: ProjectRepository,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ) {
     super(objectMapper, projectRepository);
-    this.contributionsComputer = contributionsComputer;
-    this.consensualityComputer = consensualityComputer;
+    this.projectAnalyzer = projectAnalyzer;
   }
 
   protected async doHandle(
@@ -63,11 +59,7 @@ export class SubmitPeerReviewsCommandHandler extends ProjectCommandHandler<Submi
       authRole.id,
       project.milestones.whereLatest(),
     );
-    await project.submitPeerReviews(
-      submittedPeerReviews,
-      this.contributionsComputer,
-      this.consensualityComputer,
-    );
+    await project.submitPeerReviews(submittedPeerReviews, this.projectAnalyzer);
     return project;
   }
 }
