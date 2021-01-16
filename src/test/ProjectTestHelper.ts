@@ -84,7 +84,7 @@ export class ProjectTestHelper {
     const projectAnalysisResult: ProjectAnalysisResult = td.object();
     td.when(projectAnalysisResult.applyTo(this.project));
     const projectAnalyzer: ProjectAnalyzer = td.object();
-    td.when(projectAnalyzer.analyzeProject(milestone)).thenResolve(
+    td.when(projectAnalyzer.analyze(milestone)).thenResolve(
       projectAnalysisResult,
     );
     const peerReviews: PeerReviewCollection = PeerReviewCollection.of(
@@ -112,7 +112,7 @@ export class ProjectTestHelper {
     const projectAnalysisResult: ProjectAnalysisResult = td.object();
     td.when(projectAnalysisResult.applyTo(this.project));
     const projectAnalyzer: ProjectAnalyzer = td.object();
-    td.when(projectAnalyzer.analyzeProject(milestone)).thenResolve(
+    td.when(projectAnalyzer.analyze(milestone)).thenResolve(
       projectAnalysisResult,
     );
     await this.project.completePeerReviews(projectAnalyzer);

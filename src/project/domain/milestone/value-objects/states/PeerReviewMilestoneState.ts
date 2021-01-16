@@ -93,7 +93,7 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
 
     milestone.project.raise(new FinalPeerReviewSubmittedEvent(milestone));
 
-    const result = await projectAnalyzer.analyzeProject(milestone);
+    const result = await projectAnalyzer.analyze(milestone);
     result.applyTo(milestone.project);
 
     milestone.project.raise(new PeerReviewFinishedEvent(milestone));

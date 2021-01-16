@@ -30,7 +30,7 @@ class InternalProjectAnalysisResult
 }
 
 export abstract class ProjectAnalyzer {
-  public async analyzeProject(
+  public async analyze(
     milestone: ReadonlyMilestone,
   ): Promise<ProjectAnalysisResult> {
     const result = new InternalProjectAnalysisResult();

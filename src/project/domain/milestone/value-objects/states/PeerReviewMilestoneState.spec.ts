@@ -89,9 +89,9 @@ describe('' + PeerReviewMilestoneState.name, () => {
     projectAnalysisResult = td.object();
     td.when(projectAnalysisResult.applyTo(project));
     projectAnalyzer = td.object();
-    td.when(
-      projectAnalyzer.analyzeProject(project.latestMilestone),
-    ).thenResolve(projectAnalysisResult);
+    td.when(projectAnalyzer.analyze(project.latestMilestone)).thenResolve(
+      projectAnalysisResult,
+    );
 
     if (!milestone.state.equals(PeerReviewMilestoneState.INSTANCE)) {
       throw new Error(
