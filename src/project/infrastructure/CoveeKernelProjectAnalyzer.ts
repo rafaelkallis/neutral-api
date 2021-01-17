@@ -6,12 +6,13 @@ import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { Injectable } from '@nestjs/common';
 import fetch from 'node-fetch';
 import { Config } from 'shared/config/application/Config';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import { Contribution } from 'project/domain/contribution/Contribution';
-import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
+import { Milestone } from 'project/domain/milestone/Milestone';
+import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
+import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
+import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
+import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
+import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 
 interface CoveeKernelResult {
   contribution_equality: number;
@@ -39,7 +40,7 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
   }
 
   protected async doAnalyze(
-    milestone: ReadonlyMilestone,
+    milestone: Milestone,
     reviewTopic: ReadonlyReviewTopic,
   ): Promise<ReviewTopicAnalysisResult> {
     const url = new URL(
@@ -69,24 +70,60 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
     }
     const result: CoveeKernelResult = await response.json();
 
-    const contributions = new ContributionCollection(
-      result.contributions.map((contribution) =>
-        Contribution.from(
-          milestone,
-          RoleId.from(contribution.role),
+    const contributions: Record<string, Contribution> = Object.fromEntries(
+      result.contributions.map(({ role, value }) => [
+        role,
+        Contribution.of(value),
+      ]),
+    );
+    const consensualities: Record<string, Consensuality> = Object.fromEntries(
+      result.consensualities.map(({ role, value }) => [
+        role,
+        Consensuality.of(value),
+      ]),
+    );
+    const agreements: Record<string, Agreement> = Object.fromEntries(
+      result.agreements.map(({ role, value }) => [role, Agreement.of(value)]),
+    );
+
+    if (
+      !setEquals(
+        new Set(Object.keys(contributions)),
+        new Set(Object.keys(consensualities)),
+      )
+    ) {
+      throw new Error('contributions and consensualities have a role mismatch');
+    }
+
+    if (
+      !setEquals(
+        new Set(Object.keys(consensualities)),
+        new Set(Object.keys(agreements)),
+      )
+    ) {
+      throw new Error('consensualities and agreements have a role mismatch');
+    }
+
+    const roleMetrics = new RoleMetricCollection(
+      Object.keys(contributions).map((roleId) =>
+        RoleMetric.create(
+          milestone.project,
+          RoleId.from(roleId),
           reviewTopic.id,
-          ContributionAmount.from(contribution.value),
+          milestone.id,
+          contributions[roleId],
+          consensualities[roleId],
+          agreements[roleId],
         ),
       ),
     );
-    const consensuality = Consensuality.from(
-      mean(result.consensualities.map((c) => c.value)),
-    );
 
-    return { contributions, consensuality };
+    return { roleMetrics };
 
-    function mean(values: number[]): number {
-      return values.reduce((a, b) => a + b) / values.length;
+    function setEquals<T>(a: Set<T>, b: Set<T>): boolean {
+      return (
+        a.size === b.size && Array.from(a.keys()).every((item) => b.has(item))
+      );
     }
   }
 }

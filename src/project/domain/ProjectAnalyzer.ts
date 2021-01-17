@@ -1,12 +1,13 @@
 import { Project } from 'project/domain/project/Project';
-import { Consensuality } from 'project/domain/project/value-objects/Consensuality';
 import { ReadonlyReviewTopic } from './review-topic/ReviewTopic';
-import { ContributionCollection } from './contribution/ContributionCollection';
-import { ReadonlyMilestone } from './milestone/Milestone';
+import { Milestone } from './milestone/Milestone';
+import { RoleMetricCollection } from './role-metric/RoleMetricCollection';
+import { Contribution } from './contribution/Contribution';
+import { Consensuality } from './project/value-objects/Consensuality';
+import { ContributionAmount } from './role/value-objects/ContributionAmount';
 
 export interface ReviewTopicAnalysisResult {
-  contributions: ContributionCollection;
-  consensuality: Consensuality;
+  roleMetrics: RoleMetricCollection;
 }
 
 export interface ProjectAnalysisResult
@@ -23,16 +24,28 @@ class InternalProjectAnalysisResult
       if (!reviewTopicResult) {
         throw new Error('review topic not found in results');
       }
-      project.contributions.addAll(reviewTopicResult.contributions);
-      reviewTopic.consensuality = reviewTopicResult.consensuality;
+      project.roleMetrics.addAll(reviewTopicResult.roleMetrics);
+
+      // TODO remove
+      project.contributions.addAll(
+        reviewTopicResult.roleMetrics
+          .toArray()
+          .map((roleMetric) =>
+            Contribution.from(
+              project.milestones.whereId(roleMetric.milestoneId),
+              roleMetric.roleId,
+              roleMetric.reviewTopicId,
+              ContributionAmount.from(roleMetric.contribution.value),
+            ),
+          ),
+      );
+      reviewTopic.consensuality = Consensuality.from(1);
     }
   }
 }
 
 export abstract class ProjectAnalyzer {
-  public async analyze(
-    milestone: ReadonlyMilestone,
-  ): Promise<ProjectAnalysisResult> {
+  public async analyze(milestone: Milestone): Promise<ProjectAnalysisResult> {
     const result = new InternalProjectAnalysisResult();
     for (const reviewTopic of milestone.project.reviewTopics) {
       result.set(reviewTopic, await this.doAnalyze(milestone, reviewTopic));
@@ -41,7 +54,7 @@ export abstract class ProjectAnalyzer {
   }
 
   protected abstract doAnalyze(
-    milestone: ReadonlyMilestone,
+    milestone: Milestone,
     reviewTopic: ReadonlyReviewTopic,
   ): Promise<ReviewTopicAnalysisResult>;
 }
