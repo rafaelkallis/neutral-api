@@ -55,5 +55,6 @@ module.exports = {
     '@typescript-eslint/no-unsafe-call': ['warn'],
     '@typescript-eslint/unbound-method': ['warn'],
     'jest/valid-title': ['warn'],
+    '@typescript-eslint/no-empty-interface': ['warn'],
   },
 };

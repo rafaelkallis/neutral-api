@@ -12,6 +12,8 @@ import { ContributionDto } from './dto/ContributionDto';
 import { ReadonlyContribution } from 'project/domain/contribution/Contribution';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
 import { MilestoneDto } from './dto/MilestoneDto';
+import { ReadonlyRoleMetric } from 'project/domain/role-metric/RoleMetric';
+import { RoleMetricDto } from './dto/RoleMetricDto';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -65,13 +67,14 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       reviewTopicDtos,
       milestoneDtos,
       await this.mapContributions(project, authUser),
+      await this.mapRoleMetrics(project, authUser),
     );
   }
 
   public async mapContributions(
     project: Project,
     authUser: User,
-  ): Promise<Array<ContributionDto>> {
+  ): Promise<ContributionDto[]> {
     const visibleContributions = project.contributions.where((contribution) =>
       this.shouldExposeContribution(project, authUser, contribution),
     );
@@ -80,6 +83,21 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       ContributionDto,
       { authUser, project },
     );
+  }
+
+  public async mapRoleMetrics(
+    project: Project,
+    authUser: User,
+  ): Promise<RoleMetricDto[]> {
+    const visibleRoleMetrics = project.roleMetrics
+      .toArray()
+      .filter((roleMetric) =>
+        this.shouldExposeRoleMetric(project, authUser, roleMetric),
+      );
+    return this.objectMapper.mapIterable(visibleRoleMetrics, RoleMetricDto, {
+      authUser,
+      project,
+    });
   }
 
   public shouldExposeContribution(
@@ -117,6 +135,44 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
           return false;
         }
         const role = project.roles.whereId(contribution.roleId);
+        return role.isAssignedToUser(authUser);
+      },
+      none(): boolean {
+        return project.isCreator(authUser);
+      },
+    });
+  }
+
+  public shouldExposeRoleMetric(
+    project: Project,
+    authUser: User,
+    roleMetric: ReadonlyRoleMetric,
+  ): boolean {
+    const milestone = project.milestones.whereId(roleMetric.milestoneId);
+    return project.contributionVisibility.accept({
+      public(): boolean {
+        return milestone.state.equals(FinishedMilestoneState.INSTANCE);
+      },
+      project(): boolean {
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (!milestone.state.equals(FinishedMilestoneState.INSTANCE)) {
+          return false;
+        }
+        return project.roles.isAnyAssignedToUser(authUser);
+      },
+      self(): boolean {
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (!milestone.state.equals(FinishedMilestoneState.INSTANCE)) {
+          return false;
+        }
+        if (!project.roles.isAnyAssignedToUser(authUser)) {
+          return false;
+        }
+        const role = project.roles.whereId(roleMetric.roleId);
         return role.isAssignedToUser(authUser);
       },
       none(): boolean {
