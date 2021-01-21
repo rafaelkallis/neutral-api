@@ -3,8 +3,6 @@ import { User } from 'user/domain/User';
 import { InternalProject, Project } from 'project/domain/project/Project';
 import { ProjectTitle } from 'project/domain/project/value-objects/ProjectTitle';
 import { Role } from 'project/domain/role/Role';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { RoleTitle } from 'project/domain/role/value-objects/RoleTitle';
 import { RoleDescription } from 'project/domain/role/value-objects/RoleDescription';
 import { ModelFaker } from 'test/ModelFaker';
@@ -15,6 +13,7 @@ import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { ValueObjectFaker } from 'test/ValueObjectFaker';
 import { PeerReviewCollection } from '../peer-review/PeerReviewCollection';
+import { ProjectAnalyzer } from '../ProjectAnalyzer';
 
 describe('' + Project.name, () => {
   let primitiveFaker: PrimitiveFaker;
@@ -121,38 +120,22 @@ describe('' + Project.name, () => {
 
   test('submit peer reviews', async () => {
     const submittedPeerReviews: PeerReviewCollection = td.object();
-    const contributionsComputer: ContributionsComputer = td.object();
-    const consensualityComputer: ConsensualityComputer = td.object();
+    const projectAnalyzer: ProjectAnalyzer = td.object();
 
-    await project.submitPeerReviews(
-      submittedPeerReviews,
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
     td.verify(
       project.state.submitPeerReviews(
         project,
         submittedPeerReviews,
-        contributionsComputer,
-        consensualityComputer,
+        projectAnalyzer,
       ),
     );
   });
 
   test('complete peer reviews', async () => {
-    const contributionsComputer: ContributionsComputer = td.object();
-    const consensualityComputer: ConsensualityComputer = td.object();
-    await project.completePeerReviews(
-      contributionsComputer,
-      consensualityComputer,
-    );
-    td.verify(
-      project.state.completePeerReviews(
-        project,
-        contributionsComputer,
-        consensualityComputer,
-      ),
-    );
+    const projectAnalyzer: ProjectAnalyzer = td.object();
+    await project.completePeerReviews(projectAnalyzer);
+    td.verify(project.state.completePeerReviews(project, projectAnalyzer));
   });
 
   test('submit manager review', () => {

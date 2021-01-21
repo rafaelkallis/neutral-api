@@ -5,12 +5,6 @@ import { ValueObjectFaker } from './ValueObjectFaker';
 import { ReadonlyUser } from 'user/domain/User';
 import { ReadonlyRole } from 'project/domain/role/Role';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import {
-  ConsensualityComputer,
-  ConsensualityComputationResult,
-} from 'project/domain/ConsensualityComputer';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import {
   ReadonlyPeerReviewCollection,
   PeerReviewCollection,
@@ -20,6 +14,10 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
 import { ContinuousReviewTopicInput } from 'project/domain/review-topic/ReviewTopicInput';
+import {
+  ProjectAnalysisResult,
+  ProjectAnalyzer,
+} from 'project/domain/ProjectAnalyzer';
 
 export class ProjectTestHelper {
   public readonly project: Project;
@@ -82,15 +80,12 @@ export class ProjectTestHelper {
     reviewTopic: ReadonlyReviewTopic,
   ): Promise<ReadonlyPeerReviewCollection> {
     const milestone = this.project.milestones.whereLatest();
-    const contributionsComputer: ContributionsComputer = td.object();
-    const computedContributions = new ContributionCollection([]);
-    td.when(contributionsComputer.compute(milestone)).thenReturn(
-      computedContributions,
-    );
-    const consensualityComputer: ConsensualityComputer = td.object();
-    const consensualityComputationResult: ConsensualityComputationResult = td.object();
-    td.when(consensualityComputer.compute(milestone)).thenReturn(
-      consensualityComputationResult,
+
+    const projectAnalysisResult: ProjectAnalysisResult = td.object();
+    td.when(projectAnalysisResult.applyTo(this.project));
+    const projectAnalyzer: ProjectAnalyzer = td.object();
+    td.when(projectAnalyzer.analyze(milestone)).thenResolve(
+      projectAnalysisResult,
     );
     const peerReviews: PeerReviewCollection = PeerReviewCollection.of(
       this.project.roles
@@ -108,29 +103,18 @@ export class ProjectTestHelper {
           ),
         ),
     );
-    await this.project.submitPeerReviews(
-      peerReviews,
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await this.project.submitPeerReviews(peerReviews, projectAnalyzer);
     return peerReviews;
   }
 
   public async completePeerReviews(): Promise<void> {
     const milestone = this.project.milestones.whereLatest();
-    const contributionsComputer: ContributionsComputer = td.object();
-    const computedContributions = new ContributionCollection([]);
-    td.when(contributionsComputer.compute(milestone)).thenReturn(
-      computedContributions,
+    const projectAnalysisResult: ProjectAnalysisResult = td.object();
+    td.when(projectAnalysisResult.applyTo(this.project));
+    const projectAnalyzer: ProjectAnalyzer = td.object();
+    td.when(projectAnalyzer.analyze(milestone)).thenResolve(
+      projectAnalysisResult,
     );
-    const consensualityComputer: ConsensualityComputer = td.object();
-    const consensualityComputationResult: ConsensualityComputationResult = td.object();
-    td.when(consensualityComputer.compute(milestone)).thenReturn(
-      consensualityComputationResult,
-    );
-    await this.project.completePeerReviews(
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await this.project.completePeerReviews(projectAnalyzer);
   }
 }

@@ -5,19 +5,17 @@ import { UnitTestScenario } from 'test/UnitTestScenario';
 import { ProjectDto } from 'project/application/dto/ProjectDto';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
 import { InternalProject } from 'project/domain/project/Project';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import {
   CompletePeerReviewsCommand,
   CompletePeerReviewsCommandHandler,
 } from 'project/application/commands/CompletePeerReviews';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
-describe(CompletePeerReviewsCommand.name, () => {
+describe('' + CompletePeerReviewsCommand.name, () => {
   let scenario: UnitTestScenario<CompletePeerReviewsCommandHandler>;
   let completePeerReviewsCommandHandler: CompletePeerReviewsCommandHandler;
-  let contributionsComputer: ContributionsComputer;
-  let consensualityComputer: ConsensualityComputer;
+  let projectAnalyzer: ProjectAnalyzer;
   let projectRepository: ProjectRepository;
   let authUser: User;
   let projectId: ProjectId;
@@ -29,12 +27,10 @@ describe(CompletePeerReviewsCommand.name, () => {
     scenario = await UnitTestScenario.builder(CompletePeerReviewsCommandHandler)
       .addProviderMock(ObjectMapper)
       .addProviderMock(ProjectRepository)
-      .addProviderMock(ContributionsComputer)
-      .addProviderMock(ConsensualityComputer)
+      .addProviderMock(ProjectAnalyzer)
       .build();
     completePeerReviewsCommandHandler = scenario.subject;
-    contributionsComputer = scenario.module.get(ContributionsComputer);
-    consensualityComputer = scenario.module.get(ConsensualityComputer);
+    projectAnalyzer = scenario.module.get(ProjectAnalyzer);
     projectRepository = scenario.module.get(ProjectRepository);
     authUser = scenario.modelFaker.user();
     projectId = ProjectId.create();
@@ -60,9 +56,7 @@ describe(CompletePeerReviewsCommand.name, () => {
     );
     expect(actualProjectDto).toBe(projectDto);
     td.verify(project.assertCreator(authUser));
-    td.verify(
-      project.completePeerReviews(contributionsComputer, consensualityComputer),
-    );
+    td.verify(project.completePeerReviews(projectAnalyzer));
     td.verify(projectRepository.persist(project));
   });
 });

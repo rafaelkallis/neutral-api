@@ -28,6 +28,7 @@ export interface ConfigProps {
   // AMQP_CONNECTION: string;
   MAILJET_API_PUBLIC_KEY: string;
   MAILJET_API_SECRET_KEY: string;
+  COVEE_KERNEL_BASE_URL: string;
 }
 
 /**

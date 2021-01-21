@@ -13,7 +13,10 @@ import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewT
 import { Project, ReadonlyProject } from 'project/domain/project/Project';
 import { PeerReviewsAlreadySubmittedException } from '../exceptions/PeerReviewsAlreadySubmittedException';
 import { Role } from 'project/domain/role/Role';
-import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
+import {
+  ReadonlyReviewTopic,
+  ReviewTopic,
+} from 'project/domain/review-topic/ReviewTopic';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 import { ReadonlyUser } from 'user/domain/User';
@@ -34,7 +37,7 @@ export interface ReadonlyPeerReviewCollection
     receiverRoleOrId: Role | RoleId,
   ): ReadonlyPeerReviewCollection;
   whereReviewTopic(
-    reviewTopicOrId: ReviewTopic | ReviewTopicId,
+    reviewTopicOrId: ReadonlyReviewTopic | ReviewTopicId,
   ): ReadonlyPeerReviewCollection;
   whereMilestone(
     milestoneOrId: ReadonlyMilestone | MilestoneId,

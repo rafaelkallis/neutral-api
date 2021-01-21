@@ -9,19 +9,17 @@ import {
   SubmitPeerReviewsCommand,
   SubmitPeerReviewsCommandHandler,
 } from './SubmitPeerReviews';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { SubmitPeerReviewsDto } from '../dto/SubmitPeerReviewsDto';
 import { Role } from 'project/domain/role/Role';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { Milestone } from 'project/domain/milestone/Milestone';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 describe('' + SubmitPeerReviewsCommand.name, () => {
   let scenario: UnitTestScenario<SubmitPeerReviewsCommandHandler>;
   let submitPeerReviewsCommandHandler: SubmitPeerReviewsCommandHandler;
-  let contributionsComputer: ContributionsComputer;
-  let consensualityComputer: ConsensualityComputer;
+  let projectAnalyzer: ProjectAnalyzer;
   let projectRepository: ProjectRepository;
   let authUser: User;
   let authRole: Role;
@@ -37,12 +35,10 @@ describe('' + SubmitPeerReviewsCommand.name, () => {
     scenario = await UnitTestScenario.builder(SubmitPeerReviewsCommandHandler)
       .addProviderMock(ObjectMapper)
       .addProviderMock(ProjectRepository)
-      .addProviderMock(ContributionsComputer)
-      .addProviderMock(ConsensualityComputer)
+      .addProviderMock(ProjectAnalyzer)
       .build();
     submitPeerReviewsCommandHandler = scenario.subject;
-    contributionsComputer = scenario.module.get(ContributionsComputer);
-    consensualityComputer = scenario.module.get(ConsensualityComputer);
+    projectAnalyzer = scenario.module.get(ProjectAnalyzer);
     projectRepository = scenario.module.get(ProjectRepository);
     authUser = scenario.modelFaker.user();
     authRole = scenario.modelFaker.role();
@@ -79,13 +75,7 @@ describe('' + SubmitPeerReviewsCommand.name, () => {
       submitPeerReviewsCommand,
     );
     expect(actualProjectDto).toBe(projectDto);
-    td.verify(
-      project.submitPeerReviews(
-        submittedPeerReviews,
-        contributionsComputer,
-        consensualityComputer,
-      ),
-    );
+    td.verify(project.submitPeerReviews(submittedPeerReviews, projectAnalyzer));
     td.verify(projectRepository.persist(project));
   });
 });

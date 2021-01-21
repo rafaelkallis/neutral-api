@@ -9,10 +9,9 @@ import { ArchivedProjectState } from './ArchivedProjectState';
 import { ProjectArchivedEvent } from 'project/domain/events/ProjectArchivedEvent';
 import { ProjectState } from './ProjectState';
 import { CancellableProjectState } from 'project/domain/project/value-objects/states/CancellableProjectState';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 export class ActiveProjectState extends CancellableProjectState {
   public static readonly INSTANCE: ProjectState = new ActiveProjectState();
@@ -44,25 +43,19 @@ export class ActiveProjectState extends CancellableProjectState {
   public async submitPeerReviews(
     project: InternalProject,
     peerReviews: ReadonlyPeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     await project.latestMilestone.submitPeerReviews(
       peerReviews,
-      contributionsComputer,
-      consensualityComputer,
+      projectAnalyzer,
     );
   }
 
   public async completePeerReviews(
     project: InternalProject,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
-    await project.latestMilestone.completePeerReviews(
-      contributionsComputer,
-      consensualityComputer,
-    );
+    await project.latestMilestone.completePeerReviews(projectAnalyzer);
   }
 
   public submitManagerReview(project: InternalProject): void {

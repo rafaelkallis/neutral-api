@@ -8,10 +8,9 @@ import { ProjectId } from 'project/domain/project/value-objects/ProjectId';
 import { ProjectNotFoundException } from 'project/domain/exceptions/ProjectNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler } from 'shared/command/CommandHandler';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ProjectRepository } from 'project/domain/project/ProjectRepository';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 export class CompletePeerReviewsCommand extends ProjectCommand {
   public readonly projectId: ProjectId;
@@ -24,21 +23,16 @@ export class CompletePeerReviewsCommand extends ProjectCommand {
 
 @Injectable()
 @CommandHandler.register(CompletePeerReviewsCommand)
-export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<
-  CompletePeerReviewsCommand
-> {
-  private readonly contributionsComputer: ContributionsComputer;
-  private readonly consensualityComputer: ConsensualityComputer;
+export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<CompletePeerReviewsCommand> {
+  private readonly projectAnalyzer: ProjectAnalyzer;
 
   public constructor(
     objectMapper: ObjectMapper,
     projectRepository: ProjectRepository,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ) {
     super(objectMapper, projectRepository);
-    this.contributionsComputer = contributionsComputer;
-    this.consensualityComputer = consensualityComputer;
+    this.projectAnalyzer = projectAnalyzer;
   }
 
   protected async doHandle(
@@ -49,10 +43,7 @@ export class CompletePeerReviewsCommandHandler extends ProjectCommandHandler<
       throw new ProjectNotFoundException();
     }
     project.assertCreator(command.authUser);
-    await project.completePeerReviews(
-      this.contributionsComputer,
-      this.consensualityComputer,
-    );
+    await project.completePeerReviews(this.projectAnalyzer);
     return project;
   }
 }

@@ -1,10 +1,9 @@
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { InternalMilestone } from 'project/domain/milestone/Milestone';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { Comprarable } from 'shared/domain/value-objects/Comparable';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 /**
  *
@@ -16,8 +15,7 @@ export abstract class MilestoneState
   public async submitPeerReviews(
     _milestone: InternalMilestone,
     _peerReviews: ReadonlyPeerReviewCollection,
-    _contributionsComputer: ContributionsComputer,
-    _consensualityComputer: ConsensualityComputer,
+    _projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     this.throwNotSupportedByCurrentMilestateException();
   }
@@ -25,8 +23,7 @@ export abstract class MilestoneState
   // eslint-disable-next-line @typescript-eslint/require-await
   public async completePeerReviews(
     _milestone: InternalMilestone,
-    _contributionsComputer: ContributionsComputer,
-    _consensualityComputer: ConsensualityComputer,
+    _projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     this.throwNotSupportedByCurrentMilestateException();
   }

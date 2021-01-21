@@ -7,17 +7,11 @@ import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerRe
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { ModelFaker } from 'test/ModelFaker';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import {
-  ConsensualityComputer,
-  ConsensualityComputationResult,
-} from 'project/domain/ConsensualityComputer';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { ValueObjectFaker } from 'test/ValueObjectFaker';
 import { UserCollection } from 'user/domain/UserCollection';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { Role } from 'project/domain/role/Role';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
 import { ActiveProjectState } from 'project/domain/project/value-objects/states/ActiveProjectState';
@@ -26,6 +20,10 @@ import { FinishedMilestoneState } from './FinishedMilestoneState';
 import { ManagerReviewMilestoneState } from './ManagerReviewMilestoneState';
 import { PeerReviewsSubmittedEvent } from '../../events/PeerReviewsSubmittedEvent';
 import { FinalPeerReviewSubmittedEvent } from '../../events/FinalPeerReviewSubmittedEvent';
+import {
+  ProjectAnalysisResult,
+  ProjectAnalyzer,
+} from 'project/domain/ProjectAnalyzer';
 
 describe('' + PeerReviewMilestoneState.name, () => {
   let valueObjectFaker: ValueObjectFaker;
@@ -34,10 +32,8 @@ describe('' + PeerReviewMilestoneState.name, () => {
   let creator: User;
   let project: InternalProject;
   let milestone: ReadonlyMilestone;
-  let computedContributions: ContributionCollection;
-  let consensualityComputationResult: ConsensualityComputationResult;
-  let contributionsComputer: ContributionsComputer;
-  let consensualityComputer: ConsensualityComputer;
+  let projectAnalysisResult: ProjectAnalysisResult;
+  let projectAnalyzer: ProjectAnalyzer;
 
   beforeEach(() => {
     valueObjectFaker = new ValueObjectFaker();
@@ -90,15 +86,11 @@ describe('' + PeerReviewMilestoneState.name, () => {
       valueObjectFaker.milestone.description(),
     );
 
-    contributionsComputer = td.object();
-    computedContributions = new ContributionCollection([]);
-    td.when(contributionsComputer.compute(project.latestMilestone)).thenReturn(
-      computedContributions,
-    );
-    consensualityComputer = td.object();
-    consensualityComputationResult = td.object();
-    td.when(consensualityComputer.compute(project.latestMilestone)).thenReturn(
-      consensualityComputationResult,
+    projectAnalysisResult = td.object();
+    td.when(projectAnalysisResult.applyTo(project));
+    projectAnalyzer = td.object();
+    td.when(projectAnalyzer.analyze(project.latestMilestone)).thenResolve(
+      projectAnalysisResult,
     );
 
     if (!milestone.state.equals(PeerReviewMilestoneState.INSTANCE)) {
@@ -163,20 +155,12 @@ describe('' + PeerReviewMilestoneState.name, () => {
         ),
       ]);
       await expect(
-        project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        ),
+        project.submitPeerReviews(submittedPeerReviews, projectAnalyzer),
       ).rejects.toThrow(expect.any(DomainException));
     });
 
     test('should not compute contributions and consensuality', async () => {
-      await project.submitPeerReviews(
-        submittedPeerReviews,
-        contributionsComputer,
-        consensualityComputer,
-      );
+      await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
       expect(
         milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
       ).toBeTruthy();
@@ -211,8 +195,7 @@ describe('' + PeerReviewMilestoneState.name, () => {
             }
             await project.submitPeerReviews(
               submittedPeerReviews,
-              contributionsComputer,
-              consensualityComputer,
+              projectAnalyzer,
             );
           }
         }
@@ -220,11 +203,7 @@ describe('' + PeerReviewMilestoneState.name, () => {
 
       test('should advance state and compute contributions and compute consensuality', async () => {
         jest.spyOn(project.contributions, 'addAll');
-        await project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(project.domainEvents).toContainEqual(
           expect.any(PeerReviewsSubmittedEvent),
         );
@@ -234,30 +213,19 @@ describe('' + PeerReviewMilestoneState.name, () => {
         expect(
           milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
         ).toBeFalsy();
-        expect(project.contributions.addAll).toHaveBeenCalledWith(
-          computedContributions,
-        );
-        td.verify(consensualityComputationResult.applyTo(project));
+        td.verify(projectAnalysisResult.applyTo(project));
       });
 
       test('should skip manager review if "skipManagerReview" is "yes"', async () => {
         project.skipManagerReview = SkipManagerReview.YES;
-        await project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(milestone.state).toBe(FinishedMilestoneState.INSTANCE);
       });
 
       test('should skip manager review if "skipManagerReview" is "if-consensual" and reviews are consensual', async () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(true);
-        await project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(
           milestone.state.equals(FinishedMilestoneState.INSTANCE),
         ).toBeTruthy();
@@ -266,21 +234,13 @@ describe('' + PeerReviewMilestoneState.name, () => {
       test('should not skip manager review if "skipManagerReview" is "if-consensual" and reviews are not consensual', async () => {
         project.skipManagerReview = SkipManagerReview.IF_CONSENSUAL;
         jest.spyOn(project, 'isConsensual').mockReturnValue(false);
-        await project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(milestone.state).toBe(ManagerReviewMilestoneState.INSTANCE);
       });
 
       test('should not skip manager review if "skipManagerReview" is "no"', async () => {
         project.skipManagerReview = SkipManagerReview.NO;
-        await project.submitPeerReviews(
-          submittedPeerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(
           milestone.state.equals(ManagerReviewMilestoneState.INSTANCE),
         ).toBeTruthy();
@@ -322,18 +282,14 @@ describe('' + PeerReviewMilestoneState.name, () => {
           }
           await project.submitPeerReviews(
             submittedPeerReviews,
-            contributionsComputer,
-            consensualityComputer,
+            projectAnalyzer,
           );
         }
       }
     });
 
     test('should complete missing peer reviews', async () => {
-      await project.completePeerReviews(
-        contributionsComputer,
-        consensualityComputer,
-      );
+      await project.completePeerReviews(projectAnalyzer);
       expect(project.peerReviews.count()).toBe(
         project.reviewTopics.count() *
           project.roles.count() *
@@ -359,10 +315,7 @@ describe('' + PeerReviewMilestoneState.name, () => {
     });
 
     test('should advance state', async () => {
-      await project.completePeerReviews(
-        contributionsComputer,
-        consensualityComputer,
-      );
+      await project.completePeerReviews(projectAnalyzer);
       expect(
         milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
       ).toBeFalsy();

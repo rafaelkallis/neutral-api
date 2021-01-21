@@ -5,13 +5,12 @@ import { User } from 'user/domain/User';
 import { ReadonlyReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { HttpStatus } from '@nestjs/common';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
 import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
 import { ReadonlyMilestone } from 'project/domain/milestone/Milestone';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 describe('submit peer review (e2e)', () => {
   let scenario: IntegrationTestScenario;
@@ -147,8 +146,7 @@ describe('submit peer review (e2e)', () => {
 
   describe('when final peer review', () => {
     beforeEach(async () => {
-      const contributionsComputer = scenario.module.get(ContributionsComputer);
-      const consensualityComputer = scenario.module.get(ConsensualityComputer);
+      const projectAnalyzer = scenario.module.get(ProjectAnalyzer);
       for (const reviewTopic of project.reviewTopics) {
         for (const sender of project.roles) {
           if (reviewTopic.equals(reviewTopic1) && sender.equals(role1)) {
@@ -171,11 +169,7 @@ describe('submit peer review (e2e)', () => {
                 ),
               ),
           );
-          await project.submitPeerReviews(
-            peerReviews,
-            contributionsComputer,
-            consensualityComputer,
-          );
+          await project.submitPeerReviews(peerReviews, projectAnalyzer);
         }
       }
 
@@ -216,7 +210,7 @@ describe('submit peer review (e2e)', () => {
 
     test('should compute contributions', async () => {
       const response = await scenario.session
-        .post(`/projects/${project.id.value}/submit-peer-reviews`)
+        .post(`/projects/${project.id.toString()}/submit-peer-reviews`)
         .send({ peerReviews, reviewTopicId: reviewTopic1.id.value });
       expect(response.status).toBe(HttpStatus.OK);
       const updatedProject = await scenario.projectRepository.findById(
@@ -228,8 +222,9 @@ describe('submit peer review (e2e)', () => {
       for (const reviewTopic of updatedProject.reviewTopics) {
         for (const role of updatedProject.roles) {
           const contribution = updatedProject.contributions
-            .whereReviewTopic(reviewTopic)
             .whereRole(role)
+            .whereReviewTopic(reviewTopic)
+            .whereMilestone(updatedProject.latestMilestone)
             .firstOrNull();
           expect(contribution).toBeTruthy();
         }

@@ -1,5 +1,3 @@
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
-import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
@@ -16,6 +14,7 @@ import { InternalMilestone } from '../../Milestone';
 import { ManagerReviewSkippedEvent } from '../../events/ManagerReviewSkippedEvent';
 import { ManagerReviewStartedEvent } from '../../events/ManagerReviewStartedEvent';
 import { FinalPeerReviewSubmittedEvent } from '../../events/FinalPeerReviewSubmittedEvent';
+import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
 
 export class PeerReviewMilestoneState extends CancellableMilestoneState {
   public static readonly INSTANCE: MilestoneState = new PeerReviewMilestoneState();
@@ -34,8 +33,7 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
   public async submitPeerReviews(
     milestone: InternalMilestone,
     peerReviews: PeerReviewCollection,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     for (const peerReview of peerReviews) {
       milestone.project.roles.assertContains(
@@ -94,9 +92,9 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
     }
 
     milestone.project.raise(new FinalPeerReviewSubmittedEvent(milestone));
-    const computedContributions = contributionsComputer.compute(milestone); // TODO
-    milestone.project.contributions.addAll(computedContributions);
-    consensualityComputer.compute(milestone).applyTo(milestone.project);
+
+    const result = await projectAnalyzer.analyze(milestone);
+    result.applyTo(milestone.project);
 
     milestone.project.raise(new PeerReviewFinishedEvent(milestone));
 
@@ -122,8 +120,7 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
    */
   public async completePeerReviews(
     milestone: InternalMilestone,
-    contributionsComputer: ContributionsComputer,
-    consensualityComputer: ConsensualityComputer,
+    projectAnalyzer: ProjectAnalyzer,
   ): Promise<void> {
     for (const reviewTopic of milestone.project.reviewTopics) {
       const meanReviewTopicScore = milestone.peerReviews
@@ -155,11 +152,7 @@ export class PeerReviewMilestoneState extends CancellableMilestoneState {
               ),
             ),
         );
-        await milestone.project.submitPeerReviews(
-          peerReviews,
-          contributionsComputer,
-          consensualityComputer,
-        );
+        await milestone.project.submitPeerReviews(peerReviews, projectAnalyzer);
       }
     }
   }
