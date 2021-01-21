@@ -59,7 +59,12 @@ import { AddMilestoneCommandHandler } from './application/commands/AddMilestone'
 import { CancelLatestMilestoneCommandHandler } from './application/commands/CancelLatestMilestone';
 import { MilestoneDtoMap } from './application/MilestoneDtoMap';
 import { ProjectAnalyzer } from './domain/ProjectAnalyzer';
-import { LegacyProjectAnalyzer } from './infrastructure/LegacyProjectAnalyzer';
+import { CoveeKernelProjectAnalyzer } from './infrastructure/CoveeKernelProjectAnalyzer';
+import {
+  ReverseRoleMetricTypeOrmEntityMap,
+  RoleMetricTypeOrmEntityMap,
+} from './infrastructure/RoleMetricTypeOrmEntityMap';
+import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
 
 /**
  * Project Module
@@ -87,7 +92,7 @@ import { LegacyProjectAnalyzer } from './infrastructure/LegacyProjectAnalyzer';
     },
     {
       provide: ProjectAnalyzer,
-      useClass: LegacyProjectAnalyzer,
+      useClass: CoveeKernelProjectAnalyzer,
     },
     ProjectApplicationService,
     ProjectFactory,
@@ -99,6 +104,7 @@ import { LegacyProjectAnalyzer } from './infrastructure/LegacyProjectAnalyzer';
     ReviewTopicDtoMap,
     MilestoneDtoMap,
     ContributionDtoMap,
+    RoleMetricDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,
@@ -111,6 +117,8 @@ import { LegacyProjectAnalyzer } from './infrastructure/LegacyProjectAnalyzer';
     ReverseContributionTypeOrmEntityMap,
     MilestoneTypeOrmEntityMap,
     ReverseMilestoneTypeOrmEntityMap,
+    RoleMetricTypeOrmEntityMap,
+    ReverseRoleMetricTypeOrmEntityMap,
     // command handlers
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,

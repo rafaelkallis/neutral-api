@@ -9,6 +9,7 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { Project } from 'project/domain/project/Project';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
+import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
 
 @Entity('projects')
 @TypeOrmEntity.register(Project)
@@ -74,6 +75,15 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   })
   public milestones: ReadonlyArray<MilestoneTypeOrmEntity>;
 
+  @OneToMany(
+    () => RoleMetricTypeOrmEntity,
+    (roleMetric) => roleMetric.project,
+    {
+      cascade: true,
+    },
+  )
+  public roleMetrics: ReadonlyArray<RoleMetricTypeOrmEntity>;
+
   public constructor(
     id: string,
     createdAt: number,
@@ -91,6 +101,7 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>,
     contributions: ReadonlyArray<ContributionTypeOrmEntity>,
     milestones: ReadonlyArray<MilestoneTypeOrmEntity>,
+    roleMetrics: ReadonlyArray<RoleMetricTypeOrmEntity>,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -106,5 +117,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
     this.milestones = milestones;
+    this.roleMetrics = roleMetrics;
   }
 }

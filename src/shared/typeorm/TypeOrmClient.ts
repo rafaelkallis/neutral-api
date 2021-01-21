@@ -48,7 +48,7 @@ import { AddContributionsMigration1588327814000 } from 'shared/typeorm/migration
 import { AddReviewTopicToPeerReviewMigration1588452568000 } from 'shared/typeorm/migration/1588452568000AddReviewTopicToPeerReviewMigration';
 import { RemoveRoleContributionMigration1588526416000 } from 'shared/typeorm/migration/1588526416000RemoveRoleContributionMigration';
 import { RemoveHasSubmittedPeerReviewsMigration1589309292000 } from 'shared/typeorm/migration/1589309292000RemoveHasSubmittedPeerReviews';
-import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/158982727800MoveConsensualityFromProjectToReviewTopics';
+import { MoveConsensualityFromProjectToReviewTopicsMigration1589827278000 } from 'shared/typeorm/migration/1589827278000MoveConsensualityFromProjectToReviewTopics';
 import { RenameInitialAndInvitedUserStateToPendingMigration1590750557000 } from 'shared/typeorm/migration/1590750557000RenameInitialAndInvitedUserStateToPendingMigration';
 import { AddReviewTopicInputMigration1592508374000 } from 'shared/typeorm/migration/1592508374000AddReviewTopicInputMigration';
 import { AddProjectMetaMigration1594370335000 } from 'shared/typeorm/migration/1594370335000AddProjectMetaMigration';
@@ -62,6 +62,8 @@ import { AddMilestonesMigration1605904211000 } from 'shared/typeorm/migration/16
 import { AddMilestoneStateMigration1605953746000 } from 'shared/typeorm/migration/1605953746000AddMilestoneStateMigration';
 import { AddPeerReviewMilestoneMigration1606052766000 } from 'shared/typeorm/migration/1606052766000AddPeerReviewMilestoneMigration';
 import { AddContributionMilestoneMigration1606589847000 } from 'shared/typeorm/migration/1606589847000AddContributionMilestoneMigration';
+import { RoleMetricTypeOrmEntity } from 'project/infrastructure/RoleMetricTypeOrmEntity';
+import { AddRoleMetricMigration1610889568000 } from './migration/1610889568000AddRoleMetricMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -86,6 +88,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ReviewTopicInputTypeOrmEntity,
         ContributionTypeOrmEntity,
         MilestoneTypeOrmEntity,
+        RoleMetricTypeOrmEntity,
         NotificationTypeOrmEntity,
         OrganizationTypeOrmEntity,
         OrganizationMembershipTypeOrmEntity,
@@ -134,6 +137,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddMilestoneStateMigration1605953746000,
         AddPeerReviewMilestoneMigration1606052766000,
         AddContributionMilestoneMigration1606589847000,
+        AddRoleMetricMigration1610889568000,
       ],
     });
     this.connection = connection;

@@ -31,6 +31,9 @@ import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerR
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 import { Milestone } from 'project/domain/milestone/Milestone';
+import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
+import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
+import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectTypeOrmEntity)
@@ -63,6 +66,7 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       [],
       [],
       [],
+      [],
     );
     projectEntity.roles = await this.objectMapper.mapIterable(
       projectModel.roles,
@@ -87,6 +91,11 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
     projectEntity.milestones = await this.objectMapper.mapIterable(
       projectModel.milestones,
       MilestoneTypeOrmEntity,
+      { project: projectEntity },
+    );
+    projectEntity.roleMetrics = await this.objectMapper.mapIterable(
+      projectModel.roleMetrics,
+      RoleMetricTypeOrmEntity,
       { project: projectEntity },
     );
     return projectEntity;
@@ -124,6 +133,7 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       new ReviewTopicCollection([]),
       new ContributionCollection([]),
       new MilestoneCollection([]),
+      new RoleMetricCollection([]),
     );
     project.roles = new RoleCollection(
       await this.objectMapper.mapIterable(projectEntity.roles, Role, {
@@ -155,6 +165,14 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       await this.objectMapper.mapIterable(
         projectEntity.contributions,
         Contribution,
+        { project },
+      ),
+    );
+    // depends on roles + milestones + reviewTopics
+    project.roleMetrics = new RoleMetricCollection(
+      await this.objectMapper.mapIterable(
+        projectEntity.roleMetrics,
+        RoleMetric,
         { project },
       ),
     );

@@ -13,6 +13,7 @@ import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
+import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
 
 /**
  * TypeOrm Project Repository
@@ -93,6 +94,16 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         contributionIdsToDelete,
       );
     }
+    // depends on roles + milestones + review topics
+    const roleMetricIdsToDelete = projectModels
+      .flatMap((projectModel) => projectModel.roleMetrics.getRemovedModels())
+      .map((roleMetric) => roleMetric.id.value);
+    if (roleMetricIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        RoleMetricTypeOrmEntity,
+        roleMetricIdsToDelete,
+      );
+    }
     const roleIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
       .map((projectModel) => projectModel.id.value);
@@ -168,6 +179,7 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       reviewTopicEntities,
       peerReviewEntities,
       contributionEntities,
+      roleMetricEntities,
       milestoneEntities,
     ] = await Promise.all([
       this.entityManager
@@ -183,10 +195,14 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         .getRepository(ContributionTypeOrmEntity)
         .find({ projectId: In(ids) }),
       this.entityManager
+        .getRepository(RoleMetricTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
         .getRepository(MilestoneTypeOrmEntity)
         .find({ projectId: In(ids) }),
     ]);
     for (const projectEntity of projectEntities) {
+      // TODO improve performance by using hash join
       projectEntity.roles = roleEntities.filter(
         (roleEntity) => projectEntity.id === roleEntity.projectId,
       );
@@ -199,6 +215,9 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       projectEntity.contributions = contributionEntities.filter(
         (contributionEntity) =>
           projectEntity.id === contributionEntity.projectId,
+      );
+      projectEntity.roleMetrics = roleMetricEntities.filter(
+        (roleMetricEntity) => projectEntity.id === roleMetricEntity.projectId,
       );
       projectEntity.milestones = milestoneEntities.filter(
         (milestoneEntity) => projectEntity.id === milestoneEntity.projectId,

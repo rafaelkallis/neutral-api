@@ -49,6 +49,10 @@ import { MilestoneDescription } from '../milestone/value-objects/MilestoneDescri
 import { Milestone, ReadonlyMilestone } from '../milestone/Milestone';
 import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { ProjectAnalyzer } from '../ProjectAnalyzer';
+import {
+  RoleMetricCollection,
+  ReadonlyRoleMetricCollection,
+} from '../role-metric/RoleMetricCollection';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -65,6 +69,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly contributions: ReadonlyContributionCollection;
   readonly milestones: ReadonlyMilestoneCollection;
   readonly latestMilestone: ReadonlyMilestone;
+  readonly roleMetrics: ReadonlyRoleMetricCollection;
 
   isConsensual(): boolean;
   isCreator(user: ReadonlyUser): boolean;
@@ -99,6 +104,7 @@ export abstract class Project
   public abstract readonly reviewTopics: ReviewTopicCollection;
   public abstract readonly contributions: ContributionCollection;
   public abstract readonly milestones: MilestoneCollection;
+  public abstract readonly roleMetrics: RoleMetricCollection;
 
   public get latestMilestone(): Milestone {
     return this.milestones.whereLatest();
@@ -121,6 +127,7 @@ export abstract class Project
     reviewTopics: ReviewTopicCollection,
     contributions: ContributionCollection,
     milestones: MilestoneCollection,
+    roleMetrics: RoleMetricCollection,
   ): Project {
     return new InternalProject(
       id,
@@ -139,6 +146,7 @@ export abstract class Project
       reviewTopics,
       contributions,
       milestones,
+      roleMetrics,
     );
   }
 
@@ -268,6 +276,7 @@ export class InternalProject extends Project {
   public reviewTopics: ReviewTopicCollection;
   public contributions: ContributionCollection;
   public milestones: MilestoneCollection;
+  public roleMetrics: RoleMetricCollection;
 
   public constructor(
     id: ProjectId,
@@ -286,6 +295,7 @@ export class InternalProject extends Project {
     reviewTopics: ReviewTopicCollection,
     contributions: ContributionCollection,
     milestones: MilestoneCollection,
+    roleMetrics: RoleMetricCollection,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -301,6 +311,7 @@ export class InternalProject extends Project {
     this.reviewTopics = reviewTopics;
     this.contributions = contributions;
     this.milestones = milestones;
+    this.roleMetrics = roleMetrics;
   }
 
   /**
