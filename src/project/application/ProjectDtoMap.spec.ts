@@ -20,6 +20,8 @@ import { Contribution } from 'project/domain/contribution/Contribution';
 import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
+import { MilestoneDto } from './dto/MilestoneDto';
+import { RoleMetricDto } from './dto/RoleMetricDto';
 
 describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
@@ -32,7 +34,9 @@ describe('' + ProjectDtoMap.name, () => {
   let roleDtos: RoleDto[];
   let peerReviewDtos: PeerReviewDto[];
   let reviewTopicDtos: ReviewTopicDto[];
+  let milestoneDtos: MilestoneDto[];
   let contributionDtos: ContributionDto[];
+  let roleMetricDtos: RoleMetricDto[];
 
   beforeEach(() => {
     objectMapper = td.object();
@@ -61,6 +65,13 @@ describe('' + ProjectDtoMap.name, () => {
         project,
       }),
     ).thenResolve(reviewTopicDtos);
+    milestoneDtos = [];
+    td.when(
+      objectMapper.mapIterable(project.milestones, MilestoneDto, {
+        authUser,
+        project,
+      }),
+    ).thenResolve(milestoneDtos);
     contributionDtos = [];
     td.when(
       objectMapper.mapIterable(project.contributions, ContributionDto, {
@@ -68,6 +79,13 @@ describe('' + ProjectDtoMap.name, () => {
         project,
       }),
     ).thenResolve(contributionDtos);
+    roleMetricDtos = [];
+    td.when(
+      objectMapper.mapIterable(td.matchers.anything(), RoleMetricDto, {
+        authUser,
+        project,
+      }),
+    ).thenResolve(roleMetricDtos);
   });
 
   test('general', async () => {
@@ -85,7 +103,9 @@ describe('' + ProjectDtoMap.name, () => {
       roles: roleDtos,
       peerReviews: peerReviewDtos,
       reviewTopics: reviewTopicDtos,
+      milestones: milestoneDtos,
       contributions: contributionDtos,
+      roleMetrics: roleMetricDtos,
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });

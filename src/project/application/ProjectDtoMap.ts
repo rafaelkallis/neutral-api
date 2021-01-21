@@ -50,6 +50,8 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       MilestoneDto,
       { authUser, project },
     );
+    const contributions = await this.mapContributions(project, authUser);
+    const roleMetrics = await this.mapRoleMetrics(project, authUser);
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -66,8 +68,8 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       peerReviewDtos,
       reviewTopicDtos,
       milestoneDtos,
-      await this.mapContributions(project, authUser),
-      await this.mapRoleMetrics(project, authUser),
+      contributions,
+      roleMetrics,
     );
   }
 
@@ -81,7 +83,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
     return this.objectMapper.mapIterable(
       visibleContributions,
       ContributionDto,
-      { authUser, project },
+      { project, authUser },
     );
   }
 
@@ -95,8 +97,8 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
         this.shouldExposeRoleMetric(project, authUser, roleMetric),
       );
     return this.objectMapper.mapIterable(visibleRoleMetrics, RoleMetricDto, {
-      authUser,
       project,
+      authUser,
     });
   }
 

@@ -114,6 +114,7 @@ describe('project (e2e)', () => {
         reviewTopics: [],
         milestones: [],
         contributions: [],
+        roleMetrics: [],
       });
     });
   });
