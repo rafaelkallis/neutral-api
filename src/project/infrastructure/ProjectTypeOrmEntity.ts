@@ -6,7 +6,6 @@ import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/
 import { RoleTypeOrmEntity } from 'project/infrastructure/RoleTypeOrmEntity';
 import { PeerReviewTypeOrmEntity } from 'project/infrastructure/PeerReviewTypeOrmEntity';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
-import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
 import { Project } from 'project/domain/project/Project';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
@@ -63,13 +62,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
   )
   public reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>;
 
-  @OneToMany(
-    () => ContributionTypeOrmEntity,
-    (contribution) => contribution.project,
-    { cascade: true },
-  )
-  public contributions: ReadonlyArray<ContributionTypeOrmEntity>;
-
   @OneToMany(() => MilestoneTypeOrmEntity, (milestone) => milestone.project, {
     cascade: true,
   })
@@ -99,7 +91,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     roles: ReadonlyArray<RoleTypeOrmEntity>,
     peerReviews: ReadonlyArray<PeerReviewTypeOrmEntity>,
     reviewTopics: ReadonlyArray<ReviewTopicTypeOrmEntity>,
-    contributions: ReadonlyArray<ContributionTypeOrmEntity>,
     milestones: ReadonlyArray<MilestoneTypeOrmEntity>,
     roleMetrics: ReadonlyArray<RoleMetricTypeOrmEntity>,
   ) {
@@ -115,7 +106,6 @@ export class ProjectTypeOrmEntity extends TypeOrmEntity {
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
-    this.contributions = contributions;
     this.milestones = milestones;
     this.roleMetrics = roleMetrics;
   }

@@ -8,7 +8,6 @@ import { RoleDto } from 'project/application/dto/RoleDto';
 import { PeerReviewDto } from './dto/PeerReviewDto';
 import { getProjectStateValue } from 'project/domain/project/value-objects/states/ProjectStateValue';
 import { ReviewTopicDto } from './dto/ReviewTopicDto';
-import { ContributionDto } from './dto/ContributionDto';
 import {
   ProjectContributionVisiblity,
   PublicContributionVisiblity,
@@ -16,12 +15,14 @@ import {
   NoneContributionVisiblity,
   ContributionVisibility,
 } from 'project/domain/project/value-objects/ContributionVisibility';
-import { Contribution } from 'project/domain/contribution/Contribution';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
 import { MilestoneDto } from './dto/MilestoneDto';
 import { RoleMetricDto } from './dto/RoleMetricDto';
+import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
+import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
+import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
+import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
+import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 
 describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
@@ -35,7 +36,6 @@ describe('' + ProjectDtoMap.name, () => {
   let peerReviewDtos: PeerReviewDto[];
   let reviewTopicDtos: ReviewTopicDto[];
   let milestoneDtos: MilestoneDto[];
-  let contributionDtos: ContributionDto[];
   let roleMetricDtos: RoleMetricDto[];
 
   beforeEach(() => {
@@ -72,13 +72,6 @@ describe('' + ProjectDtoMap.name, () => {
         project,
       }),
     ).thenResolve(milestoneDtos);
-    contributionDtos = [];
-    td.when(
-      objectMapper.mapIterable(project.contributions, ContributionDto, {
-        authUser,
-        project,
-      }),
-    ).thenResolve(contributionDtos);
     roleMetricDtos = [];
     td.when(
       objectMapper.mapIterable(td.matchers.anything(), RoleMetricDto, {
@@ -104,19 +97,18 @@ describe('' + ProjectDtoMap.name, () => {
       peerReviews: peerReviewDtos,
       reviewTopics: reviewTopicDtos,
       milestones: milestoneDtos,
-      contributions: contributionDtos,
       roleMetrics: roleMetricDtos,
       createdAt: project.createdAt.value,
       updatedAt: project.updatedAt.value,
     });
   });
 
-  describe('contribution visibility', () => {
+  describe('role metric visibility', () => {
     const PUBLIC = PublicContributionVisiblity.INSTANCE;
     const PROJECT = ProjectContributionVisiblity.INSTANCE;
     const SELF = SelfContributionVisiblity.INSTANCE;
     const NONE = NoneContributionVisiblity.INSTANCE;
-    const contributionCases: [ContributionVisibility, string, boolean][] = [
+    const roleMetricCases: [ContributionVisibility, string, boolean][] = [
       [PUBLIC, 'creator', true],
       [PUBLIC, 'assignee', true],
       [PUBLIC, 'projectUser', true],
@@ -135,7 +127,7 @@ describe('' + ProjectDtoMap.name, () => {
       [NONE, 'publicUser', false],
     ];
 
-    let contribution: Contribution;
+    let roleMetric: RoleMetric;
     let users: Record<string, User>;
 
     beforeEach(() => {
@@ -156,25 +148,28 @@ describe('' + ProjectDtoMap.name, () => {
       const milestone = modelFaker.milestone(project);
       milestone.state = FinishedMilestoneState.INSTANCE;
       project.milestones.add(milestone);
-      contribution = Contribution.from(
-        milestone,
+      roleMetric = RoleMetric.create(
+        project,
         role.id,
         reviewTopic.id,
-        ContributionAmount.from(1),
+        milestone.id,
+        Contribution.of(1),
+        Consensuality.of(1),
+        Agreement.of(1),
       );
-      project.contributions = new ContributionCollection([contribution]);
+      project.roleMetrics = new RoleMetricCollection([roleMetric]);
     });
 
-    test.each(contributionCases)(
+    test.each(roleMetricCases)(
       'contributions',
       (contributionVisibility, authUserKey, expectedIsContributionExposed) => {
         project.contributionVisibility = contributionVisibility;
-        const actualIsContributionExposed = projectDtoMap.shouldExposeContribution(
+        const actualIsRoleMetricExposed = projectDtoMap.shouldExposeRoleMetric(
           project,
           users[authUserKey],
-          contribution,
+          roleMetric,
         );
-        expect(actualIsContributionExposed).toBe(expectedIsContributionExposed);
+        expect(actualIsRoleMetricExposed).toBe(expectedIsContributionExposed);
       },
     );
   });

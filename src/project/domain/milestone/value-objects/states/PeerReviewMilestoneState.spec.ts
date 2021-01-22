@@ -164,7 +164,7 @@ describe('' + PeerReviewMilestoneState.name, () => {
       expect(
         milestone.state.equals(PeerReviewMilestoneState.INSTANCE),
       ).toBeTruthy();
-      expect(project.contributions.isEmpty()).toBeTruthy();
+      expect(project.roleMetrics.isEmpty()).toBeTruthy();
     });
 
     describe('final peer review', () => {
@@ -202,7 +202,6 @@ describe('' + PeerReviewMilestoneState.name, () => {
       });
 
       test('should advance state and compute contributions and compute consensuality', async () => {
-        jest.spyOn(project.contributions, 'addAll');
         await project.submitPeerReviews(submittedPeerReviews, projectAnalyzer);
         expect(project.domainEvents).toContainEqual(
           expect.any(PeerReviewsSubmittedEvent),

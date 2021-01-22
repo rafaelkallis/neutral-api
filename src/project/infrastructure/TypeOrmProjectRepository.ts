@@ -11,7 +11,6 @@ import { UserId } from 'user/domain/value-objects/UserId';
 import { Injectable } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
-import { ContributionTypeOrmEntity } from './ContributionTypeOrmEntity';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
 
@@ -82,16 +81,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       await this.entityManager.delete(
         PeerReviewTypeOrmEntity,
         peerReviewIdsToDelete,
-      );
-    }
-    // depends on milestones + review topics
-    const contributionIdsToDelete = projectModels
-      .flatMap((projectModel) => projectModel.contributions.getRemovedModels())
-      .map((contributionModel) => contributionModel.id.value);
-    if (contributionIdsToDelete.length > 0) {
-      await this.entityManager.delete(
-        ContributionTypeOrmEntity,
-        contributionIdsToDelete,
       );
     }
     // depends on roles + milestones + review topics
@@ -178,7 +167,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       roleEntities,
       reviewTopicEntities,
       peerReviewEntities,
-      contributionEntities,
       roleMetricEntities,
       milestoneEntities,
     ] = await Promise.all([
@@ -190,9 +178,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         .find({ projectId: In(ids) }),
       this.entityManager
         .getRepository(PeerReviewTypeOrmEntity)
-        .find({ projectId: In(ids) }),
-      this.entityManager
-        .getRepository(ContributionTypeOrmEntity)
         .find({ projectId: In(ids) }),
       this.entityManager
         .getRepository(RoleMetricTypeOrmEntity)
@@ -211,10 +196,6 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       );
       projectEntity.peerReviews = peerReviewEntities.filter(
         (peerReviewEntity) => projectEntity.id === peerReviewEntity.projectId,
-      );
-      projectEntity.contributions = contributionEntities.filter(
-        (contributionEntity) =>
-          projectEntity.id === contributionEntity.projectId,
       );
       projectEntity.roleMetrics = roleMetricEntities.filter(
         (roleMetricEntity) => projectEntity.id === roleMetricEntity.projectId,

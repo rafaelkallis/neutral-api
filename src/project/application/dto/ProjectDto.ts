@@ -6,7 +6,6 @@ import { ProjectStateValue } from 'project/domain/project/value-objects/states/P
 import { ContributionVisibilityValue } from 'project/domain/project/value-objects/ContributionVisibility';
 import { PeerReviewDto } from 'project/application/dto/PeerReviewDto';
 import { ReviewTopicDto } from './ReviewTopicDto';
-import { ContributionDto } from './ContributionDto';
 import {
   IsString,
   MaxLength,
@@ -103,11 +102,6 @@ export class ProjectDto extends ModelDto {
   @Type(() => MilestoneDto)
   public milestones: MilestoneDto[];
 
-  @ApiProperty({ type: [ContributionDto] })
-  @ValidateNested({ each: true })
-  @Type(() => ContributionDto)
-  public contributions: ContributionDto[];
-
   @ApiProperty({ type: [RoleMetricDto] })
   @ValidateNested({ each: true })
   @Type(() => RoleMetricDto)
@@ -129,7 +123,6 @@ export class ProjectDto extends ModelDto {
     peerReviews: PeerReviewDto[] | null,
     reviewTopics: ReviewTopicDto[],
     milestones: MilestoneDto[],
-    contributions: ContributionDto[],
     roleMetrics: RoleMetricDto[],
   ) {
     super(id, createdAt, updatedAt);
@@ -145,7 +138,6 @@ export class ProjectDto extends ModelDto {
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
     this.milestones = milestones;
-    this.contributions = contributions;
     this.roleMetrics = roleMetrics;
   }
 }

@@ -24,9 +24,6 @@ import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCo
 import { ObjectMapper } from 'shared/object-mapper/ObjectMapper';
 import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicTypeOrmEntity';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
-import { ContributionTypeOrmEntity } from 'project/infrastructure/ContributionTypeOrmEntity';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import { Contribution } from 'project/domain/contribution/Contribution';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
@@ -66,7 +63,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
       [],
       [],
       [],
-      [],
     );
     projectEntity.roles = await this.objectMapper.mapIterable(
       projectModel.roles,
@@ -81,11 +77,6 @@ export class ProjectTypeOrmEntityMap extends ObjectMap<
     projectEntity.reviewTopics = await this.objectMapper.mapIterable(
       projectModel.reviewTopics,
       ReviewTopicTypeOrmEntity,
-      { project: projectEntity },
-    );
-    projectEntity.contributions = await this.objectMapper.mapIterable(
-      projectModel.contributions,
-      ContributionTypeOrmEntity,
       { project: projectEntity },
     );
     projectEntity.milestones = await this.objectMapper.mapIterable(
@@ -131,7 +122,6 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       new RoleCollection([]),
       PeerReviewCollection.empty(),
       new ReviewTopicCollection([]),
-      new ContributionCollection([]),
       new MilestoneCollection([]),
       new RoleMetricCollection([]),
     );
@@ -157,14 +147,6 @@ export class ReverseProjectTypeOrmEntityMap extends ObjectMap<
       await this.objectMapper.mapIterable(
         projectEntity.peerReviews,
         PeerReview,
-        { project },
-      ),
-    );
-    // depends on milestones
-    project.contributions = new ContributionCollection(
-      await this.objectMapper.mapIterable(
-        projectEntity.contributions,
-        Contribution,
         { project },
       ),
     );

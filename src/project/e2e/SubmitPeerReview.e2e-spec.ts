@@ -221,12 +221,12 @@ describe('submit peer review (e2e)', () => {
       }
       for (const reviewTopic of updatedProject.reviewTopics) {
         for (const role of updatedProject.roles) {
-          const contribution = updatedProject.contributions
+          const roleMetric = updatedProject.roleMetrics
             .whereRole(role)
             .whereReviewTopic(reviewTopic)
             .whereMilestone(updatedProject.latestMilestone)
             .firstOrNull();
-          expect(contribution).toBeTruthy();
+          expect(roleMetric).toBeTruthy();
         }
       }
     });
