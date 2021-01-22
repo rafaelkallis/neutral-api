@@ -27,7 +27,6 @@ import { PeerReviewId } from 'project/domain/peer-review/value-objects/PeerRevie
 import { NotificationId } from 'notification/domain/value-objects/NotificationId';
 import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCollection';
 import { ActiveState } from 'user/domain/value-objects/states/ActiveState';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { ReviewTopicId } from 'project/domain/review-topic/value-objects/ReviewTopicId';
 import { ReviewTopicTitle } from 'project/domain/review-topic/value-objects/ReviewTopicTitle';
@@ -118,7 +117,6 @@ export class ModelFaker {
       new RoleCollection([]),
       PeerReviewCollection.empty(),
       new ReviewTopicCollection([]),
-      new ContributionCollection([]),
       new MilestoneCollection([]),
       new RoleMetricCollection([]),
     );

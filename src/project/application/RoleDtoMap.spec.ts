@@ -1,12 +1,14 @@
 import { User } from 'user/domain/User';
 import { Role } from 'project/domain/role/Role';
 import { InternalProject } from 'project/domain/project/Project';
-import { ContributionAmount } from 'project/domain/role/value-objects/ContributionAmount';
 import { ModelFaker } from 'test/ModelFaker';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
-import { Contribution } from 'project/domain/contribution/Contribution';
 import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { RoleDtoMap } from './RoleDtoMap';
+import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
+import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
+import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
+import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
+import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
 
 describe('' + RoleDtoMap.name, () => {
   let modelFaker: ModelFaker;
@@ -35,12 +37,15 @@ describe('' + RoleDtoMap.name, () => {
     role = project.roles.whereAssignee(users.assignee);
     reviewTopic = modelFaker.reviewTopic();
     project.reviewTopics.add(reviewTopic);
-    project.contributions = new ContributionCollection([
-      Contribution.from(
-        milestone,
+    project.roleMetrics = new RoleMetricCollection([
+      RoleMetric.create(
+        project,
         role.id,
         reviewTopic.id,
-        ContributionAmount.from(1),
+        milestone.id,
+        Contribution.of(1),
+        Consensuality.of(1),
+        Agreement.of(1),
       ),
     ]);
   });

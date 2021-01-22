@@ -18,7 +18,6 @@ import { ReviewTopicCollection } from 'project/domain/review-topic/ReviewTopicCo
 import { ProjectCreatedEvent } from 'project/domain/events/ProjectCreatedEvent';
 import { ProjectFormationStartedEvent } from 'project/domain/events/ProjectFormationStartedEvent';
 import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
-import { ContributionCollection } from 'project/domain/contribution/ContributionCollection';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
@@ -56,7 +55,6 @@ export class ProjectFactory extends AggregateRootFactory<
     const roles = new RoleCollection([]);
     const peerReviews = PeerReviewCollection.empty();
     const reviewTopics = new ReviewTopicCollection([]);
-    const contributions = new ContributionCollection([]);
     const milestones = new MilestoneCollection([]);
     const roleMetrics = new RoleMetricCollection([]);
     const project = Project.of(
@@ -78,7 +76,6 @@ export class ProjectFactory extends AggregateRootFactory<
       roles,
       peerReviews,
       reviewTopics,
-      contributions,
       milestones,
       roleMetrics,
     );

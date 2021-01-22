@@ -5,8 +5,6 @@ import { ProjectApplicationService } from 'project/application/ProjectApplicatio
 import { TypeOrmProjectRepository } from 'project/infrastructure/TypeOrmProjectRepository';
 import { RoleController } from 'project/presentation/RoleController';
 import { ReviewTopicController } from 'project/presentation/ReviewTopicController';
-import { CoveeContributionsComputer } from 'project/infrastructure/CoveeContributionsComputer';
-import { ContributionsComputer } from 'project/domain/ContributionsComputer';
 import { ConsensualityComputer } from 'project/domain/ConsensualityComputer';
 import { SharedModule } from 'shared/SharedModule';
 import {
@@ -35,16 +33,11 @@ import {
 import { ProjectFactory } from 'project/application/ProjectFactory';
 import { UpdateRoleCommandHandler } from 'project/application/commands/UpdateRole';
 import {
-  ContributionTypeOrmEntityMap,
-  ReverseContributionTypeOrmEntityMap,
-} from 'project/infrastructure/ContributionTypeOrmEntityMap';
-import {
   MilestoneTypeOrmEntityMap,
   ReverseMilestoneTypeOrmEntityMap,
 } from 'project/infrastructure/MilestoneTypeOrmEntityMap';
 import { AddReviewTopicCommandHandler } from 'project/application/commands/AddReviewTopic';
 import { ReviewTopicDtoMap } from 'project/application/ReviewTopicDtoMap';
-import { ContributionDtoMap } from 'project/application/ContributionDtoMap';
 import { UpdateReviewTopicCommandHandler } from 'project/application/commands/UpdateReviewTopic';
 import { RemoveReviewTopicCommandHandler } from 'project/application/commands/RemoveReviewTopic';
 import { RemoveRoleCommandHandler } from 'project/application/commands/RemoveRole';
@@ -87,10 +80,6 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
       useClass: StaticConsensualityComputer,
     },
     {
-      provide: ContributionsComputer,
-      useClass: CoveeContributionsComputer,
-    },
-    {
       provide: ProjectAnalyzer,
       useClass: CoveeKernelProjectAnalyzer,
     },
@@ -103,7 +92,6 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
     PeerReviewDtoMap,
     ReviewTopicDtoMap,
     MilestoneDtoMap,
-    ContributionDtoMap,
     RoleMetricDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
@@ -113,8 +101,6 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
     ReversePeerReviewTypeOrmEntityMap,
     ReviewTopicTypeOrmEntityMap,
     ReverseReviewTopicTypeOrmEntityMap,
-    ContributionTypeOrmEntityMap,
-    ReverseContributionTypeOrmEntityMap,
     MilestoneTypeOrmEntityMap,
     ReverseMilestoneTypeOrmEntityMap,
     RoleMetricTypeOrmEntityMap,

@@ -113,7 +113,6 @@ describe('project (e2e)', () => {
         peerReviews: [],
         reviewTopics: [],
         milestones: [],
-        contributions: [],
         roleMetrics: [],
       });
     });

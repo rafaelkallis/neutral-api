@@ -29,10 +29,6 @@ import {
   ReadonlyReviewTopicCollection,
   ReviewTopicCollection,
 } from 'project/domain/review-topic/ReviewTopicCollection';
-import {
-  ReadonlyContributionCollection,
-  ContributionCollection,
-} from 'project/domain/contribution/ContributionCollection';
 import { ReviewTopicTitle } from '../review-topic/value-objects/ReviewTopicTitle';
 import { ReviewTopicDescription } from '../review-topic/value-objects/ReviewTopicDescription';
 import { ReadonlyReviewTopic } from '../review-topic/ReviewTopic';
@@ -66,7 +62,6 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly roles: ReadonlyRoleCollection;
   readonly peerReviews: ReadonlyPeerReviewCollection;
   readonly reviewTopics: ReadonlyReviewTopicCollection;
-  readonly contributions: ReadonlyContributionCollection;
   readonly milestones: ReadonlyMilestoneCollection;
   readonly latestMilestone: ReadonlyMilestone;
   readonly roleMetrics: ReadonlyRoleMetricCollection;
@@ -102,7 +97,6 @@ export abstract class Project
   public abstract readonly roles: RoleCollection;
   public abstract readonly peerReviews: PeerReviewCollection;
   public abstract readonly reviewTopics: ReviewTopicCollection;
-  public abstract readonly contributions: ContributionCollection;
   public abstract readonly milestones: MilestoneCollection;
   public abstract readonly roleMetrics: RoleMetricCollection;
 
@@ -125,7 +119,6 @@ export abstract class Project
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
     reviewTopics: ReviewTopicCollection,
-    contributions: ContributionCollection,
     milestones: MilestoneCollection,
     roleMetrics: RoleMetricCollection,
   ): Project {
@@ -144,7 +137,6 @@ export abstract class Project
       roles,
       peerReviews,
       reviewTopics,
-      contributions,
       milestones,
       roleMetrics,
     );
@@ -274,7 +266,6 @@ export class InternalProject extends Project {
   public roles: RoleCollection;
   public peerReviews: PeerReviewCollection;
   public reviewTopics: ReviewTopicCollection;
-  public contributions: ContributionCollection;
   public milestones: MilestoneCollection;
   public roleMetrics: RoleMetricCollection;
 
@@ -293,7 +284,6 @@ export class InternalProject extends Project {
     roles: RoleCollection,
     peerReviews: PeerReviewCollection,
     reviewTopics: ReviewTopicCollection,
-    contributions: ContributionCollection,
     milestones: MilestoneCollection,
     roleMetrics: RoleMetricCollection,
   ) {
@@ -309,7 +299,6 @@ export class InternalProject extends Project {
     this.roles = roles;
     this.peerReviews = peerReviews;
     this.reviewTopics = reviewTopics;
-    this.contributions = contributions;
     this.milestones = milestones;
     this.roleMetrics = roleMetrics;
   }
