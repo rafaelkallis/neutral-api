@@ -44,7 +44,7 @@ import { MilestoneTitle } from 'project/domain/milestone/value-objects/Milestone
 import { MilestoneDescription } from 'project/domain/milestone/value-objects/MilestoneDescription';
 import { PeerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/PeerReviewMilestoneState';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 
 export class ModelFaker {
   private readonly primitiveFaker: PrimitiveFaker;

@@ -3,7 +3,7 @@ import { ReadonlyReviewTopic } from './review-topic/ReviewTopic';
 import { Milestone } from './milestone/Milestone';
 import { RoleMetricCollection } from './role-metric/RoleMetricCollection';
 import { Consensuality } from './project/value-objects/Consensuality';
-import { MilestoneMetricCollection } from './milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from './milestone-metric/MilestoneMetricCollection';
 
 export interface ReviewTopicAnalysisResult {
   roleMetrics: RoleMetricCollection;

@@ -25,7 +25,7 @@ import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
 import { ContributionSymmetry } from 'project/domain/value-objects/ContributionSymmetry';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 
 describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;

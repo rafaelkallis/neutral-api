@@ -13,7 +13,7 @@ import { Agreement } from 'project/domain/value-objects/Agreement';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
 import { ContributionSymmetry } from 'project/domain/value-objects/ContributionSymmetry';
 

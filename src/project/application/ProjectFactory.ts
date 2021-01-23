@@ -21,7 +21,7 @@ import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;

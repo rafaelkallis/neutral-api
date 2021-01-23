@@ -32,7 +32,7 @@ import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricColle
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
 import { MilestoneMetricTypeOrmEntity } from './MilestoneMetricTypeOrmEntity';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
 
 @Injectable()

@@ -52,7 +52,7 @@ import { DomainException } from 'shared/domain/exceptions/DomainException';
 import {
   MilestoneMetricCollection,
   ReadonlyMilestoneMetricCollection,
-} from '../milestone-metric/RoleMetricCollection';
+} from '../milestone-metric/MilestoneMetricCollection';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
