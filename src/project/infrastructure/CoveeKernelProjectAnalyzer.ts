@@ -13,6 +13,9 @@ import { Agreement } from 'project/domain/value-objects/Agreement';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/RoleMetricCollection';
+import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
+import { ContributionSymmetry } from 'project/domain/value-objects/ContributionSymmetry';
 
 interface CoveeKernelResult {
   contribution_equality: number;
@@ -104,8 +107,10 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
       throw new Error('consensualities and agreements have a role mismatch');
     }
 
+    const roleIds = Object.keys(contributions);
+
     const roleMetrics = new RoleMetricCollection(
-      Object.keys(contributions).map((roleId) =>
+      roleIds.map((roleId) =>
         RoleMetric.create(
           milestone.project,
           RoleId.from(roleId),
@@ -118,12 +123,33 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
       ),
     );
 
-    return { roleMetrics };
+    const milestoneMetrics = new MilestoneMetricCollection([
+      MilestoneMetric.create(
+        milestone.project,
+        reviewTopic.id,
+        milestone.id,
+        ContributionSymmetry.of(1), // TODO use kernel api
+        Consensuality.of(
+          arithmeticMean(
+            roleIds.map((roleId) => consensualities[roleId].value),
+          ),
+        ), // TODO use kernel api
+        Agreement.of(
+          arithmeticMean(roleIds.map((roleId) => agreements[roleId].value)),
+        ), // TODO use kernel api
+      ),
+    ]);
+
+    return { roleMetrics, milestoneMetrics };
 
     function setEquals<T>(a: Set<T>, b: Set<T>): boolean {
       return (
         a.size === b.size && Array.from(a.keys()).every((item) => b.has(item))
       );
+    }
+
+    function arithmeticMean(values: number[]): number {
+      return values.reduce((a, b) => a + b, 0) / values.length;
     }
   }
 }

@@ -27,7 +27,7 @@ export class AddMilestoneMetricMigration1611397932000
           object_id(),
           (EXTRACT(epoch from now()) * 1000)::bigint,
           (EXTRACT(epoch from now()) * 1000)::bigint,
-          project_id,
+          milestones.project_id,
           milestones.id,
           review_topics.id,
           1,

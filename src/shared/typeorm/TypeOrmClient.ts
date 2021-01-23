@@ -15,6 +15,7 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
 import { MilestoneTypeOrmEntity } from 'project/infrastructure/MilestoneTypeOrmEntity';
 import { RoleMetricTypeOrmEntity } from 'project/infrastructure/RoleMetricTypeOrmEntity';
+import { MilestoneMetricTypeOrmEntity } from 'project/infrastructure/MilestoneMetricTypeOrmEntity';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { OrganizationTypeOrmEntity } from 'organization/infrastructure/OrganizationTypeOrmEntity';
 import { OrganizationMembershipTypeOrmEntity } from 'organization/infrastructure/OrganizationMembershipTypeOrmEntity';
@@ -89,6 +90,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ReviewTopicInputTypeOrmEntity,
         MilestoneTypeOrmEntity,
         RoleMetricTypeOrmEntity,
+        MilestoneMetricTypeOrmEntity,
         NotificationTypeOrmEntity,
         OrganizationTypeOrmEntity,
         OrganizationMembershipTypeOrmEntity,
