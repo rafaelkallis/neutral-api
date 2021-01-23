@@ -12,6 +12,8 @@ import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/s
 import { MilestoneDto } from './dto/MilestoneDto';
 import { ReadonlyRoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleMetricDto } from './dto/RoleMetricDto';
+import { ReadonlyMilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
+import { MilestoneMetricDto } from './dto/MilestoneMetricDto';
 
 @Injectable()
 @ObjectMap.register(Project, ProjectDto)
@@ -49,6 +51,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       { authUser, project },
     );
     const roleMetrics = await this.mapRoleMetrics(project, authUser);
+    const milestoneMetrics = await this.mapMilestoneMetrics(project, authUser);
     return new ProjectDto(
       project.id.value,
       project.createdAt.value,
@@ -66,6 +69,7 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
       reviewTopicDtos,
       milestoneDtos,
       roleMetrics,
+      milestoneMetrics,
     );
   }
 
@@ -115,6 +119,60 @@ export class ProjectDtoMap extends ObjectMap<Project, ProjectDto> {
         }
         const role = project.roles.whereId(roleMetric.roleId);
         return role.isAssignedToUser(authUser);
+      },
+      none(): boolean {
+        return project.isCreator(authUser);
+      },
+    });
+  }
+
+  public async mapMilestoneMetrics(
+    project: Project,
+    authUser: User,
+  ): Promise<MilestoneMetricDto[]> {
+    const visibleMilestoneMetrics = project.milestoneMetrics
+      .toArray()
+      .filter((milestoneMetric) =>
+        this.shouldExposeMilestoneMetric(project, authUser, milestoneMetric),
+      );
+    return this.objectMapper.mapIterable(
+      visibleMilestoneMetrics,
+      MilestoneMetricDto,
+      {
+        project,
+        authUser,
+      },
+    );
+  }
+
+  public shouldExposeMilestoneMetric(
+    project: Project,
+    authUser: User,
+    milestoneMetric: ReadonlyMilestoneMetric,
+  ): boolean {
+    const milestone = project.milestones.whereId(milestoneMetric.milestoneId);
+    return project.contributionVisibility.accept({
+      public(): boolean {
+        return milestone.state.equals(FinishedMilestoneState.INSTANCE);
+      },
+      project(): boolean {
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (!milestone.state.equals(FinishedMilestoneState.INSTANCE)) {
+          return false;
+        }
+        return project.roles.isAnyAssignedToUser(authUser);
+      },
+      self(): boolean {
+        // same as project
+        if (project.isCreator(authUser)) {
+          return true;
+        }
+        if (!milestone.state.equals(FinishedMilestoneState.INSTANCE)) {
+          return false;
+        }
+        return project.roles.isAnyAssignedToUser(authUser);
       },
       none(): boolean {
         return project.isCreator(authUser);

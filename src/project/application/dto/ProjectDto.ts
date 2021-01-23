@@ -19,6 +19,7 @@ import { Type } from 'class-transformer';
 import { PeerReviewVisibilityLabel } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { MilestoneDto } from './MilestoneDto';
 import { RoleMetricDto } from './RoleMetricDto';
+import { MilestoneMetricDto } from './MilestoneMetricDto';
 
 /**
  * Project DTO
@@ -107,6 +108,11 @@ export class ProjectDto extends ModelDto {
   @Type(() => RoleMetricDto)
   public roleMetrics: RoleMetricDto[];
 
+  @ApiProperty({ type: [MilestoneMetricDto] })
+  @ValidateNested({ each: true })
+  @Type(() => MilestoneMetricDto)
+  public milestoneMetrics: MilestoneMetricDto[];
+
   public constructor(
     id: string,
     createdAt: number,
@@ -124,6 +130,7 @@ export class ProjectDto extends ModelDto {
     reviewTopics: ReviewTopicDto[],
     milestones: MilestoneDto[],
     roleMetrics: RoleMetricDto[],
+    milestoneMetrics: MilestoneMetricDto[],
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -139,5 +146,6 @@ export class ProjectDto extends ModelDto {
     this.reviewTopics = reviewTopics;
     this.milestones = milestones;
     this.roleMetrics = roleMetrics;
+    this.milestoneMetrics = milestoneMetrics;
   }
 }
