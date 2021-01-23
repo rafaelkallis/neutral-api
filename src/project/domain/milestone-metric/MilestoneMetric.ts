@@ -2,35 +2,33 @@ import { Model, ReadonlyModel } from 'shared/domain/Model';
 import { CreatedAt } from 'shared/domain/value-objects/CreatedAt';
 import { UpdatedAt } from 'shared/domain/value-objects/UpdatedAt';
 import { Class } from 'shared/domain/Class';
-import { RoleMetricId } from './RoleMetricId';
 import { Project, ReadonlyProject } from '../project/Project';
 import { Consensuality } from '../value-objects/Consensuality';
 import { Agreement } from '../value-objects/Agreement';
-import { Contribution } from '../value-objects/Contribution';
-import { RoleId } from '../role/value-objects/RoleId';
 import { ReviewTopicId } from '../review-topic/value-objects/ReviewTopicId';
 import { MilestoneId } from '../milestone/value-objects/MilestoneId';
+import { MilestoneMetricId } from './MilestoneMetricId';
+import { ContributionSymmetry } from '../value-objects/ContributionSymmetry';
 
-export interface ReadonlyRoleMetric extends ReadonlyModel<RoleMetricId> {
+export interface ReadonlyMilestoneMetric
+  extends ReadonlyModel<MilestoneMetricId> {
   readonly project: ReadonlyProject;
-  readonly roleId: RoleId;
   readonly reviewTopicId: ReviewTopicId;
   readonly milestoneId: MilestoneId;
 
-  readonly contribution: Contribution;
+  readonly contributionSymmetry: ContributionSymmetry;
   readonly consensuality: Consensuality;
   readonly agreement: Agreement;
 }
 
-export class RoleMetric
-  extends Model<RoleMetricId>
-  implements ReadonlyRoleMetric {
+export class MilestoneMetric
+  extends Model<MilestoneMetricId>
+  implements ReadonlyMilestoneMetric {
   public readonly project: Project;
-  public readonly roleId: RoleId;
   public readonly reviewTopicId: ReviewTopicId;
   public readonly milestoneId: MilestoneId;
 
-  public readonly contribution: Contribution;
+  public readonly contributionSymmetry: ContributionSymmetry;
   public readonly consensuality: Consensuality;
   public readonly agreement: Agreement;
 
@@ -39,53 +37,49 @@ export class RoleMetric
    */
   public static create(
     project: Project,
-    roleId: RoleId,
     reviewTopicId: ReviewTopicId,
     milestoneId: MilestoneId,
-    contribution: Contribution,
+    contributionSymmetry: ContributionSymmetry,
     consensuality: Consensuality,
     agreement: Agreement,
-  ): RoleMetric {
-    const id = RoleMetricId.create();
+  ): MilestoneMetric {
+    const id = MilestoneMetricId.create();
     const createdAt = CreatedAt.now();
     const updatedAt = UpdatedAt.now();
-    return new RoleMetric(
+    return new MilestoneMetric(
       id,
       createdAt,
       updatedAt,
       project,
-      roleId,
       reviewTopicId,
       milestoneId,
-      contribution,
+      contributionSymmetry,
       consensuality,
       agreement,
     );
   }
 
   public constructor(
-    id: RoleMetricId,
+    id: MilestoneMetricId,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt,
     project: Project,
-    roleId: RoleId,
     reviewTopicId: ReviewTopicId,
     milestoneId: MilestoneId,
-    contribution: Contribution,
+    contributionSymmetry: ContributionSymmetry,
     consensuality: Consensuality,
     agreement: Agreement,
   ) {
     super(id, createdAt, updatedAt);
     this.project = project;
-    this.roleId = roleId;
     this.reviewTopicId = reviewTopicId;
     this.milestoneId = milestoneId;
-    this.contribution = contribution;
+    this.contributionSymmetry = contributionSymmetry;
     this.consensuality = consensuality;
     this.agreement = agreement;
   }
 
-  public getClass(): Class<RoleMetric> {
-    return RoleMetric;
+  public getClass(): Class<MilestoneMetric> {
+    return MilestoneMetric;
   }
 }

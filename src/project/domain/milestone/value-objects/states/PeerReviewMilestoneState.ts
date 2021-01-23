@@ -1,5 +1,4 @@
 import { PeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReview } from 'project/domain/peer-review/PeerReview';
 import { PeerReviewScore } from 'project/domain/peer-review/value-objects/PeerReviewScore';
 import { PeerReviewFlag } from 'project/domain/peer-review/value-objects/PeerReviewFlag';
@@ -15,6 +14,7 @@ import { ManagerReviewSkippedEvent } from '../../events/ManagerReviewSkippedEven
 import { ManagerReviewStartedEvent } from '../../events/ManagerReviewStartedEvent';
 import { FinalPeerReviewSubmittedEvent } from '../../events/FinalPeerReviewSubmittedEvent';
 import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export class PeerReviewMilestoneState extends CancellableMilestoneState {
   public static readonly INSTANCE: MilestoneState = new PeerReviewMilestoneState();

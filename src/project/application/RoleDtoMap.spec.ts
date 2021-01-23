@@ -6,9 +6,9 @@ import { ReviewTopic } from 'project/domain/review-topic/ReviewTopic';
 import { RoleDtoMap } from './RoleDtoMap';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
-import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
-import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
-import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { Agreement } from 'project/domain/value-objects/Agreement';
+import { Contribution } from 'project/domain/value-objects/Contribution';
 
 describe('' + RoleDtoMap.name, () => {
   let modelFaker: ModelFaker;

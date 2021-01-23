@@ -43,12 +43,12 @@ import {
 import { MilestoneTitle } from '../milestone/value-objects/MilestoneTitle';
 import { MilestoneDescription } from '../milestone/value-objects/MilestoneDescription';
 import { Milestone, ReadonlyMilestone } from '../milestone/Milestone';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { ProjectAnalyzer } from '../ProjectAnalyzer';
 import {
   RoleMetricCollection,
   ReadonlyRoleMetricCollection,
 } from '../role-metric/RoleMetricCollection';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;

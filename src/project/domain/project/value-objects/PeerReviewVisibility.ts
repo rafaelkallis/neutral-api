@@ -1,4 +1,3 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReadonlyPeerReview } from 'project/domain/peer-review/PeerReview';
 import { ReadonlyUser } from 'user/domain/User';
 import { ReadonlyProject } from '../Project';
@@ -8,6 +7,7 @@ import { MilestoneState } from 'project/domain/milestone/value-objects/states/Mi
 import { ManagerReviewMilestoneState } from 'project/domain/milestone/value-objects/states/ManagerReviewMilestoneState';
 import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/states/FinishedMilestoneState';
 import { CancelledMilestoneState } from 'project/domain/milestone/value-objects/states/CancelledMilestoneState';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export enum PeerReviewVisibilityLabel {
   PUBLIC = 'public',

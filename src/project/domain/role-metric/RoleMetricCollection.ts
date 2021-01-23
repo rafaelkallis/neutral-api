@@ -2,7 +2,7 @@ import {
   ModelCollection,
   ReadonlyModelCollection,
 } from 'shared/domain/ModelCollection';
-import { RoleMetricId } from './value-objects/RoleMetricId';
+import { RoleMetricId } from './RoleMetricId';
 import { RoleMetric, ReadonlyRoleMetric } from './RoleMetric';
 import { ReadonlyRole } from '../role/Role';
 import { RoleId } from '../role/value-objects/RoleId';

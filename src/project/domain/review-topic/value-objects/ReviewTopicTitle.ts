@@ -1,6 +1,6 @@
+import { InvalidReviewTopicTitleException } from 'project/domain/exceptions/InvalidReviewTopicTitleException';
 import { StringValueObject } from 'shared/domain/value-objects/StringValueObject';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
-import { InvalidReviewTopicTitleException } from 'project/domain/exceptions/InvalidReviewTopicTitleException';
 
 /**
  *

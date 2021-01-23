@@ -19,9 +19,9 @@ import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/s
 import { MilestoneDto } from './dto/MilestoneDto';
 import { RoleMetricDto } from './dto/RoleMetricDto';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
-import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
-import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
-import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
+import { Contribution } from 'project/domain/value-objects/Contribution';
+import { Agreement } from 'project/domain/value-objects/Agreement';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 
 describe('' + ProjectDtoMap.name, () => {
