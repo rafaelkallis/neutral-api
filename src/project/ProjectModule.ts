@@ -58,6 +58,7 @@ import {
   RoleMetricTypeOrmEntityMap,
 } from './infrastructure/RoleMetricTypeOrmEntityMap';
 import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
+import { MilestoneMetricDtoMap } from './application/MilestoneMetricDtoMap';
 
 /**
  * Project Module
@@ -93,6 +94,7 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
     ReviewTopicDtoMap,
     MilestoneDtoMap,
     RoleMetricDtoMap,
+    MilestoneMetricDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,
