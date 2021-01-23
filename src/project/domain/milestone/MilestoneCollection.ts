@@ -4,8 +4,8 @@ import {
 } from 'shared/domain/ModelCollection';
 import { MilestoneId } from './value-objects/MilestoneId';
 import { Milestone, ReadonlyMilestone } from './Milestone';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { Model } from 'shared/domain/Model';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyMilestoneCollection
   extends ReadonlyModelCollection<MilestoneId, ReadonlyMilestone> {

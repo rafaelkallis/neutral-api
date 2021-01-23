@@ -1,6 +1,6 @@
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { Id } from 'shared/domain/value-objects/Id';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 /**
  *

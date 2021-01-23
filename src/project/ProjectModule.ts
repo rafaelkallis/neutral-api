@@ -58,6 +58,11 @@ import {
   RoleMetricTypeOrmEntityMap,
 } from './infrastructure/RoleMetricTypeOrmEntityMap';
 import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
+import { MilestoneMetricDtoMap } from './application/MilestoneMetricDtoMap';
+import {
+  MilestoneMetricTypeOrmEntityMap,
+  ReverseMilestoneMetricTypeOrmEntityMap,
+} from './infrastructure/MilestoneMetricTypeOrmEntityMap';
 
 /**
  * Project Module
@@ -93,6 +98,7 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
     ReviewTopicDtoMap,
     MilestoneDtoMap,
     RoleMetricDtoMap,
+    MilestoneMetricDtoMap,
     ProjectTypeOrmEntityMap,
     ReverseProjectTypeOrmEntityMap,
     RoleTypeOrmEntityMap,
@@ -105,6 +111,8 @@ import { RoleMetricDtoMap } from './application/RoleMetricDtoMap';
     ReverseMilestoneTypeOrmEntityMap,
     RoleMetricTypeOrmEntityMap,
     ReverseRoleMetricTypeOrmEntityMap,
+    MilestoneMetricTypeOrmEntityMap,
+    ReverseMilestoneMetricTypeOrmEntityMap,
     // command handlers
     CreateProjectCommandHandler,
     UpdateProjectCommandHandler,

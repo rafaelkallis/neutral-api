@@ -8,10 +8,10 @@ import { Project } from 'project/domain/project/Project';
 import { MilestoneId } from 'project/domain/milestone/value-objects/MilestoneId';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
-import { RoleMetricId } from 'project/domain/role-metric/value-objects/RoleMetricId';
-import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
-import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
-import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
+import { RoleMetricId } from 'project/domain/role-metric/RoleMetricId';
+import { Contribution } from 'project/domain/value-objects/Contribution';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
+import { Agreement } from 'project/domain/value-objects/Agreement';
 
 @Injectable()
 @ObjectMap.register(RoleMetric, RoleMetricTypeOrmEntity)

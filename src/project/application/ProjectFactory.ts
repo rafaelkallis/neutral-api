@@ -21,6 +21,7 @@ import { AggregateRootFactory } from 'shared/application/AggregateRootFactory';
 import { PeerReviewVisibility } from 'project/domain/project/value-objects/PeerReviewVisibility';
 import { MilestoneCollection } from 'project/domain/milestone/MilestoneCollection';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 
 export interface CreateProjectOptions {
   title: ProjectTitle;
@@ -53,10 +54,6 @@ export class ProjectFactory extends AggregateRootFactory<
     const updatedAt = UpdatedAt.now();
     const state = FormationProjectState.INSTANCE;
     const roles = new RoleCollection([]);
-    const peerReviews = PeerReviewCollection.empty();
-    const reviewTopics = new ReviewTopicCollection([]);
-    const milestones = new MilestoneCollection([]);
-    const roleMetrics = new RoleMetricCollection([]);
     const project = Project.of(
       projectId,
       createdAt,
@@ -74,10 +71,11 @@ export class ProjectFactory extends AggregateRootFactory<
         : PeerReviewVisibility.MANAGER,
       skipManagerReview ? skipManagerReview : SkipManagerReview.IF_CONSENSUAL,
       roles,
-      peerReviews,
-      reviewTopics,
-      milestones,
-      roleMetrics,
+      PeerReviewCollection.empty(),
+      new ReviewTopicCollection([]),
+      new MilestoneCollection([]),
+      new RoleMetricCollection([]),
+      new MilestoneMetricCollection([]),
     );
     project.raise(new ProjectCreatedEvent(project, creator));
     project.raise(new ProjectFormationStartedEvent(project));

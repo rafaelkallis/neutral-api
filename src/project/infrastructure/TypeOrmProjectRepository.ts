@@ -13,6 +13,7 @@ import { EntityManager, In } from 'typeorm';
 import { TypeOrmRepository } from 'shared/typeorm/TypeOrmRepository';
 import { MilestoneTypeOrmEntity } from './MilestoneTypeOrmEntity';
 import { RoleMetricTypeOrmEntity } from './RoleMetricTypeOrmEntity';
+import { MilestoneMetricTypeOrmEntity } from './MilestoneMetricTypeOrmEntity';
 
 /**
  * TypeOrm Project Repository
@@ -93,6 +94,18 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         roleMetricIdsToDelete,
       );
     }
+    // depends on milestones + review topics
+    const milestoneMetricIdsToDelete = projectModels
+      .flatMap((projectModel) =>
+        projectModel.milestoneMetrics.getRemovedModels(),
+      )
+      .map((milestoneMetric) => milestoneMetric.id.value);
+    if (milestoneMetricIdsToDelete.length > 0) {
+      await this.entityManager.delete(
+        MilestoneMetricTypeOrmEntity,
+        milestoneMetricIdsToDelete,
+      );
+    }
     const roleIdsToDelete = projectModels
       .flatMap((projectModel) => projectModel.roles.getRemovedModels())
       .map((projectModel) => projectModel.id.value);
@@ -166,9 +179,10 @@ export class TypeOrmProjectRepository extends ProjectRepository {
     const [
       roleEntities,
       reviewTopicEntities,
+      milestoneEntities,
       peerReviewEntities,
       roleMetricEntities,
-      milestoneEntities,
+      milestoneMetricEntities,
     ] = await Promise.all([
       this.entityManager
         .getRepository(RoleTypeOrmEntity)
@@ -177,13 +191,16 @@ export class TypeOrmProjectRepository extends ProjectRepository {
         .getRepository(ReviewTopicTypeOrmEntity)
         .find({ projectId: In(ids) }),
       this.entityManager
+        .getRepository(MilestoneTypeOrmEntity)
+        .find({ projectId: In(ids) }),
+      this.entityManager
         .getRepository(PeerReviewTypeOrmEntity)
         .find({ projectId: In(ids) }),
       this.entityManager
         .getRepository(RoleMetricTypeOrmEntity)
         .find({ projectId: In(ids) }),
       this.entityManager
-        .getRepository(MilestoneTypeOrmEntity)
+        .getRepository(MilestoneMetricTypeOrmEntity)
         .find({ projectId: In(ids) }),
     ]);
     for (const projectEntity of projectEntities) {
@@ -194,14 +211,18 @@ export class TypeOrmProjectRepository extends ProjectRepository {
       projectEntity.reviewTopics = reviewTopicEntities.filter(
         (reviewTopicEntity) => projectEntity.id === reviewTopicEntity.projectId,
       );
+      projectEntity.milestones = milestoneEntities.filter(
+        (milestoneEntity) => projectEntity.id === milestoneEntity.projectId,
+      );
       projectEntity.peerReviews = peerReviewEntities.filter(
         (peerReviewEntity) => projectEntity.id === peerReviewEntity.projectId,
       );
       projectEntity.roleMetrics = roleMetricEntities.filter(
         (roleMetricEntity) => projectEntity.id === roleMetricEntity.projectId,
       );
-      projectEntity.milestones = milestoneEntities.filter(
-        (milestoneEntity) => projectEntity.id === milestoneEntity.projectId,
+      projectEntity.milestoneMetrics = milestoneMetricEntities.filter(
+        (milestoneMetricEntity) =>
+          projectEntity.id === milestoneMetricEntity.projectId,
       );
     }
   }

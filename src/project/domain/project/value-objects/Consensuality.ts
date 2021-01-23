@@ -1,5 +1,5 @@
-import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { InvalidConsensualityException } from 'project/domain/exceptions/InvalidConsensualityException';
+import { UnitDecimalValueObject } from 'shared/domain/value-objects/UnitDecimalValueObject';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 
 export class Consensuality extends UnitDecimalValueObject {

@@ -43,12 +43,16 @@ import {
 import { MilestoneTitle } from '../milestone/value-objects/MilestoneTitle';
 import { MilestoneDescription } from '../milestone/value-objects/MilestoneDescription';
 import { Milestone, ReadonlyMilestone } from '../milestone/Milestone';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { ProjectAnalyzer } from '../ProjectAnalyzer';
 import {
   RoleMetricCollection,
   ReadonlyRoleMetricCollection,
 } from '../role-metric/RoleMetricCollection';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
+import {
+  MilestoneMetricCollection,
+  ReadonlyMilestoneMetricCollection,
+} from '../milestone-metric/MilestoneMetricCollection';
 
 export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly title: ProjectTitle;
@@ -65,6 +69,7 @@ export interface ReadonlyProject extends ReadonlyAggregateRoot<ProjectId> {
   readonly milestones: ReadonlyMilestoneCollection;
   readonly latestMilestone: ReadonlyMilestone;
   readonly roleMetrics: ReadonlyRoleMetricCollection;
+  readonly milestoneMetrics: ReadonlyMilestoneMetricCollection;
 
   isConsensual(): boolean;
   isCreator(user: ReadonlyUser): boolean;
@@ -99,6 +104,7 @@ export abstract class Project
   public abstract readonly reviewTopics: ReviewTopicCollection;
   public abstract readonly milestones: MilestoneCollection;
   public abstract readonly roleMetrics: RoleMetricCollection;
+  public abstract readonly milestoneMetrics: MilestoneMetricCollection;
 
   public get latestMilestone(): Milestone {
     return this.milestones.whereLatest();
@@ -121,6 +127,7 @@ export abstract class Project
     reviewTopics: ReviewTopicCollection,
     milestones: MilestoneCollection,
     roleMetrics: RoleMetricCollection,
+    milestoneMetrics: MilestoneMetricCollection,
   ): Project {
     return new InternalProject(
       id,
@@ -139,6 +146,7 @@ export abstract class Project
       reviewTopics,
       milestones,
       roleMetrics,
+      milestoneMetrics,
     );
   }
 
@@ -268,6 +276,7 @@ export class InternalProject extends Project {
   public reviewTopics: ReviewTopicCollection;
   public milestones: MilestoneCollection;
   public roleMetrics: RoleMetricCollection;
+  public milestoneMetrics: MilestoneMetricCollection;
 
   public constructor(
     id: ProjectId,
@@ -286,6 +295,7 @@ export class InternalProject extends Project {
     reviewTopics: ReviewTopicCollection,
     milestones: MilestoneCollection,
     roleMetrics: RoleMetricCollection,
+    milestoneMetrics: MilestoneMetricCollection,
   ) {
     super(id, createdAt, updatedAt);
     this.title = title;
@@ -301,6 +311,7 @@ export class InternalProject extends Project {
     this.reviewTopics = reviewTopics;
     this.milestones = milestones;
     this.roleMetrics = roleMetrics;
+    this.milestoneMetrics = milestoneMetrics;
   }
 
   /**

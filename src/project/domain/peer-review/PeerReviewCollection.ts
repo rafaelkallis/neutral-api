@@ -17,12 +17,12 @@ import {
   ReadonlyReviewTopic,
   ReviewTopic,
 } from 'project/domain/review-topic/ReviewTopic';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { PeerReviewFlag } from './value-objects/PeerReviewFlag';
 import { ReadonlyUser } from 'user/domain/User';
 import { ReadonlyMilestone } from '../milestone/Milestone';
 import { MilestoneId } from '../milestone/value-objects/MilestoneId';
 import { Model } from 'shared/domain/Model';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 export interface ReadonlyPeerReviewCollection
   extends ReadonlyModelCollection<PeerReviewId, ReadonlyPeerReview> {

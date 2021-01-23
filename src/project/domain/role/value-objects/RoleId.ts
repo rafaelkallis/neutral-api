@@ -1,6 +1,6 @@
+import { InvalidRoleIdException } from 'project/domain/exceptions/InvalidRoleIdException';
 import { Id } from 'shared/domain/value-objects/Id';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
-import { InvalidRoleIdException } from 'project/domain/exceptions/InvalidRoleIdException';
 
 /**
  *

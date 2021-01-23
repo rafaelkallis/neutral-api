@@ -19,10 +19,13 @@ import { FinishedMilestoneState } from 'project/domain/milestone/value-objects/s
 import { MilestoneDto } from './dto/MilestoneDto';
 import { RoleMetricDto } from './dto/RoleMetricDto';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
-import { Contribution } from 'project/domain/role-metric/value-objects/Contribution';
-import { Agreement } from 'project/domain/role-metric/value-objects/Agreement';
-import { Consensuality } from 'project/domain/role-metric/value-objects/Consensuality';
+import { Contribution } from 'project/domain/value-objects/Contribution';
+import { Agreement } from 'project/domain/value-objects/Agreement';
+import { Consensuality } from 'project/domain/value-objects/Consensuality';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
+import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
+import { ContributionSymmetry } from 'project/domain/value-objects/ContributionSymmetry';
+import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 
 describe('' + ProjectDtoMap.name, () => {
   let objectMapper: ObjectMapper;
@@ -161,13 +164,84 @@ describe('' + ProjectDtoMap.name, () => {
     });
 
     test.each(roleMetricCases)(
-      'contributions',
+      'roleMetric',
       (contributionVisibility, authUserKey, expectedIsContributionExposed) => {
         project.contributionVisibility = contributionVisibility;
         const actualIsRoleMetricExposed = projectDtoMap.shouldExposeRoleMetric(
           project,
           users[authUserKey],
           roleMetric,
+        );
+        expect(actualIsRoleMetricExposed).toBe(expectedIsContributionExposed);
+      },
+    );
+  });
+
+  describe('milestone metric visibility', () => {
+    const PUBLIC = PublicContributionVisiblity.INSTANCE;
+    const PROJECT = ProjectContributionVisiblity.INSTANCE;
+    const SELF = SelfContributionVisiblity.INSTANCE;
+    const NONE = NoneContributionVisiblity.INSTANCE;
+    const milestoneMetricCases: [ContributionVisibility, string, boolean][] = [
+      [PUBLIC, 'creator', true],
+      [PUBLIC, 'assignee', true],
+      [PUBLIC, 'projectUser', true],
+      [PUBLIC, 'publicUser', true],
+      [PROJECT, 'creator', true],
+      [PROJECT, 'assignee', true],
+      [PROJECT, 'projectUser', true],
+      [PROJECT, 'publicUser', false],
+      [SELF, 'creator', true],
+      [SELF, 'assignee', true],
+      [SELF, 'projectUser', true],
+      [SELF, 'publicUser', false],
+      [NONE, 'creator', true],
+      [NONE, 'assignee', false],
+      [NONE, 'projectUser', false],
+      [NONE, 'publicUser', false],
+    ];
+
+    let milestoneMetric: MilestoneMetric;
+    let users: Record<string, User>;
+
+    beforeEach(() => {
+      users = {
+        creator,
+        assignee: modelFaker.user(),
+        projectUser: modelFaker.user(),
+        publicUser: modelFaker.user(),
+      };
+      // project.state = FinishedProjectState.INSTANCE; // TODO or archived?
+      project.roles.addAll([
+        modelFaker.role(users.assignee.id),
+        modelFaker.role(users.projectUser.id),
+      ]);
+      const reviewTopic = modelFaker.reviewTopic();
+      project.reviewTopics.add(reviewTopic);
+      const milestone = modelFaker.milestone(project);
+      milestone.state = FinishedMilestoneState.INSTANCE;
+      project.milestones.add(milestone);
+      milestoneMetric = MilestoneMetric.create(
+        project,
+        reviewTopic.id,
+        milestone.id,
+        ContributionSymmetry.of(1),
+        Consensuality.of(1),
+        Agreement.of(1),
+      );
+      project.milestoneMetrics = new MilestoneMetricCollection([
+        milestoneMetric,
+      ]);
+    });
+
+    test.each(milestoneMetricCases)(
+      'milestoneMetric',
+      (contributionVisibility, authUserKey, expectedIsContributionExposed) => {
+        project.contributionVisibility = contributionVisibility;
+        const actualIsRoleMetricExposed = projectDtoMap.shouldExposeMilestoneMetric(
+          project,
+          users[authUserKey],
+          milestoneMetric,
         );
         expect(actualIsRoleMetricExposed).toBe(expectedIsContributionExposed);
       },

@@ -15,6 +15,7 @@ import { ReviewTopicTypeOrmEntity } from 'project/infrastructure/ReviewTopicType
 import { ReviewTopicInputTypeOrmEntity } from 'project/infrastructure/ReviewTopicInputTypeOrmEntity';
 import { MilestoneTypeOrmEntity } from 'project/infrastructure/MilestoneTypeOrmEntity';
 import { RoleMetricTypeOrmEntity } from 'project/infrastructure/RoleMetricTypeOrmEntity';
+import { MilestoneMetricTypeOrmEntity } from 'project/infrastructure/MilestoneMetricTypeOrmEntity';
 import { NotificationTypeOrmEntity } from 'notification/infrastructure/NotificationTypeOrmEntity';
 import { OrganizationTypeOrmEntity } from 'organization/infrastructure/OrganizationTypeOrmEntity';
 import { OrganizationMembershipTypeOrmEntity } from 'organization/infrastructure/OrganizationMembershipTypeOrmEntity';
@@ -64,6 +65,7 @@ import { AddPeerReviewMilestoneMigration1606052766000 } from 'shared/typeorm/mig
 import { AddContributionMilestoneMigration1606589847000 } from 'shared/typeorm/migration/1606589847000AddContributionMilestoneMigration';
 import { AddRoleMetricMigration1610889568000 } from './migration/1610889568000AddRoleMetricMigration';
 import { RemoveContributionsMigration1611319813000 } from './migration/1611319813000RemoveContributionsMigration';
+import { AddMilestoneMetricMigration1611397932000 } from './migration/1611397932000AddMilestoneMetricMigration';
 
 @Injectable()
 export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
@@ -88,6 +90,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         ReviewTopicInputTypeOrmEntity,
         MilestoneTypeOrmEntity,
         RoleMetricTypeOrmEntity,
+        MilestoneMetricTypeOrmEntity,
         NotificationTypeOrmEntity,
         OrganizationTypeOrmEntity,
         OrganizationMembershipTypeOrmEntity,
@@ -138,6 +141,7 @@ export class TypeOrmClient implements OnModuleInit, OnApplicationShutdown {
         AddContributionMilestoneMigration1606589847000,
         AddRoleMetricMigration1610889568000,
         RemoveContributionsMigration1611319813000,
+        AddMilestoneMetricMigration1611397932000,
       ],
     });
     this.connection = connection;

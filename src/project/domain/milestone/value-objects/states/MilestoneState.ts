@@ -1,9 +1,9 @@
-import { ValueObject } from 'shared/domain/value-objects/ValueObject';
 import { ReadonlyPeerReviewCollection } from 'project/domain/peer-review/PeerReviewCollection';
 import { InternalMilestone } from 'project/domain/milestone/Milestone';
-import { DomainException } from 'shared/domain/exceptions/DomainException';
 import { Comprarable } from 'shared/domain/value-objects/Comparable';
 import { ProjectAnalyzer } from 'project/domain/ProjectAnalyzer';
+import { ValueObject } from 'shared/domain/value-objects/ValueObject';
+import { DomainException } from 'shared/domain/exceptions/DomainException';
 
 /**
  *

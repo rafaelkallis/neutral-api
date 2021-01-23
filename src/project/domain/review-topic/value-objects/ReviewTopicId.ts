@@ -1,6 +1,6 @@
+import { InvalidReviewTopicIdException } from 'project/domain/exceptions/InvalidReviewTopicIdException';
 import { Id } from 'shared/domain/value-objects/Id';
 import { ValueObject } from 'shared/domain/value-objects/ValueObject';
-import { InvalidReviewTopicIdException } from 'project/domain/exceptions/InvalidReviewTopicIdException';
 
 /**
  *
