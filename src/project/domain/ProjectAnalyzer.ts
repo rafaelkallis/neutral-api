@@ -3,11 +3,11 @@ import { ReadonlyReviewTopic } from './review-topic/ReviewTopic';
 import { Milestone } from './milestone/Milestone';
 import { RoleMetricCollection } from './role-metric/RoleMetricCollection';
 import { Consensuality } from './project/value-objects/Consensuality';
-import { MilestoneMetricCollection } from './milestone-metric/MilestoneMetricCollection';
+import { MilestoneMetric } from './milestone-metric/MilestoneMetric';
 
 export interface ReviewTopicAnalysisResult {
   roleMetrics: RoleMetricCollection;
-  milestoneMetrics: MilestoneMetricCollection;
+  milestoneMetric: MilestoneMetric;
 }
 
 export interface ProjectAnalysisResult
@@ -25,7 +25,7 @@ class InternalProjectAnalysisResult
         throw new Error('review topic not found in results');
       }
       project.roleMetrics.addAll(reviewTopicResult.roleMetrics);
-      project.milestoneMetrics.addAll(reviewTopicResult.milestoneMetrics);
+      project.milestoneMetrics.add(reviewTopicResult.milestoneMetric);
       reviewTopic.consensuality = Consensuality.from(1);
     }
   }

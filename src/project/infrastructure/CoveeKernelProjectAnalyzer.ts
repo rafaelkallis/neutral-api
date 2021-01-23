@@ -13,24 +13,56 @@ import { Agreement } from 'project/domain/value-objects/Agreement';
 import { RoleMetricCollection } from 'project/domain/role-metric/RoleMetricCollection';
 import { RoleMetric } from 'project/domain/role-metric/RoleMetric';
 import { RoleId } from 'project/domain/role/value-objects/RoleId';
-import { MilestoneMetricCollection } from 'project/domain/milestone-metric/MilestoneMetricCollection';
 import { MilestoneMetric } from 'project/domain/milestone-metric/MilestoneMetric';
 import { ContributionSymmetry } from 'project/domain/value-objects/ContributionSymmetry';
+import { plainToClass } from 'class-transformer';
+import {
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+  validateSync,
+} from 'class-validator';
 
-interface CoveeKernelResult {
-  contribution_equality: number;
-  contributions: Array<{
-    role: string;
-    value: number;
-  }>;
-  consensualities: Array<{
-    role: string;
-    value: number;
-  }>;
-  agreements: Array<{
-    role: string;
-    value: number;
-  }>;
+class CoveeKernelResult {
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public contribution_symmetry!: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public consensuality!: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public agreement!: number;
+
+  @ValidateNested({ each: true })
+  public role_metrics!: CoveeKernelResultRoleMetric[];
+}
+
+class CoveeKernelResultRoleMetric {
+  @IsString()
+  public role!: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public contribution!: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public consensuality!: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  public agreement!: number;
 }
 
 @Injectable()
@@ -47,7 +79,7 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
     reviewTopic: ReadonlyReviewTopic,
   ): Promise<ReviewTopicAnalysisResult> {
     const url = new URL(
-      '/v1/kernel/analyze-project',
+      '/v1/kernel/analyze-milestone',
       this.config.get('COVEE_KERNEL_BASE_URL'),
     );
     const response = await fetch(url, {
@@ -71,85 +103,39 @@ export class CoveeKernelProjectAnalyzer extends ProjectAnalyzer {
     if (!response.ok) {
       throw new Error('covee kernel api request failed');
     }
-    const result: CoveeKernelResult = await response.json();
 
-    const contributions: Record<string, Contribution> = Object.fromEntries(
-      result.contributions.map(({ role, value }) => [
-        role,
-        Contribution.of(value),
-      ]),
-    );
-    const consensualities: Record<string, Consensuality> = Object.fromEntries(
-      result.consensualities.map(({ role, value }) => [
-        role,
-        Consensuality.of(value),
-      ]),
-    );
-    const agreements: Record<string, Agreement> = Object.fromEntries(
-      result.agreements.map(({ role, value }) => [role, Agreement.of(value)]),
-    );
-
-    if (
-      !setEquals(
-        new Set(Object.keys(contributions)),
-        new Set(Object.keys(consensualities)),
-      )
-    ) {
-      throw new Error('contributions and consensualities have a role mismatch');
+    const resultJson = await response.json();
+    const result = plainToClass(CoveeKernelResult, resultJson);
+    const errors = validateSync(result);
+    if (errors.length > 0) {
+      throw new Error(
+        `invalid result from kernel api: ${JSON.stringify(errors)}`,
+      );
     }
-
-    if (
-      !setEquals(
-        new Set(Object.keys(consensualities)),
-        new Set(Object.keys(agreements)),
-      )
-    ) {
-      throw new Error('consensualities and agreements have a role mismatch');
-    }
-
-    const roleIds = Object.keys(contributions);
 
     const roleMetrics = new RoleMetricCollection(
-      roleIds.map((roleId) =>
+      result.role_metrics.map((roleMetric) =>
         RoleMetric.create(
           milestone.project,
-          RoleId.from(roleId),
+          RoleId.from(roleMetric.role),
           reviewTopic.id,
           milestone.id,
-          contributions[roleId],
-          consensualities[roleId],
-          agreements[roleId],
+          Contribution.of(roleMetric.contribution),
+          Consensuality.of(roleMetric.consensuality),
+          Agreement.of(roleMetric.agreement),
         ),
       ),
     );
 
-    const milestoneMetrics = new MilestoneMetricCollection([
-      MilestoneMetric.create(
-        milestone.project,
-        reviewTopic.id,
-        milestone.id,
-        ContributionSymmetry.of(1), // TODO use kernel api
-        Consensuality.of(
-          arithmeticMean(
-            roleIds.map((roleId) => consensualities[roleId].value),
-          ),
-        ), // TODO use kernel api
-        Agreement.of(
-          arithmeticMean(roleIds.map((roleId) => agreements[roleId].value)),
-        ), // TODO use kernel api
-      ),
-    ]);
+    const milestoneMetric = MilestoneMetric.create(
+      milestone.project,
+      reviewTopic.id,
+      milestone.id,
+      ContributionSymmetry.of(result.contribution_symmetry),
+      Consensuality.of(result.consensuality),
+      Agreement.of(result.agreement),
+    );
 
-    return { roleMetrics, milestoneMetrics };
-
-    function setEquals<T>(a: Set<T>, b: Set<T>): boolean {
-      return (
-        a.size === b.size && Array.from(a.keys()).every((item) => b.has(item))
-      );
-    }
-
-    function arithmeticMean(values: number[]): number {
-      return values.reduce((a, b) => a + b, 0) / values.length;
-    }
+    return { roleMetrics, milestoneMetric };
   }
 }
