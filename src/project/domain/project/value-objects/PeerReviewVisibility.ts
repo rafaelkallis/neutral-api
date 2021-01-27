@@ -111,7 +111,6 @@ export class PeerReviewVisibility
     const userRole = this.computePeerReviewVisibilityContextUserRole(
       peerReview,
       user,
-      project,
     );
     const [minimumPeerReviewVisibility, minimumMilestoneState] = lookupTable[
       userRole
@@ -132,18 +131,17 @@ export class PeerReviewVisibility
   private computePeerReviewVisibilityContextUserRole(
     peerReview: ReadonlyPeerReview,
     user: ReadonlyUser,
-    project: ReadonlyProject,
   ): PeerReviewVisibilityContextUserRole {
-    if (project.roles.isAnyAssignedToUser(user)) {
-      const authUserRole = project.roles.whereAssignee(user);
+    if (peerReview.project.roles.isAnyAssignedToUser(user)) {
+      const authUserRole = peerReview.project.roles.whereAssignee(user);
       if (peerReview.isSenderRole(authUserRole)) {
         return PeerReviewVisibilityContextUserRole.SENDER;
       }
     }
-    if (project.isCreator(user)) {
+    if (peerReview.project.isCreator(user)) {
       return PeerReviewVisibilityContextUserRole.MANAGER;
     }
-    if (project.roles.isAnyAssignedToUser(user)) {
+    if (peerReview.project.roles.isAnyAssignedToUser(user)) {
       return PeerReviewVisibilityContextUserRole.PEER;
     }
     return PeerReviewVisibilityContextUserRole.OUTSIDER;
