@@ -46,7 +46,7 @@
     "compression": "1.7.4",
     "cookie-parser": "1.4.5",
     "elastic-apm-node": "3.10.0",
-    "envalid": "6.0.2",
+    "envalid": "7.1.0",
     "fast-xml-parser": "3.17.6",
     "helmet": "4.4.1",
     "lru-cache": "6.0.0",
