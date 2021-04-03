@@ -59,7 +59,7 @@
     "nunjucks": "3.2.2",
     "pg": "8.5.1",
     "reflect-metadata": "0.1.13",
-    "rxjs": "6.6.3",
+    "rxjs": "6.6.7",
     "stream-to-array": "2.3.0",
     "swagger-ui-express": "4.1.6",
     "typeorm": "0.2.30"
