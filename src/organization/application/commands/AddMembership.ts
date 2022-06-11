@@ -63,6 +63,6 @@ export class AddMembershipCommandHandler extends OrganizationCommandHandler<
         'User is a member already',
       );
     }
-    organization.addMember(member.id);
+    organization.addMembership(member.id);
   }
 }
